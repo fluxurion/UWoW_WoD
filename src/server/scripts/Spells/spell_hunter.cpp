@@ -212,7 +212,7 @@ class spell_hun_stampede : public SpellScriptLoader
                                 if (pet->IsAIEnabled)
                                     pet->AI()->AttackStart(target);
 
-                                GetSpell()->ExecuteLogEffectGeneric(effIndex, pet->GetGUID());
+                                GetSpell()->ExecuteLogEffectSummonObject(effIndex, pet);
 
                                 ++count;
                                 if (count >= STAMPED_COUNT)
@@ -2045,7 +2045,7 @@ class spell_hun_scatter_shot : public SpellScriptLoader
             {
                 if (Player* caster = GetCaster()->ToPlayer())
                 {
-					caster->SendAttackSwingResult(ATTACK_SWING_ERROR_DEAD_TARGET);
+					caster->SendAttackSwingError(ATTACK_SWING_ERROR_DEAD_TARGET);
                 }
             }
 

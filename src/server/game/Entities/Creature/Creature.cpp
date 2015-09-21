@@ -51,6 +51,7 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "CombatPackets.h"
+#include "MiscPackets.h"
 // apply implementation of the singletons
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
@@ -2472,14 +2473,13 @@ bool Creature::LoadCreaturesAddon(bool reload)
     return true;
 }
 
-/// Send a message to LocalDefense channel for players opposition team in the zone
 void Creature::SendZoneUnderAttackMessage(Player* attacker)
 {
     uint32 enemy_team = attacker->GetTeam();
 
-    WorldPacket data(SMSG_ZONE_UNDER_ATTACK, 4);
-    data << (uint32)GetAreaId();
-    sWorld->SendGlobalMessage(&data, NULL, (enemy_team == ALLIANCE ? HORDE : ALLIANCE));
+    WorldPackets::Misc::ZoneUnderAttack unerAttack;
+    unerAttack.AreaID = GetAreaId();
+    sWorld->SendGlobalMessage(unerAttack.Write(), NULL, (enemy_team == ALLIANCE ? HORDE : ALLIANCE));
 }
 
 void Creature::SetInCombatWithZone()

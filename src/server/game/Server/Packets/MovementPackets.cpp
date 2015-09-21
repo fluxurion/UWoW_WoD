@@ -54,6 +54,8 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
     data.WriteBit(0); // HeightChangeFailed
     data.WriteBit(0); // RemoteTimeValid
 
+    data.FlushBits();
+
     if (hasTransportData)
         data << movementInfo.transport;
 
@@ -63,6 +65,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
         data << movementInfo.jump.zspeed;
 
         data.WriteBit(hasFallDirection);
+        data.FlushBits();
         if (hasFallDirection)
         {
             data << movementInfo.jump.sinAngle;
@@ -615,9 +618,43 @@ void WorldPackets::Movement::MovementSpeedAck::Read()
     _worldPacket >> Speed;
 }
 
+void WorldPackets::Movement::SetActiveMover::Read()
+{
+    _worldPacket >> ActiveMover;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveSetActiveMover::Write()
+{
+    _worldPacket << MoverGUID;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Movement::MoveUpdateKnockBack::Write()
 {
     _worldPacket << *movementInfo;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveSetCollisionHeight::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << uint32(SequenceIndex);
+    _worldPacket << float(Height);
+    _worldPacket << float(Scale);
+    _worldPacket << uint32(MountDisplayID);
+    _worldPacket.WriteBits(Reason, 2);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
+{
+    _worldPacket << *movementInfo;
+    _worldPacket << float(Height);
+    _worldPacket << float(Scale);
 
     return &_worldPacket;
 }
@@ -628,4 +665,25 @@ void WorldPackets::Movement::MoveSetCollisionHeightAck::Read()
     _worldPacket >> Height;
     _worldPacket >> MountDisplayID;
     Reason = UpdateCollisionHeightReason(_worldPacket.ReadBits(2));
+}
+
+void WorldPackets::Movement::MoveTimeSkipped::Read()
+{
+    _worldPacket >> MoverGUID;
+    _worldPacket >> TimeSkipped;
+}
+
+void WorldPackets::Movement::SummonResponse::Read()
+{
+    _worldPacket >> SummonerGUID;
+    Accept = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Movement::ControlUpdate::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket.WriteBit(On);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
 }

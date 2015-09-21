@@ -722,13 +722,9 @@ void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
 }
 
-//! 5.4.1
 void WorldSession::SendPlayerNotFoundNotice(std::string name)
 {
-    WorldPacket data(SMSG_CHAT_PLAYER_NOTFOUND, name.size()+1);
-    data.WriteBits(name.size(), 9);
-    data.WriteString(name);
-    SendPacket(&data);
+    SendPacket(WorldPackets::Chat::ChatPlayerNotfound(name).Write());
 }
 
 //! 5.4.1

@@ -178,7 +178,7 @@ namespace WorldPackets
             struct DBQueryRecord
             {
                 ObjectGuid GUID;
-                int32 RecordID = 0;
+                uint32 RecordID = 0;
             };
 
             DBQueryBulk(WorldPacket&& packet) : ClientPacket(CMSG_DB_QUERY_BULK, std::move(packet)) { }

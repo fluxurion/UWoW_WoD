@@ -39,6 +39,30 @@ namespace WorldPackets
             int32 SpellID = 0;
         };
 
+        class CancelGrowthAura final : public ClientPacket
+        {
+        public:
+            CancelGrowthAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_GROWTH_AURA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CancelMountAura final : public ClientPacket
+        {
+        public:
+            CancelMountAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_MOUNT_AURA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class RequestCategoryCooldowns final : public ClientPacket
+        {
+        public:
+            RequestCategoryCooldowns(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_CATEGORY_COOLDOWNS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class CategoryCooldown final : public ServerPacket
         {
         public:
@@ -107,12 +131,16 @@ namespace WorldPackets
 
         struct SpellLogPowerData
         {
+            SpellLogPowerData(int32 powerType, int32 amount) : PowerType(powerType), Amount(amount) { }
+
             int32 PowerType = 0;
             int32 Amount = 0;
         };
 
         struct SpellCastLogData
         {
+            void Initialize(Unit* unit);
+
             int32 Health = 0;
             int32 AttackPower = 0;
             int32 SpellPower = 0;
@@ -405,7 +433,351 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<uint32> SpellID;
-            bool Unk612 = 0;
+            bool SuppressMessaging = false;
+        };
+
+        class CooldownEvent final : public ServerPacket
+        {
+        public:
+            CooldownEvent(bool isPet, int32 spellId) : ServerPacket(SMSG_COOLDOWN_EVENT, 16 + 4), IsPet(isPet), SpellID(spellId) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsPet = false;
+            int32 SpellID;
+        };
+
+        class ClearCooldowns final : public ServerPacket
+        {
+        public:
+            ClearCooldowns() : ServerPacket(SMSG_CLEAR_COOLDOWNS, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<int32> SpellID;
+            bool IsPet = false;
+        };
+
+        class ClearCooldown final : public ServerPacket
+        {
+        public:
+            ClearCooldown() : ServerPacket(SMSG_CLEAR_COOLDOWN, 1 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsPet = false;
+            int32 SpellID = 0;
+            bool ClearOnHold = false;
+        };
+
+        class ModifyCooldown final : public ServerPacket
+        {
+        public:
+            ModifyCooldown() : ServerPacket(SMSG_MODIFY_COOLDOWN, 1 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsPet = false;
+            int32 DeltaTime = 0;
+            int32 SpellID = 0;
+        };
+
+        struct SpellCooldownStruct
+        {
+            SpellCooldownStruct() { }
+            SpellCooldownStruct(uint32 spellId, uint32 forcedCooldown) : SrecID(spellId), ForcedCooldown(forcedCooldown) { }
+
+            uint32 SrecID = 0;
+            uint32 ForcedCooldown = 0;
+        };
+
+        class SpellCooldown : public ServerPacket
+        {
+        public:
+            SpellCooldown() : ServerPacket(SMSG_SPELL_COOLDOWN, 4 + 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<SpellCooldownStruct> SpellCooldowns;
+            ObjectGuid Caster;
+            uint8 Flags = 0;
+        };
+
+        struct SpellHistoryEntry
+        {
+            uint32 SpellID = 0;
+            uint32 ItemID = 0;
+            uint32 Category = 0;
+            int32 RecoveryTime = 0;
+            int32 CategoryRecoveryTime = 0;
+            bool OnHold = false;
+        };
+
+        class SendSpellHistory final : public ServerPacket
+        {
+        public:
+            SendSpellHistory() : ServerPacket(SMSG_SEND_SPELL_HISTORY, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<SpellHistoryEntry> Entries;
+        };
+
+        class ClearAllSpellCharges final : public ServerPacket
+        {
+        public:
+            ClearAllSpellCharges() : ServerPacket(SMSG_CLEAR_ALL_SPELL_CHARGES, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsPet = false;
+        };
+
+        class ClearSpellCharges final : public ServerPacket
+        {
+        public:
+            ClearSpellCharges() : ServerPacket(SMSG_CLEAR_SPELL_CHARGES, 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsPet = false;
+            int32 Category = 0;
+        };
+
+        class SetSpellCharges final : public ServerPacket
+        {
+        public:
+            SetSpellCharges() : ServerPacket(SMSG_SET_SPELL_CHARGES, 1 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsPet = false;
+            uint32 Category = 0;
+            uint32 NextRecoveryTime = 0;
+            uint8 ConsumedCharges = 0;
+        };
+
+        struct SpellChargeEntry
+        {
+            uint32 Category = 0;
+            uint32 NextRecoveryTime = 0;
+            uint8 ConsumedCharges = 0;
+        };
+
+        class SendSpellCharges final : public ServerPacket
+        {
+        public:
+            SendSpellCharges() : ServerPacket(SMSG_SEND_SPELL_CHARGES, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<SpellChargeEntry> Entries;
+        };
+
+        class ClearTarget final : public ServerPacket
+        {
+        public:
+            ClearTarget() : ServerPacket(SMSG_CLEAR_TARGET, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class CancelOrphanSpellVisual final : public ServerPacket
+        {
+        public:
+            CancelOrphanSpellVisual() : ServerPacket(SMSG_CANCEL_ORPHAN_SPELL_VISUAL, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellVisualID = 0;
+        };
+
+        class CancelSpellVisual final : public ServerPacket
+        {
+        public:
+            CancelSpellVisual() : ServerPacket(SMSG_CANCEL_SPELL_VISUAL, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Source;
+            int32 SpellVisualID = 0;
+        };
+
+        class CancelCast final : public ClientPacket
+        {
+        public:
+            CancelCast(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_CAST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SpellID = 0;
+            uint8 CastID = 0;
+        };
+
+        class OpenItem final : public ClientPacket
+        {
+        public:
+            OpenItem(WorldPacket&& packet) : ClientPacket(CMSG_OPEN_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Slot = 0;
+            uint8 PackSlot = 0;
+        };
+
+        struct SpellChannelStartInterruptImmunities
+        {
+            int32 SchoolImmunities = 0;
+            int32 Immunities = 0;
+        };
+
+        struct SpellTargetedHealPrediction
+        {
+            ObjectGuid TargetGUID;
+            SpellHealPrediction Predict;
+        };
+
+        class SpellChannelStart final : public ServerPacket
+        {
+        public:
+            SpellChannelStart() : ServerPacket(SMSG_SPELL_CHANNEL_START, 4 + 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            Optional<SpellChannelStartInterruptImmunities> InterruptImmunities;
+            ObjectGuid CasterGUID;
+            Optional<SpellTargetedHealPrediction> HealPrediction;
+            uint32 ChannelDuration = 0;
+        };
+
+        class SpellChannelUpdate final : public ServerPacket
+        {
+        public:
+            SpellChannelUpdate() : ServerPacket(SMSG_SPELL_CHANNEL_UPDATE, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterGUID;
+            int32 TimeRemaining = 0;
+        };
+
+        class ResurrectRequest final : public ServerPacket
+        {
+        public:
+            ResurrectRequest() : ServerPacket(SMSG_RESURRECT_REQUEST, 16 + 4 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ResurrectOffererGUID;
+            uint32 ResurrectOffererVirtualRealmAddress = 0;
+            uint32 PetNumber = 0;
+            int32 SpellID = 0;
+            bool UseTimer = false;
+            bool Sickness = false;
+            std::string Name;
+        };
+
+        class UnlearnSkill final : public ClientPacket
+        {
+        public:
+            UnlearnSkill(WorldPacket&& packet) : ClientPacket(CMSG_UNLEARN_SKILL, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SkillLine = 0;
+        };
+
+        class SelfRes final : public ClientPacket
+        {
+        public:
+            SelfRes(WorldPacket&& packet) : ClientPacket(CMSG_SELF_RES, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GetMirrorImageData final : public ClientPacket
+        {
+        public:
+            GetMirrorImageData(WorldPacket&& packet) : ClientPacket(CMSG_GET_MIRROR_IMAGE_DATA, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid UnitGUID;
+            uint32 DisplayID = 0;
+        };
+
+        class MirrorImageComponentedData final : public ServerPacket
+        {
+        public:
+            MirrorImageComponentedData() : ServerPacket(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, 8 + 4 + 8 * 1 + 8 + 11 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            uint32 DisplayID = 0;
+            uint8 RaceID = 0;
+            uint8 Gender = 0;
+            uint8 ClassID = 0;
+            uint8 SkinColor = 0;
+            uint8 FaceVariation = 0;
+            uint8 HairVariation = 0;
+            uint8 HairColor = 0;
+            uint8 BeardVariation = 0;
+            ObjectGuid GuildGUID;
+
+            std::vector<uint32> ItemDisplayID;
+        };
+
+        class MirrorImageCreatureData final : public ServerPacket
+        {
+        public:
+            MirrorImageCreatureData() : ServerPacket(SMSG_MIRROR_IMAGE_CREATURE_DATA, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            uint32 DisplayID = 0;
+        };
+
+        class SpellClick final : public ClientPacket
+        {
+        public:
+            SpellClick(WorldPacket&& packet) : ClientPacket(CMSG_SPELL_CLICK, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid SpellClickUnitGuid;
+            bool TryAutoDismount = false;
+        };
+
+        class ConvertRune final : public ServerPacket
+        {
+        public:
+            ConvertRune() : ServerPacket(SMSG_CONVERT_RUNE, 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Index = 0;
+            uint8 Rune = 0;
+        };
+
+        class ResyncRunes final : public ServerPacket
+        {
+        public:
+            struct ResyncRune
+            {
+                uint8 RuneType = 0;
+                uint8 Cooldown = 0;
+            };
+
+            ResyncRunes(size_t size) : ServerPacket(SMSG_RESYNC_RUNES, 4 + 2 * size) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<ResyncRune> Runes;
         };
     }
 }

@@ -839,9 +839,8 @@ enum UnitTypeMask
     UNIT_MASK_TRAINING_DUMMY        = 0x00002000,
 };
 
-namespace Movement{
-    class MoveSpline;
-}
+namespace Movement { class MoveSpline; }
+namespace WorldPackets { namespace CombatLog { class CombatLogServerPacket; } }
 
 enum DiminishingLevels
 {
@@ -1072,27 +1071,24 @@ struct CalcDamageInfo
 };
 
 // Spell damage info structure based on structure sending in SMSG_SPELL_NON_MELEE_DAMAGE_LOG opcode
-struct SpellNonMeleeDamage{
-    SpellNonMeleeDamage(Unit* _attacker = NULL, Unit* _target = NULL, uint32 _SpellID = 0, uint32 _schoolMask = 0)
-        : target(_target), attacker(_attacker), SpellID(_SpellID), damage(0), overkill(0), schoolMask(_schoolMask),
-        absorb(0), resist(0), physicalLog(false), unused(false), blocked(0), HitInfo(0), cleanDamage(0), damageBeforeHit(0)
-    {}
+struct SpellNonMeleeDamage
+{
+    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask);
 
     Unit   *target;
     Unit   *attacker;
     uint32 SpellID;
     uint32 damage;
-    uint32 overkill;
     uint32 schoolMask;
     uint32 absorb;
     uint32 resist;
-    bool   physicalLog;
-    bool   unused;
+    bool   periodicLog;
     uint32 blocked;
     uint32 HitInfo;
     // Used for help
     uint32 cleanDamage;
     uint32 damageBeforeHit;
+    uint32 preHitHealth;
 };
 
 struct SpellPeriodicAuraLogInfo
@@ -1395,6 +1391,8 @@ class Unit : public WorldObject
         void ApplyDiminishingAura(DiminishingGroup  group, bool apply);
         void ClearDiminishings() { m_Diminishing.clear(); }
         uint32 DiminishingDuration() const;
+
+        void SendCombatLogMessage(WorldPackets::CombatLog::CombatLogServerPacket* combatLog) const;
 
         // target dependent range checks
         float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
@@ -1748,7 +1746,7 @@ class Unit : public WorldObject
 
         void SendHealSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical = false);
         int32 HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical = false);
-        void SendEnergizeSpellLog(Unit* victim, uint32 SpellID, uint32 Damage, Powers powertype);
+        void SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, Powers powertype);
         void EnergizeBySpell(Unit* victim, uint32 SpellID, int32 Damage, Powers powertype);
 
         void CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo, CustomSpellValues const* value, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, ObjectGuid originalCaster = ObjectGuid::Empty);
@@ -1778,7 +1776,7 @@ class Unit : public WorldObject
         void SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo);
         void SendSpellMiss(Unit* target, uint32 spellID, SpellMissInfo missInfo);
         void SendSpellDamageResist(Unit* target, uint32 spellId);
-        void SendSpellDamageImmune(Unit* target, uint32 spellId);
+        void SendSpellDamageImmune(Unit* target, uint32 spellId, bool isPeriodic);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
         virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false, bool stop = false);
@@ -1820,10 +1818,10 @@ class Unit : public WorldObject
         void SetFacingTo(Unit const* target);
         void SetFacingToObject(WorldObject* object);
 
-        void SendChangeCurrentVictimOpcode(HostileReference* pHostileReference);
-        void SendClearThreatListOpcode();
-        void SendRemoveFromThreatListOpcode(HostileReference* pHostileReference);
-        void SendThreatListUpdate();
+        void SendHighestThreatUpdate(HostileReference* pHostileReference);
+        void SendThreatClear();
+        void SendThreatRemove(HostileReference* pHostileReference);
+        void SendThreatUpdate();
 
         void SendClearTarget();
 
@@ -1961,6 +1959,7 @@ class Unit : public WorldObject
         void RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, Unit* stealer);
         void RemoveAurasDueToItemSpell(Item* castItem, uint32 spellId);
         void RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID = ObjectGuid::Empty, Aura* except = NULL, bool negative = true, bool positive = true);
+        void RemoveAurasByType(AuraType auraType, std::function<bool(AuraApplication const*)> const& check);
         void RemoveNotOwnSingleTargetAuras(uint32 newPhase = 0x0);
         uint32 RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = 0);
         void RemoveAurasWithAttribute(uint32 flags);
@@ -2325,7 +2324,10 @@ class Unit : public WorldObject
         void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
         void ApplySpellDispelImmunity(const SpellInfo* spellProto, DispelType type, bool apply);
         virtual bool IsImmunedToSpell(SpellInfo const* spellInfo);
-                                                            // redefined in Creature
+
+        uint32 GetSchoolImmunityMask() const;
+        uint32 GetMechanicImmunityMask() const;
+
         bool IsImmunedToDamage(SpellSchoolMask meleeSchoolMask);
         bool IsImmunedToDamage(SpellInfo const* spellInfo);
         virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;

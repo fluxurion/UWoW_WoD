@@ -2674,7 +2674,7 @@ void InstanceMap::PermBindAllPlayers(Player* source)
         {
             player->BindToInstance(save, true);
             player->GetSession()->SendPacket(WorldPackets::Instance::InstanceSaveCreated(false).Write());
-            player->GetSession()->SendCalendarRaidLockoutAdded(save);
+            player->GetSession()->SendCalendarRaidLockout(save, true);
         }
 
         // if the leader is not in the instance the group will not get a perm bind

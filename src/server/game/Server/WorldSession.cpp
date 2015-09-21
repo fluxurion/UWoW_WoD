@@ -53,6 +53,7 @@
 #include "BattlePayMgr.h"
 #include "PacketUtilities.h"
 #include "CollectionMgr.h"
+#include "ChatPackets.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -713,14 +714,7 @@ void WorldSession::SendNotification(const char *format, ...)
         vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
-        size_t len = strlen(szStr);
-
-        //! 5.4.1
-        WorldPacket data(SMSG_PRINT_NOTIFICATION, 2 + len);
-        data.WriteBits(len, 12);
-        data.FlushBits();
-        data.append(szStr, len);
-        SendPacket(&data);
+        SendPacket(WorldPackets::Chat::PrintNotification(szStr).Write());
     }
 }
 
@@ -736,12 +730,7 @@ void WorldSession::SendNotification(uint32 string_id, ...)
         vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
-        size_t len = strlen(szStr);
-        WorldPacket data(SMSG_PRINT_NOTIFICATION, 2 + len);
-        data.WriteBits(len, 12);
-        data.FlushBits();
-        data.append(szStr, len);
-        SendPacket(&data);
+        SendPacket(WorldPackets::Chat::PrintNotification(szStr).Write());
     }
 }
 

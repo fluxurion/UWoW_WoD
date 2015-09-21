@@ -33,6 +33,7 @@ EndScriptData */
 #include "GossipDef.h"
 #include "MapManager.h"
 #include "Vehicle.h"
+#include "Packets/ChatPackets.h"
 
 #include <fstream>
 
@@ -300,23 +301,14 @@ public:
 
     static bool HandleDebugSendMultCommand(ChatHandler* handler, char const* args)
     {
-        uint32 const count = 3;
-        std::string const msg = "TEST TEST TEST III A B C D E F G 1 2 3 4 5 6 7 8 9 0 K O P D S";
-        
-        ByteBuffer buff;//SMSG_PRINT_NOTIFICATION
-        buff.WriteBits(msg.length(), 12);
-        buff.FlushBits();
-        buff.WriteString(msg);
+        //uint32 const count = 3;
+        //std::string const msg = "TEST TEST TEST III A B C D E F G 1 2 3 4 5 6 7 8 9 0 K O P D S";
 
-        WorldPacket data(SMSG_MULTIPLE_PACKETS, 100);
-        for (int32 i = 0; i < count; ++i)
-        {
-            data << uint16(SMSG_PRINT_NOTIFICATION);
-            data << uint16(buff.wpos());
-            data.append(buff);
-        }
+        //WorldPacket data(SMSG_MULTIPLE_PACKETS, 100);
+        //for (int32 i = 0; i < count; ++i)
+        //    data = WorldPackets::Chat::PrintNotification(msg).Write();
 
-        handler->GetSession()->SendPacket(&data);
+        //handler->GetSession()->SendPacket(&data);
         return true;
     }
 

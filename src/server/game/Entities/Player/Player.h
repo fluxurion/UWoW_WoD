@@ -582,12 +582,13 @@ static_assert((PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER
 
 #define PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET (PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID / 2)
 
-enum MirrorTimerType
+enum MirrorTimerType : int32
 {
     FATIGUE_TIMER      = 0,
     BREATH_TIMER       = 1,
     FIRE_TIMER         = 2 // feign death
 };
+
 #define MAX_TIMERS      3
 #define DISABLED_MIRROR_TIMER   -1
 
@@ -2008,7 +2009,7 @@ class Player : public Unit, public GridObject<Player>
         void AddTimedQuest(uint32 quest_id) { m_timedquests.insert(quest_id); }
         void RemoveTimedQuest(uint32 quest_id) { m_timedquests.erase(quest_id); }
 
-        void SendMusic(uint32 musicId);
+        void SendMusic(uint32 soundKitID);
         void SendSound(uint32 soundId, ObjectGuid source);
         void SendSoundToAll(uint32 soundId, ObjectGuid source);
 
@@ -2568,8 +2569,8 @@ class Player : public Unit, public GridObject<Player>
         void SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend = false, float group_rate=1.0f);
 
         // notifiers
-        void SendAttackSwingResult(AttackSwingReason error);
-        void SendAutoRepeatCancel(Unit* target);
+        void SendAttackSwingError(AttackSwingReason error);
+        void SendCancelAutoRepeat(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
         void SendDungeonDifficulty();
@@ -3195,7 +3196,7 @@ class Player : public Unit, public GridObject<Player>
             These methods are only sent to the current unit.
         */
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
-        void SendMovementSetCollisionHeight(float height, uint32 mountDisplayID = 0);
+        void SendMovementSetCollisionHeight(float height);
 
         bool CanFly() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 
@@ -3288,6 +3289,9 @@ class Player : public Unit, public GridObject<Player>
         //Message
         void AddListner(WorldObject* o, bool update = false);
         void RemoveListner(WorldObject* o, bool update = false);
+
+        bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
+        void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
     protected:
         // Gamemaster whisper whitelist
@@ -3717,6 +3721,8 @@ class Player : public Unit, public GridObject<Player>
         std::unordered_map<uint32, SceneEventStatus> m_sceneStatus;
 
         uint32 upd_achieve_criteria_counter = 0;
+
+        bool _advancedCombatLoggingEnabled;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

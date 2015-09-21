@@ -23,23 +23,3 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
-
-void WorldSession::HandlePurchaseGetProductList(WorldPacket & /*recvData*/)
-{
-    // zero opcode
-    WorldPacket data(SMSG_PURCHASE_STORE_PURCHASE_LIST_UPDATED, 3);
-    data.WriteBits(0, 19);      // purchase count
-    SendPacket(&data);
-}
-
-void WorldSession::HandlePurchaseGetPurchaseList(WorldPacket & /*recvData*/)
-{
-    // zero opcode
-    WorldPacket data(SMSG_PURCHASE_STORE_PRODUCTS_UPDATED, 4 + 4 + 3 + 3);
-    data << uint32(5);          // rubles
-    data << uint32(3);          // region is locked
-    data.WriteBits(0, 19);      // products count
-    data.WriteBits(0, 21);      // group count
-    SendPacket(&data);
-}
-

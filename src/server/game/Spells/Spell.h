@@ -125,6 +125,42 @@ struct SpellDestination
     Position _transportOffset;
 };
 
+struct SpellLogEffectPowerDrainParams
+{
+    ObjectGuid Victim;
+    uint32 Points = 0;
+    uint32 PowerType = 0;
+    float Amplitude = 0;
+};
+
+struct SpellLogEffectExtraAttacksParams
+{
+    ObjectGuid Victim;
+    uint32 NumAttacks = 0;
+};
+
+struct SpellLogEffectDurabilityDamageParams
+{
+    ObjectGuid Victim;
+    int32 ItemID = 0;
+    int32 Amount = 0;
+};
+
+struct SpellLogEffectGenericVictimParams
+{
+    ObjectGuid Victim;
+};
+
+struct SpellLogEffectTradeSkillItemParams
+{
+    int32 ItemID = 0;
+};
+
+struct SpellLogEffectFeedPetParams
+{
+    int32 ItemID = 0;
+};
+
 // Targets store structures and data
 struct TargetInfo
 {
@@ -545,13 +581,18 @@ class Spell
         void SendSpellGo();
         void SendSpellPendingCast();
         void SendSpellCooldown();
-        void SendLogExecute();
-        void ExecuteLogEffectGeneric(uint8 effIndex, ObjectGuid const& guid);
-        void ExecuteLogEffectPowerDrain(uint8 effIndex, ObjectGuid const& guid, uint32 powerType, uint32 powerTaken, float gainMultiplier);
-        void ExecuteLogEffectExtraAttacks(uint8 effIndex, ObjectGuid const& guid, uint32 attCount);
-        void ExecuteLogEffectDurabilityDamage(uint8 effIndex, ObjectGuid const& guid, uint32 itemslot, uint32 damage);
-        void ExecuteLogEffectTradeSkillItem(uint8 effIndex, uint32 entry);
-        void ExecuteLogEffectFeedPet(uint8 effIndex, uint32 entry);
+        void SendSpellExecuteLog();
+        void ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit* target, uint32 powerType, uint32 points, float amplitude);
+        void ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit* victim, uint32 numAttacks);
+        void ExecuteLogEffectInterruptCast(uint8 effIndex, Unit* victim, uint32 spellId);
+        void ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit* victim, int32 itemId, int32 amount);
+        void ExecuteLogEffectOpenLock(uint8 effIndex, Object* obj);
+        void ExecuteLogEffectCreateItem(uint8 effIndex, uint32 entry);
+        void ExecuteLogEffectDestroyItem(uint8 effIndex, uint32 entry);
+        void ExecuteLogEffectSummonObject(uint8 effIndex, WorldObject* obj);
+        void ExecuteLogEffectUnsummonObject(uint8 effIndex, WorldObject* obj);
+        void ExecuteLogEffectResurrect(uint8 effIndex, Unit* target);
+        void CleanupExecuteLogList();
 
         void SendInterrupted(uint8 result);
         void SendChannelUpdate(uint32 time);
@@ -808,10 +849,6 @@ class Spell
         void PrepareTargetProcessing();
         void FinishTargetProcessing();
 
-        // spell execution log
-        void InitEffectExecuteData(uint8 effIndex);
-        void CheckEffectExecuteData();
-
         // Scripting system
         void LoadScripts();
         void CallScriptBeforeCastHandlers();
@@ -865,7 +902,12 @@ class Spell
         uint32 m_spellMissMask;
         uint32 m_auraScaleMask;
 
-        EffectExecuteData * m_effectExecuteData[MAX_SPELL_EFFECTS];
+        std::vector<SpellLogEffectPowerDrainParams> _powerDrainTargets[MAX_SPELL_EFFECTS];
+        std::vector<SpellLogEffectExtraAttacksParams> _extraAttacksTargets[MAX_SPELL_EFFECTS];
+        std::vector<SpellLogEffectDurabilityDamageParams> _durabilityDamageTargets[MAX_SPELL_EFFECTS];
+        std::vector<SpellLogEffectGenericVictimParams> _genericVictimTargets[MAX_SPELL_EFFECTS];
+        std::vector<SpellLogEffectTradeSkillItemParams> _tradeSkillTargets[MAX_SPELL_EFFECTS];
+        std::vector<SpellLogEffectFeedPetParams> _feedPetTargets[MAX_SPELL_EFFECTS];
 
         uint16 m_currentExecutedEffect;       //pointer for get current executed effect in effect functions
 #ifdef MAP_BASED_RAND_GEN

@@ -184,7 +184,7 @@ void Totem::UnSummon(uint32 msTime)
     //remove aura all party members too
     if (Player* owner = m_owner->ToPlayer())
     {
-        owner->SendAutoRepeatCancel(this);
+        owner->SendCancelAutoRepeat(this);
 
         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL)))
             owner->SendCooldownEvent(spell, 0, NULL, false);

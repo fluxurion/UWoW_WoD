@@ -33,6 +33,7 @@
 #include "GroupMgr.h"
 #include "Chat.h"
 #include "Language.h"
+#include "MiscPackets.h"
 
 Battlefield::Battlefield()
 {
@@ -397,17 +398,12 @@ void Battlefield::EndBattle(bool endByTimer)
     SendInitWorldStatesToAll();
 }
 
-//! 6.0.3
-void Battlefield::DoPlaySoundToAll(uint32 SoundID)
+void Battlefield::DoPlaySoundToAll(uint32 soundKitID)
 {
-    WorldPacket data(SMSG_PLAY_SOUND, 12);
-    data << uint32(SoundID);
-    data << ObjectGuid::Empty;
-
     for (int team = 0; team < BG_TEAMS_COUNT; team++)
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
-                player->GetSession()->SendPacket(&data);
+                player->GetSession()->SendPacket(WorldPackets::Misc::PlaySound(ObjectGuid::Empty, soundKitID).Write());
 }
 
 bool Battlefield::HasPlayer(Player* player) const

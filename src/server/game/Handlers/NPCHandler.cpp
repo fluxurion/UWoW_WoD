@@ -42,6 +42,7 @@
 #include "NPCPackets.h"
 #include "ItemPackets.h"
 #include "GuildMgr.h"
+#include "NPCPackets.h"
 
 void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
 {
@@ -313,11 +314,11 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)
 
 void WorldSession::SendTrainerService(ObjectGuid guid, uint32 spellId, uint32 result)
 { 
-    WorldPacket data(SMSG_TRAINER_BUY_FAILED, 16);
-    data << guid;
-    data << uint32(spellId);        // should be same as in packet from client
-    data << uint32(result);         // 2 == Success. 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
-    SendPacket(&data);
+    WorldPackets::NPC::TrainerBuyFailed failed;
+    failed.TrainerGUID = guid;
+    failed.SpellID = spellId;
+    failed.TrainerFailedReason = result;
+    SendPacket(failed.Write());
 }
 
 void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)

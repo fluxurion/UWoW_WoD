@@ -127,3 +127,9 @@ void WorldPackets::ClientConfig::UserClientUpdateAccountData::Read()
         _worldPacket.read(CompressedData.contents(), compressedSize);
     }
 }
+
+void WorldPackets::ClientConfig::SetAdvancedCombatLogging::Read()
+{
+    Enable = _worldPacket.ReadBit();
+}
+

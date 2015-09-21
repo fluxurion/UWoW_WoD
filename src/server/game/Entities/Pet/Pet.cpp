@@ -30,6 +30,7 @@
 #include "Unit.h"
 #include "Util.h"
 #include "Group.h"
+#include "SpellPackets.h"
 
 #define PET_XP_FACTOR 0.05f
 
@@ -1000,13 +1001,10 @@ void Pet::_LoadSpellCooldowns()
         time_t curTime = time(NULL);
         uint32 count = 0;
 
-        //! 6.0.3
-        WorldPacket data(SMSG_SPELL_COOLDOWN, size_t(8+1+result->GetRowCount()*8));
-        data << GetGUID();
-        data << uint8(0);
-        size_t count_pos = data.wpos();
-        data << uint32(0);
-
+        WorldPackets::Spells::SpellCooldown cooldowns;
+        cooldowns.Caster = GetGUID();
+        cooldowns.Flags = 0;
+        
         do
         {
             Field* fields = result->Fetch();
@@ -1024,8 +1022,7 @@ void Pet::_LoadSpellCooldowns()
             if (db_time <= curTime)
                 continue;
 
-            data << uint32(spell_id);
-            data << uint32(uint32(db_time-curTime)*IN_MILLISECONDS);
+            cooldowns.SpellCooldowns.emplace_back(spell_id, uint32(db_time-curTime) * IN_MILLISECONDS);
 
             _AddCreatureSpellCooldown(spell_id, db_time);
 
@@ -1033,10 +1030,8 @@ void Pet::_LoadSpellCooldowns()
         }
         while (result->NextRow());
 
-        data.put<uint32>(count_pos, count);
-
         if (!m_CreatureSpellCooldowns.empty() && GetOwner())
-            ((Player*)GetOwner())->GetSession()->SendPacket(&data);
+            ((Player*)GetOwner())->GetSession()->SendPacket(cooldowns.Write());
     }
 }
 
@@ -1997,19 +1992,16 @@ void Pet::UnlearnSpecializationSpell()
 void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
     time_t curTime = time(NULL);
-    uint32 count = 0;
 
-    //! 6.1.2
-    WorldPacket data(SMSG_SPELL_COOLDOWN, size_t(8+1+m_spells.size()*8));
-    data << GetGUID();
-    data << uint8(0);
-    size_t count_pos = data.wpos();
-    data << uint32(0);
+    WorldPackets::Spells::SpellCooldown cooldowns;
+    cooldowns.Caster = GetGUID();
+    cooldowns.Flags = 0;
 
     for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
     {
         if (itr->second.state == PETSPELL_REMOVED)
             continue;
+
         uint32 unSpellId = itr->first;
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(unSpellId);
         if (!spellInfo)
@@ -2024,15 +2016,11 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 
         if ((idSchoolMask & spellInfo->GetSchoolMask()) && _GetSpellCooldownDelay(unSpellId) < unTimeMs)
         {
-            data << uint32(unSpellId);
-            data << uint32(unTimeMs);                       // in m.secs
+            cooldowns.SpellCooldowns.emplace_back(unSpellId, unTimeMs);
             _AddCreatureSpellCooldown(unSpellId, curTime + unTimeMs/IN_MILLISECONDS);
-            count++;
         }
     }
 
-    data.put<uint32>(count_pos, count);
-
-    if (count > 0 && GetOwner())
-        ((Player*)GetOwner())->GetSession()->SendPacket(&data);
+    if (GetOwner())
+        ((Player*)GetOwner())->GetSession()->SendPacket(cooldowns.Write());
 }

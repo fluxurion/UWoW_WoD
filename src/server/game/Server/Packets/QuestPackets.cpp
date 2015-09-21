@@ -72,7 +72,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.SuggestedGroupNum;
         _worldPacket << Info.RewardNextQuest;
         _worldPacket << Info.RewardXPDifficulty;
-        _worldPacket << Info.RevardXPMultiplier;
+        _worldPacket << Info.RewardXPMultiplier;
         _worldPacket << Info.RewardMoney;
         _worldPacket << Info.RewardMoneyDifficulty;
         _worldPacket << Info.RewardMoneyMultiplier;
@@ -427,4 +427,108 @@ void WorldPackets::Quest::QuestGiverQueryQuest::Read()
     _worldPacket >> QuestGiverGUID;
     _worldPacket >> QuestID;
     RespondToGiver = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Quest::QuestGiverAcceptQuest::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+    StartCheat = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Quest::QuestLogRemoveQuest::Read()
+{
+    _worldPacket >> Entry;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestList::Write()
+{
+    _worldPacket << QuestGiverGUID;
+    _worldPacket << GreetEmoteDelay;
+    _worldPacket << GreetEmoteType;
+    _worldPacket << uint32(GossipTexts.size());
+    for (GossipTextData const& gossip : GossipTexts)
+    {
+        _worldPacket << gossip.QuestID;
+        _worldPacket << gossip.QuestType;
+        _worldPacket << gossip.QuestLevel;
+        _worldPacket << gossip.QuestFlags;
+        _worldPacket << gossip.QuestFlagsEx;
+        _worldPacket.WriteBit(gossip.Repeatable);
+        _worldPacket.WriteBits(gossip.QuestTitle.size(), 9);
+        _worldPacket.FlushBits();
+        _worldPacket.WriteString(gossip.QuestTitle);
+    }
+
+    _worldPacket.WriteBits(Greeting.size(), 11);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(Greeting);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestUpdateComplete::Write()
+{
+    _worldPacket << int32(QuestID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestConfirmAcceptResponse::Write()
+{
+    _worldPacket << uint32(QuestID);
+    _worldPacket << InitiatedBy;
+
+    _worldPacket.WriteBits(QuestTitle.size(), 10);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(QuestTitle);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Quest::QuestConfirmAccept::Read()
+{
+    _worldPacket >> QuestID;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestPushResultResponse::Write()
+{
+    _worldPacket << SenderGUID;
+    _worldPacket << uint8(Result);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Quest::QuestPushResult::Read()
+{
+    _worldPacket >> SenderGUID;
+    _worldPacket >> QuestID;
+    _worldPacket >> Result;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverInvalidQuest::Write()
+{
+    _worldPacket << Reason;
+
+    _worldPacket.WriteBit(SendErrorMessage);
+    _worldPacket.WriteBits(ReasonText.length(), 9);
+    _worldPacket.WriteString(ReasonText);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestUpdateFailedTimer::Write()
+{
+    _worldPacket << QuestID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestFailed::Write()
+{
+    _worldPacket << QuestID;
+    _worldPacket << Reason;
+
+    return &_worldPacket;
 }

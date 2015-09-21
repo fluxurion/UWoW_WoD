@@ -764,51 +764,21 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCo
     GetPlayer()->ValidateMovementInfo(&packet.Data.movementInfo);
 }
 
-void WorldSession::HandleSetActiveMoverOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleSetActiveMover(WorldPackets::Movement::SetActiveMover& packet)
 {
-    ObjectGuid guid;
-    recvPacket >> guid;
-
-    if (GetPlayer()->IsInWorld())
-    {
-        if (_player->m_mover->GetGUID() != guid)
-            sLog->outError(LOG_FILTER_NETWORKIO, "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s  and should be %s", guid.ToString().c_str(), _player->m_mover->GetGUID().ToString().c_str());
-    }
+    if (Player* player = GetPlayer())
+        if (player->IsInWorld())
+        {
+            if (player->m_mover->GetGUID() != packet.ActiveMover)
+                sLog->outError(LOG_FILTER_NETWORKIO, "HandleSetActiveMover: incorrect mover guid: mover is %s  and should be %s",
+                packet.ActiveMover.ToString().c_str(), player->m_mover->GetGUID().ToString().c_str());
+        }
 }
 
-void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
+void WorldSession::HandleMoveTimeSkipped(WorldPackets::Movement::MoveTimeSkipped& /*packet*/)
 {
-    ObjectGuid guid;
-    uint32 time;
-    recvData >> time;
-
-    if (_player && _player->m_mover->m_movementInfo.flags & MOVEMENTFLAG_WALKING)
-        _player->m_anti_MistiCount = 1;
+    if (Player* player = GetPlayer())
+        if (player->m_mover->m_movementInfo.flags & MOVEMENTFLAG_WALKING)
+            player->m_anti_MistiCount = 1;
 }
 
-void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
-{
-    ObjectGuid guid;
-    uint32 mapid;
-    float PositionX;
-    float PositionY;
-    float PositionZ;
-    float Orientation;
-
-    recvData >> mapid;
-    recvData >> PositionZ;
-    recvData >> PositionX;
-    recvData >> PositionY;
-    recvData >> Orientation;
-
-    if (GetPlayer()->isInFlight())
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) in flight, ignore worldport command.", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
-        return;
-    }
-
-    if (AccountMgr::IsAdminAccount(GetSecurity()))
-        GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
-    else
-        SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
-}

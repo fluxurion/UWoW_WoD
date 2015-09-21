@@ -117,6 +117,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket.WriteBit(SuccessInfo->NumPlayersHorde.is_initialized());
         _worldPacket.WriteBit(SuccessInfo->NumPlayersAlliance.is_initialized());
         _worldPacket.WriteBit(SuccessInfo->IsVeteranTrial);
+        _worldPacket.FlushBits();
 
         if (SuccessInfo->NumPlayersHorde)
             _worldPacket << uint16(*SuccessInfo->NumPlayersHorde);
@@ -129,9 +130,8 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
     {
         _worldPacket << uint32(WaitInfo->WaitCount);
         _worldPacket.WriteBit(WaitInfo->HasFCM);
+        _worldPacket.FlushBits();
     }
-
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
