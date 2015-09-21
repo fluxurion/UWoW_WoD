@@ -153,7 +153,7 @@ public:
             path_number = strtok((char*)args, " ");
 
         uint32 pathid = 0;
-        ObjectGuid::LowType guidLow = 0;
+        uint32 guidLow = 0;
         Creature* target = handler->getSelectedCreature();
 
         // Did player provide a path_id?
@@ -248,7 +248,7 @@ public:
             return true;
         }
 
-        ObjectGuid::LowType guildLow = target->GetDBTableGUIDLow();
+        uint32 guildLow = target->GetDBTableGUIDLow();
 
         if (target->GetCreatureAddon())
         {
@@ -578,7 +578,7 @@ public:
         // -> variable lowguid is filled with the GUID of the NPC
         uint32 pathid = 0;
         uint32 point = 0;
-        ObjectGuid::LowType wpGuid = 0;
+        uint32 wpGuid = 0;
         Creature* target = handler->getSelectedCreature();
 
         if (!target || target->GetEntry() != VISUAL_WAYPOINT)
@@ -588,7 +588,7 @@ public:
         }
 
         // The visual waypoint
-        wpGuid = target->GetGUID().GetCounter();
+        wpGuid = target->GetGUID().GetGUIDLow();
 
         // User did select a visual waypoint?
 
@@ -599,7 +599,7 @@ public:
 
         if (!result)
         {
-            handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDSEARCH, target->GetGUID().GetCounter());
+            handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDSEARCH, target->GetGUID().GetGUIDLow());
             // Select waypoint number from database
             // Since we compare float values, we have to deal with
             // some difficulties.
@@ -809,7 +809,7 @@ public:
 
             PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
 
-            stmt->setUInt64(0, target->GetGUID().GetCounter());
+            stmt->setUInt64(0, target->GetGUID().GetGUIDLow());
 
             PreparedQueryResult result = WorldDatabase.Query(stmt);
 
@@ -871,7 +871,7 @@ public:
                 do
                 {
                     Field* fields = result2->Fetch();
-                    ObjectGuid::LowType wpguid = fields[0].GetUInt64();
+                    uint32 wpguid = fields[0].GetUInt64();
                     Player* chr = handler->GetSession()->GetPlayer();
 
                     Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid::Create<HighGuid::Creature>(chr->GetMapId(), VISUAL_WAYPOINT, wpguid));
@@ -930,7 +930,7 @@ public:
                 // Set "wpguid" column to the visual waypoint
                 PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
 
-                stmt->setInt64(0, wpCreature->GetGUID().GetCounter());
+                stmt->setInt64(0, wpCreature->GetGUID().GetGUIDLow());
                 stmt->setUInt32(1, pathid);
                 stmt->setUInt32(2, point);
 
@@ -1073,7 +1073,7 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                ObjectGuid::LowType guid = fields[0].GetUInt64();
+                uint32 guid = fields[0].GetUInt64();
                 Player* chr = handler->GetSession()->GetPlayer();
                 Creature* creature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid::Create<HighGuid::Creature>(chr->GetMapId(), VISUAL_WAYPOINT, guid));
                 if (!creature)

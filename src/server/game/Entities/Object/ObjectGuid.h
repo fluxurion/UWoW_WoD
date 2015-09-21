@@ -160,6 +160,8 @@ class ObjectGuid
 
         uint64 GetHighPart() const { return _high; }
         uint64 GetLowPart() const { return _low; }
+        uint32 GetGUIDLow() const { return PAIR64_LOPART(_low); }
+        uint32 GetGUIDHigh() const { return PAIR64_HIPART(_high); }
 
         static LowType GetMaxCounter(HighGuid /*high*/)
         {

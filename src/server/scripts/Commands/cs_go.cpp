@@ -133,7 +133,7 @@ public:
         float z = fields[2].GetFloat();
         float ort = fields[3].GetFloat();
         int mapId = fields[4].GetUInt16();
-        ObjectGuid::LowType guid = fields[5].GetUInt64();
+        uint32 guid = fields[5].GetUInt64();
         uint32 id = fields[6].GetUInt32();
 
         // if creature is in same map with caster go at its current location
@@ -269,7 +269,7 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guid = strtoull(id, nullptr, 10);
+        uint32 guid = strtoull(id, nullptr, 10);
         if (!guid)
             return false;
 

@@ -133,7 +133,7 @@ public:
             else
             {
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_HOMEBIND);
-                stmt->setUInt64(0, target_guid.GetCounter());
+                stmt->setUInt64(0, target_guid.GetGUIDLow());
                 PreparedQueryResult resultDB = CharacterDatabase.Query(stmt);
 
                 if (resultDB)
