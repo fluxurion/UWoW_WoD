@@ -1062,6 +1062,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                 }
                 break;
             case TARGET_OBJECT_TYPE_DEST:
+            case TARGET_OBJECT_TYPE_OBJ_AND_DEST:
                 if (m_spellInfo->RequiresSpellFocus)
                 {
                     if (focusObject)
