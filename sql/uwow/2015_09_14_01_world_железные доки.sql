@@ -35,8 +35,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 delete from spell_trigger_dummy where spell_id in (166186,166805);
 INSERT INTO `spell_trigger_dummy` (`spell_id`, `spell_trigger`, `option`, `effectmask`, `comment`) VALUES 
-(166186, 164234, 14, 1, 'Nokgar - Burning Arrows'),
-(166805, 166186, 14, 1, 'Nokgar - Burning Arrows');
+(166186, 0, 14, 1, 'Nokgar - Burning Arrows'),
+(166805, 0, 14, 1, 'Nokgar - Burning Arrows');
 
 delete from areatrigger_data where entry in (2614,2569,2596);
 INSERT INTO `areatrigger_data` (`entry`, `spellId`, `customEntry`, `customVisualId`, `Radius`, `RadiusTarget`, `Height`, `HeightTarget`, `Float4`, `Float5`, `isMoving`, `moveType`, `waitTime`, `speed`, `activationDelay`, `updateDelay`, `maxCount`, `hitType`, `MoveCurveID`, `ElapsedTime`, `MorphCurveID`, `FacingCurveID`, `ScaleCurveID`, `HasFollowsTerrain`, `HasAttached`, `HasAbsoluteOrientation`, `HasDynamicShape`, `HasFaceMovementDir`, `windX`, `windY`, `windZ`, `windSpeed`, `windType`, `polygon`, `comment`) VALUES 

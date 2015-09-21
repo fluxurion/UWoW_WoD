@@ -4718,6 +4718,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 //Tsulong
                 case 122767: //Dread Shadows
                 case 144776: //Ground Pound
+                case 154294: //Power Conduit
                     spellInfo->Effects[EFFECT_1].TriggerSpell = 0;
                     break;
                 case 122789: //SunBeam trigger aura

@@ -7969,10 +7969,10 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
         }
         else
         {
-            if(triggeredSpellInfo->NeedsToBeTriggeredByCaster())
-                target->CastSpell(target, triggeredSpellInfo, true, NULL, this, caster ? caster->GetGUID() : ObjectGuid::Empty);
-            else
+            if (triggeredSpellInfo->NeedsToBeTriggeredByCaster())
                 caster->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), triggerSpellId, true, NULL, this);
+            else
+                target->CastSpell(target, triggeredSpellInfo, true, NULL, this, target ? target->GetGUID() : ObjectGuid::Empty);
         }
     }
     else

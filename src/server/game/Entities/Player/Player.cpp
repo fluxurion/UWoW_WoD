@@ -29854,9 +29854,10 @@ bool Player::IsForbiddenMapForLevel(uint32 mapid, uint32 zone)
             if (getLevel() < 80)
                 return true;
             break;        
-        case 732: // Tol Barad
-        case 861: // Molten Front
-        case 870: // Pandaria
+        case 732:  //Tol Barad
+        case 861:  //Molten Front
+        case 870:  //Pandaria
+        case 1064: //Isle of Giants
             if (getLevel() < 85)
                 return true;
             break;
@@ -29873,7 +29874,7 @@ bool Player::IsLoXpMap(uint32 map)
         case 648: // start goblin
         case 654: // start worgen
         case 860: // start pandaren
-                return true;
+            return true;
         default:
             break;
     }

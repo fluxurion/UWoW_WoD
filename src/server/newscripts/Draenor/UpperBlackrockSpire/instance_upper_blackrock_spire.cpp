@@ -9,8 +9,8 @@
 
 DoorData const doorData[] =
 {
-    //{GO_,       DATA_,         DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
-    {0,                   0,                  DOOR_TYPE_ROOM,       BOUNDARY_NONE}, // END
+    {GO_ENTER_ROOM_DOOR,  DATA_GORASHAN,    DOOR_TYPE_ROOM,     BOUNDARY_NONE},
+    {GO_EXIT_ROOM_DOOR,   DATA_GORASHAN,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
 };
 
 class instance_upper_blackrock_spire : public InstanceMapScript
@@ -30,12 +30,18 @@ public:
             SetBossNumber(MAX_ENCOUNTER);
         }
 
-        //ObjectGuid BraunGUID;
+        ObjectGuid runeGlowGUID;
+        ObjectGuid runeGlowGUIDdoor;
+
+        uint8 runeglow_count;
 
         void Initialize()
         {
             LoadDoorData(doorData);
-            //BraunGUID.Clear();
+            
+            runeglow_count = 0;
+
+            runeGlowGUIDdoor.Clear();
         }
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -46,50 +52,83 @@ public:
             return true;
         }
 
+        void OnCreatureCreate(Creature* creature)
+        {
+            switch (creature->GetEntry())
+            {
+                case NPC_RUNE_GLOW:
+                    if (creature->isAlive())
+                    {
+                        runeglow_count++;
+                        if (GetData(DATA_FIRST_DOOR) != IN_PROGRESS)
+                            SetData(DATA_FIRST_DOOR, IN_PROGRESS);
+                    }
+                    break;
+            }
+        }
+
         void OnGameObjectCreate(GameObject* go)
         {
-            /* switch (go->GetEntry())
+            switch (go->GetEntry())
             {
-                case GO_HARLAN_DOOR:
+                case GO_ENTRANCE_DOOR:
+                    runeGlowGUIDdoor = go->GetGUID();
+                    break;
+                case GO_ENTER_ROOM_DOOR:
+                case GO_EXIT_ROOM_DOOR:
                     AddDoor(go, true);
                     break;
                 default:
                     break;
-            } */
-        }
-
-        void OnCreatureCreate(Creature* creature)
-        {
-            /* switch (creature->GetEntry())
-            {
-                case NPC_HOUNDMASTER_BRAUN:    
-                    BraunGUID = creature->GetGUID(); 
-                    break;
-            } */
+            }
         }
 
         void SetData(uint32 type, uint32 data)
         {
-            /*switch (type)
-            {
-                default:
-                    break;
-            }*/
-        }
-
-        /* ObjectGuid GetGuidData(uint32 type) const
-        {
             switch (type)
             {
-                case NPC_HOUNDMASTER_BRAUN:   
-                    return BraunGUID;
+                case DATA_FIRST_DOOR:
+                {
+                    switch (data)
+                    {
+                        case IN_PROGRESS:
+                            HandleGameObject(runeGlowGUIDdoor, false);
+                            break;
+                        case DONE:
+                            HandleGameObject(runeGlowGUIDdoor, true);
+                            break;
+                    }
+                }
+                default:
+                    break;
             }
+        }
+
+        ObjectGuid GetGuidData(uint32 type) const
+        {
+            /* switch (type)
+            {
+                case NPC_RUNE_GLOW:   
+                    return runeGlowGUID;
+            } */
             return ObjectGuid::Empty;
-        } */
+        }
 
         uint32 GetData(uint32 type) const
         {
             return 0;
+        }
+
+        void CreatureDies(Creature* creature, Unit* /*killer*/)
+        {
+            switch(creature->GetEntry())
+            {
+                case NPC_RUNE_GLOW:
+                    runeglow_count--;
+                    if (!runeglow_count)
+                        SetData(DATA_FIRST_DOOR, DONE);
+                    break;
+            }
         }
 
         /* void Update(uint32 diff) 
