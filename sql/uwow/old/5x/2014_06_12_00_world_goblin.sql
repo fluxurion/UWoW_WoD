@@ -290,8 +290,10 @@ INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `t
 ('69982', '648', '-8294.61', '1493.67', '44.6239', '0');
 
 -- q.24503 auto-accept. Or by npc = 28414. Goal.
+INSERT INTO `area_queststart` (`id`, `quest`) VALUES ('4822', '24503');
 UPDATE `quest_template` SET  `RewardReputationMask` =  '1', `QuestGiverPortrait` =  '0' WHERE `Id` =24503;
 UPDATE  `quest_template` SET  `PrevQuestId` =  '24502' WHERE  `quest_template`.`Id` =24503;
+
 UPDATE `creature_template` SET  `minlevel` =  '5', `faction_A` =  '2204', `faction_H` =  '2204', `baseattacktime` =  '2000', `rangeattacktime` =  '2000', `unit_flags` =  '8', `unit_flags2` =  '67584', `type_flags` =  '0', `spell1` =  '70051', `VehicleId` =  '582' WHERE `entry` =37213;
 -- UPDATE  `creature_template` SET  `VehicleId` =  '579' WHERE  `creature_template`.`entry` =37213;
 DELETE FROM `creature_template_addon` WHERE `entry` = 37213;
@@ -333,3 +335,10 @@ UPDATE `quest_template` SET RequiredPOI1 = 264967, RequiredPOI2 = 264968, Requir
 UPDATE `creature_template` SET unit_flags=32768, `faction_A` = '2159', `faction_H` = '2159' WHERE  `entry` =35128;
 UPDATE `creature_template` SET unit_flags=32768, `faction_A` = '2159', `faction_H` = '2159' WHERE  `entry` =35130;
 UPDATE `creature_template` SET unit_flags=32768, `faction_A` = '2159', `faction_H` = '2159' WHERE  `entry` =35126;
+
+--
+REPLACE INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`) VALUES
+(35128, 0, 47046, 0, 0, 0, 1),
+(35126, 0, 47045, 0, 0, 0, 1),
+(35130, 0, 47047, 0, 0, 0, 1);
+
