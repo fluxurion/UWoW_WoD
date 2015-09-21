@@ -1114,6 +1114,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                 AddGOTarget(gobjTarget, effMask);
             break;
         case TARGET_OBJECT_TYPE_DEST:
+        case TARGET_OBJECT_TYPE_OBJ_AND_DEST:
             m_targets.SetDst(*target);
             break;
         default:
