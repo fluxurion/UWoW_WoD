@@ -931,7 +931,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_OBJECT_GUID, guid.GetCounter(), guid.GetHigh());
+        handler->PSendSysMessage(LANG_OBJECT_GUID, guid.GetGUIDLow(), guid.GetGUIDHigh());
         return true;
     }
 
@@ -1644,7 +1644,7 @@ public:
 
         if (ObjectMgr::GetPlayerNameByGUID(parseGUID, targetName))
         {
-            target = sObjectMgr->GetPlayerByLowGUID(parseGUID.GetCounter());
+            target = sObjectMgr->GetPlayerByLowGUID(parseGUID.GetGUIDLow());
             targetGuid = parseGUID;
         }
         else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
@@ -1665,7 +1665,7 @@ public:
 
         if (ObjectMgr::GetPlayerNameByGUID(parseGUID, targetName))
         {
-            target = sObjectMgr->GetPlayerByLowGUID(parseGUID.GetCounter());
+            target = sObjectMgr->GetPlayerByLowGUID(parseGUID.GetGUIDLow());
             targetGuid = parseGUID;
         }
         else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
@@ -1711,7 +1711,7 @@ public:
                 return false;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_PINFO);
-            stmt->setUInt64(0, targetGuid.GetCounter());
+            stmt->setUInt64(0, targetGuid.GetGUIDLow());
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
             if (!result)
@@ -1783,7 +1783,7 @@ public:
 
         std::string nameLink = handler->playerLink(targetName);
 
-        handler->PSendSysMessage(LANG_PINFO_ACCOUNT, (target ? "" : handler->GetTrinityString(LANG_OFFLINE)), nameLink.c_str(), targetGuid.GetCounter(), userName.c_str(), accId, eMail.c_str(), security, lastIp.c_str(), lastLogin.c_str(), latency);
+        handler->PSendSysMessage(LANG_PINFO_ACCOUNT, (target ? "" : handler->GetTrinityString(LANG_OFFLINE)), nameLink.c_str(), targetGuid.GetGUIDLow(), userName.c_str(), accId, eMail.c_str(), security, lastIp.c_str(), lastLogin.c_str(), latency);
 
         std::string bannedby = "unknown";
         std::string banreason = "";
@@ -1794,7 +1794,7 @@ public:
         if (!result2)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_BANS);
-            stmt->setUInt64(0, targetGuid.GetCounter());
+            stmt->setUInt64(0, targetGuid.GetGUIDLow());
             result2 = CharacterDatabase.Query(stmt);
         }
 
@@ -2124,7 +2124,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_MOVEGENS_LIST, (unit->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), unit->GetGUID().GetCounter());
+        handler->PSendSysMessage(LANG_MOVEGENS_LIST, (unit->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), unit->GetGUID().GetGUIDLow());
 
         MotionMaster* motionMaster = unit->GetMotionMaster();
         float x, y, z;
@@ -2167,9 +2167,9 @@ public:
                     if (!target)
                         handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
                     else if (target->GetTypeId() == TYPEID_PLAYER)
-                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName(), target->GetGUID().GetCounter());
+                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName(), target->GetGUID().GetGUIDLow());
                     else
-                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName(), target->GetGUID().GetCounter());
+                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName(), target->GetGUID().GetGUIDLow());
                     break;
                 }
                 case FOLLOW_MOTION_TYPE:
@@ -2183,9 +2183,9 @@ public:
                     if (!target)
                         handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);
                     else if (target->GetTypeId() == TYPEID_PLAYER)
-                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName(), target->GetGUID().GetCounter());
+                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName(), target->GetGUID().GetGUIDLow());
                     else
-                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName(), target->GetGUID().GetCounter());
+                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName(), target->GetGUID().GetGUIDLow());
                     break;
                 }
                 case HOME_MOTION_TYPE:
@@ -2417,12 +2417,12 @@ public:
         std::string text    = msgText;
 
         // from console show not existed sender
-        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
+        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetGUIDLow() : 0, MAIL_STATIONERY_GM);
 
         //- TODO: Fix poor design
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(subject, text)
-            .SendMailTo(trans, MailReceiver(target, targetGuid.GetCounter()), sender);
+            .SendMailTo(trans, MailReceiver(target, targetGuid.GetGUIDLow()), sender);
 
         CharacterDatabase.CommitTransaction(trans);
 
@@ -2515,7 +2515,7 @@ public:
         }
 
         // from console show not existed sender
-        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
+        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetGUIDLow() : 0, MAIL_STATIONERY_GM);
 
         // fill mail
         MailDraft draft(subject, text);
@@ -2531,7 +2531,7 @@ public:
             }
         }
 
-        draft.SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetCounter()), sender);
+        draft.SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetGUIDLow()), sender);
         CharacterDatabase.CommitTransaction(trans);
 
         std::string nameLink = handler->playerLink(receiverName);
@@ -2575,13 +2575,13 @@ public:
         std::string text    = msgText;
 
         // from console show not existed sender
-        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
+        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetGUIDLow() : 0, MAIL_STATIONERY_GM);
 
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
         MailDraft(subject, text)
             .AddMoney(money)
-            .SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetCounter()), sender);
+            .SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetGUIDLow()), sender);
 
         CharacterDatabase.CommitTransaction(trans);
 
@@ -2877,7 +2877,7 @@ public:
 
                 // If player found: delete his freeze aura
                 Field* fields = result->Fetch();
-                ObjectGuid::LowType lowGuid = fields[0].GetUInt32();
+                uint32 lowGuid = fields[0].GetUInt32();
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_FROZEN);
                 stmt->setUInt64(0, lowGuid);

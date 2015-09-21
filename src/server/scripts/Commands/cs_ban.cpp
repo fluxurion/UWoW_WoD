@@ -332,7 +332,7 @@ public:
             targetGuid = target->GetGUID();
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BANINFO);
-        stmt->setUInt64(0, targetGuid.GetCounter());
+        stmt->setUInt64(0, targetGuid.GetGUIDLow());
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
         if (!result)
         {

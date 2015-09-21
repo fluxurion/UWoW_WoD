@@ -253,7 +253,7 @@ public:
 
         if (chr->GetTransport())
         {
-            ObjectGuid::LowType tguid = chr->GetTransport()->AddNPCPassenger(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+            uint32 tguid = chr->GetTransport()->AddNPCPassenger(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
             if (tguid > 0)
             {
                 PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_TRANSPORT);
@@ -281,7 +281,7 @@ public:
 
         creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
 
-        ObjectGuid::LowType db_guid = creature->GetDBTableGUIDLow();
+        uint32 db_guid = creature->GetDBTableGUIDLow();
 
         // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
         if (!creature->LoadCreatureFromDB(db_guid, map))
@@ -361,7 +361,7 @@ public:
         char* guidStr = strtok((char*)args, " ");
         char* waitStr = strtok((char*)NULL, " ");
 
-        ObjectGuid::LowType lowGuid = atoi((char*)guidStr);
+        uint32 lowGuid = atoi((char*)guidStr);
 
         Creature* creature = NULL;
 
@@ -509,7 +509,7 @@ public:
             if (!cId)
                 return false;
 
-            ObjectGuid::LowType lowguid = strtoull(cId, nullptr, 10);
+            uint32 lowguid = strtoull(cId, nullptr, 10);
             if (!lowguid)
                 return false;
 
@@ -792,7 +792,7 @@ public:
     //move selected creature
     static bool HandleNpcMoveCommand(ChatHandler* handler, const char* args)
     {
-        ObjectGuid::LowType lowguid = UI64LIT(0);
+        uint32 lowguid = UI64LIT(0);
 
         Creature* creature = handler->getSelectedCreature();
 
@@ -965,7 +965,7 @@ public:
         if (!guid_str)
             return false;
 
-        ObjectGuid::LowType lowguid = 0;
+        uint32 lowguid = 0;
         Creature* creature = NULL;
 
         if (dontdel_str)
@@ -1127,7 +1127,7 @@ public:
             mtype = RANDOM_MOTION_TYPE;
 
         Creature* creature = handler->getSelectedCreature();
-        ObjectGuid::LowType guidLow = 0;
+        uint32 guidLow = 0;
 
         if (creature)
             guidLow = creature->GetDBTableGUIDLow();
@@ -1176,7 +1176,7 @@ public:
         }
 
         Creature* creature = handler->getSelectedCreature();
-        ObjectGuid::LowType guidLow = 0;
+        uint32 guidLow = 0;
 
         if (creature)
             guidLow = creature->GetDBTableGUIDLow();
@@ -1421,7 +1421,7 @@ public:
         if (!*args)
             return false;
 
-        ObjectGuid::LowType leaderGUID = strtoull(args, nullptr, 10);
+        uint32 leaderGUID = strtoull(args, nullptr, 10);
         Creature* creature = handler->getSelectedCreature();
 
         if (!creature || !creature->GetDBTableGUIDLow())
@@ -1431,7 +1431,7 @@ public:
             return false;
         }
 
-        ObjectGuid::LowType lowguid = creature->GetDBTableGUIDLow();
+        uint32 lowguid = creature->GetDBTableGUIDLow();
         if (creature->GetFormation())
         {
             handler->PSendSysMessage("Selected creature is already member of group %u", creature->GetFormation()->GetId());
@@ -1473,7 +1473,7 @@ public:
         if (!*args)
             return false;
 
-        ObjectGuid::LowType linkguid = strtoull(args, nullptr, 10);
+        uint32 linkguid = strtoull(args, nullptr, 10);
 
         Creature* creature = handler->getSelectedCreature();
 
@@ -1486,7 +1486,7 @@ public:
 
         if (!creature->GetDBTableGUIDLow())
         {
-            handler->PSendSysMessage("Selected creature %u isn't in creature table", creature->GetGUID().GetCounter());
+            handler->PSendSysMessage("Selected creature %u isn't in creature table", creature->GetGUID().GetGUIDLow());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1674,7 +1674,7 @@ public:
             if (!cId)
                 return false;
 
-            ObjectGuid::LowType lowguid = strtoull(cId, nullptr, 10);
+            uint32 lowguid = strtoull(cId, nullptr, 10);
             if (!lowguid)
                 return false;
 
@@ -1693,7 +1693,7 @@ public:
 
         // Activate
         unit->setActive(!unit->isActiveObject());
-        WorldDatabase.PExecute("UPDATE creature SET isActive = %u WHERE guid = %u", uint8(unit->isActiveObject()), unit->GetGUID().GetCounter());
+        WorldDatabase.PExecute("UPDATE creature SET isActive = %u WHERE guid = %u", uint8(unit->isActiveObject()), unit->GetGUID().GetGUIDLow());
 
         if (unit->isActiveObject())
             handler->PSendSysMessage("Creature added to actived creatures !");
@@ -1726,7 +1726,7 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                ObjectGuid::LowType guid = fields[0].GetUInt64();
+                uint32 guid = fields[0].GetUInt64();
                 uint32 entry = fields[1].GetUInt32();
                 float x = fields[2].GetFloat();
                 float y = fields[3].GetFloat();

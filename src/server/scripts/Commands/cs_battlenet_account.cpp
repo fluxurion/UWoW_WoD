@@ -89,7 +89,7 @@ public:
                 {
                     sLog->outInfo(LOG_FILTER_CHARACTER, "Battle.net account: %d (IP: %s) Character:[%s] (GUID: %u) created Account %s",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                        handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter(),
+                        handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUID().GetGUIDLow(),
                         accountName);
                 }
                 break;
@@ -232,7 +232,7 @@ public:
             handler->SetSentErrorMessage(true);
             sLog->outInfo(LOG_FILTER_CHARACTER, "Battle.net account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password, but the provided old password is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter());
+                handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUID().GetGUIDLow());
             return false;
         }
 
@@ -252,7 +252,7 @@ public:
                 handler->SendSysMessage(LANG_COMMAND_PASSWORD);
                 sLog->outInfo(LOG_FILTER_CHARACTER, "Battle.net account: %u (IP: %s) Character:[%s] (GUID: %u) Changed Password.",
                     handler->GetSession()->GetBattlenetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
-                    handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUID().GetCounter());
+                    handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUID().GetGUIDLow());
                 break;
             case AccountOpResult::AOR_PASS_TOO_LONG:
                 handler->SendSysMessage(LANG_PASSWORD_TOO_LONG);
