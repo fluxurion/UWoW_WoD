@@ -920,6 +920,12 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     m_areaUpdateId = GetMap()->GetAreaId(x, y, z);
     m_zoneUpdateId = GetMap()->GetZoneId(x, y, z);
 
+    // code block for underwater state update
+    if (!m_lastUnderWatterPos.IsInDist(this, World::Relocation_UpdateUnderwateLimit))
+    {
+        m_lastUnderWatterPos = *this;
+        UpdateUnderwaterState(GetMap(), x, y, z);
+    }
     return true;
 }
 
