@@ -7901,29 +7901,28 @@ SpellCastResult Spell::CheckItems()
     // check spell focus object
     if (m_spellInfo->RequiresSpellFocus)
     {
-        if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id))
+        CellCoord p(Trinity::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
+        Cell cell(p);
+
+        GameObject* ok = NULL;
+        Trinity::GameObjectFocusCheck go_check(m_caster, m_spellInfo->RequiresSpellFocus);
+        Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> checker(m_caster, ok, go_check);
+
+        TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
+        Map& map = *m_caster->GetMap();
+        cell.Visit(p, object_checker, map, *m_caster, m_caster->GetVisibilityRange());
+
+        if (!ok)
         {
-            if (!m_caster->IsWithinDist3d(st->target_X, st->target_Y, st->target_Z, 20.0f) || m_caster->GetMapId() != st->target_mapId)
+            if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id))
+            {
+                if (!m_caster->IsWithinDist3d(st->target_X, st->target_Y, st->target_Z, 20.0f) || m_caster->GetMapId() != st->target_mapId)
+                    return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
+            }else
                 return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
         }
-        else
-        {
-            CellCoord p(Trinity::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
-            Cell cell(p);
 
-            GameObject* ok = NULL;
-            Trinity::GameObjectFocusCheck go_check(m_caster, m_spellInfo->RequiresSpellFocus);
-            Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck> checker(m_caster, ok, go_check);
-
-            TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectFocusCheck>, GridTypeMapContainer > object_checker(checker);
-            Map& map = *m_caster->GetMap();
-            cell.Visit(p, object_checker, map, *m_caster, m_caster->GetVisibilityRange());
-
-            if (!ok)
-                return SPELL_FAILED_REQUIRES_SPELL_FOCUS;
-
-            focusObject = ok;                                   // game object found in range
-        }
+        focusObject = ok;                                   // game object found in range
     }
 
     // do not take reagents for these item casts

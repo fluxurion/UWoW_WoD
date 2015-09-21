@@ -704,7 +704,7 @@ namespace Trinity
                 if (go->GetGOInfo()->type != GAMEOBJECT_TYPE_SPELL_FOCUS)
                     return false;
 
-                if (go->GetGOInfo()->spellFocus.spellFocusType != i_focusId)
+                if (go->GetGOInfo()->spellFocus.linkedTrap != i_focusId)
                     return false;
 
                 float dist = (float)((go->GetGOInfo()->spellFocus.radius));
