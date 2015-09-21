@@ -25565,6 +25565,9 @@ void Player::SendInitialPacketsAfterAddToMap()
     else if (GetMap()->IsNonRaidDungeon())
         SendDungeonDifficulty();
 
+    // send garrison info there...
+    //GetGarrisonMgr()->SendToClient();
+
     WorldPacket data;
     if (GetBattlePetMgr()->BuildPetJournal(&data))
         GetSession()->SendPacket(&data);

@@ -386,8 +386,7 @@ struct GarrisonAbilityEffectEntry
 struct GarrisonBuildingEntry
 {
     uint32 ID;                  // 0
-    //uint32                    // 1
-    //uint32                    // 2
+    uint32 gameobjectID[2];     // 1-2
     //uint32                    // 3
     //uint32                    // 4
     uint32 level;               // 5
@@ -513,11 +512,11 @@ struct GarrisonPlotEntry
 {
     uint32 ID;                  // 0
     //uint32                    // 1
-    //uint32                    // 2
+    uint32 type;                // 2
     //uint32                    // 3
     //string name               // 4
-    uint32 baseCount;           // 5
-    uint32 extendedCount;       // 6
+    uint32 minCount;            // 5
+    uint32 maxCount;            // 6
     //uint32                    // 7
     //uint32                    // 8
 };
@@ -534,6 +533,31 @@ struct GarrisonPlotInstanceEntry
     uint32 ID;                  // 0
     uint32 plotID;              // 1
     //string name               // 2
+};
+
+struct GarrisonSiteLevelEntry
+{
+    uint32 ID;                  // 0
+    uint32 level;               // 1
+    uint32 map;                 // 2
+    //uint32                    // 3
+    //uint32                    // 4
+    //float                     // 5
+    //float                     // 6
+    //uint32                    // 7
+    //uint32                    // 8
+    uint32 upgradeResourceCost; // 9
+    uint32 upgradeGoldCost;     // 10
+};
+
+struct GarrisonSiteLevelPlotInstEntry
+{
+    uint32 ID;                                                       // 0
+    uint32 siteLevelID;                                              // 1
+    uint32 plotInstanceID;                                           // 2
+    //float                                                          // 3
+    //float                                                          // 4
+    //uint32                                                         // 5
 };
 
 struct CurrencyTypesEntry
