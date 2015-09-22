@@ -1019,7 +1019,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
 
 void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask)
 {
-    if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
+    if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER && targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_DEST)
     {
         ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented target reference type");
         return;
@@ -1081,6 +1081,11 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
                     else if (st->target_mapId == m_caster->GetMapId())
                         m_targets.SetDst(st->target_X, st->target_Y, st->target_Z, st->target_Orientation);
                     return;
+                }
+                else if (Unit* referer = m_targets.GetUnitTarget())
+                {
+                    m_targets.SetDst(*referer);
+                    //return;   no. need allow SearchNearbyTarget
                 }else
                     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitNearbyTargets: no target destination on db: spell_target_position of spell ID %u, effect %u - selecting default targets", m_spellInfo->Id, effIndex);
                 break;
