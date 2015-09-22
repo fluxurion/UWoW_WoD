@@ -3716,24 +3716,35 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     InitStatBuffMods();
 
+    SetUInt32Value(UNIT_FIELD_SCALE_DURATION, 500);
+    SetUInt32Value(PLAYER_FIELD_LOCAL_FLAGS, GetSession()->GetSessionDbLocaleIndex());
+    
     //reset rating fields values
     for (uint16 index = PLAYER_FIELD_COMBAT_RATINGS; index < PLAYER_FIELD_COMBAT_RATINGS + MAX_COMBAT_RATING; ++index)
         SetUInt32Value(index, 0);
 
     SetUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, 0);
-    for (uint8 i = 0; i < 7; ++i)
+
+    SetFloatValue(PLAYER_FIELD_MOD_HEALING_PERCENT, 1.0f);
+    SetFloatValue(PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT, 1.0f);
+    
+    for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
     {
-        SetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG+i, 0);
-        SetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, 0);
-        SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT+i, 1.00f);
+        SetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, 0);
+        SetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, 0);
+        SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT + i, 1.00f);
+        SetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + i, 0.0f);
     }
+
     SetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PERCENT, 1.0f);
 
-    // Set new PCT MoP field to 1.0f to get correct client tooltip
-    SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT, 1.0f);
-    SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS, 1.0f);
+    for (uint8 i = 0; i < 3; ++i)
+    {
+        SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS + i, 1.0f);
+        SetFloatValue(PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS + i, 1.0f);
+    }
+
     SetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PERCENT, 1.0f);
-    SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PERCENT, 1.0f);
 
     //reset attack power, damage and attack speed fields
     SetFloatValue(UNIT_FIELD_ATTACK_ROUND_BASE_TIME, 2000.0f);
@@ -3758,10 +3769,6 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, 0.0f);
-
-    // Init spell schools (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
-    for (uint8 i = 0; i < 7; ++i)
-        SetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE+i, 0.0f);
 
     SetFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_BLOCK_PERCENTAGE, 0.0f);
@@ -25571,16 +25578,13 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
         pet->ResetAuraUpdateMaskForRaid();
 }
 
-//! 6.0.3
-void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg)
+void Player::SendTransferAborted(uint32 mapID, TransferAbortReason reason, uint8 arg)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Player::SendTransferAborted  mapid %i, reason %i, arg %i", mapid, reason, arg);
-    WorldPacket data(SMSG_TRANSFER_ABORTED, 4+2);
-    data << uint32(mapid);
-    data << uint8(arg);
-    data.WriteBits(reason, 5);      // transfer abort reason
-        
-    GetSession()->SendPacket(&data);
+    WorldPackets::Movement::TransferAborted aborted;
+    aborted.TransfertAbort = reason;
+    aborted.Arg = arg;
+    aborted.MapID = mapID;
+    GetSession()->SendPacket(aborted.Write());
 }
 
 //! 6.0.3

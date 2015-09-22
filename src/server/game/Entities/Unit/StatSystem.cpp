@@ -233,6 +233,13 @@ bool Player::UpdateAllStats()
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
     UpdateExpertise();
+    UpdateVersality();
+    UpdateMultistrike();
+    UpdateReadiness();
+    UpdateCRSpeed();
+    UpdateLifesteal();
+    UpdateAvoidance();
+
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         UpdateResistances(i);
 
