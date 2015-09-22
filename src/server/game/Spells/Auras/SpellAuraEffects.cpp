@@ -477,14 +477,14 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //417 SPELL_AURA_MOD_SPELL_GDC_BY_MELEE_HASTE
     &AuraEffect::HandleAuraModMaxPower,                           //418 SPELL_AURA_MOD_MAX_POWER
     &AuraEffect::HandleAuraModAddEnergyPercent,                   //419 SPELL_AURA_MOD_ADD_ENERGY_PERCENT
-    &AuraEffect::HandleNULL,                                      //420 SPELL_AURA_420
+    &AuraEffect::HandleNoImmediateEffect,                         //420 SPELL_AURA_MOD_BATTLE_PET_XP_GAIN
     &AuraEffect::HandleNoImmediateEffect,                         //421 SPELL_AURA_MOD_ABSORB_AMOUNT
     &AuraEffect::HandleNULL,                                      //422 SPELL_AURA_MOD_ABSORBTION_PERCENT
     &AuraEffect::HandleNULL,                                      //423 SPELL_AURA_423
     &AuraEffect::HandleNULL,                                      //424 SPELL_AURA_424
     &AuraEffect::HandleNULL,                                      //425 SPELL_AURA_425
     &AuraEffect::HandleNULL,                                      //426 SPELL_AURA_426
-    &AuraEffect::HandleNULL,                                      //427 SPELL_AURA_427
+    &AuraEffect::HandleNULL,                                      //427 SPELL_AURA_ITEMS_SCALING_AURA
     &AuraEffect::HandleSummonController,                          //428 SPELL_AURA_SUMMON_CONTROLLER
     &AuraEffect::HandleNULL,                                      //429 SPELL_AURA_PET_DAMAGE_DONE_PCT
     &AuraEffect::HandleAuraActivateScene,                         //430 SPELL_AURA_ACTIVATE_SCENE
@@ -497,43 +497,43 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //437 SPELL_AURA_437
     &AuraEffect::HandleNULL,                                      //438
     &AuraEffect::HandleNULL,                                      //439
-    &AuraEffect::HandleNULL,                                      //440
-    &AuraEffect::HandleNULL,                                      //441
-    &AuraEffect::HandleNULL,                                      //442
-    &AuraEffect::HandleNULL,                                      //443
+    &AuraEffect::HandleNULL,                                      //440 SPELL_AURA_MULTISTRIKE_DAMAGE_PCT
+    &AuraEffect::HandleNoImmediateEffect,                         //441 SPELL_AURA_MOD_MULTISTRIKE_PCT
+    &AuraEffect::HandleNoImmediateEffect,                         //442 SPELL_AURA_MOD_READINESS_PCT
+    &AuraEffect::HandleNoImmediateEffect,                         //443 SPELL_AURA_MOD_LIFE_STEAL_PCT
     &AuraEffect::HandleNULL,                                      //444
     &AuraEffect::HandleNULL,                                      //445
     &AuraEffect::HandleNULL,                                      //446
-    &AuraEffect::HandleNULL,                                      //447
+    &AuraEffect::HandleNULL,                                      //447 SPELL_AURA_MOD_EXP_GAIN_FROM_BEAST_KILLINGS
     &AuraEffect::HandleNULL,                                      //448
     &AuraEffect::HandleNULL,                                      //449
     &AuraEffect::HandleNULL,                                      //450
     &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_OVERRIDE_PET_SPECS
     &AuraEffect::HandleNULL,                                      //452
-    &AuraEffect::HandleNULL,                                      //453
-    &AuraEffect::HandleNULL,                                      //454
+    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_CHARGE_RECOVERY_MOD
+    &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER
     &AuraEffect::HandleNULL,                                      //455
     &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE
     &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN
     &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY
     &AuraEffect::HandleNULL,                                      //459
-    &AuraEffect::HandleNULL,                                      //460
+    &AuraEffect::HandleNULL,                                      //460 SPELL_AURA_RESET_COOLDOWNS_AT_DUEL_START
     &AuraEffect::HandleNULL,                                      //461
     &AuraEffect::HandleNULL,                                      //462
     &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_CONVER_CRIT_RATING_PCT_TO_PARRY_RATING
-    &AuraEffect::HandleNULL,                                      //464
-    &AuraEffect::HandleNULL,                                      //465
+    &AuraEffect::HandleNULL,                                      //464 SPELL_AURA_MOD_ATTACK_POWER_BY_BONUS_ARMOR_PCT
+    &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
-    &AuraEffect::HandleNULL,                                      //467 SPELL_AURA_MOD_STAT_BONUS_PCT
+    &AuraEffect::HandleModStatBonusPercent,                       //467 SPELL_AURA_MOD_STAT_BONUS_PCT
     &AuraEffect::HandleNULL,                                      //468
     &AuraEffect::HandleNULL,                                      //469
     &AuraEffect::HandleNULL,                                      //470
-    &AuraEffect::HandleNULL,                                      //471
+    &AuraEffect::HandleNoImmediateEffect,                         //471 SPELL_AURA_MOD_VERSALITY_PCT
     &AuraEffect::HandleNULL,                                      //472
-    &AuraEffect::HandleNULL,                                      //473
+    &AuraEffect::HandleNULL,                                      //473 SPELL_AURA_PREVENT_ITEMS_DURABILITY_LOSS
     &AuraEffect::HandleNULL,                                      //474
     &AuraEffect::HandleNULL,                                      //475
-    &AuraEffect::HandleNULL,                                      //476
+    &AuraEffect::HandleNoImmediateEffect,                         //476 SPELL_AURA_MOD_CURRENCY_LOOT_FROM_CREATURES_BY_PCT
     &AuraEffect::HandleNULL,                                      //477
     &AuraEffect::HandleNULL,                                      //478
     &AuraEffect::HandleNULL,                                      //479
@@ -6067,6 +6067,30 @@ void AuraEffect::HandleIncreaseModRatingPct(AuraApplication const* aurApp, uint8
         for (uint8 cr = 0; cr < MAX_COMBAT_RATING; ++cr)
             if (GetMiscValue() & (1 << cr))
                 player->RecalculateRating(CombatRating(cr));
+}
+
+void AuraEffect::HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    int32 miscValue = GetMiscValue();
+
+    if (miscValue < -1 || miscValue > 4)
+        return;
+
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+    {
+        if (miscValue == i || miscValue == -1)
+        {
+            target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), BASE_PCT_EXCLUDE_CREATE, float(m_amount), apply);
+            target->ApplyStatPercentBuffMod(Stats(i), float(m_amount), apply);
+        }
+    }
 }
 
 /********************************/
