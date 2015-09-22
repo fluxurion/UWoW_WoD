@@ -639,7 +639,14 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
 
             uint32 amount = urand(i->CurrencyAmount, i->currencyMaxAmount) * proto->GetPrecision();
             if (m_lootOwner)
+            {
                 amount = uint32(0.5f + amount * m_lootOwner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_LOOT, proto->CategoryID));
+                
+                Unit::AuraEffectList const& auras = m_lootOwner->GetAuraEffectsByType(SPELL_AURA_MOD_ITEM_LOOT);
+                for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                    if ((*itr)->GetMiscValue() == i->CurrencyId)
+                        amount *= CalculatePct((*itr)->GetAmount(), amount);
+            }
 
             player->ModifyCurrency(i->CurrencyId, amount);
         }

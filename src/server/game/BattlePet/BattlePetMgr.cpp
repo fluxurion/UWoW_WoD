@@ -1421,8 +1421,14 @@ bool PetBattleWild::FinalRoundHandler(bool abandoned)
 
         // formula
         uint16 rewardXp = (enemyPet->GetLevel() + 9) * (levelDiff + 5);
+        
+        Unit::AuraEffectList const& auras = m_player->GetAuraEffectsByType(SPELL_AURA_MOD_BATTLE_PET_XP_GAIN);
+        for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+            rewardXp *= (*itr)->GetAmount();
+
         if (allyPet->GetLevel() == MAX_BATTLE_PET_LEVEL)
             rewardXp = 0;
+
         newXp = oldXp + rewardXp;
         uint32 totalXp = m_player->GetBattlePetMgr()->GetXPForNextLevel(allyPet->GetLevel());
 

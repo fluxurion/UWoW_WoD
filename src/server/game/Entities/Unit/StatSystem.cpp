@@ -1926,28 +1926,35 @@ void Player::UpdateVersality()
     ValueD += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
     ValueT += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN);
 
+    ValueT += GetTotalAuraModifier(SPELL_AURA_MOD_VERSALITY_PCT, true);
+    ValueD += GetTotalAuraModifier(SPELL_AURA_MOD_VERSALITY_PCT, true);
+
     SetFloatValue(PLAYER_FIELD_VERSATILITY, ValueD);
     SetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS, ValueT);
 }
 
 void Player::UpdateMultistrike()
 {
-    float Value = 0.f;
+    float value = 0.f;
 
-    Value += GetRatingBonusValue(CR_MULTISTRIKE);
+    value += GetRatingBonusValue(CR_MULTISTRIKE);
+    value += GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_PCT, true);
 
-    if (Value)
-        SetFloatValue(PLAYER_FIELD_MULTISTRIKE, Value);
+    if (value)
+        SetFloatValue(PLAYER_FIELD_MULTISTRIKE, value);
+
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, 0.3f); // const data
 }
 
 void Player::UpdateReadiness()
 {
-    float val = 0.f;
+    float value = 0.f;
 
-    val += GetRatingBonusValue(CR_READINESS);
-    if (val)
-        SetFloatValue(PLAYER_FIELD_READINESS, val);
+    value += GetRatingBonusValue(CR_READINESS);
+    value += GetTotalAuraModifier(SPELL_AURA_MOD_READINESS_PCT, true);
+    
+    if (value)
+        SetFloatValue(PLAYER_FIELD_READINESS, value);
 }
 
 void Player::UpdateCRSpeed()
@@ -1965,7 +1972,8 @@ void Player::UpdateLifesteal()
     float val = 0.f;
 
     val += GetRatingBonusValue(CR_LIFESTEAL);
-
+    val += GetTotalAuraModifier(SPELL_AURA_MOD_LIFE_STEAL_PCT, true);
+    
     if (val)
         SetFloatValue(PLAYER_FIELD_LIFESTEAL, val);
 }
