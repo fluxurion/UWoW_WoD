@@ -3460,7 +3460,7 @@ public:
 
         uint8 reasonId = atoi((char*)args);
 
-        handler->GetSession()->GetPlayer()->SendTransferAborted(0, reasonId);
+        handler->GetSession()->GetPlayer()->SendTransferAborted(0, TransferAbortReason(reasonId));
         return true;
     }
 };

@@ -297,7 +297,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModSpellDamagePercentFromAttackPower,      //237 SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER  implemented in Unit::SpellBaseDamageBonus
     &AuraEffect::HandleModSpellHealingPercentFromAttackPower,     //238 SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER implemented in Unit::SpellBaseHealingBonus
     &AuraEffect::HandleAuraModScale,                              //239 SPELL_AURA_MOD_SCALE_2 only in Noggenfogger Elixir (16595) before 2.3.0 aura 61
-    &AuraEffect::HandleAuraModExpertise,                          //240 SPELL_AURA_MOD_EXPERTISE
+    &AuraEffect::HandleNULL,                                      //240 SPELL_AURA_MOD_EXPERTISE - new effect in wod :C
     &AuraEffect::HandleForceMoveForward,                          //241 SPELL_AURA_FORCE_MOVE_FORWARD Forces the caster to move forward
     &AuraEffect::HandleNULL,                                      //242 SPELL_AURA_MOD_SPELL_DAMAGE_FROM_HEALING - 2 test spells: 44183 and 44182
     &AuraEffect::HandleAuraModFaction,                            //243 SPELL_AURA_MOD_FACTION
@@ -462,7 +462,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraeEablePowerType,                       //402 SPELL_AURA_ENABLE_POWER_TYPE
     &AuraEffect::HandleAuraModSpellVisual,                        //403 SPELL_AURA_MOD_SPELL_VISUAL
     &AuraEffect::HandleOverrideAttackPowerBySpellPower,           //404 SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT
-    &AuraEffect::HandleIncreaseHasteFromItemsByPct,               //405 SPELL_AURA_INCREASE_HASTE_FROM_ITEMS_BY_PCT
+    &AuraEffect::HandleIncreaseModRatingPct,                      //405 SPELL_AURA_MOD_RATING_PCT
     &AuraEffect::HandleNoImmediateEffect,                         //406 SPELL_AURA_OVERRIDE_CLIENT_CONTROLS
     &AuraEffect::HandleModFear,                                   //407 SPELL_AURA_MOD_FEAR_2
     &AuraEffect::HandleNULL,                                      //408 SPELL_AURA_PROC_SPELL_CHARGE removed by spell defined in EffectTriggerSpell
@@ -5333,19 +5333,6 @@ void AuraEffect::HandleAuraModResistenceOfStatPercent(AuraApplication const* aur
     target->UpdateArmor();
 }
 
-void AuraEffect::HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
-{
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
-        return;
-
-    Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    target->ToPlayer()->UpdateExpertise();
-}
-
 /********************************/
 /***      HEAL & ENERGIZE     ***/
 /********************************/
@@ -6070,19 +6057,19 @@ void AuraEffect::HandleOverrideSpellPowerByAttackPower(AuraApplication const* au
    target->UpdateSpellDamageAndHealingBonus();
 }
 
-void AuraEffect::HandleIncreaseHasteFromItemsByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleIncreaseModRatingPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
     Unit* target = aurApp->GetTarget();
-
-    if (!target->ToPlayer())
+    if (!target)
         return;
 
-    for (uint32 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
-        if (GetMiscValue() & (1 << rating))
-            target->ToPlayer()->UpdateRating(CombatRating(rating));
+    if (Player* player = target->ToPlayer())
+        for (uint8 cr = 0; cr < MAX_COMBAT_RATING; ++cr)
+            if (GetMiscValue() & (1 << cr))
+                player->RecalculateRating(CombatRating(cr));
 }
 
 /********************************/
