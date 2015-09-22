@@ -988,10 +988,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
         if (ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(pCurrChar->getClass()))
         {
-            //if (cEntry->CinematicSequenceID)
-            //    pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
-            //else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
-            //    pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
+            if (cEntry->CinematicSequenceID)
+                pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
+            else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
+                pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
 
             // send new char string if not empty
             if (!sWorld->GetNewCharString().empty())
