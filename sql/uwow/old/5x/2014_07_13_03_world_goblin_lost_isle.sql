@@ -208,6 +208,7 @@ UPDATE `creature_template` SET  `unit_flags` = `unit_flags` | 0x4 WHERE `entry` 
 UPDATE `creature_template` SET  `unit_flags` = `unit_flags` & ~0x300 WHERE `entry` in (38513, 38515, 38514, 38516, 38738, 38517, 38518, 38120, 36600, 38124, 38516, 36471, 44473, 42473, 38387, 38511);
 
 
+UPDATE `creature_template` SET `KillCredit1` = '38536' WHERE `creature_template`.`entry` = 38531;
 UPDATE `creature_template` SET `flags_extra` = '66', `ScriptName` = 'npc_omlot_warrior' WHERE `entry` = 38531;
 SET @id = 0;
 SET @entry = 38531;
@@ -377,6 +378,7 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 -- ----------------------------------------
 -- Q: 24942 Zombies vs. Super Booster Rocket Boots
 -- ----------------------------------------
+
 UPDATE `quest_template` SET `Method` = '2' WHERE `Id` = 24942;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=38738;
 DELETE FROM smart_scripts WHERE entryorguid = 38738;
@@ -436,7 +438,7 @@ INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `t
 ('72971', '648', '1481.15', '1269.77', '106.779', '0');
 
 -- Hack. Focus Spell.
-UPDATE `gameobject_template` SET `type` = '8', `data0` = '1648', `data1` = '100', `data3` = '0' WHERE `entry` = 202330;
+UPDATE `gameobject_template` SET `type` = '8', `data2` = '1648', `data1` = '50', `data0` = '0' WHERE `entry` = 202330;
 
 -- ----------------------------------------
 -- Q: 24954 Children of a Turtle God
