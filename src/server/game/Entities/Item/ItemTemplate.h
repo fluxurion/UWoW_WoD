@@ -225,6 +225,29 @@ enum ItemFlagsExtra
     ITEM_FLAGS_EXTRA_CAN_TRANSMOG            = 0x00800000, // part of transmogr set
 };
 
+enum ItemFlags3
+{
+    ITEM_FLAG3_UNK1                        = 0x00000001,
+    ITEM_FLAG3_UNK2                        = 0x00000002,
+    ITEM_FLAG3_UNK3                        = 0x00000004,
+    ITEM_FLAG3_UNK4                        = 0x00000008,
+    ITEM_FLAG3_UNK5                        = 0x00000010,
+    ITEM_FLAG3_UNK6                        = 0x00000020,
+    ITEM_FLAG3_UNK7                        = 0x00000040,
+    ITEM_FLAG3_IGNORE_ITEM_LEVEL_DELTAS    = 0x00000080, // Ignore item level adjustments from PLAYER_FIELD_ITEM_LEVEL_DELTA
+    ITEM_FLAG3_IGNORE_PVP_ITEM_LEVEL_CAP   = 0x00000100,
+    ITEM_FLAG3_HEIRLOOM_QUALITY            = 0x00000200, // Item appears as having heirloom quality ingame regardless of its real quality (does not affect stat calculation)
+    ITEM_FLAG3_UNK8                        = 0x00000400,
+    ITEM_FLAG3_UNK9                        = 0x00000800,
+    ITEM_FLAG3_DOESNT_APPEAR_IN_GUILD_NEWS = 0x00001000, // Item is not included in the guild news panel
+    ITEM_FLAG3_UNK10                       = 0x00002000,
+    ITEM_FLAG3_UNK11                       = 0x00004000,
+    ITEM_FLAG3_UNK12                       = 0x00008000,
+    ITEM_FLAG3_UNK13                       = 0x00010000,
+    ITEM_FLAG3_UNK14                       = 0x00020000,
+    ITEM_FLAG3_UNK15                       = 0x00040000
+};
+
 enum ItemFlagsCustom
 {
     ITEM_FLAGS_CU_DURATION_REAL_TIME    = 0x0001,   // Item duration will tick even if player is offline
@@ -794,6 +817,7 @@ struct ItemTemplate
     }
 
     bool IsCurrencyToken() const { return (BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS) != 0; }
+    bool IsAppearInGuildNews() const { return (Flags3 & ITEM_FLAG3_DOESNT_APPEAR_IN_GUILD_NEWS) != 0; }
 
     uint32 GetMaxStackSize() const
     {

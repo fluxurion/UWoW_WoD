@@ -24390,8 +24390,10 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     if (crItem->maxcount != 0) // bought
     { 
         if (pProto->Quality > ITEM_QUALITY_EPIC || (pProto->Quality == ITEM_QUALITY_EPIC && pProto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
-            if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-                guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_PURCHASED, time(NULL), GetGUID(), 0, item);
+            if (!pProto->IsAppearInGuildNews())
+                if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
+                    guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_PURCHASED, time(NULL), GetGUID(), 0, item);
+
         return true;
     }
     return false;
@@ -27646,11 +27648,12 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
         --loot->unlootedCount;
 
-        if (const ItemTemplate* proto = sObjectMgr->GetItemTemplate(item->itemid))
+        if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->itemid))
         {
             if (proto->Quality > ITEM_QUALITY_EPIC || (proto->Quality == ITEM_QUALITY_EPIC && proto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
                 if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-                    guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->itemid);
+                    if (!proto->IsAppearInGuildNews())
+                        guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->itemid);
 
             if (loot->personal && proto->Quality >= uint32(ITEM_QUALITY_UNCOMMON))
                 SendDisplayToast(item->itemid, 1, 0/*loot->bonusLoot*/, item->count, 1, newitem);

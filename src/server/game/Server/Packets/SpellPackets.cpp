@@ -120,14 +120,14 @@ WorldPacket const* WorldPackets::Spells::AuraUpdate::Write()
             _worldPacket << uint32(data.ActiveFlags);
             _worldPacket << uint16(data.CastLevel);
             _worldPacket << uint8(data.Applications);
-            _worldPacket << uint32(data.Points.size());
             _worldPacket << uint32(data.EstimatedPoints.size());
-
-            if (!data.Points.empty())
-                _worldPacket.append(data.Points.data(), data.Points.size());
+            _worldPacket << uint32(data.Points.size());
 
             if (!data.EstimatedPoints.empty())
                 _worldPacket.append(data.EstimatedPoints.data(), data.EstimatedPoints.size());
+
+            if (!data.Points.empty())
+                _worldPacket.append(data.Points.data(), data.Points.size());
 
             _worldPacket.WriteBit(data.CastUnit.is_initialized());
             _worldPacket.WriteBit(data.Duration.is_initialized());
