@@ -450,6 +450,7 @@ UPDATE `gameobject_template` SET `type` = '8', `data2` = '1648', `data1` = '50',
 
 UPDATE `quest_template` SET `StartScript` = '0' WHERE `Id` = 24958;
 DELETE FROM `quest_start_scripts` WHERE `id` = 59;
+UPDATE `creature_template` SET `KillCredit1` = '38868' WHERE `creature_template`.`entry` = 38855;
 
 DELETE FROM `creature_template_addon` WHERE `entry` = 38855;
 DELETE FROM `creature_addon` WHERE guid in (select guid from creature WHERE id = 38855);
