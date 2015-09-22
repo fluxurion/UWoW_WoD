@@ -474,7 +474,7 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
     {
         data.SrcLocation = boost::in_place();
         data.SrcLocation->Transport = m_src._transportGUID; // relative position guid here - transport for example
-        if (m_src._transportGUID)
+        if (m_src._transportGUID.IsEmpty())
             data.SrcLocation->Location = m_src._position;
         else
             data.SrcLocation->Location = m_src._transportOffset;
@@ -484,7 +484,7 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
     {
         data.DstLocation = boost::in_place();
         data.DstLocation->Transport = m_dst._transportGUID; // relative position guid here - transport for example
-        if (m_dst._transportGUID)
+        if (m_dst._transportGUID.IsEmpty())
             data.DstLocation->Location = m_dst._position;
         else
             data.DstLocation->Location = m_dst._transportOffset;
