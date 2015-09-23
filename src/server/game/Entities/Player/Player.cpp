@@ -16597,7 +16597,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         {
             case QUEST_OBJECTIVE_ITEM:
                 if (!(quest->GetFlagsEx() & QUEST_FLAGS_EX_KEEP_ADDITIONAL_ITEMS))
-                    DestroyItemCount(obj.ObjectID, /*obj.Amount*/999, true);
+                    DestroyItemCount(obj.ObjectID, obj.Amount, true);
                 break;
             case QUEST_OBJECTIVE_CURRENCY:
             {
