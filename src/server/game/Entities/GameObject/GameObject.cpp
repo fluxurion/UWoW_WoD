@@ -968,6 +968,14 @@ bool GameObject::ActivateToQuest(Player* target) const
     if (target->HasQuestForGO(GetEntry()))
         return true;
 
+    for (auto i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+    {
+        if (!GetGOInfo()->questItems[i])
+            break;
+        if (target->HasQuestForItem(GetGOInfo()->questItems[i]))
+            return true;
+    }
+
     if (!sObjectMgr->IsGameObjectForQuests(GetEntry()))
         return false;
 
