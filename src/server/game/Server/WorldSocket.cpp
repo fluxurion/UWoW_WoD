@@ -26,6 +26,8 @@
 #include "PacketLog.h"
 #include "BattlenetAccountMgr.h"
 #include "World.h"
+#include "CharacterPackets.h"
+
 #include <zlib.h>
 #include <memory>
 
@@ -197,7 +199,6 @@ bool WorldSocket::ReadDataHandler()
         WorldPacket packet(opcode, std::move(_packetBuffer));
 
         if (sPacketLog->CanLogPacket())
-            //sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
             sPacketLog->LogPacket(packet, CLIENT_TO_SERVER, GetRemoteIpAddress(), GetRemotePort());
 
         #ifdef WIN32
@@ -244,7 +245,31 @@ bool WorldSocket::ReadDataHandler()
                     #endif
                     sScriptMgr->OnPacketReceive(_worldSession, packet);
                     if (_worldSession)
-                        _worldSession->HandleEnableNagleAlgorithm();
+                        SetNoDelay(false);
+                    break;
+                }
+                case CMSG_CONNECT_TO_FAILED:
+                {
+                    #ifdef WIN32
+                    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
+                    #endif
+                    sScriptMgr->OnPacketReceive(_worldSession, packet);
+
+                    WorldPackets::Auth::ConnectToFailed connectToFailed(std::move(packet));
+                    connectToFailed.Read();
+                    HandleConnectToFailed(connectToFailed);
+                    break;
+                }
+                case CMSG_AUTH_CONTINUED_SESSION:
+                {
+                    #ifdef WIN32
+                    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", opcodeName.c_str());
+                    #endif
+                    sScriptMgr->OnPacketReceive(_worldSession, packet);
+
+                    std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession = std::make_shared<WorldPackets::Auth::AuthContinuedSession>(std::move(packet));
+                    authSession->Read();
+                    //HandleAuthContinuedSession(authSession);
                     break;
                 }
                 default:
@@ -593,6 +618,41 @@ void WorldSocket::SendAuthResponseError(uint8 code)
     WorldPackets::Auth::AuthResponse response;
     response.Result = code;
     SendPacket(*response.Write());
+}
+
+void WorldSocket::HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed)
+{
+    if (_worldSession)
+    {
+        if (_worldSession->PlayerLoading())
+        {
+            switch (connectToFailed.Serial)
+            {
+                case WorldPackets::Auth::ConnectToSerial::WorldAttempt1:
+                    _worldSession->SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt2);
+                    break;
+                case WorldPackets::Auth::ConnectToSerial::WorldAttempt2:
+                    _worldSession->SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt3);
+                    break;
+                case WorldPackets::Auth::ConnectToSerial::WorldAttempt3:
+                    _worldSession->SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt4);
+                    break;
+                case WorldPackets::Auth::ConnectToSerial::WorldAttempt4:
+                    _worldSession->SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt5);
+                    break;
+                case WorldPackets::Auth::ConnectToSerial::WorldAttempt5:
+                    _worldSession->AbortLogin(WorldPackets::Character::LoginFailureReason::NoWorld);
+                    break;
+                default:
+                    return;
+            }
+        }
+        //else
+        //{
+        //    transfer_aborted when/if we get map node redirection
+        //    SendPacketAndLogOpcode(*WorldPackets::Auth::ResumeComms().Write());
+        //}
+    }
 }
 
 void WorldSocket::HandlePing(WorldPacket& recvPacket)

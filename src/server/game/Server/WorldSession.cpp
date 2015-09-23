@@ -104,7 +104,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 WorldSession::WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag) :
 m_muteTime(mute_time), m_timeOutTime(0), _player(NULL), m_Socket(sock),
 _security(sec), _accountId(id), _battlenetAccountId(battlenetAccountId), m_expansion(expansion), _logoutTime(0),
-m_inQueue(false), m_playerLoading(false), m_playerLogout(false), atAuthFlag(flag),
+m_inQueue(false), m_playerLogout(false), atAuthFlag(flag),
 m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
 m_sessionDbLocaleIndex(locale),
@@ -475,7 +475,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     {
         time_t currTime = time(NULL);
         ///- If necessary, log the player out
-        if (ShouldLogOut(currTime) && !m_playerLoading)
+        if (ShouldLogOut(currTime) && m_playerLoading.IsEmpty())
             LogoutPlayer(true);
 
         if (m_Socket && GetPlayer() && _warden)

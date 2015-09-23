@@ -108,6 +108,8 @@ namespace WorldPackets
         class LogoutRequest;
         class LogoutCancel;
         class LoadingScreenNotify;
+
+        enum class LoginFailureReason : uint8;
     }
 
     namespace ClientConfig
@@ -458,6 +460,11 @@ namespace WorldPackets
         class GrantLevel;
     }
 
+    namespace Auth
+    {
+        enum class ConnectToSerial : uint32;
+    }
+
     namespace Bank
     {
         class AutoBankItem;
@@ -664,7 +671,7 @@ class WorldSession
         WorldSession(uint32 id, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag);
         ~WorldSession();
 
-        bool PlayerLoading() const { return m_playerLoading; }
+        bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }
         bool PlayerRecentlyLoggedOut() const { return m_playerRecentlyLogout; }
@@ -960,6 +967,10 @@ class WorldSession
         void HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request);
         void HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::SetAdvancedCombatLogging& setAdvancedCombatLogging);
         void HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet);
+        
+        void SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial);
+        void HandleContinuePlayerLogin();
+        void AbortLogin(WorldPackets::Character::LoginFailureReason reason);
 
         void HandleGameObjectUseOpcode(WorldPacket& recPacket);
         void HandleMeetingStoneInfo(WorldPacket& recPacket);
@@ -1444,7 +1455,6 @@ class WorldSession
         void HandleObjectUpdateRescued(WorldPackets::Misc::ObjectUpdateRescued& packet);
         void HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& packet);
         void HandleSetFactionOpcode(WorldPacket& recvPacket);
-        int32 HandleEnableNagleAlgorithm();
         void HandleRequestResearchHistory(WorldPacket& recvPacket);
         void HandleChangeCurrencyFlags(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& packet);
@@ -1546,7 +1556,7 @@ class WorldSession
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue
-        bool m_playerLoading;                               // code processed in LoginPlayer
+        ObjectGuid m_playerLoading;                         // code processed in LoginPlayer
         bool m_playerLogout;                                // code processed in LogoutPlayer
         bool m_playerRecentlyLogout;
         bool m_playerSave;

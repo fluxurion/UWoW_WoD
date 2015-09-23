@@ -82,6 +82,7 @@ CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
 HotfixDatabaseWorkerPool HotfixDatabase;                    ///< Accessor to the hotfix database
 Battlenet::RealmHandle realmHandle;                         ///< Id of the realm
+Realm realm;
 
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void FreezeDetectorHandler(const boost::system::error_code& error);
