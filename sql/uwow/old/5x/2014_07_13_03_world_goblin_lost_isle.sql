@@ -438,7 +438,7 @@ INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `t
 ('72971', '648', '1481.15', '1269.77', '106.779', '0');
 
 -- Hack. Focus Spell.
-UPDATE `gameobject_template` SET `type` = '8', `data2` = '1648', `data1` = '50', `data0` = '0' WHERE `entry` = 202330;
+UPDATE `gameobject_template` SET `type` = '8', `data2` = '0', `data0` = '1648' WHERE `entry` = 202330;
 
 -- ----------------------------------------
 -- Q: 24954 Children of a Turtle God

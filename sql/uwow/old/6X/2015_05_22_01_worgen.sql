@@ -97,9 +97,3 @@ UPDATE `quest_template_addon` SET `PrevQuestID` = '24472' WHERE `quest_template_
 -- ------------
 REPLACE INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `shared`) VALUES
  ('201914', '50017', '-100', '1', '0', '1', '1', '0');
- 
- -- ------------
--- Q: 24679
--- ------------
-
-UPDATE `gameobject_template` SET Data0 = 0, Data2 = 1643WHERE `entry` = 201964 ORDER BY `entry` DESC
