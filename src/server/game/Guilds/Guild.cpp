@@ -2241,10 +2241,9 @@ void Guild::SendLoginInfo(WorldSession* session)
     if (!sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED))
         return;
 
-    for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-        if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-            if (entry->Level <= GetLevel())
-                session->GetPlayer()->learnSpell(entry->SpellId, true);
+    for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
+        if (entry->Level <= GetLevel())
+            session->GetPlayer()->learnSpell(entry->SpellId, true);
 
     SendGuildReputationWeeklyCap(session);
 
@@ -2652,10 +2651,9 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
         player->SetGuildIdInvited(0);
         if (sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED))
         {
-            for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-                if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-                    if (entry->Level <= GetLevel())
-                        player->learnSpell(entry->SpellId, true);
+            for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
+                if (entry->Level <= GetLevel())
+                    player->learnSpell(entry->SpellId, true);
         }
 
         if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(REP_GUILD))
@@ -2719,9 +2717,8 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked)
         player->SetInGuild(UI64LIT(0));
         player->SetRank(0);
         player->SetGuildLevel(0);
-        for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-            if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-                player->removeSpell(entry->SpellId, false, false);
+        for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
+            player->removeSpell(entry->SpellId, false, false);
 
         if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(REP_GUILD))
             player->GetReputationMgr().SetReputation(factionEntry, 0);
@@ -3326,10 +3323,9 @@ void Guild::GiveXP(uint32 xp, Player* source)
 
         // Find all guild perks to learn
         std::vector<uint32> perksToLearn;
-        for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-            if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-                if (entry->Level > oldLevel && entry->Level <= GetLevel())
-                    perksToLearn.push_back(entry->SpellId);
+        for (GuildPerkSpellsEntry const* entry : sGuildPerkSpellsStore)
+            if (entry->Level > oldLevel && entry->Level <= GetLevel())
+                perksToLearn.push_back(entry->SpellId);
 
         // Notify all online players that guild level changed and learn perks
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
@@ -3654,12 +3650,8 @@ void Guild::KnownRecipes::GenerateMask(uint32 skillId, std::set<uint32> const& s
     Clear();
 
     uint32 index = 0;
-    for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+    for (SkillLineAbilityEntry const* entry : sSkillLineAbilityStore)
     {
-        SkillLineAbilityEntry const* entry = sSkillLineAbilityStore.LookupEntry(i);
-        if (!entry)
-            continue;
-
         if (entry->skillId != skillId)
             continue;
 
@@ -3725,12 +3717,8 @@ void Guild::SendGuildMembersForRecipeResponse(WorldSession* session, uint32 skil
 {
     uint32 index = 0;
     bool found = false;
-    for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+    for (SkillLineAbilityEntry const* entry : sSkillLineAbilityStore)
     {
-        SkillLineAbilityEntry const* entry = sSkillLineAbilityStore.LookupEntry(i);
-        if (!entry)
-            continue;
-
         if (entry->skillId != skillId)
             continue;
 

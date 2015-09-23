@@ -15,44 +15,60 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
+// n - index (included), l - uint64, p - field present in sql dbc, a - field absent in sql dbc
+
 #ifndef TRINITY_DB2SFRM_H
 #define TRINITY_DB2SFRM_H
 
 char const AreaGroupFormat[] = "n";
 char const AreaGroupMemberFormat[] = "nii";
-char const CurvePointEntryfmt[] = "niiff";
+char const BattlePetAbilityEffectFormat[] = "niiiiiiiiiii";
+char const BattlePetAbilityFormat[] = "niiiiiss";
+char const BattlePetAbilityStateFormat[] = "niii";
+char const BattlePetAbilityTurnFormat[] = "niiiii";
+char const BattlePetBreedQualityFormat[] = "nif";
+char const BattlePetBreedStateFormat[] = "niii";
+char const BattlePetEffectPropertiesFormat[] = "nissssssiiiiii";
+char const BattlePetSpeciesFormat[] = "niiiiiiss";
+char const BattlePetSpeciesStateFormat[] = "niii";
+char const BattlePetSpeciesXAbilityFormat[] = "niiii";
+char const BattlePetStateFormat[] = "nisi";
+char const BroadcastTextFormat[] = "nissiiiiiiiii";
 char const CurrencyTypesFormat[] = "nisssiiiiiis";
-char const BroadcastTextEntryfmt[] = "nissiiiiiiiii";
-char const HolidaysEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiixxsiix";
-const char Itemfmt[] = "niiiiiiii";
-char const ItemAppearanceEntryfmt[]="nii";
-char const ItemBonusEntryfmt[] = "niiiii";
-const char ItemCurrencyCostfmt[] = "xn";
-char const ItemModifiedAppearanceEntryfmt[] = "niiiii";
-const char ItemSparsefmt[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
-char const ItemExtendedCostEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiii";
-const std::string CustomItemExtendedCostEntryfmt="paappppppppppppappppppppppaapa";
-const std::string CustomItemExtendedCostEntryIndex = "ID";
-char const ItemEffectEntryfmt[]="niiiiiiii";
-const char LanguageWordsEntryfmt[] = "dis";
-char const KeyChainfmt[]="nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
-char const OverrideSpellDataEntryfmt[] = "niiiiiiiiiixx";
-char const PhaseGroupEntryfmt[] = "nii";
+char const CurvePointFormat[] = "niiff";
+char const GameObjectsFormat[] = "niiffffffffiiiiiiiiiiiis";
+char const HolidaysFormat[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
+char const ItemAppearanceFormat[] = "nii";
+char const ItemBonusFormat[] = "niiiii";
+char const ItemCurrencyCostFormat[] = "in";
+char const ItemEffectFormat[] = "niiiiiiii";
+char const ItemExtendedCostFormat[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiii";
+char const ItemFormat[] = "niiiiiiii";
+char const ItemModifiedAppearanceFormat[] = "niiiii";
+char const ItemSparseFormat[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
+char const ItemUpgradeFormat[] = "niiiii";
+char const KeyChainFormat[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+char const LanguageWordsFormat[] = "dis";
+char const MapChallengeModeFormat[] = "niiiiiiiii";
+char const OverrideSpellDataFormat[] = "niiiiiiiiiiii";
+char const PhaseGroupFormat[] = "nii";
+char const QuestPackageItemFormat[] = "niiii";
+char const RuleSetItemUpgradeFormat[] = "niii";
 char const SoundEntriesFormat[] = "nisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiififfiifffffii";
-char const SpellAuraRestrictionsEntryfmt[] = "diiiiiiii";
-char const SpellCastingRequirementsEntryfmt[] = "dixxixi";
-char const SpellClassOptionsEntryfmt[] = "niiiiii";
-const char BattlePetAbilityEntryfmt[]="nixiiixx";
-const char BattlePetAbilityEffectEntryfmt[]="nixxiiiiiiii";
-const char BattlePetEffectPropertiesEntryfmt[]="nxssssssxxxxxx";
-const char BattlePetAbilityTurnEntryfmt[]="nixixx";
-const char BattlePetAbilityStateEntryfmt[]="nxxx";
-const char BattlePetSpeciesEntryfmt[]="nixiiiixx";
-const char BattlePetSpeciesStateEntryfmt[]="niii";
-const char BattlePetSpeciesXAbilityEntryfmt[]="niiii";
-const char BattlePetStateEntryfmt[]="nxsi";
-const char BattlePetBreedQualityEntryfmt[]="nif";
-const char BattlePetBreedStateEntryfmt[]="niii";
+char const SpellAuraRestrictionsFormat[] = "niiiiiiii";
+char const SpellCastingRequirementsFormat[] = "niiiiii";
+char const SpellClassOptionsFormat[] = "niiiiii";
+char const SpellMiscFormat[] = "niiiiiiiiiiiiiiiiifiiiiif";
+char const SpellPowerFormat[] = "niiiiiiiiiffif";
+char const SpellReagentsFormat[] = "niiiiiiiiiiiiiiiiii";
+char const SpellRuneCostFormat[] = "niiiii";
+char const SpellTotemsFormat[] = "niiii";
+char const SpellVisualFormat[] = "niiiiiiiiiiiiiiiiiiffffffiiiii";
+char const TaxiNodesFormat[] = "nifffsiiiiiff";
+char const TaxiPathFormat[] = "niii";
+char const TaxiPathNodeFormat[] = "niiifffiiii";
+char const ToyFormat[] = "niisi";
 const char GarrisonAbilityEntryfmt[] = "nxxxxxx";
 const char GarrisonAbilityEffectEntryfmt[] = "nxixxxxxxxx";
 const char GarrisonBuildingEntryfmt[] = "niixxissxxiiixxxxxxxixxi";
@@ -69,21 +85,5 @@ const char GarrisonPlotBuildingEntryfmt[] = "nii";
 const char GarrisonPlotInstanceEntryfmt[] = "nix";
 const char GarrisonSiteLevelEntryfmt[] = "niixxxxxxii";
 const char GarrisonSiteLevelPlotInstEntryfmt[] = "niixxx";
-char const SpellMiscEntryfmt[] = "niiiiiiiiiiiiiiiiifiiiiix";
-char const SpellPowerEntryfmt[] = "niiiiiixixffif";
-const char SpellReagentsEntryfmt[] = "diiiiiiiiiiiiiiiiii";
-char const SpellRuneCostEntryfmt[] = "niiiii";
-char const SpellTotemsEntryfmt[] = "niiii";
-char const TaxiNodesEntryfmt[] = "nifffsiiiiiff";
-char const TaxiPathEntryfmt[] = "niii";
-char const TaxiPathNodeEntryfmt[] = "niiifffiiii";
-
-const char QuestPackageItemfmt[] = "iiiix";
-const char ItemUpgradeEntryfmt[] = "niiiii";
-const char RuleSetItemUpgradeEntryfmt[] = "niii";
-const char GameObjectsEntryfmt[] = "niiffffffffiiiiiiiiiiiis";
-const char MapChallengeModeEntryfmt[] = "niiiiiiiii";
-const char SpellVisualEntryfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxixxxx";
-const char ToyFormat[] = "niisi";
 
 #endif

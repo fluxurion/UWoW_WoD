@@ -656,8 +656,8 @@ bool InstanceScript::IsWipe() const
         // TODO: move this to scenario mgr
         if (uint32 time = GetChallengeProgresTime())
         {
-            MapChallengeModeEntryMap::iterator itr = sMapChallengeModeEntrybyMap.find(instance->GetId());
-            if (itr != sMapChallengeModeEntrybyMap.end())
+            auto itr = sDB2Manager._mapChallengeModeEntrybyMap.find(instance->GetId());
+            if (itr != sDB2Manager._mapChallengeModeEntrybyMap.end())
             {
                 ChallengeMode medal = CHALLENGE_MEDAL_NONE;
                 MapChallengeModeEntry const* mode = itr->second;
@@ -788,7 +788,7 @@ void InstanceScript::StartChallenge()
         return;
 
     // Check if dungeon support challenge
-    if (sMapChallengeModeEntrybyMap.find(instance->GetId()) == sMapChallengeModeEntrybyMap.end())
+    if (sDB2Manager._mapChallengeModeEntrybyMap.find(instance->GetId()) == sDB2Manager._mapChallengeModeEntrybyMap.end())
         return;
 
     // Set Timer For Start challenge

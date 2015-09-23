@@ -261,17 +261,12 @@ void WorldPackets::Query::DBQueryBulk::Read()
 
 WorldPacket const* WorldPackets::Query::DBReply::Write()
 {
-    _worldPacket << TableHash;
-    _worldPacket << RecordID;
-    _worldPacket << Timestamp;
-
-    size_t sizePos = _worldPacket.wpos();
-    _worldPacket << int32(0); // size of next block
-
-    if (Data)
-        Data->WriteRecord(RecordID, Locale, _worldPacket);
-
-    _worldPacket.put<int32>(sizePos, _worldPacket.wpos() - sizePos - sizeof(int32));
+    _worldPacket << uint32(TableHash);
+    _worldPacket << uint32(RecordID);
+    _worldPacket << uint32(Timestamp);
+    _worldPacket.WriteBit(Allow);
+    _worldPacket << uint32(Data.size());
+    _worldPacket.append(Data);
 
     return &_worldPacket;
 }
@@ -279,9 +274,9 @@ WorldPacket const* WorldPackets::Query::DBReply::Write()
 WorldPacket const* WorldPackets::Query::HotfixNotifyBlob::Write()
 {
     _worldPacket << uint32(Hotfixes->size());
-    for (HotfixInfo const& hotfix : *Hotfixes)
+    for (HotfixNotify const& hotfix : *Hotfixes)
     {
-        _worldPacket << uint32(hotfix.Type);
+        _worldPacket << uint32(hotfix.TableHash);
         _worldPacket << int32(hotfix.Entry);
         _worldPacket << uint32(hotfix.Timestamp);
     }

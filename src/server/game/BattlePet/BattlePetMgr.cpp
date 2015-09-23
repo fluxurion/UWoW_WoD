@@ -318,27 +318,13 @@ void BattlePetMgr::SendPetBattleRequestFailed(uint8 reason)
 // BattlePetStatAccumulator
 BattlePetStatAccumulator::BattlePetStatAccumulator(uint32 _speciesID, uint16 _breedID) : healthMod(0), powerMod(0), speedMod(0), qualityMultiplier(0.0f)
 {
-    for (uint32 i = 0; i < sBattlePetSpeciesStateStore.GetNumRows(); ++i)
-    {
-        BattlePetSpeciesStateEntry const* entry = sBattlePetSpeciesStateStore.LookupEntry(i);
+    for (BattlePetSpeciesStateEntry const* speciesState : sBattlePetSpeciesStateStore)
+        if (speciesState->SpeciesID == _speciesID)
+            Accumulate(speciesState->State, speciesState->Value);
 
-        if (!entry)
-            continue;
-
-        if (entry->speciesID == _speciesID)
-            Accumulate(entry->stateID, entry->stateModifier);
-    }
-
-    for (uint32 i = 0; i < sBattlePetBreedStateStore.GetNumRows(); ++i)
-    {
-        BattlePetBreedStateEntry const* entry1 = sBattlePetBreedStateStore.LookupEntry(i);
-
-        if (!entry1)
-            continue;
-
-        if (entry1->breedID == _breedID)
-            Accumulate(entry1->stateID, entry1->stateModifier);
-    }
+    for (BattlePetBreedStateEntry const* state : sBattlePetBreedStateStore)
+        if (state->breedID == _breedID)
+            Accumulate(state->stateID, state->stateModifier);
 }
 
 // PetBattleWild
@@ -398,13 +384,11 @@ bool PetBattleWild::PrepareBattleInfo(ObjectGuid creatureGuid)
 
     uint8 wildPetLevel = wildPet->GetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL);
 
-    BattlePetSpeciesEntry const* s = m_player->GetBattlePetMgr()->GetBattlePetSpeciesEntry(wildPet->GetEntry());
-
+    BattlePetSpeciesEntry const* s = sDB2Manager.GetBattlePetSpeciesEntry(wildPet->GetEntry());
     if (!s)
         return false;
 
     CreatureTemplate const* t = sObjectMgr->GetCreatureTemplate(wildPet->GetEntry());
-
     if (!t)
         return false;
 
@@ -1652,27 +1636,13 @@ void PetBattleWild::FinishPetBattle(bool error)
 
 uint32 PetBattleWild::GetVisualEffectIDByAbilityID(uint32 abilityID, uint8 turnIndex)
 {
-    // get turn data entry
-    for (uint32 i = 0; i < sBattlePetAbilityTurnStore.GetNumRows(); ++i)
+    for (BattlePetAbilityTurnEntry const* tEntry : sBattlePetAbilityTurnStore)
     {
-        BattlePetAbilityTurnEntry const* tEntry = sBattlePetAbilityTurnStore.LookupEntry(i);
-
-        if (!tEntry)
-            continue;
-
         if (tEntry->AbilityID == abilityID && tEntry->turnIndex == turnIndex)
         {
-            // get effect data
-            for (uint32 j = 0; j < sBattlePetAbilityEffectStore.GetNumRows(); ++j)
-            {
-                BattlePetAbilityEffectEntry const* eEntry = sBattlePetAbilityEffectStore.LookupEntry(j);
-
-                if (!eEntry)
-                    continue;
-
+            for (BattlePetAbilityEffectEntry const* eEntry : sBattlePetAbilityEffectStore)
                 if (eEntry->TurnEntryID == tEntry->ID)
                     return eEntry->ID;
-            }
         }
     }
 
@@ -1694,13 +1664,8 @@ PetBattleAbilityInfo::PetBattleAbilityInfo(uint32 _ID, uint32 _speciesID)
         auraDuration = abilityEntry->auraDuration;
         // get data from xAbilityEntry
         // fucking blizzard...
-        for (uint32 i = 0; i < sBattlePetSpeciesXAbilityStore.GetNumRows(); ++i)
+        for (BattlePetSpeciesXAbilityEntry const* xEntry : sBattlePetSpeciesXAbilityStore)
         {
-            BattlePetSpeciesXAbilityEntry const* xEntry = sBattlePetSpeciesXAbilityStore.LookupEntry(i);
-
-            if (!xEntry)
-                continue;
-
             if (xEntry->abilityID == abilityEntry->ID && xEntry->speciesID == _speciesID)
             {
                 requiredLevel = xEntry->requiredLevel;
@@ -1722,38 +1687,23 @@ uint32 PetBattleAbilityInfo::GetEffectProperties(uint8 properties, uint32 effect
     }
 
     // get turn data entry
-    for (uint32 i = 0; i < sBattlePetAbilityTurnStore.GetNumRows(); ++i)
+    for (BattlePetAbilityTurnEntry const* tEntry : sBattlePetAbilityTurnStore)
     {
-        BattlePetAbilityTurnEntry const* tEntry = sBattlePetAbilityTurnStore.LookupEntry(i);
-
-        if (!tEntry)
-            continue;
-
         if (tEntry->AbilityID == ID && tEntry->turnIndex == turnIndex)
         {
             // get effect data
-            for (uint32 j = 0; j < sBattlePetAbilityEffectStore.GetNumRows(); ++j)
+            for (BattlePetAbilityEffectEntry const* eEntry : sBattlePetAbilityEffectStore)
             {
-                BattlePetAbilityEffectEntry const* eEntry = sBattlePetAbilityEffectStore.LookupEntry(j);
-
-                if (!eEntry)
-                    continue;
-
                 if (eEntry->TurnEntryID == tEntry->ID)
                 {
                     // get effect properties data
-                    for (uint32 k = 0; k < sBattlePetEffectPropertiesStore.GetNumRows(); ++k)
+                    for (BattlePetEffectPropertiesEntry const* pEntry : sBattlePetEffectPropertiesStore)
                     {
-                        BattlePetEffectPropertiesEntry const* pEntry = sBattlePetEffectPropertiesStore.LookupEntry(k);
-
-                        if (!pEntry)
-                            continue;
-
                         if (eEntry->propertiesID == pEntry->ID)
                         {
                             for (uint8 l = 0; l < MAX_EFFECT_PROPERTIES; ++l)
                             {
-                                if (!strcmp(pEntry->propertyDescs[l], desc))
+                                if (!strcmp(pEntry->propertyDescs[DEFAULT_LOCALE][l].Str[DEFAULT_LOCALE], desc))
                                     return eEntry->propertyValues[l];
                             }
                         }
@@ -1776,13 +1726,8 @@ float PetBattleAbilityInfo::GetAttackModifier(uint8 attackType, uint8 defenseTyp
     if (GtBattlePetTypeDamageModEntry const* gt = sGtBattlePetTypeDamageModStore.EvaluateTable(defenseType-1, Type-1))
         return gt->value;
 
-    //for (uint32 j = 0; j < sGtBattlePetTypeDamageModStore.GetNumRows(); ++j)
+    //for (GtBattlePetTypeDamageModEntry const* gt : sGtBattlePetTypeDamageModStore)
     //{
-    //    GtBattlePetTypeDamageModEntry const* gt = sGtBattlePetTypeDamageModStore.LookupEntry(j);
-
-    //    if (!gt)
-    //        continue;
-
     //    if (gt->Id == modId)
     //        return gt->value;
     //}
@@ -1793,13 +1738,8 @@ float PetBattleAbilityInfo::GetAttackModifier(uint8 attackType, uint8 defenseTyp
 // PetJournalInfo
 uint32 PetJournalInfo::GetAbilityID(uint8 rank)
 {
-    for (uint32 i = 0; i < sBattlePetSpeciesXAbilityStore.GetNumRows(); ++i)
+    for (BattlePetSpeciesXAbilityEntry const* xEntry : sBattlePetSpeciesXAbilityStore)
     {
-        BattlePetSpeciesXAbilityEntry const* xEntry = sBattlePetSpeciesXAbilityStore.LookupEntry(i);
-
-        if (!xEntry)
-            continue;
-
         if (xEntry->speciesID == speciesID && xEntry->rank == rank)
         {
             if (rank == 0)

@@ -266,88 +266,85 @@ bool CheckSpecProp(uint32 ench, uint32 type, uint32 SpecID)
 
 bool CheckStatsSpec(uint32 StatType, uint32 SpecID)
 {
-    for (uint32 i = 0; i < sItemSpecStore.GetNumRows(); ++i)
+    for (ItemSpecEntry const* itemSpec : sItemSpecStore)
     {
-        if (ItemSpecEntry const* itemSpec = sItemSpecStore.LookupEntry(i))
-        {
-            if(itemSpec->SpecID != SpecID)
-                continue;
+        if (itemSpec->SpecID != SpecID)
+            continue;
 
-            switch (StatType)
-            {
-                case ITEM_MOD_AGILITY:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_AGILITY)
-                        return true;
-                    break;
-                case ITEM_MOD_STRENGTH:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_STRENGTH)
-                        return true;
-                    break;
-                case ITEM_MOD_INTELLECT:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_INTELLECT)
-                        return true;
-                    break;
-                case ITEM_MOD_SPIRIT:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_SPIRIT)
-                        return true;
-                    break;
-                case ITEM_MOD_DODGE_RATING:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_DODGE)
-                        return true;
-                    break;
-                case ITEM_MOD_PARRY_RATING:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_PARRY)
-                        return true;
-                    break;
-                case ITEM_MOD_CRIT_MELEE_RATING:
-                case ITEM_MOD_CRIT_RANGED_RATING:
-                case ITEM_MOD_CRIT_SPELL_RATING:
-                case ITEM_MOD_CRIT_RATING:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_CRIT)
-                        return true;
-                    break;
-                case ITEM_MOD_HASTE_MELEE_RATING:
-                case ITEM_MOD_HASTE_RANGED_RATING:
-                case ITEM_MOD_HASTE_SPELL_RATING:
-                case ITEM_MOD_HASTE_RATING:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_HASTE)
-                        return true;
-                    break;
-                case ITEM_MOD_HIT_RATING:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_HIT)
-                        return true;
-                    break;
-                case ITEM_MOD_EXTRA_ARMOR:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_BONUS_ARMOR)
-                        return true;
-                    break;
-                case ITEM_MOD_AGI_STR_INT:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_STRENGTH)
-                        return true;
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_STRENGTH)
-                        return true;
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_INTELLECT)
-                        return true;
-                    break;
-                case ITEM_MOD_AGI_STR:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_AGILITY)
-                        return true;
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_STRENGTH)
-                        return true;
-                    break;
-                case ITEM_MOD_AGI_INT:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_AGILITY)
-                        return true;
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_INTELLECT)
-                        return true;
-                    break;
-                case ITEM_MOD_STR_INT:
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_INTELLECT)
-                        return true;
-                    if(itemSpec->SecondaryStat == ITEM_SPEC_STAT_STRENGTH)
-                        return true;
-                    break;
-            }
+        switch (StatType)
+        {
+            case ITEM_MOD_AGILITY:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_AGILITY)
+                    return true;
+                break;
+            case ITEM_MOD_STRENGTH:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_STRENGTH)
+                    return true;
+                break;
+            case ITEM_MOD_INTELLECT:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_INTELLECT)
+                    return true;
+                break;
+            case ITEM_MOD_SPIRIT:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_SPIRIT)
+                    return true;
+                break;
+            case ITEM_MOD_DODGE_RATING:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_DODGE)
+                    return true;
+                break;
+            case ITEM_MOD_PARRY_RATING:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_PARRY)
+                    return true;
+                break;
+            case ITEM_MOD_CRIT_MELEE_RATING:
+            case ITEM_MOD_CRIT_RANGED_RATING:
+            case ITEM_MOD_CRIT_SPELL_RATING:
+            case ITEM_MOD_CRIT_RATING:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_CRIT)
+                    return true;
+                break;
+            case ITEM_MOD_HASTE_MELEE_RATING:
+            case ITEM_MOD_HASTE_RANGED_RATING:
+            case ITEM_MOD_HASTE_SPELL_RATING:
+            case ITEM_MOD_HASTE_RATING:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_HASTE)
+                    return true;
+                break;
+            case ITEM_MOD_HIT_RATING:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_HIT)
+                    return true;
+                break;
+            case ITEM_MOD_EXTRA_ARMOR:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_BONUS_ARMOR)
+                    return true;
+                break;
+            case ITEM_MOD_AGI_STR_INT:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_STRENGTH)
+                    return true;
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_STRENGTH)
+                    return true;
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_INTELLECT)
+                    return true;
+                break;
+            case ITEM_MOD_AGI_STR:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_AGILITY)
+                    return true;
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_STRENGTH)
+                    return true;
+                break;
+            case ITEM_MOD_AGI_INT:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_AGILITY)
+                    return true;
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_INTELLECT)
+                    return true;
+                break;
+            case ITEM_MOD_STR_INT:
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_INTELLECT)
+                    return true;
+                if (itemSpec->SecondaryStat == ITEM_SPEC_STAT_STRENGTH)
+                    return true;
+                break;
         }
     }
     return false;

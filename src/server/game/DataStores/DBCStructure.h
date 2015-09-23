@@ -760,7 +760,7 @@ struct ChrClassesEntry
     uint32      AttackPowerPerStrength;                     // 10 Attack Power bonus per point of strength
     uint32      AttackPowerPerAgility;                      // 11 Attack Power bonus per point of agility
     uint32      RangedAttackPowerPerAgility;                // 12 Ranged Attack Power bonus per point of agility
-    //uint32    DefaultSpec;                                // 13
+    uint32      DefaultSpec;                                  // 13
     //uint32    CreateScreenFileDataID;                     // 14
     //uint32    SelectScreenFileDataID;                     // 15
     //uint32    LowResScreenFileDataID;                     // 16

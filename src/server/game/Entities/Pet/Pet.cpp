@@ -1961,12 +1961,8 @@ void Pet::SynchronizeLevelWithOwner()
 
 void Pet::LearnSpecializationSpell()
 {
-    for (uint32 i = 0; i < sSpecializationSpellStore.GetNumRows(); i++)
+    for (SpecializationSpellEntry const* specializationEntry : sSpecializationSpellStore)
     {
-        SpecializationSpellEntry const* specializationEntry = sSpecializationSpellStore.LookupEntry(i);
-        if (!specializationEntry)
-            continue;
-
         if (specializationEntry->SpecializationEntry != GetSpecializationId())
             continue;
 
@@ -1976,12 +1972,8 @@ void Pet::LearnSpecializationSpell()
 
 void Pet::UnlearnSpecializationSpell()
 {
-    for (uint32 i = 0; i < sSpecializationSpellStore.GetNumRows(); i++)
+    for (SpecializationSpellEntry const* specializationEntry : sSpecializationSpellStore)
     {
-        SpecializationSpellEntry const* specializationEntry = sSpecializationSpellStore.LookupEntry(i);
-        if (!specializationEntry)
-            continue;
-
         if (specializationEntry->SpecializationEntry != GetSpecializationId())
             continue;
 

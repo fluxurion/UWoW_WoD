@@ -198,11 +198,9 @@ namespace WorldPackets
 
             uint32 TableHash = 0;
             uint32 Timestamp = 0;
-            int32 RecordID = 0;
-
-            // These are not sent directly
-            uint32 Locale = 0;
-            DB2StorageBase const* Data = nullptr;
+            uint32 RecordID = 0;
+            bool Allow = false;
+            ByteBuffer Data;
         };
 
         class HotfixNotifyBlob final : public ServerPacket

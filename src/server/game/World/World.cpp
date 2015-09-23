@@ -1494,6 +1494,8 @@ void World::SetInitialWorldSettings()
         exit(1);
     }
 
+    DetectDBCLang();
+
     ///- Initialize pool manager
     sPoolMgr->Initialize();
 
@@ -1521,11 +1523,14 @@ void World::SetInitialWorldSettings()
     CharacterDatabase.Execute(stmt);
 
     ///- Load the DBC files
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize data stores...");
-    LoadDBCStores(m_dataPath);
-    LoadDB2Stores(m_dataPath);
+    LoadDBCStores(m_dataPath, LOCALE_enUS);
+    LoadGameTables(m_dataPath, LOCALE_enUS);
+    sDB2Manager.LoadStores(m_dataPath, LOCALE_enUS);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading hotfix info...");
+    sDB2Manager.LoadHotfixData();
+    HotfixDatabase.Close();
+
     InitDBCCustomStores();  //init DBC custom conteiners after load DBC & DB
-    DetectDBCLang();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
@@ -2118,9 +2123,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Initializing Opcodes...");
     opcodeTable.Initialize();
-
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading hotfix info...");
-    sObjectMgr->LoadHotfixData();
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading research site to zone mapping data...");
     sObjectMgr->LoadResearchSiteToZoneData();

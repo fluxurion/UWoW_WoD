@@ -16119,12 +16119,8 @@ void Unit::InitialPowers(bool maxpower)
     packet.Guid = GetGUID();        
 
     int32 powerIndex = 0;
-    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
+    for (ChrPowerTypesEntry const* powerEntry : sChrPowerTypesStore)
     {
-        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
-        if (!powerEntry)
-            continue;
-
         if (powerEntry->classId != classId)
             continue;
 
@@ -23727,7 +23723,7 @@ bool isCaps(std::wstring wstr)
 
 std::string Trinity::CodeChatMessage(std::string text, uint32 lang_id)
 {
-    LanguageWordsMap const* wordMap = GetLanguageWordMap(lang_id);
+    auto const* wordMap = sDB2Manager.GetLanguageWordMap(lang_id);
     if (!wordMap)
         return "";
 
@@ -23744,7 +23740,7 @@ std::string Trinity::CodeChatMessage(std::string text, uint32 lang_id)
         if (wword.empty())
             continue;
 
-        if (std::vector<std::string> const* wordVector = GetLanguageWordsBySize(lang_id, wword.size()))
+        if (std::vector<std::string> const* wordVector = sDB2Manager.GetLanguageWordsBySize(lang_id, wword.size()))
         {
             std::string replacer = wordVector->at(GetWordWeight(t[i]) % wordVector->size());
             if (isCaps(wword))
@@ -24152,7 +24148,7 @@ void Unit::SendDisplayToast(uint32 entry, uint8 hasDisplayToastMethod, bool isBo
 
         data << uint32(entry); // ItemID
         data << uint32(0); // RandomPropertiesSeed
-        data << uint32(item->GetItemSuffixFactor()); // RandomPropertiesID
+        data << uint32(sDB2Manager.GetItemDisplayId(entry, 0)); // displayid
         data.WriteBit(false); // HasItemBonus
         /*{
             packet.ReadByte("Context", indexes);

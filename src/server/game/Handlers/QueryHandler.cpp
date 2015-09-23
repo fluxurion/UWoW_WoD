@@ -445,7 +445,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packe
 
 void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
 {
-    DB2StorageBase const* store = GetDB2Storage(packet.TableHash);
+    DB2StorageBase const* store = sDB2Manager.GetStorage(packet.TableHash);
     if (!store)
         return;
 
@@ -453,20 +453,17 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
     {
         WorldPackets::Query::DBReply response;
         response.TableHash = packet.TableHash;
+        response.RecordID = rec.RecordID;
 
         if (store->HasRecord(rec.RecordID))
         {
-            response.RecordID = rec.RecordID;
-            response.Locale = GetSessionDbcLocale();
-            response.Timestamp = sObjectMgr->GetHotfixDate(rec.RecordID, packet.TableHash);
-            response.Data = store;
+            response.Allow = true;
+            response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
+            store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
         }
         else
-        {
-            response.RecordID = -int32(rec.RecordID);
             response.Timestamp = time(NULL);
-        }
-        
+
         SendPacket(response.Write());
     }
 }

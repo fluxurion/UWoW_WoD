@@ -966,18 +966,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent PVPSeason");
     }
 
-    //! 5.4.1
-    /*data.Initialize(SMSG_HOTFIX_NOTIFY_BLOB);
-    HotfixData const& hotfix = sObjectMgr->GetHotfixData();
-    data.WriteBits(hotfix.size(), 22);
-    data.FlushBits();
-    for (uint32 i = 0; i < hotfix.size(); ++i)
-    {
-        data << uint32(hotfix[i].Timestamp);
-        data << uint32(hotfix[i].Type);
-        data << uint32(hotfix[i].Entry);
-    }
-    SendPacket(&data);*/
+    WorldPackets::Query::HotfixNotifyBlob hotfixInfo;
+    hotfixInfo.Hotfixes = sDB2Manager.GetHotfixData();
+    SendPacket(hotfixInfo.Write());
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
 

@@ -288,7 +288,7 @@ bool Item::Create(ObjectGuid::LowType const& guidlow, uint32 itemid, Player cons
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
 
     //ItemLevel = itemProto->ItemLevel;
-    //if (ItemUpgradeData const* upgradeData = GetItemUpgradeData(itemid))
+    //if (ItemUpgradeData const* upgradeData = sDB2Manager.GetItemUpgradeData(itemid))
     //    if (ItemUpgradeEntry const* upgradeEntry = upgradeData->upgrade[0])
     //    {
     //        SetUpgradeId(upgradeEntry->id);
@@ -543,7 +543,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType const& guid, ObjectGuid const& owner_g
 
         //! ON WOD IT'S DONE ON GETLEVEL
         ItemLevel = proto->ItemLevel;
-        if (ItemUpgradeData const* upgradeData = GetItemUpgradeData(entry))
+        if (ItemUpgradeData const* upgradeData = sDB2Manager.GetItemUpgradeData(entry))
         {
             for (uint32 i = 0; i < MAX_ITEM_UPDGRADES; ++i)
             {
@@ -1741,7 +1741,7 @@ uint32 Item::GetItemLevel() const
     uint32 itemLevel = stats->GetBaseItemLevel();
     if (Player const* owner = GetOwner())
         if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(stats->GetScalingStatDistribution()))
-            if (uint32 heirloomIlvl = GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
+            if (uint32 heirloomIlvl = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
                 itemLevel = heirloomIlvl;
 
     return std::min(std::max(itemLevel + _bonusData.ItemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
@@ -1765,9 +1765,9 @@ int32 Item::GetItemStatValue(uint32 index) const
 uint32 Item::GetDisplayId() const
 {
     if (uint32 transmogrification = GetModifier(ITEM_MODIFIER_TRANSMOG_ITEM_ID))
-        return GetItemDisplayId(transmogrification, GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD));
+        return sDB2Manager.GetItemDisplayId(transmogrification, GetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_MOD));
 
-    return GetItemDisplayId(GetEntry(), GetAppearanceModId());
+    return sDB2Manager.GetItemDisplayId(GetEntry(), GetAppearanceModId());
 }
 
 void Item::SetModifier(ItemModifier modifier, uint32 value)
@@ -1794,10 +1794,12 @@ uint32 Item::GetVisibleAppearanceModId() const
 
 void Item::AddBonuses(uint32 bonusListID)
 {
-    ItemBonusList bonuses = GetItemBonusList(bonusListID);
-    AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
-    for (ItemBonusEntry const* bonus : bonuses)
-        _bonusData.AddBonus(bonus->Type, bonus->Value);
+    if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
+    {
+        AddDynamicValue(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS, bonusListID);
+        for (ItemBonusEntry const* bonus : *bonuses)
+            _bonusData.AddBonus(bonus->Type, bonus->Value);
+    }
 }
 
 void BonusData::Initialize(ItemTemplate const* proto)

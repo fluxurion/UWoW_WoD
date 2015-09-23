@@ -380,10 +380,9 @@ ScenarioType ScenarioMgr::GetScenarioType(uint32 scenarioId)
 
 void ScenarioMgr::Initialize()
 {
-    for (uint32 i = 0; i < sScenarioStepStore.GetNumRows(); ++i)
+    for (ScenarioStepEntry const* entry : sScenarioStepStore)
     {
-        ScenarioStepEntry const* entry = sScenarioStepStore.LookupEntry(i);
-        if (!entry || !sScenarioStore.LookupEntry(entry->m_scenarioId))
+        if (!sScenarioStore.LookupEntry(entry->m_scenarioId))
             continue;
 
         m_stepMap[entry->m_scenarioId][entry->m_orderIndex] = entry;

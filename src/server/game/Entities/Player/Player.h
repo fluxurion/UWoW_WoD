@@ -2204,6 +2204,13 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo[spec].SpecializationId; }
         uint32 GetRoleForGroup(uint32 specializationId);
         bool isInTankSpec();
+        uint32 Player::GetDefaultSpecId() const 
+        {
+            ChrClassesEntry const* entry = sChrClassesStore.LookupEntry(getClass());
+            if (entry)
+                return entry->DefaultSpec;
+            return 0;
+        }
 
         bool ResetTalents(bool no_cost = false);
         uint32 GetNextResetTalentsCost() const;

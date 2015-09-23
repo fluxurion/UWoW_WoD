@@ -23,6 +23,10 @@
 #include "SharedDefines.h"
 #include "DBCEnums.h"
 
+#include <unordered_set>
+
+class Player;
+
 enum ItemModType
 {
     ITEM_MOD_MANA                     = 0,
@@ -863,6 +867,10 @@ struct ItemTemplate
     uint32 GetArmor(uint32 itemLevel) const;
     void GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const;
     uint32 GetDPS(uint32 itemLevel) const;
+    bool CanWinForPlayer(Player const* player) const;
+
+private:
+    std::unordered_set<uint32> Specializations[2];  // one set for 1-40 level range and another for 41-100
 };
 
 // Benchmarked: Faster than std::map (insert/find)

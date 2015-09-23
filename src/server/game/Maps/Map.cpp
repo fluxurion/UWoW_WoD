@@ -3093,8 +3093,8 @@ void Map::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Uni
         {
             if (uint32 time = instance->GetChallengeProgresTime())
             {
-                MapChallengeModeEntryMap::iterator itr = sMapChallengeModeEntrybyMap.find(GetId());
-                if (itr != sMapChallengeModeEntrybyMap.end())
+                auto itr = sDB2Manager._mapChallengeModeEntrybyMap.find(GetId());
+                if (itr != sDB2Manager._mapChallengeModeEntrybyMap.end())
                 {
                     ChallengeMode medal = CHALLENGE_MEDAL_NONE;
                     MapChallengeModeEntry const* mode = itr->second;

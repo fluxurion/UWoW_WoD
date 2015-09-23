@@ -1294,15 +1294,12 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     // original items
     CharStartOutfitEntry const* oEntry = NULL;
-    for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
+    for (CharStartOutfitEntry const* entry : sCharStartOutfitStore)
     {
-        if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
+        if (entry->RaceID == createInfo->Race && entry->ClassID == createInfo->Class && entry->GenderID == createInfo->Sex)
         {
-            if (entry->RaceID == createInfo->Race && entry->ClassID == createInfo->Class && entry->GenderID == createInfo->Sex)
-            {
-                oEntry = entry;
-                break;
-            }
+            oEntry = entry;
+            break;
         }
     }
 
@@ -4253,7 +4250,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             uint32 petEntry = spellInfo->GetBattlePetEntry();
             if(petEntry)
             {
-                if (BattlePetSpeciesEntry const* spEntry = GetBattlePetMgr()->GetBattlePetSpeciesEntry(petEntry))
+                if (BattlePetSpeciesEntry const* spEntry = sDB2Manager.GetBattlePetSpeciesEntry(petEntry))
                 {
                     if (CreatureTemplate const* creature = sObjectMgr->GetCreatureTemplate(petEntry))
                     {
@@ -7253,10 +7250,9 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 mSkillStatus.erase(itr);
 
             // remove all spells that related to this skill
-            for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
-                if (SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j))
-                    if (pAbility->skillId == id)
-                        removeSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
+            for (SkillLineAbilityEntry const* pAbility : sSkillLineAbilityStore)
+                if (pAbility->skillId == id)
+                    removeSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
 
             // Clear profession lines
             if (GetUInt32Value(PLAYER_FIELD_PROFESSION_SKILL_LINE) == id)
@@ -11292,10 +11288,9 @@ void Player::SendInitWorldTimers()
 
 void Player::SendBGWeekendWorldStates()
 {
-    for (uint32 i = 1; i < sBattlemasterListStore.GetNumRows(); ++i)
+    for (BattlemasterListEntry const* bl : sBattlemasterListStore)
     {
-        BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(i);
-        if (bl && bl->HolidayWorldStateId)
+        if (bl->HolidayWorldStateId)
         {
             if (BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->id))
                 SendUpdateWorldState(bl->HolidayWorldStateId, 1);
@@ -16648,17 +16643,26 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         }
     }
 
-    if (quest->GetQuestPackageID() > 0)
+    if (quest->GetQuestPackageID())
     {
-        if (uint32 packId = quest->GetItemFromPakage(packItemId))
+        if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(quest->GetQuestPackageID()))
         {
-            if (QuestPackageItem const* PackageID = sQuestPackageItemStore.LookupEntry(packId))
+            for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
             {
-                ItemPosCountVec dest;
-                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, PackageID->ItemID, PackageID->count) == EQUIP_ERR_OK)
+                if (questPackageItem->ItemID != reward)
+                    continue;
+
+                if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
                 {
-                    Item* item = StoreNewItem(dest, PackageID->ItemID, true, Item::GenerateItemRandomPropertyId(PackageID->ItemID));
-                    SendNewItem(item, PackageID->count, true, false);
+                    if (rewardProto->CanWinForPlayer(this))
+                    {
+                        ItemPosCountVec dest;
+                        if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
+                        {
+                            Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, Item::GenerateItemRandomPropertyId(questPackageItem->ItemID));
+                            SendNewItem(item, questPackageItem->ItemCount, true, false);
+                        }
+                    }
                 }
             }
         }
@@ -25868,10 +25872,9 @@ void Player::learnSkillRewardedSpells(uint32 skill_id, uint32 skill_value)
 {
     uint32 raceMask  = getRaceMask();
     uint32 classMask = getClassMask();
-    for (uint32 j=0; j<sSkillLineAbilityStore.GetNumRows(); ++j)
+    for (SkillLineAbilityEntry const* pAbility : sSkillLineAbilityStore)
     {
-        SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j);
-        if (!pAbility || pAbility->skillId != skill_id || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
+        if (pAbility->skillId != skill_id || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
             continue;
         // Check race if set
         if (pAbility->racemask && !(pAbility->racemask & raceMask))
