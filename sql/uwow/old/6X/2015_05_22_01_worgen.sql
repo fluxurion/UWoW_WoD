@@ -81,3 +81,25 @@ UPDATE `quest_template` SET `StartScript` = '24904' WHERE `quest_template`.`ID` 
 -- Q: 24681
 -- ------------
 UPDATE `quest_template` SET `QuestType` = '2' WHERE `quest_template`.`ID` = 24681;
+
+-- ------------
+-- Q: 24468 Stranded at the Marsh
+-- ------------
+UPDATE `creature_template` SET `KillCredit1` = '37078' WHERE `creature_template`.`entry` = 36882;
+
+-- ------------
+-- Q: 24483
+-- ------------
+UPDATE `quest_template_addon` SET `PrevQuestID` = '24472' WHERE `quest_template_addon`.`ID` = 24483;
+
+-- ------------
+-- Q: 24628
+-- ------------
+REPLACE INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `shared`) VALUES
+ ('201914', '50017', '-100', '1', '0', '1', '1', '0');
+ 
+ -- ------------
+-- Q: 24679
+-- ------------
+
+UPDATE `gameobject_template` SET Data0 = 0, Data2 = 1643WHERE `entry` = 201964 ORDER BY `entry` DESC

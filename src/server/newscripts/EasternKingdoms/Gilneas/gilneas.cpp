@@ -1882,7 +1882,8 @@ public:
             if (Player* player = rider->ToPlayer())
             {
                 player->KilledMonsterCredit(NPC_MOUNTAICE_HOURCE_CREDIT, ObjectGuid::Empty);
-                who->ToCreature()->DespawnOrUnsummon(1000);
+                player->ExitVehicle();
+                who->ToCreature()->ForcedDespawn(100);
             }
         }
     };
