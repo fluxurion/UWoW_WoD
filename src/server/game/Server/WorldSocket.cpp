@@ -601,8 +601,8 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
     uint32 latency;
 
     // Get the ping packet content
-    recvPacket >> latency;
     recvPacket >> ping;
+    recvPacket >> latency;
 
     if (_LastPingTime == steady_clock::time_point())
     {
