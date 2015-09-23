@@ -29,8 +29,6 @@ INSERT INTO creature_text VALUES
 
 -- 
 DELETE FROM conditions WHERE sourcetypeorreferenceid=13 AND sourceentry=68228;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(13, 1, 68228, 0, 0, 31, 0, 3, 300247, 0, 0, 0, '', 'Effect _0 Needs to target Krennan Aranas');
 
 DELETE FROM creature WHERE id=35753;
 INSERT INTO `creature` ( `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
@@ -38,11 +36,12 @@ INSERT INTO `creature` ( `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equi
 REPLACE INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 ('35753', '0', '0', '0', '0', '473', NULL);
 
-REPLACE INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `data24`, `data25`, `data26`, `data27`, `data28`, `data29`, `data30`, `data31`, `unkInt32`, `AIName`, `ScriptName`) VALUES
-(300247, 8, 0, 'TEMP Krennan Aranas Location', '', '', '', 0, 0, 1, 0, 0, 0, 0, 0, 0, 1630, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '');
+DELETE FROM `gameobject_template` WHERE entry = 300247 AND name LIKE 'TEMP Krennan Aranas Location';
 DELETE FROM `gameobject` WHERE id = 300247;
-INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-(300247, 654, 1, 7, -1674.09, 1348.42, 15.2845, 0.0996814, 0, 0, 0.0498201, 0.998758, 300, 0, 1);
+
+REPLACE INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
+(68228, 654, -1674.09, 1348.42, 15.2845, 0.0996814),
+(68219, 654, -1674.09, 1348.42, 15.2845, 0.0996814);
 
 --
 UPDATE `creature_template` SET `unit_flags` = `unit_flags` | 768 WHERE `entry` in ( 35905, 35753 );
