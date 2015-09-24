@@ -46,14 +46,14 @@ WorldPacket const* WorldPackets::ClientConfig::AddonInfo::Write()
     {
         for (::AddonInfo const& addon : *Addons)
         {
-            bool KeyProvided = addon.UsePublicKeyOrCRC && addon.CRC != STANDARD_ADDON_CRC;
+            bool KeyProvided = addon.CRC != STANDARD_ADDON_CRC;
             _worldPacket << uint8(addon.State);
 
-            _worldPacket.WriteBit(addon.Enabled);                               // InfoProvided
+            _worldPacket.WriteBit(true);                                        // InfoProvided
             _worldPacket.WriteBit(KeyProvided);                                 // KeyProvided
             _worldPacket.WriteBit(0);                                           // UrlProvided
 
-            if (addon.Enabled)
+            if (true/*InfoProvided*/)
             {
                 _worldPacket << uint8(1);                                       // KeyVersion
                 _worldPacket << uint32(0);                                      // Revision
