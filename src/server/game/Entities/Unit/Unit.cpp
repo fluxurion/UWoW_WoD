@@ -13069,8 +13069,7 @@ float Unit::CalcVersalityBonus(Unit* target, float amount)
 
         //Done = CalculatePct(damageDone, DamagePct);
         //Taken  = CalculatePct(taken,   HealPct);
-        }
-
+    }
 
 
     if (Player* plr = caster->ToPlayer())

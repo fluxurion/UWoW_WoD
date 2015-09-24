@@ -1041,9 +1041,6 @@ class WorldSession
         void HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicleExit& packet);
         void HandleMoveTimeSkipped(WorldPackets::Movement::MoveTimeSkipped& packet);
 
-        void HandleRequestVehicleExit(WorldPackets::Vehicle::RequestVehicleExit& packet);
-        void HandleMoveTimeSkipped(WorldPackets::Movement::MoveTimeSkipped& packet);
-
         void HandleRequestRaidInfo(WorldPackets::Party::RequestRaidInfo& packet);
 
         void HandleBattlefieldStatus(WorldPackets::Battleground::NullCmsg& packet);

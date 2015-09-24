@@ -1042,15 +1042,6 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
 }
 
 void WorldSession::HandleFarSight(WorldPackets::Misc::FarSight& packet)
-    Player* player = GetPlayer();
-    if (!player)
-        return;
-    if (!packet.Enable)
-        player->SetSeer(player);
-    else
-        if (WorldObject* target = player->GetViewpoint())
-            player->SetSeer(target);
-    player->UpdateVisibilityForPlayer();
 {
     Player* player = GetPlayer();
     if (!player)

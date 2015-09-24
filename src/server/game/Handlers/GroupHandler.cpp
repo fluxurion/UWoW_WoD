@@ -548,7 +548,10 @@ void WorldSession::HandleSetLootMethod(WorldPackets::Party::SetLootMethod& packe
 
     if (!group->IsLeader(GetPlayer()->GetGUID()) || group->isLFGGroup())
         return;
+
     if (packet.LootThreshold < ITEM_QUALITY_UNCOMMON || packet.LootThreshold > ITEM_QUALITY_ARTIFACT)
+        return;
+
     if (packet.LootMethod == MASTER_LOOT && !group->IsMember(packet.LootMasterGUID))
         return;
 
@@ -559,15 +562,21 @@ void WorldSession::HandleSetLootMethod(WorldPackets::Party::SetLootMethod& packe
 }
 
 void WorldSession::HandleMinimapPing(WorldPackets::Party::MinimapPingClient& packet)
+{
     Player* player = GetPlayer();
     if (!player)
+        return;
+
     if (!player->GetGroup())
         return;
+
     WorldPackets::Party::MinimapPing minimapPing;
     minimapPing.Sender = player->GetGUID();
     minimapPing.PositionX = packet.PositionX;
     minimapPing.PositionY = packet.PositionY;
     player->GetGroup()->BroadcastPacket(minimapPing.Write(), true, -1, player->GetGUID());
+}
+
 void WorldSession::HandleUpdateRaidTarget(WorldPackets::Party::UpdateRaidTarget& packet)
 {
     Player* player = GetPlayer();

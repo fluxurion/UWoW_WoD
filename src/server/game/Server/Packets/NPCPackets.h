@@ -149,10 +149,10 @@ namespace WorldPackets
             std::vector<TrainerListSpell> Spells;
         };
 
-        class TrainerBuyFailed final : public ServerPacket
+        class ShowBank final : public ServerPacket
         {
         public:
-            TrainerBuyFailed() : ServerPacket(SMSG_TRAINER_BUY_FAILED, 16 + 4 + 4) { }
+            ShowBank() : ServerPacket(SMSG_SHOW_BANK, 16) { }
 
             WorldPacket const* Write() override;
 

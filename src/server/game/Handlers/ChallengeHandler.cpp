@@ -96,20 +96,17 @@ void WorldSession::HandleGetChallengeModeRewards(WorldPackets::ChallengeMode::Mi
     WorldPackets::ChallengeMode::MapChallengeModeReward mapRewards = rewards.MapChallengeModeRewards[sMapChallengeModeStore.GetFieldCount() - 1]; // -1 really needed?
     WorldPackets::ChallengeMode::ItemReward itemReward = rewards.ItemRewards[0];
     
-    for (uint32 i = 0; i < sMapChallengeModeStore.GetNumRows(); ++i)
+    for (MapChallengeModeEntry const* challenge : sMapChallengeModeStore)
     {
-        if (MapChallengeModeEntry const* challenge = sMapChallengeModeStore.LookupEntry(i))
+        mapRewards.MapId = challenge->map;
+
+        WorldPackets::ChallengeMode::MapChallengeModeReward::ChallengeModeReward mapReward = mapRewards.Rewards[CHALLENGE_MEDAL_PLAT];
+
+        for (int32 i = CHALLENGE_MEDAL_NONE; i < CHALLENGE_MEDAL_PLAT; ++i)
         {
-            mapRewards.MapId = challenge->map;
-
-            WorldPackets::ChallengeMode::MapChallengeModeReward::ChallengeModeReward mapReward = mapRewards.Rewards[CHALLENGE_MEDAL_PLAT];
-
-            for (int32 i = CHALLENGE_MEDAL_NONE; i < CHALLENGE_MEDAL_PLAT; ++i)
-            {
-                mapReward.Money = 198450; // "best time in seconds." - wat? what is it ? best time? 
-                //for (bla bla bla)
-                    mapReward.CurrencyRewards.emplace_back(uint32(CURRENCY_TYPE_VALOR_POINTS), sChallengeMgr->GetValorPointsReward(i));
-            }
+            mapReward.Money = 198450; // "best time in seconds." - wat? what is it ? best time? 
+            //for (bla bla bla)
+            mapReward.CurrencyRewards.emplace_back(uint32(CURRENCY_TYPE_VALOR_POINTS), sChallengeMgr->GetValorPointsReward(i));
         }
     }
 
