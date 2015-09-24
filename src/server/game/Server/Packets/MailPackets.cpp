@@ -76,6 +76,7 @@ WorldPackets::Mail::MailListEntry::MailListEntry(::Mail const* mail, ::Player* p
         case MAIL_GAMEOBJECT:
         case MAIL_AUCTION:
         case MAIL_ITEM:
+        case MAIL_CALENDAR:
             AltSenderID = mail->sender;
             break;
     }
@@ -241,6 +242,7 @@ WorldPackets::Mail::MailQueryNextTimeResult::MailNextTimeEntry::MailNextTimeEntr
         case MAIL_CREATURE:
         case MAIL_GAMEOBJECT:
         case MAIL_ITEM:
+        case MAIL_CALENDAR:
             AltSenderID = mail->sender;
             break;
     }

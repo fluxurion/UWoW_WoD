@@ -8435,38 +8435,21 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
 
 void Spell::EffectSummonRaidMarker(SpellEffIndex effIndex)
 {
-    Unit* caster = GetOriginalCaster();
-    // FIXME: in case wild GO will used wrong affective caster (target in fact) as dynobject owner
-    if (!caster)
-        caster = m_caster;
-
-    if (caster->GetTypeId() != TYPEID_PLAYER)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    Player* pCaster = caster->ToPlayer();
-
-    Group* group = pCaster->GetGroup();
-    if (!group)
+    Player* player = m_caster->ToPlayer();
+    if (!player || !m_targets.HasDst())
         return;
 
-    if (!group->IsAssistant(pCaster->GetGUID()) && !group->IsLeader(pCaster->GetGUID()))
+    Group* group = player->GetGroup();
+    if (!group || (group->isRaidGroup() && !group->IsLeader(player->GetGUID()) && !group->IsAssistant(player->GetGUID())))
         return;
 
-    uint8 slot = damage;
+    float x, y, z;
+    destTarget->GetPosition(x, y, z);
 
-    //float radius = m_spellInfo->GetEffect(effIndex, m_diffMode).CalcRadius(caster, this);
-    float radius = 16.0f;
-    int32 duration = m_spellInfo->GetDuration();
-    DynamicObject* dynObj = new DynamicObject(false);
-    if (!dynObj->CreateDynamicObject(sObjectMgr->GetGenerator<HighGuid::DynamicObject>()->Generate(), pCaster, m_spellInfo->Id, *m_targets.GetDstPos(), radius, DYNAMIC_OBJECT_RAID_MARKER))
-    {
-        delete dynObj;
-        return;
-    }
-
-    SetSpellDynamicObject(dynObj->GetGUID());
-    dynObj->SetDuration(duration);
-    group->SetRaidMarker(slot, pCaster, dynObj->GetGUID());
+    group->AddRaidMarker(damage, player->GetMapId(), x, y, z);
 }
 
 void Spell::EffectRandomizeDigsites(SpellEffIndex effIndex)

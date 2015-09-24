@@ -302,11 +302,11 @@ namespace WorldPackets
                 uint8 NewPosition = 0;
             };
 
-            ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet)) { }
+            ReorderCharacters(WorldPacket&& packet);
 
             void Read() override;
 
-            std::list<ReorderInfo> Entries;
+            Array<ReorderInfo> Entries;
         };
 
         class UndeleteCharacter final : public ClientPacket
@@ -328,6 +328,14 @@ namespace WorldPackets
 
             CharacterUndeleteInfo const* UndeleteInfo = nullptr;
             uint32 Result = 0;
+        };
+
+        class GetUndeleteCharacterCooldownStatus final : public ClientPacket
+        {
+        public:
+            GetUndeleteCharacterCooldownStatus(WorldPacket&& packet) : ClientPacket(CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS, std::move(packet)) { }
+
+            void Read() override { }
         };
 
         class UndeleteCooldownStatusResponse final : public ServerPacket
@@ -460,6 +468,169 @@ namespace WorldPackets
             time_t RaidOrigin = time_t(1135753200); // 28/12/2005 07:00:00
             int32 ServerRegionID = 3;   // Cfg_Regions.dbc, EU
         };
+
+        class SetActionBarToggles final : public ClientPacket
+        {
+        public:
+            SetActionBarToggles(WorldPacket&& packet) : ClientPacket(CMSG_SET_ACTION_BAR_TOGGLES, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Mask = 0;
+        };
+
+        class RequestPlayedTime final : public ClientPacket
+        {
+        public:
+            RequestPlayedTime(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PLAYED_TIME, std::move(packet)) { }
+
+            void Read() override;
+
+            bool TriggerScriptEvent = false;
+        };
+
+        class PlayedTime final : public ServerPacket
+        {
+        public:
+            PlayedTime() : ServerPacket(SMSG_PLAYED_TIME, 9) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TotalTime = 0;
+            int32 LevelTime = 0;
+            bool TriggerEvent = false;
+        };
+
+        class ShowingCloak final : public ClientPacket
+        {
+        public:
+            ShowingCloak(WorldPacket&& packet) : ClientPacket(CMSG_SHOWING_CLOAK, std::move(packet)) { }
+
+            void Read() override;
+
+            bool ShowCloak = false;
+        };
+
+        class ShowingHelm final : public ClientPacket
+        {
+        public:
+            ShowingHelm(WorldPacket&& packet) : ClientPacket(CMSG_SHOWING_HELM, std::move(packet)) { }
+
+            void Read() override;
+
+            bool ShowHelm = false;
+        };
+
+        class SetTitle final : public ClientPacket
+        {
+        public:
+            SetTitle(WorldPacket&& packet) : ClientPacket(CMSG_SET_TITLE, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 TitleID = 0;
+        };
+
+        class AlterApperance final : public ClientPacket
+        {
+        public:
+            AlterApperance(WorldPacket&& packet) : ClientPacket(CMSG_ALTER_APPEARANCE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 NewHairStyle = 0;
+            uint32 NewHairColor = 0;
+            uint32 NewFacialHair = 0;
+            uint32 NewSkinColor = 0;
+            uint32 NewFace = 0;
+        };
+
+        class BarberShopResultServer final : public ServerPacket
+        {
+        public:
+            BarberShopResultServer(BarberShopResult result) : ServerPacket(SMSG_BARBER_SHOP_RESULT, 4), Result(result) { }
+
+            WorldPacket const* Write() override;
+
+            BarberShopResult Result = BARBER_SHOP_RESULT_SUCCESS;
+        };
+
+        class LogXPGain final : public ServerPacket
+        {
+        public:
+            LogXPGain() : ServerPacket(SMSG_LOG_XP_GAIN, 30) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Victim;
+            int32 Original = 0;
+            uint8 Reason = 0;
+            int32 Amount = 0;
+            float GroupBonus = 0;
+            bool ReferAFriend = false;
+        };
+
+        class TitleEarned final : public ServerPacket
+        {
+        public:
+            TitleEarned(OpcodeServer opcode) : ServerPacket(opcode, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Index = 0;
+        };
+
+        class SetFactionAtWar final : public ClientPacket
+        {
+        public:
+            SetFactionAtWar(WorldPacket&& packet) : ClientPacket(CMSG_SET_FACTION_AT_WAR, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 FactionIndex = 0;
+        };
+
+        class SetFactionNotAtWar final : public ClientPacket
+        {
+        public:
+            SetFactionNotAtWar(WorldPacket&& packet) : ClientPacket(CMSG_SET_FACTION_NOT_AT_WAR, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 FactionIndex = 0;
+        };
+
+        class SetFactionInactive final : public ClientPacket
+        {
+        public:
+            SetFactionInactive(WorldPacket&& packet) : ClientPacket(CMSG_SET_FACTION_INACTIVE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Index = 0;
+            bool State = false;
+        };
+
+        class SetWatchedFaction final : public ClientPacket
+        {
+        public:
+            SetWatchedFaction(WorldPacket&& packet) : ClientPacket(CMSG_SET_WATCHED_FACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 FactionIndex = 0;
+        };
+
+        class SetFactionVisible : public ServerPacket
+        {
+        public:
+            SetFactionVisible(bool visible) : ServerPacket(visible ? SMSG_SET_FACTION_VISIBLE : SMSG_SET_FACTION_NOT_VISIBLE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 FactionIndex = 0;
+        };
+
     }
 }
 

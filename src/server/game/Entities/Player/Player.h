@@ -1559,6 +1559,7 @@ class Player : public Unit, public GridObject<Player>
         bool ToggleDND();
         bool isAFK() const { return HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AFK); }
         bool isDND() const { return HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_DND); }
+        bool IsFFAPvP() const { return HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP); }
         uint8 GetChatTag() const;
         std::string afkMsg;
         std::string dndMsg;
@@ -1987,7 +1988,6 @@ class Player : public Unit, public GridObject<Player>
         bool HasQuestForItem(uint32 itemid) const;
         bool HasQuestForGO(int32 GOId) const;
         void UpdateForQuestWorldObjects();
-        void UpdateForRaidMarkers(Group* group);
         bool CanShareQuest(uint32 quest_id) const;
 
         int32 GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const;

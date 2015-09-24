@@ -916,36 +916,6 @@ void WorldSession::HandleCompleteMovie(WorldPacket& /*recvData*/)
     _player->SetCanDelayTeleport(false);
 }
 
-//! 6.0.3
-void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
-{
-    uint8 actionBar;
-
-    recvData >> actionBar;
-
-    if (!GetPlayer())                                        // ignore until not logged (check needed because STATUS_AUTHED)
-    {
-        if (actionBar != 0)
-            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetActionBarToggles in not logged state with value: %u, ignored", uint32(actionBar));
-        return;
-    }
-
-    GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, actionBar);
-}
-
-//! 6.0.3
-void WorldSession::HandlePlayedTime(WorldPacket& recvData)
-{
-    uint8 TriggerEvent;
-    recvData >> TriggerEvent;                                      // 0 or 127 expected. not it's bit
-
-    WorldPacket data(SMSG_PLAYED_TIME, 4 + 4 + 1);
-    data << uint32(_player->GetTotalPlayedTime());
-    data << uint32(_player->GetLevelPlayedTime());
-    data << uint8(TriggerEvent);                                    // 0 - will not show in chat frame
-    SendPacket(&data);
-}
-
 void WorldSession::HandleWhoisOpcode(WorldPackets::Who::WhoIsRequest& packet)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_WHO_IS");
@@ -1084,24 +1054,6 @@ void WorldSession::HandleFarSight(WorldPackets::Misc::FarSight& packet)
             player->SetSeer(target);
 
     player->UpdateVisibilityForPlayer();
-}
-
-//! 6.0.3
-void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
-{
-    int32 title;
-    recvData >> title;
-
-    // -1 at none
-    if (title > 0 && title < MAX_TITLE_INDEX)
-    {
-        if (!GetPlayer()->HasTitle(title))
-            return;
-    }
-    else
-        title = 0;
-
-    GetPlayer()->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, title);
 }
 
 //! 6.0.3

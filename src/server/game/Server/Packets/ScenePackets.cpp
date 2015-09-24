@@ -36,10 +36,7 @@ WorldPacket const* WorldPackets::Scene::PlayScene::Write()
     _worldPacket << SceneInstanceID;
     _worldPacket << SceneScriptPackageID;
     _worldPacket << TransportGUID;
-    _worldPacket << Pos.GetPositionX();
-    _worldPacket << Pos.GetPositionY();
-    _worldPacket << Pos.GetPositionZ();
-    _worldPacket << Pos.GetOrientation();
+    _worldPacket << Pos.PositionXYZOStream();
 
     return &_worldPacket;
 }

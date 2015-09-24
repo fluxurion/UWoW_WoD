@@ -68,6 +68,7 @@
 #include "VehiclePackets.h"
 #include "LootPackets.h"
 #include "CombatLogPackets.h"
+#include "PartyPackets.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -20408,16 +20409,15 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
     if (isRewardAllowed && player && player != victim)
     {
-        //! 6.0.3
-        WorldPacket data(SMSG_PARTY_KILL_LOG, 32); // send event PARTY_KILL
-        data << player->GetGUID();
-        data << victim->GetGUID();
+        WorldPackets::Party::PartyKillLog partyKillLog;
+        partyKillLog.Player = player->GetGUID();
+        partyKillLog.Victim = victim->GetGUID();
 
         Player* looter = player;
 
         if (Group* group = player->GetGroup())
         {
-            group->BroadcastPacket(&data, group->GetMemberGroup(player->GetGUID()));
+            group->BroadcastPacket(partyKillLog.Write(), group->GetMemberGroup(player->GetGUID()) != 0);
 
             if (creature)
             {
@@ -20441,7 +20441,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
         }
         else
         {
-            player->SendDirectMessage(&data);
+            player->SendDirectMessage(partyKillLog.Write());
 
             if (creature)
             {

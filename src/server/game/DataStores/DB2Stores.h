@@ -79,7 +79,7 @@ extern TaxiPathDestList                         sTaxiPathDestList;
 extern TaxiPathNodesByPath                      sTaxiPathNodesByPath;
 extern TaxiPathSetBySource                      sTaxiPathSetBySource;
 
-void LoadDB2Stores(const std::string& dataPath);
+void LoadDB2Stores(std::string const& dataPath);
 
 struct HotfixNotify
 {

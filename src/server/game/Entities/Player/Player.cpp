@@ -3347,22 +3347,16 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
     }
 }
 
-void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/)
+void Player::SendLogXPGain(uint32 givenXP, Unit* victim, uint32 bonusXP, bool recruitAFriend, float groupBonus)
 {
-    ObjectGuid guid;
-    if(victim)
-        guid = victim->GetGUID();
-
-    //! 6.0.3
-    WorldPacket data(SMSG_LOG_XP_GAIN, 8 + 4 + 1 + 1 + 1 + 4);   // guess size?
-    data << guid;
-    data << uint32(GivenXP + BonusXP);                          // given experience
-    data << uint8(victim ? 0 : 1);                              // 00-kill_xp type, 01-non_kill_xp type
-    data << uint32(victim ? GivenXP : 0); 
-    data << float(0.0f);
-    data.WriteBit(recruitAFriend);
-
-    GetSession()->SendPacket(&data);
+    WorldPackets::Character::LogXPGain packet;
+    packet.Victim = victim ? victim->GetGUID() : ObjectGuid::Empty;
+    packet.Original = givenXP + bonusXP;
+    packet.Reason = victim ? 0 : 1;
+    packet.Amount = givenXP;
+    packet.GroupBonus = groupBonus;
+    packet.ReferAFriend = recruitAFriend;
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
@@ -8306,8 +8300,8 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         {
             // Check if allowed to receive it in current map
             uint8 MapType = sWorld->getIntConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
-            if ((MapType == 1 && !InBattleground() && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
-                || (MapType == 2 && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+            if ((MapType == 1 && !InBattleground() && !IsFFAPvP())
+                || (MapType == 2 && !IsFFAPvP())
                 || (MapType == 3 && !InBattleground()))
                 return true;
 
@@ -24482,14 +24476,14 @@ void Player::UpdatePvPState(bool onlyFFA)
     if (!pvpInfo.inNoPvPArea && !isGameMaster()
         && (pvpInfo.inFFAPvPArea || sWorld->IsFFAPvPRealm()))
     {
-        if (!HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+        if (!IsFFAPvP())
         {
             SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
             for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
                 (*itr)->SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
         }
     }
-    else if (HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+    else if (IsFFAPvP())
     {
         RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
         for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
@@ -26197,33 +26191,6 @@ void Player::UpdateForQuestWorldObjects()
     GetSession()->SendPacket(&packet);
 }
 
-void Player::UpdateForRaidMarkers(Group* group)
-{
-    if(!GetMap())
-        return;
-
-    UpdateData udata(GetMapId());
-
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-    {
-        if (DynamicObject* obj = GetMap()->GetDynamicObject(group->GetRaidMarker(i)))
-            if (group == GetGroup())
-            {
-                if (obj->GetMapId() == GetMapId())
-                    obj->BuildCreateUpdateBlockForPlayer(&udata, this);
-            }
-            else
-                obj->BuildOutOfRangeUpdateBlock(&udata);
-    }
-
-    if (!udata.HasData())
-        return;
-
-    WorldPacket packet;
-    udata.BuildPacket(&packet);
-    GetSession()->SendPacket(&packet);
-}
-
 void Player::SummonIfPossible(bool agree)
 {
     if (!agree)
@@ -27212,10 +27179,9 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
         //UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE, title->bit_index);
     }
 
-    //! 6.0.3
-    WorldPacket data(lost ? SMSG_TITLE_LOST: SMSG_TITLE_EARNED, 4);
-    data << uint32(title->MaskID);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Character::TitleEarned packet(lost ? SMSG_TITLE_LOST : SMSG_TITLE_EARNED);
+    packet.Index = title->MaskID;
+    GetSession()->SendPacket(packet.Write());
 }
 
 bool Player::isTotalImmunity()

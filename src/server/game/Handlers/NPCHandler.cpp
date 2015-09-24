@@ -65,9 +65,9 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
 
 void WorldSession::SendTabardVendorActivate(ObjectGuid const& guid)
 {
-    WorldPacket data(SMSG_PLAYER_TABARD_VENDOR_ACTIVATE, 8 + 1);
-    data << guid;
-    SendPacket(&data);
+    WorldPackets::NPC::PlayerTabardVendorActivate activate;
+    activate.Vendor = guid;
+    SendPacket(activate.Write());
 }
 
 //! 6.0.3
@@ -95,9 +95,9 @@ void WorldSession::SendShowBank(ObjectGuid const& guid)
 {
     m_currentBankerGUID = guid;
 
-    WorldPacket data(SMSG_SHOW_BANK, 8 + 1);
-    data << guid;
-    SendPacket(&data);
+    WorldPackets::NPC::ShowBank bank;
+    bank.Guid = guid;
+    SendPacket(bank.Write());
 }
 
 void WorldSession::HandleTrainerListOpcode(WorldPacket & recvData)
@@ -186,11 +186,11 @@ void WorldSession::SendTrainerList(ObjectGuid const& guid, const std::string& st
         if (!valid)
             continue;
 
-        if(SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(tSpell->spell))
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(tSpell->spell))
         {
-            if(spellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && GetPlayer()->GetTeam() != HORDE)
+            if (spellInfo->AttributesEx7 & SPELL_ATTR7_HORDE_ONLY && GetPlayer()->GetTeam() != HORDE)
                 continue;
-            if(spellInfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY && GetPlayer()->GetTeam() != ALLIANCE)
+            if (spellInfo->AttributesEx7 & SPELL_ATTR7_ALLIANCE_ONLY && GetPlayer()->GetTeam() != ALLIANCE)
                 continue;
 
             // if spell relates to some specialization and it is not our spec - do not learn
@@ -238,82 +238,68 @@ void WorldSession::SendTrainerList(ObjectGuid const& guid, const std::string& st
     SendPacket(packet.Write());
 }
 
-void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recvData)
+void WorldSession::HandleTrainerBuySpell(WorldPackets::NPC::TrainerBuySpell& packet)
 {
-    ObjectGuid guid;
-    uint32 spellId;
-    int32 trainerId;
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    recvData >> guid >> trainerId >> spellId;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", uint32(guid.GetCounter()), spellId);
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
+    Creature* unit = player->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
+        return;
+
+    if (player->HasUnitState(UNIT_STATE_DIED))
+        player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    if (!unit->isCanTrainingOf(player, true))
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTrainerBuySpellOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(guid.GetCounter()));
+        SendTrainerService(packet.TrainerGUID, packet.SpellID, 0);
         return;
     }
 
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    if (!unit->isCanTrainingOf(_player, true))
-    { 
-        SendTrainerService(guid, spellId, 0);
-        return;
-    }
-
-    // check present spell in trainer spell list
     TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
     if (!trainer_spells)
     {
-        SendTrainerService(guid, spellId, 0);
+        SendTrainerService(packet.TrainerGUID, packet.SpellID, 0);
         return;
     }
 
-    // not found, cheat?
-    TrainerSpell const* trainer_spell = trainer_spells->Find(spellId);
+    TrainerSpell const* trainer_spell = trainer_spells->Find(packet.SpellID);
     if (!trainer_spell)
-    { 
-        SendTrainerService(guid, spellId, 0);
+    {
+        SendTrainerService(packet.TrainerGUID, packet.SpellID, 0);
         return;
     }
 
-    // can't be learn, cheat? Or double learn with lags...
-    if (_player->GetTrainerSpellState(trainer_spell) != TRAINER_SPELL_GREEN)
-    { 
-        SendTrainerService(guid, spellId, 0);
+    if (player->GetTrainerSpellState(trainer_spell) != TRAINER_SPELL_GREEN)
+    {
+        SendTrainerService(packet.TrainerGUID, packet.SpellID, 0);
         return;
     }
 
-    // apply reputation discount
-    uint32 nSpellCost = uint32(floor(trainer_spell->spellCost * _player->GetReputationPriceDiscount(unit)));
+    uint32 nSpellCost = uint32(floor(trainer_spell->spellCost * player->GetReputationPriceDiscount(unit)));
 
-    // check money requirement
-    if (!_player->HasEnoughMoney(uint64(nSpellCost)))
-    { 
-        SendTrainerService(guid, spellId, 1);
+    if (!player->HasEnoughMoney(uint64(nSpellCost)))
+    {
+        SendTrainerService(packet.TrainerGUID, packet.SpellID, 1);
         return;
     }
 
-    _player->ModifyMoney(-int64(nSpellCost));
+    player->ModifyMoney(-int64(nSpellCost));
 
     unit->SendPlaySpellVisualKit(179, 0);       // 53 SpellCastDirected
-    _player->SendPlaySpellVisualKit(362, 1);    // 113 EmoteSalute
+    player->SendPlaySpellVisualKit(362, 1);    // 113 EmoteSalute
 
-    // learn explicitly or cast explicitly
     if (trainer_spell->IsCastable())
-        _player->CastSpell(_player, trainer_spell->spell, true);
+        player->CastSpell(player, trainer_spell->spell, true);
     else
-        _player->learnSpell(spellId, false);
+        player->learnSpell(packet.SpellID, false);
 
-    SendTrainerService(guid, spellId, 2);
+    SendTrainerService(packet.TrainerGUID, packet.SpellID, 2);
 }
 
 void WorldSession::SendTrainerService(ObjectGuid guid, uint32 spellId, uint32 result)
-{ 
+{
     WorldPackets::NPC::TrainerBuyFailed failed;
     failed.TrainerGUID = guid;
     failed.SpellID = spellId;
@@ -323,181 +309,160 @@ void WorldSession::SendTrainerService(ObjectGuid guid, uint32 spellId, uint32 re
 
 void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TALK_TO_GOSSIP");
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_NONE);
-    if (!unit)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipHelloOpcode - Unit (GUID: %s) not found or you can not interact with him.", packet.Unit.ToString().c_str());
+    Player* player = GetPlayer();
+    if (!player)
         return;
-    }
 
-    // set faction visible if needed
+    Creature* unit = player->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_NONE);
+    if (!unit)
+        return;
+
     if (FactionTemplateEntry const* factionTemplateEntry = sFactionTemplateStore.LookupEntry(unit->getFaction()))
-        _player->GetReputationMgr().SetVisible(factionTemplateEntry);
+        player->GetReputationMgr().SetVisible(factionTemplateEntry);
 
-    GetPlayer()->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
-    // remove fake death
-    //if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-    //    GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
 
     if (unit->isArmorer() || unit->isCivilian() || unit->isQuestGiver() || unit->isServiceProvider() || unit->isGuard())
         unit->StopMoving();
 
-    // If spiritguide, no need for gossip menu, just put player into resurrect queue
     if (unit->isSpiritGuide())
     {
-        Battleground* bg = _player->GetBattleground();
+        Battleground* bg = player->GetBattleground();
         if (bg)
         {
-            bg->AddPlayerToResurrectQueue(unit->GetGUID(), _player->GetGUID());
-            sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, unit->GetGUID());
+            bg->AddPlayerToResurrectQueue(unit->GetGUID(), player->GetGUID());
+            sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(player, bg, unit->GetGUID());
             return;
         }
     }
 
-    if (!sScriptMgr->OnGossipHello(_player, unit))
+    if (!sScriptMgr->OnGossipHello(player, unit))
     {
-//        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
-        _player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);
-        _player->SendPreparedGossip(unit);
+        player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);
+        player->SendPreparedGossip(unit);
     }
 
-    unit->AI()->sGossipHello(_player);
+    unit->AI()->sGossipHello(player);
 }
 
-void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
+void WorldSession::HandleGossipSelectOption(WorldPackets::NPC::GossipSelectOption& packet)
 {
-    ObjectGuid guid;
-    uint32 gossipListId;
-    uint32 menuId;
-
-    recvData >> guid >> menuId >> gossipListId;
-
-    std::string code = recvData.ReadString(recvData.ReadBits(8));
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
     Creature* unit = NULL;
     GameObject* go = NULL;
-    if (guid.IsCreatureOrVehicle())
+    if (packet.GossipUnit.IsCreatureOrVehicle())
     {
-        unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
+        unit = player->GetNPCIfCanInteractWith(packet.GossipUnit, UNIT_NPC_FLAG_NONE);
         if (!unit)
-        {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOptionOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(guid.GetCounter()));
             return;
-        }
     }
-    else if (guid.IsGameObject())
+    else if (packet.GossipUnit.IsGameObject())
     {
-        go = _player->GetMap()->GetGameObject(guid);
+        go = player->GetMap()->GetGameObject(packet.GossipUnit);
         if (!go)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOptionOpcode - GameObject (GUID: %u) not found.", uint32(guid.GetCounter()));
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOption - GameObject (GUID: %u) not found.", packet.GossipUnit.GetCounter());
             return;
         }
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOptionOpcode - unsupported GUID type for highguid %u. lowpart %u.", guid.GetHigh(), guid.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOption - unsupported GUID type for highguid %u. lowpart %u.", packet.GossipUnit.GetHigh(), packet.GossipUnit.GetCounter());
         return;
     }
 
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    if (player->HasUnitState(UNIT_STATE_DIED))
+        player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     if ((unit && unit->GetCreatureTemplate()->ScriptID != unit->LastUsedScriptID) || (go && go->GetGOInfo()->ScriptId != go->LastUsedScriptID))
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOptionOpcode - Script reloaded while in use, ignoring and set new scipt id");
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOption - Script reloaded while in use, ignoring and set new scipt id");
         if (unit)
             unit->LastUsedScriptID = unit->GetCreatureTemplate()->ScriptID;
         if (go)
             go->LastUsedScriptID = go->GetGOInfo()->ScriptId;
-        _player->PlayerTalkClass->SendCloseGossip();
+        player->PlayerTalkClass->SendCloseGossip();
         return;
     }
 
-    if (!code.empty())
+    if (!packet.PromotionCode.empty())
     {
         if (unit)
         {
-            unit->AI()->sGossipSelectCode(_player, menuId, gossipListId, code.c_str());
-            if (!sScriptMgr->OnGossipSelectCode(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str()))
-                _player->OnGossipSelect(unit, gossipListId, menuId);
+            unit->AI()->sGossipSelectCode(player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str());
+            if (!sScriptMgr->OnGossipSelectCode(player, unit, player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex), packet.PromotionCode.c_str()))
+                player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
         }
         else
         {
-            go->AI()->GossipSelectCode(_player, menuId, gossipListId, code.c_str());
-            sScriptMgr->OnGossipSelectCode(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str());
+            go->AI()->GossipSelectCode(player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str());
+            sScriptMgr->OnGossipSelectCode(player, go, player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex), packet.PromotionCode.c_str());
         }
     }
     else
     {
         if (unit)
         {
-            unit->AI()->sGossipSelect(_player, menuId, gossipListId);
-            if (!sScriptMgr->OnGossipSelect(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId)))
-                _player->OnGossipSelect(unit, gossipListId, menuId);
+            unit->AI()->sGossipSelect(player, packet.GossipID, packet.GossipIndex);
+            if (!sScriptMgr->OnGossipSelect(player, unit, player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex)))
+                player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
         }
         else
         {
-            go->AI()->GossipSelect(_player, menuId, gossipListId);
-            if (!sScriptMgr->OnGossipSelect(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId)))
-                _player->OnGossipSelect(go, gossipListId, menuId);
+            go->AI()->GossipSelect(player, packet.GossipID, packet.GossipIndex);
+            if (!sScriptMgr->OnGossipSelect(player, go, player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex)))
+                player->OnGossipSelect(go, packet.GossipIndex, packet.GossipID);
         }
     }
 }
 
-void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket & recvData)
+void WorldSession::HandleSpiritHealerActivate(WorldPackets::NPC::SpiritHealerActivate& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_SPIRITHEALER);
-    if (!unit)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSpiritHealerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(guid.GetCounter()));
+    Player* player = GetPlayer();
+    if (!player)
         return;
-    }
 
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    if (!player->GetNPCIfCanInteractWith(packet.Healer, UNIT_NPC_FLAG_SPIRITHEALER))
+        return;
+
+    if (player->HasUnitState(UNIT_STATE_DIED))
+        player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     SendSpiritResurrect();
 }
 
 void WorldSession::SendSpiritResurrect()
 {
-    _player->ResurrectPlayer(0.5f, true);
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    _player->DurabilityLossAll(0.25f, true, false);
+    player->ResurrectPlayer(0.5f, true);
+    player->DurabilityLossAll(0.25f, true, false);
 
-    // get corpse nearest graveyard
     WorldSafeLocsEntry const* corpseGrave = NULL;
-    Corpse* corpse = _player->GetCorpse();
+    Corpse* corpse = player->GetCorpse();
     if (corpse)
         corpseGrave = sObjectMgr->GetClosestGraveYard(
-            corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetMapId(), _player->GetTeam());
+        corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetMapId(), player->GetTeam());
 
-    // now can spawn bones
-    _player->SpawnCorpseBones();
+    player->SpawnCorpseBones();
 
-    // teleport to nearest from corpse graveyard, if different from nearest to player ghost
-    if (corpseGrave)
+    if (corpseGrave) // teleport to nearest from corpse graveyard, if different from nearest to player ghost
     {
         WorldSafeLocsEntry const* ghostGrave = sObjectMgr->GetClosestGraveYard(
-            _player->GetPositionX(), _player->GetPositionY(), _player->GetPositionZ(), _player->GetMapId(), _player->GetTeam());
+            player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
 
         if (corpseGrave != ghostGrave)
-            _player->TeleportTo(corpseGrave->MapID, corpseGrave->Loc.X, corpseGrave->Loc.Y, corpseGrave->Loc.Z, _player->GetOrientation());
-        // or update at original position
+            player->TeleportTo(corpseGrave->MapID, corpseGrave->Loc.X, corpseGrave->Loc.Y, corpseGrave->Loc.Z, player->GetOrientation());
         else
-            _player->UpdateObjectVisibility();
+            player->UpdateObjectVisibility();
     }
-    // or update at original position
     else
-        _player->UpdateObjectVisibility();
+        player->UpdateObjectVisibility();
 }
 
 void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
@@ -534,9 +499,9 @@ void WorldSession::SendBindPoint(Creature* npc)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_HOMEBIND);
     stmt->setUInt16(0, _player->GetMapId());
     stmt->setUInt16(1, _player->GetAreaId());
-    stmt->setFloat (2, _player->GetPositionX());
-    stmt->setFloat (3, _player->GetPositionY());
-    stmt->setFloat (4, _player->GetPositionZ());
+    stmt->setFloat(2, _player->GetPositionX());
+    stmt->setFloat(3, _player->GetPositionY());
+    stmt->setFloat(4, _player->GetPositionZ());
     stmt->setUInt64(5, _player->GetGUID().GetCounter());
     CharacterDatabase.Execute(stmt);
 
@@ -647,7 +612,7 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
         if (vendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
         {
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
-            if (!itemTemplate) 
+            if (!itemTemplate)
                 continue;
 
             uint32 leftInStock = vendorItem->maxcount <= 0 ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
@@ -737,9 +702,9 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
             if (vendorItem->ExtendedCost != 0)
             {
                 //Hack for donate
-                if(vendorItem->ExtendedCost > 14999)
+                if (vendorItem->ExtendedCost > 14999)
                 {
-                    if(ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(vendorItem->ExtendedCost))
+                    if (ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(vendorItem->ExtendedCost))
                         price = uint32(iece->RequiredItemCount[0] * 10000 * sWorld->getRate(RATE_DONATE));
                 }
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "WorldSession::HandleStableChangeSlotCallback: slot %i new_slot %i pet_entry %u pet_number %u", slot, new_slot, pet_entry, pet_number);

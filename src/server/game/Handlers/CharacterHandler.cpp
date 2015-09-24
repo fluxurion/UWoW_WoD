@@ -1027,10 +1027,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     pCurrChar->SetInGameTime(getMSTime());
 
-    // announce group about member online (must be after add to player list to receive announce to self)
     if (Group* group = pCurrChar->GetGroup())
     {
-        //pCurrChar->groupInfo.group->SendInit(this); // useless
         group->SendUpdate();
         group->ResetMaxEnchantingLevel();
     }
@@ -1112,14 +1110,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     delete holder;
 }
 
-void WorldSession::HandleSetFactionAtWar(WorldPacket & recvData)
+void WorldSession::HandleSetFactionAtWar(WorldPackets::Character::SetFactionAtWar& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_AT_WAR");
-
-    uint8 repListID;
-    recvData >> repListID;
-
-    GetPlayer()->GetReputationMgr().SetAtWar(repListID, true);
+    GetPlayer()->GetReputationMgr().SetAtWar(packet.FactionIndex, true);
 }
 
 void WorldSession::HandleSetLfgBonusFaction(WorldPacket & recvData)
@@ -1130,14 +1123,9 @@ void WorldSession::HandleSetLfgBonusFaction(WorldPacket & recvData)
     _player->SetLfgBonusFaction(factionID);
 }
 
-void WorldSession::HandleUnsetFactionAtWar(WorldPacket & recvData)
+void WorldSession::HandleUnsetFactionAtWar(WorldPackets::Character::SetFactionNotAtWar& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_NOT_AT_WAR");
-
-    uint8 repListID;
-    recvData >> repListID;
-
-    GetPlayer()->GetReputationMgr().SetAtWar(repListID, false);
+    GetPlayer()->GetReputationMgr().SetAtWar(packet.FactionIndex, false);
 }
 
 //I think this function is never used :/ I dunno, but i guess this opcode not exists
@@ -1178,35 +1166,23 @@ void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packe
     }
 }
 
-void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket & recvData)
+void WorldSession::HandleSetWatchedFaction(WorldPackets::Character::SetWatchedFaction& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_WATCHED_FACTION");
-
-    uint32 factionID;
-    recvData >> factionID;
-
-    GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, factionID);
+    GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, packet.FactionIndex);
 }
 
-void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket & recvData)
+void WorldSession::HandleSetFactionInactive(WorldPackets::Character::SetFactionInactive& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_INACTIVE");
-    uint32 repListid;
-    recvData >> repListid;
-    bool inactive = recvData.ReadBit();
-
-    _player->GetReputationMgr().SetInactive(repListid, inactive);
+    _player->GetReputationMgr().SetInactive(packet.Index, packet.State);
 }
 
-void WorldSession::HandleShowingHelmOpcode(WorldPacket& recvData)
+void WorldSession::HandleShowingHelm(WorldPackets::Character::ShowingHelm& /*packet*/)
 {
-    recvData.ReadBit(); // on / off
     _player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
 }
 
-void WorldSession::HandleShowingCloakOpcode(WorldPacket& recvData)
+void WorldSession::HandleShowingCloak(WorldPackets::Character::ShowingCloak& /*packet*/)
 {
-    recvData.ReadBit(); // on / off
     _player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
 }
 
@@ -1449,74 +1425,65 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
+void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance& packet)
 {
-    uint32 Hair, Color, FacialHair, SkinColor, unk;
-    recvData >> Hair >> Color >> FacialHair >> SkinColor >> unk;
-
-    BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(Hair);
-
-    if (!bs_hair || bs_hair->type != 0 || bs_hair->race != _player->getRace() || bs_hair->gender != _player->getGender())
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    BarberShopStyleEntry const* bs_facialHair = sBarberShopStyleStore.LookupEntry(FacialHair);
-
-    if (!bs_facialHair || bs_facialHair->type != 2 || bs_facialHair->race != _player->getRace() || bs_facialHair->gender != _player->getGender())
+    BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(packet.NewHairStyle);
+    if (!bs_hair || bs_hair->type != 0 || bs_hair->race != player->getRace() || bs_hair->gender != player->getGender())
         return;
 
-    BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(SkinColor);
-
-    if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != _player->getRace() || bs_skinColor->gender != _player->getGender()))
+    BarberShopStyleEntry const* bs_facialHair = sBarberShopStyleStore.LookupEntry(packet.NewFacialHair);
+    if (!bs_facialHair || bs_facialHair->type != 2 || bs_facialHair->race != player->getRace() || bs_facialHair->gender != player->getGender())
         return;
 
-    GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
+    BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(packet.NewSkinColor);
+    if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != player->getRace() || bs_skinColor->gender != player->getGender()))
+        return;
+
+    BarberShopStyleEntry const* bs_face = sBarberShopStyleStore.LookupEntry(packet.NewFace);
+    if (bs_face && (bs_face->type != 4 || bs_face->race != player->getRace() || bs_face->gender != player->getGender()))
+        return;
+    
+    GameObject* go = player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
     if (!go)
     {
-        WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
-        data << uint32(2);
-        SendPacket(&data);
+        SendPacket(WorldPackets::Character::BarberShopResultServer(BARBER_SHOP_RESULT_NOT_ON_CHAIR).Write());
         return;
     }
 
-    if (_player->getStandState() != UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight)
+    if (player->getStandState() != UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight)
     {
-        WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
-        data << uint32(2);
-        SendPacket(&data);
+        SendPacket(WorldPackets::Character::BarberShopResultServer(BARBER_SHOP_RESULT_NOT_ON_CHAIR).Write());
         return;
     }
 
-    uint32 cost = _player->GetBarberShopCost(bs_hair->hair_id, Color, bs_facialHair->hair_id, bs_skinColor);
+    uint32 cost = player->GetBarberShopCost(bs_hair->hair_id, packet.NewSkinColor, bs_facialHair->hair_id, bs_skinColor);
 
-    // 0 - ok
-    // 1, 3 - not enough money
-    // 2 - you have to sit on barber chair
-    if (!_player->HasEnoughMoney((uint64)cost))
+    if (!player->HasEnoughMoney((uint64)cost))
     {
-        WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
-        data << uint32(1);                                  // no money
-        SendPacket(&data);
+        SendPacket(WorldPackets::Character::BarberShopResultServer(BARBER_SHOP_RESULT_NO_MONEY).Write());
         return;
     }
     else
-    {
-        WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
-        data << uint32(0);                                  // ok
-        SendPacket(&data);
-    }
+        SendPacket(WorldPackets::Character::BarberShopResultServer(BARBER_SHOP_RESULT_SUCCESS).Write());
 
-    _player->ModifyMoney(-int64(cost));                     // it isn't free
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
+    player->ModifyMoney(-int64(cost));
+    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
 
-    _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, uint8(bs_hair->hair_id));
-    _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, uint8(Color));
-    _player->SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, uint8(bs_facialHair->hair_id));
+    player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, uint8(bs_hair->hair_id));
+    player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, packet.NewSkinColor);
+    player->SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, uint8(bs_facialHair->hair_id));
     if (bs_skinColor)
-        _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID, uint8(bs_skinColor->hair_id));
+        player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID, uint8(bs_skinColor->hair_id));
+    if (bs_face)
+        player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID, uint8(bs_face->Id));
 
-    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
+    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
-    _player->SetStandState(0);                              // stand up
+    player->SetStandState(UNIT_STAND_STATE_STAND);
 }
 
 void WorldSession::HandleRemoveGlyph(WorldPacket & recvData)
@@ -1767,7 +1734,6 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-//! 6.0.3
 void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 {
     // TODO: Move queries to prepared statements
@@ -2598,4 +2564,38 @@ void WorldSession::AbortLogin(WorldPackets::Character::LoginFailureReason reason
 
     m_playerLoading.Clear();
     SendPacket(WorldPackets::Character::CharacterLoginFailed(reason).Write());
+}
+
+void WorldSession::HandleSetActionBarToggles(WorldPackets::Character::SetActionBarToggles& packet)
+{
+    if (!GetPlayer())                                        // ignore until not logged (check needed because STATUS_AUTHED)
+    {
+        if (packet.Mask != 0)
+            sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleSetActionBarToggles in not logged state with value: %u, ignored", packet.Mask);
+        return;
+    }
+
+    GetPlayer()->SetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_ACTION_BAR_TOGGLES, packet.Mask);
+}
+
+void WorldSession::HandleRequestPlayedTime(WorldPackets::Character::RequestPlayedTime& packet)
+{
+    WorldPackets::Character::PlayedTime playedTime;
+    playedTime.TotalTime = _player->GetTotalPlayedTime();
+    playedTime.LevelTime = _player->GetLevelPlayedTime();
+    playedTime.TriggerEvent = packet.TriggerScriptEvent;
+    SendPacket(playedTime.Write());
+}
+
+void WorldSession::HandleSetTitle(WorldPackets::Character::SetTitle& packet)
+{
+    if (packet.TitleID > 0 && packet.TitleID < MAX_TITLE_INDEX)
+    {
+        if (!GetPlayer()->HasTitle(packet.TitleID))
+            return;
+    }
+    else
+        packet.TitleID = 0;
+
+    GetPlayer()->SetUInt32Value(PLAYER_FIELD_PLAYER_TITLE, packet.TitleID);
 }

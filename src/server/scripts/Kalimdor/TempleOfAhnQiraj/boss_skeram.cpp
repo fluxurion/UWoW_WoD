@@ -235,20 +235,21 @@ public:
                     break;
             }
 
-            for (uint16 i = 0; i < 41; ++i)
-            {
-                if (Player* target = CAST_PLR(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
-                {
-                    if (Group* pGrp = target->GetGroup())
-                        for (uint8 ico = 0; ico < TARGETICONCOUNT; ++ico)
-                        {
-                            //if (grp->m_targetIcons[ico] == me->GetGUID()) -- private member :(
-                            pGrp->SetTargetIcon(ico, ObjectGuid::Empty, ObjectGuid::Empty);
-                        }
+            // what's the fuck?!
+            //for (uint16 i = 0; i < 41; ++i)
+            //{
+            //    if (Player* target = CAST_PLR(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
+            //    {
+            //        if (Group* pGrp = target->GetGroup())
+            //            for (uint8 ico = 0; ico < TARGET_ICONS_COUNT; ++ico)
+            //            {
+            //                //if (grp->m_targetIcons[ico] == me->GetGUID()) -- private member :(
+            //                pGrp->SetTargetIcon(ico, ObjectGuid::Empty, ObjectGuid::Empty, 0);
+            //            }
 
-                    break;
-                }
-            }
+            //        break;
+            //    }
+            //}
 
             me->RemoveAllAuras();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

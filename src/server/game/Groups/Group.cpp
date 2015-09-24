@@ -38,6 +38,7 @@
 #include "GuildMgr.h"
 #include "Bracket.h"
 #include "LootPackets.h"
+#include "PartyPackets.h"
 
 Roll::Roll(ObjectGuid _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
     itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -64,10 +65,13 @@ Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL)
     m_dungeonDifficulty(DIFFICULTY_NORMAL), m_raidDifficulty(DIFFICULTY_10_N), m_legacyRaidDifficulty(DIFFICULTY_10_N),
     m_bgGroup(NULL), m_bfGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
     m_subGroupsCounts(NULL), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0), m_readyCheckCount(0), m_readyCheck(false),
-    m_aoe_slots(0)
+    m_aoe_slots(0), m_activeMarkers(0)
 {
-    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+    for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
         m_targetIcons[i].Clear();
+
+    for (uint8 i = 0; i < RAID_MARKERS_COUNT; ++i)
+        m_markers[i] = nullptr;
 }
 
 Group::~Group()
@@ -181,7 +185,7 @@ void Group::LoadGroupFromDB(Field* fields)
     m_looterGuid = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt64());
     m_lootThreshold = ItemQualities(fields[3].GetUInt8());
 
-    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+    for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
         m_targetIcons[i].SetRawValue(fields[4 + i].GetBinary());
 
     m_groupType  = GroupType(fields[12].GetUInt8());
@@ -367,7 +371,7 @@ Player* Group::GetInvited(ObjectGuid guid) const
     return NULL;
 }
 
-Player* Group::GetInvited(const std::string& name) const
+Player* Group::GetInvited(std::string const& name) const
 {
     for (InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
     {
@@ -459,7 +463,7 @@ bool Group::AddMember(Player* player)
 
     if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
     {
-        for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+        for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
             m_targetIcons[i].Clear();
     }
 
@@ -517,7 +521,6 @@ bool Group::AddMember(Player* player)
         // quest related GO state dependent from raid membership
         if (isRaidGroup())
             player->UpdateForQuestWorldObjects();
-        player->UpdateForRaidMarkers(this);
 
         {
             // Broadcast new player group member fields to rest of the group
@@ -621,16 +624,11 @@ bool Group::RemoveMember(ObjectGuid const& guid, const RemoveMethod &method /*= 
                 player->UpdateForQuestWorldObjects();
             }
 
-            player->UpdateForRaidMarkers(this);
-
             if (method == GROUP_REMOVEMETHOD_KICK || method == GROUP_REMOVEMETHOD_KICK_LFG)
             {
                 WorldPacket data(SMSG_GROUP_UNINVITE, 0);
                 player->GetSession()->SendPacket(&data);
             }
-
-            // Do we really need to send this opcode?
-            SendEmptyParty(player);
 
             _homebindIfInstance(player);
         }
@@ -796,9 +794,6 @@ void Group::Disband(bool hideDestroy /* = false */)
         if (!player)
             continue;
 
-        // remove all raid markers
-        SetRaidMarker(RAID_MARKER_COUNT, player, ObjectGuid::Empty, false);
-
         //we cannot call _removeMember because it would invalidate member iterator
         //if we are removing player from battleground raid
         if (isBGGroup() || isBFGroup())
@@ -828,13 +823,9 @@ void Group::Disband(bool hideDestroy /* = false */)
 
         //we already removed player from group and in player->GetGroup() is his original group, send update
         if (Group* group = player->GetGroup())
-        {
             group->SendUpdate();
-        }
         else
-        {
-            SendEmptyParty(player);
-        }
+            player->GetSession()->SendPacket(WorldPackets::Party::PartyUpdate().Write());
 
         if (!isLFGGroup())
             _homebindIfInstance(player);
@@ -1750,62 +1741,37 @@ void Group::CountTheRoll(Rolls::iterator rollI)
     delete roll;
 }
 
-//! 6.0.3
-void Group::SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid)
+void Group::SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy, uint8 partyIndex)
 {
-    if (id >= TARGETICONCOUNT)
+    if (symbol >= TARGET_ICONS_COUNT)
         return;
 
-    // clean other icons
-    if (targetGuid)
-        for (int i=0; i<TARGETICONCOUNT; ++i)
-            if (m_targetIcons[i] == targetGuid)
-                SetTargetIcon(i, ObjectGuid::Empty, ObjectGuid::Empty);
+    if (!target.IsEmpty())
+        for (int8 i = 0; i < TARGET_ICONS_COUNT; ++i)
+            if (m_targetIcons[i] == target)
+                SetTargetIcon(i, ObjectGuid::Empty, changedBy, partyIndex);
 
-    m_targetIcons[id] = targetGuid;
+    m_targetIcons[symbol] = target;
 
-    WorldPacket data(SMSG_SEND_RAID_TARGET_UPDATE_SINGLE, 34);
-    data << uint8(0);
-    data << uint8(id);
-    data << targetGuid;
-    data << whoGuid;
-    //data << uint8(IsHomeGroup() ? 0 : 1);
-
-    BroadcastPacket(&data, true);
+    WorldPackets::Party::SendRaidTargetUpdateSingle updateSingle;
+    updateSingle.PartyIndex = partyIndex;
+    updateSingle.Target = target;
+    updateSingle.ChangedBy = changedBy;
+    updateSingle.Symbol = symbol;
+    BroadcastPacket(updateSingle.Write(), true);
 }
 
-//! 5.4.1
-void Group::SendTargetIconList(WorldSession* session)
+void Group::SendTargetIconList(WorldSession* session, int8 partyIndex)
 {
     if (!session)
         return;
 
-    WorldPacket data(SMSG_SEND_RAID_TARGET_UPDATE_ALL, (1+TARGETICONCOUNT*9));
-    data << uint8(IsHomeGroup() ? 0 : 1);
-    size_t count = 0;
-    size_t pos = data.wpos();
-    data.WriteBits(TARGETICONCOUNT, 23);
-    ByteBuffer dataBuffer;
+    WorldPackets::Party::SendRaidTargetUpdateAll updateAll;
+    updateAll.PartyIndex = partyIndex;
+    for (uint8 i = 0; i < TARGET_ICONS_COUNT; i++)
+        updateAll.TargetIcons.insert(std::pair<uint8, ObjectGuid>(i, m_targetIcons[i]));
 
-    for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
-    {
-        if (!m_targetIcons[i])
-            continue;
-        ObjectGuid guid = m_targetIcons[i];
-    
-        //data.WriteGuidMask<7, 6, 0, 1, 5, 2, 3, 4>(guid);
-
-        //dataBuffer.WriteGuidBytes<2, 0, 6, 5, 4>(guid);
-        dataBuffer << uint8(i);
-        //dataBuffer.WriteGuidBytes<7, 3, 1>(guid);
-        ++count;
-    }
-    data.FlushBits();
-    data.PutBits<uint32>(pos, count, 23);
-    data.append(dataBuffer);
-    session->SendPacket(&data);
-
-    //SMSG_RAID_MARKERS
+    session->SendPacket(updateAll.Write());
 }
 
 void Group::SendUpdate()
@@ -1837,57 +1803,60 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     uint8 const gStatusOfline = (isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : MEMBER_STATUS_OFFLINE;
     uint8 const gStatusOnline = gStatusOfline | MEMBER_STATUS_ONLINE;
 
-    ObjectGuid looterGuid = m_looterGuid;
-    ObjectGuid plguid = playerGUID;
+    WorldPackets::Party::PartyUpdate partyUpdate;
 
-    bool sendDifficultyInfo = true;
+    partyUpdate.PartyType = m_groupType;
+    partyUpdate.PartyIndex = 0;
+    partyUpdate.PartyFlags = IsHomeGroup() ? 0 : 1;
 
-    //! 6.0.3
-    WorldPacket data(SMSG_PARTY_UPDATE, 60 * GetMembersCount() + 41);
-    data << uint8(m_groupType);                                         // PartyFlags: 
-    data << uint8(0);                                                   // PartyIndex
-    data << uint8(IsHomeGroup() ? 0 : 1);                               // 0 - home group, 1 - instance group 
+    partyUpdate.PartyGUID = m_guid;
+    partyUpdate.LeaderGUID = m_leaderGuid;
 
-    data << int32(0);                                                   // unk, sometime 32 in sniff (flags ?)
-    data << m_guid;
-    data << uint32(++m_counter);
-    data << m_leaderGuid;
+    partyUpdate.SequenceNum = ++m_counter;
 
-    data << uint32(GetMembersCount());
-
-    // Send self first
-    data.WriteBits(slot->name.size(), 6);
-    data << playerGUID;
-
-    data << uint8(gStatusOnline);                                 // online-state
-    data << uint8(slot->group);
-    data << uint8(slot->flags);
-    data << uint8(slot->roles);
-    data << uint8(0);                                            //unk
-    data.WriteString(slot->name);
-
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    partyUpdate.MyIndex = -1;
+    uint8 index = 0;
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr, ++index)
     {
-        if (citr->guid == slot->guid)
-            continue;
+        if (slot->guid == citr->guid)
+            partyUpdate.MyIndex = index;
 
-        member = ObjectAccessor::FindPlayer(citr->guid, false);
+        Player* member = ObjectAccessor::FindPlayer(citr->guid);
 
-        data.WriteBits(citr->name.size(), 6);
-        data << citr->guid;
-        data << uint8(member ? gStatusOnline : gStatusOfline);  // online-state
-        data << uint8(citr->group);
-        data << uint8(citr->flags);
-        data << uint8(citr->roles);
-        data << uint8(0);                                       //unk
-        data.WriteString(citr->name);
+        WorldPackets::Party::GroupPlayerInfos playerInfos;
+
+        playerInfos.GUID = citr->guid;
+        playerInfos.Name = citr->name;
+        //playerInfos.Class = citr->_class;
+
+        playerInfos.Status = MEMBER_STATUS_OFFLINE;
+        if (member && member->GetSession() && !member->GetSession()->PlayerLogout())
+            playerInfos.Status = MEMBER_STATUS_ONLINE | (isBGGroup() || isBFGroup() ? MEMBER_STATUS_PVP : 0);
+
+        playerInfos.Subgroup = citr->group;
+        playerInfos.Flags = citr->flags;
+        playerInfos.RolesAssigned = citr->roles;
+
+        partyUpdate.PlayerList.push_back(playerInfos);
     }
 
-    data.WriteBit(m_groupType & GROUPTYPE_LFG);
-    data.WriteBit(true);                                                // HasLooterGuid
-    data.WriteBit(sendDifficultyInfo);
+    if (GetMembersCount() > 1)
+    {
+        // LootSettings
+        partyUpdate.LootSettings = boost::in_place();
+        partyUpdate.LootSettings->Method = m_lootMethod;
+        partyUpdate.LootSettings->Threshold = m_lootThreshold;
+        partyUpdate.LootSettings->LootMaster = m_lootMethod == MASTER_LOOT ? m_looterGuid : ObjectGuid::Empty;
 
-    if (m_groupType & GROUPTYPE_LFG)
+        // Difficulty Settings
+        partyUpdate.DifficultySettings = boost::in_place();
+        partyUpdate.DifficultySettings->DungeonDifficultyID = m_dungeonDifficulty;
+        partyUpdate.DifficultySettings->RaidDifficultyID = m_raidDifficulty;
+        partyUpdate.DifficultySettings->LegacyRaidDifficultyID = m_legacyRaidDifficulty;
+    }
+
+    // LfgInfos
+    if (isLFGGroup())
     {
         lfg::LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(sLFGMgr->GetDungeon(m_guid, true), player->GetTeam());
         lfg::LFGDungeonData const* rDungeon = NULL;
@@ -1903,66 +1872,28 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         }
 
         lfg::LfgState lfgState = sLFGMgr->GetState(m_guid);
-
         uint8 flags = 0;
         if (lfgState == lfg::LFG_STATE_FINISHED_DUNGEON || dungeon && dungeon->dbc->flags & LFG_FLAG_NON_BACKFILLABLE)
             flags |= 2;
-        data << uint8(flags);
-        data << uint32(rDungeon ? rDungeon->Entry() : 0);           // Should be LfgSlot. WOD ToDo: check it.
-        data << uint32(dungeon ? dungeon->Entry() : 0);             // Should be MyLfgRandomSlot. WOD ToDo: check if.
-        data << uint8(0);                                           // MyLfgRandomSlot
-        data << float(dungeon ? 1.0f : 0.0f);                       // MyLfgGearDiff
-        data << uint8(0);                                           // MyLfgStrangerCount
-        data << uint8(0);                                           // MyLfgKickVoteCount
-        data << uint8(GetMembersCount() - 1);                       // LfgBootCount
 
-        data.WriteBit(dungeon ? 0 : 1);
-        data.WriteBit(lfgState != lfg::LFG_STATE_FINISHED_DUNGEON); // can be rewarded
+        partyUpdate.LfgInfos = boost::in_place();
 
+        partyUpdate.LfgInfos->Slot = sLFGMgr->GetDungeon(m_guid);
+        partyUpdate.LfgInfos->BootCount = 0;
+        partyUpdate.LfgInfos->Aborted = false;
+
+        partyUpdate.LfgInfos->MyFlags = flags;
+        partyUpdate.LfgInfos->MyRandomSlot = 0;
+
+        partyUpdate.LfgInfos->MyPartialClear = sLFGMgr->GetState(m_guid) == lfg::LFG_STATE_FINISHED_DUNGEON ? 2 : 0;
+        partyUpdate.LfgInfos->MyGearDiff = dungeon ? 1.0f : 0.0f;
+        partyUpdate.LfgInfos->MyFirstReward = lfgState != lfg::LFG_STATE_FINISHED_DUNGEON;
+
+        partyUpdate.LfgInfos->MyStrangerCount = 0;
+        partyUpdate.LfgInfos->MyKickVoteCount = 0;
     }
 
-    if (true)                                                           // HasLooterGuid
-    {
-        data << uint8(m_lootMethod);                                    // loot method
-        data << looterGuid;
-        data << uint8(m_lootThreshold);                                 // loot threshold
-    }
-
-    if (sendDifficultyInfo)
-    {
-        data << uint32(m_dungeonDifficulty);                                              // unk
-        data << uint32(m_legacyRaidDifficulty);
-        data << uint32(m_raidDifficulty);
-    }
-
-    player->GetSession()->SendPacket(&data);
-}
-
-//! 6.0.3
-void Group::SendEmptyParty(Player *player)
-{
-    WorldPacket data(SMSG_PARTY_UPDATE, 60);
-
-    data << uint8(16);                                                 // PartyFlags: 
-    data << uint8(0);                                                  // PartyIndex
-    data << uint8(0);                                                  // 0 - home group, 1 - instance group 
-
-    data << int32(-1);                                                   // unk, sometime 32 in sniff (flags ?)
-    data << m_guid;
-    data << uint32(++m_counter);
-    data << ObjectGuid::Empty;
-
-    data << uint32(0);
-
-    // Send self first
-    data.WriteBits(0, 6);
-    data << ObjectGuid::Empty;
-
-    data.WriteBit(0);
-    data.WriteBit(0);
-    data.WriteBit(0);
-
-    player->GetSession()->SendPacket(&data);
+    player->GetSession()->SendPacket(partyUpdate.Write());
 }
 
 void Group::UpdatePlayerOutOfRange(Player* player)
@@ -1970,19 +1901,19 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     if (!player || !player->IsInWorld())
         return;
 
-    WorldPacket data;
-    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data);
+    WorldPackets::Party::PartyMemberStats packet;
+    packet.Initialize(player);
 
     Player* member;
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         member = itr->getSource();
-        if (member && !member->IsWithinDist(player, member->GetSightRange(), false))
-            member->GetSession()->SendPacket(&data);
+        if (member && member != player && (!member->IsInMap(player) || !member->IsWithinDist(player, member->GetSightRange(), false)))
+            member->GetSession()->SendPacket(packet.Write());
     }
 }
 
-void Group::BroadcastAddonMessagePacket(WorldPacket* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group, ObjectGuid ignore)
+void Group::BroadcastAddonMessagePacket(WorldPacket* packet, std::string const& prefix, bool ignorePlayersInBGRaid, int group, ObjectGuid ignore)
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -2010,7 +1941,7 @@ void Group::BroadcastPacket(const WorldPacket* packet, bool ignorePlayersInBGRai
     }
 }
 
-void Group::BroadcastReadyCheck(WorldPacket* packet)
+void Group::BroadcastReadyCheck(WorldPacket const* packet)
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -2030,13 +1961,11 @@ void Group::OfflineReadyCheck()
         Player* player = ObjectAccessor::FindPlayer(citr->guid);
         if (!player || !player->GetSession())
         {
-            WorldPacket data(SMSG_READY_CHECK_RESPONSE);
-            data << GetGUID();
-            data << citr->guid;
-            data.WriteBit(ready);
-            data.FlushBits();
-
-            BroadcastReadyCheck(&data);
+            WorldPackets::Party::ReadyCheckResponse response;
+            response.PartyGUID = GetGUID();
+            response.Player = citr->guid;
+            response.IsReady = ready;
+            BroadcastReadyCheck(response.Write());
 
             m_readyCheckCount++;
         }
@@ -2629,6 +2558,15 @@ void Group::SetLfgRoles(ObjectGuid guid, const uint8 roles)
     slot->roles = roles;
 }
 
+uint8 Group::GetLfgRoles(ObjectGuid guid)
+{
+    member_witerator slot = _getMemberWSlot(guid);
+    if (slot == m_memberSlots.end())
+        return 0;
+
+    return slot->roles;
+}
+
 bool Group::IsFull() const
 {
     return isRaidGroup() ? (m_memberSlots.size() >= MAXRAIDSIZE) : (m_memberSlots.size() >= MAXGROUPSIZE);
@@ -2704,7 +2642,7 @@ bool Group::IsLeader(ObjectGuid guid) const
     return (GetLeaderGUID() == guid);
 }
 
-ObjectGuid Group::GetMemberGUID(const std::string& name)
+ObjectGuid Group::GetMemberGUID(std::string const& name)
 {
     for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
         if (itr->name == name)
@@ -3093,83 +3031,44 @@ uint32 Group::GetAverageMMR(BracketType bracket) const
     return matchMakerRating;
 }
 
-void Group::SetRaidMarker(uint8 id, Player* who, ObjectGuid targetGuid, bool update /*=true*/)
+void Group::AddRaidMarker(uint8 markerId, uint32 mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid)
 {
-    if (!who)
+    if (markerId >= RAID_MARKERS_COUNT || m_markers[markerId])
         return;
 
-    if (id >= RAID_MARKER_COUNT)
-    {
-        // remove all markers
-        for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-            m_raidMarkers[i].Clear();
-    }
+    m_activeMarkers |= (1 << markerId);
+    m_markers[markerId] = Trinity::make_unique<RaidMarker>(mapId, positionX, positionY, positionZ, transportGuid);
+    SendRaidMarkersChanged();
+}
+
+void Group::DeleteRaidMarker(uint8 markerId)
+{
+    if (markerId > RAID_MARKERS_COUNT)
+        return;
+
+    for (uint8 i = 0; i < RAID_MARKERS_COUNT; i++)
+        if (m_markers[i] && (markerId == i || markerId == RAID_MARKERS_COUNT))
+        {
+            m_markers[i] = nullptr;
+            m_activeMarkers &= ~(1 << i);
+        }
+
+    SendRaidMarkersChanged();
+}
+
+void Group::SendRaidMarkersChanged(WorldSession* session, int8 partyIndex)
+{
+    WorldPackets::Party::RaidMarkersChanged packet;
+
+    packet.PartyIndex = partyIndex;
+    packet.ActiveMarkers = m_activeMarkers;
+
+    for (uint8 i = 0; i < RAID_MARKERS_COUNT; i++)
+        if (m_markers[i])
+            packet.RaidMarkers.push_back(m_markers[i].get());
+
+    if (session)
+        session->SendPacket(packet.Write());
     else
-        m_raidMarkers[id] = targetGuid;
-
-    if (update)
-        SendRaidMarkerUpdate();
-}
-
-void Group::SendRaidMarkerUpdate()
-{
-    WorldPacket data(SMSG_RAID_MARKERS_CHANGED, 4 + 1 + 1 + 5 * (4 + 4 + 4 + 4));
-    data << uint8(IsHomeGroup() ? 0 : 1);
-    uint32 mask = 0;
-    uint8 count = 0;
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-        if (m_raidMarkers[i])
-        {
-            mask |= 1 << i;
-            ++count;
-        }
-    data << uint32(mask);
-
-    data.WriteBits(count, 3);
-    for (uint8 i = 0; i < count; ++i)
-        data.WriteBits(0, 8);   // guid
-
-    std::vector<uint32> pos(count);
-    for (uint8 i = 0; i < count; ++i)
-    {
-        pos[i] = data.wpos();
-        data << uint32(0);      // map id
-        data << float(0.0f);    // x
-        data << float(0.0f);    // y
-        data << float(0.0f);    // z
-    }
-
-    for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
-    {
-        Player* player = itr->getSource();
-        if (!player)
-            continue;
-
-        uint32 mapId = player->GetMapId();
-        for (uint8 i = 0; i < count; ++i)
-            data.put<uint32>(pos[i], mapId);
-        player->SendDirectMessage(&data);
-    }
-}
-
-void Group::ClearRaidMarker(ObjectGuid guid)
-{
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-    {
-        if (m_raidMarkers[i] == guid)
-        {
-            m_raidMarkers[i].Clear();
-            SendRaidMarkerUpdate();
-            break;
-        }
-    }
-}
-
-bool Group::HasRaidMarker(ObjectGuid guid) const
-{
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-        if (m_raidMarkers[i] == guid)
-            return true;
-
-    return false;
+        BroadcastPacket(packet.Write(), false);
 }

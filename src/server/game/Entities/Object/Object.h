@@ -405,6 +405,12 @@ class Object
 
 struct Position
 {
+    struct PositionXYStreamer
+    {
+        explicit PositionXYStreamer(Position& pos) : Pos(&pos) { }
+        Position* Pos;
+    };
+
     struct PositionXYZStreamer
     {
         explicit PositionXYZStreamer(Position& pos) : m_pos(&pos) {}
@@ -460,14 +466,9 @@ struct Position
     void VectorToPosition(G3D::Vector3 pos)
         { m_positionX = pos.x; m_positionY = pos.y; m_positionZ = pos.z; }
 
-    Position::PositionXYZStreamer PositionXYZStream()
-    {
-        return PositionXYZStreamer(*this);
-    }
-    Position::PositionXYZOStreamer PositionXYZOStream()
-    {
-        return PositionXYZOStreamer(*this);
-    }
+    Position::PositionXYStreamer PositionXYStream() { return PositionXYStreamer(*this); }
+    Position::PositionXYZStreamer PositionXYZStream() { return PositionXYZStreamer(*this); }
+    Position::PositionXYZOStreamer PositionXYZOStream() { return PositionXYZOStreamer(*this); }
 
     bool IsPositionValid() const;
 
@@ -547,10 +548,12 @@ struct Position
     }
 };
 
-ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
+ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYStreamer const& streamer);
+ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYStreamer const& streamer);
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
 ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
+ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
 
 struct MovementInfo
 {
@@ -698,16 +701,41 @@ struct DigSiteInfo
 
 class WorldLocation : public Position
 {
-    public:
-        explicit WorldLocation(uint32 _mapid = MAPID_INVALID, float _x = 0, float _y = 0, float _z = 0, float _o = 0)
-            : m_mapId(_mapid) { Relocate(_x, _y, _z, _o); }
-        WorldLocation(const WorldLocation &loc) { WorldRelocate(loc); }
+public:
+    explicit WorldLocation(uint32 _mapid = MAPID_INVALID, float _x = 0, float _y = 0, float _z = 0, float _o = 0)
+        : m_mapId(_mapid)
+    {
+        Relocate(_x, _y, _z, _o);
+    }
 
-        void WorldRelocate(const WorldLocation &loc)
-            { m_mapId = loc.GetMapId(); Relocate(loc); }
-        uint32 GetMapId() const { return m_mapId; }
+    WorldLocation(WorldLocation const& loc)
+    {
+        WorldRelocate(loc);
+    }
 
-        uint32 m_mapId;
+    void WorldRelocate(WorldLocation const& loc)
+    {
+        m_mapId = loc.GetMapId();
+        Relocate(loc);
+    }
+
+    uint32 GetMapId() const
+    {
+        return m_mapId;
+    }
+
+    void WorldRelocate(uint32 _mapId = MAPID_INVALID, float _x = 0.f, float _y = 0.f, float _z = 0.f, float _o = 0.f)
+    {
+        m_mapId = _mapId;
+        Relocate(_x, _y, _z, _o);
+    }
+
+    WorldLocation GetWorldLocation() const
+    {
+        return *this;
+    }
+
+    uint32 m_mapId;
 };
 
 template<class T>

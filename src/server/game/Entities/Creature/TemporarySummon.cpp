@@ -21,6 +21,7 @@
 #include "CreatureAI.h"
 #include "ObjectMgr.h"
 #include "TemporarySummon.h"
+#include "TotemPackets.h"
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) :
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
@@ -170,7 +171,7 @@ void TempSummon::InitStats(uint32 duration)
 
     m_timer = duration;
     m_lifetime = duration;
-    uint32 spellid = GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
+    uint32 spellID = GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
 
     if (m_type == TEMPSUMMON_MANUAL_DESPAWN)
         m_type = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
@@ -194,13 +195,13 @@ void TempSummon::InitStats(uint32 duration)
     if (owner)
     {
         int32 slot = m_Properties->Slot;
-        if(m_Properties->Type == 17) //hack for spirit copy
+        if (m_Properties->Type == 17) //hack for spirit copy
             slot = 17;
 
         if (slot > MAX_SUMMON_SLOT)
             slot = 0;
 
-        switch(GetEntry())
+        switch (GetEntry())
         {
             case 69792: // Earth
                 slot = 13;
@@ -223,7 +224,7 @@ void TempSummon::InitStats(uint32 duration)
 
         if (slot)
         {
-            if(slot > 0)
+            if (slot > 0)
             {
                 if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
                 {
@@ -233,10 +234,10 @@ void TempSummon::InitStats(uint32 duration)
                 }
                 owner->m_SummonSlot[slot] = GetGUID();
             }
-            else if(slot < 0)
+            else if (slot < 0)
             {
                 int32 count = 1;
-                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid))
+                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID))
                 {
                     for (uint32 j = 0; j < MAX_SPELL_EFFECTS; j++)
                     {
@@ -247,25 +248,25 @@ void TempSummon::InitStats(uint32 duration)
                         }
                     }
                 }
-                if(count > 1)
+                if (count > 1)
                 {
                     //Auto get free slot or slot for replace summon
                     int32 saveSlot = SUMMON_SLOT_TOTEM;
                     for (int32 i = SUMMON_SLOT_TOTEM; i < SUMMON_SLOT_TOTEM + count; ++i)
                     {
-                        if(!owner->m_SummonSlot[i])
+                        if (!owner->m_SummonSlot[i])
                         {
                             saveSlot = i;
                             break;
                         }
                         else if (owner->m_SummonSlot[i] < owner->m_SummonSlot[i + 1] && (i + 1 < SUMMON_SLOT_TOTEM + count))
                         {
-                            if(owner->m_SummonSlot[i] <= owner->m_SummonSlot[saveSlot])
+                            if (owner->m_SummonSlot[i] <= owner->m_SummonSlot[saveSlot])
                                 saveSlot = i;
                         }
                         else if (owner->m_SummonSlot[i] > owner->m_SummonSlot[i + 1] && (i + 1 < SUMMON_SLOT_TOTEM + count))
                         {
-                            if(owner->m_SummonSlot[i + 1] <= owner->m_SummonSlot[saveSlot])
+                            if (owner->m_SummonSlot[i + 1] <= owner->m_SummonSlot[saveSlot])
                                 saveSlot = i + 1;
                         }
                     }
@@ -291,17 +292,16 @@ void TempSummon::InitStats(uint32 duration)
                 }
             }
 
-            if(slot >= SUMMON_SLOT_TOTEM && slot < MAX_TOTEM_SLOT)
+            if (slot >= SUMMON_SLOT_TOTEM && slot < MAX_TOTEM_SLOT)
             {
-                if(Player* player = owner->ToPlayer())
+                if (Player* player = owner->ToPlayer())
                 {
-                    //! 6.0.3
-                    WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
-                    data << uint8(slot - 1);
-                    data << GetGUID();
-                    data << uint32(duration);
-                    data << uint32(spellid);
-                    player->SendDirectMessage(&data);
+                    WorldPackets::Totem::TotemCreated totemCreated;
+                    totemCreated.Totem = GetGUID();
+                    totemCreated.SpellID = spellID;
+                    totemCreated.Duration = duration;
+                    totemCreated.Slot = slot - 1;
+                    player->SendDirectMessage(totemCreated.Write());
                 }
             }
         }
@@ -336,7 +336,7 @@ bool TempSummon::InitBaseStat(uint32 creatureId, bool& damageSet)
     PetStats const* pStats = sObjectMgr->GetPetStats(creatureId);
     if (pStats)                                      // exist in DB
     {
-        if(pStats->hp && owner)
+        if (pStats->hp && owner)
         {
             SetCreateHealth(int32(owner->GetMaxHealth() * pStats->hp));
             SetMaxHealth(GetCreateHealth());
@@ -352,43 +352,43 @@ bool TempSummon::InitBaseStat(uint32 creatureId, bool& damageSet)
         if (getPowerType() != pStats->energy_type)
             setPowerType(Powers(pStats->energy_type));
 
-        if(pStats->energy_type)
+        if (pStats->energy_type)
         {
             SetMaxPower(Powers(pStats->energy_type), pStats->energy);
             SetPower(Powers(pStats->energy_type), pStats->energy);
         }
-        else if(!pStats->energy_type && pStats->energy == 1)
+        else if (!pStats->energy_type && pStats->energy == 1)
         {
             SetMaxPower(Powers(pStats->energy_type), 0);
             SetPower(Powers(pStats->energy_type), 0);
         }
         else
         {
-            if(pStats->energy && owner)
+            if (pStats->energy && owner)
             {
                 int32 manaMax = int32(owner->GetMaxPower(Powers(pStats->energy_type)) * float(pStats->energy / 100.0f));
-                if(!pStats->energy_type)
+                if (!pStats->energy_type)
                     SetCreateMana(manaMax);
                 SetMaxPower(Powers(pStats->energy_type), manaMax);
                 SetPower(Powers(pStats->energy_type), GetMaxPower(Powers(pStats->energy_type)));
             }
             else
             {
-                if(!pStats->energy_type)
+                if (!pStats->energy_type)
                     SetCreateMana(stats->BaseMana);
                 SetPower(Powers(pStats->energy_type), GetMaxPower(Powers(pStats->energy_type)));
             }
         }
-        if(pStats->damage && owner)
+        if (pStats->damage && owner)
         {
             damageSet = true;
             SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(owner->GetFloatValue(UNIT_FIELD_MIN_DAMAGE) * pStats->damage));
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(owner->GetFloatValue(UNIT_FIELD_MIN_DAMAGE) * pStats->damage));
         }
-        if(pStats->type)
+        if (pStats->type)
             SetCasterPet(true);
         //Not scale haste for any pets
-        if(!pStats->haste)
+        if (!pStats->haste)
         {
             SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
             SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
@@ -511,9 +511,9 @@ bool Minion::IsGuardianPet() const
 
 bool Minion::IsWarlockPet() const
 {
-    if(isPet())
+    if (isPet())
     {
-        if(m_owner && m_owner->getClass() == CLASS_WARLOCK)
+        if (m_owner && m_owner->getClass() == CLASS_WARLOCK)
             return true;
     }
 
@@ -587,7 +587,7 @@ void Puppet::InitSummon()
     Minion::InitSummon();
     SetCharmedBy(m_owner, CHARM_TYPE_POSSESS);
     //if (!SetCharmedBy(m_owner, CHARM_TYPE_POSSESS))
-        //ASSERT(false);
+    //ASSERT(false);
 }
 
 void Puppet::Update(uint32 time)

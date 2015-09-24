@@ -33,6 +33,7 @@
 #include "SpellInfo.h"
 #include "SpellAuraEffects.h"
 #include "SpellPackets.h"
+#include "QueryPackets.h"
 
 enum StableResultCode
 {
@@ -163,15 +164,45 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
     pet->AttackStop();
 }
 
-//! 5.4.1
-void WorldSession::HandlePetNameQuery(WorldPacket & recvData)
+void WorldSession::HandleQueryPetName(WorldPackets::Query::QueryPetName& packet)
 {
-    //sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetNameQuery. CMSG_QUERY_PET_NAME");
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    ObjectGuid petGuid;
-    recvData >> petGuid;
+    WorldPackets::Query::QueryPetNameResponse response;
+    response.UnitGUID = packet.UnitGUID;
 
-    SendPetNameQuery(petGuid);
+    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*player, packet.UnitGUID);
+    if (!pet)
+    {
+        player->GetSession()->SendPacket(response.Write());
+        return;
+    }
+
+    response.Allow = pet->isPet() ? 1 : 0;
+    
+    response.DeclinedNames;
+    response.Name = pet->GetName();
+
+    if (Pet* playerPet = pet->ToPet())
+    {
+        DeclinedName const* declinedNames = playerPet->GetDeclinedNames();
+        if (declinedNames)
+        {
+            response.HasDeclined = true;
+
+            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+                if (declinedNames->name[i].size())
+                    response.DeclinedNames.name[i] = declinedNames->name[i];
+        }
+        else
+            response.HasDeclined = false;
+
+        response.Timestamp = playerPet->GetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP);
+    }
+
+    player->GetSession()->SendPacket(response.Write());
 }
 
 //! 6.0.3
@@ -728,54 +759,6 @@ void WorldSession::HandleStableChangeSlotCallback(PreparedQueryResult result, ui
 void WorldSession::HandleStableRevivePet(WorldPacket & recvData )
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleStableRevivePet: Not implemented");
-}
-
-//! 6.0.3
-void WorldSession::SendPetNameQuery(ObjectGuid const& petguid)
-{
-    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, petguid);
-    if (!pet)
-    {
-        WorldPacket data(SMSG_QUERY_PET_NAME_RESPONSE, (4+1+4+1));
-        data << petguid;
-        data.WriteBit(0);
-        data.FlushBits();
-        _player->GetSession()->SendPacket(&data);
-        return;
-    }
-
-    std::string name = pet->GetName();
-
-    WorldPacket data(SMSG_QUERY_PET_NAME_RESPONSE, (4+4+name.size()+1));
-    data << petguid;
-    data.WriteBit(pet->isPet() ? 1 : 0);
-    data.WriteBits(name.size(), 8);
-
-    if (Pet* playerPet = pet->ToPet())
-    {
-        DeclinedName const* declinedNames = playerPet->GetDeclinedNames();
-        if (declinedNames)
-        {
-            data.WriteBit(1);   //HasDeclined
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                data.WriteBits(declinedNames->name[i].size(), 7);
-
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                if (declinedNames->name[i].size())
-                    data.WriteString(declinedNames->name[i]);
-        }
-        else
-        {
-            data.WriteBit(0);   //HasDeclined
-            for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-                data.WriteBits(0, 7);
-        }
-
-        data << uint32(playerPet->GetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP));
-        data.WriteString(name);
-    }
-
-    _player->GetSession()->SendPacket(&data);
 }
 
 bool WorldSession::CheckStableMaster(ObjectGuid const& guid)

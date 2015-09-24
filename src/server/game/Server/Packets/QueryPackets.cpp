@@ -179,8 +179,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupDa
     data << uint8(lookupData.Level);
     data.WriteString(lookupData.Name);
 
-    data.FlushBits();
-
     return data;
 }
 
@@ -261,10 +259,9 @@ void WorldPackets::Query::DBQueryBulk::Read()
 
 WorldPacket const* WorldPackets::Query::DBReply::Write()
 {
-    _worldPacket << uint32(TableHash);
-    _worldPacket << uint32(RecordID);
-    _worldPacket << uint32(Timestamp);
-    _worldPacket.WriteBit(Allow);
+    _worldPacket << TableHash;
+    _worldPacket << RecordID;
+    _worldPacket << Timestamp;
     _worldPacket << uint32(Data.size());
     _worldPacket.append(Data);
 
@@ -410,6 +407,85 @@ WorldPacket const* WorldPackets::Query::QuestPOIQueryResponse::Write()
             }
         }
     }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryQuestCompletionNPCs::Read()
+{
+    uint32 questCount = 0;
+
+    _worldPacket >> questCount;
+    QuestCompletionNPCs.resize(questCount);
+
+    for (int32& QuestID : QuestCompletionNPCs)
+        _worldPacket >> QuestID;
+}
+
+WorldPacket const* WorldPackets::Query::QuestCompletionNPCResponse::Write()
+{
+    _worldPacket << uint32(QuestCompletionNPCs.size());
+    for (auto& quest : QuestCompletionNPCs)
+    {
+        _worldPacket << int32(quest.QuestID);
+
+        _worldPacket << uint32(quest.NPCs.size());
+        for (int32 const& npc : quest.NPCs)
+            _worldPacket << int32(npc);
+    }
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryPetName::Read()
+{
+    _worldPacket >> UnitGUID;
+}
+
+WorldPacket const* WorldPackets::Query::QueryPetNameResponse::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket.WriteBit(Allow);
+
+    if (Allow)
+    {
+        _worldPacket.WriteBits(Name.length(), 8);
+        _worldPacket.WriteBit(HasDeclined);
+
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteBits(DeclinedNames.name[i].length(), 7);
+
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+            _worldPacket.WriteString(DeclinedNames.name[i]);
+
+        _worldPacket << Timestamp;
+        _worldPacket.WriteString(Name);
+    }
+
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::ItemTextQuery::Read()
+{
+    _worldPacket >> Id;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::ItemTextCache const& itemTextCache)
+{
+    data.WriteBits(itemTextCache.Text.length(), 13);
+    data.WriteString(itemTextCache.Text);
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Query::QueryItemTextResponse::Write()
+{
+    _worldPacket.WriteBit(Valid);
+    _worldPacket.FlushBits();
+    _worldPacket << Id;
+    _worldPacket << Item;
 
     return &_worldPacket;
 }

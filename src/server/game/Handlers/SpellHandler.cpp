@@ -35,6 +35,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellPackets.h"
 #include "Chat.h"
+#include "TotemPackets.h"
 
 //! 6.0.3
 void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::ItemUse& cast)
@@ -728,33 +729,29 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
     mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
 }
 
-void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
+void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& packet)
 {
-    // ignore for remote control state
-    if (_player->m_mover != _player)
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    uint8 slotId;
-    ObjectGuid guid;
-
-    recvPacket >> slotId;
-    //recvPacket.ReadGuidMask<3, 5, 2, 0, 4, 1, 6, 7>(guid);
-    //recvPacket.ReadGuidBytes<4, 1, 5, 2, 3, 6, 7, 0>(guid);
-    ObjectGuid::LowType logGuid = guid.GetCounter();
-
-    ++slotId;
-
-    if (slotId >= MAX_TOTEM_SLOT)
+    if (player->m_mover != player)
         return;
 
-    if (!_player->m_SummonSlot[slotId])
+    ++packet.Slot;
+
+    if (packet.Slot >= MAX_TOTEM_SLOT)
         return;
 
-    if(Creature* summon = GetPlayer()->GetMap()->GetCreature(_player->m_SummonSlot[slotId]))
+    if (!player->m_SummonSlot[packet.Slot])
+        return;
+
+    if (Creature* summon = player->GetMap()->GetCreature(player->m_SummonSlot[packet.Slot]))
     {
-        if(uint32 spellId = summon->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL))
-            if(AreaTrigger* arTrigger = _player->GetAreaObject(spellId))
+        if (uint32 spellId = summon->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL))
+            if (AreaTrigger* arTrigger = player->GetAreaObject(spellId))
                 arTrigger->SetDuration(0);
+
         summon->DespawnOrUnsummon();
     }
 }

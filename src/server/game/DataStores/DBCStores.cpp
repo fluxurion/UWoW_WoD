@@ -252,7 +252,7 @@ typedef std::list<std::string> StoreProblemList;
 uint32 DBCFileCount = 0;
 uint32 GameTableCount = 0;
 
-static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, const std::string& filename)
+static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, std::string const& filename)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Size of '%s' setted by format string (%u) not equal size of C++ structure (%u).", filename.c_str(), fsize, rsize);
 
@@ -347,7 +347,7 @@ inline void LoadGameTable(StoreProblemList& errors, std::string const& tableName
     }
 }
 
-void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
+void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
 {
     uint32 oldMSTime = getMSTime();
 
@@ -518,7 +518,7 @@ void LoadDBCStores(const std::string& dataPath, uint32 defaultLocale)
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void LoadGameTables(const std::string& dataPath, uint32 defaultLocale)
+void LoadGameTables(std::string const& dataPath, uint32 defaultLocale)
 {
     uint32 oldMSTime = getMSTime();
 

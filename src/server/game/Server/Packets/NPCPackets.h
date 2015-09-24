@@ -77,6 +77,27 @@ namespace WorldPackets
             int32 GossipID = 0;
         };
 
+        class GossipSelectOption final : public ClientPacket
+        {
+        public:
+            GossipSelectOption(WorldPacket&& packet) : ClientPacket(CMSG_GOSSIP_SELECT_OPTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid GossipUnit;
+            int32 GossipIndex = 0;
+            int32 GossipID = 0;
+            std::string PromotionCode;
+        };
+
+        class GossipComplete final : public ServerPacket
+        {
+        public:
+            GossipComplete() : ServerPacket(SMSG_GOSSIP_COMPLETE, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         struct VendorItem
         {
             int32 MuID = 0;
@@ -126,6 +147,83 @@ namespace WorldPackets
             ObjectGuid TrainerGUID;
             int32 TrainerID = 1;
             std::vector<TrainerListSpell> Spells;
+        };
+
+        class ShowBank final : public ServerPacket
+        {
+        public:
+            ShowBank() : ServerPacket(SMSG_SHOW_BANK, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class PlayerTabardVendorActivate final : public ServerPacket
+        {
+        public:
+            PlayerTabardVendorActivate() : ServerPacket(SMSG_PLAYER_TABARD_VENDOR_ACTIVATE, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Vendor;
+        };
+
+        class SuppressNPCGreetings final : public ServerPacket
+        {
+        public:
+            SuppressNPCGreetings() : ServerPacket(SMSG_SUPPRESS_NPC_GREETINGS, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            bool SuppressNPCGreeting = false;
+        };
+
+        class GossipPOI final : public ServerPacket
+        {
+        public:
+            GossipPOI() : ServerPacket(SMSG_GOSSIP_POI, 2 + 2 * 4 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Flags        = 0;
+            G3D::Vector2 Pos;
+            int32 Icon          = 0;
+            int32 Importance    = 0;
+            std::string Name;
+        };
+
+        class SpiritHealerActivate final : public ClientPacket
+        {
+        public:
+            SpiritHealerActivate(WorldPacket&& packet) : ClientPacket(CMSG_SPIRIT_HEALER_ACTIVATE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Healer;
+        };
+
+        class SpiritHealerConfirm final : public ServerPacket
+        {
+        public:
+            SpiritHealerConfirm() : ServerPacket(SMSG_SPIRIT_HEALER_CONFIRM, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+        };
+
+        class TrainerBuySpell final : public ClientPacket
+        {
+        public:
+            TrainerBuySpell(WorldPacket&& packet) : ClientPacket(CMSG_TRAINER_BUY_SPELL, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid TrainerGUID;
+            int32 TrainerID     = 0;
+            int32 SpellID       = 0;
         };
 
         class TrainerBuyFailed final : public ServerPacket

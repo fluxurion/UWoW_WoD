@@ -90,10 +90,8 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     SendPacket(features.Write());
 }
 
-//! 6.1.2
-void WorldSession::HandleUndeleteCharacterCooldownnStatus(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGetUndeleteCharacterCooldownStatus(WorldPackets::Character::GetUndeleteCharacterCooldownStatus& /*packet*/)
 {
-    //CMSG_GET_UNDELETE_CHARACTER_COOLDOWN_STATUS
     WorldPacket data(SMSG_UNDELETE_COOLDOWN_STATUS_RESPONSE, 9);
     data << uint8(0);           //onebit
     data << uint32(0);          //CD for free restore deleted character. 2592000

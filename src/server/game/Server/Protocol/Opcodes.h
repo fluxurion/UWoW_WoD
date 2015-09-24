@@ -717,7 +717,7 @@ enum OpcodeClient : uint32
     CMSG_VOICE_DEL_IGNORE                             = 0x0E95,
     CMSG_VOICE_SESSION_ENABLE                         = 0x1238,
     CMSG_VOID_STORAGE_TRANSFER                        = 0x0E07,
-    CMSG_VOID_STORAGE_QUERY                           = 0x03D3,
+    CMSG_QUERY_VOID_STORAGE                           = 0x03D3,
     CMSG_WARDEN_DATA                                  = 0x02B8,
     CMSG_WHO                                          = 0x079E,
     CMSG_WHO_IS                                       = 0x17BF,
