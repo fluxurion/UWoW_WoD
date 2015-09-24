@@ -1523,9 +1523,9 @@ void World::SetInitialWorldSettings()
     CharacterDatabase.Execute(stmt);
 
     ///- Load the DBC files
-    LoadDBCStores(m_dataPath, LOCALE_enUS);
-    LoadGameTables(m_dataPath, LOCALE_enUS);
-    sDB2Manager.LoadStores(m_dataPath, LOCALE_enUS);
+    LoadDBCStores(m_dataPath, m_defaultDbcLocale);
+    LoadGameTables(m_dataPath, m_defaultDbcLocale);
+    sDB2Manager.LoadStores(m_dataPath, m_defaultDbcLocale);
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading hotfix info...");
     sDB2Manager.LoadHotfixData();
     HotfixDatabase.Close();
