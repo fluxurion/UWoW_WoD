@@ -3262,7 +3262,7 @@ void ObjectMgr::LoadPlayerInfo()
         uint32 oldMSTime = getMSTime();
 
         //                                                 0     1      2      3    4    5    6    7
-        QueryResult result  = WorldDatabase.Query("SELECT race, class, level, str, agi, sta, inte, spi FROM player_levelstats");
+        QueryResult result = WorldDatabase.Query("SELECT race, class, level, str, agi, sta, inte, spi FROM player_levelstats");
 
         if (!result)
         {
@@ -3309,12 +3309,10 @@ void ObjectMgr::LoadPlayerInfo()
             if (!pInfo->levelInfo)
                 pInfo->levelInfo = new PlayerLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
 
-            PlayerLevelInfo* pLevelInfo = &pInfo->levelInfo[current_level-1];
+            PlayerLevelInfo* pLevelInfo = &pInfo->levelInfo[current_level - 1];
 
             for (int i = 0; i < MAX_STATS; i++)
-            {
-                pLevelInfo->stats[i] = fields[i+3].GetUInt8();
-            }
+                pLevelInfo->stats[i] = fields[i + 3].GetUInt16();
 
             ++count;
         }
@@ -3359,8 +3357,8 @@ void ObjectMgr::LoadPlayerInfo()
                 {
                     if (pInfo->levelInfo[level].stats[0] == 0)
                     {
-                        sLog->outError(LOG_FILTER_SQL, "Race %i Class %i Level %i does not have stats data. Using stats data of level %i.", race, class_, level+1, level);
-                        pInfo->levelInfo[level] = pInfo->levelInfo[level-1];
+                        sLog->outError(LOG_FILTER_SQL, "Race %i Class %i Level %i does not have stats data. Using stats data of level %i.", race, class_, level + 1, level);
+                        pInfo->levelInfo[level] = pInfo->levelInfo[level - 1];
                     }
                 }
             }
