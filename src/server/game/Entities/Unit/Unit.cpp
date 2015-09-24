@@ -68,6 +68,7 @@
 #include "VehiclePackets.h"
 #include "LootPackets.h"
 #include "CombatLogPackets.h"
+#include "PartyPackets.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -13068,7 +13069,8 @@ float Unit::CalcVersalityBonus(Unit* target, float amount)
 
         //Done = CalculatePct(damageDone, DamagePct);
         //Taken  = CalculatePct(taken,   HealPct);
-    }
+        }
+
 
 
     if (Player* plr = caster->ToPlayer())
@@ -16119,12 +16121,8 @@ void Unit::InitialPowers(bool maxpower)
     packet.Guid = GetGUID();        
 
     int32 powerIndex = 0;
-    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
+    for (ChrPowerTypesEntry const* powerEntry : sChrPowerTypesStore)
     {
-        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
-        if (!powerEntry)
-            continue;
-
         if (powerEntry->classId != classId)
             continue;
 
@@ -20412,16 +20410,15 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
     if (isRewardAllowed && player && player != victim)
     {
-        //! 6.0.3
-        WorldPacket data(SMSG_PARTY_KILL_LOG, 32); // send event PARTY_KILL
-        data << player->GetGUID();
-        data << victim->GetGUID();
+        WorldPackets::Party::PartyKillLog partyKillLog;
+        partyKillLog.Player = player->GetGUID();
+        partyKillLog.Victim = victim->GetGUID();
 
         Player* looter = player;
 
         if (Group* group = player->GetGroup())
         {
-            group->BroadcastPacket(&data, group->GetMemberGroup(player->GetGUID()));
+            group->BroadcastPacket(partyKillLog.Write(), group->GetMemberGroup(player->GetGUID()) != 0);
 
             if (creature)
             {
@@ -20445,7 +20442,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
         }
         else
         {
-            player->SendDirectMessage(&data);
+            player->SendDirectMessage(partyKillLog.Write());
 
             if (creature)
             {
@@ -23727,7 +23724,7 @@ bool isCaps(std::wstring wstr)
 
 std::string Trinity::CodeChatMessage(std::string text, uint32 lang_id)
 {
-    LanguageWordsMap const* wordMap = GetLanguageWordMap(lang_id);
+    auto const* wordMap = sDB2Manager.GetLanguageWordMap(lang_id);
     if (!wordMap)
         return "";
 
@@ -23744,7 +23741,7 @@ std::string Trinity::CodeChatMessage(std::string text, uint32 lang_id)
         if (wword.empty())
             continue;
 
-        if (std::vector<std::string> const* wordVector = GetLanguageWordsBySize(lang_id, wword.size()))
+        if (std::vector<std::string> const* wordVector = sDB2Manager.GetLanguageWordsBySize(lang_id, wword.size()))
         {
             std::string replacer = wordVector->at(GetWordWeight(t[i]) % wordVector->size());
             if (isCaps(wword))

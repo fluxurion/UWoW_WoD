@@ -26,6 +26,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "PartyPackets.h"
 
 int TotemAI::Permissible(Creature const* creature)
 {
@@ -44,11 +45,11 @@ void TotemAI::InitializeAI()
 {
     CreatureAI::InitializeAI();
 
-    if(PetStats const* pStats = sObjectMgr->GetPetStats(me->GetEntry()))
-        if(pStats->state)
+    if (PetStats const* pStats = sObjectMgr->GetPetStats(me->GetEntry()))
+        if (pStats->state)
         {
             me->SetReactState(ReactStates(pStats->state));
-            if(Unit* victim = me->GetTargetUnit())
+            if (Unit* victim = me->GetTargetUnit())
                 me->Attack(victim, !me->GetCasterPet());
         }
 
@@ -56,8 +57,7 @@ void TotemAI::InitializeAI()
 }
 
 void TotemAI::MoveInLineOfSight(Unit* /*who*/)
-{
-}
+{ }
 
 void TotemAI::EnterEvadeMode()
 {
@@ -83,7 +83,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
         return;
 
     Unit* targetOwner = owner->getAttackerForHelper();
-    if(targetOwner != NULL && targetOwner != victim && me->IsWithinDistInMap(targetOwner, spellInfo->GetMaxRange(false)))
+    if (targetOwner != NULL && targetOwner != victim && me->IsWithinDistInMap(targetOwner, spellInfo->GetMaxRange(false)))
     {
         victim = targetOwner;
         i_victimGuid = victim->GetGUID();
@@ -97,12 +97,11 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
             return;
     }
 
-    // If have target
     if (victim)
     {
         if (!owner->isInCombat())
             owner->SetInCombatWith(victim);
-        // attack
+
         me->SetInFront(victim);                         // client change orientation by self
         me->CastSpell(victim, spellInfo, false);
     }
@@ -110,15 +109,12 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
 
 void TotemAI::AttackStart(Unit* /*victim*/)
 {
-    // Sentry totem sends ping on attack
     if (me->GetEntry() == SENTRY_TOTEM_ENTRY && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
     {
-        //! 6.0.3
-        WorldPacket data(SMSG_MINIMAP_PING, (8+4+4));
-        data << me->GetGUID();;
-        data << me->GetPositionX();
-        data << me->GetPositionY();
-        ((Player*)me->GetOwner())->GetSession()->SendPacket(&data);
-        
+        WorldPackets::Party::MinimapPing ping;
+        ping.Sender = me->GetGUID();
+        ping.PositionX = me->GetPositionX();
+        ping.PositionY = me->GetPositionY();
+        ((Player*)me->GetOwner())->GetSession()->SendPacket(ping.Write());
     }
 }

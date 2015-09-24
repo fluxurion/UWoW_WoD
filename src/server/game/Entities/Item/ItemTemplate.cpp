@@ -146,3 +146,20 @@ uint32 ItemTemplate::GetDPS(uint32 itemLevel) const
 
     return damageInfo->DPS[GetQuality() != ITEM_QUALITY_HEIRLOOM ? GetQuality() : ITEM_QUALITY_RARE];
 }
+
+bool ItemTemplate::CanWinForPlayer(Player const* player) const
+{
+    std::unordered_set<uint32> const& specs = Specializations[player->getLevel() > 40];
+    if (specs.empty())
+        return true;
+
+    uint32 spec = player->GetSpecializationId(player->GetActiveSpec());
+    if (!spec)
+        spec = player->GetDefaultSpecId();
+
+    if (!spec)
+        return false;
+
+    auto itr = specs.find(spec);
+    return itr != specs.end();
+}

@@ -550,12 +550,8 @@ bool Player::SolveResearchProject(uint32 spellId, SpellCastTargets& targets)
         return false;
 
     ResearchBranchEntry const* branch = NULL;
-    for (uint32 i = 0; i < sResearchBranchStore.GetNumRows(); ++i)
+    for (ResearchBranchEntry const* _branch : sResearchBranchStore)
     {
-        ResearchBranchEntry const* _branch = sResearchBranchStore.LookupEntry(i);
-        if (!_branch)
-            continue;
-
         if (_branch->ID != entry->branchId)
             continue;
 

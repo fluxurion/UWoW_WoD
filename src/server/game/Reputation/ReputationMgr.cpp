@@ -25,6 +25,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ReputationPackets.h"
+#include "CharacterPackets.h"
 
 const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000};
 
@@ -223,15 +224,14 @@ void ReputationMgr::SendStates()
         SendState(&(itr->second));
 }
 
-void ReputationMgr::SendVisible(FactionState const* faction) const
+void ReputationMgr::SendVisible(FactionState const* faction, bool visible /*= true*/) const
 {
     if (_player->GetSession()->PlayerLoading())
         return;
 
-    // make faction visible in reputation list at client
-    WorldPacket data(SMSG_SET_FACTION_VISIBLE, 4);
-    data << uint32(faction->ReputationListID);
-    _player->SendDirectMessage(&data);
+    WorldPackets::Character::SetFactionVisible packet(visible);
+    packet.FactionIndex = faction->ReputationListID;
+    _player->SendDirectMessage(packet.Write());
 }
 
 void ReputationMgr::Initialize()

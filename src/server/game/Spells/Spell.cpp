@@ -9642,7 +9642,7 @@ void Spell::WriteProjectile(int8 &ammoInventoryType, int32 &ammoDisplayID)
                     switch (itemEntry->SubClass)
                     {
                         case ITEM_SUBCLASS_WEAPON_THROWN:
-                            ammoDisplayID = GetItemDisplayId(itemEntry->ID, 0);
+                            ammoDisplayID = sDB2Manager.GetItemDisplayId(itemEntry->ID, 0);
                             ammoInventoryType = itemEntry->InventoryType;
                             break;
                         case ITEM_SUBCLASS_WEAPON_BOW:

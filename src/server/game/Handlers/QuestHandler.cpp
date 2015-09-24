@@ -280,7 +280,7 @@ void WorldSession::HandleQuestGiverQueryQuest(WorldPackets::Quest::QuestGiverQue
     }
 }
 
-void WorldSession::HandleQuestQueryOpcode(WorldPackets::Quest::QueryQuestInfo& packet)
+void WorldSession::HandleQueryQuestInfo(WorldPackets::Quest::QueryQuestInfo& packet)
 {
     if (!_player)
         return;
@@ -791,48 +791,4 @@ void WorldSession::SendQuestgiverStatusMultipleQuery()
     }
 
     SendPacket(response.Write());
-}
-
-//! 6.0.3
-void WorldSession::HandleQuestNpcQuery(WorldPacket& recvData)
-{
-    uint32 count = 0, questId = 0;
-    recvData >> count;
-
-    QuestStarter* starterMap = sObjectMgr->GetCreatureQuestStarterMap();
-
-    std::vector<uint32> quests;
-    for (uint32 i = 0; i < count; ++i)
-    {
-        recvData >> questId;
-
-        Quest const* _quest = sObjectMgr->GetQuestTemplate(questId);
-        if (!_quest)
-        {
-            sLog->outError(LOG_FILTER_GENERAL, "HandleQuestNpcQuery: Invalide questId %u for player %u", questId, GetPlayer()->GetGUID().GetCounter());
-            continue;
-        }
-
-        if (starterMap->find(questId) == starterMap->end())
-            continue;
-
-        quests.push_back(questId);
-    }
-
-    //SMSG_QUESTGIVER_STATUS_MULTIPLE
-
-    WorldPacket data(SMSG_QUEST_COMPLETION_NPC_RESPONSE, 3 + quests.size() * (4 + 3));
-    data << uint32(quests.size());
-
-    for (uint32 i = 0; i < quests.size(); ++i)
-    {
-        QuestStarter::const_iterator itr = starterMap->find(quests[i]);
-        data << uint32(quests[i]);
-        data << uint32(itr->second.size());
-
-        for (QuestObject::const_iterator obj = itr->second.begin(); obj != itr->second.end(); ++obj)
-            data << uint32(*obj);
-    }
-
-    SendPacket(&data);
 }

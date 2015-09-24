@@ -149,12 +149,8 @@ void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
     std::set<uint32> relatedSkills;
     relatedSkills.insert(skillId);
 
-    for (uint32 i = 0; i < sSkillLineStore.GetNumRows(); ++i)
+    for (SkillLineEntry const* skillLine : sSkillLineStore)
     {
-        SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(i);
-        if (!skillLine)
-            continue;
-
         if (skillLine->parentSkillId != skillId)
             continue;
 

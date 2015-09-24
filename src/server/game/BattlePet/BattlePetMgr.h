@@ -184,8 +184,8 @@ public:
     bool IsHurt() { return !IsDead() && health < maxHealth; }
     uint8 GetType()
     {
-        BattlePetSpeciesBySpellIdMap::const_iterator it = sBattlePetSpeciesBySpellId.find(creatureEntry);
-        if (it != sBattlePetSpeciesBySpellId.end())
+        auto const it = sDB2Manager._battlePetSpeciesBySpellId.find(creatureEntry);
+        if (it != sDB2Manager._battlePetSpeciesBySpellId.end())
             return it->second->petType;
 
         return 0;
@@ -231,31 +231,17 @@ class BattlePetStatAccumulator
 public:
     BattlePetStatAccumulator(uint32 _speciesID, uint16 _breedID);
 
-    int32 CalculateHealth()
-    {
-        return int32((5.0f * healthMod * qualityMultiplier) + 100.0f + /*(unkDword16 * qualityMultiplier)*/ 0.5f);
-    }
-    int32 CalculateSpeed()
-    {
-        return int32((/*(speed * unkDword32 * 0.01f) +*/ speedMod * qualityMultiplier) + 0.5f);
-    }
-    int32 CalculatePower()
-    {
-        return int32((powerMod * qualityMultiplier) + 0.5f);
-    }
+    int32 CalculateHealth() {  return int32((5.0f * healthMod * qualityMultiplier) + 100.0f + /*(unkDword16 * qualityMultiplier)*/ 0.5f); }
+    int32 CalculateSpeed() { return int32((/*(speed * unkDword32 * 0.01f) +*/ speedMod * qualityMultiplier) + 0.5f); }
+    int32 CalculatePower() { return int32((powerMod * qualityMultiplier) + 0.5f); }
+
     void CalcQualityMultiplier(uint8 quality, uint8 level)    
     {
-        for (uint32 i = 0; i < sBattlePetBreedQualityStore.GetNumRows(); ++i)
-        {
-            BattlePetBreedQualityEntry const* qEntry = sBattlePetBreedQualityStore.LookupEntry(i);
-
-            if (!qEntry)
-                continue;
-
+        for (BattlePetBreedQualityEntry const* qEntry : sBattlePetBreedQualityStore)
             if (qEntry->quality == quality)
                 qualityMultiplier = level * 0.01f * qEntry->qualityModifier;
-        }
     }
+
     void Accumulate(uint32 stateID, int32 value)
     {
         BattlePetStateEntry const* state = sBattlePetStateStore.LookupEntry(stateID);
@@ -387,8 +373,8 @@ public:
     bool IsHurt() { return !IsDead() && health < maxHealth; }
     uint8 GetType()
     {
-        BattlePetSpeciesBySpellIdMap::const_iterator it = sBattlePetSpeciesBySpellId.find(creatureEntry);
-        if (it != sBattlePetSpeciesBySpellId.end())
+        auto const it = sDB2Manager._battlePetSpeciesBySpellId.find(creatureEntry);
+        if (it != sDB2Manager._battlePetSpeciesBySpellId.end())
             return it->second->petType;
 
         return 0;
@@ -709,15 +695,6 @@ public:
     }
 
     const PetJournal &GetPetJournal() { return m_PetJournal; }
-
-    BattlePetSpeciesEntry const* GetBattlePetSpeciesEntry(uint32 creatureEntry)
-    {
-        BattlePetSpeciesBySpellIdMap::const_iterator it = sBattlePetSpeciesBySpellId.find(creatureEntry);
-        if (it != sBattlePetSpeciesBySpellId.end())
-            return it->second;
-
-        return NULL;
-    }
 
     PetBattleSlot* GetPetBattleSlot(uint8 index) { return m_battleSlots[index]; }
 

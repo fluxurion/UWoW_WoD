@@ -702,7 +702,6 @@ struct HotfixInfo
     uint32 Entry;
 };
 
-typedef std::vector<HotfixInfo> HotfixData;
 typedef std::map<uint32, bool> UpdateSkipData;
 
 typedef std::map<uint32, AreaTriggerInfo > AreaTriggerInfoMap;
@@ -1602,19 +1601,6 @@ class ObjectMgr
         void LoadFactionChangeReputations();
         void LoadFactionChangeTitles();
 
-        void LoadHotfixData();
-        HotfixData const& GetHotfixData() const { return _hotfixData; }
-        time_t GetHotfixDate(uint32 entry, uint32 type) const
-        {
-            time_t ret = 0;
-            for (HotfixData::const_iterator itr = _hotfixData.begin(); itr != _hotfixData.end(); ++itr)
-                if (itr->Entry == entry && itr->Type == type)
-                    if (itr->Timestamp > ret)
-                        ret = itr->Timestamp;
-
-            return ret ? ret : time(NULL);
-        }
-
         ///Temporaire pour la création des Z, a remettre en private après
         GameObjectDataContainer _gameObjectDataStore;
 
@@ -1891,7 +1877,6 @@ class ObjectMgr
             GO_TO_GO,
             GO_TO_CREATURE,         // GO is dependant on creature
         };
-        HotfixData _hotfixData;
 
         AreaTriggerInfoMap _areaTriggerData;
         ScenarioDataMap _scenarioData;

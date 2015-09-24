@@ -291,7 +291,8 @@ extern DBCStorage<WorldSafeLocsEntry>           sWorldSafeLocsStore;
 
 extern CharacterLoadoutItemMap                  sCharacterLoadoutItemMap;
 
-void LoadDBCStores(const std::string& dataPath);
+void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale);
+void LoadGameTables(std::string const& dataPath, uint32 defaultLocale);
 void InitDBCCustomStores();
 bool IsValidDifficulty(uint32 diff, bool isRaid);
 

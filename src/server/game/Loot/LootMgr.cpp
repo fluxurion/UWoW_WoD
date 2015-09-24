@@ -2193,10 +2193,9 @@ void LoadLootTemplates_Fishing()
     uint32 count = LootTemplates_Fishing.LoadAndCollectLootIds(lootIdSet);
 
     // remove real entries and check existence loot
-    for (uint32 i = 1; i < sAreaStore.GetNumRows(); ++i)
-        if (AreaTableEntry const* areaEntry = sAreaStore.LookupEntry(i))
-            if (lootIdSet.find(areaEntry->ID) != lootIdSet.end())
-                lootIdSet.erase(areaEntry->ID);
+    for (AreaTableEntry const* areaEntry : sAreaStore)
+        if (lootIdSet.find(areaEntry->ID) != lootIdSet.end())
+            lootIdSet.erase(areaEntry->ID);
 
     // output error for any still listed (not referenced from appropriate table) ids
     LootTemplates_Fishing.ReportUnusedIds(lootIdSet);

@@ -201,7 +201,7 @@ void WorldSession::HandleCageBattlePet(WorldPacket& recvData)
     if (PetJournalInfo * petInfo = _player->GetBattlePetMgr()->GetPetInfoByPetGUID(guid))
     {
         // some validate
-        BattlePetSpeciesEntry const* bp = _player->GetBattlePetMgr()->GetBattlePetSpeciesEntry(petInfo->GetCreatureEntry());
+        BattlePetSpeciesEntry const* bp = sDB2Manager.GetBattlePetSpeciesEntry(petInfo->GetCreatureEntry());
 
         if (!bp || bp->flags & SPECIES_FLAG_CANT_TRADE)
             return;

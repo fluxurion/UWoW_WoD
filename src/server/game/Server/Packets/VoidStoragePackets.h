@@ -49,7 +49,7 @@ namespace WorldPackets
         class QueryVoidStorage final : public ClientPacket
         {
         public:
-            QueryVoidStorage(WorldPacket&& packet) : ClientPacket(CMSG_VOID_STORAGE_QUERY, std::move(packet)) { }
+            QueryVoidStorage(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_VOID_STORAGE, std::move(packet)) { }
 
             void Read() override;
 

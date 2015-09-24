@@ -2226,12 +2226,8 @@ void SpellMgr::LoadSkillLineAbilityMap()
 
     uint32 count = 0;
 
-    for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+    for (SkillLineAbilityEntry const* SkillInfo : sSkillLineAbilityStore)
     {
-        SkillLineAbilityEntry const* SkillInfo = sSkillLineAbilityStore.LookupEntry(i);
-        if (!SkillInfo)
-            continue;
-
         mSkillLineAbilityMap.insert(SkillLineAbilityMap::value_type(SkillInfo->spellId, SkillInfo));
         ++count;
     }
@@ -3050,23 +3046,15 @@ void SpellMgr::LoadPetLevelupSpellMap()
     uint32 count = 0;
     uint32 family_count = 0;
 
-    for (uint32 i = 0; i < sCreatureFamilyStore.GetNumRows(); ++i)
+    for (CreatureFamilyEntry const* creatureFamily : sCreatureFamilyStore)
     {
-        CreatureFamilyEntry const* creatureFamily = sCreatureFamilyStore.LookupEntry(i);
-        if (!creatureFamily)                                     // not exist
-            continue;
-
         for (uint8 j = 0; j < 2; ++j)
         {
             if (!creatureFamily->skillLine[j])
                 continue;
 
-            for (uint32 k = 0; k < sSkillLineAbilityStore.GetNumRows(); ++k)
+            for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
             {
-                SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(k);
-                if (!skillLine)
-                    continue;
-
                 //if (skillLine->skillId != creatureFamily->skillLine[0] &&
                 //    (!creatureFamily->skillLine[1] || skillLine->skillId != creatureFamily->skillLine[1]))
                 //    continue;
@@ -3563,12 +3551,8 @@ void SpellMgr::LoadSpellClassInfo()
             mSpellClassInfo[ClassID].insert(96220);
         }
 
-        for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+        for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
         {
-            SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(i);
-            if (!skillLine)
-                continue;
-
             SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(skillLine->spellId);
             if (!spellEntry)
                 continue;
@@ -3592,12 +3576,8 @@ void SpellMgr::LoadSpellClassInfo()
         }
     }
 
-    for (uint32 i = 0; i < sSpecializationSpellStore.GetNumRows(); ++i)
+    for (SpecializationSpellEntry const* specializationInfo : sSpecializationSpellStore)
     {
-        SpecializationSpellEntry const* specializationInfo = sSpecializationSpellStore.LookupEntry(i);
-        if (!specializationInfo)
-            continue;
-
         ChrSpecializationsEntry const* chrSpec = sChrSpecializationsStore.LookupEntry(specializationInfo->SpecializationEntry);
         if (!chrSpec)
             continue;
@@ -3619,16 +3599,11 @@ void SpellMgr::LoadSpellInfoStore()
     UnloadSpellInfoStore();
     mSpellInfoMap.resize(sSpellStore.GetNumRows(), NULL);
 
-    for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
-        if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
-            mSpellInfoMap[i] = new SpellInfo(spellEntry);
+    for (SpellEntry const* spellEntry : sSpellStore)
+        mSpellInfoMap[spellEntry->ID] = new SpellInfo(spellEntry);
 
-    for (uint32 i = 0; i < sSpellPowerStore.GetNumRows(); i++)
+    for (SpellPowerEntry const* spellPower : sSpellPowerStore)
     {
-        SpellPowerEntry const* spellPower = sSpellPowerStore.LookupEntry(i);
-        if (!spellPower)
-            continue;
-
         SpellInfo* spell = mSpellInfoMap[spellPower->SpellID];
         if (!spell)
             continue;
@@ -3639,7 +3614,7 @@ void SpellMgr::LoadSpellInfoStore()
         spell->PowerCostPerSecond = spellPower->PowerCostPerSecond;
         spell->PowerCostPercentagePerSecond = spellPower->PowerCostPercentagePerSecond;
         spell->PowerRequestId = spellPower->RequiredAura;
-        spell->PowerGetPercentHp = spellPower->getpercentHp;
+        spell->PowerGetPercentHp = spellPower->HealthCostPercentage;
 
         if (!spell->AddPowerData(spellPower))
             sLog->outInfo(LOG_FILTER_WORLDSERVER, "Spell - %u has more powers > 4.", spell->Id);

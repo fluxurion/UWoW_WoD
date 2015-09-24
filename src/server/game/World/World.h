@@ -31,6 +31,7 @@
 #include "QueryResult.h"
 #include "Callback.h"
 #include "Opcodes.h"
+#include "Realm/Realm.h"
 
 #include <atomic>
 #include <map>
@@ -1011,6 +1012,7 @@ class World
 };
 
 extern Battlenet::RealmHandle realmHandle;
+extern Realm realm;
 uint32 GetVirtualRealmAddress();
 
 #define sWorld World::instance()

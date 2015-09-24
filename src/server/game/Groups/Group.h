@@ -47,8 +47,8 @@ struct MapEntry;
 #define MAXGROUPSIZE 5
 #define MAXRAIDSIZE 40
 #define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAXGROUPSIZE
-#define TARGETICONCOUNT 8
-#define RAID_MARKER_COUNT 5
+#define TARGET_ICONS_COUNT 8
+#define RAID_MARKERS_COUNT 8
 
 enum RollVote
 {
@@ -174,8 +174,18 @@ struct InstanceGroupBind
     InstanceGroupBind() : save(NULL), perm(false) {}
 };
 
-/** request member stats checken **/
-/** todo: uninvite people that not accepted invite **/
+struct RaidMarker
+{
+    WorldLocation Location;
+    ObjectGuid TransportGUID;
+
+    RaidMarker(uint32 mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid = ObjectGuid::Empty)
+    {
+        Location.WorldRelocate(mapId, positionX, positionY, positionZ);
+        TransportGUID = transportGuid;
+    }
+};
+
 class Group
 {
     public:
@@ -190,7 +200,7 @@ class Group
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
 
-        typedef UNORDERED_MAP< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
+        typedef std::unordered_map< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
     protected:
         typedef MemberSlotList::iterator member_witerator;
         typedef std::set<Player*> InvitesList;
@@ -220,6 +230,7 @@ class Group
         void   SetLootThreshold(ItemQualities threshold);
         void   Disband(bool hideDestroy=false);
         void   SetLfgRoles(ObjectGuid guid, const uint8 roles);
+        uint8  GetLfgRoles(ObjectGuid guid);
 
         // properties accessories
         bool IsFull() const;
@@ -242,13 +253,13 @@ class Group
         // member manipulation methods
         bool IsMember(ObjectGuid guid) const;
         bool IsLeader(ObjectGuid guid) const;
-        ObjectGuid GetMemberGUID(const std::string& name);
+        ObjectGuid GetMemberGUID(std::string const& name);
         bool IsAssistant(ObjectGuid guid) const;
         bool IsGuildGroup(ObjectGuid const& guildId, bool AllInSameMap = false, bool AllInSameInstanceId = false);
         void UpdateGuildAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1, uint32 miscValue2, uint32 miscValue3, Unit* unit, WorldObject* rewardSource);
 
         Player* GetInvited(ObjectGuid guid) const;
-        Player* GetInvited(const std::string& name) const;
+        Player* GetInvited(std::string const& name) const;
 
         bool SameSubGroup(ObjectGuid guid1, ObjectGuid guid2) const;
         bool SameSubGroup(ObjectGuid guid1, MemberSlot const* slot2) const;
@@ -273,7 +284,7 @@ class Group
 
         void ChangeMembersGroup(ObjectGuid guid, uint8 group);
         void ChangeMembersGroup(Player* player, uint8 group);
-        void SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid);
+        void SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid, uint8 partyIndex);
         void SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags flag);
         void setGroupMemberRole(ObjectGuid guid, uint32 role);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
@@ -287,26 +298,21 @@ class Group
         Difficulty GetLegacyRaidDifficultyID() const { return m_legacyRaidDifficulty; }
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* SendMsgTo);
 
-        // -no description-
-        //void SendInit(WorldSession* session);
-        void SendTargetIconList(WorldSession* session);
+        void SendTargetIconList(WorldSession* session, int8 partyIndex);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = NULL);
-        void SendEmptyParty(Player *player);
 
         void UpdatePlayerOutOfRange(Player* player);
-                                                            // ignore: GUID of player that will be ignored
-        void BroadcastPacket(const WorldPacket* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid::Empty);
-        void BroadcastAddonMessagePacket(WorldPacket* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid::Empty);
-        void BroadcastReadyCheck(WorldPacket* packet);
+
+        void BroadcastPacket(WorldPacket const* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid::Empty);
+        void BroadcastAddonMessagePacket(WorldPacket* packet, std::string const& prefix, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid::Empty);
+        void BroadcastReadyCheck(WorldPacket const* packet);
         void OfflineReadyCheck();
         bool leaderInstanceCheckFail();
 
-        ObjectGuid GetRaidMarker(uint8 id) const { return m_raidMarkers[id]; }
-        bool HasRaidMarker(ObjectGuid guid) const;
-        void SetRaidMarker(uint8 id, Player* who, ObjectGuid targetGuid, bool update = true);
-        void SendRaidMarkerUpdate();
-        void ClearRaidMarker(ObjectGuid guid);
+        void AddRaidMarker(uint8 markerID, uint32 mapID, float positionX, float positionY, float positionZ, ObjectGuid transportGuid = ObjectGuid::Empty);
+        void DeleteRaidMarker(uint8 markerID);
+        void SendRaidMarkersChanged(WorldSession* session = nullptr, int8 partyIndex = 0);
 
         /*********************************************************/
         /***                   LOOT SYSTEM                     ***/
@@ -389,8 +395,8 @@ class Group
         Difficulty          m_legacyRaidDifficulty;
         Battleground*       m_bgGroup;
         Battlefield*        m_bfGroup;
-        ObjectGuid          m_targetIcons[TARGETICONCOUNT];
-        ObjectGuid          m_raidMarkers[RAID_MARKER_COUNT];
+        ObjectGuid          m_targetIcons[TARGET_ICONS_COUNT];
+        ObjectGuid          m_raidMarkers[RAID_MARKERS_COUNT];
         LootMethod          m_lootMethod;
         ItemQualities       m_lootThreshold;
         ObjectGuid          m_looterGuid;
@@ -404,5 +410,8 @@ class Group
         uint8               m_readyCheckCount;
         uint8               m_aoe_slots;                    // centrilize aoe loot method
         bool                m_readyCheck;
+
+        std::array<std::unique_ptr<RaidMarker>, RAID_MARKERS_COUNT> m_markers;
+        uint32              m_activeMarkers;
 };
 #endif

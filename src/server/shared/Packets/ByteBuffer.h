@@ -273,7 +273,6 @@ class ByteBuffer
         template <typename T> void append(T value)
         {
             static_assert(std::is_fundamental<T>::value, "append(compound)");
-            FlushBits();
             EndianConvert(value);
             append((uint8 *)&value, sizeof(value));
         }
@@ -674,7 +673,7 @@ class ByteBuffer
                throw ByteBufferPositionException(false, _rpos, len, size());
 
             ResetBitPos();
-            memcpy(dest, &_storage[_rpos], len);
+            std::memcpy(dest, &_storage[_rpos], len);
             _rpos += len;
         }
 
@@ -788,7 +787,7 @@ class ByteBuffer
 
             if (_storage.size() < _wpos + cnt)
                 _storage.resize(_wpos + cnt);
-            memcpy(&_storage[_wpos], src, cnt);
+            std::memcpy(&_storage[_wpos], src, cnt);
             _wpos += cnt;
         }
 
@@ -875,7 +874,7 @@ class ByteBuffer
             if (!src)
                 throw ByteBufferSourceException(_wpos, size(), cnt);
 
-            memcpy(&_storage[pos], src, cnt);
+            std::memcpy(&_storage[pos], src, cnt);
         }
 
         void print_storage() const;

@@ -569,6 +569,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHistoryEntry
     data << uint32(historyEntry.Category);
     data << int32(historyEntry.RecoveryTime);
     data << int32(historyEntry.CategoryRecoveryTime);
+    data.WriteBit(historyEntry.OnHold);
+    data.FlushBits();
 
     return data;
 }

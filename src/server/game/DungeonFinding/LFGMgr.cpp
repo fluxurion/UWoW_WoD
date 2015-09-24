@@ -211,11 +211,9 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     LfgDungeonStore.clear();
 
     // Initialize Dungeon map with data from dbcs
-    for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
+    for (LFGDungeonEntry const* dungeon : sLFGDungeonStore)
     {
-        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i);
-
-        if (!dungeon || dungeon->type == LFG_TYPE_ZONE)
+        if (dungeon->type == LFG_TYPE_ZONE)
             continue;
 
         LfgDungeonStore[dungeon->ID] = LFGDungeonData(dungeon);

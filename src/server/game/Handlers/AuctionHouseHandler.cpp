@@ -132,7 +132,6 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
         return;
     }
 
-
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
@@ -197,10 +196,25 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
         return;
     }
 
-    if (!finalCount)
+        finalCount += packetItem.UseCount;
+    }
+
+    if (packet.Items.empty())
     {
         SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
         return;
+    }
+
+    for (uint32 i = 0; i < packet.Items.size() - 1; ++i)
+    {
+        for (uint32 j = i + 1; j < packet.Items.size(); ++j)
+        {
+            if (packet.Items[i].Guid == packet.Items[j].Guid)
+            {
+                SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+                return;
+            }
+        }
     }
 
     for (uint32 i = 0; i < packet.Items.size() - 1; ++i)

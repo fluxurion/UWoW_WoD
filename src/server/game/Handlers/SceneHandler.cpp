@@ -34,7 +34,7 @@ void WorldSession::HandleSceneTriggerEvent(WorldPackets::Scene::SceneTriggerEven
     _player->TrigerScene(packet.SceneInstanceID, packet.Event);
 }
 
-void WorldSession::HandleScenarioPOIQuery(WorldPackets::Scene::QueryScenarioPOI& packet)
+void WorldSession::HandleQueryScenarioPOI(WorldPackets::Scene::QueryScenarioPOI& packet)
 {
     WorldPackets::Scene::ScenarioPOIs poIs;
     WorldPackets::Scene::ScenarioPOIs::POIData& infos = poIs.PoiInfos[packet.MissingScenarioPOITreeIDs.size()];

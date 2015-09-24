@@ -53,7 +53,7 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 }
 
 
-void WorldSession::HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& packet)
+void WorldSession::HandleQueryPlayerName(WorldPackets::Query::QueryPlayerName& packet)
 {
     SendNameQueryOpcode(packet.Player);
 }
@@ -63,16 +63,14 @@ void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
     SendQueryTimeResponse();
 }
 
-//603
 void WorldSession::SendQueryTimeResponse()
 {
-    WorldPacket data(SMSG_QUERY_TIME_RESPONSE, 4+4);
-    data << uint32(time(NULL));
-    data << uint32(sWorld->GetNextDailyQuestsResetTime() - time(NULL));
-    SendPacket(&data);
+    WorldPackets::Query::QueryTimeResponse queryTimeResponse;
+    queryTimeResponse.CurrentTime = time(nullptr);
+    queryTimeResponse.TimeOutRequest = sWorld->GetNextDailyQuestsResetTime() - queryTimeResponse.CurrentTime;
+    SendPacket(queryTimeResponse.Write());
 }
 
-/// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packet)
 {
     WorldPackets::Query::QueryCreatureResponse response;
@@ -133,8 +131,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
     SendPacket(response.Write());
 }
 
-/// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& packet)
+void WorldSession::HandleQueryGameObject(WorldPackets::Query::QueryGameObject& packet)
 {
     WorldPackets::Query::QueryGameObjectResponse response;
 
@@ -145,21 +142,24 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
         response.Allow = true;
         WorldPackets::Query::GameObjectStats& stats = response.Stats;
 
-        stats.CastBarCaption = gameObjectInfo->castBarCaption;
         stats.DisplayID = gameObjectInfo->displayId;
 
-        if (GameObjectLocale const* cl = sObjectMgr->GetGameObjectLocale(response.GameObjectID))
-        {
-            if (cl->Name.size() > GetSessionDbLocaleIndex() && !cl->Name[GetSessionDbLocaleIndex()].empty())
-                stats.Name[0] = cl->Name[GetSessionDbLocaleIndex()];
-        }
+        LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+        if (localeConstant >= LOCALE_enUS)
+            if (GameObjectLocale const* gameObjectLocale = sObjectMgr->GetGameObjectLocale(packet.GameObjectID))
+            {
+                ObjectMgr::GetLocaleString(gameObjectLocale->Name, localeConstant, stats.Name[0]);
+                ObjectMgr::GetLocaleString(gameObjectLocale->CastBarCaption, localeConstant, stats.CastBarCaption);
+            }
 
         stats.IconName = gameObjectInfo->IconName;
         stats.Name[0] = gameObjectInfo->name;
+        stats.CastBarCaption = gameObjectInfo->castBarCaption;
 
         for (uint8 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; i++)
             if (gameObjectInfo->questItems[i])
                 stats.QuestItems.push_back(gameObjectInfo->questItems[i]);
+
         for (uint32 i = 0; i < MAX_GAMEOBJECT_DATA; i++)
             stats.Data[i] = gameObjectInfo->raw.data[i];
 
@@ -176,39 +176,37 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
 
 void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& /*packet*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CORPSE_QUERY");
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    Corpse* corpse = GetPlayer()->GetCorpse();
-
+    Corpse* corpse = player->GetCorpse();
     if (!corpse)
     {
         WorldPackets::Query::CorpseLocation packet;
-        packet.Valid = false;                               // corpse not found
+        packet.Valid = false;
         SendPacket(packet.Write());
         return;
     }
 
-    uint32 mapid = corpse->GetMapId();
+    uint32 mapID = corpse->GetMapId();
     float x = corpse->GetPositionX();
     float y = corpse->GetPositionY();
     float z = corpse->GetPositionZ();
-    uint32 corpsemapid = mapid;
+    uint32 corpsemapid = mapID;
 
-    // if corpse at different map
-    if (mapid != _player->GetMapId())
+    if (mapID != player->GetMapId())
     {
-        // search entrance map for proper show entrance
-        if (MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapid))
+        if (MapEntry const* corpseMapEntry = sMapStore.LookupEntry(mapID))
         {
             if (corpseMapEntry->IsDungeon() && corpseMapEntry->entrance_map >= 0)
             {
-                // if corpse map have entrance
                 if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->entrance_map))
                 {
-                    mapid = corpseMapEntry->entrance_map;
+                    mapID = corpseMapEntry->entrance_map;
                     x = corpseMapEntry->entrance_x;
                     y = corpseMapEntry->entrance_y;
-                    z = entranceMap->GetHeight(GetPlayer()->GetPhaseMask(), x, y, MAX_HEIGHT);
+                    z = entranceMap->GetHeight(player->GetPhaseMask(), x, y, MAX_HEIGHT);
                 }
             }
         }
@@ -217,13 +215,13 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     WorldPackets::Query::CorpseLocation packet;
     packet.Valid = true;
     packet.MapID = corpsemapid;
-    packet.ActualMapID = mapid;
+    packet.ActualMapID = mapID;
     packet.Position = G3D::Vector3(x, y, z);
     packet.Transport = corpse->GetTransGUID();
     SendPacket(packet.Write());
 }
 
-void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet)
+void WorldSession::HandleQueryNPCText(WorldPackets::Query::QueryNPCText& packet)
 {
     GossipText const* gossip = sObjectMgr->GetGossipText(packet.TextID);
 
@@ -308,11 +306,8 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_NPC_TEXT_RESPONSE");
 }
 
-/// Only _static_ data is sent in this packet !!!
-void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText& packet)
+void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUERY_PAGE_TEXT");
-
     uint32 pageID = packet.PageTextID;
 
     while (pageID)
@@ -333,53 +328,46 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPackets::Query::QueryPageText&
             response.Info.ID = pageID;
             response.Info.Text = pageText->Text;
 
-            LocaleConstant loc_idx = GetSessionDbLocaleIndex();
-            if (loc_idx >= 0)
+            LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+            if (localeConstant >= LOCALE_enUS)
                 if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(pageID))
-                    ObjectMgr::GetLocaleString(player->Text, loc_idx, response.Info.Text);
+                    ObjectMgr::GetLocaleString(player->Text, localeConstant, response.Info.Text);
 
             response.Info.NextPageID = pageText->NextPage;
             pageID = pageText->NextPage;
         }
 
         SendPacket(response.Write());
-
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_PAGE_TEXT_RESPONSE");
     }
 }
 
-//! ToDo: neew system of it.
 void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_CORPSE_MAP_POSITION_QUERY");
-
     Corpse* corpse = _player->GetCorpse();
 
     WorldPackets::Query::CorpseTransportQuery response;
-    /*if (!corpse || corpse->GetTransGUID().IsEmpty() || corpse->GetTransGUID() != packet.Transport)*/
+    if (!corpse || corpse->GetTransGUID().IsEmpty() || corpse->GetTransGUID() != packet.Transport)
     {
         response.Position = G3D::Vector3(0.0f, 0.0f, 0.0f);
         response.Facing = 0.0f;
     }
-    /*else
+    else
     {
         response.Position = G3D::Vector3(corpse->GetTransOffsetX(), corpse->GetTransOffsetY(), corpse->GetTransOffsetZ());
         response.Facing = corpse->GetTransOffsetO();
-    }*/
+    }
 
     SendPacket(response.Write());
 }
 
-//! 6.1.2
 void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packet)
 {
     if (packet.MissingQuestCount > MAX_QUEST_LOG_SIZE)
         return;
 
-    // Read quest ids and add the in a unordered_set so we don't send POIs for the same quest multiple times
     std::set<int32> questIds;
     for (int32 i = 0; i < packet.MissingQuestCount; ++i)
-        questIds.insert(packet.MissingQuestPOIs[i]); // QuestID
+        questIds.insert(packet.MissingQuestPOIs[i]);
 
     WorldPackets::Query::QuestPOIQueryResponse response;
 
@@ -407,30 +395,21 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packe
                 {
                     WorldPackets::Query::QuestPOIBlobData questPOIBlobData;
 
-                    questPOIBlobData.BlobIndex          = data->BlobIndex;
-                    questPOIBlobData.ObjectiveIndex     = data->ObjectiveIndex;
-                    questPOIBlobData.QuestObjectiveID   = data->QuestObjectiveID;
-                    questPOIBlobData.QuestObjectID      = data->QuestObjectID;
-                    questPOIBlobData.MapID              = data->MapID;
-                    questPOIBlobData.WorldMapAreaID     = data->WorldMapAreaID;
-                    questPOIBlobData.Floor              = data->Floor;
-                    questPOIBlobData.Priority           = data->Priority;
-                    questPOIBlobData.Flags              = data->Flags;
-                    questPOIBlobData.WorldEffectID      = data->WorldEffectID;
-                    questPOIBlobData.PlayerConditionID  = data->PlayerConditionID;
-                    questPOIBlobData.UnkWoD1            = data->UnkWoD1;
+                    questPOIBlobData.BlobIndex = data->BlobIndex;
+                    questPOIBlobData.ObjectiveIndex = data->ObjectiveIndex;
+                    questPOIBlobData.QuestObjectiveID = data->QuestObjectiveID;
+                    questPOIBlobData.QuestObjectID = data->QuestObjectID;
+                    questPOIBlobData.MapID = data->MapID;
+                    questPOIBlobData.WorldMapAreaID = data->WorldMapAreaID;
+                    questPOIBlobData.Floor = data->Floor;
+                    questPOIBlobData.Priority = data->Priority;
+                    questPOIBlobData.Flags = data->Flags;
+                    questPOIBlobData.WorldEffectID = data->WorldEffectID;
+                    questPOIBlobData.PlayerConditionID = data->PlayerConditionID;
+                    questPOIBlobData.UnkWoD1 = data->UnkWoD1;
 
                     for (auto points = data->points.begin(); points != data->points.end(); ++points)
-                    {
-                        WorldPackets::Query::QuestPOIBlobPoint questPOIBlobPoint;
-
-                        questPOIBlobPoint.X = points->X;
-                        questPOIBlobPoint.Y = points->Y;
-
-                        sLog->outDebug(LOG_FILTER_NETWORKIO, "Quest: %i BlobIndex: %i X/Y: %i/%i", QuestID, data->BlobIndex, points->X, points->Y);
-
-                        questPOIBlobData.QuestPOIBlobPointStats.push_back(questPOIBlobPoint);
-                    }
+                        questPOIBlobData.QuestPOIBlobPointStats.emplace_back(points->X, points->Y);
 
                     questPOIData.QuestPOIBlobDataStats.push_back(questPOIBlobData);
                 }
@@ -445,7 +424,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packe
 
 void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
 {
-    DB2StorageBase const* store = GetDB2Storage(packet.TableHash);
+    DB2StorageBase const* store = sDB2Manager.GetStorage(packet.TableHash);
     if (!store)
         return;
 
@@ -457,16 +436,47 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
         if (store->HasRecord(rec.RecordID))
         {
             response.RecordID = rec.RecordID;
-            response.Locale = GetSessionDbcLocale();
-            response.Timestamp = sObjectMgr->GetHotfixDate(rec.RecordID, packet.TableHash);
-            response.Data = store;
+            response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
+            store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
         }
         else
         {
             response.RecordID = -int32(rec.RecordID);
             response.Timestamp = time(NULL);
         }
-        
+
         SendPacket(response.Write());
     }
+}
+
+void WorldSession::HandleItemTextQuery(WorldPackets::Query::ItemTextQuery& packet)
+{
+    WorldPackets::Query::QueryItemTextResponse response;
+    response.Id = packet.Id;
+    response.Valid = false;
+    response.Item.Text = "";
+    // any ideas about: how to get text and send it?
+}
+
+void WorldSession::HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQuestCompletionNPCs& packet)
+{
+    WorldPackets::Query::QuestCompletionNPCResponse response;
+
+    for (int32& questID : packet.QuestCompletionNPCs)
+    {
+        WorldPackets::Query::QuestCompletionNPC questCompletionNPC;
+
+        if (!sObjectMgr->GetQuestTemplate(questID))
+            continue;
+
+        questCompletionNPC.QuestID = questID;
+
+        auto creatures = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(questID);
+        for (auto it = creatures.first; it != creatures.second; ++it)
+            questCompletionNPC.NPCs.push_back(it->second);
+
+        response.QuestCompletionNPCs.push_back(questCompletionNPC);
+    }
+
+    SendPacket(response.Write());
 }

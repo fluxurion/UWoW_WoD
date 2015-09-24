@@ -2347,12 +2347,8 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
         !(Item::GetSpecialPrice(&itemTemplate) || sItemCurrencyCostStore.LookupEntry(itemTemplate.ItemId)))
         return;
 
-    for (uint32 i = 0; i < sItemDisenchantLootStore.GetNumRows(); ++i)
+    for (ItemDisenchantLootEntry const* disenchant : sItemDisenchantLootStore)
     {
-        ItemDisenchantLootEntry const* disenchant = sItemDisenchantLootStore.LookupEntry(i);
-        if (!disenchant)
-            continue;
-
         if (disenchant->ItemClass == itemTemplate.Class &&
             disenchant->ItemQuality == itemTemplate.Quality &&
             disenchant->MinItemLevel <= itemTemplate.ItemLevel &&
@@ -2395,7 +2391,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.Class = db2Data->Class;
         itemTemplate.SubClass = db2Data->SubClass;
         itemTemplate.SoundOverrideSubclass = db2Data->SoundOverrideSubclass;
-        itemTemplate.Name1 = sparse->Name;
+        itemTemplate.Name1 = sparse->Name[DEFAULT_LOCALE].Str[DEFAULT_LOCALE];
         itemTemplate.FileDataID = db2Data->FileDataID;
         itemTemplate.GroupSoundsID = db2Data->GroupSoundsID;
         itemTemplate.Quality = sparse->Quality;
@@ -2448,7 +2444,7 @@ void ObjectMgr::LoadItemTemplates()
 
         itemTemplate.SpellPPMRate = 0.0f;
         itemTemplate.Bonding = sparse->Bonding;
-        itemTemplate.Description = sparse->Description;
+        itemTemplate.Description = sparse->Description[DEFAULT_LOCALE].Str[DEFAULT_LOCALE];
         itemTemplate.PageText = sparse->PageText;
         itemTemplate.LanguageID = sparse->LanguageID;
         itemTemplate.PageMaterial = sparse->PageMaterial;
@@ -2528,12 +2524,8 @@ void ObjectMgr::LoadItemTemplates()
     }
 
     // Load item effects (spells)
-    for (uint32 effectId = 0; effectId < sItemEffectStore.GetNumRows(); ++effectId)
+    for (ItemEffectEntry const* effectEntry : sItemEffectStore)
     {
-        ItemEffectEntry const* effectEntry = sItemEffectStore.LookupEntry(effectId);
-        if (!effectEntry)
-            continue;
-
         auto itemItr = _itemTemplateStore.find(effectEntry->ItemID);
         if (itemItr == _itemTemplateStore.end())
             continue;
@@ -2716,12 +2708,8 @@ void ObjectMgr::LoadItemTemplates()
 
     // Check if item templates for DBC referenced character start outfit are present
     std::set<uint32> notFoundOutfit;
-    for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
+    for (CharStartOutfitEntry const* entry : sCharStartOutfitStore)
     {
-        CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i);
-        if (!entry)
-            continue;
-
         for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
         {
             if (entry->ItemID[j] <= 0)
@@ -2980,31 +2968,28 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
             sLog->outError(LOG_FILTER_SQL, "Invalid count %i specified on item %u be removed from original player create info (use -1)!", count, itemId);
 
         bool doneOne = false;
-        for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
+        for (CharStartOutfitEntry const* entry : sCharStartOutfitStore)
         {
-            if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
+            if (entry->ClassID == class_ && entry->RaceID == race_)
             {
-                if (entry->ClassID == class_ && entry->RaceID == race_)
+                bool found = false;
+                for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
                 {
-                    bool found = false;
-                    for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
+                    if (entry->ItemID[x] > 0 && uint32(entry->ItemID[x]) == itemId)
                     {
-                        if (entry->ItemID[x] > 0 && uint32(entry->ItemID[x]) == itemId)
-                        {
-                            found = true;
-                            const_cast<CharStartOutfitEntry*>(entry)->ItemID[x] = 0;
-                            break;
-                        }
-                    }
-
-                    if (!found)
-                        sLog->outError(LOG_FILTER_SQL, "Item %u specified to be removed from original create info not found in dbc!", itemId);
-
-                    if (!doneOne)
-                        doneOne = true;
-                    else
+                        found = true;
+                        const_cast<CharStartOutfitEntry*>(entry)->ItemID[x] = 0;
                         break;
+                    }
                 }
+
+                if (!found)
+                    sLog->outError(LOG_FILTER_SQL, "Item %u specified to be removed from original create info not found in dbc!", itemId);
+
+                if (!doneOne)
+                    doneOne = true;
+                else
+                    break;
             }
         }
     }
@@ -6424,7 +6409,7 @@ void ObjectMgr::LoadGameObjectTemplate()
         return;
     }
 
-    std::list<uint32> tempList = GetGameObjectsList();
+    std::list<uint32> tempList = sDB2Manager.GetGameObjectsList();
 
     _gameObjectTemplateStore.rehash(result->GetRowCount() + tempList.size());
 
@@ -6437,7 +6422,7 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.entry          = goe->id;
             got.type           = goe->type;
             got.displayId      = goe->displayId;
-            got.name           = goe->name;
+            got.name           = goe->name[DEFAULT_LOCALE].Str[DEFAULT_LOCALE];
             got.IconName       = "";
             got.castBarCaption = "";
             got.unk1           = "";
@@ -9086,38 +9071,6 @@ void ObjectMgr::LoadFactionChangeTitles()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change title pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadHotfixData()
-{
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, UNIX_TIMESTAMP(hotfixDate) FROM hotfix_data");
-
-    if (!result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 hotfix info entries. DB table `hotfix_data` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    _hotfixData.reserve(result->GetRowCount());
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        HotfixInfo info;
-        info.Entry = fields[0].GetUInt32();
-        info.Type = fields[1].GetUInt32();
-        info.Timestamp = fields[2].GetUInt64();
-        _hotfixData.push_back(info);
-        ++count;
-    }
-    while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
 void ObjectMgr::LoadPhaseDefinitions()
 {
     _PhaseDefinitionStore.clear();
@@ -9387,12 +9340,8 @@ void ObjectMgr::LoadResearchSiteToZoneData()
         data.zone = zone_id;
         data.branch_id = branch_id;
 
-        for (uint32 i = 0; i < sAreaStore.GetNumRows(); ++i)
+        for (AreaTableEntry const* area : sAreaStore)
         {
-            AreaTableEntry const* area = sAreaStore.LookupEntry(i);
-            if (!area)
-                continue;
-
             if (area->ParentAreaID == zone_id)
             {
                 data.level = area->ExplorationLevel;

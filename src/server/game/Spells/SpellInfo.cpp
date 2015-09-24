@@ -1068,7 +1068,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
         spellPower[i].PowerCostPercentage = 0.0f;
         spellPower[i].PowerCostPercentagePerSecond = 0.0f;
         spellPower[i].RequiredAura = 0;
-        spellPower[i].getpercentHp = 0.0f;
+        spellPower[i].HealthCostPercentage = 0.0f;
     }
 
     // SpellMiscEntry
@@ -1925,7 +1925,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     if (RequiredAreasID > 0)
     {
         bool found = false;
-        std::vector<uint32> areaGroupMembers = GetAreasForGroup(RequiredAreasID);
+        std::vector<uint32> areaGroupMembers = sDB2Manager.GetAreasForGroup(RequiredAreasID);
         for (uint32 areaId : areaGroupMembers)
         {
             if (areaId == zone_id || areaId == area_id)
@@ -3602,7 +3602,7 @@ bool SpellInfo::AddPowerData(SpellPowerEntry const *power)
         spellPower[i].PowerCostPercentage = power->PowerCostPercentage;
         spellPower[i].PowerCostPercentagePerSecond = power->PowerCostPercentagePerSecond;
         spellPower[i].RequiredAura = power->RequiredAura;
-        spellPower[i].getpercentHp = power->getpercentHp;
+        spellPower[i].HealthCostPercentage = power->HealthCostPercentage;
         return true;
     }
 
@@ -3656,7 +3656,7 @@ bool SpellInfo::GetSpellPowerByCasterPower(Unit const * caster, SpellPowerEntry 
         power.PowerCostPercentage = spellPower[index].PowerCostPercentage;
         power.PowerCostPercentagePerSecond = spellPower[index].PowerCostPercentagePerSecond;
         power.RequiredAura = spellPower[index].RequiredAura;
-        power.getpercentHp = spellPower[index].getpercentHp;
+        power.HealthCostPercentage = spellPower[index].HealthCostPercentage;
         return true;
     }
 

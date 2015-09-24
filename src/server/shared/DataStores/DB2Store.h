@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 TrintiyCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,55 +18,10 @@
 #ifndef DB2STORE_H
 #define DB2STORE_H
 
-#include "DB2FileLoader.h"
-#include "DB2fmt.h"
-#include "Log.h"
-#include "Field.h"
-#include "DatabaseWorkerPool.h"
-#include "Implementation/WorldDatabase.h"
-#include "DatabaseEnv.h"
+#include "Common.h"
+#include "DB2StorageLoader.h"
+#include "DBStorageIterator.h"
 #include "ByteBuffer.h"
-
-#include <vector>
-
-struct SqlDb2
-{
-    const std::string * formatString;
-    const std::string * indexName;
-    std::string sqlTableName;
-    int32 indexPos;
-    int32 sqlIndexPos;
-    SqlDb2(const std::string * _filename, const std::string * _format, const std::string * _idname, const char * fmt)
-        :formatString(_format), indexName (_idname), sqlIndexPos(0)
-    {
-        // Convert dbc file name to sql table name
-        sqlTableName = *_filename;
-        for (uint32 i = 0; i< sqlTableName.size(); ++i)
-        {
-            if (isalpha(sqlTableName[i]))
-                sqlTableName[i] = char(tolower(sqlTableName[i]));
-            else if (sqlTableName[i] == '.')
-                sqlTableName[i] = '_';
-        }
-
-        // Get sql index position
-        DB2FileLoader::GetFormatRecordSize(fmt, &indexPos);
-        if (indexPos >= 0)
-        {
-            uint32 uindexPos = uint32(indexPos);
-            for (uint32 x = 0; x < formatString->size(); ++x)
-            {
-                // Count only fields present in sql
-                if ((*formatString)[x] == FT_SQL_PRESENT)
-                {
-                    if (x == uindexPos)
-                        break;
-                    ++sqlIndexPos;
-                }
-            }
-        }
-    }
-};
 
 /// Interface class for common access
 class DB2StorageBase
@@ -74,332 +29,196 @@ class DB2StorageBase
 public:
     virtual ~DB2StorageBase() { }
 
-    uint32 GetHash() const { return tableHash; }
+    uint32 GetHash() const { return _tableHash; }
 
     virtual bool HasRecord(uint32 id) const = 0;
 
     virtual void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const = 0;
 
+    virtual void EraseRecord(uint32 id) = 0;
+
 protected:
-    uint32 tableHash;
+    uint32 _tableHash;
 };
-
-template<class T>
-class DB2Storage;
-
-template<class T>
-bool DB2StorageHasEntry(DB2Storage<T> const& store, uint32 id)
-{
-    return store.LookupEntry(id) != NULL;
-}
-
-template<class T>
-void WriteDB2RecordToPacket(DB2Storage<T> const& store, uint32 id, uint32 locale, ByteBuffer& buffer)
-{
-    uint8 const* entry = (uint8 const*)store.LookupEntry(id);
-    ASSERT(entry);
-
-    std::string format = store.GetFormat();
-    for (uint32 i = 0; i < format.length(); ++i)
-    {
-        switch (format[i])
-        {
-            case FT_IND:
-            case FT_INT:
-                buffer << *(uint32*)entry;
-                entry += 4;
-                break;
-            case FT_FLOAT:
-                buffer << *(float*)entry;
-                entry += 4;
-                break;
-            case FT_BYTE:
-                buffer << *(uint8*)entry;
-                entry += 1;
-                break;
-            case FT_STRING:
-            {
-                LocalizedString* locStr = *(LocalizedString**)entry;
-                if (locStr->Str[locale][0] == '\0')
-                    locale = 0;
-
-                char const* str = locStr->Str[locale];
-                size_t len = strlen(str);
-                buffer << uint16(len);
-                if (len)
-                    buffer << str;
-                entry += sizeof(char*);
-                break;
-            }
-            case FT_NA:
-            case FT_SORT:
-                buffer << uint32(0);
-                break;
-            case FT_NA_BYTE:
-                buffer << uint8(0);
-                break;
-        }
-    }
-}
 
 template<class T>
 class DB2Storage : public DB2StorageBase
 {
     typedef std::list<char*> StringPoolList;
-    typedef std::vector<T*> DataTableEx;
-    typedef bool(*EntryChecker)(DB2Storage<T> const&, uint32);
-    typedef void(*PacketWriter)(DB2Storage<T> const&, uint32, uint32, ByteBuffer&);
 public:
+    typedef DBStorageIterator<T> iterator;
 
-    DB2Storage(char const* f, EntryChecker checkEntry = NULL, PacketWriter writePacket = NULL) :
-        nCount(0), fieldCount(0), fmt(f), indexTable(NULL), m_dataTable(NULL)
+    DB2Storage(char const* fileName, char const* format, HotfixDatabaseStatements preparedStmtIndex)
+        : _fileName(fileName), _indexTableSize(0), _fieldCount(0), _format(format), _dataTable(nullptr), _dataTableEx(nullptr), _hotfixStatement(preparedStmtIndex)
     {
-        CheckEntry = checkEntry ? checkEntry : &DB2StorageHasEntry<T>;
-        WritePacket = writePacket ? writePacket : &WriteDB2RecordToPacket<T>;
+        _indexTable.AsT = NULL;
     }
 
-    ~DB2Storage() { Clear(); }
-
-    bool HasRecord(uint32 id) const { return CheckEntry(*this, id); }
-    T const* LookupEntry(uint32 id) const { return (id>=nCount)?NULL:indexTable[id]; }
-    uint32  GetNumRows() const { return nCount; }
-    char const* GetFormat() const { return fmt; }
-    uint32 GetFieldCount() const { return fieldCount; }
-    void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const
+    ~DB2Storage()
     {
-        WritePacket(*this, id, locale, buffer);
+        delete[] reinterpret_cast<char*>(_indexTable.AsT);
+        delete[] reinterpret_cast<char*>(_dataTable);
+        delete[] reinterpret_cast<char*>(_dataTableEx);
+        for (char* stringPool : _stringPoolList)
+            delete[] stringPool;
     }
-    /// Copies the provided entry and stores it.
-    void AddEntry(uint32 id, const T* entry)
-    {
-        if (LookupEntry(id))
-            return;
 
-        if (id >= nCount)
+    bool HasRecord(uint32 id) const override { return id < _indexTableSize && _indexTable.AsT[id] != nullptr; }
+    void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const override
+    {
+        ASSERT(id < _indexTableSize);
+        char const* entry = _indexTable.AsChar[id];
+        ASSERT(entry);
+
+        std::size_t fields = strlen(_format);
+        for (uint32 i = 0; i < fields; ++i)
         {
-            // reallocate index table
-            char** tmpIdxTable = new char*[id+1];
-            memset(tmpIdxTable, 0, (id+1) * sizeof(char*));
-            memcpy(tmpIdxTable, (char*)indexTable, nCount * sizeof(char*));
-            delete[] ((char*)indexTable);
-            nCount = id + 1;
-            indexTable = (T**)tmpIdxTable;
-        }
+            switch (_format[i])
+            {
+                case FT_IND:
+                case FT_INT:
+                    buffer << *(uint32*)entry;
+                    entry += 4;
+                    break;
+                case FT_FLOAT:
+                    buffer << *(float*)entry;
+                    entry += 4;
+                    break;
+                case FT_BYTE:
+                    buffer << *(uint8*)entry;
+                    entry += 1;
+                    break;
+                case FT_STRING:
+                {
+                    LocalizedString* locStr = *(LocalizedString**)entry;
+                    if (locStr->Str[locale][0] == '\0')
+                        locale = 0;
 
-        T* entryDst = new T;
-        memcpy((char*)entryDst, (char*)entry, sizeof(T));
-        m_dataTableEx.push_back(entryDst);
-        indexTable[id] = entryDst;
+                    char const* str = locStr->Str[locale];
+                    std::size_t len = strlen(str);
+                    buffer << uint16(len ? len + 1 : 0);
+                    if (len)
+                    {
+                        buffer.append(str, len);
+                        buffer << uint8(0);
+                    }
+                    entry += sizeof(LocalizedString*);
+                    break;
+                }
+                case FT_STRING_NOT_LOCALIZED:
+                {
+                    char const* str = *(char const**)entry;
+                    std::size_t len = strlen(str);
+                    buffer << uint16(len ? len + 1 : 0);
+                    if (len)
+                    {
+                        buffer.append(str, len);
+                        buffer << uint8(0);
+                    }
+                    entry += sizeof(char const*);
+                    break;
+                }
+            }
+        }
     }
 
-    bool Load(char const* fn, SqlDb2 * sql)
+    void EraseRecord(uint32 id) override { if (id < _indexTableSize) _indexTable.AsT[id] = nullptr; }
+
+    T const* LookupEntry(uint32 id) const { return (id >= _indexTableSize) ? nullptr : _indexTable.AsT[id]; }
+    T const* AssertEntry(uint32 id) const { return ASSERT_NOTNULL(LookupEntry(id)); }
+
+    std::string const& GetFileName() const { return _fileName; }
+    uint32 GetNumRows() const { return _indexTableSize; }
+    char const* GetFormat() const { return _format; }
+    uint32 GetFieldCount() const { return _fieldCount; }
+    bool Load(std::string const& path, uint32 locale)
     {
         DB2FileLoader db2;
-        // Check if load was sucessful, only then continue
-        if (!db2.Load(fn, fmt))
+        // Check if load was successful, only then continue
+        if (!db2.Load((path + _fileName).c_str(), _format))
             return false;
 
-            uint32 sqlRecordCount = 0;
-            uint32 sqlHighestIndex = 0;
-            Field* fields = NULL;
-            QueryResult result = QueryResult(NULL);
-            // Load data from sql
-            if (sql)
-            {
-                std::string query = "SELECT * FROM " + sql->sqlTableName;
-                if (sql->indexPos >= 0)
-                    query +=" ORDER BY " + *sql->indexName + " DESC";
-                query += ';';
-
-
-                result = WorldDatabase.Query(query.c_str());
-                if (result)
-                {
-                    sqlRecordCount = uint32(result->GetRowCount());
-                    if (sql->indexPos >= 0)
-                    {
-                        fields = result->Fetch();
-                        sqlHighestIndex = fields[sql->sqlIndexPos].GetUInt32();
-                    }
-                    // Check if sql index pos is valid
-                    if (int32(result->GetFieldCount()-1) < sql->sqlIndexPos)
-                    {
-                        sLog->outError(LOG_FILTER_GENERAL, "Invalid index pos for dbc:'%s'", sql->sqlTableName.c_str());
-                        return false;
-                    }
-                }
-            }
-
-            char * sqlDataTable;
-        fieldCount = db2.GetCols();
-        tableHash = db2.GetHash();
+        _fieldCount = db2.GetCols();
+        _tableHash = db2.GetHash();
 
         // load raw non-string data
-        m_dataTable = (T*)db2.AutoProduceData(fmt, nCount, (char**&)indexTable,
-                sqlRecordCount, sqlHighestIndex, sqlDataTable);
+        _dataTable = reinterpret_cast<T*>(db2.AutoProduceData(_format, _indexTableSize, _indexTable.AsChar));
 
         // create string holders for loaded string fields
-        m_stringPoolList.push_back(db2.AutoProduceStringsArrayHolders(fmt, (char*)m_dataTable));
+        if (char* stringHolders = db2.AutoProduceStringsArrayHolders(_format, (char*)_dataTable))
+        {
+            _stringPoolList.push_back(stringHolders);
 
-        // load strings from db2 data
-        m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable));
-
-            // Insert sql data into arrays
-            if (result)
-            {
-                if (indexTable)
-                {
-                    uint32 offset = 0;
-                    uint32 rowIndex = db2.GetNumRows();
-                    do
-                    {
-                        if (!fields)
-                            fields = result->Fetch();
-
-                        if (sql->indexPos >= 0)
-                        {
-                            uint32 id = fields[sql->sqlIndexPos].GetUInt32();
-                            if (indexTable[id])
-                            {
-                                sLog->outError(LOG_FILTER_GENERAL, "Index %d already exists in db2:'%s'", id, sql->sqlTableName.c_str());
-                                return false;
-                            }
-                            indexTable[id]=(T*)&sqlDataTable[offset];
-                        }
-                        else
-                            indexTable[rowIndex]=(T*)&sqlDataTable[offset];
-                        uint32 columnNumber = 0;
-                        uint32 sqlColumnNumber = 0;
-
-                        for (; columnNumber < sql->formatString->size(); ++columnNumber)
-                        {
-                            if ((*sql->formatString)[columnNumber] == FT_SQL_ABSENT)
-                            {
-                                switch (fmt[columnNumber])
-                                {
-                                    case FT_FLOAT:
-                                        *((float*)(&sqlDataTable[offset]))= 0.0f;
-                                        offset+=4;
-                                        break;
-                                    case FT_IND:
-                                    case FT_INT:
-                                        *((uint32*)(&sqlDataTable[offset]))=uint32(0);
-                                        offset+=4;
-                                        break;
-                                    case FT_BYTE:
-                                        *((uint8*)(&sqlDataTable[offset]))=uint8(0);
-                                        offset+=1;
-                                        break;
-                                    case FT_STRING:
-                                        // Beginning of the pool - empty string
-                                        *((char**)(&sqlDataTable[offset]))=m_stringPoolList.back();
-                                        offset+=sizeof(char*);
-                                        break;
-                                }
-                            }
-                            else if ((*sql->formatString)[columnNumber] == FT_SQL_PRESENT)
-                            {
-                                if (sqlColumnNumber > result->GetFieldCount() - 1)
-                                {
-                                    sLog->outError(LOG_FILTER_GENERAL, "SQL and DB2 format strings are not matching for table: '%s'", sql->sqlTableName.c_str());
-                                    return false;
-                                }
-
-                                switch (fmt[columnNumber])
-                                {
-                                    case FT_FLOAT:
-                                        *((float*)(&sqlDataTable[offset]))=fields[sqlColumnNumber].GetFloat();
-                                        offset+=4;
-                                        break;
-                                    case FT_IND:
-                                    case FT_INT:
-                                        *((uint32*)(&sqlDataTable[offset]))=fields[sqlColumnNumber].GetUInt32();
-                                        offset+=4;
-                                        break;
-                                    case FT_BYTE:
-                                        *((uint8*)(&sqlDataTable[offset]))=fields[sqlColumnNumber].GetUInt8();
-                                        offset+=1;
-                                        break;
-                                    case FT_STRING:
-                                        sLog->outError(LOG_FILTER_GENERAL, "Unsupported data type in table '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
-                                        return false;
-                                    case FT_SORT:
-                                        break;
-                                    default:
-                                        sLog->outError(LOG_FILTER_GENERAL, "Unsupported data type in table '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
-                                        return false;
-                                }
-
-                                ++sqlColumnNumber;
-                            }
-                            else
-                            {
-                                sLog->outError(LOG_FILTER_GENERAL, "Incorrect sql format string '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
-                                return false;
-                            }
-                        }
-
-                        fields = NULL;
-                        ++rowIndex;
-                    }while (result->NextRow());
-                }
-            }
+            // load strings from db2 data
+            if (char* stringBlock = db2.AutoProduceStrings(_format, (char*)_dataTable, locale))
+                _stringPoolList.push_back(stringBlock);
+        }
 
         // error in db2 file at loading if NULL
-        return indexTable!=NULL;
+        return _indexTable.AsT != NULL;
     }
 
-    bool LoadStringsFrom(char const* fn)
+    bool LoadStringsFrom(std::string const& path, uint32 locale)
     {
-        // DBC must be already loaded using Load
-        if (!indexTable)
+        // DB2 must be already loaded using Load
+        if (!_indexTable.AsT)
             return false;
 
         DB2FileLoader db2;
         // Check if load was successful, only then continue
-        if (!db2.Load(fn, fmt))
+        if (!db2.Load((path + _fileName).c_str(), _format))
             return false;
 
-        // load strings from another locale dbc data
-        m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable));
-
+        // load strings from another locale db2 data
+        if (DB2FileLoader::GetFormatLocalizedStringFieldCount(_format))
+            if (char* stringBlock = db2.AutoProduceStrings(_format, (char*)_dataTable, locale))
+                _stringPoolList.push_back(stringBlock);
         return true;
     }
 
-    void Clear()
+    void LoadFromDB()
     {
-        if (!indexTable)
-            return;
+        char* extraStringHolders = nullptr;
+        if (char* dataTable = DB2DatabaseLoader(_fileName).Load(_format, _hotfixStatement, _indexTableSize, _indexTable.AsChar, extraStringHolders, _stringPoolList))
+            _dataTableEx = reinterpret_cast<T*>(dataTable);
 
-        delete[] ((char*)indexTable);
-        indexTable = NULL;
-        delete[] ((char*)m_dataTable);
-        m_dataTable = NULL;
-            for (typename DataTableEx::const_iterator itr = m_dataTableEx.begin(); itr != m_dataTableEx.end(); ++itr)
-                delete *itr;
-            m_dataTableEx.clear();
-
-        while (!m_stringPoolList.empty())
-        {
-            delete[] m_stringPoolList.front();
-            m_stringPoolList.pop_front();
-        }
-        nCount = 0;
+        if (extraStringHolders)
+            _stringPoolList.push_back(extraStringHolders);
     }
 
-    void EraseEntry(uint32 id) { indexTable[id] = NULL; }
+    void LoadStringsFromDB(uint32 locale)
+    {
+        if (!DB2FileLoader::GetFormatLocalizedStringFieldCount(_format))
+            return;
 
-    EntryChecker CheckEntry;
-    PacketWriter WritePacket;
+        DB2DatabaseLoader(_fileName).LoadStrings(_format, HotfixDatabaseStatements(_hotfixStatement + 1), locale, _indexTable.AsChar, _stringPoolList);
+    }
+
+    typedef bool(*SortFunc)(T const* left, T const* right);
+
+    void Sort(SortFunc pred)
+    {
+        ASSERT(strpbrk(_format, "nd") == nullptr, "Only non-indexed storages can be sorted");
+        std::sort(_indexTable.AsT, _indexTable.AsT + _indexTableSize, pred);
+    }
+
+    iterator begin() { return iterator(_indexTable.AsT, _indexTableSize); }
+    iterator end() { return iterator(_indexTable.AsT, _indexTableSize, _indexTableSize); }
 
 private:
-    uint32 nCount;
-    uint32 fieldCount;
-    char const* fmt;
-    T** indexTable;
-    T* m_dataTable;
-    DataTableEx m_dataTableEx;
-    StringPoolList m_stringPoolList;
+    std::string _fileName;
+    uint32 _indexTableSize;
+    uint32 _fieldCount;
+    char const* _format;
+    union
+    {
+        T** AsT;
+        char** AsChar;
+    } _indexTable;
+    T* _dataTable;
+    T* _dataTableEx;
+    StringPoolList _stringPoolList;
+    HotfixDatabaseStatements _hotfixStatement;
 };
 
 #endif

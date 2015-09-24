@@ -1495,7 +1495,7 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
         return;
     }
 
-    ItemUpgradeData const* upgradeData = GetItemUpgradeData(item->GetEntry());
+    ItemUpgradeData const* upgradeData = sDB2Manager.GetItemUpgradeData(item->GetEntry());
     if (!upgradeData)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Can't find item (GUID: %u).", itemGuid.GetCounter());

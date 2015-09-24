@@ -369,27 +369,13 @@ uint32 Quest::CalculateHonorGain(uint8 level) const
     return honor;
 }
 
-uint32 Quest::GetItemFromPakage(uint32 packItemId) const
-{
-    if(GetQuestPackageID() == 0)
-        return 0;
-
-    std::list<uint32> tempList = GetPackageItemList(GetQuestPackageID());
-    for (std::list<uint32>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
-        if (QuestPackageItem const* sp = sQuestPackageItemStore.LookupEntry((*itr)))
-            if(sp->ItemID == packItemId)
-                return (*itr);
-
-    return 0;
-}
-
 uint32 Quest::GetRewItemDisplayId(uint8 index) const
 {
     uint32 itemId = RewardItemId[index];
     if (!itemId)
         return 0;
 
-    return GetItemDisplayId(itemId, 0);
+    return sDB2Manager.GetItemDisplayId(itemId, 0);
 }
 
 uint32 Quest::GetRewChoiceItemDisplayId(uint8 index) const
@@ -398,5 +384,5 @@ uint32 Quest::GetRewChoiceItemDisplayId(uint8 index) const
     if (!itemId)
         return 0;
 
-    return GetItemDisplayId(itemId, 0);
+    return sDB2Manager.GetItemDisplayId(itemId, 0);
 }

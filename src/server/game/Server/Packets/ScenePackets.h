@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "BattlePetPackets.h"
 #include "AchievementPackets.h"
+#include "Object.h"
 
 namespace WorldPackets
 {

@@ -199,10 +199,7 @@ namespace WorldPackets
             uint32 TableHash = 0;
             uint32 Timestamp = 0;
             int32 RecordID = 0;
-
-            // These are not sent directly
-            uint32 Locale = 0;
-            DB2StorageBase const* Data = nullptr;
+            ByteBuffer Data;
         };
 
         class HotfixNotifyBlob final : public ServerPacket
@@ -333,6 +330,7 @@ namespace WorldPackets
 
         struct QuestPOIBlobPoint
         {
+            QuestPOIBlobPoint(int32 x, int32 y) : X(x), Y(y)  { }
             int32 X = 0;
             int32 Y = 0;
         };
@@ -368,6 +366,85 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<QuestPOIData> QuestPOIDataStats;
+        };
+
+        class QueryQuestCompletionNPCs final : public ClientPacket
+        {
+        public:
+            QueryQuestCompletionNPCs(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_QUEST_COMPLETION_NPCS, std::move(packet)) { }
+
+            void Read() override;
+
+            std::vector<int32> QuestCompletionNPCs;
+        };
+
+        struct QuestCompletionNPC
+        {
+            int32 QuestID = 0;
+            std::vector<int32> NPCs;
+        };
+
+        class QuestCompletionNPCResponse final : public ServerPacket
+        {
+        public:
+            QuestCompletionNPCResponse() : ServerPacket(SMSG_QUEST_COMPLETION_NPC_RESPONSE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<QuestCompletionNPC> QuestCompletionNPCs;
+        };
+
+        class QueryPetName final : public ClientPacket
+        {
+        public:
+            QueryPetName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PET_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid UnitGUID;
+        };
+
+        class QueryPetNameResponse final : public ServerPacket
+        {
+        public:
+            QueryPetNameResponse() : ServerPacket(SMSG_QUERY_PET_NAME_RESPONSE, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            bool Allow = false;
+
+            bool HasDeclined = false;
+            DeclinedName DeclinedNames;
+            uint32 Timestamp = 0;
+            std::string Name;
+        };
+
+        class ItemTextQuery final : public ClientPacket
+        {
+        public:
+            ItemTextQuery(WorldPacket&& packet) : ClientPacket(CMSG_ITEM_TEXT_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Id;
+        };
+
+        struct ItemTextCache
+        {
+            std::string Text;
+        };
+
+        class QueryItemTextResponse final : public ServerPacket
+        {
+        public:
+            QueryItemTextResponse() : ServerPacket(SMSG_QUERY_ITEM_TEXT_RESPONSE, 18 + 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Id;
+            bool Valid = false;
+            ItemTextCache Item;
         };
     }
 }

@@ -4157,12 +4157,8 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                 case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_BATTLEPET_QUALITY: // 89
                 {
                     uint8 qPet = 0;
-                    for (uint32 i = 0; i < sBattlePetBreedQualityStore.GetNumRows(); ++i)
+                    for (BattlePetBreedQualityEntry const* qEntry : sBattlePetBreedQualityStore)
                     {
-                        BattlePetBreedQualityEntry const* qEntry = sBattlePetBreedQualityStore.LookupEntry(i);
-                        if (!qEntry)
-                            continue;
-
                         if (miscValue2 == qEntry->quality)
                             qPet = qEntry->ID;
 

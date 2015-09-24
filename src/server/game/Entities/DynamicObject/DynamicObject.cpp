@@ -98,16 +98,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
 
     SetEntry(spellId);
     SetObjectScale(1.0f);
-    if (type == DYNAMIC_OBJECT_RAID_MARKER)
-    {
-        ASSERT(caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetGroup()
-            && "DYNAMIC_OBJECT_RAID_MARKER must only be created by players that are in group.");
-        SetGuidValue(DYNAMICOBJECT_FIELD_CASTER, caster->ToPlayer()->GetGroup()->GetGUID());
-
-        AddPlayerInPersonnalVisibilityList(GetCasterGUID());
-    }
-    else
-        SetGuidValue(DYNAMICOBJECT_FIELD_CASTER, caster->GetGUID());
+    SetGuidValue(DYNAMICOBJECT_FIELD_CASTER, caster->GetGUID());
 
     // The lower word of DYNAMIC_OBJECT_FIELD_BYTES must be 0x0001. This value means that the visual radius will be overriden
     // by client for most of the "ground patch" visual effect spells and a few "skyfall" ones like Hurricane.
@@ -137,10 +128,6 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
 
 void DynamicObject::Update(uint32 p_time)
 {
-    // caster has to be always available and in the same map
-    ASSERT(GetType() == DYNAMIC_OBJECT_RAID_MARKER || _caster);
-    ASSERT(GetType() == DYNAMIC_OBJECT_RAID_MARKER || _caster->GetMap() == GetMap());
-
     bool expired = false;
 
     if (_aura)
@@ -158,25 +145,10 @@ void DynamicObject::Update(uint32 p_time)
             _duration -= p_time;
         else
             expired = true;
-
-        if (GetType() == DYNAMIC_OBJECT_RAID_MARKER)
-        {
-            Group* group = sGroupMgr->GetGroupByGUID(GetCasterGUID());
-            if (!group || !group->HasRaidMarker(GetGUID()))
-                expired = true;
-        }
     }
 
     if (expired)
-    {
-        if (GetType() == DYNAMIC_OBJECT_RAID_MARKER)
-        {
-            if (Group* group = sGroupMgr->GetGroupByGUID(GetCasterGUID()))
-                group->ClearRaidMarker(GetGUID());
-        }
-
         Remove();
-    }
     else
         sScriptMgr->OnDynamicObjectUpdate(this, p_time);
 }
@@ -247,9 +219,6 @@ void DynamicObject::RemoveCasterViewpoint()
 
 void DynamicObject::BindToCaster()
 {
-    if (GetType() == DYNAMIC_OBJECT_RAID_MARKER)
-        return;
-
     ASSERT(!_caster);
     _caster = ObjectAccessor::GetUnit(*this, GetCasterGUID());
     ASSERT(_caster);
@@ -259,9 +228,6 @@ void DynamicObject::BindToCaster()
 
 void DynamicObject::UnbindFromCaster()
 {
-    if (GetType() == DYNAMIC_OBJECT_RAID_MARKER)
-        return;
-
     ASSERT(_caster);
     _caster->_UnregisterDynObject(this);
     _caster = NULL;

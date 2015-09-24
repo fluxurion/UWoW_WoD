@@ -1294,15 +1294,12 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     // original items
     CharStartOutfitEntry const* oEntry = NULL;
-    for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
+    for (CharStartOutfitEntry const* entry : sCharStartOutfitStore)
     {
-        if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
+        if (entry->RaceID == createInfo->Race && entry->ClassID == createInfo->Class && entry->GenderID == createInfo->Sex)
         {
-            if (entry->RaceID == createInfo->Race && entry->ClassID == createInfo->Class && entry->GenderID == createInfo->Sex)
-            {
-                oEntry = entry;
-                break;
-            }
+            oEntry = entry;
+            break;
         }
     }
 
@@ -3350,22 +3347,16 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
     }
 }
 
-void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/)
+void Player::SendLogXPGain(uint32 givenXP, Unit* victim, uint32 bonusXP, bool recruitAFriend, float groupBonus)
 {
-    ObjectGuid guid;
-    if(victim)
-        guid = victim->GetGUID();
-
-    //! 6.0.3
-    WorldPacket data(SMSG_LOG_XP_GAIN, 8 + 4 + 1 + 1 + 1 + 4);   // guess size?
-    data << guid;
-    data << uint32(GivenXP + BonusXP);                          // given experience
-    data << uint8(victim ? 0 : 1);                              // 00-kill_xp type, 01-non_kill_xp type
-    data << uint32(victim ? GivenXP : 0); 
-    data << float(0.0f);
-    data.WriteBit(recruitAFriend);
-
-    GetSession()->SendPacket(&data);
+    WorldPackets::Character::LogXPGain packet;
+    packet.Victim = victim ? victim->GetGUID() : ObjectGuid::Empty;
+    packet.Original = givenXP + bonusXP;
+    packet.Reason = victim ? 0 : 1;
+    packet.Amount = givenXP;
+    packet.GroupBonus = groupBonus;
+    packet.ReferAFriend = recruitAFriend;
+    GetSession()->SendPacket(packet.Write());
 }
 
 void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
@@ -4253,7 +4244,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             uint32 petEntry = spellInfo->GetBattlePetEntry();
             if(petEntry)
             {
-                if (BattlePetSpeciesEntry const* spEntry = GetBattlePetMgr()->GetBattlePetSpeciesEntry(petEntry))
+                if (BattlePetSpeciesEntry const* spEntry = sDB2Manager.GetBattlePetSpeciesEntry(petEntry))
                 {
                     if (CreatureTemplate const* creature = sObjectMgr->GetCreatureTemplate(petEntry))
                     {
@@ -7253,10 +7244,9 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 mSkillStatus.erase(itr);
 
             // remove all spells that related to this skill
-            for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
-                if (SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j))
-                    if (pAbility->skillId == id)
-                        removeSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
+            for (SkillLineAbilityEntry const* pAbility : sSkillLineAbilityStore)
+                if (pAbility->skillId == id)
+                    removeSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
 
             // Clear profession lines
             if (GetUInt32Value(PLAYER_FIELD_PROFESSION_SKILL_LINE) == id)
@@ -8310,8 +8300,8 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         {
             // Check if allowed to receive it in current map
             uint8 MapType = sWorld->getIntConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
-            if ((MapType == 1 && !InBattleground() && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
-                || (MapType == 2 && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+            if ((MapType == 1 && !InBattleground() && !IsFFAPvP())
+                || (MapType == 2 && !IsFFAPvP())
                 || (MapType == 3 && !InBattleground()))
                 return true;
 
@@ -11292,10 +11282,9 @@ void Player::SendInitWorldTimers()
 
 void Player::SendBGWeekendWorldStates()
 {
-    for (uint32 i = 1; i < sBattlemasterListStore.GetNumRows(); ++i)
+    for (BattlemasterListEntry const* bl : sBattlemasterListStore)
     {
-        BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(i);
-        if (bl && bl->HolidayWorldStateId)
+        if (bl->HolidayWorldStateId)
         {
             if (BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->id))
                 SendUpdateWorldState(bl->HolidayWorldStateId, 1);
@@ -16648,17 +16637,26 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         }
     }
 
-    if (quest->GetQuestPackageID() > 0)
+    if (quest->GetQuestPackageID())
     {
-        if (uint32 packId = quest->GetItemFromPakage(packItemId))
+        if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(quest->GetQuestPackageID()))
         {
-            if (QuestPackageItem const* PackageID = sQuestPackageItemStore.LookupEntry(packId))
+            for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
             {
-                ItemPosCountVec dest;
-                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, PackageID->ItemID, PackageID->count) == EQUIP_ERR_OK)
+                if (questPackageItem->ItemID != reward)
+                    continue;
+
+                if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
                 {
-                    Item* item = StoreNewItem(dest, PackageID->ItemID, true, Item::GenerateItemRandomPropertyId(PackageID->ItemID));
-                    SendNewItem(item, PackageID->count, true, false);
+                    if (rewardProto->CanWinForPlayer(this))
+                    {
+                        ItemPosCountVec dest;
+                        if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount) == EQUIP_ERR_OK)
+                        {
+                            Item* item = StoreNewItem(dest, questPackageItem->ItemID, true, Item::GenerateItemRandomPropertyId(questPackageItem->ItemID));
+                            SendNewItem(item, questPackageItem->ItemCount, true, false);
+                        }
+                    }
                 }
             }
         }
@@ -24478,14 +24476,14 @@ void Player::UpdatePvPState(bool onlyFFA)
     if (!pvpInfo.inNoPvPArea && !isGameMaster()
         && (pvpInfo.inFFAPvPArea || sWorld->IsFFAPvPRealm()))
     {
-        if (!HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+        if (!IsFFAPvP())
         {
             SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
             for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
                 (*itr)->SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
         }
     }
-    else if (HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+    else if (IsFFAPvP())
     {
         RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
         for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
@@ -25868,10 +25866,9 @@ void Player::learnSkillRewardedSpells(uint32 skill_id, uint32 skill_value)
 {
     uint32 raceMask  = getRaceMask();
     uint32 classMask = getClassMask();
-    for (uint32 j=0; j<sSkillLineAbilityStore.GetNumRows(); ++j)
+    for (SkillLineAbilityEntry const* pAbility : sSkillLineAbilityStore)
     {
-        SkillLineAbilityEntry const* pAbility = sSkillLineAbilityStore.LookupEntry(j);
-        if (!pAbility || pAbility->skillId != skill_id || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
+        if (pAbility->skillId != skill_id || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
             continue;
         // Check race if set
         if (pAbility->racemask && !(pAbility->racemask & raceMask))
@@ -26190,33 +26187,6 @@ void Player::UpdateForQuestWorldObjects()
             }
         }
     }
-    udata.BuildPacket(&packet);
-    GetSession()->SendPacket(&packet);
-}
-
-void Player::UpdateForRaidMarkers(Group* group)
-{
-    if(!GetMap())
-        return;
-
-    UpdateData udata(GetMapId());
-
-    for (uint8 i = 0; i < RAID_MARKER_COUNT; ++i)
-    {
-        if (DynamicObject* obj = GetMap()->GetDynamicObject(group->GetRaidMarker(i)))
-            if (group == GetGroup())
-            {
-                if (obj->GetMapId() == GetMapId())
-                    obj->BuildCreateUpdateBlockForPlayer(&udata, this);
-            }
-            else
-                obj->BuildOutOfRangeUpdateBlock(&udata);
-    }
-
-    if (!udata.HasData())
-        return;
-
-    WorldPacket packet;
     udata.BuildPacket(&packet);
     GetSession()->SendPacket(&packet);
 }
@@ -27209,10 +27179,9 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
         //UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE, title->bit_index);
     }
 
-    //! 6.0.3
-    WorldPacket data(lost ? SMSG_TITLE_LOST: SMSG_TITLE_EARNED, 4);
-    data << uint32(title->MaskID);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Character::TitleEarned packet(lost ? SMSG_TITLE_LOST : SMSG_TITLE_EARNED);
+    packet.Index = title->MaskID;
+    GetSession()->SendPacket(packet.Write());
 }
 
 bool Player::isTotalImmunity()

@@ -314,15 +314,19 @@ WorldPacket const* WorldPackets::Character::GenerateRandomCharacterNameResult::W
     return &_worldPacket;
 }
 
+WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet)),
+    Entries(sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
+{
+
+}
+
 void WorldPackets::Character::ReorderCharacters::Read()
 {
-    uint32 count = std::min<uint32>(_worldPacket.ReadBits(9), sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM));
-    while (count--)
+    Entries.resize(_worldPacket.ReadBits(9));
+    for (ReorderInfo& reorderInfo : Entries)
     {
-        ReorderInfo reorderInfo;
         _worldPacket >> reorderInfo.PlayerGUID;
         _worldPacket >> reorderInfo.NewPosition;
-        Entries.emplace_back(reorderInfo);
     }
 }
 
@@ -364,6 +368,12 @@ WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Character::CharacterLoginFailed::Write()
+{
+    _worldPacket << uint8(Code);
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Character::LogoutResponse::Write()
 {
     _worldPacket << int32(LogoutResult);
@@ -391,5 +401,102 @@ WorldPacket const* WorldPackets::Character::InitialSetup::Write()
     _worldPacket << int32(ServerRegionID);
     _worldPacket << uint32(RaidOrigin);
 
+    return &_worldPacket;
+}
+
+void WorldPackets::Character::SetActionBarToggles::Read()
+{
+    _worldPacket >> Mask;
+}
+
+void WorldPackets::Character::RequestPlayedTime::Read()
+{
+    TriggerScriptEvent = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Character::PlayedTime::Write()
+{
+    _worldPacket << int32(TotalTime);
+    _worldPacket << int32(LevelTime);
+    _worldPacket.WriteBit(TriggerEvent);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Character::ShowingCloak::Read()
+{
+    ShowCloak = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Character::ShowingHelm::Read()
+{
+    ShowHelm = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Character::SetTitle::Read()
+{
+    _worldPacket >> TitleID;
+}
+
+void WorldPackets::Character::AlterApperance::Read()
+{
+    _worldPacket >> NewHairStyle;
+    _worldPacket >> NewHairColor;
+    _worldPacket >> NewFacialHair;
+    _worldPacket >> NewSkinColor;
+    _worldPacket >> NewFace;
+}
+
+WorldPacket const* WorldPackets::Character::BarberShopResultServer::Write()
+{
+    _worldPacket << int32(Result);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Character::LogXPGain::Write()
+{
+    _worldPacket << Victim;
+    _worldPacket << int32(Original);
+    _worldPacket << uint8(Reason);
+    _worldPacket << int32(Amount);
+    _worldPacket << float(GroupBonus);
+    _worldPacket.WriteBit(ReferAFriend);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Character::TitleEarned::Write()
+{
+    _worldPacket << uint32(Index);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Character::SetFactionAtWar::Read()
+{
+    _worldPacket >> FactionIndex;
+}
+
+void WorldPackets::Character::SetFactionNotAtWar::Read()
+{
+    _worldPacket >> FactionIndex;
+}
+
+void WorldPackets::Character::SetFactionInactive::Read()
+{
+    _worldPacket >> Index;
+    State = _worldPacket.ReadBit();
+}
+
+void WorldPackets::Character::SetWatchedFaction::Read()
+{
+    _worldPacket >> FactionIndex;
+}
+
+WorldPacket const* WorldPackets::Character::SetFactionVisible::Write()
+{
+    _worldPacket << FactionIndex;
     return &_worldPacket;
 }

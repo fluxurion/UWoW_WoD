@@ -362,7 +362,6 @@ class Quest
         bool   IsAllowedInRaid(Difficulty difficulty) const;
         bool   IsDFQuest() const { return (SpecialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
         uint32 CalculateHonorGain(uint8 level) const;
-        uint32 GetItemFromPakage(uint32 itemId) const;
 
         uint32 GetRewItemDisplayId(uint8 index) const;
         uint32 GetRewChoiceItemDisplayId(uint8 index) const;

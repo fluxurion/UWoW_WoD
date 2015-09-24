@@ -80,7 +80,9 @@ uint32 _maxCoreStuckTimeInMs(0);
 WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
+HotfixDatabaseWorkerPool HotfixDatabase;                    ///< Accessor to the hotfix database
 Battlenet::RealmHandle realmHandle;                         ///< Id of the realm
+Realm realm;
 
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void FreezeDetectorHandler(const boost::system::error_code& error);
@@ -509,6 +511,35 @@ bool StartDB()
     if (!LoginDatabase.Open(dbString, asyncThreads, synchThreads))
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to login database %s", dbString.c_str());
+        return false;
+    }
+
+    dbString = sConfigMgr->GetStringDefault("Hotfix", "");
+    if (dbString.empty())
+    {
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Hotfix database not specified in configuration file");
+        return false;
+    }
+
+    asyncThreads = uint8(sConfigMgr->GetIntDefault("HotfixDatabase.WorkerThreads", 1));
+    if (asyncThreads < 1 || asyncThreads > 32)
+    {
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Hotfix database: invalid number of worker threads specified. "
+            "Please pick a value between 1 and 32.");
+        return false;
+    }
+
+    synchThreads = uint8(sConfigMgr->GetIntDefault("Hotfix.SynchThreads", 1));
+    if (!HotfixDatabase.Open(dbString, asyncThreads, synchThreads))
+    {
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to world database %s", dbString.c_str());
+        return false;
+    }
+
+    dbString = sConfigMgr->GetStringDefault("Hotfix", "");
+    if (dbString.empty())
+    {
+        sLog->outError(LOG_FILTER_WORLDSERVER, "Hotfix database not specified in configuration file");
         return false;
     }
 

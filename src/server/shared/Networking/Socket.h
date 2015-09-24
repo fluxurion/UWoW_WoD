@@ -168,6 +168,12 @@ protected:
         return false;
     }
 
+    void SetNoDelay(bool enable)
+    {
+        boost::system::error_code err;
+        _socket.set_option(boost::asio::ip::tcp::no_delay(enable), err);
+    }
+
     std::mutex _writeLock;
     std::queue<MessageBuffer> _writeQueue;
 #ifndef TC_SOCKET_USE_IOCP

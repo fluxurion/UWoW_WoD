@@ -54,10 +54,7 @@ void Totem::Update(uint32 time)
 void Totem::InitStats(uint32 duration)
 {
     bool damageSet = false;
-    // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
-    if (m_owner->GetTypeId() == TYPEID_PLAYER
-        && m_Properties->Slot >= SUMMON_SLOT_TOTEM
-        && m_Properties->Slot < MAX_TOTEM_SLOT)
+    if (m_owner->GetTypeId() == TYPEID_PLAYER && m_Properties->Slot >= SUMMON_SLOT_TOTEM && m_Properties->Slot < MAX_TOTEM_SLOT)
     {
         // set display id depending on caster's race
         if (uint32 display = m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)))
