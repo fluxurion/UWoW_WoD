@@ -9124,10 +9124,11 @@ void Player::DuelComplete(DuelCompleteType type)
 
     WorldPackets::Duel::DuelComplete duelComplete;
     duelComplete.Started = type == DUEL_WON ? 0 : 1;
-    GetSession()->SendPacket(duelComplete.Write());
+    WorldPacket const* worldPacket = duelComplete.Write();
+    GetSession()->SendPacket(worldPacket);
 
     if (duel->opponent->GetSession())
-        duel->opponent->GetSession()->SendPacket(duelComplete.Write());
+        duel->opponent->GetSession()->SendPacket(worldPacket);
 
     /* remove auras */
     AuraApplicationMap &itsAuras = duel->opponent->GetAppliedAuras();

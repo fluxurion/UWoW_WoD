@@ -166,9 +166,11 @@ void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
     WorldPackets::Duel::DuelRequested duelRequested;
     duelRequested.ArbiterGUID = pGameObj->GetGUID();
     duelRequested.RequestedByGUID = caster->GetGUID();
-    duelRequested.RequestedByWowAccount = GetBattlenetAccountGUID();
-    caster->GetSession()->SendPacket(duelRequested.Write());
-    target->GetSession()->SendPacket(duelRequested.Write());
+    duelRequested.RequestedByWowAccount = caster->GetSession()->GetAccountGUID();
+
+    WorldPacket const* worldPacket = duelRequested.Write();
+    caster->GetSession()->SendPacket(worldPacket);
+    target->GetSession()->SendPacket(worldPacket);
 
     // create duel-info
     DuelInfo* duel   = new DuelInfo;
