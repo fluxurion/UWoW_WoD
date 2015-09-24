@@ -72,7 +72,6 @@ DB2Storage<TaxiPathEntry>                   sTaxiPathStore("TaxiPath.db2", TaxiP
 DB2Storage<TaxiPathNodeEntry>               sTaxiPathNodeStore("TaxiPathNode.db2", TaxiPathNodeFormat, HOTFIX_SEL_TAXI_PATH_NODE);
 DB2Storage<ToyEntry>                        sToyStore("Toy.db2", ToyFormat, HOTFIX_SEL_TOY);
 
-DB2Storage<ToyEntry>                        sToyStore(ToyFormat);
 TaxiMask                                    sAllianceTaxiNodesMask;
 TaxiMask                                    sDeathKnightTaxiNodesMask;
 TaxiMask                                    sHordeTaxiNodesMask;
@@ -235,12 +234,6 @@ void DB2Manager::InitDB2CustomStores()
 
     for (ToyEntry const* toy : sToyStore)
         _toys.push_back(toy->ItemID);
-    LoadDB2(bad_db2_files, sToyStore,                  db2Path,    "Toy.db2");
-
-    //for (uint32 i = 0; i < sToyStore.GetNumRows(); ++i)
-    //    if (ToyEntry const* toy = sToyStore.LookupEntry(i))
-    //        _toys.push_back(toy->ItemID);
-
 
     for (AreaGroupMemberEntry const* areaGroupMember : sAreaGroupMemberStore)
         _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);

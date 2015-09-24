@@ -85,6 +85,5 @@ const char GarrisonPlotBuildingEntryfmt[] = "nii";
 const char GarrisonPlotInstanceEntryfmt[] = "nix";
 const char GarrisonSiteLevelEntryfmt[] = "niixxxxxxii";
 const char GarrisonSiteLevelPlotInstEntryfmt[] = "niixxx";
-const char ToyFormat[] = "niisi";
 
 #endif

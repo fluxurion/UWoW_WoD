@@ -568,7 +568,7 @@ void LoadGameTables(std::string const& dataPath, uint32 defaultLocale)
         exit(1);
     }
 
-    sLog->outError(LOG_FILTER_GENERAL, ">> Initialized %d DBC GameTables data stores in %u ms", GameTableCount, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Initialized %d DBC GameTables data stores in %u ms", GameTableCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void InitDBCCustomStores()
@@ -652,7 +652,7 @@ void InitDBCCustomStores()
 
     for (ResearchSiteEntry const* rs : sResearchSiteStore)
     {
-        if (!rs || !rs->IsValid())
+        if (!rs->IsValid())
             continue;
 
         ResearchSiteData& data = sResearchSiteDataMap[rs->ID];
@@ -666,7 +666,6 @@ void InitDBCCustomStores()
         if (data.points.size() == 0)
             sLog->outDebug(LOG_FILTER_SERVER_LOADING, "Research site %u POI %u map %u has 0 POI points in DBC!", rs->ID, rs->POIid, rs->MapID);
     }
-
 
     for (ScenarioStepEntry const* entry : sScenarioStepStore)
     {
@@ -801,7 +800,6 @@ AchievementEntry const* GetsAchievementByTreeList(uint32 criteriaTree)
         return itr->second;
     return 0;
 }
-
 
 uint32 GetLearnSpell(uint32 trigerSpell)
 {
