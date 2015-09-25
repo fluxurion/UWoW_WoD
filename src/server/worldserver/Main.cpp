@@ -514,7 +514,7 @@ bool StartDB()
         return false;
     }
 
-    dbString = sConfigMgr->GetStringDefault("Hotfix", "");
+    dbString = sConfigMgr->GetStringDefault("HotfixDatabaseInfo", "");
     if (dbString.empty())
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Hotfix database not specified in configuration file");
@@ -529,14 +529,14 @@ bool StartDB()
         return false;
     }
 
-    synchThreads = uint8(sConfigMgr->GetIntDefault("Hotfix.SynchThreads", 1));
+    synchThreads = uint8(sConfigMgr->GetIntDefault("HotfixDatabase.SynchThreads", 1));
     if (!HotfixDatabase.Open(dbString, asyncThreads, synchThreads))
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Cannot connect to world database %s", dbString.c_str());
         return false;
     }
 
-    dbString = sConfigMgr->GetStringDefault("Hotfix", "");
+    dbString = sConfigMgr->GetStringDefault("HotfixDatabaseInfo", "");
     if (dbString.empty())
     {
         sLog->outError(LOG_FILTER_WORLDSERVER, "Hotfix database not specified in configuration file");
