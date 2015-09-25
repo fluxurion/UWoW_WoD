@@ -19,7 +19,7 @@
 #include "Common.h"
 #include "Containers.h"
 #include "DBCStores.h"
-#include "DB2Fmt.h"
+#include "DB2fmt.h"
 #include "Log.h"
 #include "World.h"
 
