@@ -101,8 +101,6 @@
 #include "DuelPackets.h"
 #include "CombatLogPackets.h"
 
-#include <boost/dynamic_bitset.hpp>
-
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
 // corpse reclaim times
