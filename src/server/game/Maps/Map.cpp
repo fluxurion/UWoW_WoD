@@ -2740,6 +2740,12 @@ bool Map::IsNeedRecalc() const
     return false;
 }
 
+uint32 Map::GetMaxPlayer() const
+{
+    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))
+        return difficulty->m_maxPlayers;
+    return 10;
+}
 
 uint32 InstanceMap::GetMaxPlayers() const
 {

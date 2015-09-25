@@ -1018,8 +1018,8 @@ struct DungeonEncounterEntry
     //uint32 orderIndex;                                    // 3
     uint32 encounterIndex;                                  // 4        encounter index for creating completed mask
     char* encounterName;                                    // 5        encounter name
-    //uint32 creatureDisplayID;                             // 6
-    //uint32 spellIconID;                                   // 7
+    uint32 creatureDisplayID;                               // 6
+    uint32 spellIconID;                                     // 7
     //uint32 flags;                                         // 8
 };
 

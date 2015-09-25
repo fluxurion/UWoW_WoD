@@ -31,6 +31,7 @@
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
 typedef std::map<uint32, uint32> AreaFlagByMapID;
 typedef std::map<uint32, AreaTableEntry const* > AreaEntryMap;
+typedef std::map<uint32, DungeonEncounterEntry const*> DungeonEncounterByDisplayID;
 
 struct WMOAreaTableTripple
 {
@@ -69,6 +70,7 @@ static AreaFlagByAreaID sAreaFlagByAreaID;
 static AreaFlagByMapID sAreaFlagByMapID;
 static FactionTeamMap sFactionTeamMap;
 static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
+static DungeonEncounterByDisplayID sDungeonEncounterByDisplayID;
 
 
 CharacterLoadoutItemMap                     sCharacterLoadoutItemMap;
@@ -764,6 +766,10 @@ void InitDBCCustomStores()
 
     for (CharacterLoadoutItemEntry const* LoadOutItem : sCharacterLoadoutItemStore)
         sCharacterLoadoutItemMap[LoadOutItem->LoadOutID].push_back(LoadOutItem->ItemID);
+
+    for (DungeonEncounterEntry const* store : sDungeonEncounterStore)
+        if(store->creatureDisplayID)
+            sDungeonEncounterByDisplayID[store->creatureDisplayID] = store;
 }
 
 const std::string* GetRandomCharacterName(uint8 race, uint8 gender)
@@ -1237,6 +1243,14 @@ AreaTableEntry const* FindAreaEntry(uint32 area)
 {
     auto data = sAreaEntry.find(area);
     if (data == sAreaEntry.end())
+        return NULL;
+    return data->second;
+}
+
+DungeonEncounterEntry const* GetDungeonEncounterByDisplayID(uint32 displayID)
+{
+    auto data = sDungeonEncounterByDisplayID.find(displayID);
+    if (data == sDungeonEncounterByDisplayID.end())
         return NULL;
     return data->second;
 }

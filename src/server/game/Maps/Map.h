@@ -393,6 +393,7 @@ class Map : public GridRefManager<NGridType>
         bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
         BattlegroundMap* ToBgMap() { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap*>(this); else return NULL; }
         uint32 ItemLevelCap() const;
+        uint32 GetMaxPlayer() const;
 
         bool GetEntrancePos(int32 &mapid, float &x, float &y)
         {

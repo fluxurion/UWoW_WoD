@@ -299,4 +299,5 @@ bool IsValidDifficulty(uint32 diff, bool isRaid);
 uint32 GetQuestUniqueBitFlag(uint32 questId);
 std::vector<uint32> GetItemLoadOutItems(uint32 LoadOutID);
 AreaTableEntry const* FindAreaEntry(uint32 area);
+DungeonEncounterEntry const* GetDungeonEncounterByDisplayID(uint32 displayID);
 #endif

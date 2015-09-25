@@ -53,8 +53,8 @@ enum EncounterFrameType
     ENCOUNTER_FRAME_UPDATE_OBJECTIVE        = 7,
     ENCOUNTER_FRAME_DISABLE_OBJECTIVE       = 8,
     ENCOUNTER_FRAME_UNK7                    = 9,    // Seems to have something to do with sorting the encounter units
-    ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT    = 10,
-    ENCOUNTER_FRAME_UPDATE_COMBAT_RES_LIMIT = 11,
+    ENCOUNTER_FRAME_INSTANCE_START          = 10,
+    ENCOUNTER_FRAME_INSTANCE_END            = 11,
 };
 
 enum EncounterState
@@ -245,7 +245,7 @@ class InstanceScript : public ZoneScript
             return false;
         }
 
-        void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 0, uint8 param2 = 0);
+        void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 1, uint8 param2 = 0);
 
         // Check if all players are dead (except gamemasters)
         virtual bool IsWipe() const;

@@ -517,6 +517,43 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
 {
     switch (type)
     {
+        case ENCOUNTER_FRAME_INSTANCE_START:
+        {
+            if (!unit)
+                return;
+            if(DungeonEncounterEntry const* dungeon = GetDungeonEncounterByDisplayID(unit->GetNativeDisplayId()))
+            {
+                WorldPacket data(SMSG_ENCOUNTER_START);
+                data << uint32(dungeon->id); // EncounterID
+                data << uint32(unit->GetSpawnMode()); // DifficultyID
+                data << uint32(instance->GetMaxPlayer()); // GroupSize
+                instance->SendToPlayers(&data);
+            }
+            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_START);
+            data << uint32(ResurectCount); // InCombatResCount
+            data << uint32(instance->Is25ManRaid() ? 3 : 1); // MaxInCombatResCount
+            data << uint32(216000); // CombatResChargeRecovery
+            data << uint32(216000); // NextCombatResChargeTime
+            instance->SendToPlayers(&data);
+            break;
+        }
+        case ENCOUNTER_FRAME_INSTANCE_END:
+        {
+            if (!unit)
+                return;
+            if(DungeonEncounterEntry const* dungeon = GetDungeonEncounterByDisplayID(unit->GetNativeDisplayId()))
+            {
+                WorldPacket data(SMSG_ENCOUNTER_END);
+                data << uint32(dungeon->id); // EncounterID
+                data << uint32(unit->GetSpawnMode()); // DifficultyID
+                data << uint32(instance->GetMaxPlayer()); // GroupSize
+                data.WriteBit(1); // Success
+                instance->SendToPlayers(&data);
+            }
+            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_END);
+            instance->SendToPlayers(&data);
+            break;
+        }
         case ENCOUNTER_FRAME_ENGAGE:
         {
             if (!unit)
@@ -557,24 +594,6 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
             data << uint8(param2);
             break;
         case ENCOUNTER_FRAME_UNK7:*/
-        case ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT:
-        {
-            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_START);
-            data << uint8(param1);
-            data << uint8(param1);
-            data << uint8(param1);
-            data << uint8(param1);
-            instance->SendToPlayers(&data);
-            break;
-        }
-        case ENCOUNTER_FRAME_UPDATE_COMBAT_RES_LIMIT:
-        {
-            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE);
-            data << uint8(param1);
-            data << uint8(param1);
-            instance->SendToPlayers(&data);
-            break;
-        }
         default:
             break;
     }
