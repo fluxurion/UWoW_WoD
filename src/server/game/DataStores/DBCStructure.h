@@ -38,6 +38,24 @@
 #pragma pack(push, 1)
 #endif
 
+#define MAX_MAP_DEPTH -5000 // Temporary define until max depth is found somewhere (adt?)
+#define MAX_OUTFIT_ITEMS 24
+#define MAX_MASTERY_SPELLS 2
+#define MAX_CREATURE_SPELL_DATA_SLOT 4
+#define MAX_FACTION_RELATIONS 4
+#define MAX_ITEM_ENCHANTMENT_EFFECTS 3
+#define MAX_ITEM_SET_ITEMS 17
+#define MAX_ITEM_SET_SPELLS 8
+#define MAX_LOCK_CASE 8
+#define MAX_MOUNT_CAPABILITIES 24
+#define MAX_SPELL_EFFECTS_DIFF 32
+#define MAX_EFFECT_MASK 4294967295
+#define MAX_POWERS_FOR_SPELL 4
+#define MAX_SHAPESHIFT_SPELLS 8
+#define MAX_ITEM_ENCHANTMENT_EFFECTS 3
+#define MAX_VEHICLE_SEATS 8
+#define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4
+
 struct AchievementEntry
 {
     uint32    ID;                                           // 0
@@ -571,9 +589,6 @@ struct ModifierTreeEntry // additional Condition
     uint32  parent;                                        // 6 m_parent in m_id
 };
 
-// Temporary define until max depth is found somewhere (adt?)
-#define MAX_MAP_DEPTH -5000
-
 struct AreaTableEntry
 {
     uint32      ID;                                         // 0
@@ -712,8 +727,6 @@ struct BattlemasterListEntry
     //uint32    Unk1;                                       // 30
 };
 
-#define MAX_OUTFIT_ITEMS 24
-
 struct CharStartOutfitEntry
 {
     //uint32    ID;                                         // 0
@@ -813,8 +826,6 @@ struct ChrPowerTypesEntry
    uint32 classId;                                             // 1
    uint32 power;                                               // 2
 };
-
-#define MAX_MASTERY_SPELLS 2
 
 struct ChrSpecializationsEntry
 {
@@ -929,8 +940,6 @@ struct CreatureModelDataEntry
     float MountHeight;                                       // Used in calculation of unit collision data when mounted
     //float Unks[13]
 };
-
-#define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 struct CreatureSpellDataEntry
 {
@@ -1071,8 +1080,6 @@ struct FactionEntry
 
     bool CanBeLfgBonus() const { return m_flags & 0x1; }
 };
-
-#define MAX_FACTION_RELATIONS 4
 
 struct FactionTemplateEntry
 {
@@ -1419,8 +1426,6 @@ struct ItemLimitCategoryEntry
     uint32      mode;                                       // 3,       m_flags 0 = have, 1 = equip (enum ItemLimitCategoryMode)
 };
 
-#define MAX_ITEM_ENCHANTMENT_EFFECTS 3
-
 struct ItemRandomPropertiesEntry
 {
     uint32    ID;                                           // 0        m_ID
@@ -1438,9 +1443,6 @@ struct ItemRandomSuffixEntry
     uint32    enchant_id[5];                                // 3-7      m_enchantment
     uint32    prefix[5];                                    // 8-12     m_allocationPct
 };
-
-#define MAX_ITEM_SET_ITEMS 17
-#define MAX_ITEM_SET_SPELLS 8
 
 struct ItemSetEntry
 {
@@ -1480,7 +1482,6 @@ struct ItemSpecOverrideEntry
     uint32      ItemID;                                     // 1
     uint32      SpecID;                                     // 2
 };
-
 
 struct LFGDungeonEntry
 {
@@ -1598,8 +1599,6 @@ struct LiquidTypeEntry
     //uint32    Unk3[5];                                    // 46-50
 };
 
-#define MAX_LOCK_CASE 8
-
 struct LockEntry
 {
     uint32      ID;                                         // 0        m_ID
@@ -1702,8 +1701,6 @@ struct MountCapabilityEntry
     uint32 SpeedModSpell;
     int32  RequiredMap;
 };
-
-#define MAX_MOUNT_CAPABILITIES 24
 
 struct MountTypeEntry
 {
@@ -1982,10 +1979,6 @@ struct SpellEffectScalingEntry
     uint32    SpellEffectId;                                // 4
 };
 
-#define MAX_SPELL_EFFECTS_DIFF 32
-#define MAX_EFFECT_MASK 4294967295
-#define MAX_POWERS_FOR_SPELL 4
-
 // SpellAuraOptions.dbc
 struct SpellAuraOptionsEntry
 {
@@ -2168,8 +2161,6 @@ struct PowerDisplayEntry
     //uint32    blue;                                       // 5 m_blue
 };
 
-#define MAX_SHAPESHIFT_SPELLS 8
-
 struct SpellShapeshiftFormEntry
 {
     uint32 ID;                                              // 0
@@ -2232,8 +2223,6 @@ struct SpellDurationEntry
     uint32    ID;
     int32     Duration[3];
 };
-
-#define MAX_ITEM_ENCHANTMENT_EFFECTS 3
 
 struct SpellItemEnchantmentEntry
 {
@@ -2356,8 +2345,6 @@ struct UnitPowerBarEntry
     // float
     // float
 };
- 
-#define MAX_VEHICLE_SEATS 8
 
 struct VehicleEntry
 {
@@ -2502,8 +2489,6 @@ struct WorldMapAreaEntry
     uint32    LevelRangeMin;                              // 12 Minimum recommended level displayed on world map
     uint32    LevelRangeMax;                              // 13 Maximum recommended level displayed on world map
 };
-
-#define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4
 
 struct WorldMapOverlayEntry
 {

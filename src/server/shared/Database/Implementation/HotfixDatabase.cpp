@@ -234,6 +234,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_MAP_CHALLENGE_MODE, "SELECT id, map, unk1, unk2, season, bronze, silver, gold, unk3, unk4 FROM map_challenge_mode"
         " ORDER BY id DESC", CONNECTION_SYNCH);
 
+    // Mount.db2
+    PrepareStatement(HOTFIX_SEL_MOUNT, "SELECT Id, SpellId, MountTypeId, DisplayId, Flags, Name, Description, SourceDescription, Source, "
+        "PlayerConditionId FROM mount ORDER BY Id DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_MOUNT, "SELECT Id, Name_lang, Description_lang, SourceDescription_lang FROM mount_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // SpellVisual.db2
     PrepareStatement(HOTFIX_SEL_SPELL_VISUAL, "SELECT ID, unk, unk2, unk3, unk4, unk5, unk6, unk7, unk8, unk9, unk10, unk11, unk12, unk13, unk14, "
         "unk15, unk16, unk17, unk18, unk19, unk20, unk21, unk22, unk23, unk24, hostileId, unk25, unk26, unk27, unk28 FROM spell_visual"

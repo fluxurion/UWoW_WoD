@@ -252,16 +252,17 @@ enum ActionButtonType
     ACTION_BUTTON_MACRO     = 0x40,
     ACTION_BUTTON_PET       = 0x50,
     ACTION_BUTTON_CMACRO    = ACTION_BUTTON_C | ACTION_BUTTON_MACRO,
+    ACTION_BUTTON_MOUNT     = 0x60,
     ACTION_BUTTON_ITEM      = 0x80
 };
 
 #define ACTION_BUTTON_ACTION(X) (uint32(uint64(X) & 0xFFFFFFFF))
 #define ACTION_BUTTON_TYPE(X)   (uint8(uint64(X) >> 56))
-#define MAX_ACTION_BUTTON_ACTION_VALUE (0x00FFFFFF+1)
+#define MAX_ACTION_BUTTON_ACTION_VALUE (0xFFFFFFFF)
 
 struct ActionButton
 {
-    ActionButton() : packedData(0), uState(ACTIONBUTTON_NEW) {}
+    ActionButton() : packedData(0), uState(ACTIONBUTTON_NEW) { }
 
     uint64 packedData;
     ActionButtonUpdateState uState;

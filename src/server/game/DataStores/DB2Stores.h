@@ -142,6 +142,7 @@ public:
     BattlePetSpeciesEntry const* GetBattlePetSpeciesEntry(uint32 creatureEntry);
     void FillPathDestList(uint32 from, uint32 prev);
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
+    MountEntry const* GetMountById(uint32 id) const;
 
     BattlePetSpeciesBySpellIdMap _battlePetSpeciesBySpellId; // @TODO: move this to private and make special getters
     MapChallengeModeEntryMap _mapChallengeModeEntrybyMap; // @TODO: move this to private and make special getters

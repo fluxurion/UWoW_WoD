@@ -51,6 +51,7 @@ char const ItemUpgradeFormat[] = "niiiii";
 char const KeyChainFormat[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 char const LanguageWordsFormat[] = "dis";
 char const MapChallengeModeFormat[] = "niiiiiiiii";
+char const MountFormat[] = "niiiisssii";
 char const OverrideSpellDataFormat[] = "niiiiiiiiiiii";
 char const PhaseGroupFormat[] = "nii";
 char const QuestPackageItemFormat[] = "niiii";

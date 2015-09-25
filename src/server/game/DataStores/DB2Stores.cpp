@@ -53,6 +53,7 @@ DB2Storage<ItemUpgradeEntry>                sItemUpgradeStore("ItemUpgrade.db2",
 DB2Storage<KeyChainEntry>                   sKeyChainStore("KeyChain.db2", KeyChainFormat, HOTFIX_SEL_KEY_CHAIN);
 DB2Storage<LanguageWordsEntry>              sLanguageWordsStore("LanguageWords.db2", LanguageWordsFormat, HOTFIX_SEL_LANGUAGE_WORDS);
 DB2Storage<MapChallengeModeEntry>           sMapChallengeModeStore("MapChallengeMode.db2", MapChallengeModeFormat, HOTFIX_SEL_MAP_CHALLENGE_MODE);
+DB2Storage<MountEntry>                      sMountStore("Mount.db2", MountFormat, HOTFIX_SEL_MOUNT);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore("OverrideSpellData.db2", OverrideSpellDataFormat, HOTFIX_SEL_OVERRIDE_SPELL_DATA);
 DB2Storage<PhaseGroupEntry>                 sPhaseGroupStore("PhaseXPhaseGroup.db2", PhaseGroupFormat, HOTFIX_SEL_PHASE_GROUP);
 DB2Storage<QuestPackageItemEntry>           sQuestPackageItemStore("QuestPackageItem.db2", QuestPackageItemFormat, HOTFIX_SEL_QUEST_PACKAGE_ITEM);
@@ -176,6 +177,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sKeyChainStore);
     //LOAD_DB2(sLanguageWordsStore);
     LOAD_DB2(sMapChallengeModeStore);
+    LOAD_DB2(sMountStore);
     LOAD_DB2(sOverrideSpellDataStore);
     LOAD_DB2(sPhaseGroupStore);
     LOAD_DB2(sQuestPackageItemStore);
@@ -590,3 +592,9 @@ std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItem
 
     return nullptr;
 }
+
+MountEntry const* DB2Manager::GetMountById(uint32 id) const
+{
+    return sMountStore.LookupEntry(id);
+}
+

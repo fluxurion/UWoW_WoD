@@ -7488,11 +7488,11 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
         return false;
     }
 
-    /*if (action >= MAX_ACTION_BUTTON_ACTION_VALUE)
+    if (action >= MAX_ACTION_BUTTON_ACTION_VALUE)
     {
         sLog->outError(LOG_FILTER_PLAYER_LOADING, "Action %u not added into button %u for player %s: action must be < %u", action, button, GetName(), MAX_ACTION_BUTTON_ACTION_VALUE);
         return false;
-    }*/
+    }
 
     switch (type)
     {
@@ -7516,8 +7516,24 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
                 return false;
             }
             break;
+        case ACTION_BUTTON_MOUNT:
+        {
+            auto mount = sDB2Manager.GetMountById(action);
+            if (!mount)
+                return false;
+
+            if (!HasSpell(mount->SpellId))
+                return false;
+
+            break;
+        }
+        case ACTION_BUTTON_C:
+        case ACTION_BUTTON_CMACRO:
+        case ACTION_BUTTON_MACRO:
+        case ACTION_BUTTON_EQSET:
+            break;
         default:
-            break;                                          // other cases not checked at this moment
+            return false;                                          // other cases not checked at this moment
     }
 
     return true;

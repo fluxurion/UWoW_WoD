@@ -577,6 +577,20 @@ struct QuestPackageItemEntry
     uint32 FilterType;                                              // 4
 };
 
+struct MountEntry
+{
+    uint32 Id;
+    uint32 SpellId;
+    uint32 MountTypeId;
+    uint32 DisplayId;
+    uint32 Flags;
+    LocalizedString* Name;
+    LocalizedString* Description;
+    LocalizedString* SourceDescription;
+    uint32 Source;
+    uint32 PlayerConditionId;
+};
+
 struct LanguageWordsEntry
 {
     uint32 Id;                                            // 0
