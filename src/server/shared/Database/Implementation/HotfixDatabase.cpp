@@ -59,6 +59,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // ItemBonus.db2
     PrepareStatement(HOTFIX_SEL_ITEM_BONUS, "SELECT ID, BonusListID, Type, Value1, Value2, `Index` FROM item_bonus ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // ItemBonusTreeNode.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_BONUS_TREE_NODE, "SELECT ID, BonusTreeID, BonusTreeModID, SubTreeID, BonusListID FROM item_bonus_tree_node"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // ItemCurrencyCost.db2
     PrepareStatement(HOTFIX_SEL_ITEM_CURRENCY_COST, "SELECT ID, ItemId FROM item_currency_cost ORDER BY ID DESC", CONNECTION_SYNCH);
 
@@ -144,6 +148,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // LanguageWords.db2
     PrepareStatement(HOTFIX_SEL_LANGUAGE_WORDS, "SELECT Id, langId, word FROM language_words ORDER BY Id DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_LANGUAGE_WORDS, "SELECT Id, word_lang FROM language_words_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // ItemXBonusTree.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_X_BONUS_TREE, "SELECT ID, ItemID, BonusTreeID FROM item_x_bonus_tree ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // KeyChain.db2
     PrepareStatement(HOTFIX_SEL_KEY_CHAIN, "SELECT Id, Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8, Key9, Key10, Key11, Key12, Key13, Key14, "

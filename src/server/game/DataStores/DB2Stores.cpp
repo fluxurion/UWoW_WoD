@@ -43,6 +43,7 @@ DB2Storage<GameObjectsEntry>                sGameObjectsStore("GameObjects.db2",
 DB2Storage<HolidaysEntry>                   sHolidaysStore("Holidays.db2", HolidaysFormat, HOTFIX_SEL_HOLIDAYS);
 DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore("ItemAppearance.db2", ItemAppearanceFormat, HOTFIX_SEL_ITEM_APPEARANCE);
 DB2Storage<ItemBonusEntry>                  sItemBonusStore("ItemBonus.db2", ItemBonusFormat, HOTFIX_SEL_ITEM_BONUS);
+DB2Storage<ItemBonusTreeNodeEntry>          sItemBonusTreeNodeStore("ItemBonusTreeNode.db2", ItemBonusTreeNodeFormat, HOTFIX_SEL_ITEM_BONUS_TREE_NODE);
 DB2Storage<ItemCurrencyCostEntry>           sItemCurrencyCostStore("ItemCurrencyCost.db2", ItemCurrencyCostFormat, HOTFIX_SEL_ITEM_CURRENCY_COST);
 DB2Storage<ItemEffectEntry>                 sItemEffectStore("ItemEffect.db2", ItemEffectFormat, HOTFIX_SEL_ITEM_EFFECT);
 DB2Storage<ItemEntry>                       sItemStore("Item.db2", ItemFormat, HOTFIX_SEL_ITEM);
@@ -52,6 +53,7 @@ DB2Storage<ItemSparseEntry>                 sItemSparseStore("Item-sparse.db2", 
 DB2Storage<ItemUpgradeEntry>                sItemUpgradeStore("ItemUpgrade.db2", ItemUpgradeFormat, HOTFIX_SEL_ITEM_UPGRADE);
 DB2Storage<KeyChainEntry>                   sKeyChainStore("KeyChain.db2", KeyChainFormat, HOTFIX_SEL_KEY_CHAIN);
 DB2Storage<LanguageWordsEntry>              sLanguageWordsStore("LanguageWords.db2", LanguageWordsFormat, HOTFIX_SEL_LANGUAGE_WORDS);
+DB2Storage<ItemXBonusTreeEntry>             sItemXBonusTreeStore("ItemXBonusTree.db2", ItemXBonusTreeFormat, HOTFIX_SEL_ITEM_X_BONUS_TREE);
 DB2Storage<MapChallengeModeEntry>           sMapChallengeModeStore("MapChallengeMode.db2", MapChallengeModeFormat, HOTFIX_SEL_MAP_CHALLENGE_MODE);
 DB2Storage<MountEntry>                      sMountStore("Mount.db2", MountFormat, HOTFIX_SEL_MOUNT);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore("OverrideSpellData.db2", OverrideSpellDataFormat, HOTFIX_SEL_OVERRIDE_SPELL_DATA);
@@ -167,6 +169,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sHolidaysStore);
     LOAD_DB2(sItemAppearanceStore);
     LOAD_DB2(sItemBonusStore);
+    LOAD_DB2(sItemBonusTreeNodeStore);
     LOAD_DB2(sItemCurrencyCostStore);
     LOAD_DB2(sItemEffectStore);
     LOAD_DB2(sItemExtendedCostStore);
@@ -175,6 +178,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemStore);
     LOAD_DB2(sItemUpgradeStore);
     LOAD_DB2(sKeyChainStore);
+    LOAD_DB2(sItemXBonusTreeStore);
     //LOAD_DB2(sLanguageWordsStore);
     LOAD_DB2(sMapChallengeModeStore);
     LOAD_DB2(sMountStore);
@@ -243,6 +247,16 @@ void DB2Manager::InitDB2CustomStores()
     for (ItemBonusEntry const* bonus : sItemBonusStore)
         _itemBonusLists[bonus->BonusListID].push_back(bonus);
 
+    for (ItemBonusTreeNodeEntry const* bonusTreeNode : sItemBonusTreeNodeStore)
+    {
+        uint32 bonusTreeId = bonusTreeNode->BonusTreeID;
+        while (bonusTreeNode)
+        {
+            _itemBonusTrees[bonusTreeId].insert(bonusTreeNode);
+            bonusTreeNode = sItemBonusTreeNodeStore.LookupEntry(bonusTreeNode->SubTreeID);
+        }
+    }
+
     for (ItemModifiedAppearanceEntry const* appearanceMod : sItemModifiedAppearanceStore)
         if (ItemAppearanceEntry const* appearance = sItemAppearanceStore.LookupEntry(appearanceMod->AppearanceID))
             _itemDisplayIDs[appearanceMod->ItemID | (appearanceMod->AppearanceModID << 24)] = appearance->DisplayID;
@@ -259,6 +273,9 @@ void DB2Manager::InitDB2CustomStores()
 
     for (MapChallengeModeEntry const* entry : sMapChallengeModeStore)
         _mapChallengeModeEntrybyMap[entry->map] = entry;
+
+    for (ItemXBonusTreeEntry const* itemBonusTreeAssignment : sItemXBonusTreeStore)
+        _itemToBonusTree.insert({ itemBonusTreeAssignment->ItemID, itemBonusTreeAssignment->BonusTreeID });
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
         _questPackages[questPackageItem->QuestPackageID].push_back(questPackageItem);
@@ -598,3 +615,23 @@ MountEntry const* DB2Manager::GetMountById(uint32 id) const
     return sMountStore.LookupEntry(id);
 }
 
+std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const
+{
+    std::set<uint32> bonusListIDs;
+    auto itemIdRange = _itemToBonusTree.equal_range(itemId);
+    if (itemIdRange.first == itemIdRange.second)
+        return bonusListIDs;
+
+    for (auto itemTreeItr = itemIdRange.first; itemTreeItr != itemIdRange.second; ++itemTreeItr)
+    {
+        auto treeItr = _itemBonusTrees.find(itemTreeItr->second);
+        if (treeItr == _itemBonusTrees.end())
+            continue;
+
+        for (ItemBonusTreeNodeEntry const* bonusTreeNode : treeItr->second)
+            if (bonusTreeNode->BonusTreeModID == itemBonusTreeMod)
+                bonusListIDs.insert(bonusTreeNode->BonusListID);
+    }
+
+    return bonusListIDs;
+}

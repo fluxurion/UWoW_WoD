@@ -223,85 +223,23 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
 
 void WorldSession::HandleQueryNPCText(WorldPackets::Query::QueryNPCText& packet)
 {
-    GossipText const* gossip = sObjectMgr->GetGossipText(packet.TextID);
+    NpcText const* npcText = sObjectMgr->GetNpcText(packet.TextID);
 
     WorldPackets::Query::QueryNPCTextResponse response;
     response.TextID = packet.TextID;
 
-    if (gossip)
+    if (npcText)
     {
-        for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+        for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
         {
-            response.Probabilities[i] = i == 0 ? 1 : 0/*gossip->Options[i].Probability*/;
-            response.BroadcastTextID[i] = i == 0 ? packet.TextID : 0/*gossip->Options[i].BroadcastTextID*/;
-            if (!response.Allow && (i == 0 ? packet.TextID : 0))
+            response.Probabilities[i] = npcText->Data[i].Probability;
+            response.BroadcastTextID[i] = npcText->Data[i].BroadcastTextID;
+            if (!response.Allow && (npcText->Data[i].Probability != 0.0f || npcText->Data[i].BroadcastTextID != 0))
                 response.Allow = true;
         }
     }
 
     SendPacket(response.Write());
-
-    /*if (!pGossip)
-    {
-        for (uint32 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
-        {
-            data << float(0);
-            data << "Greetings $N";
-            data << "Greetings $N";
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-            data << uint32(0);
-        }
-    }
-    else
-    {
-        std::string Text_0[MAX_LOCALES], Text_1[MAX_LOCALES];
-        for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
-        {
-            Text_0[i]=pGossip->Options[i].Text_0;
-            Text_1[i]=pGossip->Options[i].Text_1;
-        }
-
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
-        {
-            if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textID))
-            {
-                for (int i = 0; i < MAX_LOCALES; ++i)
-                {
-                    ObjectMgr::GetLocaleString(nl->Text_0[i], loc_idx, Text_0[i]);
-                    ObjectMgr::GetLocaleString(nl->Text_1[i], loc_idx, Text_1[i]);
-                }
-            }
-        }
-
-        for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
-        {
-            data << pGossip->Options[i].Probability;
-
-            if (Text_0[i].empty())
-                data << Text_1[i];
-            else
-                data << Text_0[i];
-
-            if (Text_1[i].empty())
-                data << Text_0[i];
-            else
-                data << Text_1[i];
-
-            data << pGossip->Options[i].Language;
-
-            for (int j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
-            {
-                data << pGossip->Options[i].Emotes[j]._Delay;
-                data << pGossip->Options[i].Emotes[j]._Emote;
-            }
-        }
-    }*/
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_NPC_TEXT_RESPONSE");
 }

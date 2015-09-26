@@ -1576,7 +1576,6 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadItemLocales();
     sObjectMgr->LoadQuestTemplateLocale();
     sObjectMgr->LoadQuestObjectivesLocale();
-    sObjectMgr->LoadNpcTextLocales();
     sObjectMgr->LoadPageTextLocales();
     sObjectMgr->LoadGossipMenuItemsLocales();
     sObjectMgr->LoadPointOfInterestLocales();
@@ -1633,7 +1632,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadSpellPhaseInfo();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading NPC Texts...");
-    sObjectMgr->LoadGossipText();
+    sObjectMgr->LoadNPCText();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Enchant Spells Proc datas...");
     sSpellMgr->LoadSpellEnchantProcData();

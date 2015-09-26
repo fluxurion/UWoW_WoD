@@ -369,6 +369,7 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     //LoadDBC(availableDbcLocales, bad_dbc_files, sTeamContributionPointsStore, "TeamContributionPoints.dbc");
     //LoadDBC(dbcCount, availableDbcLocales, bad_dbc_files, sItemDisplayInfoStore,     "ItemDisplayInfo.dbc");     -- not used currently
     LOAD_DBC(sAchievementStore,                 "Achievement.dbc"/*, &CustomAchievementfmt, &CustomAchievementIndex*/);
+    //LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore, dbcPath, "Achievement.dbc", defaultLocale, &CustomAchievementfmt, &CustomAchievementIndex);
     LOAD_DBC(sAreaStore,                        "AreaTable.dbc");
     LOAD_DBC(sAreaTriggerStore,                 "AreaTrigger.dbc");
     LOAD_DBC(sArmorLocationStore,               "ArmorLocation.dbc");
@@ -393,6 +394,8 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DBC(sCreatureTypeStore,                "CreatureType.dbc");
     LOAD_DBC(sCriteriaStore,                    "Criteria.dbc"/*, &CustomCriteriafmt, &CustomCriteriaIndex*/);
     LOAD_DBC(sCriteriaTreeStore,                "CriteriaTree.dbc"); // &CustomCriteriaTreefmt, &CustomCriteriaTreeIndex
+    //LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaStore, dbcPath, "Criteria.dbc", defaultLocale, &CustomCriteriafmt, &CustomCriteriaIndex);
+    //LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaTreeStore, dbcPath, "CriteriaTree.dbc", defaultLocale, &CustomCriteriaTreefmt, &CustomCriteriaTreeIndex);
     LOAD_DBC(sDestructibleModelDataStore,       "DestructibleModelData.dbc");
     LOAD_DBC(sDifficultyStore,                  "Difficulty.dbc");
     LOAD_DBC(sDungeonEncounterStore,            "DungeonEncounter.dbc");
@@ -433,12 +436,13 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DBC(sItemSetSpellStore,                "ItemSetSpell.dbc");
     LOAD_DBC(sItemSetStore,                     "ItemSet.dbc");
     LOAD_DBC(sItemSpecOverrideStore,            "ItemSpecOverride.dbc"); // &CustomItemSpecOverrideEntryfmt, &CustomItemSpecOverrideEntryIndex
+    //LoadDBC(availableDbcLocales, bad_dbc_files, sItemSpecOverrideStore, dbcPath, "ItemSpecOverride.dbc", defaultLocale, &CustomItemSpecOverrideEntryfmt, &CustomItemSpecOverrideEntryIndex);
     LOAD_DBC(sItemSpecStore,                    "ItemSpec.dbc");
     LOAD_DBC(sLFGDungeonStore,                  "LfgDungeons.dbc");
     LOAD_DBC(sLiquidTypeStore,                  "LiquidType.dbc");
     LOAD_DBC(sLockStore,                        "Lock.dbc");
     LOAD_DBC(sMailTemplateStore,                "MailTemplate.dbc");
-    LOAD_DBC(sMapDifficultyStore,               "MapDifficulty.dbc"); // &CustomMapDifficultyEntryfmt, &CustomMapDifficultyEntryIndex
+    LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore, dbcPath, "MapDifficulty.dbc", defaultLocale, &CustomMapDifficultyEntryfmt, &CustomMapDifficultyEntryIndex);
     LOAD_DBC(sMapStore,                         "Map.dbc");
     LOAD_DBC(sModifierTreeStore,                "ModifierTree.dbc");
     LOAD_DBC(sMountCapabilityStore,             "MountCapability.dbc");
@@ -464,6 +468,7 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DBC(sSkillLineStore,                   "SkillLine.dbc");
     LOAD_DBC(sSpecializationSpellStore,         "SpecializationSpells.dbc");
     LOAD_DBC(sSpellAuraOptionsStore,            "SpellAuraOptions.dbc"/*, &CustomSpellAuraOptionsEntryfmt, &CustomSpellAuraOptionsEntryIndex*/);
+    //LoadDBC(availableDbcLocales, bad_dbc_files, sSpellAuraOptionsStore, dbcPath, "SpellAuraOptions.dbc", defaultLocale, &CustomSpellAuraOptionsEntryfmt, &CustomSpellAuraOptionsEntryIndex);
     LOAD_DBC(sSpellCastTimesStore,              "SpellCastTimes.dbc");
     LOAD_DBC(sSpellCategoriesStore,             "SpellCategories.dbc");
     LOAD_DBC(sSpellCategoryStores,              "SpellCategory.dbc");
@@ -630,7 +635,7 @@ void InitDBCCustomStores()
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "DB table `mapdifficulty_dbc` or MapDifficulty.dbc has non-existant difficulty %u.", entry->DifficultyID);
             continue;
         }
-        sMapDifficultyMap[entry->MapID][entry->DifficultyID] = MapDifficulty(entry->DifficultyID, entry->RaidDuration, entry->MaxPlayers, entry->Message_lang[0] > 0);
+        sMapDifficultyMap[entry->MapID][entry->DifficultyID] = MapDifficulty(entry->DifficultyID, entry->RaidDuration, entry->MaxPlayers, entry->Message_lang[0] > 0, entry->ItemBonusTreeModID);
     }
     sMapDifficultyStore.Clear();
 

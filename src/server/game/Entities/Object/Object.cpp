@@ -527,7 +527,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
         data->WriteBit(t->GetAreaTriggerInfo().HasAbsoluteOrientation); // HasAbsoluteOrientation
         data->WriteBit(t->GetAreaTriggerInfo().HasDynamicShape);        // HasDynamicShape
-        data->WriteBit(t->GetAreaTriggerInfo().HasAttached);            // HasAttached
+        data->WriteBit(0/*t->GetAreaTriggerInfo().HasAttached*/);            // HasAttached is have transport, not complete
         data->WriteBit(t->GetAreaTriggerInfo().HasFaceMovementDir);     // HasFaceMovementDir
         data->WriteBit(t->GetAreaTriggerInfo().HasFollowsTerrain);      // HasFollowsTerrain
         data->WriteBit(t->HasTargetRollPitchYaw());                     // HasTargetRollPitchYaw

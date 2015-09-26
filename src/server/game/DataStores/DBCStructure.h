@@ -1007,7 +1007,7 @@ struct DifficultyEntry
     //uint32    GroupSizeDmgCurveID;                        // 9
     //uint32    GroupSizeSpellPointsCurveID;                // 10
     //char const* NameLang;                                 // 11
-    //uint32    Unk;                                        // 12
+    uint32    ItemBonusTreeModID;                           // 12
 };
 
 struct DungeonEncounterEntry
@@ -1687,7 +1687,7 @@ struct MapDifficultyEntry
     uint32      RaidDuration;                               // 4 m_raidDuration in secs, 0 if no fixed reset time
     uint32      MaxPlayers;                                 // 5 m_maxPlayers some heroic versions have 0 when expected same amount as in normal version
     uint32      LockID;                                     // 6
-    //uint32    Unk2;                                       // 7
+    uint32      ItemBonusTreeModID;                         // 7
 };
 
 struct MountCapabilityEntry
@@ -2570,12 +2570,13 @@ typedef UNORDERED_MAP<uint32, VectorArray> NameGenVectorArraysMap;
 struct MapDifficulty
 {
     MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false), DifficultyID(0) {}
-    MapDifficulty(uint32 difficultyID, uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage) :
-        DifficultyID(difficultyID), resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage) {}
+    MapDifficulty(uint32 difficultyID, uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage, uint32 _ItemBonusTreeModID) :
+        DifficultyID(difficultyID), resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage), ItemBonusTreeModID(_ItemBonusTreeModID) {}
 
     uint32 DifficultyID;
     uint32 resetTime;
     uint32 maxPlayers;
+    uint32 ItemBonusTreeModID;
     bool hasErrorMessage;
 };
 

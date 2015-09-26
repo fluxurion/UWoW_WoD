@@ -1057,7 +1057,7 @@ class ObjectMgr
             return _gameObjectForQuestStore.find(entry) != _gameObjectForQuestStore.end();
         }
 
-        GossipText const* GetGossipText(uint32 Text_ID) const;
+        NpcText const* GetNpcText(uint32 textID) const;
 
         WorldSafeLocsEntry const* GetDefaultGraveYard(uint32 team);
         WorldSafeLocsEntry const* GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team);
@@ -1250,7 +1250,6 @@ class ObjectMgr
         void LoadItemLocales();
         void LoadQuestTemplateLocale();
         void LoadQuestObjectivesLocale();
-        void LoadNpcTextLocales();
         void LoadPageTextLocales();
         void LoadGossipMenuItemsLocales();
         void LoadPointOfInterestLocales();
@@ -1261,7 +1260,7 @@ class ObjectMgr
         void LoadVehicleAccessories();
         void LoadPersonalLootTemplate();
 
-        void LoadGossipText();
+        void LoadNPCText();
 
         void LoadAreaTriggerTeleports();
         void LoadAccessRequirements();
@@ -1733,7 +1732,7 @@ class ObjectMgr
 
         QuestMap _questTemplates;
 
-        typedef UNORDERED_MAP<uint32, GossipText> GossipTextContainer;
+        typedef UNORDERED_MAP<uint32, NpcText> NpcTextContainer;
         typedef UNORDERED_MAP<uint32, uint32> QuestAreaTriggerContainer;
         typedef std::set<uint32> TavernAreaTriggerContainer;
         typedef std::set<uint32> GameObjectForQuestContainer;
@@ -1741,7 +1740,7 @@ class ObjectMgr
         QuestAreaTriggerContainer _questAreaTriggerStore;
         TavernAreaTriggerContainer _tavernAreaTriggerStore;
         GameObjectForQuestContainer _gameObjectForQuestStore;
-        GossipTextContainer _gossipTextStore;
+        NpcTextContainer _npcTextStore;
         AreaTriggerContainer _areaTriggerStore;
         AreaTriggerScriptContainer _areaTriggerScriptStore;
         AccessRequirementContainer _accessRequirementStore;

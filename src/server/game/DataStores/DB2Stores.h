@@ -107,6 +107,7 @@ public:
     typedef std::unordered_map<uint32 /*bonusListId*/, ItemBonusList> ItemBonusListContainer;
     typedef std::unordered_multimap<uint32 /*itemId*/, uint32 /*bonusTreeId*/> ItemToBonusTreeContainer;
     typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, uint32> ItemDisplayIdContainer;
+    typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
     typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
     typedef std::vector<std::string> LanguageWordsSize;
     typedef std::map<uint32 /*word length*/, LanguageWordsSize> LanguageWordsMap;
@@ -143,6 +144,7 @@ public:
     void FillPathDestList(uint32 from, uint32 prev);
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     MountEntry const* GetMountById(uint32 id) const;
+    std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
 
     BattlePetSpeciesBySpellIdMap _battlePetSpeciesBySpellId; // @TODO: move this to private and make special getters
     MapChallengeModeEntryMap _mapChallengeModeEntrybyMap; // @TODO: move this to private and make special getters
@@ -152,6 +154,7 @@ private:
 
     HeirloomCurvesContainer _heirloomCurvePoints;
     ItemBonusListContainer _itemBonusLists;
+    ItemBonusTreeContainer _itemBonusTrees;
     ItemDisplayIdContainer _itemDisplayIDs;
     ItemToBonusTreeContainer _itemToBonusTree;
     ItemSpecOverridesContainer _itemSpecOverrides;

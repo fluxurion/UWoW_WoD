@@ -27,20 +27,17 @@ struct QEmote
 
 #define MAX_GOSSIP_TEXT_EMOTES 3
 
-struct GossipTextOption
+struct NpcTextData
 {
-    std::string Text_0;
-    std::string Text_1;
-    uint32 Language;
     float Probability;
-    QEmote Emotes[MAX_GOSSIP_TEXT_EMOTES];
+    uint32 BroadcastTextID;
 };
 
-#define MAX_GOSSIP_TEXT_OPTIONS 8
+#define MAX_NPC_TEXT_OPTIONS 8
 
-struct GossipText
+struct NpcText
 {
-    GossipTextOption Options[MAX_GOSSIP_TEXT_OPTIONS];
+    NpcTextData Data[MAX_NPC_TEXT_OPTIONS];
 };
 
 struct PageTextLocale

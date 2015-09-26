@@ -118,6 +118,15 @@ struct ItemBonusEntry
     uint32      Index;                                              // 5
 };
 
+struct ItemBonusTreeNodeEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 BonusTreeID;                                             // 1
+    uint32 BonusTreeModID;                                          // 2
+    uint32 SubTreeID;                                               // 3
+    uint32 BonusListID;                                             // 4
+};
+
 struct ItemCurrencyCostEntry
 {
     uint32      ID;                                                 // 0
@@ -883,6 +892,13 @@ struct SpellVisualEntry
     uint32 unk26;               // 27
     uint32 unk27;               // 28
     uint32 unk28;               // 29
+};
+
+struct ItemXBonusTreeEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 ItemID;                                                  // 1
+    uint32 BonusTreeID;                                             // 2
 };
 
 #pragma pack(pop)

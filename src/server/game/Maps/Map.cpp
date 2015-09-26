@@ -2726,6 +2726,18 @@ MapDifficulty const* Map::GetMapDifficulty() const
     return GetMapDifficultyData(GetId(), GetDifficultyID());
 }
 
+uint32 Map::GetDifficultyLootBonusTreeMod() const
+{
+    if (MapDifficulty const* mapDifficulty = GetMapDifficulty())
+        if (mapDifficulty->ItemBonusTreeModID)
+            return mapDifficulty->ItemBonusTreeModID;
+
+    if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(GetDifficultyID()))
+        return difficulty->ItemBonusTreeModID;
+
+    return 0;
+}
+
 bool Map::IsHeroic() const
 {
     if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(i_spawnMode))

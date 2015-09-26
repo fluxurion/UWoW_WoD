@@ -230,13 +230,13 @@ WorldPacket const* WorldPackets::Query::QueryNPCTextResponse::Write()
 
     _worldPacket.FlushBits();
 
-    _worldPacket << int32(Allow ? (MAX_GOSSIP_TEXT_OPTIONS * (sizeof(float) + sizeof(uint32))) : 0);
+    _worldPacket << int32(Allow ? (MAX_NPC_TEXT_OPTIONS * (sizeof(float) + sizeof(uint32))) : 0);
 
     if (Allow)
     {
-        for (uint32 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+        for (uint32 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
             _worldPacket << Probabilities[i];
-        for (uint32 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
+        for (uint32 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
             _worldPacket << BroadcastTextID[i];
     }
 

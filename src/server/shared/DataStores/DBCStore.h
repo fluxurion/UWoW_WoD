@@ -107,7 +107,10 @@ class DBCStorage
             DBCFileLoader dbc;
             // Check if load was successful, only then continue
             if (!dbc.Load(fn, fmt))
+            {
+                sLog->outError(LOG_FILTER_GENERAL, "dbc Load if (!dbc.Load(fn, fmt))");
                 return false;
+            }
 
             uint32 sqlRecordCount = 0;
             uint32 sqlHighestIndex = 0;
@@ -120,7 +123,6 @@ class DBCStorage
                 if (sql->indexPos >= 0)
                     query +=" ORDER BY " + *sql->indexName + " DESC";
                 query += ';';
-
 
                 result = WorldDatabase.Query(query.c_str());
                 if (result)
@@ -166,6 +168,7 @@ class DBCStorage
                             uint32 id = fields[sql->sqlIndexPos].GetUInt32();
                             if (indexTable.asT[id])
                             {
+                                sLog->outError(LOG_FILTER_GENERAL, "dbc Load indexTable.asT[id] %u sqlTableName %s", indexTable.asT[id], sql->sqlTableName.c_str());
                                 return false;
                             }
 
@@ -249,7 +252,10 @@ class DBCStorage
                         }
 
                         if (sqlColumnNumber != (result->GetFieldCount() - 1))
+                        {
+                            sLog->outError(LOG_FILTER_GENERAL, "ERROR: sqlColumnNumber %u GetFieldCount %u sqlTableName %s", sqlColumnNumber, (result->GetFieldCount() - 1), sql->sqlTableName.c_str());
                             return false;
+                        }
                         fields = NULL;
                         ++rowIndex;
                     } while (result->NextRow());

@@ -184,8 +184,8 @@ struct CreatureTemplate
             case DIFFICULTY_40:
             case DIFFICULTY_N_SCENARIO:
             case DIFFICULTY_NORMAL_RAID:
-                return  0;
-            case DIFFICULTY_CHALLENGE://ToDo move to 
+                return 0;
+            case DIFFICULTY_CHALLENGE: //ToDo move to 
             case DIFFICULTY_HEROIC:
             case DIFFICULTY_25_N:
             case DIFFICULTY_HC_SCENARIO:

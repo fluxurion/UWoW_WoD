@@ -477,19 +477,10 @@ void Creature::UpdateStat()
 
     // level
     uint8 level = 0;
-    if(!diffStats)
-    {
-        uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
-        uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
-        level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
-    }
+    if(m_difficulty == 1 || m_difficulty == 2)
+        level = cInfo->maxlevel;
     else
-    {
-        if(diffStats->Difficulty == 1 || diffStats->Difficulty == 2)
-            level = cInfo->maxlevel;
-        else
-            level = cInfo->minlevel;
-    }
+        level = cInfo->minlevel;
 
     SetLevel(level);
 
@@ -1275,19 +1266,10 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
 
     // level
     uint8 level = 0;
-    if(!diffStats)
-    {
-        uint8 minlevel = std::min(cinfo->maxlevel, cinfo->minlevel);
-        uint8 maxlevel = std::max(cinfo->maxlevel, cinfo->minlevel);
-        level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
-    }
+    if(m_difficulty == 1 || m_difficulty == 2)
+        level = cinfo->maxlevel;
     else
-    {
-        if(diffStats->Difficulty == 1 || diffStats->Difficulty == 2)
-            level = cinfo->maxlevel;
-        else
-            level = cinfo->minlevel;
-    }
+        level = cinfo->minlevel;
 
     if (BattlegroundMap* map = GetMap()->ToBgMap())
     {

@@ -368,6 +368,12 @@ LootItem::LootItem(LootStoreItem const& li, Loot* loot)
     is_underthreshold = 0;
     is_counted = 0;
 
+    if (loot->GetBonusTreeMod())
+    {
+        std::set<uint32> bonusList = sDB2Manager.GetItemBonusTree(itemid, loot->GetBonusTreeMod());
+        BonusListIDs.insert(BonusListIDs.end(), bonusList.begin(), bonusList.end());
+    }
+
     if (currency)
     {
         freeforall = false;
@@ -488,6 +494,7 @@ Loot::Loot(uint32 _gold)
     bonusLoot = false;
     isClear = true;
     m_guid.Clear();
+    _difficultyBonusTreeMod = 0;
 }
 
 void Loot::GenerateLootGuid(ObjectGuid objGuid)
@@ -533,6 +540,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     // Must be provided
     if (!lootOwner)
         return false;
+
+    _difficultyBonusTreeMod = lootOwner->GetMap()->GetDifficultyLootBonusTreeMod();
 
     if(lootFrom)
     {

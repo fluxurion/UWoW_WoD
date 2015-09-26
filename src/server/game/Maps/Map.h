@@ -374,6 +374,7 @@ class Map : public GridRefManager<NGridType>
         bool IsRegularDifficulty() const { return GetDifficultyID() == DIFFICULTY_NONE; }
 
         MapDifficulty const* GetMapDifficulty() const;
+        uint32 GetDifficultyLootBonusTreeMod() const;
 
         bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
         bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }

@@ -5237,19 +5237,22 @@ void ObjectMgr::LoadInstanceEncounters()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u instance encounters in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-GossipText const* ObjectMgr::GetGossipText(uint32 Text_ID) const
+NpcText const* ObjectMgr::GetNpcText(uint32 textID) const
 {
-    GossipTextContainer::const_iterator itr = _gossipTextStore.find(Text_ID);
-    if (itr != _gossipTextStore.end())
+    NpcTextContainer::const_iterator itr = _npcTextStore.find(textID);
+    if (itr != _npcTextStore.end())
         return &itr->second;
     return NULL;
 }
 
-void ObjectMgr::LoadGossipText()
+void ObjectMgr::LoadNPCText()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT * FROM npc_text");
+    QueryResult result = WorldDatabase.Query("SELECT ID, "
+        "Probability0, Probability1, Probability2, Probability3, Probability4, Probability5, Probability6, Probability7, "
+        "BroadcastTextID0, BroadcastTextID1, BroadcastTextID2, BroadcastTextID3, BroadcastTextID4, BroadcastTextID5, BroadcastTextID6, BroadcastTextID7"
+        " FROM npc_text");
 
     int count = 0;
     if (!result)
@@ -5257,7 +5260,7 @@ void ObjectMgr::LoadGossipText()
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u npc texts", count);
         return;
     }
-    _gossipTextStore.rehash(result->GetRowCount());
+    _npcTextStore.rehash(result->GetRowCount());
 
     int cic;
 
@@ -5268,76 +5271,23 @@ void ObjectMgr::LoadGossipText()
 
         Field* fields = result->Fetch();
 
-        uint32 Text_ID    = fields[cic++].GetUInt32();
-        if (!Text_ID)
+        uint32 textID = fields[cic++].GetUInt32();
+        if (!textID)
         {
             sLog->outError(LOG_FILTER_SQL, "Table `npc_text` has record wit reserved id 0, ignore.");
             continue;
         }
 
-        GossipText& gText = _gossipTextStore[Text_ID];
+        NpcText& npcText = _npcTextStore[textID];
 
-        for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
+        for (uint8 i = 0; i < MAX_NPC_TEXT_OPTIONS; ++i)
         {
-            gText.Options[i].Text_0           = fields[cic++].GetString();
-            gText.Options[i].Text_1           = fields[cic++].GetString();
-
-            gText.Options[i].Language         = fields[cic++].GetUInt8();
-            gText.Options[i].Probability      = fields[cic++].GetFloat();
-
-            for (uint8 j=0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
-            {
-                gText.Options[i].Emotes[j]._Delay  = fields[cic++].GetUInt16();
-                gText.Options[i].Emotes[j]._Emote  = fields[cic++].GetUInt16();
-            }
+            npcText.Data[i].Probability      = fields[1 + i].GetFloat();
+            npcText.Data[i].BroadcastTextID  = fields[9 + i].GetUInt32();
         }
     } while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u npc texts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ObjectMgr::LoadNpcTextLocales()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _npcTextLocaleStore.clear();                              // need for reload case
-
-    QueryResult result = WorldDatabase.Query("SELECT entry, " 
-        "Text0_0_loc1,  Text0_1_loc1,  Text1_0_loc1,  Text1_1_loc1,  Text2_0_loc1,  Text2_1_loc1,  Text3_0_loc1,  Text3_1_loc1,  Text4_0_loc1,  Text4_1_loc1,  Text5_0_loc1,  Text5_1_loc1,  Text6_0_loc1,  Text6_1_loc1,  Text7_0_loc1,  Text7_1_loc1,  Text8_0_loc1,   Text8_1_loc1,   Text9_0_loc1,   Text9_1_loc1, "
-        "Text0_0_loc2,  Text0_1_loc2,  Text1_0_loc2,  Text1_1_loc2,  Text2_0_loc2,  Text2_1_loc2,  Text3_0_loc2,  Text3_1_loc1,  Text4_0_loc2,  Text4_1_loc2,  Text5_0_loc2,  Text5_1_loc2,  Text6_0_loc2,  Text6_1_loc2,  Text7_0_loc2,  Text7_1_loc2,  Text8_0_loc2,   Text8_1_loc2,   Text9_0_loc2,   Text9_1_loc2, "
-        "Text0_0_loc3,  Text0_1_loc3,  Text1_0_loc3,  Text1_1_loc3,  Text2_0_loc3,  Text2_1_loc3,  Text3_0_loc3,  Text3_1_loc1,  Text4_0_loc3,  Text4_1_loc3,  Text5_0_loc3,  Text5_1_loc3,  Text6_0_loc3,  Text6_1_loc3,  Text7_0_loc3,  Text7_1_loc3,  Text8_0_loc3,   Text8_1_loc3,   Text9_0_loc3,   Text9_1_loc3, "
-        "Text0_0_loc4,  Text0_1_loc4,  Text1_0_loc4,  Text1_1_loc4,  Text2_0_loc4,  Text2_1_loc4,  Text3_0_loc4,  Text3_1_loc1,  Text4_0_loc4,  Text4_1_loc4,  Text5_0_loc4,  Text5_1_loc4,  Text6_0_loc4,  Text6_1_loc4,  Text7_0_loc4,  Text7_1_loc4,  Text8_0_loc4,   Text8_1_loc4,   Text9_0_loc4,   Text9_1_loc4, "
-        "Text0_0_loc5,  Text0_1_loc5,  Text1_0_loc5,  Text1_1_loc5,  Text2_0_loc5,  Text2_1_loc5,  Text3_0_loc5,  Text3_1_loc1,  Text4_0_loc5,  Text4_1_loc5,  Text5_0_loc5,  Text5_1_loc5,  Text6_0_loc5,  Text6_1_loc5,  Text7_0_loc5,  Text7_1_loc5,  Text8_0_loc5,   Text8_1_loc5,   Text9_0_loc5,   Text9_1_loc5, "
-        "Text0_0_loc6,  Text0_1_loc6,  Text1_0_loc6,  Text1_1_loc6,  Text2_0_loc6,  Text2_1_loc6,  Text3_0_loc6,  Text3_1_loc1,  Text4_0_loc6,  Text4_1_loc6,  Text5_0_loc6,  Text5_1_loc6,  Text6_0_loc6,  Text6_1_loc6,  Text7_0_loc6,  Text7_1_loc6,  Text8_0_loc6,   Text8_1_loc6,   Text9_0_loc6,   Text9_1_loc6, "
-        "Text0_0_loc7,  Text0_1_loc7,  Text1_0_loc7,  Text1_1_loc7,  Text2_0_loc7,  Text2_1_loc7,  Text3_0_loc7,  Text3_1_loc1,  Text4_0_loc7,  Text4_1_loc7,  Text5_0_loc7,  Text5_1_loc7,  Text6_0_loc7,  Text6_1_loc7,  Text7_0_loc7,  Text7_1_loc7,  Text8_0_loc7,   Text8_1_loc7,   Text9_0_loc7,   Text9_1_loc7, "
-        "Text0_0_loc8,  Text0_1_loc8,  Text1_0_loc8,  Text1_1_loc8,  Text2_0_loc8,  Text2_1_loc8,  Text3_0_loc8,  Text3_1_loc1,  Text4_0_loc8,  Text4_1_loc8,  Text5_0_loc8,  Text5_1_loc8,  Text6_0_loc8,  Text6_1_loc8,  Text7_0_loc8,  Text7_1_loc8,  Text8_0_loc8,   Text8_1_loc8,   Text9_0_loc8,   Text9_1_loc8, "
-        "Text0_0_loc9,  Text0_1_loc9,  Text1_0_loc9,  Text1_1_loc9,  Text2_0_loc9,  Text2_1_loc9,  Text3_0_loc9,  Text3_1_loc9,  Text4_0_loc9,  Text4_1_loc9,  Text5_0_loc9,  Text5_1_loc9,  Text6_0_loc9,  Text6_1_loc9,  Text7_0_loc9,  Text7_1_loc9,  Text8_0_loc9,   Text8_1_loc9,   Text9_0_loc9,   Text9_1_loc9, "
-        "Text0_0_loc10, Text0_1_loc10, Text1_0_loc10, Text1_1_loc10, Text2_0_loc10, Text2_1_loc10, Text3_0_loc10, Text3_1_loc10, Text4_0_loc10, Text4_1_loc10, Text5_0_loc10, Text5_1_loc10, Text6_0_loc10, Text6_1_loc10, Text7_0_loc10, Text7_1_loc10, Text8_0_loc10,  Text8_1_loc10,  Text9_0_loc10,  Text9_1_loc10 "
-        " FROM locales_npc_text");
-
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 entry = fields[0].GetUInt32();
-
-        NpcTextLocale& data = _npcTextLocaleStore[entry];
-
-        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
-            for (uint8 j = 0; j < MAX_LOCALES; ++j)
-            {
-                AddLocaleString(fields[1 + MAX_LOCALES * 2 * (i - 1) + 2 * j].GetString(), locale, data.Text_0[j]);
-                AddLocaleString(fields[1 + MAX_LOCALES * 2 * (i - 1) + 2 * j + 1].GetString(), locale, data.Text_1[j]);
-            }
-        }
-    } while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu NpcText locale strings in %u ms", (unsigned long)_npcTextLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 //not very fast function but it is called only once a day, or on starting-up
@@ -8462,7 +8412,7 @@ void ObjectMgr::LoadGossipMenu()
         gMenu.entry             = fields[0].GetUInt32();
         gMenu.text_id           = fields[1].GetUInt32();
 
-        if (!GetGossipText(gMenu.text_id))
+        if (!GetNpcText(gMenu.text_id))
         {
             sLog->outError(LOG_FILTER_SQL, "Table gossip_menu entry %u are using non-existing text_id %u", gMenu.entry, gMenu.text_id);
             continue;

@@ -114,7 +114,6 @@ public:
             { "locales_gameobject",           SEC_ADMINISTRATOR, true,  &HandleReloadLocalesGameobjectCommand,          "", NULL },
             { "locales_gossip_menu_option",   SEC_ADMINISTRATOR, true,  &HandleReloadLocalesGossipMenuOptionCommand,    "", NULL },
             { "locales_item",                 SEC_ADMINISTRATOR, true,  &HandleReloadLocalesItemCommand,                "", NULL },
-            { "locales_npc_text",             SEC_ADMINISTRATOR, true,  &HandleReloadLocalesNpcTextCommand,             "", NULL },
             { "locales_page_text",            SEC_ADMINISTRATOR, true,  &HandleReloadLocalesPageTextCommand,            "", NULL },
             { "locales_points_of_interest",   SEC_ADMINISTRATOR, true,  &HandleReloadLocalesPointsOfInterestCommand,    "", NULL },
             { "locales_quest",                SEC_ADMINISTRATOR, true,  &HandleReloadLocalesQuestCommand,               "", NULL },
@@ -322,7 +321,6 @@ public:
         HandleReloadLocalesGameobjectCommand(handler, "a");
         HandleReloadLocalesGossipMenuOptionCommand(handler, "a");
         HandleReloadLocalesItemCommand(handler, "a");
-        HandleReloadLocalesNpcTextCommand(handler, "a");
         HandleReloadLocalesPageTextCommand(handler, "a");
         HandleReloadLocalesPointsOfInterestCommand(handler, "a");
         HandleReloadLocalesQuestCommand(handler, "a");
@@ -1185,14 +1183,6 @@ public:
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Locales Item ... ");
         sObjectMgr->LoadItemLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_item` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadLocalesNpcTextCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Locales NPC Text ... ");
-        sObjectMgr->LoadNpcTextLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_npc_text` reloaded.");
         return true;
     }
 

@@ -398,6 +398,7 @@ struct Loot
     bool hasItemFor(Player* player) const;
     bool hasOverThresholdItem() const;
     Player const* GetLootOwner() const { return m_lootOwner; }
+    uint32 GetBonusTreeMod() const { return _difficultyBonusTreeMod; }
 
     // Builds data for SMSG_LOOT_RESPONSE
     void BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* viewer, PermissionTypes permission = ALL_PERMISSION, ItemQualities t = ITEM_QUALITY_POOR) const;
@@ -419,6 +420,7 @@ private:
     LootValidatorRefManager i_LootValidatorRefManager;
 
     Player* m_lootOwner;
+    uint32 _difficultyBonusTreeMod;
 };
 
 extern LootStore LootTemplates_Creature;
