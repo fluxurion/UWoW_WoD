@@ -7230,7 +7230,7 @@ void ObjectMgr::LoadScenarioPOI()
     {
         // The first result should have the highest questId
         Field* fields = points->Fetch();
-        uint32 criteriaTreeIdMax = fields[0].GetUInt32();
+        criteriaTreeIdMax = fields[0].GetUInt32();
         POIs.resize(criteriaTreeIdMax + 1);
 
         do
