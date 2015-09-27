@@ -209,6 +209,7 @@ public:
             if (!UpdateVictim())
                 return;
 
+            EnterEvadeIfOutOfCombatArea(diff);
             events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -311,9 +312,10 @@ public:
         void Reset() 
         {
             DoCast(SPELL_RUNE_GLOW);
+            summonAdds();
         }
 
-        void JustRespawned()
+        void summonAdds()
         {
             for (uint8 i = 0; i < 5; ++i)
                 if (me->GetDistance(runeSpawn[i]) < 1.0f)

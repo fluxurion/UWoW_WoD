@@ -57,11 +57,11 @@ public:
     {
         boss_kyrakAI(Creature* creature) : BossAI(creature, DATA_KYRAK), summons(me) 
         {
-            //group_member = sFormationMgr->CreateCustomFormation(me);
+            group_member = sFormationMgr->CreateCustomFormation(me);
         }
 
         SummonList summons;
-        //FormationInfo* group_member;
+        FormationInfo* group_member;
 
         void Reset()
         {
@@ -78,7 +78,6 @@ public:
         {
             Talk(SAY_AGGRO);
             _EnterCombat();
-            summons.DoZoneInCombat(NPC_DRAKONID_MONSTROSITY);
 
             events.ScheduleEvent(EVENT_FIXATION, 14000); //54:37
             events.ScheduleEvent(EVENT_VILEBLOOD, 10000);
@@ -102,14 +101,14 @@ public:
         {
             summons.Summon(summon);
 
-            //if (CreatureGroup* f = me->GetFormation())
-            //    f->AddMember(summon, group_member);
+            if (CreatureGroup* f = me->GetFormation())
+                f->AddMember(summon, group_member);
         }
 
         void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
         {
-            //if (CreatureGroup* f = me->GetFormation())
-            //    f->RemoveMember(summon);
+            if (CreatureGroup* f = me->GetFormation())
+                f->RemoveMember(summon);
         }
 
         void SpellHitTarget(Unit* target, const SpellInfo* spell)
@@ -126,6 +125,7 @@ public:
             if (!UpdateVictim())
                 return;
 
+            EnterEvadeIfOutOfCombatArea(diff);
             events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -177,24 +177,13 @@ public:
         npc_drakonid_monstrosityAI(Creature* creature) : CreatureAI(creature) {}
 
         uint32 eruptionTimer;
-        Unit* owner = NULL;
 
-        void EnterCombat(Unit* /*who*/) 
-        {
-            if (owner && !owner->isInCombat())
-                DoZoneInCombat(owner->ToCreature(), 100.0f);
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void Reset() 
         {
             eruptionTimer = 10000;
             DoCast(SPELL_MONSTROUS_CLAWS);
-        }
-
-        void IsSummonedBy(Unit* summoner)
-        {
-            if (!owner)
-                owner = summoner;
         }
 
         void UpdateAI(uint32 diff) 
@@ -204,14 +193,14 @@ public:
 
             if (eruptionTimer <= diff)
             {
-                if (Unit* target = me->getVictim())
-                    DoCast(target, SPELL_ERUPTION);
+                DoCast(SPELL_ERUPTION);
                 eruptionTimer = 18000;
             }
             else
                 eruptionTimer -=diff;
 
-            DoMeleeAttackIfReady();
+            if (!me->HasUnitState(UNIT_STATE_CASTING))
+                DoMeleeAttackIfReady();
         }
     };
 

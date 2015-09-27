@@ -9,8 +9,15 @@
 
 DoorData const doorData[] =
 {
-    {GO_ENTER_ROOM_DOOR,  DATA_GORASHAN,    DOOR_TYPE_ROOM,     BOUNDARY_NONE},
-    {GO_EXIT_ROOM_DOOR,   DATA_GORASHAN,    DOOR_TYPE_PASSAGE,  BOUNDARY_NONE},
+    {GO_ENTER_ROOM_DOOR,        DATA_GORASHAN,      DOOR_TYPE_ROOM,         BOUNDARY_NONE},
+    {GO_EXIT_ROOM_DOOR,         DATA_GORASHAN,      DOOR_TYPE_PASSAGE,      BOUNDARY_NONE},
+    {GO_EXIT_ROOM_DOOR,         DATA_KYRAK,         DOOR_TYPE_ROOM,         BOUNDARY_NONE},
+    {GO_KYRAK_EXIT_DOOR,        DATA_KYRAK,         DOOR_TYPE_PASSAGE,      BOUNDARY_NONE},
+    {GO_KYRAK_EXIT_DOOR_2,      DATA_KYRAK,         DOOR_TYPE_PASSAGE,      BOUNDARY_NONE},
+    {GO_THARBEK_ENTER_DOOR,     DATA_THARBEK,       DOOR_TYPE_ROOM,         BOUNDARY_NONE},
+    {GO_THARBEK_EXIT_DOOR,      DATA_THARBEK,       DOOR_TYPE_PASSAGE,      BOUNDARY_NONE},
+    {GO_RAGEWING_ENTER_DOOR,    DATA_RAGEWING,      DOOR_TYPE_ROOM,         BOUNDARY_NONE},
+    {GO_RAGEWING_EXIT_DOOR,     DATA_RAGEWING,      DOOR_TYPE_PASSAGE,      BOUNDARY_NONE},
 };
 
 class instance_upper_blackrock_spire : public InstanceMapScript
@@ -32,6 +39,7 @@ public:
 
         ObjectGuid runeGlowGUID;
         ObjectGuid runeGlowGUIDdoor;
+        ObjectGuid tharbekPortcullis;
 
         uint8 runeglow_count;
 
@@ -42,6 +50,7 @@ public:
             runeglow_count = 0;
 
             runeGlowGUIDdoor.Clear();
+            tharbekPortcullis.Clear();
         }
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -76,7 +85,16 @@ public:
                     break;
                 case GO_ENTER_ROOM_DOOR:
                 case GO_EXIT_ROOM_DOOR:
+                case GO_KYRAK_EXIT_DOOR:
+                case GO_KYRAK_EXIT_DOOR_2:
+                case GO_THARBEK_ENTER_DOOR:
+                case GO_THARBEK_EXIT_DOOR:
+                case GO_RAGEWING_ENTER_DOOR:
+                case GO_RAGEWING_EXIT_DOOR:
                     AddDoor(go, true);
+                    break;
+                case GO_THARBEK_PORTCULLIS:
+                    tharbekPortcullis = go->GetGUID();
                     break;
                 default:
                     break;
@@ -96,6 +114,16 @@ public:
                             break;
                         case DONE:
                             HandleGameObject(runeGlowGUIDdoor, true);
+                            break;
+                    }
+                }
+                case DATA_THARBEK_OPENGATE:
+                {
+                    switch (data)
+                    {
+                        case IN_PROGRESS:
+                            if (GameObject* go = instance->GetGameObject(tharbekPortcullis))
+                                go->UseDoorOrButton();
                             break;
                     }
                 }

@@ -1553,12 +1553,15 @@ bool SpellInfo::NeedsToBeTriggeredByCaster() const
 {
     if (NeedsExplicitUnitTarget())
         return true;
+
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (Effects[i].IsEffect())
         {
             if (Effects[i].TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL
-                || Effects[i].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL)
+                || Effects[i].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL
+                || Effects[i].TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE
+                || Effects[i].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE)
                 return true;
         }
     }

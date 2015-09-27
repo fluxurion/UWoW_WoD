@@ -771,7 +771,7 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     if (i_AI && isAlive())
     {
         i_AI->InitializeAI();
-        AI()->JustRespawned();
+        //AI()->JustRespawned();
     }
     // Initialize vehicle
     if (GetVehicleKit() && !m_onVehicleAccessory)

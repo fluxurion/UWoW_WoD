@@ -73,6 +73,8 @@ public:
             events.Reset();
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+
+            DoCast(SPELL_SUMMON_DREADFANG);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -88,11 +90,6 @@ public:
         void EnterEvadeMode()
         {
             BossAI::EnterEvadeMode();
-        }
-
-        void JustRespawned()
-        {
-            DoCast(SPELL_SUMMON_DREADFANG);
         }
         
         void JustReachedHome()
@@ -307,7 +304,6 @@ public:
                         DoCast(SPELL_SHREDDING_SWIPES_AT);
                         DoCast(SPELL_SHREDDING_SWIPES);
                         events.ScheduleEvent(EVENT_SHREDDING_SWIPES, 36000);
-                        break;
                         break;
                     case EVENT_BLOODLETTING_HOWL:
                         DoCast(SPELL_BLOODLETTING_HOWL);

@@ -426,6 +426,8 @@ enum eNPCs
     NPC_ROOK_STONETOE   = 71475,
     NPC_HE_SOFTFOOT     = 71479,
     NPC_SUN_TENDERHEART = 71480,
+    NPC_GORASHAN        = 76413,
+    NPC_KYRAK           = 76021,
 };
 
 // Hacklike storage used for misc creatures that are expected to evade of outside of a certain area.
@@ -469,6 +471,11 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
         case NPC_HE_SOFTFOOT:
         case NPC_SUN_TENDERHEART:
             if (x > 1162.0f && x < 1258.0f && y > 992.0f && y < 1080.0f && z > 410.0f && z < 425.0f)
+                return false;
+            break;
+        case NPC_GORASHAN:
+        case NPC_KYRAK:
+            if (me->GetDistance(me->GetHomePosition()) <= 40.0f)
                 return false;
             break;
         default: // For most of creatures that certain area is their home area.

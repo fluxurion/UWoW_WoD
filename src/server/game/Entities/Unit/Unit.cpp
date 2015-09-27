@@ -3381,7 +3381,11 @@ void Unit::SetCurrentCastedSpell(Spell* pSpell)
             if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL] &&
                 m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id != 75)
                 InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+
             AddUnitState(UNIT_STATE_CASTING);
+            if (pSpell->GetCaster()->ToCreature())
+                if (!(pSpell->m_spellInfo->ChannelInterruptFlags & CHANNEL_INTERRUPT_FLAG_INTERRUPT))
+                    AddUnitState(UNIT_STATE_MOVE_IN_CASTING);
 
             break;
         }
@@ -4381,7 +4385,7 @@ uint32 Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
     if (!(m_interruptMask & flag))
         return 0;
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "RemoveAurasWithInterruptFlags flag %u except %u, m_interruptMask %u", flag, except, m_interruptMask);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "RemoveAurasWithInterruptFlags flag %u except %u, m_interruptMask %u", flag, except, m_interruptMask);
 
     uint32 count = 0;
     // interrupt auras
@@ -15276,7 +15280,8 @@ Unit* Creature::SelectVictim()
         //If target in agrolist check onli friend
         if (target && !IsFriendlyTo(target) && canCreatureAttack(target))
         {
-            SetInFront(target);
+            if (!HasUnitState(UNIT_STATE_CASTING))
+                SetInFront(target);
             return target;
         }
     }

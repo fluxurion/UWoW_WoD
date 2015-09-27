@@ -6460,6 +6460,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case SPELLFAMILY_GENERIC:
                     switch (GetId())
                     {
+                        case 161883: //Incinerating Breath
+                            if (Creature* caster = target->ToCreature())
+                                caster->SetReactState(REACT_AGGRESSIVE);
+                            break;
                         case 2584: // Waiting to Resurrect
                             // Waiting to resurrect spell cancel, we must remove player from resurrect queue
                             if (target->GetTypeId() == TYPEID_PLAYER)
