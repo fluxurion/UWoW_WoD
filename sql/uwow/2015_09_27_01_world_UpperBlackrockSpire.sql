@@ -133,7 +133,7 @@ delete from creature_text where entry = 76021;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (76021, 0, 0, 'Excellent, more raw materials!', 14, 0, 100, 0, 0, 46185, 'Кирак'),
 (76021, 1, 0, 'I can feel the vile taint flowing through me.', 14, 0, 100, 0, 0, 46193, 'Кирак'),
-(76021, 2, 0, 'I will catch you and I will fix you.', 14, 0, 100, 0, 0, 46191, 'Кирак');
+(76021, 2, 0, 'I will catch you and I will fix you.', 14, 0, 100, 0, 0, 46191, 'Кирак'),
 (76021, 3, 0, 'Please, repurpose me!', 14, 0, 100, 0, 0, 46184, 'Кирак');
 
 delete from locales_creature_text where entry = 76021;
@@ -181,7 +181,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (8009800, 6, 184.15, -417.56, 115.218, 0, 0, 1, 0, 100, 0, 0),
 (8009800, 7, 179.082, -420.37, 110.472, 0, 0, 1, 0, 100, 0, 0);
 
-update creature_template set mechanic_immune_mask = 1, AIName = 'SmartAI' where entry (77096,77036,77035,76181,76176,76157,76101);
+update creature_template set mechanic_immune_mask = 1, AIName = 'SmartAI' where entry in (77096,77036,77035,76181,76176,76157,76101);
 delete from smart_scripts where entryorguid in (77096,77036,77035,76181,76176,76157,76101);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
 (77096, 0, 0, 0, 0, 0, 100, 0, 2000, 10000, 10000, 20000, 11, 161406, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Cast Poison Spit'),
@@ -221,7 +221,7 @@ delete from spell_trigger_dummy where spell_id in (155606,155050,154996);
 INSERT INTO `spell_trigger_dummy` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `group`, `check_spell_id`, `comment`) VALUES 
 (155606, 0, 14, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 'Ragewing - Fire Breath'),
 (155050, 0, 14, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 'Ragewing - Magma Spit'),
-(154996, 0, 14, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 'Ragewing - Engulfing Fire'),
+(154996, 0, 14, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 'Ragewing - Engulfing Fire');
 
 delete from spell_script_names where spell_id = 155070;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
@@ -243,7 +243,7 @@ INSERT INTO `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targe
 (1705, 0, 1, 0, 2, 155057, 0, 0, 0, 0, 0, 0, 0, 'Ragewing - Magma Pool apply'),
 (1705, 1, 42, 1, 2, 155057, 0, 0, 0, 0, 0, 0, 0, 'Ragewing - Magma Pool remove'),
 (1704, 0, 1, 0, 2, 155031, 0, 0, 0, 0, 0, 0, 0, 'Ragewing - Engulfing Fire Apply'),
-(1704, 1, 1, 0, 2, 155056, 0, 0, 0, 0, 0, 0, 0, 'Ragewing - Engulfing Fire Apply'),
+(1704, 1, 1, 0, 2, 155056, 0, 0, 0, 0, 0, 0, 0, 'Ragewing - Engulfing Fire Apply');
 
 delete from areatrigger_polygon where entry = 1704;
 INSERT INTO `areatrigger_polygon` (`entry`, `spellId`, `id`, `x`, `y`) VALUES 
@@ -252,7 +252,7 @@ INSERT INTO `areatrigger_polygon` (`entry`, `spellId`, `id`, `x`, `y`) VALUES
 (1704, 155029, 2, 20, 5),
 (1704, 155029, 3, 0, 3.5);
 
-delete from waypoint_data id in (7681300,7683700,7658500);
+delete from waypoint_data where id in (7681300,7683700,7658500);
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`) VALUES 
 (7681300, 1, 26.7769, -430.114, 110.77, 0, 0, 1),
 (7681300, 2, 31.6178, -423.644, 110.962, 0, 0, 1),
@@ -265,7 +265,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (7658500, 2, -3.46972, -405.176, 129.546, 0.03, 5000, 1),
 (7658500, 3, 22.08, -404.66, 115.5, 0, 0, 1);
 
-delete from creature_text = 76585;
+delete from creature_text where entry = 76585;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (76585, 0, 0, '%s He begins to exhale |cFFFF0404|Hspell:155031|h["Engulfing Fire"]|h|r!', 41, 0, 100, 0, 0, 0, 'Ярокрыл Неукротимый');
 
@@ -338,7 +338,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (83480, 0, 1, 0, 0, 0, 100, 0, 8000, 12000, 16000, 18000, 11, 167242, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Cast Dragon Roar'),
 (83480, 0, 2, 0, 0, 0, 100, 0, 6000, 8000, 8000, 12000, 11, 167241, 0, 0, 0, 0, 0, 126, 0, 0, 0, 0, 0, 0, 0, 'Cast Chain Pull');
 
-delete from creature_text = 77120;
+delete from creature_text where entry = 77120;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (77120, 0, 0, 'Have you come to get a front row seat for Stormwind\'s destruction?', 14, 0, 100, 25, 0, 43556, 'Полководец Зела'),
 (77120, 1, 0, 'Good, I have been waiting for a fight!', 14, 0, 100, 15, 0, 43554, 'Полководец Зела'),
@@ -356,9 +356,6 @@ INSERT INTO `locales_creature_text` (`entry`, `textGroup`, `id`, `text_loc8`) VA
 (77120, 3, 0, 'Вы сгорите!'),
 (77120, 4, 0, 'А теперь вы умрете!'),
 (77120, 5, 0, 'Мой клинок разрубит вас!'),
-(77120, 6, 0, 'Прости, Гаррош. Я подвела тебя.'),
-
-
-
+(77120, 6, 0, 'Прости, Гаррош. Я подвела тебя.');
 
 
