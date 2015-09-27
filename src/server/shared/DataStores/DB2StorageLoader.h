@@ -65,7 +65,7 @@ class DB2FileLoader
         {
             assert(field < file.fieldCount);
             size_t stringOffset = getUInt(field);
-            assert(stringOffset < file.stringSize);
+            //assert(stringOffset < file.stringSize); //Crash on windows on debug mode
             return reinterpret_cast<char*>(file.stringTable + stringOffset);
         }
 

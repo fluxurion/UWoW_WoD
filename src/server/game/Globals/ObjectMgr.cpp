@@ -7210,6 +7210,7 @@ void ObjectMgr::LoadScenarioPOI()
     _scenarioPOIStore.clear();                          // need for reload case
 
     uint32 count = 0;
+    uint32 criteriaTreeIdMax = 0;
 
     //                                                      0           1      2          3            4         5       6          7                8
     QueryResult result = WorldDatabase.Query("SELECT criteriaTreeId, BlobID, MapID, WorldMapAreaID, `Floor`, Priority, Flags, WorldEffectID, PlayerConditionID FROM scenario_poi order by criteriaTreeId");
@@ -7217,7 +7218,6 @@ void ObjectMgr::LoadScenarioPOI()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 scenario POI definitions. DB table `scenario_poi` is empty.");
-
         return;
     }
 
@@ -7264,12 +7264,12 @@ void ObjectMgr::LoadScenarioPOI()
         uint32 WorldEffectID      = fields[7].GetUInt32();
         uint32 PlayerConditionID  = fields[8].GetUInt32();
 
-        if(POIs[criteriaTreeId].size() > 0)
-        {
-            ScenarioPOI POI(BlobID, MapID, WorldMapAreaID, Floor, Priority, Flags, WorldEffectID, PlayerConditionID);
+        ScenarioPOI POI(BlobID, MapID, WorldMapAreaID, Floor, Priority, Flags, WorldEffectID, PlayerConditionID);
+
+        if(criteriaTreeId <= criteriaTreeIdMax && POIs[criteriaTreeId].size() > 0)
             POI.points = POIs[criteriaTreeId][BlobID];
-            _scenarioPOIStore[criteriaTreeId].push_back(POI);
-        }
+
+        _scenarioPOIStore[criteriaTreeId].push_back(POI);
 
         ++count;
     } while (result->NextRow());
