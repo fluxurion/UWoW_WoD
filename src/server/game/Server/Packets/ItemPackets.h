@@ -20,11 +20,10 @@
 
 #include "Packet.h"
 #include "Item.h"
-//#include "Group.h"
+#include "Group.h"
 #include "PacketUtilities.h"
 
 struct VoidStorageItem;
-class Roll;
 
 namespace WorldPackets
 {

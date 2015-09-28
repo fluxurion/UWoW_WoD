@@ -34,6 +34,8 @@
 #include "Group.h"
 #include "Bracket.h"
 #include "BattlegroundPackets.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recvData)
 {

@@ -184,15 +184,15 @@ void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidI
 
 void WorldPackets::Item::ItemInstance::Initialize(::Roll const* roll)
 {
-    //ItemID = roll->item.ItemID;
-    //RandomPropertiesSeed = roll->item.RandomPropertiesSeed;
-    //RandomPropertiesID = roll->item.RandomPropertiesID;
-    //if (!roll->item.ItemBonus.BonusListIDs.empty())
-    //{
-    //    ItemBonus = boost::in_place();
-    //    ItemBonus->BonusListIDs = roll->item.ItemBonus.BonusListIDs;
-    //    ItemBonus->Context = roll->item.ItemBonus.Context;
-    //}
+    ItemID = roll->item.ItemID;
+    RandomPropertiesSeed = roll->item.RandomPropertiesSeed;
+    RandomPropertiesID = roll->item.RandomPropertiesID;
+    if (!roll->item.ItemBonus.BonusListIDs.empty())
+    {
+        ItemBonus = boost::in_place();
+        ItemBonus->BonusListIDs = roll->item.ItemBonus.BonusListIDs;
+        ItemBonus->Context = roll->item.ItemBonus.Context;
+    }
 }
 
 ByteBuffer& WorldPackets::Item::operator>>(ByteBuffer& data, InvUpdate& invUpdate)
