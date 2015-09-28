@@ -27,8 +27,19 @@ ScenarioProgress::ScenarioProgress(uint32 _instanceId, lfg::LFGDungeonData const
     : instanceId(_instanceId), dungeonData(_dungeonData),
     m_achievementMgr(this), currentStep(0), currentTree(0), bonusRewarded(false), rewarded(false)
 {
-    type = ScenarioMgr::GetScenarioType(GetScenarioId());
-    ScenarioSteps const* _steps = sScenarioMgr->GetScenarioSteps(GetScenarioId());
+    if(dungeonData->dbc->scenarioId)
+        scenarioId = dungeonData->dbc->scenarioId;
+    else
+    {
+        ScenarioData const* scenarioData = sObjectMgr->GetScenarioOnMap(dungeonData->map);
+        if(scenarioData)
+            scenarioId = scenarioData->ScenarioID;
+
+        //sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "ScenarioProgress::ScenarioProgress _instanceId %u scenarioId %u dungeonData %u scenarioData %u", _instanceId, scenarioId, dungeonData->map, scenarioData);
+    }
+
+    type = ScenarioMgr::GetScenarioType(scenarioId);
+    ScenarioSteps const* _steps = sScenarioMgr->GetScenarioSteps(scenarioId);
     ASSERT(_steps);
 
     steps = *_steps;
@@ -38,17 +49,6 @@ ScenarioProgress::ScenarioProgress(uint32 _instanceId, lfg::LFGDungeonData const
 Map* ScenarioProgress::GetMap()
 {
     return sMapMgr->FindMap(dungeonData->map, instanceId);
-}
-
-uint32 ScenarioProgress::GetScenarioId() const
-{
-    uint32 ID = dungeonData->dbc->scenarioId;
-    //< YES - it's fucking evil shit.. but atm there's no way to get right scenarioID if we have multilple scenarios with same mapID:
-    //> add new table with conditions like: player should have quest -> get scenarioID to db
-    if (ID == 208 || ID == 207 || ID == 209 || ID == 207 || ID == 206 || ID == 205 || ID == 204 || ID == 212)
-        ID = 211;
-
-    return ID;
 }
 
 bool ScenarioProgress::IsCompleted(bool bonus) const
@@ -118,7 +118,7 @@ uint8 ScenarioProgress::UpdateCurrentStep(bool loading)
             Reward(true);
     }
 
-    //sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "UpdateCurrentStep currentStep %u oldStep %u loading %u", currentStep, oldStep, loading);
+    //sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "UpdateCurrentStep currentStep %u oldStep %u loading %u", currentStep, oldStep, loading);
     return currentStep;
 }
 
@@ -133,7 +133,7 @@ uint32 ScenarioProgress::GetScenarioCriteriaByStep(uint8 step)
 
 void ScenarioProgress::Reward(bool bonus)
 {
-    //sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "ScenarioProgress::Reward bonus %u rewarded %u bonusRewarded %u", bonus, rewarded, bonusRewarded);
+    //sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "ScenarioProgress::Reward bonus %u rewarded %u bonusRewarded %u", bonus, rewarded, bonusRewarded);
 
     if (bonus && bonusRewarded)
         return;
@@ -262,56 +262,38 @@ void ScenarioProgress::SendStepUpdate(Player* player, bool full)
     }
 }
 
-void ScenarioProgress::SendCriteriaUpdate(uint32 criteriaId, uint32 counter, time_t date)
+void ScenarioProgress::SendCriteriaUpdate(CriteriaTreeProgress const* progress)
 {
-    //WorldPacket data(SMSG_SCENARIO_CRITERIA_UPDATE, 8 + 8 + 4 * 4 + 1);
+    //sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "ScenarioProgress::SendCriteriaUpdate criteria %u counter %u", progress->criteriaTree->criteria, progress->counter);
 
-    //ObjectGuid criteriaGuid = MAKE_NEW_GUID(1, GetScenarioId(), HIGHGUID_SCENARIO_CRITERIA);
+    WorldPackets::Scene::ScenarioProgressUpdate update;
 
-    //data.WriteGuidMask<3>(counter);
-    //data.WriteGuidMask<7, 2, 0>(criteriaGuid);
-    //data.WriteGuidMask<4>(counter);
-    //data.WriteGuidMask<4, 6>(criteriaGuid);
-    //data.WriteBits(0, 4);               // criteria flags
-    //data.WriteGuidMask<2>(counter);
-    //data.WriteGuidMask<3>(criteriaGuid);
-    //data.WriteGuidMask<1>(counter);
-    //data.WriteGuidMask<1>(criteriaGuid);
-    //data.WriteGuidMask<6, 5>(counter);
-    //data.WriteGuidMask<5>(criteriaGuid);
-    //data.WriteGuidMask<7, 0>(counter);
-
-    //data.WriteGuidBytes<6, 4>(counter);
-    //data << uint32(criteriaId);
-    //data << uint32(time(NULL) - date);
-    //data.WriteGuidBytes<4, 5>(criteriaGuid);
-    //data.WriteGuidBytes<3, 1>(counter);
-    //data.WriteGuidBytes<3, 1, 6>(criteriaGuid);
-    //data.WriteGuidBytes<7>(counter);
-    //data.WriteGuidBytes<0>(criteriaGuid);
-    //data << uint32(time(NULL) - date);
-    //data << secsToTimeBitFields(date);
-    //data.WriteGuidBytes<5>(counter);
-    //data.WriteGuidBytes<2>(criteriaGuid);
-    //data.WriteGuidBytes<2>(counter);
-    //data.WriteGuidBytes<7>(criteriaGuid);
-    //data.WriteGuidBytes<0>(counter);
-
-    //BroadCastPacket(data);
+    WorldPackets::Achievement::CriteriaTreeProgress& progressUpdate = update.Progress;
+    progressUpdate.Id = progress->criteriaTree->criteria;
+    progressUpdate.Quantity = progress->counter;
+    progressUpdate.Player = progress->CompletedGUID;
+    progressUpdate.Flags = 0;
+    progressUpdate.Date = progress->date;
+    progressUpdate.TimeFromStart = 0;
+    progressUpdate.TimeFromCreate = 0;
+    BroadCastPacket(update.Write());
 }
 
-void ScenarioProgress::BroadCastPacket(WorldPacket& data)
+void ScenarioProgress::BroadCastPacket(const WorldPacket* data)
 {
     Map* map = GetMap();
     if (!map)
         return;
 
-    map->SendToPlayers(&data);
+    map->SendToPlayers(data);
 }
 
 bool ScenarioProgress::CanUpdateCriteria(uint32 criteriaId, uint32 recursTree /*=0*/) const
 {
     std::vector<CriteriaTreeEntry const*> const* cTreeList = GetCriteriaTreeList(recursTree ? recursTree : currentTree);
+    if(!cTreeList)
+        return false;
+
     for (std::vector<CriteriaTreeEntry const*>::const_iterator itr = cTreeList->begin(); itr != cTreeList->end(); ++itr)
     {
         if(CriteriaTreeEntry const* criteriaTree = *itr)

@@ -2444,11 +2444,24 @@ bool InstanceMap::AddPlayerToMap(Player* player)
             if (!mapSave)
             {
                 if (IsScenario() || sObjectMgr->HasScenarioInMap(GetId()))
-                    if (lfg::LFGDungeonData const* data = sLFGMgr->GetLFGDungeon(GetId(), GetDifficultyID(), player->GetTeam()))
-                        sScenarioMgr->AddScenarioProgress(GetInstanceId(), data, false);
+                {
+                    //sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "InstanceMap::Add: creating Scenario map %d spawnmode %d instanceid %d", GetId(), GetSpawnMode(), GetInstanceId());
+
+                    ScenarioProgress* progress = sScenarioMgr->GetScenarioProgress(GetInstanceId());
+                    if(!progress)
+                        if (lfg::LFGDungeonData const* data = sLFGMgr->GetLFGDungeon(GetId(), GetDifficultyID(), player->GetTeam()))
+                            sScenarioMgr->AddScenarioProgress(GetInstanceId(), data, false);
+                }
 
                 sLog->outInfo(LOG_FILTER_MAPS, "InstanceMap::Add: creating instance save for map %d spawnmode %d with instance id %d", GetId(), GetSpawnMode(), GetInstanceId());
                 mapSave = sInstanceSaveMgr->AddInstanceSave(GetId(), GetInstanceId(), GetDifficultyID(), true);
+            }
+            else
+            {
+                ScenarioProgress* progress = sScenarioMgr->GetScenarioProgress(GetInstanceId());
+                if(!progress)
+                    if (lfg::LFGDungeonData const* data = sLFGMgr->GetLFGDungeon(GetId(), GetDifficultyID(), player->GetTeam()))
+                        sScenarioMgr->AddScenarioProgress(GetInstanceId(), data, false);
             }
 
             // check for existing instance binds

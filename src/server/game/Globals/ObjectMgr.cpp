@@ -9748,7 +9748,8 @@ void ObjectMgr::LoadScenarioData()
             data.TimerDuration = fields[i++].GetUInt32();
             data.CriteriaProgressCount = fields[i++].GetUInt32();
             data.BonusObjectiveDataCount = fields[i++].GetUInt32();
-            _scenarioDataList[data.mapId].push_back(_scenarioData[ScenarioID]);
+            data.ScenarioID = ScenarioID;
+            _scenarioDataList[data.mapId].push_back(&data);
             ++counter;
         }
         while (result->NextRow());
@@ -9815,6 +9816,26 @@ void ObjectMgr::LoadConversationData()
     }
     else
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 conversation creature data. DB table `conversation_creature` is empty.");
+}
+
+const ScenarioData* ObjectMgr::GetScenarioOnMap(uint32 mapId, uint32 scenarioId) const
+{
+    ScenarioDataListMap::const_iterator itr = _scenarioDataList.find(mapId);
+    if(itr == _scenarioDataList.end())
+        return NULL;
+
+    for (std::list<ScenarioData* >::const_iterator iter = itr->second.begin(); iter != itr->second.end(); ++iter)
+    {
+        if(scenarioId)
+        {
+            if((*iter)->ScenarioID == scenarioId)
+                return (*iter);
+        }
+        else
+            return (*iter);
+    }
+
+    return NULL;
 }
 
 const std::vector<ConversationData>* ObjectMgr::GetConversationData(uint32 entry) const

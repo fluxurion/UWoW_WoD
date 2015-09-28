@@ -1924,6 +1924,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Conversation data...");
     sObjectMgr->LoadConversationData();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Scenario data...");
+    sObjectMgr->LoadScenarioData();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Conditions...");
     sConditionMgr->LoadConditions();
 

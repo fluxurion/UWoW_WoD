@@ -1409,7 +1409,7 @@ template<>
 void AchievementMgr<ScenarioProgress>::SendCriteriaUpdate(CriteriaEntry const* entry, CriteriaTreeProgress const* progress, uint32 /*timeElapsed*/, bool timedCompleted) const
 {
     // FIXME
-    GetOwner()->SendCriteriaUpdate(entry->ID, progress->counter, progress->date);
+    GetOwner()->SendCriteriaUpdate(progress);
     if (timedCompleted)
         GetOwner()->UpdateCurrentStep(false);
 }

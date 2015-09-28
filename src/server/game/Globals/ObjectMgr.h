@@ -386,7 +386,7 @@ struct ScenarioData
 };
 
 typedef UNORDERED_MAP<uint32/*ScenarioID*/, ScenarioData> ScenarioDataMap;
-typedef UNORDERED_MAP<uint32/*mapId*/, std::list<ScenarioData> > ScenarioDataListMap;
+typedef UNORDERED_MAP<uint32/*mapId*/, std::list<ScenarioData* > > ScenarioDataListMap;
 
 struct ConversationCreature
 {
@@ -1703,6 +1703,8 @@ class ObjectMgr
         {
             return _scenarioDataList.find(mapId) != _scenarioDataList.end();
         }
+
+        const ScenarioData* GetScenarioOnMap(uint32 mapId, uint32 scenarioId = 0) const;
 
         WorldPackets::BattlePay::ProductListResponse productList;
         std::map<uint32, WorldPackets::BattlePay::Product> BattlePayProductMap;

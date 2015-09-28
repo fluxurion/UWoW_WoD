@@ -46,7 +46,7 @@ public:
     uint32 GetInstanceId() const { return instanceId; }
     Map* GetMap();
     ScenarioType GetType() const { return type; }
-    uint32 GetScenarioId() const;
+    uint32 GetScenarioId() const { return scenarioId; }
     uint32 GetCurrentStep() const { return currentStep; }
 
     bool IsCompleted(bool bonus) const;
@@ -60,14 +60,15 @@ public:
     AchievementMgr<ScenarioProgress> const& GetAchievementMgr() const { return m_achievementMgr; }
 
     void SendStepUpdate(Player* player = NULL, bool full = false);
-    void SendCriteriaUpdate(uint32 criteriaId, uint32 counter, time_t date);
-    void BroadCastPacket(WorldPacket& data);
+    void SendCriteriaUpdate(CriteriaTreeProgress const* progress);
+    void BroadCastPacket(const WorldPacket* data);
     uint32 GetScenarioCriteriaByStep(uint8 step);
 
     bool CanUpdateCriteria(uint32 criteriaTreeId, uint32 recursTree = 0) const;
 
 protected:
     uint32 instanceId;
+    uint32 scenarioId;
     lfg::LFGDungeonData const* dungeonData;
     AchievementMgr<ScenarioProgress> m_achievementMgr;
 
