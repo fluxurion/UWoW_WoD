@@ -17,6 +17,13 @@ INSERT INTO `world_visible_distance` (`type`, `id`, `distance`, `comment`) VALUE
 
 delete from creature where id = 86565;
 
+delete from areatrigger_scripts where entry in (10145,10314,10153,10155);
+INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES 
+(10145, 'at_iron_docks_captain_text'),
+(10314, 'at_iron_docks_captain_text'),
+(10153, 'at_iron_docks_captain_text'),
+(10155, 'at_iron_docks_captain_text');
+
 /* -----------------------------------------------
    Fleshrender Nok'gar / Раздиратель Плоти Нок'Гар
    ----------------------------------------------- */

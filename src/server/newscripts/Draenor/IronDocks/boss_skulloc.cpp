@@ -456,6 +456,64 @@ public:
     }
 };
 
+class at_iron_docks_captain_text : public AreaTriggerScript
+{
+public:
+    at_iron_docks_captain_text() : AreaTriggerScript("at_iron_docks_captain_text") { }
+
+    bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* at, bool enter)
+    {
+        if (enter)
+            if (InstanceScript* instance = pPlayer->GetInstanceScript())
+            {
+                uint8 textId;
+                uint32 spellText[4] =
+                {
+                    SPELL_IRON_DOCKS_BANTER_3,
+                    SPELL_IRON_DOCKS_BANTER_4,
+                    SPELL_IRON_DOCKS_BANTER_6,
+                    SPELL_IRON_DOCKS_BANTER_7,
+                };
+
+                switch (at->id)
+                {
+                    case 10145:
+                    {
+                        if (instance->GetData(DATA_CAPTAIN_TEXT_3) != DONE)
+                            instance->SetData(DATA_CAPTAIN_TEXT_3, DONE);
+                        textId = 0;
+                        break;
+                    }
+                    case 10314:
+                    {
+                        if (instance->GetData(DATA_CAPTAIN_TEXT_4) != DONE)
+                            instance->SetData(DATA_CAPTAIN_TEXT_4, DONE);
+                        textId = 1;
+                        break;
+                    }
+                    case 10153:
+                    {
+                        if (instance->GetData(DATA_CAPTAIN_TEXT_5) != DONE)
+                            instance->SetData(DATA_CAPTAIN_TEXT_5, DONE);
+                        textId = 2;
+                        break;
+                    }
+                    case 10155:
+                    {
+                        if (instance->GetData(DATA_CAPTAIN_TEXT_6) != DONE)
+                            instance->SetData(DATA_CAPTAIN_TEXT_6, DONE);
+                        textId = 3;
+                        break;
+                    }
+                }
+                if (Creature* skulloc = instance->instance->GetCreature(instance->GetGuidData(NPC_SKULLOC)))
+                    skulloc->CastSpell(skulloc, spellText[textId], true);
+            }
+
+        return true;
+    }
+};
+
 void AddSC_boss_skulloc()
 {
     new boss_skulloc();
@@ -463,4 +521,5 @@ void AddSC_boss_skulloc()
     new boss_zoggosh();
     new npc_blackhand_might_turret();
     new at_cannon_barrage_loss();
+    new at_iron_docks_captain_text();
 }

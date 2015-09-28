@@ -10,27 +10,31 @@ INSERT INTO `instance_template` (`map`, `parent`, `script`, `allowMount`, `bonus
 update creature set spawntimesecs = 86400 where id = 76396;
 update creature_template set scriptName = 'npc_rune_glow', flags_extra = 130 where entry = 76396;
 update creature_template set faction = 190, unit_flags = 131332 where entry = 76314;
-
-update creature set movementtype = 2 where guid = 308324;
-delete from creature_addon where guid = 308324;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
-(308324, 30832400, 0, 0, 1, 0, NULL);
-
 update creature_template_addon set bytes2 = 2 where entry = 76157;
 
-delete from creature_formations where leaderGUID = 308324;
-INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES 
-(308324, 308324, 0, 0, 2),
-(308324, 308328, 2, 270, 2),
-(308324, 308326, 2, 90, 2);
+delete from creature where guid in (502579,502581,502583);
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `AiID`, `MovementID`, `MeleeID`, `isActive`) VALUES 
+(502579, 76181, 1358, 7307, 7307, 524550, 1, '', 0, 0, 186.545, -314.945, 76.9257, 3.2469, 7200, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0),
+(502581, 76181, 1358, 7307, 7307, 524550, 1, '', 0, 0, 187.04, -320.101, 76.9148, 3.23512, 7200, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0),
+(502583, 76157, 1358, 7307, 7307, 524550, 1, '', 0, 0, 186.616, -317.46, 76.9201, 3.23119, 7200, 0, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0);
 
-delete from waypoint_data where id = 30832400;
+delete from creature_addon where guid = 502583;
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
+(502583, 50258300, 0, 0, 1, 0, NULL);
+
+delete from creature_formations where leaderGUID = 502583;
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES 
+(502583, 502583, 0, 0, 2),
+(502583, 502581, 2, 270, 2),
+(502583, 502579, 2, 90, 2);
+
+delete from waypoint_data where id = 50258300;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_flag`, `action`, `action_chance`, `entry`, `wpguid`) VALUES 
-(30832400, 1, 199.068, -306.26, 76.9453, 0, 0, 0, 0, 100, 0, 0),
-(30832400, 2, 204.562, -284.759, 76.9461, 0, 5000, 0, 0, 100, 0, 0),
-(30832400, 3, 199.362, -305.539, 76.9453, 0, 0, 0, 0, 100, 0, 0),
-(30832400, 4, 203.547, -322.317, 76.9266, 0, 5000, 0, 0, 100, 0, 0),
-(30832400, 5, 186.909, -316.372, 76.923, 0, 5000, 0, 0, 100, 0, 0);
+(50258300, 1, 199.068, -306.26, 76.9453, 0, 0, 0, 0, 100, 0, 0),
+(50258300, 2, 204.562, -284.759, 76.9461, 0, 5000, 0, 0, 100, 0, 0),
+(50258300, 3, 199.362, -305.539, 76.9453, 0, 0, 0, 0, 100, 0, 0),
+(50258300, 4, 203.547, -322.317, 76.9266, 0, 5000, 0, 0, 100, 0, 0),
+(50258300, 5, 186.909, -316.372, 76.923, 0, 5000, 0, 0, 100, 0, 0);
 
 delete from world_visible_distance where type = 2 and id = 7307;
 INSERT INTO `world_visible_distance` (`type`, `id`, `distance`, `comment`) VALUES 

@@ -94,6 +94,7 @@ public:
             _EnterCombat();
 
             events.ScheduleEvent(EVENT_SUMMON, 2000); //Aggro 04:40. Attack 04:50
+            DoCast(SPELL_DIALOG_1);
         }
 
         void EnterEvadeMode()
@@ -226,6 +227,7 @@ public:
                         events.ScheduleEvent(EVENT_SUMMONS_ATTACK, 1000);
                         break;
                     case EVENT_SUMMON_2:
+                        DoCast(SPELL_DIALOG_2);
                         for (uint8 i = 0; i < 2; i++)
                         {
                             me->SummonCreature(NPC_BLACK_IRON_BERSERKER, tharbekAdds[i]);
@@ -236,6 +238,7 @@ public:
                         events.ScheduleEvent(EVENT_SUMMONS_ATTACK, 1000);
                         break;
                     case EVENT_SUMMON_3:
+                        DoCast(SPELL_DIALOG_3);
                         me->SummonCreature(NPC_BLACK_IRON_ENGINEER, tharbekAdds[0]);
                         for (uint8 i = 1; i < 3; i++)
                         {

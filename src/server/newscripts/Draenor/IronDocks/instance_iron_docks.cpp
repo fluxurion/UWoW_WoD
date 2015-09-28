@@ -28,6 +28,7 @@ public:
         ObjectGuid enforcerGUID[3];
         ObjectGuid oshirGUID;
         uint8 enforCount;
+        uint32 m_uiDialogs[5];
 
         void Initialize()
         {
@@ -35,6 +36,7 @@ public:
 
             enforCount = 0;
             oshirGUID.Clear();
+            memset(m_uiDialogs, 0, sizeof(m_uiDialogs));
 
             for (uint8 i = 0; i < 3; ++i)
                 enforcerGUID[i].Clear();
@@ -105,6 +107,8 @@ public:
                         case DONE:
                             if (Creature* dugu = instance->GetCreature(enforcerGUID[2]))
                                 dugu->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                            if (Creature* skulloc = instance->GetCreature(skullocGUIDconteiner[NPC_SKULLOC]))
+                                skulloc->CastSpell(skulloc, SPELL_IRON_DOCKS_BANTER_5, true);
                             break;
                     }
                     break;
@@ -178,6 +182,36 @@ public:
                             cageMobs->AI()->DoZoneInCombat(cageMobs, 100.0f);
                     break;
                 }
+                case DATA_CAPTAIN_TEXT_1:
+                {
+                    m_uiDialogs[0] = data;
+                    SaveToDB();
+                    break;
+                }
+                case DATA_CAPTAIN_TEXT_3:
+                {
+                    m_uiDialogs[1] = data;
+                    SaveToDB();
+                    break;
+                }
+                case DATA_CAPTAIN_TEXT_4:
+                {
+                    m_uiDialogs[2] = data;
+                    SaveToDB();
+                    break;
+                }
+                case DATA_CAPTAIN_TEXT_5:
+                {
+                    m_uiDialogs[3] = data;
+                    SaveToDB();
+                    break;
+                }
+                case DATA_CAPTAIN_TEXT_6:
+                {
+                    m_uiDialogs[4] = data;
+                    SaveToDB();
+                    break;
+                }
                 default:
                     break;
             }
@@ -208,7 +242,70 @@ public:
         {
             if (type == DATA_G_ENFOR_DIED)
                 return enforCount;
+            if (type == DATA_CAPTAIN_TEXT_1)
+                return m_uiDialogs[0];
+            if (type == DATA_CAPTAIN_TEXT_3)
+                return m_uiDialogs[1];
+            if (type == DATA_CAPTAIN_TEXT_4)
+                return m_uiDialogs[2];
+            if (type == DATA_CAPTAIN_TEXT_5)
+                return m_uiDialogs[3];
+            if (type == DATA_CAPTAIN_TEXT_6)
+                return m_uiDialogs[4];
             return 0;
+        }
+
+        std::string GetDialogSaveData()
+        {
+            std::ostringstream saveStream;
+            for (uint8 i = 0; i < 7; i++)
+                saveStream << (uint32)m_uiDialogs[i] << " ";
+            return saveStream.str();
+        }
+
+        std::string GetSaveData()
+        {
+            OUT_SAVE_INST_DATA;
+
+            std::string str_data;
+
+            std::ostringstream saveStream;
+            saveStream << "I D " << GetDialogSaveData();
+
+            str_data = saveStream.str();
+
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return str_data;
+        }
+        
+        void Load(const char* in)
+        {
+            if (!in)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+
+            OUT_LOAD_INST_DATA(in);
+
+            char dataHead1, dataHead2;
+
+            std::istringstream loadStream(in);
+            loadStream >> dataHead1 >> dataHead2;
+
+            if (dataHead1 == 'I' && dataHead2 == 'D')
+            {
+                for (uint8 i = 0; i < 7; i++)
+                {
+                    uint32 tmpDlg;
+                    loadStream >> tmpDlg;
+                    if (tmpDlg != DONE)
+                        tmpDlg = NOT_STARTED;
+                    m_uiDialogs[i] = tmpDlg;
+                }
+            } else OUT_LOAD_INST_DATA_FAIL;
+
+            OUT_LOAD_INST_DATA_COMPLETE;
         }
 
         /* void Update(uint32 diff) 

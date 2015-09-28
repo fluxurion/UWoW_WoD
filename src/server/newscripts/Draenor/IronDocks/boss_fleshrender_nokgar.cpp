@@ -107,6 +107,13 @@ public:
         {
             Talk(SAY_DEATH);
             _JustDied();
+
+            if (instance->GetData(DATA_CAPTAIN_TEXT_1) != DONE)
+            {
+                if (Creature* skulloc = instance->instance->GetCreature(instance->GetGuidData(NPC_SKULLOC)))
+                    skulloc->CastSpell(skulloc, SPELL_IRON_DOCKS_BANTER_1, true);
+                instance->SetData(DATA_CAPTAIN_TEXT_1, DONE);
+            }
         }
 
         void JustSummoned(Creature* summon)
