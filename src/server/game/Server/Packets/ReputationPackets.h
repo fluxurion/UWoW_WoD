@@ -63,11 +63,21 @@ namespace WorldPackets
         class SetForcedReactions final : public ServerPacket
         {
         public:
-            SetForcedReactions() : ServerPacket(SMSG_SET_FORCED_REACTIONS) { }
+            SetForcedReactions() : ServerPacket(SMSG_SET_FORCED_REACTIONS, 4) { }
 
             WorldPacket const* Write() override;
 
             std::vector<ForcedReaction> Reactions;
+        };
+
+        class FactionBonusInfo final : public ServerPacket
+        {
+        public:
+            FactionBonusInfo() : ServerPacket(SMSG_FACTION_BONUS_INFO, 256) { }
+
+            WorldPacket const* Write() override;
+
+            bool FactionHasBonus[FactionCount] = { };
         };
     }
 }

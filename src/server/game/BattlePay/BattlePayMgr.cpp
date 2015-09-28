@@ -271,10 +271,10 @@ void BattlePayMgr::LevelUp(WorldPackets::BattlePay::DistributionAssignToTarget c
     _store[PurchaseID].factionChose = packet.unk2;
 
     session->SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS, packet.DistributionID, packet.TargetCharacter);
-
-    WorldPacket data(SMSG_CHARACTER_UPGRADE_STARTED);
-    data << packet.TargetCharacter;
-    session->SendPacket(&data);
+    
+    WorldPackets::BattlePay::UpgradeStarted upgrade;
+    upgrade.CharacterGUID = packet.TargetCharacter;
+    session->SendPacket(upgrade.Write());
 }
 
 //! By normal way StartPurchase register client purshase.

@@ -20,12 +20,12 @@
 WorldPacket const* WorldPackets::Talent::UpdateTalentData::Write()
 {
     _worldPacket << Info.ActiveGroup;
-    _worldPacket << uint32(Info.TalentGroups.size());
+    _worldPacket << static_cast<uint32>(Info.TalentGroups.size());
 
     for (auto& talentGroupInfo : Info.TalentGroups)
     {
         _worldPacket << talentGroupInfo.SpecID;
-        _worldPacket << uint32(talentGroupInfo.TalentIDs.size());
+        _worldPacket << static_cast<uint32>(talentGroupInfo.TalentIDs.size());
 
         for (uint32 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             _worldPacket << talentGroupInfo.GlyphIDs[i];

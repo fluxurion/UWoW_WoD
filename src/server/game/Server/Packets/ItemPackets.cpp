@@ -61,8 +61,8 @@ WorldPacket const* WorldPackets::Item::SetProficiency::Write()
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData const& itemBonusInstanceData)
 {
     data << itemBonusInstanceData.Context;
-    data << uint32(itemBonusInstanceData.BonusListIDs.size());
-    for (uint32 bonusID : itemBonusInstanceData.BonusListIDs)
+    data << static_cast<uint32>(itemBonusInstanceData.BonusListIDs.size());
+    for (uint32 const& bonusID : itemBonusInstanceData.BonusListIDs)
         data << bonusID;
 
     return data;
@@ -151,19 +151,17 @@ void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
     }
 }
 
-void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
+void WorldPackets::Item::ItemInstance::Initialize(::LootItem const* lootItem)
 {
-    ItemID = lootItem.itemid;
-    RandomPropertiesSeed = lootItem.randomSuffix;
-    RandomPropertiesID = lootItem.randomPropertyId;
-    if (!lootItem.BonusListIDs.empty())
+    ItemID = lootItem->item.ItemID;
+    RandomPropertiesSeed = lootItem->item.RandomPropertiesSeed;
+    RandomPropertiesID = lootItem->item.RandomPropertiesID;
+    if (!lootItem->item.ItemBonus.BonusListIDs.empty())
     {
         ItemBonus = boost::in_place();
-        ItemBonus->BonusListIDs = lootItem.BonusListIDs;
-        ItemBonus->Context = 0; /// @todo
+        ItemBonus->BonusListIDs = lootItem->item.ItemBonus.BonusListIDs;
+        ItemBonus->Context = lootItem->item.ItemBonus.Context;
     }
-
-    /// no Modifications
 }
 
 void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidItem)
@@ -182,6 +180,19 @@ void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidI
         ItemBonus = boost::in_place();
         ItemBonus->BonusListIDs = voidItem->BonusListIDs;
     }
+}
+
+void WorldPackets::Item::ItemInstance::Initialize(::Roll const* roll)
+{
+    //ItemID = roll->item.ItemID;
+    //RandomPropertiesSeed = roll->item.RandomPropertiesSeed;
+    //RandomPropertiesID = roll->item.RandomPropertiesID;
+    //if (!roll->item.ItemBonus.BonusListIDs.empty())
+    //{
+    //    ItemBonus = boost::in_place();
+    //    ItemBonus->BonusListIDs = roll->item.ItemBonus.BonusListIDs;
+    //    ItemBonus->Context = roll->item.ItemBonus.Context;
+    //}
 }
 
 ByteBuffer& WorldPackets::Item::operator>>(ByteBuffer& data, InvUpdate& invUpdate)
@@ -334,6 +345,43 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
     _worldPacket.WriteBit(IsEncounterLoot);
 
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::BuyFailed::Write()
+{
+    _worldPacket << VendorGUID;
+    _worldPacket << uint32(Muid);
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::SellResponse::Write()
+{
+    _worldPacket << VendorGUID;
+    _worldPacket << ItemGUID;
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::BuySucceeded::Write()
+{
+    _worldPacket << VendorGUID;
+    _worldPacket << uint32(Muid);
+    _worldPacket << int32(NewQuantity);
+    _worldPacket << uint32(QuantityBought);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::ItemCooldown::Write()
+{
+    _worldPacket << ItemGuid;
+    _worldPacket << uint32(SpellID);
+    _worldPacket << uint32(Cooldown);
 
     return &_worldPacket;
 }

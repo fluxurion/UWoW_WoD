@@ -24,7 +24,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::ChallengeMode::ModeAttemp
     data << modeAttempt.CompletionTime;
     data.AppendPackedTime(modeAttempt.CompletionDate);
     data << modeAttempt.MedalEarned;
-    data << uint32(modeAttempt.Members.size());
+    data << static_cast<uint32>(modeAttempt.Members.size());
     for (auto const& map : modeAttempt.Members)
     {
         data << map.VirtualRealmAddress;
@@ -47,11 +47,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::ChallengeMode::ItemReward
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::ChallengeMode::MapChallengeModeReward const& mapChallengeModeReward)
 {
-    data << uint32(mapChallengeModeReward.Rewards.size());
+    data << static_cast<uint32>(mapChallengeModeReward.Rewards.size());
     for (auto const& map : mapChallengeModeReward.Rewards)
     {
-        data << uint32(map.ItemRewards.size());
-        data << uint32(map.CurrencyRewards.size());
+        data << static_cast<uint32>(map.ItemRewards.size());
+        data << static_cast<uint32>(map.CurrencyRewards.size());
         data << map.Money;
 
         for (auto const& item : map.ItemRewards)
@@ -75,7 +75,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::ChallengeMode::ChallengeM
     data << challengeModeMap.BestMedal;
     data.AppendPackedTime(challengeModeMap.BestMedalDate);
 
-    data << uint32(challengeModeMap.BestSpecID.size());
+    data << static_cast<uint32>(challengeModeMap.BestSpecID.size());
     for (auto const& map : challengeModeMap.BestSpecID)
         data << map;
 
@@ -95,8 +95,8 @@ WorldPacket const* WorldPackets::ChallengeMode::RequestLeadersResult::Write()
     _worldPacket.AppendPackedTime(LastGuildUpdate);
     _worldPacket.AppendPackedTime(LastRealmUpdate);
 
-    _worldPacket << uint32(GuildLeaders.size());
-    _worldPacket << uint32(RealmLeaders.size());
+    _worldPacket << static_cast<uint32>(GuildLeaders.size());
+    _worldPacket << static_cast<uint32>(RealmLeaders.size());
 
     for (auto const& guildLeaders : GuildLeaders)
         _worldPacket << guildLeaders;
@@ -109,8 +109,8 @@ WorldPacket const* WorldPackets::ChallengeMode::RequestLeadersResult::Write()
 
 WorldPacket const* WorldPackets::ChallengeMode::Rewards::Write()
 {
-    _worldPacket << uint32(MapChallengeModeRewards.size());
-    _worldPacket << uint32(ItemRewards.size());
+    _worldPacket << static_cast<uint32>(MapChallengeModeRewards.size());
+    _worldPacket << static_cast<uint32>(ItemRewards.size());
 
     for (auto const& map : MapChallengeModeRewards)
         _worldPacket << map;
@@ -123,7 +123,7 @@ WorldPacket const* WorldPackets::ChallengeMode::Rewards::Write()
 
 WorldPacket const* WorldPackets::ChallengeMode::AllMapStats::Write()
 {
-    _worldPacket << uint32(ChallengeModeMaps.size());
+    _worldPacket << static_cast<uint32>(ChallengeModeMaps.size());
     for (auto const& map : ChallengeModeMaps)
         _worldPacket << map;
 

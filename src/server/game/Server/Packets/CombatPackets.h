@@ -58,7 +58,7 @@ namespace WorldPackets
         class AttackStart final : public ServerPacket
         {
         public:
-            AttackStart() : ServerPacket(SMSG_ATTACK_START, 16) { }
+            AttackStart() : ServerPacket(SMSG_ATTACK_START, 16 * 2) { }
 
             WorldPacket const* Write() override;
 
@@ -69,7 +69,7 @@ namespace WorldPackets
         class SAttackStop final : public ServerPacket
         {
         public:
-            SAttackStop() : ServerPacket(SMSG_ATTACK_STOP, 17) { }
+            SAttackStop() : ServerPacket(SMSG_ATTACK_STOP, 16 * 2 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -87,7 +87,7 @@ namespace WorldPackets
         class ThreatUpdate final : public ServerPacket
         {
         public:
-            ThreatUpdate() : ServerPacket(SMSG_THREAT_UPDATE, 24) { }
+            ThreatUpdate() : ServerPacket(SMSG_THREAT_UPDATE, 20) { }
 
             WorldPacket const* Write() override;
 
@@ -98,7 +98,7 @@ namespace WorldPackets
         class HighestThreatUpdate final : public ServerPacket
         {
         public:
-            HighestThreatUpdate() : ServerPacket(SMSG_HIGHEST_THREAT_UPDATE, 44) { }
+            HighestThreatUpdate() : ServerPacket(SMSG_HIGHEST_THREAT_UPDATE, 16 * 2 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -121,7 +121,7 @@ namespace WorldPackets
         class AIReaction final : public ServerPacket
         {
         public:
-            AIReaction() : ServerPacket(SMSG_AI_REACTION, 12) { }
+            AIReaction() : ServerPacket(SMSG_AI_REACTION, 16 + 4) { }
 
             WorldPacket const* Write() override;
 

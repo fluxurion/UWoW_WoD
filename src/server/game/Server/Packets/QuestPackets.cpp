@@ -32,7 +32,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverStatus::Write()
 
 WorldPacket const* WorldPackets::Quest::QuestGiverStatusMultiple::Write()
 {
-    _worldPacket << int32(QuestGiver.size());
+    _worldPacket << static_cast<int32>(QuestGiver.size());
     for (QuestGiverInfo const& questGiver : QuestGiver)
     {
         _worldPacket << questGiver.Guid;
@@ -135,8 +135,8 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << Info.AreaGroupID;
         _worldPacket << Info.TimeAllowed;
 
-        _worldPacket << int32(Info.Objectives.size());
-        _worldPacket << int32(Info.AllowableRaces);
+        _worldPacket << static_cast<int32>(Info.Objectives.size());
+        _worldPacket << static_cast<int32>(Info.AllowableRaces);
 
         for (QuestObjective const& questObjective : Info.Objectives)
         {
@@ -148,13 +148,11 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
             _worldPacket << questObjective.Flags;
             _worldPacket << questObjective.UnkFloat;
 
-            _worldPacket << int32(questObjective.VisualEffects.size());
+            _worldPacket << static_cast<int32>(questObjective.VisualEffects.size());
             for (int32 visualEffect : questObjective.VisualEffects)
                 _worldPacket << visualEffect;
 
             _worldPacket.WriteBits(questObjective.Description.size(), 8);
-            _worldPacket.FlushBits();
-
             _worldPacket.WriteString(questObjective.Description);
         }
 
@@ -167,7 +165,6 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket.WriteBits(Info.PortraitTurnInText.size(), 10);
         _worldPacket.WriteBits(Info.PortraitTurnInName.size(), 8);
         _worldPacket.WriteBits(Info.QuestCompletionLog.size(), 11);
-        _worldPacket.FlushBits();
 
         _worldPacket.WriteString(Info.LogTitle);
         _worldPacket.WriteString(Info.LogDescription);
@@ -333,12 +330,12 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket << QuestFlags[0];
     _worldPacket << QuestFlags[1];
     _worldPacket << PortraitTurnIn;
-    _worldPacket << int32(LearnSpells.size());
+    _worldPacket << static_cast<int32>(LearnSpells.size());
     _worldPacket << Rewards;
-    _worldPacket << int32(DescEmotes.size());
-    _worldPacket << int32(Objectives.size());
+    _worldPacket << static_cast<int32>(DescEmotes.size());
+    _worldPacket << static_cast<int32>(Objectives.size());
 
-    for (int32 spell : LearnSpells)
+    for (int32 const& spell : LearnSpells)
         _worldPacket << spell;
 
     for (WorldPackets::Quest::QuestDescEmote const& emote : DescEmotes)
@@ -388,8 +385,8 @@ WorldPacket const* WorldPackets::Quest::QuestGiverRequestItems::Write()
     _worldPacket << QuestFlags[1];
     _worldPacket << SuggestPartyMembers;
     _worldPacket << MoneyToGet;
-    _worldPacket << int32(Collect.size());
-    _worldPacket << int32(Currency.size());
+    _worldPacket << static_cast<int32>(Collect.size());
+    _worldPacket << static_cast<int32>(Currency.size());
     _worldPacket << StatusFlags;
 
     for (QuestObjectiveCollect const& obj : Collect)
@@ -446,7 +443,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestList::Write()
     _worldPacket << QuestGiverGUID;
     _worldPacket << GreetEmoteDelay;
     _worldPacket << GreetEmoteType;
-    _worldPacket << uint32(GossipTexts.size());
+    _worldPacket << static_cast<uint32>(GossipTexts.size());
     for (GossipTextData const& gossip : GossipTexts)
     {
         _worldPacket << gossip.QuestID;
@@ -461,7 +458,6 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestList::Write()
     }
 
     _worldPacket.WriteBits(Greeting.size(), 11);
-    _worldPacket.FlushBits();
     _worldPacket.WriteString(Greeting);
 
     return &_worldPacket;
@@ -480,8 +476,6 @@ WorldPacket const* WorldPackets::Quest::QuestConfirmAcceptResponse::Write()
     _worldPacket << InitiatedBy;
 
     _worldPacket.WriteBits(QuestTitle.size(), 10);
-    _worldPacket.FlushBits();
-
     _worldPacket.WriteString(QuestTitle);
 
     return &_worldPacket;

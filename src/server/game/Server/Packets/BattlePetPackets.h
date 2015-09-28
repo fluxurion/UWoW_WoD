@@ -19,12 +19,459 @@
 #define BattlePetPacketsWorld_h__
 
 #include "Packet.h"
+#include "LfgPackets.h"
+#include "Unit.h"
+#include "BattlePetMgr.h"
+#include "Player.h"
 
 namespace WorldPackets
 {
     namespace BattlePet
     {
+        //< SMSG_BATTLE_PET_JOURNAL_LOCK_ACQUIRED
+        //< SMSG_PET_BATTLE_FINISHED
+        //< SMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH
+        //< SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED
+        //< SMSG_PET_BATTLE_CHAT_RESTRICTED
+        //< SMSG_BATTLE_PET_LICENSE_CHANGED
+        //< SMSG_BATTLE_PETS_HEALED
+        class NullSMsg final : public ServerPacket
+        {
+        public:
+            NullSMsg(OpcodeServer opcode) : ServerPacket(opcode, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        //< CMSG_BATTLE_PET_REQUEST_JOURNAL
+        //< CMSG_BATTLE_PET_REQUEST_JOURNAL_LOCK
+        //< CMSG_PET_BATTLE_FINAL_NOTIFY
+        //< CMSG_JOIN_PET_BATTLE_QUEUE
+        //< CMSG_PET_BATTLE_SCRIPT_ERROR_NOTIFY
+        class NullCmsg final : public ClientPacket
+        {
+        public:
+            NullCmsg(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        struct PetBattleSlot
+        {
+            ObjectGuid BattlePetGUID;
+            uint32 CollarID = 0;
+            uint8 SlotIndex = 0;
+            bool Locked = false;
+        };
+
+        struct BattlePet
+        {
+            void Initialize(::PetJournalInfo* petInfo, ObjectGuid guid, Player* player = nullptr);
+
+            struct OwnerInfo
+            {
+                OwnerInfo(ObjectGuid guid, uint32 virt, uint32 native) : Guid(guid), PlayerVirtualRealm(virt), PlayerNativeRealm(native) { }
+
+                ObjectGuid Guid;
+                uint32 PlayerVirtualRealm = 0;
+                uint32 PlayerNativeRealm = 0;
+            };
+
+            ObjectGuid BattlePetGUID;
+            uint32 SpeciesID = 0;
+            uint32 DisplayID = 0;
+            uint32 CollarID = 0;
+            uint16 BreedID = 0;
+            uint16 Level = 0;
+            uint16 Xp = 0;
+            uint16 BattlePetDBFlags = 0;
+            uint32 Power = 0;
+            uint32 Health = 0;
+            uint32 MaxHealth = 0;
+            uint32 Speed = 0;
+            uint8 BreedQuality = 0;
+            std::string CustomName;
+            Optional<OwnerInfo> Owner;
+            bool NoRename = false;
+        };
+
+        class Journal final : public ServerPacket
+        {
+        public:
+            Journal() : ServerPacket(SMSG_BATTLE_PET_JOURNAL, 2 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+            void Initialize(::PetJournal journal, ::PetBattleSlots slot, ::BattlePetMgr* mgr, Player* player = nullptr);
+
+            uint16 TrapLevel = 0;
+            std::vector<PetBattleSlot> Slots;
+            std::vector<BattlePet> Pets;
+            bool HasJournalLock = false;
+        };
+
+        class Query final : public ClientPacket
+        {
+        public:
+            Query(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_BATTLE_PET_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid BattlePetID;
+            ObjectGuid UnitGUID;
+        };
+
+        class QueryResponse final : public ServerPacket
+        {
+        public:
+            QueryResponse() : ServerPacket(SMSG_QUERY_BATTLE_PET_NAME_RESPONSE, 16 + 4 + 4 + 1 + 2 + 2 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid BattlePetID;
+            uint32 CreatureID = 0;
+            time_t Timestamp = time(nullptr);
+            bool Allow = false;
+            std::string Name;
+            std::string DeclinedNames[MAX_DECLINED_NAME_CASES];
+            bool HasDeclined = false;
+        };
+
+        //< CMSG_BATTLE_PET_DELETE_PET
+        //< CMSG_BATTLE_PET_DELETE_PET_CHEAT
+        //< CMSG_BATTLE_PET_SUMMON
+        //< CMSG_CAGE_BATTLE_PET
+        class BattlePetGuidRead final : public ClientPacket
+        {
+        public:
+            BattlePetGuidRead(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid BattlePetGUID;
+        };
+
+        class BattlePetGuidWrite final : public ServerPacket
+        {
+        public:
+            BattlePetGuidWrite(ObjectGuid battlePetGUID) : ServerPacket(SMSG_BATTLE_PET_DELETED, 16), BattlePetGUID(battlePetGUID) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid BattlePetGUID;
+        };
+
+        class ModifyName final : public ClientPacket
+        {
+        public:
+            ModifyName(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_MODIFY_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid BattlePetGUID;
+            ObjectGuid UnitGUID;
+            std::string DeclinedNames[MAX_DECLINED_NAME_CASES];
+            std::string Name;
+        };
+
+        class SetBattleSlot final : public ClientPacket
+        {
+        public:
+            SetBattleSlot(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_SET_BATTLE_SLOT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid BattlePetGUID;
+            uint8 SlotIndex = 0;
+        };
+
+        class SetFlags final : public ClientPacket
+        {
+        public:
+            SetFlags(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_SET_FLAGS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid BattlePetGUID;
+            uint32 Flags = 0;
+            uint8 ControlType = 0;
+        };
+
+        class Updates final : public ServerPacket
+        {
+        public:
+            Updates() : ServerPacket(SMSG_BATTLE_PET_UPDATES, 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            bool AddedPet = false;
+            std::vector<BattlePet> Pets;
+        };
+
+        struct ActiveAbility
+        {
+            uint32 AbilityID = 0;
+            uint16 CooldownRemaining = 0;
+            uint16 LockdownRemaining = 0;
+            uint8 AbilityIndex = 0;
+            uint8 Pboid = 0;
+        };
+
+        struct EffectTarget
+        {
+            uint16 type = 0;
+            uint8 Petx = 0;
+            uint32 AuraInstanceID = 0;
+            uint32 AuraAbilityID = 0;
+            uint32 RoundsRemaining = 0;
+            uint32 CurrentRound = 0;
+            uint32 StateID = 0;
+            uint32 StateValue = 0;
+            uint32 Health = 0;
+            uint32 NewStatValue = 0;
+            uint32 TriggerAbilityID = 0;
+            uint32 ChangedAbilityID = 0;
+            uint32 CooldownRemaining = 0;
+            uint32 LockdownRemaining = 0;
+            uint32 BroadcastTextID = 0;
+        };
+
+        struct Effect
+        {
+            uint32 AbilityEffectID = 0;
+            uint16 Flags = 0;
+            uint16 SourceAuraInstanceID = 0;
+            uint16 TurnInstanceID = 0;
+            uint8 PetBattleEffectType = 0;
+            uint8 CasterPBOID = 0;
+            uint8 StackDepth = 0;
+            std::vector<EffectTarget> EffectTargetData;
+        };
+
+        struct RoundResult
+        {
+            void Initialize(::PetBattleRoundResults* result);
+
+            uint32 CurRound = 0;
+            uint8 NextPetBattleState = 0;
+            uint8 NextInputFlags[2] = { };
+            uint8 NextTrapStatus[2] = { };
+            uint16 RoundTimeSecs[2] = { };
+            std::vector<Effect> EffectData;
+            std::vector<ActiveAbility> Ability;
+            std::vector<uint8> PetXDied;
+        };
+
+        //< SMSG_PET_BATTLE_FIRST_ROUND
+        //< SMSG_PET_BATTLE_ROUND_RESULT
+        //< SMSG_PET_BATTLE_REPLACEMENTS_MADE
+        class BattleRound final : public ServerPacket
+        {
+        public:
+            BattleRound(OpcodeServer opcode) : ServerPacket(opcode, 4 + 1 + 1 + 1 + 2 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            RoundResult MsgData;
+        };
+
+        struct FinalPet
+        {
+            ObjectGuid Guid;
+            uint16 Level = 0;
+            uint16 Xp = 0;
+            uint32 Health = 0;
+            uint32 MaxHealth = 0;
+            uint16 InitialLevel = 0;
+            uint8 Pboid = 0;
+            bool Captured = false;
+            bool Caged = false;
+            bool SeenAction = false;
+            bool AwardedXP = false;
+        };
+
+        struct FinalRound
+        {
+            bool Abandoned = false;
+            bool PvpBattle = false;
+            bool Winner[2] = { };
+            uint32 NpcCreatureID[2] = { };
+            std::vector<FinalPet> Pets;
+        };
+
+        class SceneObjectFinalRound final : public ServerPacket
+        {
+        public:
+            SceneObjectFinalRound() : ServerPacket(SMSG_PET_BATTLE_FINAL_ROUND, 1 + 1 + 1 + 1 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            FinalRound MsgData;
+        };
+
+        struct Locations
+        {
+            uint32 LocationResult = 0;
+            Position BattleOrigin;
+            float BattleFacing = 0.0f;
+            Position PlayerPositions[2] = { };
+        };
+
+        class FinalizeLocation final : public ServerPacket
+        {
+        public:
+            FinalizeLocation() : ServerPacket(SMSG_PET_BATTLE_FINALIZE_LOCATION, 4 + 12 + 4 + 12 * 2) { }
+
+            WorldPacket const* Write() override;
+
+            Locations Location;
+        };
+
+        class PVPChallenge final : public ServerPacket
+        {
+        public:
+            PVPChallenge() : ServerPacket(SMSG_PET_BATTLE_PVP_CHALLENGE, 16 + 4 + 12 + 4 + 12 * 2) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ChallengerGUID;
+            Locations Location;
+        };
+
+        class RequestWild final : public ClientPacket
+        {
+        public:
+            RequestWild(WorldPacket&& packet) : ClientPacket(CMSG_PET_BATTLE_REQUEST_WILD, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid TargetGUID;
+            Locations Location;
+        };
+
+        class RequestPVP final : public ClientPacket
+        {
+        public:
+            RequestPVP(WorldPacket&& packet) : ClientPacket(CMSG_PET_BATTLE_REQUEST_PVP, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid TargetGUID;
+            Locations OpponentCharacterID;
+        };
+
+        class RequestFailed final : public ServerPacket
+        {
+        public:
+            RequestFailed() : ServerPacket(SMSG_PET_BATTLE_REQUEST_FAILED, 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Reason = 0;
+        };
+
+        class SlotUpdates final : public ServerPacket
+        {
+        public:
+            SlotUpdates() : ServerPacket(SMSG_PET_BATTLE_SLOT_UPDATES, 4 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<PetBattleSlot> Slots;
+            bool AutoSlotted = false;
+            bool NewSlotUnlocked = false;
+        };
+
+        class ReplaceFrontPet final : public ClientPacket
+        {
+        public:
+            ReplaceFrontPet(WorldPacket&& packet) : ClientPacket(CMSG_PET_BATTLE_REPLACE_FRONT_PET, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 FrontPet = 0;
+        };
+
+        struct InputData
+        {
+            uint8 MoveType = 0;
+            uint8 NewFrontPet = 0;
+            uint8 DebugFlags = 0;
+            uint8 BattleInterrupted = 0;
+            uint32 AbilityID = 0;
+            uint32 Round = 0;
+            bool IgnoreAbandonPenalty = false;
+        };
+
+        class QueueStatus final : public ServerPacket
+        {
+        public:
+            QueueStatus() : ServerPacket(SMSG_PET_BATTLE_QUEUE_STATUS, 4 + 4 + 1 + 1 + 28) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Status = 0;
+            std::vector<uint32> SlotResult;
+            Optional<uint32> ClientWaitTime;
+            Optional<uint32> AverageWaitTime;
+            WorldPackets::LFG::RideTicket Ticket;
+        };
+
+        class QueueProposeMatchResult final : public ClientPacket
+        {
+        public:
+            QueueProposeMatchResult(WorldPacket&& packet) : ClientPacket(CMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH_RESULT, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Accepted = false;
+        };
+
+        class LeaveQueue final : public ClientPacket
+        {
+        public:
+            LeaveQueue(WorldPacket&& packet) : ClientPacket(CMSG_LEAVE_PET_BATTLE_QUEUE, std::move(packet)) { }
+
+            void Read() override;
+
+            WorldPackets::LFG::RideTicket Ticket;
+        };
+
+        class RequestUpdate final : public ClientPacket
+        {
+        public:
+            RequestUpdate(WorldPacket&& packet) : ClientPacket(CMSG_PET_BATTLE_REQUEST_UPDATE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid TargetGUID;
+            bool Canceled = false;
+        };
+
+        //< SMSG_BATTLE_PET_RESTORED
+        //< SMSG_BATTLE_PET_REVOKED
+        //< SMSG_BATTLE_PET_CAGE_DATE_ERROR
+        class GuidData final : public ServerPacket
+        {
+        public:
+            GuidData(OpcodeServer opcode) : ServerPacket(opcode, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid BattlePetGUID;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::ActiveAbility const& activeAbility);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleSlot const& petBattleSlot);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet const& battlePet);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::EffectTarget const& effectTarget);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::Effect const& effect);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::RoundResult const& roundResult);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::FinalPet const& finalPet);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::FinalRound const& finalRound);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::Locations const& locations);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::BattlePet::Locations& locations);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::BattlePet::InputData& locations);
 
 #endif // BattlePetPacketsWorld_h__

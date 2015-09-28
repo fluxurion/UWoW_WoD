@@ -33,7 +33,7 @@ WorldPacket const* WorldPackets::Instance::UpdateInstanceOwnership::Write()
 
 WorldPacket const* WorldPackets::Instance::InstanceInfo::Write()
 {
-    _worldPacket << int32(LockList.size());
+    _worldPacket << static_cast<int32>(LockList.size());
 
     for (InstanceLockInfos const& lockInfos : LockList)
         _worldPacket << lockInfos;

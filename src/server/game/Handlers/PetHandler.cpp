@@ -34,6 +34,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellPackets.h"
 #include "QueryPackets.h"
+#include "PetPackets.h"
 
 enum StableResultCode
 {
@@ -48,22 +49,11 @@ enum StableResultCode
     STABLE_ERR_INTERNAL = 0x0C,
 };
 
-//! 6.0.3
-void WorldSession::HandleDismissCritter(WorldPacket& recvData)
+void WorldSession::HandleDismissCritter(WorldPackets::PetPackets::DismissCritter& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DISMISS_CRITTER for GUID " UI64FMTD, guid.GetCounter());
-
-    Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
-
+    Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.CritterGUID);
     if (!pet)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Vanitypet (guid: %u) does not exist - player '%s' (guid: %u / account: %u) attempted to dismiss it (possibly lagged out)",
-                uint32(guid.GetCounter()), GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter(), GetAccountId());
         return;
-    }
 
     if (_player->GetCritterGUID() == pet->GetGUID())
     {
@@ -136,27 +126,18 @@ void WorldSession::HandlePetAction(WorldPacket & recvData)
     }
 }
 
-//! 6.0.3
-void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
+void WorldSession::HandleStopAttack(WorldPackets::PetPackets::StopAttack& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PET_STOP_ATTACK for GUID %u", uint32(guid.GetCounter()));
-
-    Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
-
+    Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*player, packet.PetGUID);
     if (!pet)
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetStopAttack: Pet %u does not exist", uint32(guid.GetCounter()));
         return;
-    }
 
-    if (pet != GetPlayer()->GetPet() && pet != GetPlayer()->GetCharm())
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetStopAttack: Pet GUID %u isn't a pet or charmed creature of player %s", uint32(guid.GetCounter()), GetPlayer()->GetName());
+    if (pet != player->GetPet() && pet != player->GetCharm())
         return;
-    }
 
     if (!pet->isAlive())
         return;
@@ -574,29 +555,23 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
     }
 }
 
-//! 6.0.3
-void WorldSession::HandleLearnPetSpecialization(WorldPacket & recvData)
+void WorldSession::HandleLearnPetSpecializationGroup(WorldPackets::PetPackets::LearnPetSpecializationGroup& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    uint32 index = recvData.read<uint32>();
-
-    if(_player->isInCombat() || _player->getClass() != CLASS_HUNTER)
+    if (_player->isInCombat() || _player->getClass() != CLASS_HUNTER)
         return;
 
     uint32 specializationId = 0;
 
-    switch(index)
+    switch(packet.SpecGroupId)
     {
         case 0:
-            specializationId = SPEC_PET_FEROCITY;   // Ferocity
+            specializationId = SPEC_PET_FEROCITY;
             break;
         case 1:
-            specializationId = SPEC_PET_TENACITY;   // Tenacity
+            specializationId = SPEC_PET_TENACITY;
             break;
         case 2:
-            specializationId = SPEC_PET_CUNNING;    // Cunning
+            specializationId = SPEC_PET_CUNNING;
             break;
         default:
             break;
@@ -609,7 +584,7 @@ void WorldSession::HandleLearnPetSpecialization(WorldPacket & recvData)
     if (!pet || !pet->isAlive())
         return;
 
-    if(pet->GetSpecializationId())
+    if (pet->GetSpecializationId())
         pet->UnlearnSpecializationSpell();
 
     pet->SetSpecializationId(specializationId);
@@ -784,12 +759,11 @@ bool WorldSession::CheckStableMaster(ObjectGuid const& guid)
     return true;
 }
 
-//! 6.0.3
 void WorldSession::SendStableResult(uint8 res)
 {
-    WorldPacket data(SMSG_PET_STABLE_RESULT, 1);
-    data << uint8(res);
-    SendPacket(&data);
+    WorldPackets::PetPackets::StableResult stableResult;
+    stableResult.Result = res;
+    SendPacket(stableResult.Write());
 }
 
 void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z)
@@ -1102,20 +1076,14 @@ void WorldSession::SendStablePet(ObjectGuid const& guid)
     _sendStabledPetCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-//! 6.0.3
 void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid const& guid)
 {
-    if (!GetPlayer())
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Send SMSG_PET_STABLE_LIST.");
-
-    uint32 num = 0;
-    WorldPacket data(SMSG_PET_STABLE_LIST, 200);
-    data << guid;
-
-    size_t writePos = data.wpos();
-    data << num;
+    WorldPackets::PetPackets::StableList list;
+    ObjectGuid StableMaster = guid;
 
     std::set<uint32> stableNumber;
     if (result)
@@ -1125,46 +1093,38 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
             Field* fields = result->Fetch();
 
             uint32 petNumber = fields[0].GetUInt32();
-            PetSlot petSlot = GetPlayer()->GetSlotForPetId(petNumber);
+            PetSlot petSlot = player->GetSlotForPetId(petNumber);
             stableNumber.insert(petNumber);
 
             if (petSlot > PET_SLOT_STABLE_LAST)
                 continue;
 
-            //Find free slot and move pet there
             if (petSlot == PET_SLOT_FULL_LIST)
-                petSlot = (PetSlot)GetPlayer()->SetOnAnyFreeSlot(petNumber);
+                petSlot = (PetSlot)player->SetOnAnyFreeSlot(petNumber);
 
             if (petSlot >= PET_SLOT_HUNTER_FIRST &&  petSlot < PET_SLOT_STABLE_LAST)
             {
-                std::string name = fields[3].GetString();
-                data << uint32(petSlot);                        // 4.x petSlot
-                data << uint32(petNumber);                      // petnumber
-                data << uint32(fields[1].GetUInt32());          // creature entry
-                data << uint32(fields[4].GetUInt32());          // model id
-                data << uint32(fields[2].GetUInt16());          // level
-                data << uint8(petSlot < PET_SLOT_STABLE_FIRST ? 1 : 3);     // 1 = current, 2/3 = in stable (any from 4, 5, ... create problems with proper show)
-
-                data << uint8(name.size());
-                data.WriteString(name);              
-                
-
-                ++num;
+                WorldPackets::PetPackets::StableInfo info;
+                int32 PetSlot = petSlot;
+                int32 PetNumber = petNumber;
+                int32 CreatureID = fields[1].GetUInt32();
+                int32 DisplayID = fields[4].GetUInt32();
+                int32 ExperienceLevel = fields[2].GetUInt16();
+                uint8 PetFlags = petSlot < PET_SLOT_STABLE_FIRST ? 1 : 3;
+                std::string PetName = fields[3].GetString();
+                list.Stables.push_back(info);
             }
         }
         while (result->NextRow());
     }
-    data.put<uint32>(writePos, num);
 
-    //send only for hunter
-    if (GetPlayer()->getClass() == CLASS_HUNTER)
+    if (player->getClass() == CLASS_HUNTER)
     {
-        SendPacket(&data);
+        SendPacket(list.Write());
         SendStableResult(STABLE_ERR_NONE);
     }
 
-    // Cleaner. As this send at first login in any way. no need do it at playerLoading.
-    const PlayerPetSlotList &petSlots = GetPlayer()->GetPetSlotList();
+    PlayerPetSlotList const& petSlots = player->GetPetSlotList();
     for (uint32 i = uint32(PET_SLOT_HUNTER_FIRST); i < uint32(PET_SLOT_STABLE_LAST); ++i)
     {
         if (!petSlots[i])
@@ -1172,9 +1132,6 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
 
         std::set<uint32>::iterator find = stableNumber.find(petSlots[i]);
         if (find == stableNumber.end())
-        {
-            //where is no pet. need clear data.
-            GetPlayer()->cleanPetSlotForMove(PetSlot(i), petSlots[i]);
-        }
+            player->cleanPetSlotForMove(PetSlot(i), petSlots[i]);
     }
 }

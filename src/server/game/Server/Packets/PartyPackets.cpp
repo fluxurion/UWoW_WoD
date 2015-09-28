@@ -35,8 +35,6 @@ WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
     _worldPacket << ResultGUID;
     _worldPacket.WriteString(Name);
 
-    _worldPacket.FlushBits();
-
     return &_worldPacket;
 }
 
@@ -82,13 +80,13 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     _worldPacket.WriteString(InviterRealmNameNormalized);
 
     _worldPacket << ProposedRoles;
-    _worldPacket << int32(LfgSlots.size());
+    _worldPacket << static_cast<int32>(LfgSlots.size());
     _worldPacket << LfgCompletedMask;
 
     _worldPacket.WriteString(InviterName);
 
-    for (int32 LfgSlot : LfgSlots)
-        _worldPacket << LfgSlot;
+    for (int32 const& slot : LfgSlots)
+        _worldPacket << slot;
 
     return &_worldPacket;
 }
@@ -150,6 +148,7 @@ void WorldPackets::Party::RequestPartyMemberStats::Read()
 WorldPacket const* WorldPackets::Party::PartyMemberStats::Write()
 {
     _worldPacket.WriteBit(ForEnemy);
+    _worldPacket.FlushBits();
 
     _worldPacket << MemberStats;
 
@@ -230,13 +229,12 @@ WorldPacket const* WorldPackets::Party::SendRaidTargetUpdateAll::Write()
 {
     _worldPacket << PartyIndex;
 
-    _worldPacket << int32(TargetIcons.size());
+    _worldPacket << static_cast<int32>(TargetIcons.size());
 
-    std::map<uint8, ObjectGuid>::const_iterator itr;
-    for (itr = TargetIcons.begin(); itr != TargetIcons.end(); itr++)
+    for (auto const& itr : TargetIcons)
     {
-        _worldPacket << itr->second;
-        _worldPacket << itr->first;
+        _worldPacket << itr.second;
+        _worldPacket << itr.first;
     }
 
     return &_worldPacket;
@@ -284,9 +282,7 @@ WorldPacket const* WorldPackets::Party::ReadyCheckResponse::Write()
 {
     _worldPacket << PartyGUID;
     _worldPacket << Player;
-
     _worldPacket.WriteBit(IsReady);
-
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -559,7 +555,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupPhase const& 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupPhases const& phases)
 {
     data << phases.PhaseShiftFlags;
-    data << int32(phases.List.size());
+    data << static_cast<int32>(phases.List.size());
     data << phases.PersonalGUID;
 
     for (WorldPackets::Party::GroupPhase const& phase : phases.List)
@@ -641,7 +637,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupMemberStats c
 
     data << memberStats.VehicleSeat;
 
-    data << int32(memberStats.AuraList.size());
+    data << static_cast<int32>(memberStats.AuraList.size());
 
     data << memberStats.Phases;
 
@@ -659,7 +655,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupMemberStats c
 
 ByteBuffer& operator<<(ByteBuffer& data, std::vector<WorldPackets::Party::GroupPlayerInfos> const& playerList)
 {
-    data << int32(playerList.size());
+    data << static_cast<int32>(playerList.size());
 
     for (WorldPackets::Party::GroupPlayerInfos const& playerInfos : playerList)
         data << playerInfos;

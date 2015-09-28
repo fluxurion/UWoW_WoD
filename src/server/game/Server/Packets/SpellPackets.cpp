@@ -29,7 +29,7 @@ WorldPacket const* WorldPackets::Spells::CategoryCooldown::Write()
 {
     _worldPacket.reserve(4 + 8 * CategoryCooldowns.size());
 
-    _worldPacket << uint32(CategoryCooldowns.size());
+    _worldPacket << static_cast<uint32>(CategoryCooldowns.size());
 
     for (CategoryCooldownInfo const& cooldown : CategoryCooldowns)
     {
@@ -45,9 +45,9 @@ WorldPacket const* WorldPackets::Spells::SendKnownSpells::Write()
     _worldPacket.reserve(1 + 4 * KnownSpells.size());
 
     _worldPacket.WriteBit(InitialLogin);
-    _worldPacket << uint32(KnownSpells.size());
+    _worldPacket << static_cast<uint32>(KnownSpells.size());
 
-    for (uint32 spellId : KnownSpells)
+    for (uint32 const& spellId : KnownSpells)
         _worldPacket << uint32(spellId);
 
     return &_worldPacket;
@@ -71,8 +71,8 @@ void WorldPackets::Spells::SetActionButton::Read()
 
 WorldPacket const* WorldPackets::Spells::SendUnlearnSpells::Write()
 {
-    _worldPacket << uint32(Spells.size());
-    for (uint32 spellId : Spells)
+    _worldPacket << static_cast<uint32>(Spells.size());
+    for (uint32 const& spellId : Spells)
         _worldPacket << uint32(spellId);
 
     return &_worldPacket;
@@ -91,7 +91,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData 
     data << spellCastLogData.Health;
     data << spellCastLogData.AttackPower;
     data << spellCastLogData.SpellPower;
-    data << int32(spellCastLogData.PowerData.size());
+    data << static_cast<int32>(spellCastLogData.PowerData.size());
     for (WorldPackets::Spells::SpellLogPowerData const& powerData : spellCastLogData.PowerData)
     {
         data << powerData.PowerType;
@@ -108,8 +108,8 @@ WorldPacket const* WorldPackets::Spells::AuraUpdate::Write()
 {
     _worldPacket.WriteBit(UpdateAll);
     _worldPacket << UnitGUID;
-    _worldPacket << uint32(Auras.size());
-    for (auto& aura : Auras)
+    _worldPacket << static_cast<uint32>(Auras.size());
+    for (auto const& aura : Auras)
     {
         _worldPacket << aura.Slot;
         if (_worldPacket.WriteBit(aura.AuraData.is_initialized()))
@@ -120,8 +120,8 @@ WorldPacket const* WorldPackets::Spells::AuraUpdate::Write()
             _worldPacket << uint32(data.ActiveFlags);
             _worldPacket << uint16(data.CastLevel);
             _worldPacket << uint8(data.Applications);
-            _worldPacket << uint32(data.EstimatedPoints.size());
-            _worldPacket << uint32(data.Points.size());
+            _worldPacket << static_cast<uint32>(data.EstimatedPoints.size());
+            _worldPacket << static_cast<uint32>(data.Points.size());
 
             if (!data.EstimatedPoints.empty())
                 _worldPacket.append(data.EstimatedPoints.data(), data.EstimatedPoints.size());
@@ -155,6 +155,7 @@ ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::TargetLocation&
     buffer >> location.Location.m_positionX;
     buffer >> location.Location.m_positionY;
     buffer >> location.Location.m_positionZ;
+
     return buffer;
 }
 
@@ -200,6 +201,7 @@ ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::MissileTrajecto
 {
     buffer >> trajectory.Pitch;
     buffer >> trajectory.Speed;
+
     return buffer;
 }
 
@@ -248,7 +250,9 @@ void WorldPackets::Spells::PetCastSpell::Read()
 
 void WorldPackets::Spells::ItemUse::Read()
 {
-    _worldPacket >> bagIndex >> slot >> itemGUID;
+    _worldPacket >> bagIndex;
+    _worldPacket >> slot;
+    _worldPacket >> itemGUID;
     _worldPacket >> Cast;
 }
 
@@ -258,6 +262,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::TargetLocation co
     data << targetLocation.Location.m_positionX;
     data << targetLocation.Location.m_positionY;
     data << targetLocation.Location.m_positionZ;
+
     return data;
 }
 
@@ -291,7 +296,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellMissStatus c
 {
     data.WriteBits(spellMissStatus.Reason, 4);
     data.WriteBits(spellMissStatus.ReflectStatus, 4);
-    // No need to flush bits as we written exactly 8 bits (1 byte)
+
     return data;
 }
 
@@ -299,6 +304,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellPowerData co
 {
     data << spellPowerData.Cost;
     data << spellPowerData.Type;
+
     return data;
 }
 
@@ -310,7 +316,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::RuneData const& r
     data.WriteBits(runeData.Cooldowns.size(), 3);
     data.FlushBits();
 
-    for (uint8 cd : runeData.Cooldowns)
+    for (uint8 const& cd : runeData.Cooldowns)
         data << cd;
 
     return data;
@@ -320,6 +326,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::MissileTrajectory
 {
     data << missileTrajectory.TravelTime;
     data << missileTrajectory.Pitch;
+
     return data;
 }
 
@@ -327,6 +334,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellAmmo const& 
 {
     data << spellAmmo.DisplayID;
     data << spellAmmo.InventoryType;
+
     return data;
 }
 
@@ -334,6 +342,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::ProjectileVisualD
 {
     data << projectileVisual.ID[0];
     data << projectileVisual.ID[1];
+
     return data;
 }
 
@@ -341,6 +350,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::CreatureImmunitie
 {
     data << immunities.School;
     data << immunities.Value;
+
     return data;
 }
 
@@ -349,6 +359,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHealPredicti
     data << spellPred.Points;
     data << spellPred.Type;
     data << spellPred.BeaconGUID;
+
     return data;
 }
 
@@ -360,15 +371,15 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << int32(spellCastData.SpellID);
     data << uint32(spellCastData.CastFlags);
     data << uint32(spellCastData.CastTime);
-    data << uint32(spellCastData.HitTargets.size());
-    data << uint32(spellCastData.MissTargets.size());
-    data << uint32(spellCastData.MissStatus.size());
+    data << static_cast<uint32>(spellCastData.HitTargets.size());
+    data << static_cast<uint32>(spellCastData.MissTargets.size());
+    data << static_cast<uint32>(spellCastData.MissStatus.size());
     data << spellCastData.Target;
-    data << uint32(spellCastData.RemainingPower.size());
+    data << static_cast<uint32>(spellCastData.RemainingPower.size());
     data << spellCastData.MissileTrajectory;
     data << spellCastData.Ammo;
     data << uint8(spellCastData.DestLocSpellCastIndex);
-    data << uint32(spellCastData.TargetPoints.size());
+    data << static_cast<uint32>(spellCastData.TargetPoints.size());
     data << spellCastData.Immunities;
     data << spellCastData.Predict;
 
@@ -423,8 +434,8 @@ WorldPacket const* WorldPackets::Spells::SpellGo::Write()
 
 WorldPacket const* WorldPackets::Spells::LearnedSpells::Write()
 {
-    _worldPacket << uint32(SpellID.size());
-    for (int32 spell : SpellID)
+    _worldPacket << static_cast<uint32>(SpellID.size());
+    for (int32 const& spell : SpellID)
         _worldPacket << spell;
 
     _worldPacket.WriteBit(SuppressMessaging);
@@ -475,7 +486,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifierData
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifier const& spellModifier)
 {
     data << spellModifier.ModIndex;
-    data << uint32(spellModifier.ModifierData.size());
+    data << static_cast<uint32>(spellModifier.ModifierData.size());
     for (WorldPackets::Spells::SpellModifierData const& modData : spellModifier.ModifierData)
         data << modData;
 
@@ -484,7 +495,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifier con
 
 WorldPacket const* WorldPackets::Spells::SetSpellModifier::Write()
 {
-    _worldPacket << uint32(Modifiers.size());
+    _worldPacket << static_cast<uint32>(Modifiers.size());
     for (WorldPackets::Spells::SpellModifier const& spellMod : Modifiers)
         _worldPacket << spellMod;
 
@@ -494,7 +505,7 @@ WorldPacket const* WorldPackets::Spells::SetSpellModifier::Write()
 WorldPacket const* WorldPackets::Spells::UnlearnedSpells::Write()
 {
     _worldPacket << uint32(SpellID.size());
-    for (uint32 spellId : SpellID)
+    for (uint32 const& spellId : SpellID)
         _worldPacket << uint32(spellId);
 
     _worldPacket.WriteBit(SuppressMessaging);
@@ -514,7 +525,7 @@ WorldPacket const* WorldPackets::Spells::CooldownEvent::Write()
 
 WorldPacket const* WorldPackets::Spells::ClearCooldowns::Write()
 {
-    _worldPacket << uint32(SpellID.size());
+    _worldPacket << static_cast<uint32>(SpellID.size());
     if (!SpellID.empty())
         _worldPacket.append(SpellID.data(), SpellID.size());
 
@@ -555,7 +566,7 @@ WorldPacket const* WorldPackets::Spells::SpellCooldown::Write()
 {
     _worldPacket << Caster;
     _worldPacket << uint8(Flags);
-    _worldPacket << uint32(SpellCooldowns.size());
+    _worldPacket << static_cast<uint32>(SpellCooldowns.size());
     for (SpellCooldownStruct const& cooldown : SpellCooldowns)
         _worldPacket << cooldown;
 
@@ -577,7 +588,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHistoryEntry
 
 WorldPacket const* WorldPackets::Spells::SendSpellHistory::Write()
 {
-    _worldPacket << uint32(Entries.size());
+    _worldPacket << static_cast<uint32>(Entries.size());
     for (SpellHistoryEntry const& historyEntry : Entries)
         _worldPacket << historyEntry;
 
@@ -617,12 +628,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellChargeEntry 
     data << uint32(chargeEntry.Category);
     data << uint32(chargeEntry.NextRecoveryTime);
     data << uint8(chargeEntry.ConsumedCharges);
+
     return data;
 }
 
 WorldPacket const* WorldPackets::Spells::SendSpellCharges::Write()
 {
-    _worldPacket << uint32(Entries.size());
+    _worldPacket << static_cast<uint32>(Entries.size());
     for (SpellChargeEntry const& chargeEntry : Entries)
         _worldPacket << chargeEntry;
 
@@ -659,14 +671,15 @@ void WorldPackets::Spells::CancelCast::Read()
 
 void WorldPackets::Spells::OpenItem::Read()
 {
-    _worldPacket >> Slot
-                 >> PackSlot;
+    _worldPacket >> Slot;
+    _worldPacket >> PackSlot;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellChannelStartInterruptImmunities const& interruptImmunities)
 {
     data << int32(interruptImmunities.SchoolImmunities);
     data << int32(interruptImmunities.Immunities);
+
     return data;
 }
 
@@ -674,6 +687,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellTargetedHeal
 {
     data << targetedHealPrediction.TargetGUID;
     data << targetedHealPrediction.Predict;
+
     return data;
 }
 
@@ -699,6 +713,7 @@ WorldPacket const* WorldPackets::Spells::SpellChannelUpdate::Write()
 {
     _worldPacket << CasterGUID;
     _worldPacket << int32(TimeRemaining);
+
     return &_worldPacket;
 }
 
@@ -713,9 +728,6 @@ WorldPacket const* WorldPackets::Spells::ResurrectRequest::Write()
     _worldPacket.WriteBits(Name.length(), 6);
     _worldPacket.WriteBit(UseTimer);
     _worldPacket.WriteBit(Sickness);
-
-    _worldPacket.FlushBits();
-
     _worldPacket.WriteString(Name);
 
     return &_worldPacket;
@@ -746,7 +758,7 @@ WorldPacket const* WorldPackets::Spells::MirrorImageComponentedData::Write()
     _worldPacket << BeardVariation;
     _worldPacket << GuildGUID;
 
-    _worldPacket << uint32(ItemDisplayID.size());
+    _worldPacket << static_cast<uint32>(ItemDisplayID.size());
 
     for (auto const& itemDisplayId : ItemDisplayID)
         _worldPacket << itemDisplayId;
@@ -778,7 +790,7 @@ WorldPacket const* WorldPackets::Spells::ConvertRune::Write()
 
 WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
 {
-    _worldPacket << uint32(Runes.size());
+    _worldPacket << static_cast<uint32>(Runes.size());
     for (auto const& rune : Runes)
     {
         _worldPacket << uint8(rune.RuneType);

@@ -448,7 +448,7 @@ void Map::LoadGrid(float x, float y)
     EnsureGridLoaded(Cell(x, y));
 }
 
-bool Map::AddPlayerToMap(Player* player)
+bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 {
     CellCoord cellCoord = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
     if (!cellCoord.IsCoordValid())
@@ -466,10 +466,14 @@ bool Map::AddPlayerToMap(Player* player)
     player->SetMap(this);
     player->AddToWorld();
 
-    SendInitSelf(player);
+    if (initPlayer)
+        SendInitSelf(player);
+    
     SendInitTransports(player);
 
-    player->m_clientGUIDs.clear();
+    if (initPlayer)
+        player->m_clientGUIDs.clear();
+
     player->UpdateObjectVisibility(false);
 
     sScriptMgr->OnPlayerEnterMap(this, player);
@@ -740,6 +744,7 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
         if (creature->IsVehicle())
             creature->GetVehicleKit()->RelocatePassengers();
         creature->OnRelocated();
+        creature->UpdateObjectVisibility(false);
         RemoveCreatureFromMoveList(creature);
     }
 
@@ -2421,7 +2426,7 @@ bool InstanceMap::CanEnter(Player* player)
 /*
     Do map specific checks and add the player to the map if successful.
 */
-bool InstanceMap::AddPlayerToMap(Player* player)
+bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 {
     // TODO: Not sure about checking player level: already done in HandleAreaTrigger
     // GMs still can teleport player in instance.
@@ -2556,7 +2561,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
     }
 
     // this will acquire the same mutex so it cannot be in the previous block
-    Map::AddPlayerToMap(player);
+    Map::AddPlayerToMap(player, initPlayer);
 
     if (i_data)
         i_data->OnPlayerEnter(player);
@@ -2837,7 +2842,7 @@ bool BattlegroundMap::CanEnter(Player* player)
     return Map::CanEnter(player);
 }
 
-bool BattlegroundMap::AddPlayerToMap(Player* player)
+bool BattlegroundMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 {
     {
         std::lock_guard<std::mutex> lock(_mapLock);
@@ -2847,7 +2852,7 @@ bool BattlegroundMap::AddPlayerToMap(Player* player)
         // reset instance validity, battleground maps do not homebind
         player->m_InstanceValid = true;
     }
-    return Map::AddPlayerToMap(player);
+    return Map::AddPlayerToMap(player, initPlayer);
 }
 
 void BattlegroundMap::RemovePlayerFromMap(Player* player, bool remove)

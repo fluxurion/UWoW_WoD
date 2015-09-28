@@ -777,12 +777,12 @@ void InitDBCCustomStores()
             sDungeonEncounterByDisplayID[store->creatureDisplayID] = store;
 }
 
-const std::string* GetRandomCharacterName(uint8 race, uint8 gender)
+std::string GetRandomCharacterName(uint8 race, uint8 gender)
 {
     uint32 size = sGenNameVectoArraysMap[race].stringVectorArray[gender].size();
     uint32 randPos = urand(0, size - 1);
 
-    return &sGenNameVectoArraysMap[race].stringVectorArray[gender][randPos];
+    return sGenNameVectoArraysMap[race].stringVectorArray[gender][randPos];
 }
 
 SimpleFactionsList const* GetFactionTeamList(uint32 faction)

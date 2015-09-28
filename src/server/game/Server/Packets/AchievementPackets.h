@@ -197,6 +197,26 @@ namespace WorldPackets
 
             std::vector<EarnedAchievement> Earned;
         };
+
+        class CriteriaUpdateAccount final : public ServerPacket
+        {
+        public:
+            CriteriaUpdateAccount() : ServerPacket(SMSG_ACCOUNT_CRITERIA_UPDATE, 44) { }
+
+            WorldPacket const* Write() override;
+
+            CriteriaTreeProgress Data;
+        };
+
+        class AllAchievementCriteriaDataAccount final : public ServerPacket
+        {
+        public:
+            AllAchievementCriteriaDataAccount() : ServerPacket(SMSG_ALL_ACCOUNT_CRITERIA, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<CriteriaTreeProgress> Data;
+        };
     }
 }
 

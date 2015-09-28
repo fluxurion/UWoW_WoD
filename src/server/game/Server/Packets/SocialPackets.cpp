@@ -51,7 +51,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Social::ContactInfo const
     data << uint32(contact.Level);
     data << uint32(contact.ClassID);
     data.WriteBits(contact.Notes.length(), 10);
-    data.FlushBits();
     data.WriteString(contact.Notes);
 
     return data;
@@ -61,7 +60,6 @@ WorldPacket const* WorldPackets::Social::ContactList::Write()
 {
     _worldPacket << uint32(Flags);
     _worldPacket.WriteBits(Contacts.size(), 8);
-    _worldPacket.FlushBits();
 
     for (size_t i = 0; i < Contacts.size(); ++i)
         _worldPacket << Contacts[i];
@@ -93,7 +91,6 @@ WorldPacket const* WorldPackets::Social::FriendStatus::Write()
     _worldPacket << uint32(Level);
     _worldPacket << uint32(ClassID);
     _worldPacket.WriteBits(Notes.length(), 10);
-    _worldPacket.FlushBits();
     _worldPacket.WriteString(Notes);
 
     return &_worldPacket;

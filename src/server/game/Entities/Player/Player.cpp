@@ -100,6 +100,8 @@
 #include "TradePackets.h"
 #include "DuelPackets.h"
 #include "CombatLogPackets.h"
+#include "InstancePackets.h"
+#include "PetPackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -875,6 +877,7 @@ Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_rep
     m_dungeonDifficulty = DIFFICULTY_NORMAL;
     m_legacyRaidDifficulty = DIFFICULTY_10_N;
     m_raidDifficulty = DIFFICULTY_NORMAL_RAID;
+    m_prevMapDifficulty = DIFFICULTY_NORMAL_RAID;
 
     m_lastPotionId = 0;
     _talentMgr = new PlayerTalentInfo();
@@ -2408,14 +2411,13 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
             RemoveAurasByType(SPELL_AURA_OVERRIDE_SPELLS);
 
-            if (!GetSession()->PlayerLogout())
+            if (!GetSession()->PlayerLogout() && !(options & TELE_TO_SEAMLESS))
             {
-                // send transfer packets
                 WorldPackets::Movement::TransferPending transferPending;
                 transferPending.MapID = mapid;
                 if (Transport* transport = GetTransport())
                 {
-                    transferPending.Ship = WorldPackets::Movement::TransferPending::ShipTransferPending();
+                    transferPending.Ship = boost::in_place();
                     transferPending.Ship->ID = transport->GetEntry();
                     transferPending.Ship->OriginMapID = GetMapId();
                 }
@@ -2457,17 +2459,19 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             if (!GetSession()->PlayerLogout())
             {
+                if (mEntry->IsDungeon())
+                    SendDirectMessage(WorldPackets::Instance::UpdateLastInstance(mapid).Write());
+
                 WorldPackets::Movement::NewWorld packet;
                 packet.MapID = mapid;
                 packet.Pos = m_teleport_dest;
-                packet.Reason = NEW_WORLD_NORMAL;
-
+                packet.Reason = !(options & TELE_TO_SEAMLESS) ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
                 SendDirectMessage(packet.Write());
                 SendSavedInstances();
             }
 
             // move packet sent by client always after far teleport
-            // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
+            // code for finish transfer to new map called in WorldSession::HandleWorldPortAck at client packet
             SetSemaphoreTeleportFar(true);
         }
         //else
@@ -3890,26 +3894,32 @@ void Player::SafeRemoveMailFromIgnored(ObjectGuid const& ignoredPlayerGuid)
     m_mailsUpdated = true;
 }
 
-//! 6.0.3
 void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType item_guid, uint32 item_count)
 {
-    WorldPacket data(SMSG_MAIL_COMMAND_RESULT);
-    data << uint32(mailId);
-    data << uint32(mailAction);
-    data << uint32(mailError);
-    data << uint32(equipError);
-    data << uint32(item_guid);                         // item guid low?
-    data << uint32(item_count);                        // item count?
 
-    GetSession()->SendPacket(&data);
+    WorldPackets::Mail::MailCommandResult result;
+
+    result.MailID = mailId;
+    result.Command = mailAction;
+    result.ErrorCode = mailError;
+
+    if (mailError == MAIL_ERR_EQUIP_ERROR)
+        result.BagResult = equipError;
+    else if (mailAction == MAIL_ITEM_TAKEN)
+    {
+        result.AttachID = item_guid;
+        result.QtyInInventory = item_count;
+    }
+
+    GetSession()->SendPacket(result.Write());
 }
 
 void Player::SendNewMail()
 {
     // deliver undelivered mail
-    WorldPacket data(SMSG_NOTIFY_RECEIVED_MAIL, 4);
-    data << float(0.0f);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Mail::NotifyRecievedMail notify;
+    notify.Delay = 0.0f;
+    GetSession()->SendPacket(notify.Write());
 }
 
 void Player::UpdateNextMailTimeAndUnreads()
@@ -5536,7 +5546,7 @@ void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     Unit::BuildCreateUpdateBlockForPlayer(data, target);
 }
 
-void Player::DestroyForPlayer(Player* target, bool onDeath) const
+void Player::DestroyForPlayer(Player* target, bool onDeath /*= false*/) const
 {
     Unit::DestroyForPlayer(target, onDeath);
 
@@ -7733,20 +7743,18 @@ void Player::ScheduleMessageSend(WorldPacket* data, uint32 delay)
     e->Schedule();
 }
 
-//! 6.0.3
 void Player::SendCinematicStart(uint32 CinematicSequenceId)
 {
-    WorldPacket data(SMSG_TRIGGER_CINEMATIC, 4);
-    data << uint32(CinematicSequenceId);
-    SendDirectMessage(&data);
+    WorldPackets::Misc::TriggerCinematic packet;
+    packet.CinematicID = CinematicSequenceId;
+    SendDirectMessage(packet.Write());
 }
 
-//! 6.0.3
 void Player::SendMovieStart(uint32 MovieId)
 {
-    WorldPacket data(SMSG_TRIGGER_MOVIE, 4);
-    data << uint32(MovieId);
-    SendDirectMessage(&data);
+    WorldPackets::Misc::TriggerMovie packet;
+    packet.MovieID = MovieId;
+    SendDirectMessage(packet.Write());
 
     // used for chacking plr state.
     setWatchinMovie(true);
@@ -9081,15 +9089,23 @@ void Player::DuelComplete(DuelCompleteType type)
 
     sLog->outDebug(LOG_FILTER_UNITS, "Duel Complete %s %s", GetName(), duel->opponent->GetName());
 
+    WorldPackets::Duel::DuelComplete duelCompleted;
+    duelCompleted.Started = type != DUEL_INTERRUPTED;
+    WorldPacket const* duelCompletedPacket = duelCompleted.Write();
+    GetSession()->SendPacket(duelCompletedPacket);
+
+    if (duel->opponent->GetSession())
+        duel->opponent->GetSession()->SendPacket(duelCompletedPacket);
+
     if (type != DUEL_INTERRUPTED)
     {
-        WorldPackets::Duel::DuelWinner winner;
-        winner.BeatenName = GetName();
-        winner.WinnerName = duel->opponent->GetName();
-        winner.BeatenVirtualRealmAddress = GetVirtualRealmAddress();
-        winner.WinnerVirtualRealmAddress = GetVirtualRealmAddress();
-        winner.Fled = type == DUEL_WON ? false : true;
-        SendMessageToSet(winner.Write(), true);
+        WorldPackets::Duel::DuelWinner duelWinner;
+        duelWinner.BeatenName = (type == DUEL_WON ? duel->opponent->GetName() : GetName());
+        duelWinner.WinnerName = (type == DUEL_WON ? GetName() : duel->opponent->GetName());
+        duelWinner.BeatenVirtualRealmAddress = GetVirtualRealmAddress();
+        duelWinner.WinnerVirtualRealmAddress = GetVirtualRealmAddress();
+        duelWinner.Fled = type != DUEL_WON;
+        SendMessageToSet(duelWinner.Write(), true);
     }
 
     sScriptMgr->OnPlayerDuelEnd(duel->opponent, this, type);
@@ -9128,21 +9144,13 @@ void Player::DuelComplete(DuelCompleteType type)
     }
 
     // Victory emote spell
-    if (type != DUEL_INTERRUPTED && duel->opponent)
+    if (type != DUEL_INTERRUPTED)
         duel->opponent->CastSpell(duel->opponent, 52852, true);
 
     //Remove Duel Flag object
     GameObject* obj = GetMap()->GetGameObject(GetGuidValue(PLAYER_FIELD_DUEL_ARBITER));
     if (obj)
         duel->initiator->RemoveGameObject(obj, true);
-
-    WorldPackets::Duel::DuelComplete duelComplete;
-    duelComplete.Started = type == DUEL_WON ? 0 : 1;
-    WorldPacket const* worldPacket = duelComplete.Write();
-    GetSession()->SendPacket(worldPacket);
-
-    if (duel->opponent->GetSession())
-        duel->opponent->GetSession()->SendPacket(worldPacket);
 
     /* remove auras */
     AuraApplicationMap &itsAuras = duel->opponent->GetAppliedAuras();
@@ -10203,7 +10211,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
         m_session->DoLootRelease(lguid);
 
     Loot* loot = NULL;
-    //Loot* pLoot = NULL;
     PermissionTypes permission = ALL_PERMISSION;
     ItemQualities groupThreshold = ITEM_QUALITY_POOR;
 
@@ -10632,24 +10639,19 @@ void Player::SendLootError(ObjectGuid guid, ObjectGuid lGuid, LootError error)
     SendDirectMessage(packet.Write());
 }
 
-//! 6.0.3
 void Player::SendNotifyLootMoneyRemoved(Loot* loot)
 {
-    ObjectGuid guid = loot->personal ? loot->GetLootOwner()->GetGUID() : loot->GetGUID();
-
-    WorldPacket data(SMSG_COIN_REMOVED, 8);
-    data << guid;   
-    GetSession()->SendPacket(&data);
+    WorldPackets::Loot::CoinRemoved removed;
+    removed.LootObj = loot->personal ? loot->GetLootOwner()->GetGUID() : loot->GetGUID();
+    GetSession()->SendPacket(removed.Write());
 }
 
- //! 6.0.3
 void Player::SendNotifyLootItemRemoved(uint8 lootSlot, Loot* loot)
 {
     WorldPackets::Loot::LootRemoved packet;
     packet.Owner = loot->objGuid;
     packet.LootObj = loot->personal ? loot->GetLootOwner()->GetGUID() : loot->GetGUID();
-    // Since 6.x client expects loot to be starting from 1 hence the +1
-    packet.LootListID = lootSlot+1;
+    packet.LootListID = lootSlot + 1;
     GetSession()->SendPacket(packet.Write());
 }
 
@@ -10672,8 +10674,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     uint32 mapid = GetMapId();
     OutdoorPvP* pvp = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(zoneid);
     InstanceScript* instance = GetInstanceScript();
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Sending SMSG_INIT_WORLD_STATES to Map: %u, Zone: %u", mapid, zoneid);
 
     WorldPacket data(SMSG_INIT_WORLD_STATES, (4+4+4+2+(NumberOfFields*8)));
     data << uint32(mapid);                                  // mapid
@@ -14994,30 +14994,22 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
     SendDirectMessage(failure.Write());
 }
 
-//! 6.0.3
 void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 /*param*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_BUY_FAILED");
-    ObjectGuid guid = creature ? creature->GetGUID() : ObjectGuid::Empty;
-
-    WorldPacket data(SMSG_BUY_FAILED, 8 + 4 + 4 + 1);
-    data << guid;
-    data << uint32(item);
-    data << uint8(msg);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Item::BuyFailed packet;
+    packet.VendorGUID = creature ? creature->GetGUID() : ObjectGuid::Empty;
+    packet.Muid = item;
+    packet.Reason = msg;
+    GetSession()->SendPacket(packet.Write());
 }
 
-//! 6.0.3
 void Player::SendSellError(SellResult msg, Creature* creature, ObjectGuid guid)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_SELL_RESPONSE");
-    WorldPacket data(SMSG_SELL_RESPONSE, 1 + 9 + 9);
-    ObjectGuid creatureGuid = creature ? creature->GetGUID() : ObjectGuid::Empty;
-    data << creatureGuid;
-    data << guid;
-    data << uint8(msg);
-    
-    GetSession()->SendPacket(&data);
+    WorldPackets::Item::SellResponse sellResponse;
+    sellResponse.VendorGUID = (creature ? creature->GetGUID() : ObjectGuid::Empty);
+    sellResponse.ItemGUID = guid;
+    sellResponse.Reason = msg;
+    GetSession()->SendPacket(sellResponse.Write());
 }
 
 void Player::TradeCancel(bool sendback)
@@ -15222,6 +15214,9 @@ void Player::ApplyEnchantment(Item* item, bool apply)
 void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition)
 {
     if (!item || !item->IsEquipped())
+        return;
+
+    if (slot >= MAX_ENCHANTMENT_SLOT)
         return;
 
     uint32 enchant_id = item->GetEnchantmentId(slot);
@@ -16375,16 +16370,19 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg, uint32 
     if (!CanRewardQuest(quest, msg))
         return false;
 
+    ItemPosCountVec dest;
     if (quest->GetRewChoiceItemsCount() > 0)
     {
-        if (quest->RewardChoiceItemId[reward])
+        for (uint32 i = 0; i < quest->GetRewChoiceItemsCount(); ++i)
         {
-            ItemPosCountVec dest;
-            InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardChoiceItemId[reward], quest->RewardChoiceItemCount[reward]);
-            if (res != EQUIP_ERR_OK)
+            if (quest->RewardChoiceItemId[i] && quest->RewardChoiceItemId[i] == reward)
             {
-                SendEquipError(res, NULL, NULL, quest->RewardChoiceItemId[reward]);
-                return false;
+                InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardChoiceItemId[i], quest->RewardChoiceItemCount[i]);
+                if (res != EQUIP_ERR_OK)
+                {
+                    SendEquipError(res, NULL, NULL, quest->RewardChoiceItemId[i]);
+                    return false;
+                }
             }
         }
     }
@@ -16395,7 +16393,6 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg, uint32 
         {
             if (quest->RewardItemId[i])
             {
-                ItemPosCountVec dest;
                 InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardItemId[i], quest->RewardItemCount[i]);
                 if (res != EQUIP_ERR_OK)
                 {
@@ -16406,14 +16403,28 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg, uint32 
         }
     }
 
-    if (quest->GetQuestPackageID() > 0 && packItemId != 0)
+    if (quest->GetQuestPackageID())
     {
-        ItemPosCountVec dest;
-        InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, packItemId, 1);
-        if (res != EQUIP_ERR_OK)
+        if (std::vector<QuestPackageItemEntry const*> const* questPackageItems = sDB2Manager.GetQuestPackageItems(quest->GetQuestPackageID()))
         {
-            SendEquipError(res, NULL, NULL, packItemId);
-            return false;
+            for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
+            {
+                if (questPackageItem->ItemID != reward)
+                    continue;
+
+                if (ItemTemplate const* rewardProto = sObjectMgr->GetItemTemplate(questPackageItem->ItemID))
+                {
+                    if (rewardProto->CanWinForPlayer(this))
+                    {
+                        InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, questPackageItem->ItemID, questPackageItem->ItemCount);
+                        if (res != EQUIP_ERR_OK)
+                        {
+                            SendEquipError(res, NULL, NULL, questPackageItem->ItemID);
+                            return false;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -16577,28 +16588,15 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     if (quest->GetRewChoiceItemsCount() > 0)
     {
-        if (uint32 itemId = quest->RewardChoiceItemId[reward])
+        for (uint32 i = 0; i < quest->GetRewChoiceItemsCount(); ++i)
         {
-            ItemPosCountVec dest;
-            if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardChoiceItemCount[reward]) == EQUIP_ERR_OK)
-            {
-                Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-                SendNewItem(item, quest->RewardChoiceItemCount[reward], true, false);
-            }
-        }
-    }
-
-    if (quest->GetRewItemsCount() > 0)
-    {
-        for (uint32 i = 0; i < quest->GetRewItemsCount(); ++i)
-        {
-            if (uint32 itemId = quest->RewardItemId[i])
+            if (quest->RewardChoiceItemId[i] && quest->RewardChoiceItemId[i] == reward)
             {
                 ItemPosCountVec dest;
-                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemCount[i]) == EQUIP_ERR_OK)
+                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, reward, quest->RewardChoiceItemCount[i]) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-                    SendNewItem(item, quest->RewardItemCount[i], true, false);
+                    Item* item = StoreNewItem(dest, reward, true, Item::GenerateItemRandomPropertyId(reward));
+                    SendNewItem(item, quest->RewardChoiceItemCount[i], true, false);
                 }
             }
         }
@@ -16628,6 +16626,23 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             }
         }
     }
+
+    if (quest->GetRewItemsCount() > 0)
+    {
+        for (uint32 i = 0; i < quest->GetRewItemsCount(); ++i)
+        {
+            if (uint32 itemId = quest->RewardItemId[i])
+            {
+                ItemPosCountVec dest;
+                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemCount[i]) == EQUIP_ERR_OK)
+                {
+                    Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+                    SendNewItem(item, quest->RewardItemCount[i], true, false);
+                }
+            }
+        }
+    }
+
 
     if (quest->GetRewCurrencyCount() > 0)
     {
@@ -18084,11 +18099,9 @@ void Player::SendQuestComplete(Quest const* quest)
     }
 }
 
-//! 6.0.3
 void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
 {
     uint32 questId = quest->GetQuestId();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_COMPLETE quest = %u", questId);
     sGameEventMgr->HandleQuestComplete(questId);
 
     uint32 xp;
@@ -18104,8 +18117,7 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
         xp = 0;
         moneyReward = uint32(quest->GetRewMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
-    
-    // SMSG_QUESTGIVER_QUEST_COMPLETE
+
     WorldPackets::Quest::QuestGiverQuestComplete packet;
 
     packet.QuestID = questId;
@@ -18255,7 +18267,7 @@ void Player::_LoadEquipmentSets(PreparedQueryResult result)
             if (ObjectGuid::LowType guid = fields[5 + i].GetUInt64())
                 eqSet.Data.Pieces[i] = ObjectGuid::Create<HighGuid::Item>(guid);
 
-        m_EquipmentSets[index] = eqSet;
+        _equipmentSets[index] = eqSet;
 
         ++count;
 
@@ -18335,7 +18347,7 @@ void Player::SendBindPointUpdate()
     packet.BindPosition.z = m_homebindZ;
     packet.BindMapID = m_homebindMapId;
     packet.BindAreaID = m_homebindAreaId;
-    m_session->SendPacket(packet.Write());
+    SendDirectMessage(packet.Write());
 }
 
 uint32 Player::GetUInt32ValueFromArray(Tokenizer const& data, uint16 index)
@@ -22417,15 +22429,13 @@ void Player::SendExplorationExperience(uint32 areaID, uint32 exp)
     GetSession()->SendPacket(WorldPackets::Misc::ExplorationExperience(exp, areaID).Write());
 }
 
-//! 6.0.3
-void Player::SendDungeonDifficulty()
+void Player::SendDungeonDifficulty(int32 forcedDifficulty /*= -1*/)
 {
-    WorldPacket data(SMSG_SET_DUNGEON_DIFFICULTY, 4);
-    data << (uint32)GetDungeonDifficultyID();
-    GetSession()->SendPacket(&data);
+    WorldPackets::Misc::DungeonDifficultySet dungeonDifficultySet;
+    dungeonDifficultySet.DifficultyID = forcedDifficulty == -1 ? GetDungeonDifficultyID() : forcedDifficulty;
+    GetSession()->SendPacket(dungeonDifficultySet.Write());
 }
 
-//! 6.0.3
 void Player::SendRaidDifficulty(bool legacy, int32 forcedDifficulty /*= -1*/)
 {
     WorldPackets::Misc::RaidDifficultySet raidDifficultySet;
@@ -22838,12 +22848,11 @@ void Player::PetSpellInitialize()
 
     GetSession()->SendPacket(&data);
 
-    data.Initialize(SMSG_PET_MODE, 100);
-    data << pet->GetGUID();
-    data << uint8(pet->GetReactState());                                            // React State
-    data << uint8(charmInfo->GetCommandState());                                    // Command State
-    data << uint16(0);                                                              // DisableActions (set for all vehicles)
-    GetSession()->SendPacket(&data);
+    WorldPackets::PetPackets::Mode mode;
+    mode.PetGUID = pet->GetGUID();
+    mode._reactState = pet->GetReactState();
+    mode._commandState = charmInfo->GetCommandState();
+    GetSession()->SendPacket(mode.Write());
 }
 
 //! 6.1.2
@@ -22877,10 +22886,9 @@ void Player::PossessSpellInitialize()
 
     GetSession()->SendPacket(&data);
 
-    data.Initialize(SMSG_PET_MODE, 100);
-    data << charm->GetGUID();
-    data << uint32(0);
-    GetSession()->SendPacket(&data);
+    WorldPackets::PetPackets::Mode mode;
+    mode.PetGUID = charm->GetGUID();
+    GetSession()->SendPacket(mode.Write());
 }
 
 //! 6.1.2
@@ -22963,12 +22971,12 @@ void Player::VehicleSpellInitialize()
 
     GetSession()->SendPacket(&data);
 
-    data.Initialize(SMSG_PET_MODE, 100);
-    data << vehicle->GetGUID();
-    data << uint8(vehicle->GetReactState());                                        // React State
-    data << uint8(0);                                                               // Command State
-    data << uint16(0x800);                                                          // Flags
-    GetSession()->SendPacket(&data);
+    WorldPackets::PetPackets::Mode mode;
+    mode.PetGUID = vehicle->GetGUID();
+    mode._reactState = vehicle->GetReactState();
+    mode._commandState = 0;
+    mode._flag = 0x800;
+    GetSession()->SendPacket(mode.Write());
 
 }
 
@@ -23024,12 +23032,11 @@ void Player::CharmSpellInitialize()
 
     GetSession()->SendPacket(&data);
 
-    data.Initialize(SMSG_PET_MODE, 100);
-    data << charm->GetGUID();
-    data << uint8(charm->ToCreature()->GetReactState());                            // React State
-    data << uint8(charmInfo->GetCommandState());                                    // Command State
-    data << uint16(0);                                                              // DisableActions (set for all vehicles)
-    GetSession()->SendPacket(&data);
+    WorldPackets::PetPackets::Mode mode;
+    mode.PetGUID = charm->GetGUID();
+    mode._reactState = charm->ToCreature()->GetReactState();
+    mode._commandState = charmInfo->GetCommandState();
+    GetSession()->SendPacket(mode.Write());
 }
 
 //! 6.1.2
@@ -23366,9 +23373,10 @@ void Player::SetSpellModTakingSpell(Spell* spell, bool apply)
 // send Proficiency
 void Player::SendProficiency(ItemClass itemClass, uint32 itemSubclassMask)
 {
-    WorldPacket data(SMSG_SET_PROFICIENCY, 1 + 4);
-    data << uint32(itemSubclassMask) << uint8(itemClass);
-    GetSession()->SendPacket(&data);
+    WorldPackets::Item::SetProficiency packet;
+    packet.ProficiencyMask = itemSubclassMask;
+    packet.ProficiencyClass = itemClass;
+    SendDirectMessage(packet.Write());
 }
 
 void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
@@ -23965,13 +23973,12 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
     {
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
 
-        //! 6.0.3
-        WorldPacket data(SMSG_BUY_SUCCEEDED, 8 + 1 + 4 + 4 + 4);
-        data << pVendor->GetGUID();
-        data << uint32(vendorslot + 1);                   // numbered from 1 at client
-        data << int32(crItem->maxcount > 0 ? new_count : 0xFFFFFFFF);
-        data << uint32(count);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Item::BuySucceeded packet;
+        packet.VendorGUID = pVendor->GetGUID();
+        packet.Muid = vendorslot + 1;
+        packet.NewQuantity = crItem->maxcount > 0 ? new_count : 0xFFFFFFFF;
+        packet.QuantityBought = count;
+        GetSession()->SendPacket(packet.Write());
 
         SendNewItem(it, count, true, false, false);
 
@@ -24633,19 +24640,12 @@ void Player::AddRPPMSpellCooldown(uint32 spellid, uint32 itemid, double end_time
     m_rppmspellCooldowns[spellid] = sc;
 }
 
-//! 6.1.2
 void Player::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, Spell* spell /*= NULL*/, bool setCooldown /*= true*/)
 {
-    // start cooldowns at server side, if any
     if (setCooldown)
         AddSpellAndCategoryCooldowns(spellInfo, itemId, spell);
-
-    // Send activate cooldown timer (possible 0) at client side
-    WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8 + 1);
-    //data << GetGUID();
-    data << uint32(spellInfo->Id);
-    data.WriteBit(0);       //Unk16 self? pet?
-    SendDirectMessage(&data);
+    
+    SendDirectMessage(WorldPackets::Spells::CooldownEvent(false, spellInfo->Id).Write());
 }
 
 void Player::UpdatePotionCooldown(Spell* spell)
@@ -24927,10 +24927,15 @@ bool Player::CanReportAfkDueToLimit()
 ///This player has been blamed to be inactive in a battleground
 void Player::ReportedAfkBy(Player* reporter)
 {
+    WorldPackets::Battleground::ReportPvPPlayerAFKResult reportAfkResult;
+    reportAfkResult.Offender = GetGUID();
     Battleground* bg = GetBattleground();
     // Battleground also must be in progress!
     if (!bg || bg != reporter->GetBattleground() || GetTeam() != reporter->GetTeam() || bg->GetStatus() != STATUS_IN_PROGRESS)
+    {
+        reporter->SendDirectMessage(reportAfkResult.Write());
         return;
+    }
 
     // check if player has 'Idle' or 'Inactive' debuff
     if (m_bgData.bgAfkReporter.find(reporter->GetGUID().GetCounter()) == m_bgData.bgAfkReporter.end() && !HasAura(43680) && !HasAura(43681) && reporter->CanReportAfkDueToLimit())
@@ -24942,8 +24947,13 @@ void Player::ReportedAfkBy(Player* reporter)
             // cast 'Idle' spell
             CastSpell(this, 43680, true);
             m_bgData.bgAfkReporter.clear();
+            reportAfkResult.NumBlackMarksOnOffender = m_bgData.bgAfkReporter.size();
+            reportAfkResult.NumPlayersIHaveReported = reporter->m_bgData.bgAfkReportedCount;
+            reportAfkResult.Result = WorldPackets::Battleground::ReportPvPPlayerAFKResult::PVP_REPORT_AFK_SUCCESS;
         }
     }
+
+    reporter->SendDirectMessage(reportAfkResult.Write());
 }
 
 WorldLocation Player::GetStartPosition() const
@@ -25320,8 +25330,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendCategoryCooldownMods();
 
     // guild bank list wtf?
-    WorldPacket data(SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED);
-    GetSession()->SendPacket(&data);
+
+    GetSession()->SendPacket(WorldPackets::BattlePet::NullSMsg(SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED).Write());
 
     /// SMSG_BIND_POINT_UPDATE
     SendBindPointUpdate();
@@ -25344,9 +25354,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     SendInitialActionButtons();
 
-    data.Initialize(SMSG_CORPSE_RECLAIM_DELAY, 4);
-    data << uint32(0);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Misc::CorpseReclaimDelay().Write());
 
     //SMSG_ALL_ACHIEVEMENT_DATA first send
     m_achievementMgr.SendAllAccountCriteriaData(this);
@@ -25359,7 +25367,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendCurrencies();
 
     // Reset Vignitte data
-    data.Initialize(SMSG_VIGNETTE_UPDATE, 21);
+    WorldPacket data (SMSG_VIGNETTE_UPDATE, 21);
     data.WriteBit(1);
     data << uint32(0);
     data << uint32(0);
@@ -25484,21 +25492,29 @@ void Player::SendInitialPacketsAfterAddToMap()
     // raid downscaling - send difficulty to player
     if (GetMap()->IsRaid())
     {
-        DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(GetMap()->GetDifficultyID());
-        bool isLegacy = difficulty ? (difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0 : false;
-        SendRaidDifficulty(isLegacy, GetMap()->GetDifficultyID());
+        m_prevMapDifficulty = GetMap()->GetDifficultyID();
+        DifficultyEntry const* difficulty = sDifficultyStore.AssertEntry(m_prevMapDifficulty);
+        SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0, m_prevMapDifficulty);
     }
     else if (GetMap()->IsNonRaidDungeon())
-        SendDungeonDifficulty();
+    {
+        m_prevMapDifficulty = GetMap()->GetDifficultyID();
+        SendDungeonDifficulty(m_prevMapDifficulty);
+    }
+    else if (!GetMap()->Instanceable())
+    {
+        DifficultyEntry const* difficulty = sDifficultyStore.AssertEntry(m_prevMapDifficulty);
+        SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
+    }
 
     // send garrison info there...
     //GetGarrisonMgr()->SendToClient();
 
-    WorldPacket data;
-    if (GetBattlePetMgr()->BuildPetJournal(&data))
-        GetSession()->SendPacket(&data);
-    else
-        GetBattlePetMgr()->SendEmptyPetJournal();
+    WorldPackets::BattlePet::Journal journal;
+    journal.Initialize(GetBattlePetMgr()->GetPetJournal(), GetBattlePetMgr()->GetPetBattleSlots(), GetBattlePetMgr(), this);
+    journal.HasJournalLock = false;
+    journal.TrapLevel = 0;
+    GetSession()->SendPacket(journal.Write());
 
     // send timers if already start challenge for example
     SendInitWorldTimers();
@@ -25635,11 +25651,11 @@ void Player::ApplyEquipCooldown(Item* pItem)
 
         AddSpellCooldown(spellData.SpellId, pItem->GetEntry(), getPreciseTime() + 30.0);
 
-        //! 6.0.3
-        WorldPacket data(SMSG_ITEM_COOLDOWN, 12);
-        data << pItem->GetGUID();
-        data << uint32(spellData.SpellId);
-        GetSession()->SendPacket(&data);
+        WorldPackets::Item::ItemCooldown data;
+        data.ItemGuid = pItem->GetGUID();
+        data.SpellID = spellData.SpellId;
+        data.Cooldown = 30 * IN_MILLISECONDS;
+        GetSession()->SendPacket(data.Write());
     }
 }
 
@@ -27478,7 +27494,7 @@ bool Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
 
         if (lootItem->currency)
         {
-            uint32 id = lootItem->itemid;
+            uint32 id = lootItem->item.ItemID;
             CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(id);
             if (!id)
                 continue;
@@ -27499,18 +27515,18 @@ bool Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
         else
         {
             ItemPosCountVec dest;
-            InventoryResult msg = CanStoreNewItem(bag, slot, dest, lootItem->itemid, lootItem->count);
+            InventoryResult msg = CanStoreNewItem(bag, slot, dest, lootItem->item.ItemID, lootItem->count);
             if (msg != EQUIP_ERR_OK && slot != NULL_SLOT)
-                msg = CanStoreNewItem(bag, NULL_SLOT, dest, lootItem->itemid, lootItem->count);
+                msg = CanStoreNewItem(bag, NULL_SLOT, dest, lootItem->item.ItemID, lootItem->count);
             if (msg != EQUIP_ERR_OK && bag != NULL_BAG)
-                msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, lootItem->itemid, lootItem->count);
+                msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, lootItem->item.ItemID, lootItem->count);
             if (msg != EQUIP_ERR_OK)
             {
-                SendEquipError(msg, NULL, NULL, lootItem->itemid);
+                SendEquipError(msg, NULL, NULL, lootItem->item.ItemID);
                 continue;
             }
 
-            Item* pItem = StoreNewItem(dest, lootItem->itemid, true, lootItem->randomPropertyId);
+            Item* pItem = StoreNewItem(dest, lootItem->item.ItemID, true, lootItem->item.RandomPropertiesID, GuidSet(), lootItem->item.ItemBonus.BonusListIDs);
             SendNewItem(pItem, lootItem->count, false, false, broadcast);
         }
     }
@@ -27544,25 +27560,26 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
     if (currency)
     {
-        if (CurrencyTypesEntry const * currencyEntry = sCurrencyTypesStore.LookupEntry(item->itemid))
-            ModifyCurrency(item->itemid, int32(item->count * currencyEntry->GetPrecision()));
+        if (CurrencyTypesEntry const * currencyEntry = sCurrencyTypesStore.LookupEntry(item->item.ItemID))
+            ModifyCurrency(item->item.ItemID, int32(item->count * currencyEntry->GetPrecision()));
 
         SendNotifyLootItemRemoved(lootSlot, loot);
         currency->is_looted = true;
         --loot->unlootedCount;
         if(loot->personal)
-            SendDisplayToast(item->itemid, 3, 0/*loot->bonusLoot*/, item->count, 1);
+            SendDisplayToast(item->item.ItemID, 3, 0/*loot->bonusLoot*/, item->count, 1);
         return;
     }
 
     //sLog->outDebug(LOG_FILTER_LOOT, "Player::StoreLootItem itemid %i count %i", item->itemid, item->count);
 
     ItemPosCountVec dest;
-    InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
+    InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->item.ItemID, item->count);
     if (msg == EQUIP_ERR_OK)
     {
         GuidSet looters = item->GetAllowedLooters();
-        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, looters);
+        
+        Item* newitem = StoreNewItem(dest, item->item.ItemID, true, item->item.RandomPropertiesID, looters, item->item.ItemBonus.BonusListIDs);
 
         if (qitem)
         {
@@ -27596,24 +27613,24 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
         --loot->unlootedCount;
 
-        if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->itemid))
+        if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->item.ItemID))
         {
             if (proto->Quality > ITEM_QUALITY_EPIC || (proto->Quality == ITEM_QUALITY_EPIC && proto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
                 if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
                     if (!proto->IsAppearInGuildNews())
-                        guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->itemid);
+                        guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->item.ItemID);
 
             if (loot->personal && proto->Quality >= uint32(ITEM_QUALITY_UNCOMMON))
-                SendDisplayToast(item->itemid, 1, 0/*loot->bonusLoot*/, item->count, 2, newitem);
+                SendDisplayToast(item->item.ItemID, 1, 0/*loot->bonusLoot*/, item->count, 2, newitem);
         }
 
         SendNewItem(newitem, uint32(item->count), false, false, true, NULL, loot->bonusLoot);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->item.ItemID, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item->count);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->item.ItemID, item->count);
     }
     else
-        SendEquipError(msg, NULL, NULL, item->itemid);
+        SendEquipError(msg, NULL, NULL, item->item.ItemID);
 }
 
 uint32 Player::CalculateTalentsPoints() const
@@ -28096,10 +28113,7 @@ void Player::SendTalentsInfoData(bool pet)
     if (pet)
     {
         Pet* pPet = GetPet();
-        WorldPacket data(SMSG_SET_PET_SPECIALIZATION);
-        data << pPet->GetGUID();
-        data << uint32(pPet ? pPet->GetSpecializationId() : 0);
-        GetSession()->SendPacket(&data);
+        GetSession()->SendPacket(WorldPackets::PetPackets::SetPetSpecialization(pPet ? pPet->GetSpecializationId() : 0).Write());
         return;
     }
 
@@ -28201,7 +28215,7 @@ void Player::SendEquipmentSetList()
 {
     WorldPackets::EquipmentSet::LoadEquipmentSet data;
 
-    for (EquipmentSetContainer::value_type const& eqSet : m_EquipmentSets)
+    for (EquipmentSetContainer::value_type const& eqSet : _equipmentSets)
     {
         if (eqSet.second.State == EQUIPMENT_SET_DELETED)
             continue;
@@ -28212,51 +28226,34 @@ void Player::SendEquipmentSetList()
     SendDirectMessage(data.Write());
 }
 
-void Player::SetEquipmentSet(uint32 index, EquipmentSetInfo eqset)
+void Player::SetEquipmentSet(EquipmentSetInfo::EquipmentSetData&& newEqSet)
 {
-    if (eqset.Data.Guid != 0)
+    if (newEqSet.Guid != 0)
     {
-        bool found = false;
-
-        for (EquipmentSetContainer::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
-        {
-            if ((itr->second.Data.Guid == eqset.Data.Guid) && (itr->first == index))
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found)                                          // something wrong...
-        {
-            sLog->outError(LOG_FILTER_PLAYER, "Player %s tried to save equipment set " UI64FMTD " (index %u), but that equipment set not found!", GetName(), eqset.Data.Guid, index);
+        EquipmentSetContainer::const_iterator itr = _equipmentSets.find(newEqSet.SetID);
+        if (itr == _equipmentSets.end() || itr->second.Data.Guid != newEqSet.Guid)
             return;
-        }
     }
 
-    EquipmentSetInfo& eqslot = m_EquipmentSets[index];
-
-    EquipmentSetUpdateState old_state = eqslot.State;
-
-    eqslot = eqset;
-
-    if (eqset.Data.Guid == 0)
+    EquipmentSetInfo& eqSlot = _equipmentSets[newEqSet.SetID];
+    EquipmentSetUpdateState oldState = eqSlot.State;
+    eqSlot.Data = newEqSet;
+    if (eqSlot.Data.Guid == 0)
     {
-        eqslot.Data.Guid = sObjectMgr->GenerateEquipmentSetGuid();
+        eqSlot.Data.Guid = sObjectMgr->GenerateEquipmentSetGuid();
 
-        //! 6.0.3
-        WorldPacket data(SMSG_EQUIPMENT_SET_ID, 4 + 1);
-        data << eqslot.Data.Guid;
-        data << uint32(index);
-        GetSession()->SendPacket(&data);
+        WorldPackets::EquipmentSet::EquipmentSetID data;
+        data.GUID = eqSlot.Data.Guid;
+        data.SetID = eqSlot.Data.SetID;
+        SendDirectMessage(data.Write());
     }
 
-    eqslot.State = old_state == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED;
+    eqSlot.State = oldState == EQUIPMENT_SET_NEW ? EQUIPMENT_SET_NEW : EQUIPMENT_SET_CHANGED;
 }
 
 void Player::_SaveEquipmentSets(SQLTransaction& trans)
 {
-    for (EquipmentSetContainer::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end();)
+    for (EquipmentSetContainer::iterator itr = _equipmentSets.begin(); itr != _equipmentSets.end();)
     {
         uint32 index = itr->first;
         EquipmentSetInfo& eqset = itr->second;
@@ -28299,7 +28296,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EQUIP_SET);
                 stmt->setUInt64(0, eqset.Data.Guid);
                 trans->Append(stmt);
-                m_EquipmentSets.erase(itr++);
+                _equipmentSets.erase(itr++);
                 break;
         }
     }
@@ -28328,12 +28325,12 @@ void Player::_SaveBGData(SQLTransaction& trans)
 
 void Player::DeleteEquipmentSet(uint64 setGuid)
 {
-    for (EquipmentSetContainer::iterator itr = m_EquipmentSets.begin(); itr != m_EquipmentSets.end(); ++itr)
+    for (EquipmentSetContainer::iterator itr = _equipmentSets.begin(); itr != _equipmentSets.end(); ++itr)
     {
         if (itr->second.Data.Guid == setGuid)
         {
             if (itr->second.State == EQUIPMENT_SET_NEW)
-                m_EquipmentSets.erase(itr);
+                _equipmentSets.erase(itr);
             else
                 itr->second.State = EQUIPMENT_SET_DELETED;
             break;
@@ -28356,15 +28353,13 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
     }
 }
 
-//! 6.1.2
-void Player::SendClearCooldown(uint32 spell_id, Unit* target)
+void Player::SendClearCooldown(uint32 spellID, Unit* target)
 {
-    WorldPacket data(SMSG_CLEAR_COOLDOWN);
-    //data << target->GetGUID();
-    data << spell_id;
-    data.WriteBit(target == this/*self*/);
-    data.WriteBit(target->isPet()/*notPet*/);
-    SendDirectMessage(&data);
+    WorldPackets::Spells::ClearCooldown cooldown;
+    cooldown.IsPet = target->isPet();
+    cooldown.SpellID = spellID;
+    cooldown.ClearOnHold = target == this;
+    SendDirectMessage(cooldown.Write());
 }
 
 void Player::ResetMap()
@@ -29073,12 +29068,9 @@ bool Player::IsInWhisperWhiteList(ObjectGuid guid)
     return false;
 }
 
-//! 6.0.3
 void Player::SendPetTameResult(PetTameResult result)
 {
-    WorldPacket data(SMSG_PET_TAME_FAILURE, 4);
-    data << uint32(result); // The result
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::PetPackets::TameFailure(result).Write());
 }
 
 uint32 Player::GetNextVoidStorageFreeSlot() const
@@ -29562,14 +29554,13 @@ void Player::SendCategoryCooldownMods()
     SendDirectMessage(cooldowns.Write());
 }
 
-//! 6.1.2
 void Player::SendModifyCooldown(uint32 spellId, int32 value)
 {
-    WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4 + 1);
-    data << uint32(spellId);                // Spell ID
-    data << int32(value);                   // Cooldown mod in milliseconds
-    data.WriteBit(1);                       // self
-    SendDirectMessage(&data);
+    WorldPackets::Spells::ModifyCooldown cooldown;
+    cooldown.IsPet = false;
+    cooldown.DeltaTime = value;
+    cooldown.SpellID = spellId;
+    SendDirectMessage(cooldown.Write());
 }
 
 //! con't do on construct as we not now char guid at init it

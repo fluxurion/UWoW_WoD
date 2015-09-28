@@ -30,7 +30,6 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
 {
     _worldPacket << CreatureID;
     _worldPacket.WriteBit(Allow);
-
     _worldPacket.FlushBits();
 
     if (Allow)
@@ -71,7 +70,7 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket << Stats.HpMulti;
         _worldPacket << Stats.EnergyMulti;
 
-        _worldPacket << int32(Stats.QuestItems.size());
+        _worldPacket << static_cast<int32>(Stats.QuestItems.size());
         _worldPacket << Stats.CreatureMovementInfoID;
         _worldPacket << Stats.RequiredExpansion;
 
@@ -203,7 +202,6 @@ WorldPacket const* WorldPackets::Query::QueryPageTextResponse::Write()
 {
     _worldPacket << PageTextID;
     _worldPacket.WriteBit(Allow);
-
     _worldPacket.FlushBits();
 
     if (Allow)
@@ -262,7 +260,7 @@ WorldPacket const* WorldPackets::Query::DBReply::Write()
     _worldPacket << TableHash;
     _worldPacket << RecordID;
     _worldPacket << Timestamp;
-    _worldPacket << uint32(Data.size());
+    _worldPacket << static_cast<uint32>(Data.size());
     _worldPacket.append(Data);
 
     return &_worldPacket;
@@ -270,7 +268,7 @@ WorldPacket const* WorldPackets::Query::DBReply::Write()
 
 WorldPacket const* WorldPackets::Query::HotfixNotifyBlob::Write()
 {
-    _worldPacket << uint32(Hotfixes->size());
+    _worldPacket << static_cast<uint32>(Hotfixes->size());
     for (HotfixNotify const& hotfix : *Hotfixes)
     {
         _worldPacket << uint32(hotfix.TableHash);
@@ -314,7 +312,7 @@ WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
 
             _worldPacket << Stats.Size;
 
-            _worldPacket << uint8(Stats.QuestItems.size());
+            _worldPacket << static_cast<uint8>(Stats.QuestItems.size());
             for (int32 questItem : Stats.QuestItems)
                 _worldPacket << questItem;
 
@@ -331,9 +329,7 @@ WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
     _worldPacket.FlushBits();
 
     _worldPacket << ActualMapID;
-    _worldPacket << Position.x;
-    _worldPacket << Position.y;
-    _worldPacket << Position.z;
+    _worldPacket << Position.PositionXYZStream();
     _worldPacket << MapID;
     _worldPacket << Transport;
 
@@ -347,9 +343,7 @@ void WorldPackets::Query::QueryCorpseTransport::Read()
 
 WorldPacket const* WorldPackets::Query::CorpseTransportQuery::Write()
 {
-    _worldPacket << Position.x;
-    _worldPacket << Position.y;
-    _worldPacket << Position.z;
+    _worldPacket << Position.PositionXYZStream();
     _worldPacket << Facing;
 
     return &_worldPacket;
@@ -373,15 +367,15 @@ void WorldPackets::Query::QuestPOIQuery::Read()
 
 WorldPacket const* WorldPackets::Query::QuestPOIQueryResponse::Write()
 {
-    _worldPacket << int32(QuestPOIDataStats.size());
-    _worldPacket << int32(QuestPOIDataStats.size());
+    _worldPacket << static_cast<int32>(QuestPOIDataStats.size());
+    _worldPacket << static_cast<int32>(QuestPOIDataStats.size());
 
     for (QuestPOIData const& questPOIData : QuestPOIDataStats)
     {
         _worldPacket << int32(questPOIData.QuestID);
 
-        _worldPacket << int32(questPOIData.QuestPOIBlobDataStats.size());
-        _worldPacket << int32(questPOIData.QuestPOIBlobDataStats.size());
+        _worldPacket << static_cast<int32>(questPOIData.QuestPOIBlobDataStats.size());
+        _worldPacket << static_cast<int32>(questPOIData.QuestPOIBlobDataStats.size());
 
         for (QuestPOIBlobData const& questPOIBlobData : questPOIData.QuestPOIBlobDataStats)
         {
@@ -396,9 +390,9 @@ WorldPacket const* WorldPackets::Query::QuestPOIQueryResponse::Write()
             _worldPacket << int32(questPOIBlobData.Flags);
             _worldPacket << int32(questPOIBlobData.WorldEffectID);
             _worldPacket << int32(questPOIBlobData.PlayerConditionID);
-            _worldPacket << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
+            _worldPacket << static_cast<int32>(questPOIBlobData.QuestPOIBlobPointStats.size());
             _worldPacket << int32(questPOIBlobData.UnkWoD1);
-            _worldPacket << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
+            _worldPacket << static_cast<int32>(questPOIBlobData.QuestPOIBlobPointStats.size());
 
             for (QuestPOIBlobPoint const& questPOIBlobPoint : questPOIBlobData.QuestPOIBlobPointStats)
             {
@@ -424,12 +418,12 @@ void WorldPackets::Query::QueryQuestCompletionNPCs::Read()
 
 WorldPacket const* WorldPackets::Query::QuestCompletionNPCResponse::Write()
 {
-    _worldPacket << uint32(QuestCompletionNPCs.size());
-    for (auto& quest : QuestCompletionNPCs)
+    _worldPacket << static_cast<uint32>(QuestCompletionNPCs.size());
+    for (auto const& quest : QuestCompletionNPCs)
     {
         _worldPacket << int32(quest.QuestID);
 
-        _worldPacket << uint32(quest.NPCs.size());
+        _worldPacket << static_cast<uint32>(quest.NPCs.size());
         for (int32 const& npc : quest.NPCs)
             _worldPacket << int32(npc);
     }

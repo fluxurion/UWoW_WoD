@@ -104,8 +104,8 @@ WorldPacket const* WorldPackets::Petition::ServerPetitionShowSignatures::Write()
     _worldPacket << OwnerAccountID;
     _worldPacket << PetitionID;
 
-    _worldPacket << uint32(Signatures.size());
-    for (PetitionSignature signature : Signatures)
+    _worldPacket << static_cast<uint32>(Signatures.size());
+    for (PetitionSignature const& signature : Signatures)
     {
         _worldPacket << signature.Signer;
         _worldPacket << signature.Choice;

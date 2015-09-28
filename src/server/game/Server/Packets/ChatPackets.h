@@ -34,7 +34,7 @@ namespace WorldPackets
         // CMSG_CHAT_MESSAGE_SAY
         // CMSG_CHAT_MESSAGE_PARTY
         // CMSG_CHAT_MESSAGE_RAID
-        // CMSG_MESSAGECHAT_RAID_WARNING
+        // CMSG_CHAT_MESSAGE_RAID_WARNING
         class ChatMessage final : public ClientPacket
         {
         public:
@@ -163,7 +163,7 @@ namespace WorldPackets
         class Emote final : public ServerPacket
         {
         public:
-            Emote() : ServerPacket(SMSG_EMOTE, 18 + 4) { }
+            Emote() : ServerPacket(SMSG_EMOTE, 16 + 4) { }
 
             WorldPacket const* Write() override;
 

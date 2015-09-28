@@ -1131,22 +1131,16 @@ bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) cons
     return proto && ((proto->Map && proto->Map != cur_mapId) || (proto->Area && proto->Area != cur_zoneId));
 }
 
-// Though the client has the information in the item's data field,
-// we have to send SMSG_ITEM_TIME_UPDATE to display the remaining
-// time.
 void Item::SendTimeUpdate(Player* owner)
 {
     uint32 duration = GetUInt32Value(ITEM_FIELD_EXPIRATION);
     if (!duration)
         return;
 
-    ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_ITEM_TIME_UPDATE, 8 + 4 + 1);
-    //data.WriteGuidMask<7, 4, 5, 1, 2, 0, 6, 3>(guid);
-    //data.WriteGuidBytes<5, 1, 0, 2>(guid);
-    data << uint32(duration);
-    //data.WriteGuidBytes<7, 3, 4, 6>(guid);
-    owner->GetSession()->SendPacket(&data);
+    WorldPackets::Item::ItemTimeUpdate update;
+    update.ItemGuid = GetGUID();
+    update.DurationLeft = duration;
+    owner->GetSession()->SendPacket(update.Write());
 }
 
 Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
@@ -1823,6 +1817,21 @@ void BonusData::Initialize(ItemTemplate const* proto)
         SocketColor[i] = proto->GetSocketColor(i);
 
     AppearanceModID = 0;
+}
+
+void BonusData::Initialize(WorldPackets::Item::ItemInstance const& itemInstance)
+{
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemInstance.ItemID);
+    if (!proto)
+        return;
+
+    Initialize(proto);
+
+    if (itemInstance.ItemBonus)
+        for (uint32 bonusListID : itemInstance.ItemBonus->BonusListIDs)
+            if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
+                for (ItemBonusEntry const* bonus : *bonuses)
+                    AddBonus(bonus->Type, bonus->Value);
 }
 
 void BonusData::AddBonus(uint32 type, int32 const (&values)[2])

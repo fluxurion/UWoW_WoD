@@ -35,30 +35,6 @@ namespace WorldPackets
             uint32 StateIndex = 0;
         };
 
-        class BeginTrade final : public ClientPacket
-        {
-        public:
-            BeginTrade(WorldPacket&& packet) : ClientPacket(CMSG_BEGIN_TRADE, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        class BusyTrade final : public ClientPacket
-        {
-        public:
-            BusyTrade(WorldPacket&& packet) : ClientPacket(CMSG_BUSY_TRADE, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        class CancelTrade final : public ClientPacket
-        {
-        public:
-            CancelTrade(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_TRADE, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
         class ClearTradeItem final : public ClientPacket
         {
         public:
@@ -67,14 +43,6 @@ namespace WorldPackets
             void Read() override;
 
             uint8 TradeSlot = 0;
-        };
-
-        class IgnoreTrade final : public ClientPacket
-        {
-        public:
-            IgnoreTrade(WorldPacket&& packet) : ClientPacket(CMSG_IGNORE_TRADE, std::move(packet)) { }
-
-            void Read() override { }
         };
 
         class InitiateTrade final : public ClientPacket
@@ -108,6 +76,11 @@ namespace WorldPackets
             uint64 Coinage = 0;
         };
 
+        //< CMSG_BEGIN_TRADE
+        //< CMSG_BUSY_TRADE,
+        //< CMSG_CANCEL_TRADE
+        //< CMSG_IGNORE_TRADE
+        //< CMSG_UNACCEPT_TRADE
         class NullCmsg final : public ClientPacket
         {
         public:
@@ -126,14 +99,6 @@ namespace WorldPackets
             uint8 TradeSlot = 0;
             uint8 PackSlot = 0;
             uint8 ItemSlotInPack = 0;
-        };
-
-        class UnacceptTrade final : public ClientPacket
-        {
-        public:
-            UnacceptTrade(WorldPacket&& packet) : ClientPacket(CMSG_UNACCEPT_TRADE, std::move(packet)) { }
-
-            void Read() override { }
         };
 
         class TradeStatus final : public ServerPacket

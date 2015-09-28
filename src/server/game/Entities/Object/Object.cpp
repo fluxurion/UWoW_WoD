@@ -276,7 +276,7 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
     data->AddOutOfRangeGUID(GetGUID());
 }
 
-void Object::DestroyForPlayer(Player* target, bool onDeath) const
+void Object::DestroyForPlayer(Player* target, bool onDeath /*= false*/) const
 {
     ASSERT(target);
 
@@ -2232,18 +2232,29 @@ std::string Position::ToString() const
     return sstr.str();
 }
 
-ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer)
+ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYStreamer const& streamer)
 {
-    float x, y, z, o;
-    buf >> x >> y >> z >> o;
-    streamer.m_pos->Relocate(x, y, z, o);
+    buf << streamer.Pos->GetPositionX();
+    buf << streamer.Pos->GetPositionY();
+
     return buf;
 }
+
+ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYStreamer const& streamer)
+{
+    float x, y;
+    buf >> x >> y;
+    streamer.Pos->Relocate(x, y);
+
+    return buf;
+}
+
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer)
 {
     float x, y, z;
     streamer.m_pos->GetPosition(x, y, z);
     buf << x << y << z;
+
     return buf;
 }
 
@@ -2252,14 +2263,26 @@ ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& str
     float x, y, z;
     buf >> x >> y >> z;
     streamer.m_pos->Relocate(x, y, z);
+
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer)
 {
+    buf << streamer.m_pos->GetPositionX();
+    buf << streamer.m_pos->GetPositionY();
+    buf << streamer.m_pos->GetPositionZ();
+    buf << streamer.m_pos->GetOrientation();
+
+    return buf;
+}
+
+ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer)
+{
     float x, y, z, o;
-    streamer.m_pos->GetPosition(x, y, z, o);
-    buf << x << y << z << o;
+    buf >> x >> y >> z >> o;
+    streamer.m_pos->Relocate(x, y, z, o);
+
     return buf;
 }
 

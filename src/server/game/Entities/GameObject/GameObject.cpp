@@ -1823,15 +1823,13 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     }
 }
 
-//! 6.0.3
 void GameObject::SendCustomAnim(uint32 anim)
 {
-    WorldPacket data(SMSG_GAME_OBJECT_CUSTOM_ANIM, 8 + 1 + 4 + 1);
-    data << GetGUID();
-    data << uint32(anim);
-    data.WriteBit(0);
-
-    SendMessageToSet(&data, true);
+    WorldPackets::GameObject::GoCustomAnim customAnim;
+    customAnim.ObjectGUID = GetGUID();
+    customAnim.CustomAnim = anim;
+    customAnim.PlayAsDespawn = false;
+    SendMessageToSet(customAnim.Write(), true);
 }
 
 void GameObject::SendGameObjectActivateAnimKit(uint32 animKitID, bool maintain)

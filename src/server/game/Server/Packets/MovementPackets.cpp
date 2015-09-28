@@ -191,7 +191,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFi
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFilter const& monsterSplineFilter)
 {
-    data << uint32(monsterSplineFilter.FilterKeys.size());
+    data << static_cast<uint32>(monsterSplineFilter.FilterKeys.size());
     data << monsterSplineFilter.BaseSpeed;
     data << monsterSplineFilter.StartOffset;
     data << monsterSplineFilter.DistToPrevFilterKey;
@@ -213,12 +213,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline 
     data << movementSpline.MoveTime;
     data << movementSpline.JumpGravity;
     data << movementSpline.SpecialTime;
-    data << int32(movementSpline.Points.size());
+    data << static_cast<int32>(movementSpline.Points.size());
     data << movementSpline.Mode;
     data << movementSpline.VehicleExitVoluntary;
     data << movementSpline.TransportGUID;
     data << movementSpline.VehicleSeat;
-    data << int32(movementSpline.PackedDeltas.size());
+    data << static_cast<int32>(movementSpline.PackedDeltas.size());
     for (G3D::Vector3 const& pos : movementSpline.Points)
         data << pos;
     for (G3D::Vector3 const& pos : movementSpline.PackedDeltas)
@@ -430,6 +430,7 @@ WorldPacket const* WorldPackets::Movement::MonsterMove::Write()
     _worldPacket << MoverGUID;
     _worldPacket << Pos;
     _worldPacket << SplineData;
+
     return &_worldPacket;
 }
 
@@ -437,6 +438,7 @@ WorldPacket const* WorldPackets::Movement::MoveSplineSetSpeed::Write()
 {
     _worldPacket << MoverGUID;
     _worldPacket << Speed;
+
     return &_worldPacket;
 }
 
@@ -445,6 +447,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetSpeed::Write()
     _worldPacket << MoverGUID;
     _worldPacket << SequenceIndex;
     _worldPacket << Speed;
+
     return &_worldPacket;
 }
 
@@ -452,12 +455,14 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateSpeed::Write()
 {
     _worldPacket << *movementInfo;
     _worldPacket << Speed;
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Movement::MoveSplineSetFlag::Write()
 {
     _worldPacket << MoverGUID;
+
     return &_worldPacket;
 }
 
@@ -465,6 +470,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetFlag::Write()
 {
     _worldPacket << MoverGUID;
     _worldPacket << SequenceIndex;
+
     return &_worldPacket;
 }
 
@@ -480,6 +486,8 @@ WorldPacket const* WorldPackets::Movement::TransferPending::Write()
     _worldPacket << MapID;
     _worldPacket.WriteBit(Ship.is_initialized());
     _worldPacket.WriteBit(TransferSpellID.is_initialized());
+    _worldPacket.FlushBits();
+
     if (Ship)
     {
         _worldPacket << Ship->ID;
@@ -488,8 +496,6 @@ WorldPacket const* WorldPackets::Movement::TransferPending::Write()
 
     if (TransferSpellID)
         _worldPacket << *TransferSpellID;
-
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -500,6 +506,7 @@ WorldPacket const* WorldPackets::Movement::TransferAborted::Write()
     _worldPacket << uint8(Arg);
     _worldPacket.WriteBits(TransfertAbort, 5);
     _worldPacket.FlushBits();
+
     return &_worldPacket;
 }
 
@@ -508,6 +515,7 @@ WorldPacket const* WorldPackets::Movement::NewWorld::Write()
     _worldPacket << MapID;
     _worldPacket << Pos.PositionXYZOStream();
     _worldPacket << Reason;
+
     return &_worldPacket;
 }
 
@@ -540,7 +548,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
 {
     _worldPacket << *movementInfo;
 
-    _worldPacket << int32(MovementForces.size());
+    _worldPacket << static_cast<int32>(MovementForces.size());
     for (WorldPackets::Movement::MovementForce const& force : MovementForces)
     {
         _worldPacket << force.ID;
@@ -604,6 +612,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Movement::MovementAck& ac
 {
     data >> ack.movementInfo;
     data >> ack.AckIndex;
+
     return data;
 }
 

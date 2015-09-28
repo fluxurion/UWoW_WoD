@@ -64,10 +64,35 @@ namespace WorldPackets
             Position Pos;
         };
 
+        //< SMSG_SCENE_OBJECT_PET_BATTLE_FIRST_ROUND
+        //< SMSG_SCENE_OBJECT_PET_BATTLE_ROUND_RESULT
+        //< SMSG_SCENE_OBJECT_PET_BATTLE_REPLACEMENTS_MADE
+        class PetBattleRound final : public ServerPacket
+        {
+        public:
+            PetBattleRound(OpcodeServer opcode) : ServerPacket(opcode) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SceneObjectGUID;
+            WorldPackets::BattlePet::RoundResult MsgData;
+        };
+
+        class PetBattleFinalRound final : public ServerPacket
+        {
+        public:
+            PetBattleFinalRound() : ServerPacket(SMSG_SCENE_OBJECT_PET_BATTLE_FINAL_ROUND) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SceneObjectGUID;
+            WorldPackets::BattlePet::FinalRound MsgData;
+        };
+
         class PetBattleFinished final : public ServerPacket
         {
         public:
-            PetBattleFinished() : ServerPacket(SMSG_SCENE_OBJECT_PET_BATTLE_FINISHED) { }
+            PetBattleFinished() : ServerPacket(SMSG_SCENE_OBJECT_PET_BATTLE_FINISHED, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -165,7 +190,7 @@ namespace WorldPackets
         class ScenarioCompleted final : public ServerPacket
         {
         public:
-            ScenarioCompleted() : ServerPacket(SMSG_SCENARIO_COMPLETED) { }
+            ScenarioCompleted() : ServerPacket(SMSG_SCENARIO_COMPLETED, 4) { }
 
             WorldPacket const* Write() override;
 

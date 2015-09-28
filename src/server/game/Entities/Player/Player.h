@@ -893,6 +893,7 @@ enum TeleportToOptions
     TELE_TO_NOT_LEAVE_COMBAT    = 0x04,
     TELE_TO_NOT_UNSUMMON_PET    = 0x08,
     TELE_TO_SPELL               = 0x10,
+    TELE_TO_SEAMLESS            = 0x20
 };
 
 /// Type of environmental damages
@@ -2581,7 +2582,7 @@ class Player : public Unit, public GridObject<Player>
         WorldSession* GetSession() const { return m_session; }
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
-        void DestroyForPlayer(Player* target, bool onDeath = false) const;
+        void DestroyForPlayer(Player* target, bool onDeath /*= false*/) const override;
         void SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend = false, float group_rate=1.0f);
 
         // notifiers
@@ -2589,7 +2590,7 @@ class Player : public Unit, public GridObject<Player>
         void SendCancelAutoRepeat(Unit* target);
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
-        void SendDungeonDifficulty();
+        void SendDungeonDifficulty(int32 forcedDifficulty = -1);
         void SendRaidDifficulty(bool Legacy, int32 forcedDifficulty = -1);
         void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId);
@@ -2657,6 +2658,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsBeingTeleported() const { return mSemaphoreTeleport_Near || mSemaphoreTeleport_Far; }
         bool IsBeingTeleportedNear() const { return mSemaphoreTeleport_Near; }
         bool IsBeingTeleportedFar() const { return mSemaphoreTeleport_Far; }
+        bool IsBeingTeleportedSeamlessly() const { return IsBeingTeleportedFar() && m_teleport_options & TELE_TO_SEAMLESS; }
         void SetSemaphoreTeleportNear(bool semphsetting) { mSemaphoreTeleport_Near = semphsetting; }
         void SetSemaphoreTeleportFar(bool semphsetting) { mSemaphoreTeleport_Far = semphsetting; }
         void ProcessDelayedOperations();
@@ -2759,7 +2761,7 @@ class Player : public Unit, public GridObject<Player>
         void CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx, Item* item, ItemTemplate const* proto);
 
         void SendEquipmentSetList();
-        void SetEquipmentSet(uint32 index, EquipmentSetInfo eqset);
+        void SetEquipmentSet(EquipmentSetInfo::EquipmentSetData&& newEqSet);
         void DeleteEquipmentSet(uint64 setGuid);
 
         void SendInitWorldTimers();
@@ -3461,6 +3463,7 @@ class Player : public Unit, public GridObject<Player>
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
         Difficulty m_legacyRaidDifficulty;
+        Difficulty m_prevMapDifficulty;
 
         uint32 m_atLoginFlags;
 
@@ -3634,7 +3637,7 @@ class Player : public Unit, public GridObject<Player>
 
         DeclinedName *m_declinedname;
         Runes m_runes;
-        EquipmentSetContainer m_EquipmentSets;
+        EquipmentSetContainer _equipmentSets;
 
         bool CanAlwaysSee(WorldObject const* obj) const;
 

@@ -321,8 +321,7 @@ void WorldSession::HandleSetPartyLeader(WorldPackets::Party::SetPartyLeader& pac
             if (plr->GetMap() && plr->GetMap()->Instanceable())
                 return;
 
-    // Everything's fine, accepted.
-    group->ChangeLeader(packet.TargetGUID);
+    group->ChangeLeader(packet.TargetGUID, packet.PartyIndex);
     group->SendUpdate();
 }
 
@@ -500,19 +499,19 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         LootItem& item = slotid >= loot->items.size() ? loot->quest_items[slotid - loot->items.size()] : loot->items[slotid];
         if (item.currency)
         {
-            sLog->outDebug(LOG_FILTER_LOOT, "WorldSession::HandleLootMasterGiveOpcode: player %s tried to give currency via master loot! Hack alert! Slot %u, currency id %u", GetPlayer()->GetName(), slotid, item.itemid);
+            sLog->outDebug(LOG_FILTER_LOOT, "WorldSession::HandleLootMasterGiveOpcode: player %s tried to give currency via master loot! Hack alert! Slot %u, currency id %u", GetPlayer()->GetName(), slotid, item.item.ItemID);
             return;
         }
 
         ItemPosCountVec dest;
-        InventoryResult msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);
+        InventoryResult msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.item.ItemID, item.count);
         if (item.follow_loot_rules && !item.AllowedForPlayer(target))
             msg = EQUIP_ERR_CANT_EQUIP_EVER;
         if (msg != EQUIP_ERR_OK)
         {
-            target->SendEquipError(msg, NULL, NULL, item.itemid);
+            target->SendEquipError(msg, NULL, NULL, item.item.ItemID);
             // send duplicate of error massage to master looter
-            _player->SendEquipError(msg, NULL, NULL, item.itemid);
+            _player->SendEquipError(msg, NULL, NULL, item.item.ItemID);
             return;
         }
 
@@ -525,11 +524,11 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         GuidSet looters = item.GetAllowedLooters();
 
         // not move item from loot to target inventory
-        Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, looters);
+        Item* newitem = target->StoreNewItem(dest, item.item.ItemID, true, item.item.RandomPropertiesID, looters, item.item.ItemBonus.BonusListIDs);
         target->SendNewItem(newitem, uint32(item.count), false, false, true);
-        target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.itemid, item.count);
+        target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.item.ItemID, item.count);
         target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item.count);
-        target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item.itemid, item.count);
+        target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item.item.ItemID, item.count);
 
         // mark as looted
         item.count=0;

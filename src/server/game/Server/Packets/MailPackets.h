@@ -136,7 +136,7 @@ namespace WorldPackets
         class MailCommandResult final : public ServerPacket
         {
         public:
-            MailCommandResult() : ServerPacket(SMSG_MAIL_COMMAND_RESULT) { }
+            MailCommandResult() : ServerPacket(SMSG_MAIL_COMMAND_RESULT, 6 * 4) { }
 
             WorldPacket const* Write() override;
 

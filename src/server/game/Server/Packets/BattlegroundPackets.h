@@ -229,14 +229,22 @@ namespace WorldPackets
         class ReportPvPPlayerAFKResult final : public ServerPacket
         {
         public:
-            ReportPvPPlayerAFKResult() : ServerPacket(SMSG_REPORT_PVP_PLAYER_AFK_RESULT, 25) { }
+            ReportPvPPlayerAFKResult() : ServerPacket(SMSG_REPORT_PVP_PLAYER_AFK_RESULT, 16 + 1 + 1 + 1) { }
 
             WorldPacket const* Write() override;
+
+            enum ResultCode : uint8
+            {
+                PVP_REPORT_AFK_SUCCESS = 0,
+                PVP_REPORT_AFK_GENERIC_FAILURE = 1,
+                PVP_REPORT_AFK_SYSTEM_ENABLED = 5,
+                PVP_REPORT_AFK_SYSTEM_DISABLED = 6
+            };
 
             ObjectGuid Offender;
             uint8 NumPlayersIHaveReported = 0;
             uint8 NumBlackMarksOnOffender = 0;
-            uint8 Result = 0;
+            uint8 Result = PVP_REPORT_AFK_GENERIC_FAILURE;
         };
 
         class BattlefieldList final : public ServerPacket

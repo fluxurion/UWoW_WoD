@@ -99,7 +99,7 @@ namespace WorldPackets
         class PurchaseListResponse final : public ServerPacket
         {
         public:
-            PurchaseListResponse() : ServerPacket(SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE, 100) { }
+            PurchaseListResponse() : ServerPacket(SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -110,7 +110,7 @@ namespace WorldPackets
         class DistributionListResponse final : public ServerPacket
         {
         public:
-            DistributionListResponse() : ServerPacket(SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE, 100) { }
+            DistributionListResponse() : ServerPacket(SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -151,7 +151,7 @@ namespace WorldPackets
         class ProductListResponse final : public ServerPacket
         {
         public:
-            ProductListResponse() : ServerPacket(SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE, 600) { }
+            ProductListResponse() : ServerPacket(SMSG_BATTLE_PAY_GET_PRODUCT_LIST_RESPONSE, 20) { }
 
             WorldPacket const* Write() override;
 
@@ -189,7 +189,7 @@ namespace WorldPackets
         class PurchaseUpdate final : public ServerPacket
         {
         public:
-            PurchaseUpdate() : ServerPacket(SMSG_BATTLE_PAY_PURCHASE_UPDATE, 600) { }
+            PurchaseUpdate() : ServerPacket(SMSG_BATTLE_PAY_PURCHASE_UPDATE, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -199,7 +199,7 @@ namespace WorldPackets
         class ConfirmPurchase final : public ServerPacket
         {
         public:
-            ConfirmPurchase() : ServerPacket(SMSG_BATTLE_PAY_CONFIRM_PURCHASE, 600) { }
+            ConfirmPurchase() : ServerPacket(SMSG_BATTLE_PAY_CONFIRM_PURCHASE, 20) { }
 
             WorldPacket const* Write() override;
 
@@ -223,7 +223,7 @@ namespace WorldPackets
         class DeliveryEnded final : public ServerPacket
         {
         public:
-            DeliveryEnded() : ServerPacket(SMSG_BATTLE_PAY_DELIVERY_ENDED, 600) { }
+            DeliveryEnded() : ServerPacket(SMSG_BATTLE_PAY_DELIVERY_ENDED, 12) { }
 
             WorldPacket const* Write() override;
 
@@ -234,7 +234,7 @@ namespace WorldPackets
         class UpgradeStarted final : public ServerPacket
         {
         public:
-            UpgradeStarted() : ServerPacket(SMSG_CHARACTER_UPGRADE_STARTED) { }
+            UpgradeStarted() : ServerPacket(SMSG_CHARACTER_UPGRADE_STARTED, 16) { }
 
             WorldPacket const* Write() override;
 

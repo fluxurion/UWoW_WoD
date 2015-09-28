@@ -28,6 +28,7 @@
 #include "DBCStores.h"
 #include "LootPackets.h"
 #include "ObjectMgr.h"
+#include "ItemPackets.h"
 
 static Rates const qualityToRate[MAX_ITEM_QUALITY] =
 {
@@ -355,7 +356,13 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 // Constructor, copies most fields from LootStoreItem and generates random count
 LootItem::LootItem(LootStoreItem const& li, Loot* loot)
 {
-    itemid      = li.itemid;
+    item.ItemID = li.itemid;
+    if (loot->GetBonusTreeMod())
+    {
+        std::set<uint32> bonusList = sDB2Manager.GetItemBonusTree(item.ItemID, loot->GetBonusTreeMod());
+        item.ItemBonus.BonusListIDs.insert(item.ItemBonus.BonusListIDs.end(), bonusList.begin(), bonusList.end());
+    }
+
     type        = li.type;
     conditions  = li.conditions;
     currency    = type == LOOT_ITEM_TYPE_CURRENCY;
@@ -368,29 +375,21 @@ LootItem::LootItem(LootStoreItem const& li, Loot* loot)
     is_underthreshold = 0;
     is_counted = 0;
 
-    if (loot->GetBonusTreeMod())
-    {
-        std::set<uint32> bonusList = sDB2Manager.GetItemBonusTree(itemid, loot->GetBonusTreeMod());
-        BonusListIDs.insert(BonusListIDs.end(), bonusList.begin(), bonusList.end());
-    }
-
     if (currency)
     {
         freeforall = false;
         follow_loot_rules = false;
-        randomSuffix = 0;
-        randomPropertyId = 0;
 
         float multiplier = sWorld->getRate(RATE_DROP_CURRENCY_AMOUNT);
         if (loot)
             if (Player const* lootOwner = loot->GetLootOwner())
-                multiplier *= lootOwner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_LOOT, sCurrencyTypesStore.LookupEntry(itemid)->CategoryID);
+                multiplier *= lootOwner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_LOOT, sCurrencyTypesStore.LookupEntry(item.ItemID)->CategoryID);
 
         count = uint32(count * multiplier + 0.5f);
     }
     else
     {
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
+        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item.ItemID);
         freeforall  = proto && (proto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT);
         follow_loot_rules = proto && (proto->FlagsCu & ITEM_FLAGS_CU_FOLLOW_LOOT_RULES);
 
@@ -407,9 +406,12 @@ LootItem::LootItem(LootStoreItem const& li, Loot* loot)
 
             count = uint32(count * mult + 0.5f);
         }
-        randomSuffix = proto && proto->RandomSuffix ? GenerateEnchSuffixFactor(proto) : 0;
+
+        
+        item.RandomPropertiesSeed = proto && proto->RandomSuffix ? GenerateEnchSuffixFactor(proto) : 0;
         if (loot)
-            randomPropertyId = Item::GenerateItemRandomPropertyId(itemid, loot->personal ? loot->GetLootOwner()->GetLootSpecID() : 0);
+            item.RandomPropertiesID = Item::GenerateItemRandomPropertyId(item.ItemID, loot->personal ? loot->GetLootOwner()->GetLootSpecID() : 0);
+        
         quality = proto ? ItemQualities(proto->Quality) : ITEM_QUALITY_POOR;
     }
 }
@@ -423,7 +425,7 @@ bool LootItem::AllowedForPlayer(Player const* player) const
 
     if (type == LOOT_ITEM_TYPE_ITEM)
     {
-        ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
+        ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item.ItemID);
         if (!pProto)
             return false;
 
@@ -439,12 +441,12 @@ bool LootItem::AllowedForPlayer(Player const* player) const
             return false;
 
         // check quest requirements
-        if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->StartQuest && player->GetQuestStatus(pProto->StartQuest) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
+        if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->StartQuest && player->GetQuestStatus(pProto->StartQuest) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(item.ItemID)))
             return false;
     }
     else if (type == LOOT_ITEM_TYPE_CURRENCY)
     {
-        CurrencyTypesEntry const * currency = sCurrencyTypesStore.LookupEntry(itemid);
+        CurrencyTypesEntry const * currency = sCurrencyTypesStore.LookupEntry(item.ItemID);
         if (!currency)
             return false;
 
@@ -465,17 +467,6 @@ void LootItem::AddAllowedLooter(const Player* player)
 {
     allowedGUIDs.insert(player->GetGUID());
 }
-
-void LootItem::BuildItemInstance(WorldPackets::Item::ItemInstance& instance) const
-{
-    instance.ItemID = itemid;
-    instance.RandomPropertiesSeed = randomSuffix;
-    instance.RandomPropertiesID = randomPropertyId;
-}
-
-//
-// --------- Loot ---------
-//
 
 Loot::Loot(uint32 _gold)
 {
@@ -505,14 +496,24 @@ void Loot::GenerateLootGuid(ObjectGuid objGuid)
 // Inserts the item into the loot (called by LootTemplate processors)
 void Loot::AddItem(LootStoreItem const & item)
 {
-    if (item.needs_quest)                                   // Quest drop
+    LootItem generatedLoot(item, this);
+    if (item.needs_quest || items.size() < MAX_NR_LOOT_ITEMS)
+    {
+        if (_difficultyBonusTreeMod)
+        {
+            std::set<uint32> bonusListIDs = sDB2Manager.GetItemBonusTree(generatedLoot.item.ItemID, _difficultyBonusTreeMod);
+            generatedLoot.item.ItemBonus.BonusListIDs.insert(generatedLoot.item.ItemBonus.BonusListIDs.end(), bonusListIDs.begin(), bonusListIDs.end());
+        }
+    }
+
+    if (item.needs_quest)
     {
         if (quest_items.size() < MAX_NR_QUEST_ITEMS)
-            quest_items.push_back(LootItem(item, this));
+            quest_items.push_back(generatedLoot);
     }
-    else if (items.size() < MAX_NR_LOOT_ITEMS)              // Non-quest drop
+    else if (items.size() < MAX_NR_LOOT_ITEMS)
     {
-        items.push_back(LootItem(item, this));
+        items.push_back(generatedLoot);
 
         // non-conditional one-player only items are counted here,
         // free for all items are counted in FillFFALoot(),
@@ -588,7 +589,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
 
         for (uint8 i = 0; i < items.size(); ++i)
         {
-            if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(items[i].itemid))
+            if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(items[i].item.ItemID))
                 if (proto->Quality < uint32(group->GetLootThreshold()))
                     items[i].is_underthreshold = true;
         }
@@ -602,7 +603,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
         for (std::vector<LootItem>::iterator itemCurrent = items.begin(); itemCurrent != items.end(); ++itemCurrent)
             for (std::vector<uint32>::iterator spellId = sSpellMgr->mSpellCreateItemList.begin(); spellId != sSpellMgr->mSpellCreateItemList.end(); ++spellId)
                 if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(*spellId))
-                    if (spellInfo->Effects[EFFECT_0].ItemType == itemCurrent->itemid)
+                    if (spellInfo->Effects[EFFECT_0].ItemType == itemCurrent->item.ItemID)
                         if (!lootOwner->HasActiveSpell(*spellId))
                             lootOwner->learnSpell(*spellId, false);
     }
@@ -710,6 +711,7 @@ void Loot::clear()
     isBoss = false;
     bonusLoot = false;
     isClear = true;
+    _difficultyBonusTreeMod = 0;
 }
 
 QuestItemList* Loot::FillCurrencyLoot(Player* player)
@@ -1007,7 +1009,7 @@ bool Loot::hasItemFor(Player* player) const
         QuestItemList* q_list = q_itr->second;
         for (QuestItemList::const_iterator qi = q_list->begin(); qi != q_list->end(); ++qi)
         {
-            const LootItem &item = quest_items[qi->index];
+            LootItem const& item = quest_items[qi->index];
             if (!qi->is_looted && !item.is_looted)
                 return true;
         }
@@ -1020,7 +1022,7 @@ bool Loot::hasItemFor(Player* player) const
         QuestItemList* ffa_list = ffa_itr->second;
         for (QuestItemList::const_iterator fi = ffa_list->begin(); fi != ffa_list->end(); ++fi)
         {
-            const LootItem &item = items[fi->index];
+            LootItem const& item = items[fi->index];
             if (!fi->is_looted && !item.is_looted)
                 return true;
         }
@@ -1033,7 +1035,7 @@ bool Loot::hasItemFor(Player* player) const
         QuestItemList* conditional_list = nn_itr->second;
         for (QuestItemList::const_iterator ci = conditional_list->begin(); ci != conditional_list->end(); ++ci)
         {
-            const LootItem &item = items[ci->index];
+            LootItem const& item = items[ci->index];
             if (!ci->is_looted && !item.is_looted)
                 return true;
         }
@@ -1090,7 +1092,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                     lootItem.LootListID = i+1;
                     lootItem.LootItemType = slot_type;
                     lootItem.Quantity = items[i].count;
-                    items[i].BuildItemInstance(lootItem.Loot);
+                    lootItem.Loot.Initialize(&items[i]);
                     packet.Items.push_back(lootItem);
                 }
             }
@@ -1110,7 +1112,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                     lootItem.LootListID = i+1;
                     lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                     lootItem.Quantity = items[i].count;
-                    items[i].BuildItemInstance(lootItem.Loot);
+                    lootItem.Loot.Initialize(&items[i]);
                     packet.Items.push_back(lootItem);
                 }
             }
@@ -1141,7 +1143,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                     lootItem.LootListID = i+1;
                     lootItem.LootItemType = (permission == MASTER_PERMISSION && threshold > items[i].quality) ? LOOT_SLOT_TYPE_OWNER : slot_type/*LOOT_SLOT_TYPE_ALLOW_LOOT*/;
                     lootItem.Quantity = items[i].count;
-                    items[i].BuildItemInstance(lootItem.Loot);
+                    lootItem.Loot.Initialize(&items[i]);
                     packet.Items.push_back(lootItem);
                 }
             }
@@ -1158,14 +1160,14 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
         QuestItemList* ffa_list = ffa_itr->second;
         for (QuestItemList::const_iterator fi = ffa_list->begin(); fi != ffa_list->end(); ++fi)
         {
-            const LootItem &item = items[fi->index];
+            LootItem const& item = items[fi->index];
             if (!fi->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItem lootItem;
                 lootItem.LootListID = fi->index+1;
                 lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                 lootItem.Quantity = item.count;
-                item.BuildItemInstance(lootItem.Loot);
+                lootItem.Loot.Initialize(&item);
                 packet.Items.push_back(lootItem);
             }
         }
@@ -1178,13 +1180,13 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
         QuestItemList* conditional_list = nn_itr->second;
         for (QuestItemList::const_iterator ci = conditional_list->begin(); ci != conditional_list->end(); ++ci)
         {
-            const LootItem &item = items[ci->index];
+            LootItem const& item = items[ci->index];
             if (!ci->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItem lootItem;
                 lootItem.LootListID = ci->index+1;
                 lootItem.Quantity = item.count;
-                item.BuildItemInstance(lootItem.Loot);
+                lootItem.Loot.Initialize(&item);
 
                 if (item.follow_loot_rules)
                 {
@@ -1223,12 +1225,12 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
         QuestItemList* currency_list = currency_itr->second;
         for (QuestItemList::const_iterator ci = currency_list->begin() ; ci != currency_list->end(); ++ci)
         {
-            const LootItem& item = items[ci->index];
+            LootItem const& item = items[ci->index];
             WorldPackets::Loot::LootCurrency lootCurrency;
 
             if (!ci->is_looted && !item.is_looted)
             {
-                lootCurrency.CurrencyID = item.itemid;
+                lootCurrency.CurrencyID = item.item.ItemID;
                 lootCurrency.Quantity = item.count;
                 lootCurrency.LootListID = ci->index+1;
                 lootCurrency.UIType = LOOT_SLOT_TYPE_UNK;
@@ -1245,13 +1247,13 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
         QuestItemList* q_list = q_itr->second;
         for (QuestItemList::const_iterator qi = q_list->begin(); qi != q_list->end(); ++qi)
         {
-            const LootItem &item = quest_items[qi->index];
+            LootItem const& item = quest_items[qi->index];
             if (!qi->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItem lootItem;
                 lootItem.LootListID = items.size() + (qi - q_list->begin()) + 1;
                 lootItem.Quantity = item.count;
-                item.BuildItemInstance(lootItem.Loot);
+                lootItem.Loot.Initialize(&item);
 
                 if (item.follow_loot_rules)
                 {
@@ -1283,33 +1285,6 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             }
         }
     }
-
-    //bitBuffer.PutBits(count_pos, itemsShown, 19);
-    //bitBuffer.WriteBit(!byte34);
-    //bitBuffer.WriteBit(!byte52);
-    //bitBuffer.WriteBit(pool);                            //1 not stack item in aoe
-    //bitBuffer.WriteBit(!_loot_type);
-    //bitBuffer.WriteBit(!byte50);
-    //uint32 currencyPos = bitBuffer.bitwpos();
-    //bitBuffer.WriteBits(currenciesShown, 20);
-    //bitBuffer.FlushBits();
-    //bitBuffer.PutBits<uint32>(currencyPos, currenciesShown, 20);
-    //b.append(bitBuffer);
-
-    //if (byte50)
-    //    b << uint8(permission);
-
-    //if (_loot_type)
-    //    b << uint8(_loot_type);
-
-    //if(byte52)
-    //    b << uint8(22);                     // always 17
-
-    //if (gold)
-    //    b << uint32(gold);
-
-    //if(byte34)
-    //    b << uint8(2);                      // if exist always 2
 
     return;
 }
@@ -1448,7 +1423,7 @@ void LootTemplate::LootGroup::Process(Loot& loot) const
             {
                 uint8 _item_counter = 0;
                 for (LootItemList::const_iterator _item = loot.items.begin(); _item != loot.items.end(); ++_item)
-                    if (_item->itemid == item->itemid)                             // search through the items that have already dropped
+                    if (_item->item.ItemID == item->itemid)                             // search through the items that have already dropped
                     {
                         ++_item_counter;
                         if (_proto->GetInventoryType() == 0 && _item_counter == 3)      // Non-equippable items are limited to 3 drops
@@ -1557,7 +1532,7 @@ void LootTemplate::LootGroup::ProcessInst(Loot& loot) const
             {
                 uint8 _item_counter = 0;
                 for (LootItemList::const_iterator _item = loot.items.begin(); _item != loot.items.end(); ++_item)
-                    if (_item->itemid == item->itemid)                             // search through the items that have already dropped
+                    if (_item->item.ItemID == item->itemid)                             // search through the items that have already dropped
                     {
                         ++_item_counter;
                         if (_proto->GetInventoryType() == 0 && _item_counter == 3)      // Non-equippable items are limited to 3 drops
@@ -1812,7 +1787,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint8 groupId) const
                 uint8 _item_counter = 0;
                 LootItemList::const_iterator _item = loot.items.begin();
                 for (; _item != loot.items.end(); ++_item)
-                    if (_item->itemid == i->itemid)                               // search through the items that have already dropped
+                    if (_item->item.ItemID == i->itemid)                               // search through the items that have already dropped
                     {
                         ++_item_counter;
                         if (_proto->GetInventoryType() == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops
@@ -1916,7 +1891,7 @@ void LootTemplate::ProcessPersonal(Loot& loot) const
                 uint8 _item_counter = 0;
                 LootItemList::const_iterator _item = loot.items.begin();
                 for (; _item != loot.items.end(); ++_item)
-                    if (_item->itemid == i->itemid)                               // search through the items that have already dropped
+                    if (_item->item.ItemID == i->itemid)                               // search through the items that have already dropped
                     {
                         ++_item_counter;
                         if (_proto->GetInventoryType() == 0 && _item_counter == 3)     // Non-equippable items are limited to 3 drops

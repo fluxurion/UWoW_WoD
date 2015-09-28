@@ -53,7 +53,7 @@ WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid
 uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
 int32 GetMapFromZone(uint32 zoneId);
 
-const std::string* GetRandomCharacterName(uint8 race, uint8 gender);
+std::string GetRandomCharacterName(uint8 race, uint8 gender);
 
 enum ContentLevels
 {

@@ -116,8 +116,8 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
 
     _worldPacket.WriteBit(Success);
     _worldPacket.WriteBit(IsDeletedCharacters);
-    _worldPacket << uint32(Characters.size());
-    _worldPacket << uint32(FactionChangeRestrictions.size());
+    _worldPacket << static_cast<uint32>(Characters.size());
+    _worldPacket << static_cast<uint32>(FactionChangeRestrictions.size());
 
     for (CharacterInfo const& charInfo : Characters)
     {
@@ -193,6 +193,7 @@ void WorldPackets::Character::CreateChar::Read()
 WorldPacket const* WorldPackets::Character::CharacterCreateResponse::Write()
 {
     _worldPacket << uint8(Code);
+
     return &_worldPacket;
 }
 
@@ -204,6 +205,7 @@ void WorldPackets::Character::DeleteChar::Read()
 WorldPacket const* WorldPackets::Character::CharacterDeleteResponse::Write()
 {
     _worldPacket << uint8(Code);
+
     return &_worldPacket;
 }
 
@@ -311,14 +313,12 @@ WorldPacket const* WorldPackets::Character::GenerateRandomCharacterNameResult::W
     _worldPacket.WriteBit(Success);
     _worldPacket.WriteBits(Name.length(), 6);
     _worldPacket.WriteString(Name);
+
     return &_worldPacket;
 }
 
 WorldPackets::Character::ReorderCharacters::ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_REORDER_CHARACTERS, std::move(packet)),
-    Entries(sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
-{
-
-}
+    Entries(sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM)) { }
 
 void WorldPackets::Character::ReorderCharacters::Read()
 {
@@ -340,17 +340,22 @@ void WorldPackets::Character::UndeleteCharacter::Read()
 WorldPacket const* WorldPackets::Character::UndeleteCharacterResponse::Write()
 {
     ASSERT(UndeleteInfo);
+
     _worldPacket << int32(UndeleteInfo->ClientToken);
     _worldPacket << uint32(Result);
     _worldPacket << UndeleteInfo->CharacterGuid;
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Character::UndeleteCooldownStatusResponse::Write()
 {
     _worldPacket.WriteBit(OnCooldown);
+    _worldPacket.FlushBits();
+
     _worldPacket << uint32(MaxCooldown);
     _worldPacket << uint32(CurrentCooldown);
+
     return &_worldPacket;
 }
 
@@ -365,12 +370,14 @@ WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
     _worldPacket << int32(MapID);
     _worldPacket << Pos.PositionXYZOStream();
     _worldPacket << uint32(Reason);
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Character::CharacterLoginFailed::Write()
 {
     _worldPacket << uint8(Code);
+
     return &_worldPacket;
 }
 
@@ -379,12 +386,14 @@ WorldPacket const* WorldPackets::Character::LogoutResponse::Write()
     _worldPacket << int32(LogoutResult);
     _worldPacket.WriteBit(Instant);
     _worldPacket.FlushBits();
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Character::LogoutComplete::Write()
 {
     _worldPacket << SwitchToCharacter;
+
     return &_worldPacket;
 }
 
@@ -498,5 +507,6 @@ void WorldPackets::Character::SetWatchedFaction::Read()
 WorldPacket const* WorldPackets::Character::SetFactionVisible::Write()
 {
     _worldPacket << FactionIndex;
+
     return &_worldPacket;
 }

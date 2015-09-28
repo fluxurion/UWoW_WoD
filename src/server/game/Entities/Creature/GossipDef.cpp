@@ -328,9 +328,7 @@ void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) co
     WorldPackets::Quest::QuestGiverStatus packet;
     packet.QuestGiver.Guid = npcGUID;
     packet.QuestGiver.Status = questStatus;
-
     _session->SendPacket(packet.Write());
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC Guid=%u, status=%u", npcGUID.GetCounter(), questStatus);
 }
 
 void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept, bool isAreaTrigger /*=false*/) const
@@ -404,7 +402,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 
     QuestObjectives const& objs = quest->GetObjectives();
     packet.Objectives.resize(objs.size());
-    for (uint32 i = 0; i < objs.size(); ++i)
+    for (size_t i = 0; i < objs.size(); ++i)
     {
         packet.Objectives[i].ID = objs[i].ID;
         packet.Objectives[i].ObjectID = objs[i].ObjectID;
@@ -413,18 +411,13 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     }
 
     _session->SendPacket(packet.Write());
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_DETAILS NPCGuid=%u, questid=%u", npcGUID.GetCounter(), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
 {
     Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
     if (!quest)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_QUEST_INFO_RESPONSE questid=%u, does not exist", questId);
         return;
-    }
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
 
@@ -520,10 +513,6 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     packet.Info.POIx = quest->GetPOIx();
     packet.Info.POIy = quest->GetPOIy();
     packet.Info.POIPriority = quest->GetPOIPriority();
-
-    /*if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());*/
-
     packet.Info.LogTitle = questLogTitle;
     packet.Info.LogDescription = questLogDescription;
     packet.Info.QuestDescription = questDescription;
@@ -538,13 +527,7 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
         if (localeConstant >= LOCALE_enUS)
         {
             if (QuestObjectivesLocale const* questObjectivesLocale = sObjectMgr->GetQuestObjectivesLocale(questObjective.ID))
-            {
-                //for debug
-                uint32 tmp_size = questObjectivesLocale->Description.size();
-                uint8 emptry = questObjectivesLocale->Description[localeConstant].empty();
-
                 ObjectMgr::GetLocaleString(questObjectivesLocale->Description, localeConstant, packet.Info.Objectives.back().Description);
-            }
         }
     }
 
@@ -565,8 +548,6 @@ void PlayerMenu::SendQuestQueryResponse(uint32 questId) const
     packet.Info.TimeAllowed = quest->GetLimitTime();
 
     _session->SendPacket(packet.Write());
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_QUEST_INFO_RESPONSE questid=%u", quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const
@@ -625,8 +606,6 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     packet.QuestPackageID = quest->GetQuestPackageID();
 
     _session->SendPacket(packet.Write());
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE NPCGuid=%u, questid=%u", npcGUID.GetCounter(), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool closeOnCancel) const
@@ -702,6 +681,4 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     packet.CompletionText = requestItemsText;
 
     _session->SendPacket(packet.Write());
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPCGuid=%u, questid=%u", npcGUID.GetEntry(), quest->GetQuestId());
 }

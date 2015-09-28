@@ -2469,8 +2469,6 @@ class Unit : public WorldObject
         void _ExitVehicle(Position const* exitPosition = NULL);
         void _EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp = NULL);
 
-        void BuildMovementPacket(ByteBuffer *data) const;
-
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }
         virtual bool CanFly() const = 0;
@@ -2556,6 +2554,8 @@ class Unit : public WorldObject
         uint32 GetDynamicPassiveSpells(uint32 slot);
 
         void SetDynamicWorldEffects(uint32 effect, uint32 slot);
+
+        void DestroyForPlayer(Player* target, bool onDeath = false) const override;
 
     protected:
         explicit Unit (bool isWorldObject);

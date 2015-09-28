@@ -21,6 +21,7 @@
 WorldPacket const* WorldPackets::VoidStorage::VoidTransferResult::Write()
 {
     _worldPacket << int32(Result);
+
     return &_worldPacket;
 }
 
@@ -37,6 +38,7 @@ void WorldPackets::VoidStorage::QueryVoidStorage::Read()
 WorldPacket const* WorldPackets::VoidStorage::VoidStorageFailed::Write()
 {
     _worldPacket << uint8(Reason);
+
     return &_worldPacket;
 }
 
@@ -46,6 +48,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::VoidStorage::VoidItem con
     data << voidItem.Creator;
     data << uint32(voidItem.Slot);
     data << voidItem.Item;
+
     return data;
 }
 
@@ -54,7 +57,6 @@ WorldPacket const* WorldPackets::VoidStorage::VoidStorageContents::Write()
     _worldPacket.reserve(1 + Items.size() * sizeof(VoidItem));
 
     _worldPacket.WriteBits(Items.size(), 8);
-    _worldPacket.FlushBits();
 
     for (VoidItem const& voidItem : Items)
         _worldPacket << voidItem;
@@ -81,7 +83,6 @@ WorldPacket const* WorldPackets::VoidStorage::VoidStorageTransferChanges::Write(
 
     _worldPacket.WriteBits(AddedItems.size(), 4);
     _worldPacket.WriteBits(RemovedItems.size(), 4);
-    _worldPacket.FlushBits();
 
     for (VoidItem const& addedItem : AddedItems)
         _worldPacket << addedItem;
@@ -101,7 +102,10 @@ void WorldPackets::VoidStorage::SwapVoidItem::Read()
 
 WorldPacket const* WorldPackets::VoidStorage::VoidItemSwapResponse::Write()
 {
-    _worldPacket << VoidItemA << uint32(VoidItemSlotA);
-    _worldPacket << VoidItemB << uint32(VoidItemSlotB);
+    _worldPacket << VoidItemA;
+    _worldPacket << uint32(VoidItemSlotA);
+    _worldPacket << VoidItemB;
+    _worldPacket << uint32(VoidItemSlotB);
+
     return &_worldPacket;
 }

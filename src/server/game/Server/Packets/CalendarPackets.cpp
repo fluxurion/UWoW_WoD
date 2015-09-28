@@ -100,6 +100,7 @@ ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Calendar::CalendarAddEv
     buffer >> invite.Guid;
     buffer >> invite.Status;
     buffer >> invite.Moderator;
+
     return buffer;
 }
 
@@ -239,10 +240,10 @@ WorldPacket const* WorldPackets::Calendar::CalendarSendCalendar::Write()
     _worldPacket << uint32(ServerNow);
     _worldPacket.AppendPackedTime(ServerTime);
     _worldPacket << uint32(RaidOrigin);
-    _worldPacket << uint32(Invites.size());
-    _worldPacket << uint32(Events.size());
-    _worldPacket << uint32(RaidLockouts.size());
-    _worldPacket << uint32(RaidResets.size());
+    _worldPacket << static_cast<uint32>(Invites.size());
+    _worldPacket << static_cast<uint32>(Events.size());
+    _worldPacket << static_cast<uint32>(RaidLockouts.size());
+    _worldPacket << static_cast<uint32>(RaidResets.size());
 
     for (auto const& invite : Invites)
         _worldPacket << invite;
@@ -271,7 +272,7 @@ WorldPacket const* WorldPackets::Calendar::CalendarSendEvent::Write()
     _worldPacket << uint32(LockDate);
     _worldPacket << EventGuildID;
 
-    _worldPacket << uint32(Invites.size());
+    _worldPacket << static_cast<uint32>(Invites.size());
     for (auto const& invite : Invites)
         _worldPacket << invite;
 
@@ -387,6 +388,7 @@ WorldPacket const* WorldPackets::Calendar::CalendarEventRemovedAlert::Write()
 WorldPacket const* WorldPackets::Calendar::CalendarSendNumPending::Write()
 {
     _worldPacket << uint32(NumPending);
+
     return &_worldPacket;
 }
 
@@ -414,7 +416,7 @@ WorldPacket const* WorldPackets::Calendar::CalendarRaidLockoutUpdated::Write()
 
 WorldPacket const* WorldPackets::Calendar::CalendarEventInitialInvites::Write()
 {
-    _worldPacket << uint32(Invites.size());
+    _worldPacket << static_cast<uint32>(Invites.size());
     for (auto const& invite : Invites)
     {
         _worldPacket << invite.InviteGuid;

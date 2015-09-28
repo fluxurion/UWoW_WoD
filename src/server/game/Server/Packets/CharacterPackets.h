@@ -154,7 +154,7 @@ namespace WorldPackets
                 uint8 Race = 0;
             };
 
-            EnumCharactersResult() : ServerPacket(SMSG_ENUM_CHARACTERS_RESULT) { }
+            EnumCharactersResult() : ServerPacket(SMSG_ENUM_CHARACTERS_RESULT, 10) { }
 
             WorldPacket const* Write() override;
 
@@ -566,7 +566,7 @@ namespace WorldPackets
             int32 Original = 0;
             uint8 Reason = 0;
             int32 Amount = 0;
-            float GroupBonus = 0;
+            float GroupBonus = 0.0f;
             bool ReferAFriend = false;
         };
 

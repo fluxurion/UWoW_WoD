@@ -40,6 +40,7 @@
 #include "BattlefieldMgr.h"
 #include "WeatherMgr.h"
 #include "AreaTrigger.h"
+#include "MiscPackets.h"
 
 class Aura;
 //
@@ -405,7 +406,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //345 SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
     &AuraEffect::HandleProgressBar,                               //346 SPELL_AURA_ENABLE_ALT_POWER
     &AuraEffect::HandleNoImmediateEffect,                         //347 SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE
-    &AuraEffect::HandleNoImmediateEffect,                         //348 SPELL_AURA_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT implemented in WorldSession::HandleLootMoneyOpcode
+    &AuraEffect::HandleNoImmediateEffect,                         //348 SPELL_AURA_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT implemented in WorldSession::HandleLootMoney
     &AuraEffect::HandleNoImmediateEffect,                         //349 SPELL_AURA_MOD_CURRENCY_GAIN implemented in Player::ModifyCurrency (TODO?)
     &AuraEffect::HandleNoImmediateEffect,                         //350 SPELL_AURA_MOD_ITEM_LOOT
     &AuraEffect::HandleNoImmediateEffect,                         //351 SPELL_AURA_MOD_CURRENCY_LOOT
@@ -8882,13 +8883,7 @@ void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mod
         return;
 
     if (apply)
-    {
-        WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-
-        data << uint32(GetMiscValue()) << 1.0f;
-        data.WriteBit(false);
-        target->GetSession()->SendPacket(&data);
-    }
+        target->GetSession()->SendPacket(WorldPackets::Misc::Weather(WeatherState(GetMiscValue()), 1.0f).Write());
     else
     {
         // send weather for current zone

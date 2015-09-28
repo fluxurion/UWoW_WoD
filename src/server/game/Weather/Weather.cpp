@@ -28,6 +28,7 @@
 #include "ObjectMgr.h"
 #include "Util.h"
 #include "ScriptMgr.h"
+#include "MiscPackets.h"
 
 /// Create the Weather object
 Weather::Weather(uint32 zone, WeatherData const* weatherChances)
@@ -192,10 +193,7 @@ bool Weather::ReGenerate()
 
 void Weather::SendWeatherUpdateToPlayer(Player* player)
 {
-    WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-    data << uint32(GetWeatherState()) << (float)m_grade;
-    data.WriteBit(false);
-    player->GetSession()->SendPacket(&data);
+    player->GetSession()->SendPacket(WorldPackets::Misc::Weather(WeatherState(GetWeatherState()), m_grade).Write());
 }
 
 /// Send the new weather to all players in the zone
@@ -213,10 +211,7 @@ bool Weather::UpdateWeather()
 
     WeatherState state = GetWeatherState();
 
-    WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-    data << uint32(state) << (float)m_grade;
-    data.WriteBit(false);
-    player->SendMessageToSet(&data, true);
+    player->SendMessageToSet(WorldPackets::Misc::Weather(WeatherState(state), m_grade).Write(), true);
 
     ///- Log the event
     char const* wthstr;

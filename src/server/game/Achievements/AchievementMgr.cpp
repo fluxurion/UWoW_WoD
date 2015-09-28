@@ -1386,23 +1386,18 @@ void AchievementMgr<Player>::SendCriteriaUpdate(CriteriaEntry const* entry, Crit
     SendPacket(criteriaUpdate.Write());
 }
 
-//! 6.0.3
 template<>
 void AchievementMgr<Player>::SendAccountCriteriaUpdate(CriteriaEntry const* entry, CriteriaTreeProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
-    WorldPacket data(SMSG_ACCOUNT_CRITERIA_UPDATE);
-    ObjectGuid guid = GetOwner()->GetGUID();         // needed send first completer criteria guid or else not found - then current player guid
-
-    data << uint32(entry->ID);
-    data << uint64(progress->counter);                     // Quantity
-    data << GetOwner()->GetGUID();
-    data << uint32(secsToTimeBitFields(progress->date));   // Date
-    data << uint32(0);
-    data << uint32(0);
-
-    data.WriteBits(0, 4);                         // Flags
-
-    SendPacket(&data);
+    WorldPackets::Achievement::CriteriaUpdateAccount account;
+    account.Data.Id = entry->ID;
+    account.Data.Quantity = progress->counter;
+    account.Data.Player = GetOwner()->GetGUID();
+    account.Data.Flags = 0;
+    account.Data.Date = progress->date;
+    account.Data.TimeFromStart = timeElapsed; // not sure
+    account.Data.TimeFromCreate = timeElapsed; // not sure
+    SendPacket(account.Write());
 }
 
 template<>
@@ -3075,7 +3070,6 @@ void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
     receiver->GetSession()->SendPacket(allGuildAchievements.Write());
 }
 
-//! 6.0.3
 template<class T>
 void AchievementMgr<T>::SendAllAccountCriteriaData(Player* /*receiver*/)
 {
@@ -3083,11 +3077,7 @@ void AchievementMgr<T>::SendAllAccountCriteriaData(Player* /*receiver*/)
         return;
 
     ObjectGuid guid = GetOwner()->GetGUID();
-    uint32 criteriaCount = 0;
-
-    WorldPacket data(SMSG_ALL_ACCOUNT_CRITERIA);
-    data << uint32(criteriaCount);
-
+    WorldPackets::Achievement::AllAchievementCriteriaDataAccount accountData;
     for (AchievementProgressMap::const_iterator iter = m_achievementProgress.begin(); iter != m_achievementProgress.end(); ++iter)
     {
         CriteriaProgressMap const* progressMap = &iter->second;
@@ -3113,16 +3103,11 @@ void AchievementMgr<T>::SendAllAccountCriteriaData(Player* /*receiver*/)
             progress.Date = itr->second.date;
             progress.TimeFromStart = 0;
             progress.TimeFromCreate = 0;
-
-            data << progress;
-
-            ++criteriaCount;
+            accountData.Data.push_back(progress);
         }
     }
 
-    data.put<uint32>(0, criteriaCount);
-
-    SendPacket(&data);
+    SendPacket(accountData.Write());
 }
 
 template<>

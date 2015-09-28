@@ -38,13 +38,14 @@ ByteBuffer& operator<<(ByteBuffer& _worldPacket, WorldPackets::Achievement::Crit
     _worldPacket << uint32(progress.TimeFromCreate);
     _worldPacket.WriteBits(progress.Flags, 4);
     _worldPacket.FlushBits();
+
     return _worldPacket;
 }
 
 ByteBuffer& operator<<(ByteBuffer& _worldPacket, WorldPackets::Achievement::AllAchievements const& achieve)
 {
-    _worldPacket << uint32(achieve.Earned.size());
-    _worldPacket << uint32(achieve.Progress.size());
+    _worldPacket << static_cast<uint32>(achieve.Earned.size());
+    _worldPacket << static_cast<uint32>(achieve.Progress.size());
 
     for (WorldPackets::Achievement::EarnedAchievement const& earned : achieve.Earned)
         _worldPacket << earned;
@@ -58,6 +59,7 @@ ByteBuffer& operator<<(ByteBuffer& _worldPacket, WorldPackets::Achievement::AllA
 WorldPacket const* WorldPackets::Achievement::AllAchievements::Write()
 {
     _worldPacket << *this;
+
     return &_worldPacket;
 }
 
@@ -116,7 +118,7 @@ WorldPacket const* WorldPackets::Achievement::ServerFirstAchievement::Write()
 
 WorldPacket const* WorldPackets::Achievement::GuildCriteriaUpdate::Write()
 {
-    _worldPacket << uint32(Progress.size());
+    _worldPacket << static_cast<uint32>(Progress.size());
 
     for (GuildCriteriaProgress const& progress : Progress)
     {
@@ -165,10 +167,27 @@ WorldPacket const* WorldPackets::Achievement::GuildAchievementEarned::Write()
 
 WorldPacket const* WorldPackets::Achievement::AllGuildAchievements::Write()
 {
-    _worldPacket << uint32(Earned.size());
+    _worldPacket << static_cast<uint32>(Earned.size());
 
     for (EarnedAchievement const& earned : Earned)
         _worldPacket << earned;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Achievement::CriteriaUpdateAccount::Write()
+{
+    _worldPacket << Data;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Achievement::AllAchievementCriteriaDataAccount::Write()
+{
+    _worldPacket << static_cast<uint32>(Data.size());
+
+    for (auto const& itr : Data)
+        _worldPacket << itr;
 
     return &_worldPacket;
 }

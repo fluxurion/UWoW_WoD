@@ -48,3 +48,13 @@ WorldPacket const* WorldPackets::GameObject::GameObjectActivateAnimKit::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::GameObject::GoCustomAnim::Write()
+{
+    _worldPacket << ObjectGUID;
+    _worldPacket << CustomAnim;
+    _worldPacket.WriteBit(PlayAsDespawn);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

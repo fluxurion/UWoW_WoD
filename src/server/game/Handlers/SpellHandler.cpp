@@ -626,41 +626,32 @@ void WorldSession::HandleCancelCast(WorldPackets::Spells::CancelCast& packet)
         _player->InterruptNonMeleeSpells(false, packet.SpellID, false);
 }
 
-void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleCancelAura(WorldPackets::Spells::CancelAura& packet)
 {
-    ObjectGuid guid;
-    uint32 spellId;
-    recvPacket >> spellId;
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    recvPacket.ReadBit();   // guid marker
-    //recvPacket.ReadGuidMask<0, 4, 7, 1, 6, 2, 3, 5>(guid);
-    //recvPacket.ReadGuidBytes<4, 2, 7, 1, 5, 0, 3, 6>(guid);
-
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(packet.SpellID);
     if (!spellInfo)
         return;
 
-    // not allow remove spells with attr SPELL_ATTR0_CANT_CANCEL
     if (spellInfo->Attributes & SPELL_ATTR0_CANT_CANCEL)
         return;
 
-    // channeled spell case (it currently casted then)
     if (spellInfo->IsChanneled())
     {
-        if (Spell* curSpell = _player->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-            if (curSpell->m_spellInfo->Id == spellId)
-                _player->InterruptSpell(CURRENT_CHANNELED_SPELL);
+        if (Spell* curSpell = player->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+            if (curSpell->m_spellInfo->Id == packet.SpellID)
+                player->InterruptSpell(CURRENT_CHANNELED_SPELL);
+
         return;
     }
 
-    // non channeled case:
-    // don't allow remove non positive spells
-    // don't allow cancelling passive auras (some of them are visible)
     if (!spellInfo->IsPositive() || spellInfo->IsPassive())
         return;
 
-    // maybe should only remove one buff when there are multiple?
-    _player->RemoveOwnedAura(spellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+    player->RemoveOwnedAura(packet.SpellID, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
 }
 
 //! 5.4.1
@@ -982,4 +973,47 @@ void WorldSession::HandleCancelGrowthAura(WorldPackets::Spells::CancelGrowthAura
         SpellInfo const* spellInfo = aurApp->GetBase()->GetSpellInfo();
         return !spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL) && spellInfo->IsPositive() && !spellInfo->IsPassive();
     });
+}
+
+void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionButton& packet)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    uint32 action = uint32(packet.Action & 0xFFFFFFFF);
+    uint8  type = uint8(packet.Action >> 56);
+
+    if (!packet.Action)
+        player->removeActionButton(packet.Index);
+    else
+    {
+        switch (type)
+        {
+        case ACTION_BUTTON_MACRO:
+        case ACTION_BUTTON_CMACRO:
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Macro %u into button %u", action, packet.Index);
+            break;
+        case ACTION_BUTTON_EQSET:
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added EquipmentSetInfo %u into button %u", action, packet.Index);
+            break;
+        case ACTION_BUTTON_SPELL:
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Spell %u into button %u", action, packet.Index);
+            break;
+        case ACTION_BUTTON_SUB_BUTTON:
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added sub buttons %u into button %u", action, packet.Index);
+            break;
+        case ACTION_BUTTON_ITEM:
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Item %u into button %u", action, packet.Index);
+            break;
+        case ACTION_BUTTON_PET:
+            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Pet Spell %u into button %u", action, packet.Index);
+            break;
+        default:
+            sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, packet.Index, _player->GetName(), _player->GetGUID().GetCounter());
+            return;
+        }
+
+        player->addActionButton(packet.Index, action, type);
+    }
 }

@@ -59,7 +59,7 @@ namespace WorldPackets
         class QuestGiverStatus final : public ServerPacket
         {
         public:
-            QuestGiverStatus() : ServerPacket(SMSG_QUEST_GIVER_STATUS, 22) { }
+            QuestGiverStatus() : ServerPacket(SMSG_QUEST_GIVER_STATUS, 20) { }
 
             WorldPacket const* Write() override;
 
@@ -69,7 +69,7 @@ namespace WorldPackets
         class QuestGiverStatusMultiple final : public ServerPacket
         {
         public:
-            QuestGiverStatusMultiple() : ServerPacket(SMSG_QUEST_GIVER_STATUS_MULTIPLE, 24) { }
+            QuestGiverStatusMultiple() : ServerPacket(SMSG_QUEST_GIVER_STATUS_MULTIPLE, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -213,7 +213,7 @@ namespace WorldPackets
             int32 SpellCompletionID = 0;
             int32 SkillLineID = 0;
             int32 NumSkillUps = 0;
-            QuestChoiceItem ChoiceItems[QUEST_REWARD_CHOICES_COUNT];
+            QuestChoiceItem ChoiceItems[QUEST_REWARD_CHOICES_COUNT] = { };
             int32 ItemID[QUEST_ITEM_DROP_COUNT] = { };
             int32 ItemQty[QUEST_ITEM_DROP_COUNT] = { };
             int32 FactionID[QUEST_REWARD_REPUTATIONS_COUNT] = { };
@@ -442,7 +442,7 @@ namespace WorldPackets
         class QuestGiverQuestList final : public ServerPacket
         {
         public:
-            QuestGiverQuestList() : ServerPacket(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 100) { }
+            QuestGiverQuestList() : ServerPacket(SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE, 16 + 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 

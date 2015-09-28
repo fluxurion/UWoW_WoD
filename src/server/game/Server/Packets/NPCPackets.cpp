@@ -30,8 +30,8 @@ WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
     _worldPacket << FriendshipFactionID;
     _worldPacket << TextID;
 
-    _worldPacket << int32(GossipOptions.size());
-    _worldPacket << int32(GossipText.size());
+    _worldPacket << static_cast<int32>(GossipOptions.size());
+    _worldPacket << static_cast<int32>(GossipText.size());
 
     for (ClientGossipOptions const& options : GossipOptions)
     {
@@ -42,8 +42,6 @@ WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
 
         _worldPacket.WriteBits(options.Text.size(), 12);
         _worldPacket.WriteBits(options.Confirm.size(), 12);
-        _worldPacket.FlushBits();
-
         _worldPacket.WriteString(options.Text);
         _worldPacket.WriteString(options.Confirm);
     }
@@ -58,8 +56,6 @@ WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
 
         _worldPacket.WriteBit(text.Repeatable);
         _worldPacket.WriteBits(text.QuestTitle.size(), 9);
-        _worldPacket.FlushBits();
-
         _worldPacket.WriteString(text.QuestTitle);
     }
 
@@ -71,7 +67,7 @@ WorldPacket const* WorldPackets::NPC::VendorInventory::Write()
     _worldPacket << Vendor;
     _worldPacket << Reason;
 
-    _worldPacket << int32(Items.size());
+    _worldPacket << static_cast<int32>(Items.size());
     for (VendorItem const& item : Items)
     {
         _worldPacket << item.MuID;
@@ -97,7 +93,7 @@ WorldPacket const* WorldPackets::NPC::TrainerList::Write()
     _worldPacket << TrainerType;
     _worldPacket << TrainerID;
 
-    _worldPacket << int32(Spells.size());
+    _worldPacket << static_cast<int32>(Spells.size());
     for (TrainerListSpell const& spell : Spells)
     {
         _worldPacket << spell.SpellID;
@@ -113,7 +109,6 @@ WorldPacket const* WorldPackets::NPC::TrainerList::Write()
     }
 
     _worldPacket.WriteBits(Greeting.length(), 11);
-    _worldPacket.FlushBits();
     _worldPacket.WriteString(Greeting);
 
     return &_worldPacket;
@@ -156,8 +151,7 @@ WorldPacket const* WorldPackets::NPC::GossipPOI::Write()
 {
     _worldPacket.WriteBits(Flags, 14);
     _worldPacket.WriteBits(Name.length(), 6);
-    _worldPacket << Pos.x;
-    _worldPacket << Pos.y;
+    _worldPacket << Pos.PositionXYStream();
     _worldPacket << Icon;
     _worldPacket << Importance;
     _worldPacket.WriteString(Name);

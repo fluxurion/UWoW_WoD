@@ -264,7 +264,7 @@ class Map : public GridRefManager<NGridType>
             return false;
         }
 
-        virtual bool AddPlayerToMap(Player*);
+        virtual bool AddPlayerToMap(Player*, bool initPlayer = true);
         virtual void RemovePlayerFromMap(Player*, bool);
         template<class T> bool AddToMap(T *);
         template<class T> void RemoveFromMap(T *, bool);
@@ -656,7 +656,7 @@ class InstanceMap : public Map
     public:
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
         ~InstanceMap();
-        bool AddPlayerToMap(Player*);
+        bool AddPlayerToMap(Player*, bool initPlayer = true);
         void RemovePlayerFromMap(Player*, bool);
         void Update(const uint32);
         void CreateInstanceData(bool load);
@@ -686,7 +686,7 @@ class BattlegroundMap : public Map
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
         ~BattlegroundMap();
 
-        bool AddPlayerToMap(Player*);
+        bool AddPlayerToMap(Player*, bool initPlayer = true);
         void RemovePlayerFromMap(Player*, bool);
         bool CanEnter(Player* player);
         void SetUnload();

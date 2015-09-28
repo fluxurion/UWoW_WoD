@@ -28,10 +28,13 @@
 #include "DBCStores.h"
 #include "DB2Stores.h"
 
-#define MAX_ACTIVE_BATTLE_PETS 3
-#define MAX_ACTIVE_BATTLE_PET_ABILITIES 3
-#define MAX_BATTLE_PET_LEVEL 25
-#define BATTLE_PET_SUMMON_SPELL 118301
+enum BattlePetsMiscData
+{
+    MAX_ACTIVE_BATTLE_PETS          = 3,
+    MAX_ACTIVE_BATTLE_PET_ABILITIES = 3,
+    MAX_BATTLE_PET_LEVEL            = 25,
+    BATTLE_PET_SUMMON_SPELL         = 118301,
+};
 
 enum BattlePetStates
 {
@@ -618,9 +621,6 @@ public:
             delete itr->second;
     }
 
-    bool BuildPetJournal(WorldPacket *data);
-    void SendEmptyPetJournal();
-
     void AddPetToList(ObjectGuid guid, uint32 speciesID, uint32 creatureEntry, uint8 level, uint32 display, uint16 power, uint16 speed, uint32 health, uint32 maxHealth, uint8 quality, uint16 xp, uint16 flags, uint32 spellID, std::string customName = "", int16 breedID = 0, uint8 state = STATE_NORMAL);
     void InitBattleSlot(ObjectGuid guid, uint8 slotID);
 
@@ -694,9 +694,10 @@ public:
         return false;
     }
 
-    const PetJournal &GetPetJournal() { return m_PetJournal; }
+    PetJournal const& GetPetJournal() { return m_PetJournal; }
 
     PetBattleSlot* GetPetBattleSlot(uint8 index) { return m_battleSlots[index]; }
+    PetBattleSlots GetPetBattleSlots() { return m_battleSlots; }
 
     ObjectGuid GetPetGUIDBySlot(uint8 index)
     {

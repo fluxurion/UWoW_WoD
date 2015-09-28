@@ -22,7 +22,6 @@
 #include "Creature.h"
 #include "DB2Stores.h"
 #include "NPCHandler.h"
-#include "G3D/Vector3.h"
 
 class Player;
 
@@ -55,10 +54,10 @@ namespace WorldPackets
             uint32 CreatureMovementInfoID = 0;
             uint32 RequiredExpansion = 0;
             uint32 Flags[2];
-            uint32 ProxyCreatureID[MAX_KILL_CREDIT];
-            uint32 CreatureDisplayID[MAX_CREATURE_MODELS];
-            std::string Name[MAX_CREATURE_NAMES];
-            std::string NameAlt[MAX_CREATURE_NAMES];
+            uint32 ProxyCreatureID[MAX_KILL_CREDIT] = { };
+            uint32 CreatureDisplayID[MAX_CREATURE_MODELS] = { };
+            std::string Name[MAX_CREATURE_NAMES] = { };
+            std::string NameAlt[MAX_CREATURE_NAMES] = { };
         };
 
         class QueryCreatureResponse final : public ServerPacket
@@ -168,8 +167,8 @@ namespace WorldPackets
 
             uint32 TextID = 0;
             bool Allow = false;
-            float Probabilities[MAX_NPC_TEXT_OPTIONS];
-            uint32 BroadcastTextID[MAX_NPC_TEXT_OPTIONS];
+            float Probabilities[MAX_NPC_TEXT_OPTIONS] = { };
+            uint32 BroadcastTextID[MAX_NPC_TEXT_OPTIONS] = { };
         };
 
         class DBQueryBulk final : public ClientPacket
@@ -271,7 +270,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Transport;
-            G3D::Vector3 Position;
+            Position Position;
             int32 ActualMapID = 0;
             int32 MapID = 0;
             bool Valid = false;
@@ -294,7 +293,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            G3D::Vector3 Position;
+            Position Position;
             float Facing = 0.0f;
         };
 

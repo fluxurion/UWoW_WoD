@@ -57,18 +57,18 @@ WorldPacket const* WorldPackets::CombatLog::SpellExecuteLog::Write()
 {
     *this << Caster;
     *this << SpellID;
-    *this << uint32(Effects.size());
+    *this << static_cast<uint32>(Effects.size());
 
     for (SpellLogEffect const& effect : Effects)
     {
         *this << effect.Effect;
 
-        *this << uint32(effect.PowerDrainTargets.size());
-        *this << uint32(effect.ExtraAttacksTargets.size());
-        *this << uint32(effect.DurabilityDamageTargets.size());
-        *this << uint32(effect.GenericVictimTargets.size());
-        *this << uint32(effect.TradeSkillTargets.size());
-        *this << uint32(effect.FeedPetTargets.size());
+        *this << static_cast<uint32>(effect.PowerDrainTargets.size());
+        *this << static_cast<uint32>(effect.ExtraAttacksTargets.size());
+        *this << static_cast<uint32>(effect.DurabilityDamageTargets.size());
+        *this << static_cast<uint32>(effect.GenericVictimTargets.size());
+        *this << static_cast<uint32>(effect.TradeSkillTargets.size());
+        *this << static_cast<uint32>(effect.FeedPetTargets.size());
 
         for (SpellLogEffectPowerDrainParams const& powerDrainTarget : effect.PowerDrainTargets)
         {
@@ -139,7 +139,7 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
     *this << TargetGUID;
     *this << CasterGUID;
     *this << SpellID;
-    *this << uint32(Effects.size());
+    *this << static_cast<uint32>(Effects.size());
 
     for (SpellLogEffect const& effect : Effects)
     {
@@ -225,7 +225,7 @@ WorldPacket const* WorldPackets::CombatLog::SpellMissLog::Write()
 {
     _worldPacket << int32(SpellID);
     _worldPacket << Caster;
-    _worldPacket << uint32(Entries.size());
+    _worldPacket << static_cast<uint32>(Entries.size());
     for (SpellLogMissEntry const& missEntry : Entries)
         _worldPacket << missEntry;
 
@@ -328,7 +328,7 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     FlushBits();
     WriteLogData();
 
-    *this << uint32(attackRoundInfo.size());
+    *this << static_cast<uint32>(attackRoundInfo.size());
     _worldPacket.append(attackRoundInfo);
     _fullLogPacket.append(attackRoundInfo);
 

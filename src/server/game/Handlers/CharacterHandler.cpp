@@ -928,8 +928,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         motd.Text = &sWorld->GetMotd();
         SendPacket(motd.Write());
 
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent motd (SMSG_MOTD)");
-
         // send server info
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(_FULLVERSION);
@@ -1115,14 +1113,6 @@ void WorldSession::HandleSetFactionAtWar(WorldPackets::Character::SetFactionAtWa
     GetPlayer()->GetReputationMgr().SetAtWar(packet.FactionIndex, true);
 }
 
-void WorldSession::HandleSetLfgBonusFaction(WorldPacket & recvData)
-{
-    uint32 factionID;
-    recvData >> factionID;
-
-    _player->SetLfgBonusFaction(factionID);
-}
-
 void WorldSession::HandleUnsetFactionAtWar(WorldPackets::Character::SetFactionNotAtWar& packet)
 {
     GetPlayer()->GetReputationMgr().SetAtWar(packet.FactionIndex, false);
@@ -1143,10 +1133,8 @@ void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packe
         {
             uint8 index = uint8(packet.TutorialBit >> 5);
             if (index >= MAX_ACCOUNT_TUTORIAL_VALUES)
-            {
-                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_TUTORIAL received bad TutorialBit %u.", packet.TutorialBit);
                 return;
-            }
+
             uint32 flag = GetTutorialInt(index);
             flag |= (1 << (packet.TutorialBit & 0x1F));
             SetTutorialInt(index, flag);
@@ -1186,67 +1174,53 @@ void WorldSession::HandleShowingCloak(WorldPackets::Character::ShowingCloak& /*p
     _player->ToggleFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
 }
 
-void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
+void WorldSession::HandleCharacterRenameRequest(WorldPackets::Character::CharacterRenameRequest& packet)
 {
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
     if (now - timeAddIgnoreOpcode < 3)
-    {
-        recvData.rfinish();
         return;
-    }
     else
        timeAddIgnoreOpcode = now;
 
-    ObjectGuid guid;
-    std::string newName;
-    recvData >> guid;
-    uint32 len = recvData.ReadBits(6);
-    newName = recvData.ReadString(len);
-
-    // prevent character rename to invalid name
-    if (!normalizePlayerName(newName))
+    if (!normalizePlayerName(packet.RenameInfo->NewName))
     {
-        WorldPacket data(SMSG_CHARACTER_RENAME_RESULT, 2);
-        data << uint8(CHAR_NAME_NO_NAME);
-        data.WriteBit(0);
-        SendPacket(&data);
+        WorldPackets::Character::CharacterRenameResult result;
+        result.Result = CHAR_NAME_NO_NAME;
+        result.Name = packet.RenameInfo->NewName;
+        SendPacket(result.Write());
         return;
     }
 
-    uint8 res = ObjectMgr::CheckPlayerName(newName, true);
+    uint8 res = ObjectMgr::CheckPlayerName(packet.RenameInfo->NewName, true);
     if (res != CHAR_NAME_SUCCESS)
     {
-        WorldPacket data(SMSG_CHARACTER_RENAME_RESULT, 1+8+(newName.size()+1));
-        data << uint8(res);
-        data.WriteBit(1);
-        data.WriteBits(newName.length(), 6);
-        data << guid;
-        data.WriteString(newName);
-        SendPacket(&data);
+        WorldPackets::Character::CharacterRenameResult result;
+        result.Result = res;
+        result.Name = packet.RenameInfo->NewName;
+        SendPacket(result.Write());
         return;
     }
 
-    // check name limitations
-    if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newName))
+    if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(packet.RenameInfo->NewName))
     {
-        WorldPacket data(SMSG_CHARACTER_RENAME_RESULT, 2);
-        data << uint8(CHAR_NAME_RESERVED);
-        data.WriteBit(0);
-        SendPacket(&data);
+        WorldPackets::Character::CharacterRenameResult result;
+        result.Result = CHAR_NAME_RESERVED;
+        result.Name = packet.RenameInfo->NewName;
+        SendPacket(result.Write());
         return;
     }
 
     // Ensure that the character belongs to the current account, that rename at login is enabled
     // and that there is no character with the desired new name
-    _charRenameCallback.SetParam(newName);
+    _charRenameCallback.SetParam(packet.RenameInfo->NewName);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_FREE_NAME);
 
-    stmt->setUInt32(0, guid.GetCounter());
+    stmt->setUInt32(0, packet.RenameInfo->Guid.GetCounter());
     stmt->setUInt32(1, GetAccountId());
     stmt->setUInt16(2, AT_LOGIN_RENAME);
     stmt->setUInt16(3, AT_LOGIN_RENAME);
-    stmt->setString(4, newName);
+    stmt->setString(4, packet.RenameInfo->NewName);
 
     _charRenameCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
@@ -1255,10 +1229,10 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 {
     if (!result)
     {
-        WorldPacket data(SMSG_CHARACTER_RENAME_RESULT, 2);
-        data << uint8(CHAR_CREATE_ERROR);
-        data.WriteBit(0);
-        SendPacket(&data);
+        WorldPackets::Character::CharacterRenameResult packet;
+        packet.Result = CHAR_CREATE_ERROR;
+        packet.Name = newName;
+        SendPacket(packet.Write());
         return;
     }
 
@@ -1294,16 +1268,11 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
 
     CharacterDatabase.Execute(stmt);
 
-    sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), guidLow, newName.c_str());
-
-    WorldPacket data(SMSG_CHARACTER_RENAME_RESULT, 1+8+(newName.size()+1));
-    data << uint8(RESPONSE_SUCCESS);
-    data.WriteBit(1);
-    data.WriteBits(newName.length(), 6);
-    data << guid;
-    data.WriteString(newName);
-    SendPacket(&data);
-
+    WorldPackets::Character::CharacterRenameResult packet;
+    packet.Result = RESPONSE_SUCCESS;
+    packet.Name = newName;
+    packet.Guid = guid;
+    SendPacket(packet.Write());
     sWorld->UpdateCharacterNameData(guidLow, newName);
 }
 
@@ -1509,49 +1478,30 @@ void WorldSession::HandleRemoveGlyph(WorldPacket & recvData)
     }
 }
 
-//! 6.0.3
-void WorldSession::HandleEquipmentSetSave(WorldPacket& recvData)
+void WorldSession::HandleSaveEquipmentSet(WorldPackets::EquipmentSet::SaveEquipmentSet& packet)
 {
-    uint32 index;
-    ObjectGuid itemGuids[EQUIPMENT_SLOT_END];
-    EquipmentSetInfo eqSet;
-    eqSet.State = EQUIPMENT_SET_NEW;
-
-    recvData >> eqSet.Data.Guid >> index >> eqSet.Data.IgnoreMask;
-
-    if (index >= MAX_EQUIPMENT_SET_INDEX)                    // client set slots amount
-    {
-        recvData.rfinish();
+    if (packet.Set.SetID >= MAX_EQUIPMENT_SET_INDEX)
         return;
-    }
 
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
-        recvData >> itemGuids[i];
-        // equipment manager sends "1" (as raw GUID) for slots set to "ignore" (don't touch slot at equip set)
-        if (eqSet.Data.IgnoreMask & (1 << i))
+        if (!(packet.Set.IgnoreMask & (1 << i)))
         {
-            // ignored slots saved as bit mask because we have no free special values for Items[i]
-            continue;
+            Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+
+            if (!item && !packet.Set.Pieces[i].IsEmpty())
+                return;
+
+            if (item && item->GetGUID() != packet.Set.Pieces[i])
+                return;
         }
-
-        Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-
-        if (!item && itemGuids[i])                          // cheating check 1
-            return;
-
-        if (item && item->GetGUID() != itemGuids[i])        // cheating check 2
-            return;
-
-        eqSet.Data.Pieces[i] = itemGuids[i];
+        else
+            packet.Set.Pieces[i].Clear();
     }
 
-    uint32 nameLen = recvData.ReadBits(8);
-    uint32 iconLen = recvData.ReadBits(9);
-    eqSet.Data.SetName = recvData.ReadString(nameLen);
-    eqSet.Data.SetIcon = recvData.ReadString(iconLen);
+    packet.Set.IgnoreMask &= 0x7FFFF;
 
-    _player->SetEquipmentSet(index, eqSet);
+    _player->SetEquipmentSet(std::move(packet.Set));
 }
 
 void WorldSession::HandleDeleteEquipmentSet(WorldPackets::EquipmentSet::DeleteEquipmentSet& packet)
@@ -2320,32 +2270,20 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-//! 6.0.3
-void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recvData)
+void WorldSession::HandleGenerateRandomCharacterName(WorldPackets::Character::GenerateRandomCharacterName& packet)
 {
-    uint8 gender, race;
-
-    recvData >> race;
-    recvData >> gender;
-    
-    if (!Player::IsValidRace(race))
-    {
-        sLog->outError(LOG_FILTER_GENERAL, "Invalid race (%u) sent by accountId: %u", race, GetAccountId());
+    if (!Player::IsValidRace(packet.Race))
         return;
-    }
 
-    if (!Player::IsValidGender(gender))
-    {
-        sLog->outError(LOG_FILTER_GENERAL, "Invalid gender (%u) sent by accountId: %u", gender, GetAccountId());
+    if (!Player::IsValidGender(packet.Sex))
         return;
-    }
 
-    std::string const* name = GetRandomCharacterName(race, gender);
-    WorldPacket data(SMSG_GENERATE_RANDOM_CHARACTER_NAME_RESULT, 10);
-    data.WriteBit(1); // Success
-    data.WriteBits(name->size(), 6);
-    data.WriteString(*name);
-    SendPacket(&data);
+    std::string name = GetRandomCharacterName(packet.Race, packet.Sex);
+
+    WorldPackets::Character::GenerateRandomCharacterNameResult result;
+    result.Success = true;
+    result.Name = name;
+    SendPacket(result.Write());
 }
 
 //! 6.1.2

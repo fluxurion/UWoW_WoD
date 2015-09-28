@@ -114,7 +114,7 @@ void MailDraft::prepareItems(Player* receiver, SQLTransaction& trans)
     {
         if (LootItem* lootitem = mailLoot.LootItemInSlot(i, receiver))
         {
-            if (Item* item = Item::CreateItem(lootitem->itemid, lootitem->count, receiver))
+            if (Item* item = Item::CreateItem(lootitem->item.ItemID, lootitem->count, receiver))
             {
                 item->SaveToDB(trans);                           // save for prevent lost at next mail load, if send fail then item will deleted
                 AddItem(item);

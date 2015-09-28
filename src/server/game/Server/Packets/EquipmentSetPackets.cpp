@@ -27,7 +27,7 @@ WorldPacket const* WorldPackets::EquipmentSet::EquipmentSetID::Write()
 
 WorldPacket const* WorldPackets::EquipmentSet::LoadEquipmentSet::Write()
 {
-    _worldPacket << uint32(SetData.size());
+    _worldPacket << static_cast<uint32>(SetData.size());
 
     for (EquipmentSetInfo::EquipmentSetData const* equipSet : SetData)
     {

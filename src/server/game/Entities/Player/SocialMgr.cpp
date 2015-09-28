@@ -156,7 +156,6 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
     }
 
     player->SendDirectMessage(contactList.Write());
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_CONTACT_LIST");
 }
 
 bool PlayerSocial::_HasContact(ObjectGuid const& guid, SocialFlag flags)

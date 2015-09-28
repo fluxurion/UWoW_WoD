@@ -28,6 +28,14 @@ class Group;
 class Player;
 class Quest;
 
+namespace WorldPackets
+{
+    namespace LFG
+    {
+        struct ProposalResponse;
+    }
+}
+
 namespace lfg
 {
 
@@ -74,7 +82,7 @@ enum LfgTeleportError
 };
 
 /// Queue join results
-enum LfgJoinResult
+enum LfgJoinResult : uint8
 {
     LFG_JOIN_OK                                  = 0,      // Joined (no client msg)
     LFG_JOIN_FAILED                              = 28,     // Role Check failed because your group is not viable.
@@ -99,7 +107,7 @@ enum LfgJoinResult
 };
 
 /// Role check states
-enum LfgRoleCheckState
+enum LfgRoleCheckState : uint8
 {
     LFG_ROLECHECK_DEFAULT                        = 0,      // Internal use = Not initialized.
     LFG_ROLECHECK_FINISHED                       = 1,      // Role check finished
@@ -129,13 +137,13 @@ typedef std::map<ObjectGuid, LfgProposalPlayer> LfgProposalPlayerContainer;
 typedef std::map<ObjectGuid, LfgPlayerBoot> LfgPlayerBootContainer;
 typedef std::map<ObjectGuid, LfgGroupData> LfgGroupDataContainer;
 typedef std::map<ObjectGuid, LfgPlayerData> LfgPlayerDataContainer;
-typedef UNORDERED_MAP<uint32, LFGDungeonData> LFGDungeonContainer;
+typedef std::unordered_map<uint32, LFGDungeonData> LFGDungeonContainer;
 
-// Data needed by SMSG_LFG_JOIN_RESULT
 struct LfgJoinResultData
 {
     LfgJoinResultData(LfgJoinResult _result = LFG_JOIN_OK, LfgRoleCheckState _state = LFG_ROLECHECK_DEFAULT):
         result(_result), state(_state) { }
+
     LfgJoinResult result;
     LfgRoleCheckState state;
     LfgLockPartyMap lockmap;
@@ -398,7 +406,7 @@ class LFGMgr
         /// Updates player boot proposal with new player answer
         void UpdateBoot(ObjectGuid guid, bool accept);
         /// Updates proposal to join dungeon with player answer
-        void UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept);
+        void UpdateProposal(WorldPackets::LFG::ProposalResponse response);
         /// Updates the role check with player answer
         void UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid = ObjectGuid::Empty, uint8 roles = PLAYER_ROLE_NONE);
         /// Sets player lfg roles

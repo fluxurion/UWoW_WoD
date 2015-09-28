@@ -37,14 +37,25 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Reputation::ForcedReactio
 {
     data << int32(forcedReaction.Faction);
     data << int32(forcedReaction.Reaction);
+
     return data;
 }
 
 WorldPacket const* WorldPackets::Reputation::SetForcedReactions::Write()
 {
     _worldPacket.WriteBits(Reactions.size(), 6);
+    _worldPacket.FlushBits();
+
     for (ForcedReaction const& reaction : Reactions)
         _worldPacket << reaction;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Reputation::FactionBonusInfo::Write()
+{
+    for (uint16 i = 0; i < FactionCount; ++i)
+        _worldPacket.WriteBit(FactionHasBonus[i]);
 
     _worldPacket.FlushBits();
 

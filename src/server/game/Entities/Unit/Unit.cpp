@@ -69,6 +69,9 @@
 #include "LootPackets.h"
 #include "CombatLogPackets.h"
 #include "PartyPackets.h"
+#include "ChatPackets.h"
+#include "PetPackets.h"
+#include "UpdatePackets.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -1825,10 +1828,10 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 
 void Unit::HandleEmoteCommand(uint32 anim_id)
 {
-    WorldPacket data(SMSG_EMOTE, 4 + 8);
-    data << GetGUID();
-    data << uint32(anim_id);
-    SendMessageToSet(&data, true);
+    WorldPackets::Chat::Emote packet;
+    packet.Guid = GetGUID();
+    packet.EmoteID = anim_id;
+    SendMessageToSet(packet.Write(), true);
 }
 
 bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo, uint32 effectMask)
@@ -2659,8 +2662,6 @@ void Unit::SendMeleeAttackStart(Unit* victim)
     packet.Attacker = GetGUID();
     packet.Victim = victim->GetGUID();
     SendMessageToSet(packet.Write(), true);
-
-    sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Sent SMSG_ATTACK_START");
 }
 
 void Unit::SendMeleeAttackStop(Unit* victim)
@@ -2674,7 +2675,6 @@ void Unit::SendMeleeAttackStop(Unit* victim)
     }
 
     SendMessageToSet(packet.Write(), true);
-    sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Sent SMSG_ATTACK_STOP");
 
     if (victim)
         sLog->outInfo(LOG_FILTER_UNITS, "%s %u stopped attacking %s %u", (GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), GetGUID().GetCounter(), (victim->GetTypeId() == TYPEID_PLAYER ? "player" : "creature"), victim->GetGUID().GetCounter());
@@ -3225,6 +3225,21 @@ void Unit::_DeleteRemovedAuras()
         delete m_removedAuras.front();
         m_removedAuras.pop_front();
     }
+}
+
+void Unit::DestroyForPlayer(Player* target, bool onDeath /*= false*/) const
+{
+    if (Battleground* bg = target->GetBattleground())
+    {
+        if (bg->isArena())
+        {
+            WorldPackets::Update::DestroyArenaUnit destroyArenaUnit;
+            destroyArenaUnit.Guid = GetGUID();
+            target->GetSession()->SendPacket(destroyArenaUnit.Write());
+        }
+    }
+
+    WorldObject::DestroyForPlayer(target);
 }
 
 void Unit::_UpdateSpells(uint32 time)
@@ -14403,6 +14418,16 @@ int32 Unit::ModifyHealth(int32 dVal)
         gain = maxHealth - curHealth;
     }
 
+    if (dVal < 0)
+    {
+        WorldPackets::Combat::HealthUpdate packet;
+        packet.Guid = GetGUID();
+        packet.Health = GetHealth();
+
+        if (Player* player = GetCharmerOrOwnerPlayerOrPlayerItself())
+            player->GetSession()->SendPacket(packet.Write());
+    }
+
     return gain;
 }
 
@@ -17603,32 +17628,16 @@ void Unit::SendPetActionFeedback(uint8 msg)
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    bool send_spell = false;
-
-    //! 5.4.1
-    WorldPacket data(SMSG_PET_ACTION_FEEDBACK, 2);
-    data << uint8(msg);
-    data.WriteBit(!send_spell);
-    data.FlushBits();
-    if (send_spell)
-        data << uint32(0);
-    owner->ToPlayer()->GetSession()->SendPacket(&data);
+    owner->ToPlayer()->GetSession()->SendPacket(WorldPackets::PetPackets::ActionFeedback(0, msg).Write());
 }
 
-void Unit::SendPetTalk(uint32 pettalk)
+void Unit::SendPetTalk(uint32 actionSound)
 {
     Unit* owner = GetOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    ObjectGuid Guid = GetGUID();
-
-    //! 5.4.1
-    WorldPacket data(SMSG_PET_ACTION_SOUND, 8 + 4);
-    data << uint32(pettalk);
-    //data.WriteGuidMask<2, 3, 1, 4, 5, 6, 0, 7>(Guid);
-    //data.WriteGuidBytes<6, 2, 7, 1, 3, 4, 5, 0>(Guid);
-    owner->ToPlayer()->GetSession()->SendPacket(&data);
+    owner->ToPlayer()->GetSession()->SendPacket(WorldPackets::PetPackets::Sound(GetGUID(), actionSound).Write());
 }
 
 void Unit::SendPetAIReaction(ObjectGuid guid)
@@ -17688,7 +17697,6 @@ bool Unit::IsStandState() const
     return !IsSitState() && s != UNIT_STAND_STATE_SLEEP && s != UNIT_STAND_STATE_KNEEL;
 }
 
-//! 6.1.2
 void Unit::SetStandState(uint8 state)
 {
     setStandStateValue(state);
@@ -17697,12 +17705,7 @@ void Unit::SetStandState(uint8 state)
        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_SEATED);
 
     if (GetTypeId() == TYPEID_PLAYER)
-    {
-        WorldPacket data(SMSG_STAND_STATE_UPDATE, 1);
-        data << uint32(0);  //unk
-        data << (uint8)state;
-        ToPlayer()->GetSession()->SendPacket(&data);
-    }
+        ToPlayer()->GetSession()->SendPacket(WorldPackets::Misc::StandStateUpdate(UnitStandStateType(state)).Write());
 }
 
 bool Unit::IsPolymorphed() const
@@ -20793,14 +20796,7 @@ void Unit::SetStunned(bool apply)
 
 void Unit::SetRooted(bool apply, bool packetOnly /*= false*/)
 {
-    static OpcodeServer const rootOpcodeTable[2][2] =
-    {
-        {SMSG_MOVE_SPLINE_ROOT,   SMSG_MOVE_ROOT    },
-        {SMSG_MOVE_SPLINE_UNROOT,  SMSG_MOVE_UNROOT   }
-    };
-
     bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
-    ObjectGuid guid = GetGUID();
 
     if (!packetOnly)
     {
@@ -20819,19 +20815,25 @@ void Unit::SetRooted(bool apply, bool packetOnly /*= false*/)
             RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
     }
 
+
+    static OpcodeServer const rootOpcodeTable[2][2] =
+    {
+        { SMSG_MOVE_SPLINE_UNROOT, SMSG_MOVE_UNROOT },
+        { SMSG_MOVE_SPLINE_ROOT, SMSG_MOVE_ROOT }
+    };
+
     if (player)
     {
-        //! 6.0.3
-        WorldPacket data(rootOpcodeTable[!apply][1], 20);
-        data << guid.WriteAsPacked();
-        data << uint32(m_movementCounter++);          //! movement counter
-        SendMessageToSet(&data, true);
-    }else
+        WorldPackets::Movement::MoveSetFlag packet(rootOpcodeTable[apply][1]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        SendMessageToSet(packet.Write(), true);
+    }
+    else
     {
-        //! 6.0.3 FIND OPCODES
-        WorldPacket data(rootOpcodeTable[!apply][0], 16);
-        data << guid.WriteAsPacked();
-        SendMessageToSet(&data, true);
+        WorldPackets::Movement::MoveSplineSetFlag packet(rootOpcodeTable[apply][0]);
+        packet.MoverGUID = GetGUID();
+        SendMessageToSet(packet.Write(), true);
     }
 }
 
@@ -22619,92 +22621,6 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     }
 }
 
-void Unit::BuildMovementPacket(ByteBuffer *data) const
-{
-    *data << uint32(GetUnitMovementFlags());            // movement flags
-    *data << uint16(GetExtraUnitMovementFlags());       // 2.3.0
-    *data << uint32(getMSTime());                       // time / counter
-    *data << GetPositionX();
-    *data << GetPositionY();
-    *data << GetPositionZMinusOffset();
-    *data << GetOrientation();
-
-    bool onTransport = m_movementInfo.transport.guid;
-    bool hasInterpolatedMovement = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT;
-    bool time3 = false;
-    bool swimming = ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
-        || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING));
-    bool interPolatedTurning = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING;
-    bool jumping = GetUnitMovementFlags() & MOVEMENTFLAG_FALLING;
-    bool splineElevation = GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION;
-    bool splineData = false;
-
-    data->WriteBits(GetUnitMovementFlags(), 30);
-    data->WriteBits(m_movementInfo.flags2, 12);
-    data->WriteBit(onTransport);
-    if (onTransport)
-    {
-        data->WriteBit(hasInterpolatedMovement);
-        data->WriteBit(time3);
-    }
-
-    data->WriteBit(swimming);
-    data->WriteBit(interPolatedTurning);
-    if (interPolatedTurning)
-        data->WriteBit(jumping);
-
-    data->WriteBit(splineElevation);
-    data->WriteBit(splineData);
-
-    data->FlushBits(); // reset bit stream
-
-    *data << GetGUID();
-    *data << uint32(getMSTime());
-    *data << float(GetPositionX());
-    *data << float(GetPositionY());
-    *data << float(GetPositionZ());
-    *data << float(GetOrientation());
-
-    if (onTransport)
-    {
-        if (m_vehicle)
-            *data << m_vehicle->GetBase()->GetGUID();
-        else if (GetTransport())
-            *data << GetTransport()->GetGUID();
-        else // probably should never happen
-            *data << ObjectGuid::Empty;
-
-        *data << float (GetTransOffsetX());
-        *data << float (GetTransOffsetY());
-        *data << float (GetTransOffsetZ());
-        *data << float (GetTransOffsetO());
-        *data << uint8 (GetTransSeat());
-        *data << uint32(GetTransTime());
-        if (hasInterpolatedMovement)
-            *data << int32(0); // Transport Time 2
-        if (time3)
-            *data << int32(0); // Transport Time 3
-    }
-
-    if (swimming)
-        *data << (float)m_movementInfo.pitch;
-
-    if (interPolatedTurning)
-    {
-        *data << (uint32)m_movementInfo.fallTime;
-        *data << (float)m_movementInfo.jump.zspeed;
-        if (jumping)
-        {
-            *data << (float)m_movementInfo.jump.sinAngle;
-            *data << (float)m_movementInfo.jump.cosAngle;
-            *data << (float)m_movementInfo.jump.xyspeed;
-        }
-    }
-
-    if (splineElevation)
-        *data << (float)m_movementInfo.splineElevation;
-}
-
 void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool casting /*= false*/)
 {
     DisableSpline();
@@ -23117,9 +23033,10 @@ bool Unit::SetWalk(bool enable)
         RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
     //bool player = GetTypeId() == TYPEID_PLAYER && ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
+    static OpcodeServer const walkModeTable[2] = { SMSG_MOVE_SPLINE_SET_RUN_MODE, SMSG_MOVE_SPLINE_SET_WALK_MODE };
 
     ///@ TODO: Find proper opcode for walk mode setting in player mind controlling a player case
-    WorldPackets::Movement::MoveSplineSetFlag packet(enable ? SMSG_MOVE_SPLINE_SET_WALK_MODE : SMSG_MOVE_SPLINE_SET_RUN_MODE);
+    WorldPackets::Movement::MoveSplineSetFlag packet(walkModeTable[enable]);
     packet.MoverGUID = GetGUID();
     SendMessageToSet(packet.Write(), true);
 

@@ -37,21 +37,27 @@
 
 #define MOVEMENT_PACKET_TIME_DELAY 0
 
-void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleWorldPortAck(WorldPackets::Movement::WorldPortAck& /*packet*/)
 {
-    HandleMoveWorldportAckOpcode();
+    HandleWorldPortAck();
 }
 
-void WorldSession::HandleMoveWorldportAckOpcode()
+void WorldSession::HandleWorldPortAck()
 {
-    if (!GetPlayer()->IsBeingTeleportedFar())
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    GetPlayer()->SetSemaphoreTeleportFar(false);
-    if(Unit* mover = _player->m_mover)
+    if (!player->IsBeingTeleportedFar())
+        return;
+
+    bool seamlessTeleport = player->IsBeingTeleportedSeamlessly();
+    player->SetSemaphoreTeleportFar(false);
+
+    if (Unit* mover = player->m_mover)
         mover->ClearUnitState(UNIT_STATE_JUMPING);
 
-    WorldLocation const loc = GetPlayer()->GetTeleportDest();
+    WorldLocation const loc = player->GetTeleportDest();
     if (!MapManager::IsValidMapCoord(loc))
     {
         LogoutPlayer(false);
@@ -61,95 +67,88 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     MapEntry const* mEntry = sMapStore.LookupEntry(loc.GetMapId());
     InstanceTemplate const* mInstance = sObjectMgr->GetInstanceTemplate(loc.GetMapId());
 
-    if (GetPlayer()->m_InstanceValid == false && !mInstance)
-        GetPlayer()->m_InstanceValid = true;
+    if (player->m_InstanceValid == false && !mInstance)
+        player->m_InstanceValid = true;
 
-    Map* oldMap = GetPlayer()->GetMap();
-    if (GetPlayer()->IsInWorld())
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Player (Name %s) is still in world when teleported from map %u to new map %u", GetPlayer()->GetName(), oldMap->GetId(), loc.GetMapId());
-        oldMap->RemovePlayerFromMap(GetPlayer(), false);
-    }
+    Map* oldMap = player->GetMap();
+    if (player->IsInWorld())
+        oldMap->RemovePlayerFromMap(player, false);
 
-    Map* newMap = sMapMgr->CreateMap(loc.GetMapId(), GetPlayer());
-    if (!newMap || !newMap->CanEnter(GetPlayer()))
+    Map* newMap = sMapMgr->CreateMap(loc.GetMapId(), player);
+    if (!newMap || !newMap->CanEnter(player))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Map %d could not be created for player %d, porting player to homebind", loc.GetMapId(), GetPlayer()->GetGUID().GetCounter());
-        GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
+        player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, player->GetOrientation());
         return;
     }
     else
-        GetPlayer()->Relocate(&loc);
+        player->Relocate(&loc);
 
-    GetPlayer()->ResetMap();
-    GetPlayer()->SetMap(newMap);
+    player->ResetMap();
+    player->SetMap(newMap);
 
-    GetPlayer()->SendInitialPacketsBeforeAddToMap();
-    if (!GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
+    if (!seamlessTeleport)
+        player->SendInitialPacketsBeforeAddToMap();
+
+    if (!player->GetMap()->AddPlayerToMap(player, !seamlessTeleport))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: failed to teleport player %s (%d) to map %d because of unknown reason!", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter(), loc.GetMapId());
-        GetPlayer()->ResetMap();
-        GetPlayer()->SetMap(oldMap);
-        GetPlayer()->TeleportTo(GetPlayer()->m_homebindMapId, GetPlayer()->m_homebindX, GetPlayer()->m_homebindY, GetPlayer()->m_homebindZ, GetPlayer()->GetOrientation());
+        player->ResetMap();
+        player->SetMap(oldMap);
+        player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, player->GetOrientation());
         return;
     }
 
-    if (_player->InBattleground())
+    if (player->InBattleground())
     {
         if (!mEntry->IsBattlegroundOrArena())
         {
-            if (Battleground* bg = _player->GetBattleground())
-                _player->LeaveBattleground(false);
+            if (Battleground* bg = player->GetBattleground())
+                player->LeaveBattleground(false);
 
-            _player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);
-            _player->SetBGTeam(0);
+            player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);
+            player->SetBGTeam(0);
         }
-        else if (Battleground* bg = _player->GetBattleground())
+        else if (Battleground* bg = player->GetBattleground())
         {
-            if (_player->IsInvitedForBattlegroundInstance(_player->GetBattlegroundId()))
-                bg->AddPlayer(_player);
+            if (player->IsInvitedForBattlegroundInstance(player->GetBattlegroundId()))
+                bg->AddPlayer(player);
         }
     }
+   
+    if (!seamlessTeleport)
+        player->SendInitialPacketsAfterAddToMap();
+    else
+        player->UpdateVisibilityForPlayer();
 
-    GetPlayer()->SendInitialPacketsAfterAddToMap();
-
-    _player->m_movementInfo.time = getMSTime();
-    _player->m_movementInfo.pos.m_positionX = loc.m_positionX;
-    _player->m_movementInfo.pos.m_positionY = loc.m_positionY;
-    _player->m_movementInfo.pos.m_positionZ = loc.m_positionZ;
-    _player->m_movementInfo.pos.m_orientation = loc.m_orientation;
-
-    WorldPackets::Movement::MoveUpdate playerMovement;
-    playerMovement.movementInfo = &_player->m_movementInfo;
-    _player->SendMessageToSet(playerMovement.Write(), _player);
-
-    if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+    if (player->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
     {
-        if (!_player->InBattleground())
+        if (!player->InBattleground())
         {
-            FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
-            flight->Initialize(*GetPlayer());
+            if (!seamlessTeleport)
+            {
+                FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(player->GetMotionMaster()->top());
+                flight->Initialize(*player);
+            }
             return;
         }
 
-        GetPlayer()->GetMotionMaster()->MovementExpired();
-        GetPlayer()->CleanupAfterTaxiFlight();
+        player->GetMotionMaster()->MovementExpired();
+        player->CleanupAfterTaxiFlight();
     }
 
-    Corpse* corpse = GetPlayer()->GetCorpse();
-    if (corpse && corpse->GetType() != CORPSE_BONES && corpse->GetMapId() == GetPlayer()->GetMapId())
+    Corpse* corpse = player->GetCorpse();
+    if (corpse && corpse->GetType() != CORPSE_BONES && corpse->GetMapId() == player->GetMapId())
     {
         if (mEntry->IsDungeon())
         {
-            GetPlayer()->ResurrectPlayer(0.5f, false);
-            GetPlayer()->SpawnCorpseBones();
+            player->ResurrectPlayer(0.5f, false);
+            player->SpawnCorpseBones();
         }
     }
 
     bool allowMount = !mEntry->IsDungeon() || mEntry->IsBattlegroundOrArena();
     if (mInstance)
     {
-        Difficulty diff = GetPlayer()->GetDifficultyID(mEntry);
+        Difficulty diff = player->GetDifficultyID(mEntry);
         if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->MapID, diff))
         {
             if (mapDiff->resetTime)
@@ -157,27 +156,27 @@ void WorldSession::HandleMoveWorldportAckOpcode()
                 if (time_t timeReset = sWorld->getInstanceResetTime(mapDiff->resetTime))
                 {
                     uint32 timeleft = uint32(timeReset - time(NULL));
-                    GetPlayer()->SendInstanceResetWarning(mEntry->MapID, diff, timeleft);
+                    player->SendInstanceResetWarning(mEntry->MapID, diff, timeleft);
                 }
             }
         }
         allowMount = mInstance->AllowMount;
     }
 
-    if (!allowMount || (GetPlayer()->GetMapId() == 530 && GetPlayer()->GetZoneId() == 0)) //530 - uwow event map
-        _player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+    if (!allowMount || (player->GetMapId() == 530 && player->GetZoneId() == 0)) //530 - uwow event map
+        player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     uint32 newzone, newarea;
-    GetPlayer()->GetZoneAndAreaId(newzone, newarea);
-    GetPlayer()->UpdateZone(newzone, newarea);
+    player->GetZoneAndAreaId(newzone, newarea);
+    player->UpdateZone(newzone, newarea);
 
-    if (GetPlayer()->pvpInfo.inHostileArea)
-        GetPlayer()->CastSpell(GetPlayer(), 2479, true);
-    else if (GetPlayer()->IsPvP() && !GetPlayer()->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
-        GetPlayer()->UpdatePvP(false, false);
+    if (player->pvpInfo.inHostileArea)
+        player->CastSpell(player, 2479, true);
+    else if (player->IsPvP() && !player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
+        player->UpdatePvP(false, false);
 
-    GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
-    GetPlayer()->ProcessDelayedOperations();
+    player->ResummonPetTemporaryUnSummonedIfAny();
+    player->ProcessDelayedOperations();
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet)

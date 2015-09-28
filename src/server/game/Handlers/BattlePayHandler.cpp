@@ -25,22 +25,13 @@
 #include "BattlePayPackets.h"
 #include "BattlePayMgr.h"
 
-void WorldSession::HandleBattlePayPurchaseListGet(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGetPurchaseListQuery(WorldPackets::BattlePay::GetPurchaseListQuery& /*packet*/)
 {
-    //CMSG_BATTLE_PAY_GET_PURCHASE_LIST
-
     if (HasAuthFlag(AT_AUTH_FLAG_90_LVL_UP))
         SendBattlePayDistribution(BATTLE_PAY_DIST_STATUS_AVAILABLE);
 
-    WorldPacket data(SMSG_BATTLE_PAY_GET_DISTRIBUTION_LIST_RESPONSE, 7);
-    data << uint32(0);
-    data << uint32(0);
-    SendPacket(&data);
-
-    WorldPacket data2(SMSG_BATTLE_PAY_GET_PURCHASE_LIST_RESPONSE, 7);
-    data2 << uint32(0);
-    data2 << uint32(0);
-    SendPacket(&data2);
+    SendPacket(WorldPackets::BattlePay::DistributionListResponse().Write());
+    SendPacket(WorldPackets::BattlePay::PurchaseListResponse().Write());
 }
 
 //! 6.1.2
@@ -77,7 +68,7 @@ void WorldSession::HandleBattlePayDistributionAssign(WorldPackets::BattlePay::Di
     _battlePay->LevelUp(packet);
 }
 
-void WorldSession::HandleBattlePayProductList(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGetProductList(WorldPackets::BattlePay::GetProductList& /*packet*/)
 {
     WorldPackets::BattlePay::ProductListResponse response;
     response.Result = 0;

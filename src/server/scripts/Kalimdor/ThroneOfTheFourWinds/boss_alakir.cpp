@@ -10,6 +10,7 @@
 #include "SpellAuraEffects.h"
 #include "Vehicle.h"
 #include "GridNotifiers.h"
+#include "Packets/MiscPackets.h"
 
 enum Texts
 {
@@ -429,11 +430,7 @@ public:
 
         void SendWeather(WeatherState weather) const
         {
-            WorldPacket data(SMSG_WEATHER, 9);
-            data << uint32(weather);
-            data << float(0.5f);
-            data << uint8(0);
-            SendPacketToPlayers(&data);
+            SendPacketToPlayers(WorldPackets::Misc::Weather::Weather(weather, 0.5f).Write());
         }
 
         void SendPacketToPlayers(WorldPacket const* data) const

@@ -49,6 +49,7 @@ struct MapEntry;
 #define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAXGROUPSIZE
 #define TARGET_ICONS_COUNT 8
 #define RAID_MARKERS_COUNT 8
+#define ROLL_TIMER 180000
 
 enum RollVote
 {
@@ -147,11 +148,22 @@ class Roll : public LootValidatorRef
         Loot* getLoot();
         void targetObjectBuildLink();
         uint8 TotalEmited() const { return totalNeed + totalGreed + totalPass; }
+        
+        struct
+        {
+            ObjectGuid itemGUID;
+            uint32 ItemID = 0;
+            uint32 RandomPropertiesSeed = 0;
+            uint32 RandomPropertiesID = 0;
 
-        ObjectGuid itemGUID;
-        uint32 itemid;
-        int32  itemRandomPropId;
-        uint32 itemRandomSuffix;
+            struct
+            {
+                uint8 Context = 0;
+                std::vector<int32> BonusListIDs;
+            } ItemBonus;
+
+        } item;
+
         uint8 itemCount;
         ObjectGuid lootedGUID;
         typedef std::map<ObjectGuid, RollVote> PlayerVote;
@@ -222,7 +234,7 @@ class Group
         bool   AddMember(Player* player);
         bool   RemoveMember(ObjectGuid const& guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = NULL);
         bool   AddCreatureMember(Creature* creature);
-        void   ChangeLeader(ObjectGuid const& guid);
+        void   ChangeLeader(ObjectGuid const& guid, int8 partyIndex = 0);
         bool   RemoveCreatureMember(ObjectGuid const& guid);
         void   SetLootMethod(LootMethod method);
         void   SetLooterGuid(ObjectGuid const& guid);
@@ -319,10 +331,10 @@ class Group
         /*********************************************************/
 
         bool isRollLootActive() const { return !RollId.empty(); }
-        void SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r);
-        void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r);
-        void SendLootRoll(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
-        void SendLootRollWon(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
+        void SendLootStartRoll(uint32 mapid, const Roll &r);
+        void SendLootStartRollToPlayer(uint32 mapId, Player* p, bool canNeed, Roll const& r);
+        void SendLootRoll(ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
+        void SendLootRollWon(ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootAllPassed(Roll const& roll);
         void SendLooter(Creature* creature, Player* pLooter);
         void GroupLoot(Loot* loot, WorldObject* pLootedObject);
@@ -396,7 +408,6 @@ class Group
         Battleground*       m_bgGroup;
         Battlefield*        m_bfGroup;
         ObjectGuid          m_targetIcons[TARGET_ICONS_COUNT];
-        ObjectGuid          m_raidMarkers[RAID_MARKERS_COUNT];
         LootMethod          m_lootMethod;
         ItemQualities       m_lootThreshold;
         ObjectGuid          m_looterGuid;

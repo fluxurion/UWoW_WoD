@@ -34,7 +34,8 @@ void WorldPackets::Trade::InitiateTrade::Read()
 
 void WorldPackets::Trade::SetTradeCurrency::Read()
 {
-    _worldPacket >> Type >> Quantity;
+    _worldPacket >> Type;
+    _worldPacket >> Quantity;
 }
 
 void WorldPackets::Trade::SetTradeGold::Read()
@@ -44,7 +45,9 @@ void WorldPackets::Trade::SetTradeGold::Read()
 
 void WorldPackets::Trade::SetTradeItem::Read()
 {
-    _worldPacket >> TradeSlot >> PackSlot >> ItemSlotInPack;
+    _worldPacket >> TradeSlot;
+    _worldPacket >> PackSlot;
+    _worldPacket >> ItemSlotInPack;
 }
 
 WorldPacket const* WorldPackets::Trade::TradeStatus::Write()
@@ -120,7 +123,7 @@ WorldPacket const* WorldPackets::Trade::TradeUpdated::Write()
     _worldPacket << int32(CurrencyType);
     _worldPacket << int32(CurrencyQuantity);
     _worldPacket << int32(ProposedEnchantment);
-    _worldPacket << uint32(Items.size());
+    _worldPacket << static_cast<uint32>(Items.size());
 
     for (TradeItem const& item : Items)
         _worldPacket << item;

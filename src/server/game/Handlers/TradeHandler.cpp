@@ -704,6 +704,15 @@ void WorldSession::HandleSetTradeGold(WorldPackets::Trade::SetTradeGold& packet)
     myTrade->SetMoney(packet.Coinage);
 }
 
+void WorldSession::HandleSetTradeCurrency(WorldPackets::Trade::SetTradeCurrency& packet)
+{
+    TradeData* myTrade = _player->GetTradeData();
+    if (!myTrade)
+        return;
+
+    myTrade->UpdateClientStateIndex();
+}
+
 void WorldSession::HandleSetTradeItem(WorldPackets::Trade::SetTradeItem& packet)
 {
     TradeData* myTrade = _player->GetTradeData();

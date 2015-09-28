@@ -52,7 +52,7 @@ WorldPacket const* WorldPackets::Combat::SAttackStop::Write()
 WorldPacket const* WorldPackets::Combat::ThreatUpdate::Write()
 {
     _worldPacket << UnitGUID;
-    _worldPacket << int32(ThreatList.size());
+    _worldPacket << static_cast<int32>(ThreatList.size());
     for (WorldPackets::Combat::ThreatInfo const& threatInfo : ThreatList)
     {
         _worldPacket << threatInfo.UnitGUID;
@@ -66,7 +66,7 @@ WorldPacket const* WorldPackets::Combat::HighestThreatUpdate::Write()
 {
     _worldPacket << UnitGUID;
     _worldPacket << HighestThreatGUID;
-    _worldPacket << int32(ThreatList.size());
+    _worldPacket << static_cast<int32>(ThreatList.size());
     for (WorldPackets::Combat::ThreatInfo const& threatInfo : ThreatList)
     {
         _worldPacket << threatInfo.UnitGUID;
@@ -95,7 +95,7 @@ WorldPacket const* WorldPackets::Combat::AIReaction::Write()
 WorldPacket const* WorldPackets::Combat::PowerUpdate::Write()
 {
     _worldPacket << Guid;
-    _worldPacket << uint32(Powers.size());
+    _worldPacket << static_cast<uint32>(Powers.size());
     for (PowerUpdatePower const& power : Powers)
     {
         _worldPacket << power.Power;

@@ -258,6 +258,7 @@ struct BonusData
     uint32 AppearanceModID;
 
     void Initialize(ItemTemplate const* proto);
+    void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
     void AddBonus(uint32 type, int32 const (&values)[2]);
 };
 

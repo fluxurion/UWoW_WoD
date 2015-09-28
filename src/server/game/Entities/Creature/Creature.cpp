@@ -2185,13 +2185,9 @@ Player* Creature::SelectNearestPlayerNotGM(float distance) const
 void Creature::SendAIReaction(AiReaction reactionType)
 {
     WorldPackets::Combat::AIReaction packet;
-
     packet.UnitGUID = GetGUID();
     packet.Reaction = reactionType;
-
     SendMessageToSet(packet.Write(), true);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_AI_REACTION, type %u.", reactionType);
 }
 
 void Creature::CallAssistance()

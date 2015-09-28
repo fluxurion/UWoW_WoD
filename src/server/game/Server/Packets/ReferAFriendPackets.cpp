@@ -38,7 +38,6 @@ WorldPacket const* WorldPackets::ReferAFriend::ReferAFriendFailure::Write()
 {
     _worldPacket << int32(Reason);
     _worldPacket.WriteBits(Str.length(), 6);
-    _worldPacket.FlushBits();
     _worldPacket.WriteString(Str);
 
     return &_worldPacket;

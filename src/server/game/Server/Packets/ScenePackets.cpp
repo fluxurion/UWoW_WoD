@@ -41,6 +41,22 @@ WorldPacket const* WorldPackets::Scene::PlayScene::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Scene::PetBattleRound::Write()
+{
+    _worldPacket << SceneObjectGUID;
+    _worldPacket << MsgData;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Scene::PetBattleFinalRound::Write()
+{
+    _worldPacket << SceneObjectGUID;
+    _worldPacket << MsgData;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Scene::PetBattleFinished::Write()
 {
     _worldPacket << SceneObjectGUID;
@@ -51,17 +67,17 @@ WorldPacket const* WorldPackets::Scene::PetBattleFinished::Write()
 void WorldPackets::Scene::QueryScenarioPOI::Read()
 {
     MissingScenarioPOITreeIDs.resize(_worldPacket.read<uint32>());
-    for (uint32 i = 0; i < uint32(MissingScenarioPOITreeIDs.size()); i++)
+    for (size_t i = 0; i < MissingScenarioPOITreeIDs.size(); i++)
         MissingScenarioPOITreeIDs.push_back(_worldPacket.read<uint32>());
 }
 
 WorldPacket const* WorldPackets::Scene::ScenarioPOIs::Write()
 {
-    _worldPacket << uint32(PoiInfos.size());
+    _worldPacket << static_cast<uint32>(PoiInfos.size());
     for (auto const& map : PoiInfos)
     {
         _worldPacket << map.CriteriaTreeID;
-        _worldPacket << uint32(map.BlobDatas.size());
+        _worldPacket << static_cast<uint32>(map.BlobDatas.size());
         for (auto const& blob : map.BlobDatas)
         {
             _worldPacket << blob.BlobID;
@@ -72,7 +88,7 @@ WorldPacket const* WorldPackets::Scene::ScenarioPOIs::Write()
             _worldPacket << blob.Flags;
             _worldPacket << blob.WorldEffectID;
             _worldPacket << blob.PlayerConditionID;
-            _worldPacket << uint32(blob.Points.size());
+            _worldPacket << static_cast<uint32>(blob.Points.size());
             for (auto const& point : blob.Points)
             {
                 _worldPacket << point.X;
@@ -99,8 +115,8 @@ WorldPacket const* WorldPackets::Scene::ScenarioState::Write()
     _worldPacket << WaveCurrent;
     _worldPacket << WaveMax;
     _worldPacket << TimerDuration;
-    _worldPacket << uint32(Progress.size());
-    _worldPacket << uint32(Objectives.size());
+    _worldPacket << static_cast<uint32>(Progress.size());
+    _worldPacket << static_cast<uint32>(Objectives.size());
 
     for (auto const& map : Progress)
         _worldPacket << map;

@@ -16,3 +16,31 @@
  */
 
 #include "UpdatePackets.h"
+
+WorldPacket const* WorldPackets::Update::DestroyArenaUnit::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Update::MapObjEvents::Write()
+{
+    _worldPacket << UniqueID;
+    _worldPacket << DataSize;
+    _worldPacket << static_cast<uint32>(Unk2.size());
+    for (auto const& itr : Unk2)
+        _worldPacket << itr;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Update::SetAnimTimer::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket.WriteBits(Tier, 3);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+

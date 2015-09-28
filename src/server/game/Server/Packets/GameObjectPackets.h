@@ -78,6 +78,18 @@ namespace WorldPackets
             int32 AnimKitID = 0;
             bool Maintain = false;
         };
+
+        class GoCustomAnim final : public ServerPacket
+        {
+        public:
+            GoCustomAnim() : ServerPacket(SMSG_GAME_OBJECT_CUSTOM_ANIM, 21) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            int32 CustomAnim = 0;
+            bool PlayAsDespawn = false;
+        };
     }
 }
 #endif // GOPackets_h__

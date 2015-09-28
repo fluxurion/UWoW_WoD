@@ -4908,8 +4908,6 @@ void Spell::SendSpellStart()
     if (!IsNeedSendToClient())
         return;
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
-
     uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
     uint32 schoolImmunityMask = m_caster->GetSchoolImmunityMask();
     uint32 mechanicImmunityMask = m_caster->GetMechanicImmunityMask();

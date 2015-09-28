@@ -305,6 +305,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
 
+    if (updater.ProcessLogout())
+        while (_player && _player->IsBeingTeleportedSeamlessly())
+            HandleWorldPortAck();
+
     ///- Before we process anything:
     /// If necessary, kick the player from the character select screen
     if (IsConnectionIdle())
@@ -499,7 +503,7 @@ void WorldSession::LogoutPlayer(bool Save)
 {
     // finish pending transfers before starting the logout
     while (_player && _player->IsBeingTeleportedFar())
-        HandleMoveWorldportAckOpcode();
+        HandleWorldPortAck();
 
     m_playerLogout = true;
     m_playerSave = Save;
@@ -606,7 +610,7 @@ void WorldSession::LogoutPlayer(bool Save)
         // Repop at GraveYard or other player far teleport will prevent saving player because of not present map
         // Teleport player immediately for correct player save
         while (_player->IsBeingTeleportedFar())
-            HandleMoveWorldportAckOpcode();
+            HandleWorldPortAck();
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
         if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
@@ -1070,7 +1074,7 @@ void WorldSession::ProcessQueryCallbacks()
         _addFriendCallback.FreeResult();
     }
 
-    //- HandleCharRenameOpcode
+    //- HandleCharacterRenameRequest
     if (_charRenameCallback.IsReady())
     {
         std::string param = _charRenameCallback.GetParam();

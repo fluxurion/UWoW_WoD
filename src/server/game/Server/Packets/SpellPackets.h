@@ -225,7 +225,6 @@ namespace WorldPackets
         class CastSpell final : public ClientPacket
         {
         public:
-
             CastSpell(WorldPacket&& packet) : ClientPacket(CMSG_CAST_SPELL, std::move(packet)) { }
 
             void Read() override;
@@ -236,7 +235,6 @@ namespace WorldPackets
         class PetCastSpell final : public ClientPacket
         {
         public:
-
             PetCastSpell(WorldPacket&& packet) : ClientPacket(CMSG_PET_CAST_SPELL, std::move(packet)) { }
 
             void Read() override;
@@ -389,6 +387,8 @@ namespace WorldPackets
             uint8 CastID = 0;
         };
 
+        //< SMSG_CAST_FAILED
+        //< SMSG_PET_CAST_FAILED
         class CastFailed final : public ServerPacket
         {
         public:

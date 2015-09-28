@@ -432,12 +432,16 @@ void WorldSession::HandleBattleFieldPort(WorldPackets::Battleground::Port& packe
 
 void WorldSession::HandleLeaveBattlefield(WorldPackets::Battleground::NullCmsg& /*packet*/)
 {
-    if (Battleground* bg = _player->GetBattleground())
-        if (_player->isInCombat() || bg->isArena())
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    if (Battleground* bg = player->GetBattleground())
+        if (player->isInCombat() || bg->isArena())
             if (bg->GetStatus() != STATUS_WAIT_LEAVE)
                 return;
 
-    _player->LeaveBattleground();
+    player->LeaveBattleground();
 }
 
 void WorldSession::HandleBattlefieldStatus(WorldPackets::Battleground::NullCmsg& /*packet*/)
@@ -606,6 +610,7 @@ void WorldSession::JoinBracket(uint8 slot)
     }
     sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, Jointype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
+
 void WorldSession::HandleBattlemasterJoinArena(WorldPackets::Battleground::JoinArena& packet)
 {
     JoinBracket(packet.TeamSizeIndex);
@@ -648,4 +653,47 @@ void WorldSession::HandlePersonalRatedInfoRequest(WorldPackets::Battleground::Nu
     constants.PvpCPExpCoefficient = 1639.28f;
     constants.PvpCPNumerator = 0.00412f;
     SendPacket(constants.Write());
+}
+
+void WorldSession::HandleAreaSpiritHealerQuery(WorldPackets::Battleground::AreaSpiritHealerQuery& packet)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    Creature* unit = player->GetMap()->GetCreature(packet.HealerGuid);
+    if (!unit)
+        return;
+
+    if (!unit->isSpiritService())
+        return;
+
+    if (Battleground* bg = player->GetBattleground())
+        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(player, bg, packet.HealerGuid);
+
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
+        bf->SendAreaSpiritHealerQueryOpcode(player, packet.HealerGuid);
+}
+
+void WorldSession::HandleAreaSpiritHealerQueue(WorldPackets::Battleground::AreaSpiritHealerQueue& packet)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    Creature* unit = player->GetMap()->GetCreature(packet.HealerGuid);
+    if (!unit)
+        return;
+
+    if (!unit->isSpiritService())
+        return;
+
+    if (Battleground* bg = player->GetBattleground())
+        bg->AddPlayerToResurrectQueue(packet.HealerGuid, player->GetGUID());
+
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(player->GetZoneId()))
+    {
+        bf->RemovePlayerFromResurrectQueue(player->GetGUID());
+        bf->AddPlayerToResurrectQueue(packet.HealerGuid, player->GetGUID());
+    }
 }

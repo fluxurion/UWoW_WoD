@@ -25,6 +25,39 @@ namespace WorldPackets
 {
     namespace Update
     {
+        class DestroyArenaUnit final : public ServerPacket
+        {
+        public:
+            DestroyArenaUnit() : ServerPacket(SMSG_DESTROY_ARENA_UNIT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class MapObjEvents final : public ServerPacket
+        {
+        public:
+            MapObjEvents() : ServerPacket(SMSG_MAP_OBJ_EVENTS, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 UniqueID = 0;
+            uint32 DataSize = 0;
+            std::vector<uint8> Unk2;
+        };
+
+        class SetAnimTimer final : public ServerPacket
+        {
+        public:
+            SetAnimTimer() : ServerPacket(SMSG_SET_ANIM_TIER, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint8 Tier = 0;
+        };
+
     }
 }
 

@@ -37,7 +37,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectItemData 
     data << itemData.Item;
     data << uint8(itemData.Index);
 
-    data << uint32(itemData.Enchants.size());
+    data << static_cast<uint32>(itemData.Enchants.size());
     for (size_t i = 0; i < itemData.Enchants.size(); ++i)
         data << itemData.Enchants[i];
 
@@ -75,9 +75,9 @@ WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
 {
     _worldPacket << InspecteeGUID;
 
-    _worldPacket << uint32(Items.size());
-    _worldPacket << uint32(Glyphs.size());
-    _worldPacket << uint32(Talents.size());
+    _worldPacket << static_cast<uint32>(Items.size());
+    _worldPacket << static_cast<uint32>(Glyphs.size());
+    _worldPacket << static_cast<uint32>(Talents.size());
 
     _worldPacket << int32(ClassID);
     _worldPacket << int32(SpecializationID);

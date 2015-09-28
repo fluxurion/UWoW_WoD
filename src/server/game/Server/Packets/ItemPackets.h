@@ -20,9 +20,11 @@
 
 #include "Packet.h"
 #include "Item.h"
+//#include "Group.h"
 #include "PacketUtilities.h"
 
 struct VoidStorageItem;
+class Roll;
 
 namespace WorldPackets
 {
@@ -107,8 +109,9 @@ namespace WorldPackets
         struct ItemInstance
         {
             void Initialize(::Item const* item);
-            void Initialize(::LootItem const& lootItem);
+            void Initialize(::LootItem const* lootItem);
             void Initialize(::VoidStorageItem const* voidItem);
+            void Initialize(::Roll const* roll);
 
             uint32 ItemID = 0;
             uint32 RandomPropertiesSeed = 0;
@@ -290,6 +293,55 @@ namespace WorldPackets
             bool Created = false;
             bool IsBonusRoll = false;
             bool IsEncounterLoot = false;
+        };
+
+        class BuyFailed final : ServerPacket
+        {
+        public:
+            BuyFailed() : ServerPacket(SMSG_BUY_FAILED, 16 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid VendorGUID;
+            uint32 Muid = 0u;
+            BuyResult Reason = BUY_ERR_CANT_FIND_ITEM;
+        };
+
+        class SellResponse final : public ServerPacket
+        {
+        public:
+            SellResponse() : ServerPacket(SMSG_SELL_RESPONSE, 16 + 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid VendorGUID;
+            ObjectGuid ItemGUID;
+            SellResult Reason = SELL_ERR_UNK;
+        };
+
+        class BuySucceeded final : ServerPacket
+        {
+        public:
+            BuySucceeded() : ServerPacket(SMSG_BUY_SUCCEEDED, 16 + 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid VendorGUID;
+            uint32 Muid = 0u;
+            uint32 QuantityBought = 0u;
+            int32 NewQuantity = 0;
+        };
+
+        class ItemCooldown final : public ServerPacket
+        {
+        public:
+            ItemCooldown() : ServerPacket(SMSG_ITEM_COOLDOWN, 24) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ItemGuid;
+            uint32 SpellID = 0;
+            uint32 Cooldown = 0;
         };
     }
 }

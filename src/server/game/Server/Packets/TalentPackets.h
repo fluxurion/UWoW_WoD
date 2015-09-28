@@ -29,7 +29,7 @@ namespace WorldPackets
         {
             uint32 SpecID;
             std::vector<uint16> TalentIDs;
-            uint16 GlyphIDs[MAX_GLYPH_SLOT_INDEX];
+            uint16 GlyphIDs[MAX_GLYPH_SLOT_INDEX] = { };
         };
 
         struct TalentInfoUpdate
@@ -68,7 +68,6 @@ namespace WorldPackets
 
             void Read() override;
             std::vector<uint16> Talents;
-
         };
     }
 }

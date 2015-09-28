@@ -111,7 +111,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const
     data << float(entry.DaysLeft);
     data << int32(entry.MailTemplateID);
 
-    data << int32(entry.Attachments.size());
+    data << static_cast<int32>(entry.Attachments.size());
 
     for (auto const& att : entry.Attachments)
         data << att;
@@ -146,7 +146,7 @@ void WorldPackets::Mail::MailGetList::Read()
 
 WorldPacket const* WorldPackets::Mail::MailListResult::Write()
 {
-    _worldPacket << int32(Mails.size());
+    _worldPacket << static_cast<int32>(Mails.size());
     _worldPacket << int32(TotalNumRecords);
 
     for (auto const& mail : Mails)
@@ -255,7 +255,7 @@ WorldPackets::Mail::MailQueryNextTimeResult::MailNextTimeEntry::MailNextTimeEntr
 WorldPacket const* WorldPackets::Mail::MailQueryNextTimeResult::Write()
 {
     _worldPacket << float(NextMailTime);
-    _worldPacket << int32(Next.size());
+    _worldPacket << static_cast<int32>(Next.size());
 
     for (auto const& entry : Next)
     {

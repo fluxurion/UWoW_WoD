@@ -70,25 +70,15 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid const& guid)
     SendPacket(activate.Write());
 }
 
-//! 6.0.3
-void WorldSession::HandleBankerActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleBankerActivate(WorldPackets::NPC::Hello& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BANKER_ACTIVATE");
-
-    if (!CanUseBank(guid))
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBankerActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(guid.GetCounter()));
+    if (!CanUseBank(packet.Unit))
         return;
-    }
 
-    // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    SendShowBank(guid);
+    SendShowBank(packet.Unit);
 }
 
 void WorldSession::SendShowBank(ObjectGuid const& guid)
@@ -100,12 +90,9 @@ void WorldSession::SendShowBank(ObjectGuid const& guid)
     SendPacket(bank.Write());
 }
 
-void WorldSession::HandleTrainerListOpcode(WorldPacket & recvData)
+void WorldSession::HandleTrainerList(WorldPackets::NPC::Hello& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid.ReadAsPacked();
-
-    SendTrainerList(guid);
+    SendTrainerList(packet.Unit);
 }
 
 void WorldSession::SendTrainerList(ObjectGuid const& guid)
@@ -465,24 +452,21 @@ void WorldSession::SendSpiritResurrect()
         player->UpdateObjectVisibility();
 }
 
-void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleBinderActivate(WorldPackets::NPC::Hello& packet)
 {
-    ObjectGuid npcGUID;
-    recvData >> npcGUID;
-
-    if (!GetPlayer()->IsInWorld() || !GetPlayer()->isAlive())
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_INNKEEPER);
+    if (!player->IsInWorld() || !player->isAlive())
+        return;
+
+    Creature* unit = player->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_INNKEEPER);
     if (!unit)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBinderActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", npcGUID.GetCounter());
         return;
-    }
 
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    if (player->HasUnitState(UNIT_STATE_DIED))
+        player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     SendBindPoint(unit);
 }
@@ -518,70 +502,28 @@ void WorldSession::SendBindPoint(Creature* npc)
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleListInventory(WorldPackets::NPC::Hello& packet)
 {
-    ObjectGuid npcGUID, itemGUID;
-    bool guildBank;                                         // new in 2.3.2, bool that means from guild bank money
-    recvData >> npcGUID >> itemGUID;
-    guildBank = recvData.ReadBit();
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_REPAIR);
-    if (!unit)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleRepairItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", npcGUID.GetCounter());
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    // reputation discount
-    float discountMod = _player->GetReputationPriceDiscount(unit);
-
-    if (itemGUID)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ITEM: Repair item, itemGUID = %u, npcGUID = %u", itemGUID.GetCounter(), npcGUID.GetCounter());
-
-        Item* item = _player->GetItemByGuid(itemGUID);
-        if (item)
-            _player->DurabilityRepair(item->GetPos(), true, discountMod, guildBank != 0);
-    }
-    else
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "ITEM: Repair all items, npcGUID = %u", npcGUID.GetCounter());
-        _player->DurabilityRepairAll(true, discountMod, guildBank != 0);
-    }
-}
-
-void WorldSession::HandleListInventoryOpcode(WorldPacket & recvData)
-{
-    ObjectGuid guid;
-    recvData >> guid;
-
-    if (!GetPlayer()->isAlive())
-        return;
-
-    SendListInventory(guid);
+    if (GetPlayer()->isAlive())
+        SendListInventory(packet.Unit);
 }
 
 void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_VENDOR_INVENTORY");
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
+    Creature* vendor = player->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!vendor)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", vendorGuid.GetCounter());
-        _player->SendSellError(SELL_ERR_VENDOR_HATES_YOU, NULL, ObjectGuid::Empty);
+        player->SendSellError(SELL_ERR_VENDOR_HATES_YOU, NULL, ObjectGuid::Empty);
         return;
     }
 
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    if (player->HasUnitState(UNIT_STATE_DIED))
+        player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    // Stop the npc if moving
     if (vendor->HasUnitState(UNIT_STATE_MOVING))
         vendor->StopMoving();
 
@@ -596,7 +538,7 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
 
     packet.Items.resize(rawItemCount);
 
-    const float discountMod = _player->GetReputationPriceDiscount(vendor);
+    const float discountMod = player->GetReputationPriceDiscount(vendor);
     uint32 realCount = 0;
     for (uint32 slot = 0; slot < rawItemCount; ++slot)
     {
@@ -616,38 +558,33 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
                 continue;
 
             uint32 leftInStock = vendorItem->maxcount <= 0 ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
-            if (!_player->isGameMaster()) // ignore conditions if GM on
+            if (!player->isGameMaster())
             {
-                // Items sold out are not displayed in list
                 if (leftInStock == 0)
                     continue;
 
                 ConditionList conditions = sConditionMgr->GetConditionsForNpcVendorEvent(vendor->GetEntry(), vendorItem->item);
-                if (!sConditionMgr->IsObjectMeetToConditions(_player, vendor, conditions))
-                {
-                    sLog->outDebug(LOG_FILTER_CONDITIONSYS, "SendListInventory: conditions not met for creature entry %u item %u", vendor->GetEntry(), vendorItem->item);
+                if (!sConditionMgr->IsObjectMeetToConditions(player, vendor, conditions))
                     continue;
-                }
 
-                // Respect allowed class
-                if (!(itemTemplate->AllowableClass & _player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
+                if (!(itemTemplate->AllowableClass & player->getClassMask()) && itemTemplate->Bonding == BIND_WHEN_PICKED_UP)
                     continue;
 
                 // Custom MoP Script for Pandarens Mounts (Alliance)
-                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && _player->getRace() != RACE_PANDAREN_ALLIANCE
-                    && _player->getRace() != RACE_PANDAREN_HORDE && _player->getRace() != RACE_PANDAREN_NEUTRAL
-                    && vendor->GetEntry() == 65068 && _player->GetReputationRank(1353) != REP_EXALTED)
+                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && player->getRace() != RACE_PANDAREN_ALLIANCE
+                    && player->getRace() != RACE_PANDAREN_HORDE && player->getRace() != RACE_PANDAREN_NEUTRAL
+                    && vendor->GetEntry() == 65068 && player->GetReputationRank(1353) != REP_EXALTED)
                     continue;
 
                 // Custom MoP Script for Pandarens Mounts (Horde)
-                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && _player->getRace() != RACE_PANDAREN_ALLIANCE
-                    && _player->getRace() != RACE_PANDAREN_HORDE && _player->getRace() != RACE_PANDAREN_NEUTRAL
-                    && vendor->GetEntry() == 66022 && _player->GetReputationRank(1352) != REP_EXALTED)
+                if (itemTemplate->Class == 15 && itemTemplate->SubClass == 5 && player->getRace() != RACE_PANDAREN_ALLIANCE
+                    && player->getRace() != RACE_PANDAREN_HORDE && player->getRace() != RACE_PANDAREN_NEUTRAL
+                    && vendor->GetEntry() == 66022 && player->GetReputationRank(1352) != REP_EXALTED)
                     continue;
 
                 // Only display items in vendor lists for the team the player is on
-                if ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) ||
-                    (itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE))
+                if ((itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && player->GetTeam() == ALLIANCE) ||
+                    (itemTemplate->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && player->GetTeam() == HORDE))
                     continue;
 
                 std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
@@ -659,14 +596,13 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
                         continue;
 
                     Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId());
-
                     if (!guild)
                     {
                         guildRewardCheckPassed = false;
                         break;
                     }
 
-                    if (reward->Standing && _player->GetReputationRank(REP_GUILD) < reward->Standing)
+                    if (reward->Standing && player->GetReputationRank(REP_GUILD) < reward->Standing)
                     {
                         guildRewardCheckPassed = false;
                         break;
@@ -680,7 +616,7 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
 
                     if (reward->Racemask)
                     {
-                        if (!(_player->getRaceMask() & reward->Racemask))
+                        if (!(player->getRaceMask() & reward->Racemask))
                         {
                             guildRewardCheckPassed = false;
                             break;
@@ -692,10 +628,9 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
                     continue;
             }
 
-            // reputation discount
             int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(itemTemplate->BuyPrice/* * discountMod*/) : 0;
 
-            //if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
+            //if (int32 priceMod = player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                  //price -= CalculatePct(price, priceMod);
 
             // if (!unk "enabler") data << uint32(something);
@@ -707,8 +642,6 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
                     if (ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(vendorItem->ExtendedCost))
                         price = uint32(iece->RequiredItemCount[0] * 10000 * sWorld->getRate(RATE_DONATE));
                 }
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "WorldSession::HandleStableChangeSlotCallback: slot %i new_slot %i pet_entry %u pet_number %u", slot, new_slot, pet_entry, pet_number);
-
             }
 
             item.MuID = slot + 1; // client expects counting to start at 1
@@ -724,12 +657,11 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
         else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
         {
             CurrencyTypesEntry const* currencyTemplate = sCurrencyTypesStore.LookupEntry(vendorItem->item);
-
             if (!currencyTemplate)
                 continue;
 
             if (vendorItem->ExtendedCost == 0)
-                continue; // there's no price defined for currencies, only extendedcost is used
+                continue;
 
             uint32 precision = currencyTemplate->GetPrecision();
 

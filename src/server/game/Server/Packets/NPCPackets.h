@@ -28,7 +28,6 @@ namespace WorldPackets
     {
         // CMSG_BANKER_ACTIVATE
         // CMSG_BINDER_ACTIVATE
-        // CMSG_BINDER_CONFIRM
         // CMSG_TALK_TO_GOSSIP
         // CMSG_LIST_INVENTORY
         // CMSG_TRAINER_LIST
@@ -65,7 +64,7 @@ namespace WorldPackets
         class GossipMessage final : public ServerPacket
         {
         public:
-            GossipMessage() : ServerPacket(SMSG_GOSSIP_MESSAGE, 200) { }
+            GossipMessage() : ServerPacket(SMSG_GOSSIP_MESSAGE, 4 + 4 + 16 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -115,7 +114,7 @@ namespace WorldPackets
         class VendorInventory final : public ServerPacket
         {
         public:
-            VendorInventory() : ServerPacket(SMSG_VENDOR_INVENTORY, 600) { }
+            VendorInventory() : ServerPacket(SMSG_VENDOR_INVENTORY, 1 + 4 + 16) { }
 
             WorldPacket const* Write() override;
 
@@ -138,7 +137,7 @@ namespace WorldPackets
         class TrainerList final : public ServerPacket
         {
         public:
-            TrainerList() : ServerPacket(SMSG_TRAINER_LIST, 150) { }
+            TrainerList() : ServerPacket(SMSG_TRAINER_LIST, 2 + 4 + 16 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -187,10 +186,10 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Flags        = 0;
-            G3D::Vector2 Pos;
-            int32 Icon          = 0;
-            int32 Importance    = 0;
+            uint32 Flags = 0;
+            Position Pos;
+            int32 Icon = 0;
+            int32 Importance = 0;
             std::string Name;
         };
 

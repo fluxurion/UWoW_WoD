@@ -91,7 +91,7 @@ namespace WorldPackets
         class SetCurrency final : public ServerPacket
         {
         public:
-            SetCurrency() : ServerPacket(SMSG_SET_CURRENCY, 12) { }
+            SetCurrency() : ServerPacket(SMSG_SET_CURRENCY, 12) { } // @TODO
 
             WorldPacket const* Write() override;
 
@@ -126,7 +126,7 @@ namespace WorldPackets
                 uint8 Flags = 0;
             };
 
-            SetupCurrency() : ServerPacket(SMSG_SETUP_CURRENCY, 22) { }
+            SetupCurrency() : ServerPacket(SMSG_SETUP_CURRENCY, 22) { } // @TODO
 
             WorldPacket const* Write() override;
 
@@ -341,7 +341,7 @@ namespace WorldPackets
         class PreRessurect : public ServerPacket
         {
         public:
-            PreRessurect() : ServerPacket(SMSG_PRE_RESSURECT, 18) { }
+            PreRessurect() : ServerPacket(SMSG_PRE_RESSURECT, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -379,7 +379,7 @@ namespace WorldPackets
         class RequestCemeteryListResponse final : public ServerPacket
         {
         public:
-            RequestCemeteryListResponse() : ServerPacket(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, 1) { }
+            RequestCemeteryListResponse() : ServerPacket(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, 1 + 4) { }
 
             WorldPacket const* Write() override;
 

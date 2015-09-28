@@ -27,26 +27,23 @@
 #include "UpdateMask.h"
 #include "TalentPackets.h"
 
-//! 6.0.3
-void WorldSession::HandleSetSpecialization(WorldPacket& recvData)
+void WorldSession::HandleSetSpecialization(WorldPackets::Talent::SetSpecialization& packet)
 {
-    uint32 tab = recvData.read<uint32>();
-    uint8 classId = _player->getClass();
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    // Avoid cheat - hack
-    if(_player->GetSpecializationId(_player->GetActiveSpec()))
+    uint8 classId = player->getClass();
+
+    if (player->GetSpecializationId(player->GetActiveSpec()))
         return;
 
     uint32 specializationId = 0;
     uint32 specializationSpell = 0;
 
-    for (uint32 i = 0; i < sChrSpecializationsStore.GetNumRows(); i++)
+    for (ChrSpecializationsEntry const* specialization : sChrSpecializationsStore)
     {
-        ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(i);
-        if (!specialization)
-            continue;
-
-        if (specialization->ClassID == classId && specialization->OrderIndex == tab)
+        if (specialization->ClassID == classId && specialization->OrderIndex == packet.SpecGroupIndex)
         {
             specializationId = specialization->ID;
             specializationSpell = specialization->MasterySpellID[0];
@@ -56,40 +53,34 @@ void WorldSession::HandleSetSpecialization(WorldPacket& recvData)
 
     if (specializationId)
     {
-        _player->SetSpecializationId(_player->GetActiveSpec(), specializationId);
-        _player->SendTalentsInfoData(false);
-        _player->InitSpellForLevel();
-        _player->InitialPowers();
-        _player->_ApplyOrRemoveItemEquipDependentAuras(ObjectGuid::Empty, false);
+        player->SetSpecializationId(player->GetActiveSpec(), specializationId);
+        player->SendTalentsInfoData(false);
+        player->InitSpellForLevel();
+        player->InitialPowers();
+        player->_ApplyOrRemoveItemEquipDependentAuras(ObjectGuid::Empty, false);
     }
 }
 
-//! 6.0.3
-void WorldSession::HandleLearnTalents(WorldPacket& recvData)
+void WorldSession::HandleLearnTalent(WorldPackets::Talent::LearnTalent& packet)
 {
-    uint32 count = recvData.read<uint32>();
-
-    // Cheat - Hack check
-    if (count > 6)
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    if (count > _player->GetFreeTalentPoints())
+    if (packet.Talents.size() > 6)
         return;
 
-    Battleground* bg = _player->GetBattleground();
+    if (packet.Talents.size() > player->GetFreeTalentPoints())
+        return;
+
+    Battleground* bg = player->GetBattleground();
     if (bg && bg->GetStatus() != STATUS_WAIT_JOIN)
-    {
-        recvData.rfinish();
         return;
-    }
 
-    for (uint32 i = 0; i < count; ++i)
-    {
-        uint16 talentId = recvData.read<uint16>();
-        _player->LearnTalent(talentId);
-    }
+    for (uint32 const& talentID : packet.Talents)
+        player->LearnTalent(talentID);
 
-    _player->SendTalentsInfoData(false);
+    player->SendTalentsInfoData(false);
 }
 
 //! 6.0.3

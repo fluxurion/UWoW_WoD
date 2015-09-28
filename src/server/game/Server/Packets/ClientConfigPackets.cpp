@@ -39,8 +39,8 @@ uint8 const WorldPackets::ClientConfig::AddonInfo::PublicKey[256] =
 
 WorldPacket const* WorldPackets::ClientConfig::AddonInfo::Write()
 {
-    _worldPacket << uint32(Addons ? Addons->size() : 0);
-    _worldPacket << uint32(BannedAddons ? BannedAddons->size() : 0);
+    _worldPacket << static_cast<uint32>(Addons ? Addons->size() : 0);
+    _worldPacket << static_cast<uint32>(BannedAddons ? BannedAddons->size() : 0);
 
     if (Addons)
     {
@@ -107,7 +107,7 @@ WorldPacket const* WorldPackets::ClientConfig::UpdateAccountData::Write()
     _worldPacket << uint32(Time);
     _worldPacket << uint32(Size);
     _worldPacket.WriteBits(DataType, 3);
-    _worldPacket << uint32(CompressedData.size());
+    _worldPacket << static_cast<uint32>(CompressedData.size());
     _worldPacket.append(CompressedData);
 
     return &_worldPacket;

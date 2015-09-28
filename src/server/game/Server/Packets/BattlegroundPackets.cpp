@@ -55,8 +55,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::StatusHeade
     data << header.TeamSize;
     data << header.InstanceID;
 
-    data.FlushBits();
-
     data.WriteBit(header.RegisteredMatch);
     data.WriteBit(header.TournamentRules);
     data.FlushBits();
@@ -73,8 +71,6 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Battleground::StatusHeade
     data >> header.RangeMax;
     data >> header.TeamSize;
     data >> header.InstanceID;
-
-    data.FlushBits();
 
     header.RegisteredMatch = data.ReadBit();
     header.TournamentRules = data.ReadBit();
@@ -142,6 +138,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
     data.append(ratingData.Prematch, 2);
     data.append(ratingData.Postmatch, 2);
     data.append(ratingData.PrematchMMR, 2);
+
     return data;
 }
 
@@ -150,6 +147,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
     data << uint32(honorData.HonorKills);
     data << uint32(honorData.Deaths);
     data << uint32(honorData.ContributionPoints);
+
     return data;
 }
 
@@ -159,7 +157,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
     data << uint32(playerData.Kills);
     data << uint32(playerData.DamageDone);
     data << uint32(playerData.HealingDone);
-    data << uint32(playerData.Stats.size());
+    data << static_cast<uint32>(playerData.Stats.size());
     data << int32(playerData.PrimaryTalentTree);
     data << uint32(playerData.PrimaryTalentTreeNameIndex);
     if (!playerData.Stats.empty())
@@ -198,7 +196,7 @@ WorldPacket const* WorldPackets::Battleground::PVPLogData::Write()
 
     _worldPacket.WriteBit(Ratings.is_initialized());
     _worldPacket.WriteBit(Winner.is_initialized());
-    _worldPacket << uint32(Players.size());
+    _worldPacket << static_cast<uint32>(Players.size());
     _worldPacket.append(PlayerCount, 2);
 
     if (Ratings.is_initialized())
@@ -249,7 +247,7 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldList::Write()
     _worldPacket << MaxLevel;
     _worldPacket << MinLevel;
 
-    _worldPacket << uint32(Battlefields.size());
+    _worldPacket << static_cast<uint32>(Battlefields.size());
     for (uint32 const& map : Battlefields)
         _worldPacket << Battlefields[map];
 
@@ -298,7 +296,7 @@ WorldPacket const* WorldPackets::Battleground::RequestPVPRewardsResponse::Write(
 
 WorldPacket const* WorldPackets::Battleground::PlayerPositions::Write()
 {
-    _worldPacket << uint32(FlagCarriers.size());
+    _worldPacket << static_cast<uint32>(FlagCarriers.size());
     for (BattlegroundPlayerPosition const& map : FlagCarriers)
     {
         _worldPacket << map.Guid;
@@ -356,6 +354,7 @@ WorldPacket const* WorldPackets::Battleground::Points::Write()
 {
     _worldPacket << BgPoints;
     _worldPacket.WriteBit(Team);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -373,6 +372,7 @@ WorldPacket const* WorldPackets::Battleground::BFMgrEjected::Write()
     _worldPacket << BattleState;
     _worldPacket << Reason;
     _worldPacket.WriteBit(Relocated);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -385,13 +385,14 @@ WorldPacket const* WorldPackets::Battleground::BFMgrQueueRequestResponse::Write(
     _worldPacket << FailedPlayerGUID;
     _worldPacket << Result;
     _worldPacket.WriteBit(LoggingIn);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Battleground::MapObjectivesInit::Write()
 {
-    _worldPacket << uint32(CapturePointInfo.size());
+    _worldPacket << static_cast<uint32>(CapturePointInfo.size());
     for (BattlegroundCapturePointInfo const& map : CapturePointInfo)
     {
         _worldPacket << map.Guid;
@@ -412,6 +413,7 @@ WorldPacket const* WorldPackets::Battleground::BFMgrEjectPending::Write()
 {
     _worldPacket << QueueID;
     _worldPacket.WriteBit(Remove);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -467,10 +469,8 @@ WorldPacket const* WorldPackets::Battleground::BFMgrDropTimerCanceled::Write()
 WorldPacket const* WorldPackets::Battleground::BFMgrEntering::Write()
 {
     _worldPacket.WriteBit(ClearedAFK);
-
     _worldPacket.WriteBit(OnOffense);
     _worldPacket.WriteBit(Relocated);
-
     _worldPacket.FlushBits();
 
     _worldPacket << QueueID;
@@ -488,7 +488,6 @@ WorldPacket const* WorldPackets::Battleground::StatusQueued::Write()
     _worldPacket.WriteBit(AsGroup);
     _worldPacket.WriteBit(SuspendedQueue);
     _worldPacket.WriteBit(EligibleForMatchmaking);
-
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -504,7 +503,6 @@ WorldPacket const* WorldPackets::Battleground::StatusActive::Write()
 
     _worldPacket.WriteBit(ArenaFaction);
     _worldPacket.WriteBit(LeftEarly);
-
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -521,9 +519,8 @@ WorldPacket const* WorldPackets::Battleground::BFMgrQueueInvite::Write()
     _worldPacket << InstanceID;
     _worldPacket << MapID;
 
-    _worldPacket.FlushBits();
-
     _worldPacket.WriteBit(Index);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -541,7 +538,7 @@ WorldPacket const* WorldPackets::Battleground::ConquestFormulaConstants::Write()
 
 WorldPacket const* WorldPackets::Battleground::ArenaPrepOpponentSpecializations::Write()
 {
-    _worldPacket << uint32(Data.size());
+    _worldPacket << static_cast<uint32>(Data.size());
     for (auto const& itr : Data)
     {
         _worldPacket << itr.SpecializationID;

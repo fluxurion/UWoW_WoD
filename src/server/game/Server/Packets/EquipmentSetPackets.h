@@ -81,7 +81,7 @@ namespace WorldPackets
             };
 
             WorldPackets::Item::InvUpdate Inv;
-            EquipmentSetItem Items[EQUIPMENT_SLOT_END];
+            EquipmentSetItem Items[EQUIPMENT_SLOT_END] = { };
         };
 
         class UseEquipmentSetResult final : public ServerPacket

@@ -31,6 +31,7 @@
 #include "Util.h"
 #include "Group.h"
 #include "SpellPackets.h"
+#include "PetPackets.h"
 
 #define PET_XP_FACTOR 0.05f
 
@@ -1398,21 +1399,17 @@ bool TempSummon::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, 
     return true;
 }
 
-//! 6.0.3
-bool TempSummon::learnSpell(uint32 spell_id)
+bool TempSummon::learnSpell(uint32 spellID)
 {
-    // prevent duplicated entires in spell book
-    if (!addSpell(spell_id))
+    if (!addSpell(spellID))
         return false;
 
     if (!m_loading && m_owner->ToPlayer())
     {
-        WorldPacket data(SMSG_PET_LEARNED_SPELLS, 4);
-        data << uint32(1);
-        data << uint32(spell_id);
-        m_owner->ToPlayer()->GetSession()->SendPacket(&data);
+        m_owner->ToPlayer()->GetSession()->SendPacket(WorldPackets::PetPackets::LearnedRemovedSpells(SMSG_PET_LEARNED_SPELLS, std::vector<uint32>(spellID)).Write());
         m_owner->ToPlayer()->PetSpellInitialize();
     }
+
     return true;
 }
 
@@ -1473,20 +1470,19 @@ void TempSummon::InitLevelupSpellsForLevel()
     }
 }
 
-bool TempSummon::unlearnSpell(uint32 spell_id)
+bool TempSummon::unlearnSpell(uint32 spellID)
 {
-    if (removeSpell(spell_id))
+    if (removeSpell(spellID))
     {
         if (!m_loading && m_owner->ToPlayer())
         {
-            WorldPacket data(SMSG_PET_UNLEARNED_SPELLS, 4);
-            data << uint32(1);
-            data << uint32(spell_id);
-            if(Player* player = m_owner->ToPlayer())
-                player->GetSession()->SendPacket(&data);
+            if (Player* player = m_owner->ToPlayer())
+                player->GetSession()->SendPacket(WorldPackets::PetPackets::LearnedRemovedSpells(SMSG_PET_UNLEARNED_SPELLS, std::vector<uint32>(spellID)).Write());
         }
+
         return true;
     }
+
     return false;
 }
 

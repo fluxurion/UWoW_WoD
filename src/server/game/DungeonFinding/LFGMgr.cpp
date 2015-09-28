@@ -33,6 +33,8 @@
 #include "GroupMgr.h"
 #include "GameEventMgr.h"
 
+#include "LFGPackets.h"
+
 namespace lfg
 {
 
@@ -373,7 +375,13 @@ void LFGMgr::Update(uint32 diff)
             }
 
             if (proposal.state == LFG_PROPOSAL_SUCCESS)
-                UpdateProposal(proposalId, guid, true);
+            {
+                WorldPackets::LFG::ProposalResponse response;
+                response.Accepted = true;
+                response.ProposalID = proposalId;
+                response.Ticket.RequesterGuid = guid;
+                UpdateProposal(response);
+            }
         }
     }
 
@@ -1050,38 +1058,27 @@ uint32 LFGMgr::AddProposal(LfgProposal& proposal)
     return m_lfgProposalId;
 }
 
-/**
-   Update Proposal info with player answer
-
-   @param[in]     proposalId Proposal id to be updated
-   @param[in]     guid Player guid to update answer
-   @param[in]     accept Player answer
-*/
-void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
+void LFGMgr::UpdateProposal(WorldPackets::LFG::ProposalResponse response)
 {
-    // Check if the proposal exists
-    LfgProposalContainer::iterator itProposal = ProposalsStore.find(proposalId);
+    LfgProposalContainer::iterator itProposal = ProposalsStore.find(response.ProposalID);
     if (itProposal == ProposalsStore.end())
         return;
 
     LfgProposal& proposal = itProposal->second;
 
-    // Check if proposal have the current player
-    LfgProposalPlayerContainer::iterator itProposalPlayer = proposal.players.find(guid);
+    LfgProposalPlayerContainer::iterator itProposalPlayer = proposal.players.find(response.Ticket.RequesterGuid);
     if (itProposalPlayer == proposal.players.end())
         return;
 
     LfgProposalPlayer& player = itProposalPlayer->second;
-    player.accept = LfgAnswer(accept);
+    player.accept = LfgAnswer(response.Accepted);
 
-    sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::UpdateProposal: %s of proposal %u selected: %u", guid.ToString().c_str(), proposalId, accept);
-    if (!accept)
+    if (!response.Accepted)
     {
         RemoveProposal(itProposal, LFG_UPDATETYPE_PROPOSAL_FAILED/*LFG_UPDATETYPE_PROPOSAL_DECLINED*/);
         return;
     }
 
-    // check if all have answered and reorder players (leader first)
     bool allAnswered = true;
     for (LfgProposalPlayerContainer::const_iterator itPlayers = proposal.players.begin(); itPlayers != proposal.players.end(); ++itPlayers)
         if (itPlayers->second.accept != LFG_ANSWER_AGREE)   // No answer (-1) or not accepted (0)
@@ -1097,9 +1094,8 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
 
     bool sendUpdate = proposal.state != LFG_PROPOSAL_SUCCESS;
     proposal.state = LFG_PROPOSAL_SUCCESS;
-    time_t joinTime = time(NULL);
 
-    LFGQueue& queue = GetQueue(guid);
+    LFGQueue& queue = GetQueue(response.Ticket.RequesterGuid);
     for (LfgProposalPlayerContainer::const_iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
     {
         ObjectGuid pguid = it->first;
@@ -1119,19 +1115,18 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
 
         if (gguid)
         {
-            waitTime = int32((joinTime - queue.GetJoinTime(gguid)) / IN_MILLISECONDS);
+            waitTime = int32((response.Ticket.Time - queue.GetJoinTime(gguid)) / IN_MILLISECONDS);
             SendLfgUpdateParty(pguid, updateData);
         }
         else
         {
-            waitTime = int32((joinTime - queue.GetJoinTime(pguid)) / IN_MILLISECONDS);
+            waitTime = int32((response.Ticket.Time - queue.GetJoinTime(pguid)) / IN_MILLISECONDS);
             SendLfgUpdatePlayer(pguid, updateData);
         }
         updateData.updateType = LFG_UPDATETYPE_REMOVED_FROM_QUEUE;
         SendLfgUpdatePlayer(pguid, updateData);
         SendLfgUpdateParty(pguid, updateData);
 
-        // Update timers
         uint8 role = GetRoles(pguid);
         role &= ~PLAYER_ROLE_LEADER;
         switch (role)
@@ -1153,7 +1148,6 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
         SetState(pguid, LFG_STATE_DUNGEON);
     }
 
-    // Remove players/groups from Queue
     for (GuidList::const_iterator it = proposal.queues.begin(); it != proposal.queues.end(); ++it)
         queue.RemoveFromQueue(*it);
 
@@ -1464,7 +1458,6 @@ void LFGMgr::SendUpdateStatus(Player* player, LfgUpdateData const& updateData, b
 {
     ObjectGuid guid = player->GetGUID();
     ObjectGuid gguid = player->GetGroup() ? player->GetGroup()->GetGUID() : player->GetGUID();
-    LFGQueue& queue = GetQueue(gguid);
 
     bool queued = false;
     bool active = false;
@@ -1511,43 +1504,29 @@ void LFGMgr::SendUpdateStatus(Player* player, LfgUpdateData const& updateData, b
             break;
     }
 
-    LfgQueueData const* queueData = queue.GetQueueData(gguid);
+    LfgQueueData const* queueData = GetQueue(gguid).GetQueueData(gguid);
 
+    WorldPackets::LFG::QueueStatusUpdate update;
+    update.Ticket.RequesterGuid = guid;
+    update.Ticket.Id = player->GetTeam();
+    update.Ticket.Type = 3;
+    update.Ticket.Time = queueData ? queueData->joinTime : time(nullptr);
+    update.SubType = queueData ? queueData->subType : LFG_SUBTYPE_DUNGEON;
+    update.Reason = updateData.updateType;
+    //update.Needs[3] = { };
+    update.RequestedRoles = GetRoles(guid);
+    //update.SuspendedPlayers;
+    update.IsParty = party;
+    update.NotifyUI = true;
+    update.Joined = join;
+    update.LfgJoined = lfgJoined;
+    update.Queued = queued;
+    update.Comment = updateData.comment;
 
-    //! 6.0.3
-    WorldPacket data(SMSG_LFG_UPDATE_STATUS, 100);
+    for (auto const& id : updateData.dungeons)
+        update.Slots.push_back(GetLFGDungeonEntry(id));
 
-    //ReadCliRideTicket part
-    {
-        data << guid;
-        data << uint32(3);                              // queue id. 4 - looking for raid, 3 - others
-        data << uint32(player->GetTeam());              // group id?
-        data << uint32(queueData ? queueData->joinTime : time(NULL));
-    }
-
-    data << uint8(queueData ? queueData->subType : LFG_SUBTYPE_DUNGEON);  // 1 - dungeon finder, 2 - raid finder, 3 - scenarios, 4 - flex
-    data << uint8(updateData.updateType);                                 // error?   1, 11, 17 - succed, other - failed
-
-    for (int i = 0; i < 3; ++i)
-        data << uint8(0);     
-
-    data << uint32(updateData.dungeons.size());
-    data << uint32(GetRoles(guid));                 // roles mask
-    data << uint32(0);                              // SuspendedPlayersCount
-
-    for (LfgDungeonSet::const_iterator i = updateData.dungeons.begin(); i != updateData.dungeons.end(); ++i)
-        data << uint32(GetLFGDungeonEntry(*i));     // Dungeon entries
-
-    data.WriteBit(party);                           // in group
-    data.WriteBit(1/*!queued ? 0 : active*/);            // 1 - active, 0 - paused
-    data.WriteBit(join);                            // joined
-    data.WriteBit(lfgJoined);                       // display or not the lfr button, lfg join ?, 0 for last one
-    data.WriteBit(queued);                          // 1 - show notification
-
-    data.WriteBits(updateData.comment.size(), 8);   // comment
-    data.WriteString(updateData.comment);
-
-    player->GetSession()->SendPacket(&data);
+    player->GetSession()->SendPacket(update.Write());
 }
 
 /**

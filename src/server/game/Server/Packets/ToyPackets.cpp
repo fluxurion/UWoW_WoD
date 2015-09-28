@@ -33,9 +33,8 @@ WorldPacket const* WorldPackets::Toy::AccountToysUpdate::Write()
     _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket.FlushBits();
 
-    // both lists have to have the same size
-    _worldPacket << int32(Toys->size());
-    _worldPacket << int32(Toys->size());
+    _worldPacket << static_cast<int32>(Toys->size());
+    _worldPacket << static_cast<int32>(Toys->size());
 
     for (auto const& item : *Toys)
         _worldPacket << uint32(item.first);

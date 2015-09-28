@@ -24,7 +24,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AuctionHouse::AuctionItem
     data << auctionItem.Item;
     data << int32(auctionItem.Count);
     data << int32(auctionItem.Charges);
-    data << int32(auctionItem.Enchantments.size());
+    data << static_cast<int32>(auctionItem.Enchantments.size());
     data << int32(auctionItem.Flags);
     data << int32(auctionItem.AuctionItemID);
     data << auctionItem.Owner;
@@ -68,6 +68,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AuctionHouse::AuctionOwne
     data << int32(ownerNotification.AuctionItemID);
     data << uint64(ownerNotification.BidAmount);
     data << ownerNotification.Item;
+
     return data;
 }
 
@@ -76,6 +77,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AuctionHouse::AuctionBidd
     data << int32(bidderNotification.AuctionItemID);
     data << bidderNotification.Bidder;
     data << bidderNotification.Item;
+
     return data;
 }
 
@@ -143,7 +145,6 @@ void WorldPackets::AuctionHouse::AuctionSellItem::Read()
     _worldPacket >> RunTime;
 
     uint8 ItemsCount = _worldPacket.ReadBits(5);
-    _worldPacket.FlushBits();
 
     for (uint8 i = 0; i < ItemsCount; i++)
     {
@@ -166,7 +167,6 @@ void WorldPackets::AuctionHouse::AuctionListBidderItems::Read()
     _worldPacket >> Auctioneer;
     _worldPacket >> Offset;
     uint8 auctionItemIDsCount = _worldPacket.ReadBits(7);
-    _worldPacket.FlushBits();
 
     for (uint8 i = 0; i < auctionItemIDsCount; i++)
     {
@@ -193,14 +193,13 @@ void WorldPackets::AuctionHouse::AuctionReplicateItems::Read()
 
 WorldPacket const* WorldPackets::AuctionHouse::AuctionListItemsResult::Write()
 {
-    _worldPacket << int32(Items.size());
+    _worldPacket << static_cast<int32>(Items.size());
     _worldPacket << int32(TotalCount);
     _worldPacket << int32(DesiredDelay);
 
     for (auto const& item : Items)
         _worldPacket << item;
 
-    _worldPacket.FlushBits();
     _worldPacket.WriteBit(OnlyUsable);
     _worldPacket.FlushBits();
 
@@ -209,7 +208,7 @@ WorldPacket const* WorldPackets::AuctionHouse::AuctionListItemsResult::Write()
 
 WorldPacket const* WorldPackets::AuctionHouse::AuctionListOwnerItemsResult::Write()
 {
-    _worldPacket << int32(Items.size());
+    _worldPacket << static_cast<int32>(Items.size());
     _worldPacket << uint32(TotalCount);
     _worldPacket << uint32(DesiredDelay);
 
@@ -221,7 +220,7 @@ WorldPacket const* WorldPackets::AuctionHouse::AuctionListOwnerItemsResult::Writ
 
 WorldPacket const* WorldPackets::AuctionHouse::AuctionListBidderItemsResult::Write()
 {
-    _worldPacket << int32(Items.size());
+    _worldPacket << static_cast<int32>(Items.size());
     _worldPacket << uint32(TotalCount);
     _worldPacket << uint32(DesiredDelay);
 
@@ -267,7 +266,7 @@ void WorldPackets::AuctionHouse::AuctionListOwnerItems::Read()
 
 WorldPacket const* WorldPackets::AuctionHouse::AuctionListPendingSalesResult::Write()
 {
-    _worldPacket << int32(Mails.size());
+    _worldPacket << static_cast<int32>(Mails.size());
     _worldPacket << int32(TotalNumRecords);
 
     for (auto const& mail : Mails)
@@ -319,7 +318,7 @@ WorldPacket const* WorldPackets::AuctionHouse::AuctionReplicateResponse::Write()
     _worldPacket << int32(DesiredDelay);
     _worldPacket << int32(ChangeNumberTombstone);
     _worldPacket << int32(Result);
-    _worldPacket << int32(Items.size());
+    _worldPacket << static_cast<int32>(Items.size());
 
     for (auto const& item : Items)
         _worldPacket << item;

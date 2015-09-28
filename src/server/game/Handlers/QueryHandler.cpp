@@ -216,7 +216,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     packet.Valid = true;
     packet.MapID = corpsemapid;
     packet.ActualMapID = mapID;
-    packet.Position = G3D::Vector3(x, y, z);
+    packet.Position = {x, y, z};
     packet.Transport = corpse->GetTransGUID();
     SendPacket(packet.Write());
 }
@@ -240,8 +240,6 @@ void WorldSession::HandleQueryNPCText(WorldPackets::Query::QueryNPCText& packet)
     }
 
     SendPacket(response.Write());
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUERY_NPC_TEXT_RESPONSE");
 }
 
 void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packet)
@@ -286,12 +284,12 @@ void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTr
     WorldPackets::Query::CorpseTransportQuery response;
     if (!corpse || corpse->GetTransGUID().IsEmpty() || corpse->GetTransGUID() != packet.Transport)
     {
-        response.Position = G3D::Vector3(0.0f, 0.0f, 0.0f);
+        response.Position = {0.0f, 0.0f, 0.0f};
         response.Facing = 0.0f;
     }
     else
     {
-        response.Position = G3D::Vector3(corpse->GetTransOffsetX(), corpse->GetTransOffsetY(), corpse->GetTransOffsetZ());
+        response.Position = {corpse->GetTransOffsetX(), corpse->GetTransOffsetY(), corpse->GetTransOffsetZ()};
         response.Facing = corpse->GetTransOffsetO();
     }
 

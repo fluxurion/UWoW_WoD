@@ -187,10 +187,21 @@ struct CurrencyLoot
 
 struct LootItem
 {
-    uint32  itemid;
+    struct
+    {
+        uint32 ItemID = 0;
+        uint32 RandomPropertiesSeed = 0;
+        uint32 RandomPropertiesID = 0;
+
+        struct
+        {
+            uint8 Context = 0;
+            std::vector<int32> BonusListIDs;
+        } ItemBonus;
+
+    } item;
+
     uint8   type;                                           // 0 = item, 1 = currency
-    uint32  randomSuffix;
-    int32   randomPropertyId;
     ItemQualities quality;
     std::list<Condition*> conditions;                               // additional loot condition
     GuidSet allowedGUIDs;
@@ -203,7 +214,6 @@ struct LootItem
     bool    is_counted        : 1;
     bool    needs_quest       : 1;                          // quest drop
     bool    follow_loot_rules : 1;
-    std::vector<int32> BonusListIDs;
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (mincountOrRef > 0)
@@ -214,8 +224,6 @@ struct LootItem
 
     void AddAllowedLooter(Player const* player);
     const GuidSet & GetAllowedLooters() const { return allowedGUIDs; }
-
-    void BuildItemInstance(WorldPackets::Item::ItemInstance& instance) const;
 };
 
 struct QuestItem

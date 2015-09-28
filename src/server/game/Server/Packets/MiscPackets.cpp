@@ -53,14 +53,13 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     _worldPacket.WriteBit(WeeklyQuantity.is_initialized());
     _worldPacket.WriteBit(TrackedQuantity.is_initialized());
     _worldPacket.WriteBit(SuppressChatLog);
+    _worldPacket.FlushBits();
 
     if (WeeklyQuantity)
         _worldPacket << *WeeklyQuantity;
 
     if (TrackedQuantity)
         _worldPacket << *TrackedQuantity;
-
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -72,7 +71,7 @@ void WorldPackets::Misc::SetSelection::Read()
 
 WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
 {
-    _worldPacket << uint32(Data.size());
+    _worldPacket << static_cast<uint32>(Data.size());
 
     for (Record const& data : Data)
     {
@@ -82,8 +81,8 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
         _worldPacket.WriteBit(data.WeeklyQuantity.is_initialized());
         _worldPacket.WriteBit(data.MaxWeeklyQuantity.is_initialized());
         _worldPacket.WriteBit(data.TrackedQuantity.is_initialized());
-
         _worldPacket.WriteBits(data.Flags, 5);
+        _worldPacket.FlushBits();
 
         if (data.WeeklyQuantity)
             _worldPacket << *data.WeeklyQuantity;
@@ -94,8 +93,6 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
         if (data.TrackedQuantity)
             _worldPacket << *data.TrackedQuantity;
     }
-
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -131,6 +128,7 @@ WorldPacket const* WorldPackets::Misc::TriggerMovie::Write()
 
     return &_worldPacket;
 }
+
 WorldPacket const* WorldPackets::Misc::TriggerCinematic::Write()
 {
     _worldPacket << uint32(CinematicID);
@@ -161,6 +159,7 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
     _worldPacket.WriteBit(RestrictedAccountMaxMoney.is_initialized());
     _worldPacket.WriteBit(IneligibleForLootMask.is_initialized());
     _worldPacket.WriteBit(InstanceGroupSize.is_initialized());
+    _worldPacket.FlushBits();
 
     if (RestrictedAccountMaxLevel)
         _worldPacket << *RestrictedAccountMaxLevel;
@@ -173,8 +172,6 @@ WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
 
     if (InstanceGroupSize)
         _worldPacket << *InstanceGroupSize;
-
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -200,6 +197,7 @@ void WorldPackets::Misc::SetRaidDifficulty::Read()
 WorldPacket const* WorldPackets::Misc::DungeonDifficultySet::Write()
 {
     _worldPacket << int32(DifficultyID);
+
     return &_worldPacket;
 }
 
@@ -207,6 +205,7 @@ WorldPacket const* WorldPackets::Misc::RaidDifficultySet::Write()
 {
     _worldPacket << int32(DifficultyID);
     _worldPacket << uint8(Legacy);
+
     return &_worldPacket;
 }
 
@@ -247,8 +246,8 @@ WorldPacket const* WorldPackets::Misc::RequestCemeteryListResponse::Write()
     _worldPacket.WriteBit(IsGossipTriggered);
     _worldPacket.FlushBits();
 
-    _worldPacket << uint32(CemeteryID.size());
-    for (uint32 cemetery : CemeteryID)
+    _worldPacket << static_cast<uint32>(CemeteryID.size());
+    for (uint32 const& cemetery : CemeteryID)
         _worldPacket << cemetery;
 
     return &_worldPacket;
@@ -271,8 +270,8 @@ WorldPacket const* WorldPackets::Misc::Weather::Write()
     _worldPacket << uint32(WeatherID);
     _worldPacket << float(Intensity);
     _worldPacket.WriteBit(Abrupt);
-
     _worldPacket.FlushBits();
+
     return &_worldPacket;
 }
 
@@ -359,10 +358,10 @@ WorldPacket const* WorldPackets::Misc::LevelUpInfo::Write()
     _worldPacket << int32(Level);
     _worldPacket << int32(HealthDelta);
 
-    for (int32 power : PowerDelta)
+    for (int32 const& power : PowerDelta)
         _worldPacket << power;
 
-    for (int32 stat : StatDelta)
+    for (int32 const& stat : StatDelta)
         _worldPacket << stat;
 
     _worldPacket << int32(Cp);
@@ -398,25 +397,25 @@ WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
 WorldPacket const* WorldPackets::Misc::PhaseShift::Write()
 {
     _worldPacket << ClientGUID;                                 // CLientGUID
-    _worldPacket << uint32(PhaseShifts.size() ? 0 : 8);         // PhaseShiftFlags
-    _worldPacket << uint32(PhaseShifts.size());                 // PhaseShiftCount
+    _worldPacket << static_cast<uint32>(PhaseShifts.size() ? 0 : 8);         // PhaseShiftFlags
+    _worldPacket << static_cast<uint32>(PhaseShifts.size());                 // PhaseShiftCount
     _worldPacket << PersonalGUID;                               // PersonalGUID
-    for (uint32 phase : PhaseShifts)
+    for (uint32 const& phase : PhaseShifts)
     {
         _worldPacket << uint16(1);                              // PhaseFlags
         _worldPacket << uint16(phase);                          // PhaseID
     }
 
-    _worldPacket << uint32(VisibleMapIDs.size() * 2);           // Active terrain swaps size
-    for (uint32 map : VisibleMapIDs)
+    _worldPacket << static_cast<uint32>(VisibleMapIDs.size() * 2);           // Active terrain swaps size
+    for (uint32 const& map : VisibleMapIDs)
         _worldPacket << uint16(map);                            // Active terrain swap map id
 
-    _worldPacket << uint32(PreloadMapIDs.size() * 2);           // Inactive terrain swaps size
-    for (uint32 map : PreloadMapIDs)
+    _worldPacket << static_cast<uint32>(PreloadMapIDs.size() * 2);           // Inactive terrain swaps size
+    for (uint32 const& map : PreloadMapIDs)
         _worldPacket << uint16(map);                            // Inactive terrain swap map id
 
-    _worldPacket << uint32(UiWorldMapAreaIDSwaps.size() * 2);   // UI map swaps size
-    for (uint32 map : UiWorldMapAreaIDSwaps)
+    _worldPacket << static_cast<uint32>(UiWorldMapAreaIDSwaps.size() * 2);   // UI map swaps size
+    for (uint32 const& map : UiWorldMapAreaIDSwaps)
         _worldPacket << uint16(map);                            // UI map id, WorldMapArea.dbc, controls map display
 
     return &_worldPacket;

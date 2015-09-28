@@ -19,7 +19,7 @@
 #include "BlackMarketMgr.h"
 #include "Player.h"
 
-void WorldPackets::BlackMarket::BlackMarketItem::Initialize(BlackMarketEntry *const entry, Player* player)
+void WorldPackets::BlackMarket::BlackMarketItem::Initialize(BlackMarketEntry* const entry, Player* player)
 {
     BlackMarketTemplate* templ = entry->GetTemplate();
 

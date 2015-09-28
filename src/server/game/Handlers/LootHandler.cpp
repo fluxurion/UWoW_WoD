@@ -130,7 +130,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::AutoStoreLo
     }
 }
 
-void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleLootMoney(WorldPackets::Loot::LootMoney& /*packet*/)
 {
     Player* player = GetPlayer();
     ObjectGuid guid = player->GetLootGUID();
@@ -225,7 +225,6 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
                 
                 loot->NotifyMoneyRemoved(goldPerPlayer);
 
-                //! 6.0.3 SMSG_LOOT_MONEY_NOTIFY
                 WorldPackets::Loot::LootMoneyNotify packet;
                 packet.Money = goldPerPlayer;
                 packet.SoleLooter = playersNear.size() <= 1 ? true : false;
@@ -253,7 +252,6 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
                 loot->NotifyMoneyRemoved(loot->gold);
 
-                //! 6.0.3 SMSG_LOOT_MONEY_NOTIFY
                 WorldPackets::Loot::LootMoneyNotify packet;
                 packet.Money = loot->gold;
                 packet.SoleLooter = true; // "You loot..."
@@ -268,77 +266,69 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 //! 6.0.3
 void WorldSession::HandleLootUnit(WorldPackets::Loot::LootUnit& packet)
 {
-    // Check possible cheat
     if (!GetPlayer()->isAlive() || !packet.Unit.IsCreatureOrVehicle())
         return;
 
     LootCorps(packet.Unit);
 
-    // interrupt cast
     if (GetPlayer()->IsNonMeleeSpellCasted(false))
         GetPlayer()->InterruptNonMeleeSpells(false);
 }
 
 void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
 {
-    // Check possible cheat
-    if (!_player->isAlive())
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    WorldObject* _looted = lootedBy ? lootedBy : _player;
+    if (!player->isAlive())
+        return;
 
-    Creature* _creature = _player->GetMap()->GetCreature(corpsGUID);
-    if (!_creature)
+    WorldObject* _looted = lootedBy ? lootedBy : player;
+
+    Creature* creature = player->GetMap()->GetCreature(corpsGUID);
+    if (!creature)
         return;
 
     std::list<Creature*> corpesList;
     _looted->GetCorpseCreatureInGrid(corpesList, LOOT_DISTANCE);
 
-    WorldPacket data(SMSG_AE_LOOT_TARGETS);
-    data << uint32(corpesList.size());                             //aoe counter
-    _player->SendDirectMessage(&data);
+    WorldPackets::Loot::AELootTargets targets;
+    targets.Count = corpesList.size();
+    player->SendDirectMessage(targets.Write());
 
-    _creature->SetOtherLootRecipient(lootedBy ? lootedBy->GetGUID() : ObjectGuid::Empty);
-    _player->SendLoot(corpsGUID, LOOT_CORPSE, true);
+    creature->SetOtherLootRecipient(lootedBy ? lootedBy->GetGUID() : ObjectGuid::Empty);
+    player->SendLoot(corpsGUID, LOOT_CORPSE, true);
 
-    data.Initialize(SMSG_AE_LOOT_TARGET_ACK);
-    _player->SendDirectMessage(&data);
+    player->SendDirectMessage(WorldPackets::Loot::NullSMsg(SMSG_AE_LOOT_TARGET_ACK).Write());
 
     for (std::list<Creature*>::const_iterator itr = corpesList.begin(); itr != corpesList.end(); ++itr)
     {
-        if(Creature* creature = (*itr))
+        if (Creature* creature = (*itr))
         {
             creature->SetOtherLootRecipient(lootedBy ? lootedBy->GetGUID() : ObjectGuid::Empty);
 
-            if(corpsGUID != creature->GetGUID())
+            if (corpsGUID != creature->GetGUID())
             {
-                _player->SendLoot(creature->GetGUID(), LOOT_CORPSE, true, 1);
-                _player->SendDirectMessage(&data); //SMSG_AE_LOOT_TARGET_ACK
+                player->SendLoot(creature->GetGUID(), LOOT_CORPSE, true, 1);
+                player->SendDirectMessage(WorldPackets::Loot::NullSMsg(SMSG_AE_LOOT_TARGET_ACK).Write());
             }
         }
     }
 
-    //clear aoe loot state
-    if (Group* group = GetPlayer()->GetGroup())
+    if (Group* group = player->GetGroup())
         group->ClearAoeSlots();
 
-    // interrupt cast
-    if (_player->IsNonMeleeSpellCasted(false))
-        _player->InterruptNonMeleeSpells(false);
+    if (player->IsNonMeleeSpellCasted(false))
+        player->InterruptNonMeleeSpells(false);
 }
 
-//! 6.0.3
-void WorldSession::HandleLootReleaseOpcode(WorldPacket& recvData)
+void WorldSession::HandleLootRelease(WorldPackets::Loot::LootRelease& packet)
 {
-    // cheaters can modify lguid to prevent correct apply loot release code and re-loot
-    // use internal stored guid
-    ObjectGuid guid;
-    recvData >> guid;
-
     ObjectGuid lguid = GetPlayer()->GetLootGUID();
     if (!lguid.IsEmpty())
-        if (lguid == guid)
-            DoLootRelease(guid);
+        if (lguid == packet.Unit)
+            DoLootRelease(packet.Unit);
 }
 
 void WorldSession::DoLootRelease(ObjectGuid lguid)

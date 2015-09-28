@@ -60,7 +60,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::Product const&
     data.WriteBits(product.ChoiceType, 7);
     data.WriteBit(product.displayInfo.is_initialized());
 
-    for (const auto productItem : product.battlePayProduct)
+    for (auto const& productItem : product.battlePayProduct)
     {
         data << productItem.ID;
         data << productItem.ItemID;
@@ -123,7 +123,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::Purchase const
 WorldPacket const* WorldPackets::BattlePay::PurchaseListResponse::Write()
 {
     _worldPacket << Result;
-    _worldPacket << uint32(purchase.size());
+    _worldPacket << static_cast<uint32>(purchase.size());
     for (Purchase const& purchaseData : purchase)
         _worldPacket << purchaseData;
 
@@ -133,7 +133,7 @@ WorldPacket const* WorldPackets::BattlePay::PurchaseListResponse::Write()
 WorldPacket const* WorldPackets::BattlePay::DistributionListResponse::Write()
 {
     _worldPacket << Result;
-    _worldPacket << uint32(object.size());
+    _worldPacket << static_cast<uint32>(object.size());
     for (DistributionObject const& objectData : object)
         _worldPacket << objectData;
 
@@ -152,9 +152,9 @@ WorldPacket const* WorldPackets::BattlePay::ProductListResponse::Write()
     _worldPacket << Result;
     _worldPacket << CurrencyID;
 
-    _worldPacket << uint32(product.size());
-    _worldPacket << uint32(productGroup.size());
-    _worldPacket << uint32(shop.size());
+    _worldPacket << static_cast<uint32>(product.size());
+    _worldPacket << static_cast<uint32>(productGroup.size());
+    _worldPacket << static_cast<uint32>(shop.size());
 
     for (Product const& productData : product)
         _worldPacket << productData;
@@ -207,7 +207,7 @@ WorldPacket const* WorldPackets::BattlePay::StartPurchaseResponse::Write()
 
 WorldPacket const* WorldPackets::BattlePay::PurchaseUpdate::Write()
 {
-    _worldPacket << uint32(purchase.size());
+    _worldPacket << static_cast<uint32>(purchase.size());
     for (Purchase const& purchaseData : purchase)
         _worldPacket << purchaseData;
 
@@ -234,7 +234,7 @@ WorldPacket const* WorldPackets::BattlePay::DeliveryEnded::Write()
 {
     _worldPacket << DistributionID;
 
-    _worldPacket << int32(item.size());
+    _worldPacket << static_cast<int32>(item.size());
     for (WorldPackets::Item::ItemInstance const& itemData : item)
         _worldPacket << itemData;
 
@@ -250,5 +250,9 @@ WorldPacket const* WorldPackets::BattlePay::UpgradeStarted::Write()
 
 void WorldPackets::BattlePay::DistributionAssignToTarget::Read()
 {
-    _worldPacket >> unk >> DistributionID >> TargetCharacter >> SpecializationID >> unk2;
+    _worldPacket >> unk;
+    _worldPacket >> DistributionID;
+    _worldPacket >> TargetCharacter;
+    _worldPacket >> SpecializationID;
+    _worldPacket >> unk2;
 }

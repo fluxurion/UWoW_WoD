@@ -133,10 +133,25 @@ namespace WorldPackets
             bool SoleLooter = false;
         };
 
+        class StartLootRoll final : public ServerPacket
+        {
+        public:
+            StartLootRoll() : ServerPacket(SMSG_START_LOOT_ROLL, 13 + 32) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            uint32 MapID = 0;
+            LootItem LootItems;
+            uint32 RollTime = 0;
+            uint8 ValidRolls = 0;
+            uint8 Method = 0;
+        };
+
         class CoinRemoved final : public ServerPacket
         {
         public:
-            CoinRemoved() : ServerPacket(SMSG_COIN_REMOVED, 9) { }
+            CoinRemoved() : ServerPacket(SMSG_COIN_REMOVED, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -155,6 +170,18 @@ namespace WorldPackets
             uint8 RollType = 0;
         };
 
+        //< SMSG_AE_LOOT_TARGET_ACK
+        //< SMSG_SET_LOOT_METHOD_FAILED
+        //< SMSG_BONUS_ROLL_EMPTY
+        //< SMSG_LOOT_RELEASE_ALL
+        class NullSMsg final : public ServerPacket
+        {
+        public:
+            NullSMsg(OpcodeServer opcode) : ServerPacket(opcode, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
         class LootReleaseResponse final : public ServerPacket
         {
         public:
@@ -164,6 +191,27 @@ namespace WorldPackets
 
             ObjectGuid LootObj;
             ObjectGuid Owner;
+        };
+
+        class LootRollsComplete final : public ServerPacket
+        {
+        public:
+            LootRollsComplete() : ServerPacket(SMSG_LOOT_ROLLS_COMPLETE, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            uint8 LootListID = 0;
+        };
+
+        class AELootTargets final : public ServerPacket
+        {
+        public:
+            AELootTargets() : ServerPacket(SMSG_AE_LOOT_TARGETS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Count = 0;
         };
 
         class LootList final : public ServerPacket
@@ -187,7 +235,49 @@ namespace WorldPackets
 
             uint32 SpecID = 0;
         };
+
+        class LootRollResponse final : public ServerPacket
+        {
+        public:
+            LootRollResponse() : ServerPacket(SMSG_LOOT_ROLL, 50) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            ObjectGuid Player;
+            LootItem LootItems;
+            int32 Roll = 0;
+            uint8 RollType = 0;
+            bool Autopassed = false;
+        };
+
+        class LootRollWon final : public ServerPacket
+        {
+        public:
+            LootRollWon() : ServerPacket(SMSG_LOOT_ROLL_WON, 30) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            ObjectGuid Player;
+            LootItem LootItems;
+            int32 Roll = 0;
+            uint8 RollType = 0;
+        };
+
+        class LootAllPassed final : public ServerPacket
+        {
+        public:
+            LootAllPassed() : ServerPacket(SMSG_LOOT_ALL_PASSED, 30) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            LootItem LootItems;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Loot::LootItem const& item);
 
 #endif // LootPackets_h__
