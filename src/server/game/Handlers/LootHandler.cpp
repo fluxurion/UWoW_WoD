@@ -294,7 +294,7 @@ void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
     _looted->GetCorpseCreatureInGrid(corpesList, LOOT_DISTANCE);
 
     WorldPackets::Loot::AELootTargets targets;
-    targets.Count = corpesList.size();
+    targets.Count = corpesList.size() - 1;
     player->SendDirectMessage(targets.Write());
 
     creature->SetOtherLootRecipient(lootedBy ? lootedBy->GetGUID() : ObjectGuid::Empty);

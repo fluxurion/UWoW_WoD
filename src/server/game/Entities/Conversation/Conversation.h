@@ -20,6 +20,8 @@
 #define CONVERSATIONOBJECT_H
 
 #include "Object.h"
+#include "UpdateMask.h"
+#include "UpdateFieldFlags.h"
 
 class Conversation : public WorldObject, public GridObject<Conversation>
 {
@@ -43,6 +45,9 @@ class Conversation : public WorldObject, public GridObject<Conversation>
         ObjectGuid GetCasterGUID() const { return casterGUID; }
 
         void BuildDynamicValuesUpdate(uint8 updatetype, ByteBuffer* data, Player* target) const override;
+
+        ByteBuffer fieldBuffer;
+        UpdateMask updateMask;
 
     protected:
         Unit* _caster;

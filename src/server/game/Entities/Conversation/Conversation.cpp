@@ -17,10 +17,8 @@
  */
 
 #include "Common.h"
-#include "UpdateMask.h"
 #include "World.h"
 #include "ObjectAccessor.h"
-#include "UpdateFieldFlags.h"
 #include "Conversation.h"
 #include "ObjectMgr.h"
 
@@ -35,6 +33,7 @@ Conversation::Conversation() : WorldObject(false), _caster(NULL), _duration(0), 
     _dynamicValuesCount = CONVERSATION_DYNAMIC_END;
 
     _fieldNotifyFlags = UF_FLAG_PUBLIC | UF_FLAG_UNK0X100;
+    updateMask.SetCount(_dynamicValuesCount);
 }
 
 Conversation::~Conversation()
@@ -69,12 +68,72 @@ void Conversation::RemoveFromWorld()
 
 bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* info, Position const& pos)
 {
+    std::vector<ConversationData> const* conversationData = sObjectMgr->GetConversationData(triggerEntry);
+    std::vector<ConversationCreature> const* conversationCreature = sObjectMgr->GetConversationCreature(triggerEntry);
+
+    if(!conversationData || !conversationCreature || conversationData->empty() || conversationCreature->empty())
+        return false;
+
     SetMap(caster->GetMap());
     Relocate(pos);
     if (!IsPositionValid())
     {
         sLog->outError(LOG_FILTER_GENERAL, "Conversation (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", info->Id, GetPositionX(), GetPositionY());
         return false;
+    }
+
+    for (uint16 index = 0; index < _dynamicValuesCount; ++index)
+    {
+        ByteBuffer buffer;
+        if (_fieldNotifyFlags & ConversationDynamicFieldFlags[index])
+        {
+            updateMask.SetBit(index);
+
+            UpdateMask arrayMask;
+            if (index == CONVERSATION_DYNAMIC_FIELD_ACTORS)
+            {
+                uint32 count = 0;
+                arrayMask.SetCount(conversationCreature->size());
+                for (std::vector<ConversationCreature>::const_iterator itr = conversationCreature->begin(); itr != conversationCreature->end(); ++itr)
+                {
+                    if (Creature* creature = caster->FindNearestCreature(itr->creatureId, 110.0f))
+                    {
+                        arrayMask.SetBit(count++);
+                        buffer << uint32(PAIR64_LOPART(creature->GetGUID().GetLowPart()));
+                        arrayMask.SetBit(count++);
+                        buffer << uint32(PAIR64_HIPART(creature->GetGUID().GetLowPart()));
+                        arrayMask.SetBit(count++);
+                        buffer << uint32(PAIR64_LOPART(creature->GetGUID().GetHighPart()));
+                        arrayMask.SetBit(count++);
+                        buffer << uint32(PAIR64_HIPART(creature->GetGUID().GetHighPart()));
+                    }
+                    else
+                        return false;
+                }
+            }
+            if (index == CONVERSATION_DYNAMIC_FIELD_LINES)
+            {
+                uint32 count = 0;
+                arrayMask.SetCount(conversationData->size());
+                for (std::vector<ConversationData>::const_iterator itr = conversationData->begin(); itr != conversationData->end(); ++itr)
+                {
+                    arrayMask.SetBit(count++);
+                    buffer << uint32(itr->id);
+                    arrayMask.SetBit(count++);
+                    buffer << uint32(itr->textId);
+                    arrayMask.SetBit(count++);
+                    buffer << uint32(itr->unk1);
+                    arrayMask.SetBit(count++);
+                    buffer << uint32(itr->unk2);
+                    arrayMask.SetBit(count++);
+                    buffer << uint32(itr->flags);
+                }
+            }
+
+            fieldBuffer << uint8(arrayMask.GetBlockCount());
+            arrayMask.AppendToPacket(&fieldBuffer);
+            fieldBuffer.append(buffer);
+        }
     }
 
     Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), 0, guidlow));
@@ -132,75 +191,10 @@ void Conversation::UnbindFromCaster()
 
 void Conversation::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
 {
-    if (!target)
-        return;
+    UpdateMask updateMaskTemp;
+    updateMaskTemp = updateMask;
 
-    std::vector<ConversationData> const* conversationData = sObjectMgr->GetConversationData(GetEntry());
-    std::vector<ConversationCreature> const* conversationCreature = sObjectMgr->GetConversationCreature(GetEntry());
-
-    if(!conversationData || !conversationCreature || conversationData->empty() || conversationCreature->empty())
-        return;
-
-    ByteBuffer fieldBuffer;
-    UpdateMask updateMask;
-    updateMask.SetCount(_dynamicValuesCount);
-
-    uint32* flags = nullptr;
-    uint32 visibleFlag = GetDynamicUpdateFieldData(target, flags);
-
-    for (uint16 index = 0; index < _dynamicValuesCount; ++index)
-    {
-        ByteBuffer buffer;
-        if (_fieldNotifyFlags & flags[index])
-        {
-            updateMask.SetBit(index);
-
-            UpdateMask arrayMask;
-            if (index == CONVERSATION_DYNAMIC_FIELD_ACTORS)
-            {
-                uint32 count = 0;
-                arrayMask.SetCount(conversationCreature->size());
-                for (std::vector<ConversationCreature>::const_iterator itr = conversationCreature->begin(); itr != conversationCreature->end(); ++itr)
-                {
-                    if (Creature* creature = target->FindNearestCreature(itr->creatureId, 100.0f))
-                    {
-                        arrayMask.SetBit(count++);
-                        buffer << uint32(PAIR64_LOPART(creature->GetGUID().GetLowPart()));
-                        arrayMask.SetBit(count++);
-                        buffer << uint32(PAIR64_HIPART(creature->GetGUID().GetLowPart()));
-                        arrayMask.SetBit(count++);
-                        buffer << uint32(PAIR64_LOPART(creature->GetGUID().GetHighPart()));
-                        arrayMask.SetBit(count++);
-                        buffer << uint32(PAIR64_HIPART(creature->GetGUID().GetHighPart()));
-                    }
-                }
-            }
-            if (index == CONVERSATION_DYNAMIC_FIELD_LINES)
-            {
-                uint32 count = 0;
-                arrayMask.SetCount(conversationData->size());
-                for (std::vector<ConversationData>::const_iterator itr = conversationData->begin(); itr != conversationData->end(); ++itr)
-                {
-                    arrayMask.SetBit(count++);
-                    buffer << uint32(itr->id);
-                    arrayMask.SetBit(count++);
-                    buffer << uint32(itr->textId);
-                    arrayMask.SetBit(count++);
-                    buffer << uint32(itr->unk1);
-                    arrayMask.SetBit(count++);
-                    buffer << uint32(itr->unk2);
-                    arrayMask.SetBit(count++);
-                    buffer << uint32(itr->flags);
-                }
-            }
-
-            fieldBuffer << uint8(arrayMask.GetBlockCount());
-            arrayMask.AppendToPacket(&fieldBuffer);
-            fieldBuffer.append(buffer);
-        }
-    }
-
-    *data << uint8(updateMask.GetBlockCount());
-    updateMask.AppendToPacket(data);
+    *data << uint8(updateMaskTemp.GetBlockCount());
+    updateMaskTemp.AppendToPacket(data);
     data->append(fieldBuffer);
 }

@@ -373,7 +373,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
         {
             response.RecordID = rec.RecordID;
             response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
-            store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
+            store->WriteRecord(rec.RecordID, GetSessionDbLocaleIndex(), response.Data);
         }
         else
         {
