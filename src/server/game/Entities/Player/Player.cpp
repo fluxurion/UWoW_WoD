@@ -10233,7 +10233,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
 
         if (go->getLootState() == GO_READY || (personal && personalLoot.GetGUID() != guid))
         {
-            uint32 lootid = go->GetGOInfo()->GetLootId();
+            uint32 lootid = go->GetEntry();
 
             //TODO: fix this big hack
             if ((go->GetEntry() == BG_AV_OBJECTID_MINE_N || go->GetEntry() == BG_AV_OBJECTID_MINE_S))
@@ -10567,7 +10567,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
             uint32 consumable = go->GetGOInfo()->chest.consumable;
             uint32 spell = go->GetGOInfo()->chest.spell;
             uint32 questItems = go->GetGOInfo()->questItems[0];
-            uint32 lootid =  go->GetGOInfo()->GetLootId();
+            uint32 lootid = go->GetEntry();
 
             if(go->GetGOInfo()->chest.chestPersonalLoot)
             {
