@@ -2228,7 +2228,7 @@ void LoadLootTemplates_Gameobject()
     GameObjectTemplateContainer const* gotc = sObjectMgr->GetGameObjectTemplates();
     for (GameObjectTemplateContainer::const_iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
     {
-        if (uint32 lootid = itr->second.GetLootId())
+        if (uint32 lootid = itr->second.entry)
         {
             if (lootIdSet.find(lootid) == lootIdSet.end())
                 LootTemplates_Gameobject.ReportNotExistedId(lootid);

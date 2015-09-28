@@ -986,7 +986,7 @@ bool GameObject::ActivateToQuest(Player* target) const
         // scan GO chest with loot including quest items
         case GAMEOBJECT_TYPE_CHEST:
         {
-            if (LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), target))
+            if (LootTemplates_Gameobject.HaveQuestLootForPlayer(GetEntry(), target))
             {
                 //TODO: fix this hack
                 //look for battlegroundAV for some objects which are only activated after mine gots captured by own team
