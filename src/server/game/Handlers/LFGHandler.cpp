@@ -183,8 +183,7 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recvData)
 
     // Get Random dungeons that can be done at a certain level and expansion
     uint8 level = GetPlayer()->getLevel();
-    lfg::LfgDungeonSet const& rewardableDungeons =
-        sLFGMgr->GetRewardableDungeons(level, GetPlayer()->GetSession()->Expansion());
+    lfg::LfgDungeonSet const& rewardableDungeons = sLFGMgr->GetRewardableDungeons(level, GetPlayer()->GetSession()->Expansion());
 
     // Get player locked Dungeons
     lfg::LfgLockMap const& lock = sLFGMgr->GetLockedDungeons(guid);
@@ -192,22 +191,28 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recvData)
     uint32 lsize = uint32(lock.size());
 
     sLog->outDebug(LOG_FILTER_LFG, "SMSG_LFG_PLAYER_INFO %s", GetPlayerName().c_str());
-    WorldPacket data(SMSG_LFG_PLAYER_INFO, 1 + rsize * (4 + 1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4) + 4 + lsize * (1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4));
+    WorldPacket data(SMSG_LFG_PLAYER_INFO);
 
-    uint32 rewardableDungeonsCount = 0;
-    data.WriteBit(0);                               // not has guid
-    data.WriteBits(lock.size(), 20);
-    uint32 bitpos = data.bitwpos();
-    data.WriteBits(rewardableDungeonsCount, 17);    // Rewardable Dungeon count
+    data << uint32(rewardableDungeons.size()); // DungeonCount int16
+    data.WriteBit(false/*GetPlayer()*/);       // HasPlayerGuid bit16
+    data << uint32(lock.size());               // LFGBlackListCount int24
+    if(false/*GetPlayer()*/)                   // bit16
+        data << guid;                          // PlayerGuid
 
-    ByteBuffer buff;
-    for (lfg::LfgDungeonSet::const_iterator it = rewardableDungeons.begin(); it != rewardableDungeons.end(); ++it)
+    for (lfg::LfgLockMap::const_iterator it = lock.begin(); it != lock.end(); ++it) // int24
+    {
+        data << uint32(it->first);                          // Slot / Dungeon entry (id + type)
+        data << uint32(it->second.status);                  // Reason / Lock status
+        data << uint32(it->second.currItemLevel);           // SubReason1 / curr player item level
+        data << uint32(it->second.reqItemLevel);            // SubReason2 / req player item level
+    }
+
+    for (lfg::LfgDungeonSet::const_iterator it = rewardableDungeons.begin(); it != rewardableDungeons.end(); ++it) // int16
     {
         lfg::LfgReward const* reward = sLFGMgr->GetDungeonReward(*it, level);
         if (!reward)
             continue;
 
-        uint32 bonusValor = sLFGMgr->GetBonusValorPoints(*it);
         Quest const* rewardQuest = sObjectMgr->GetQuestTemplate(reward->firstQuest);
         Quest const* bonusQuest = sObjectMgr->GetQuestTemplate(reward->bonusQuestId);
 
@@ -215,93 +220,74 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recvData)
         if (!firstCompletion)
             rewardQuest = sObjectMgr->GetQuestTemplate(reward->otherQuest);
 
-        uint32 rewardItemCount = 0;
-        uint32 rewardCurrencyCount1 = 0;
-        uint32 rewardCurrencyCount2 = 0;
+        data << uint32(*it);    // Slot / dungeon entry 
+        data << uint32(0);      // CompletionQuantity
+        data << uint32(0);      // CompletionLimit
+        data << uint32(0);      // CompletionCurrencyID
+        data << uint32(0);      // SpecificQuantity
+        data << uint32(0);      // SpecificLimit
+        data << uint32(0);      // OverallQuantity
+        data << uint32(0);      // OverallLimit
+        data << uint32(0);      // PurseWeeklyQuantity
+        data << uint32(0);      // PurseWeeklyLimit
+        data << uint32(0);      // PurseQuantity
+        data << uint32(0);      // PurseLimit
+        data << uint32(0);      // Quantity
+        data << uint32(0);      // CompletedMask
 
-        data.WriteBits(rewardQuest ? rewardQuest->GetRewItemsCount() : 0, 20);
-        data.WriteBits((bonusQuest ? bonusQuest->GetRewCurrencyCount() : 0) + (bonusValor ? 1 : 0), 21);
-        data.WriteBit(firstCompletion); // can be rewarded
-        data.WriteBits(rewardQuest ? rewardQuest->GetRewCurrencyCount() : 0, 21);
-        data.WriteBits(0, 19);          // role bonus count
-        data.WriteBit(1);               // eligible to role shortage reward
+        data << uint32(0);      // ShortageRewardCount int64
 
-        buff << uint32(0);              // cap currency purse Quantity
-        buff << uint32(*it);            // dungeon entry
-        buff << uint32(0);              // cap currency specific quantity
+        //ReadShortageReward start
+        data << uint32(0);      // Mask
+        data << uint32(rewardQuest ? rewardQuest->GetRewMoney() : 0); //RewardMoney
+        data << uint32(rewardQuest ? rewardQuest->XPValue(GetPlayer()) : 0); // RewardXP
 
-        if (bonusQuest)
-        {
-            for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-                if (uint32 cur = bonusQuest->RewardCurrencyId[i])
-                {
-                    buff << uint32(bonusQuest->RewardCurrencyCount[i] * GetCurrencyPrecision(cur));
-                    buff << uint32(cur);
-                }
-        }
-        if (bonusValor)
-        {
-            buff << uint32(bonusValor * GetCurrencyPrecision(CURRENCY_TYPE_VALOR_POINTS));
-            buff << uint32(CURRENCY_TYPE_VALOR_POINTS);
-        }
+        data << uint32(rewardQuest ? rewardQuest->GetRewItemsCount() : 0); // ItemCount
+        data << uint32(rewardQuest ? rewardQuest->GetRewCurrencyCount() : 0); // CurrencyCount
+        data << uint32((bonusQuest ? bonusQuest->GetRewCurrencyCount() : 0)); //QuantityCount
 
         if (rewardQuest)
         {
-            for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
+            for (uint32 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i) // ItemCount
             {
                 uint32 itemId = rewardQuest->RewardItemId[i];
                 if (!itemId)
                     continue;
 
-                buff << uint32(sDB2Manager.GetItemDisplayId(rewardQuest->RewardItemId[i], 0));
-                buff << uint32(rewardQuest->RewardItemCount[i]);
-                buff << uint32(itemId);
+                data << uint32(itemId);
+                data << uint32(rewardQuest->RewardItemCount[i]);
             }
-        }
-
-        buff << uint32(0);      // cap currency Quantity
-        buff << uint32(0);      // cap currencyID
-        buff << uint32(0);      // cap currency overall Limit
-        buff << uint32(rewardQuest ? rewardQuest->XPValue(GetPlayer()) : 0);
-        buff << uint32(0);
-        buff << uint32(0);      // cap currency overall Quantity
-        buff << uint32(0);      // cap currency period Purse Limit
-        buff << uint32(0);      // completed encounters mask
-        buff << uint32(rewardQuest ? rewardQuest->GetRewMoney() : 0);
-
-        if (rewardQuest)
-        {
-            for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+            for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i) // CurrencyCount
                 if (uint32 cur = rewardQuest->RewardCurrencyId[i])
                 {
-                    buff << uint32(cur);
-                    buff << uint32(rewardQuest->RewardCurrencyCount[i] * GetCurrencyPrecision(cur));
+                    data << uint32(cur);
+                    data << uint32(rewardQuest->RewardCurrencyCount[i] * GetCurrencyPrecision(cur));
+                }
+        }
+        if (bonusQuest)
+        {
+            for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i) // QuantityCount
+                if (uint32 cur = bonusQuest->RewardCurrencyId[i])
+                {
+                    data << uint32(cur);
+                    data << uint32(bonusQuest->RewardCurrencyCount[i] * GetCurrencyPrecision(cur));
                 }
         }
 
-        buff << uint32(0);
-        buff << uint32(0);      // cap currency purse Limit
-        buff << uint32(0);      // cap currency period Purse Quantity
-        buff << uint32(0);
-        buff << uint32(0);      // cap currency specific Limit
+        data.FlushBits();
+        uint32 rewardSpellId = rewardQuest ? rewardQuest->GetRewSpell() : 0;
+        data.WriteBit(rewardSpellId);    // HasBit30
+        if (rewardSpellId)
+            data << uint32(rewardSpellId);
+        // ReadShortageReward end
 
-        ++rewardableDungeonsCount;
+        //for (var j = 0; j < int64; ++j) // ShortageRewardCount
+            //ReadShortageReward(packet, i ,j, "ShortageReward");
+
+        data.FlushBits();
+        data.WriteBit(firstCompletion); // FirstReward
+        data.WriteBit(true); // ShortageEligible
     }
-
-    data.FlushBits();
-    if (!buff.empty())
-        data.append(buff);
-
-    data.PutBits(bitpos, rewardableDungeonsCount, 17);
-
-    for (lfg::LfgLockMap::const_iterator it = lock.begin(); it != lock.end(); ++it)
-    {
-        data << uint32(it->second.currItemLevel);           // curr player item level
-        data << uint32(it->second.reqItemLevel);            // req player item level
-        data << uint32(it->second.status);                  // Lock status
-        data << uint32(it->first);                          // Dungeon entry (id + type)
-    }
-
     SendPacket(&data);
 }
 

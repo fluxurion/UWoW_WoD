@@ -2243,7 +2243,8 @@ LfgDungeonSet LFGMgr::GetRewardableDungeons(uint8 level, uint8 expansion)
         LFGDungeonData const& dungeon = itr->second;
         if (dungeon.dbc->CanBeRewarded() && (!dungeon.seasonal || sLFGMgr->IsSeasonActive(dungeon.id))
             && dungeon.expansion <= expansion && dungeon.minlevel <= level && level <= dungeon.maxlevel)
-            randomDungeons.insert(dungeon.Entry());
+            if(lfg::LfgReward const* reward = GetDungeonReward(dungeon.Entry(), level))
+                randomDungeons.insert(dungeon.Entry());
     }
     return randomDungeons;
 }
