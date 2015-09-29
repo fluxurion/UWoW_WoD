@@ -336,7 +336,7 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
     if (!IsOpen())
         return;
 
-    //if (packet.GetOpcode() != SMSG_ON_MONSTER_MOVE)
+    if (packet.GetOpcode() != SMSG_ON_MONSTER_MOVE)
     {
         if (sPacketLog->CanLogPacket())
             //sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
