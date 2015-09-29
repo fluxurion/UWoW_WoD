@@ -1951,7 +1951,7 @@ public:
             }
 
             if (target->isDead())
-                target->ToCreature()->Respawn();
+                target->ToCreature()->Respawn(false, 2);
             return true;
         }
 

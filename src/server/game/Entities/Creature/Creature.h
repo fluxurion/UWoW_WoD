@@ -825,7 +825,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
         void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(NULL) + respawn : 0; }
-        void Respawn(bool force = false);
+        void Respawn(bool force = false, uint32 timer = 0);
         void SaveRespawnTime();
 
         uint32 GetRemoveCorpseDelay() const { return m_corpseRemoveTime; }

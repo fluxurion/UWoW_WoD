@@ -1843,7 +1843,7 @@ void Creature::setDeathState(DeathState s)
     }
 }
 
-void Creature::Respawn(bool force)
+void Creature::Respawn(bool force, uint32 timer)
 {
 	Movement::MoveSplineInit(*this).Stop(true);
     DestroyForNearbyPlayers();
@@ -1857,6 +1857,13 @@ void Creature::Respawn(bool force)
     }
 
     RemoveCorpse(false);
+
+    if(timer)
+    {
+        m_respawnTime = time(NULL) + timer;
+        return;
+    }
+
     m_despan = false;
 
     if (getDeathState() == DEAD)

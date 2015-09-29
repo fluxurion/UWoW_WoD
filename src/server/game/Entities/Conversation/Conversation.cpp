@@ -96,7 +96,7 @@ bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 trigge
                 arrayMask.SetCount(conversationCreature->size());
                 for (std::vector<ConversationCreature>::const_iterator itr = conversationCreature->begin(); itr != conversationCreature->end(); ++itr)
                 {
-                    if (Creature* creature = caster->FindNearestCreature(itr->creatureId, 110.0f))
+                    if (Creature* creature = caster->FindNearestCreature(itr->creatureId, caster->GetVisibilityRange()))
                     {
                         arrayMask.SetBit(count++);
                         buffer << uint32(PAIR64_LOPART(creature->GetGUID().GetLowPart()));
