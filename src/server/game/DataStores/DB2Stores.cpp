@@ -109,9 +109,6 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
 
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            if (defaultLocale == i)
-                continue;
-
             if (availableDb2Locales & (1 << i))
                 if (!storage->LoadStringsFrom((db2Path + localeNames[i] + '/'), i))
                     availableDb2Locales &= ~(1 << i);             // mark as not available for speedup next checks
