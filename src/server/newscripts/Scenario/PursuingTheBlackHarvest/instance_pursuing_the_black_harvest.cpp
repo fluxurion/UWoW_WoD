@@ -63,7 +63,7 @@ public:
             WorldMapAreaIds.insert(992);
             WorldMapAreaIds.insert(683);
             phaseIds.insert(1982);
-            player->GetSession()->SendSetPhaseShift(phaseIds, terrainswaps, WorldMapAreaIds, 16);
+            player->GetSession()->SendSetPhaseShift(phaseIds, terrainswaps, WorldMapAreaIds, std::set<uint32>(), 16);
 
             player->CastSpell(player, SPELL_ENTER_THE_BLACK_TEMPLE);
             player->CastSpell(player, SPELL_CSA_AT_DUMMY_TIMED_AURA);

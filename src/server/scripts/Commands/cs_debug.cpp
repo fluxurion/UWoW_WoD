@@ -1061,24 +1061,29 @@ public:
             return false;
 
         char* t = strtok((char*)args, " ");
-        char* p = strtok(NULL, " ");
-        char* w = strtok(NULL, " ");
+        char* p = strtok(nullptr, " ");
+        char* w = strtok(nullptr, " ");
+        char* s = strtok(nullptr, " ");
         if (!t)
             return false;
 
-        std::set<uint32> terrainswap;
-        std::set<uint32> phaseId;
-        std::set<uint32> worldAreaIds;
+        std::set<uint32> visibleMapIDs;
+        std::set<uint32> phaseIds;
+        std::set<uint32> uiWorldMapAreaIDSwaps;
+        std::set<uint32> preloadMapIDs;
 
-        terrainswap.insert((uint32)atoi(t));
+        visibleMapIDs.insert(static_cast<uint32>(atoi(t)));
 
         if (p)
-            phaseId.insert((uint32)atoi(p));
+            phaseIds.insert(static_cast<uint32>(atoi(p)));
 
         if (w)
-            worldAreaIds.insert((uint32)atoi(w));
+            uiWorldMapAreaIDSwaps.insert(static_cast<uint32>(atoi(w)));
 
-        handler->GetSession()->SendSetPhaseShift(phaseId, terrainswap, worldAreaIds);
+        if (s)
+            preloadMapIDs.insert(static_cast<uint32>(atoi(s)));
+
+        handler->GetSession()->SendSetPhaseShift(phaseIds, visibleMapIDs, uiWorldMapAreaIDSwaps, preloadMapIDs);
         return true;
     }
 

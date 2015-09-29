@@ -1350,7 +1350,7 @@ public:
                         WorldMapAreaIds.insert(683);
                         phaseIds.insert(1982);
                         phaseIds.insert(2387);
-                        player->GetSession()->SendSetPhaseShift(phaseIds, terrainswaps, WorldMapAreaIds, 16);
+                        player->GetSession()->SendSetPhaseShift(phaseIds, terrainswaps, WorldMapAreaIds, std::set<uint32>(), 16);
                         player->AddAura(SPELL_UPDATE_PHASE_SHIFT, player);
                         instance->HandleGameObject(instance->GetGuidData(DATA_SECOND_DOOR), true);
                         player->AddAura(SPELL_PLUNDER, player);

@@ -770,14 +770,15 @@ void WorldSession::HandleUITimeRequest(WorldPackets::Misc::UITimeRequest& /*requ
     SendPacket(response.Write());
 }
 
-void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps, std::set<uint32> const& worldMapAreaSwaps, uint32 flag /*=0x1F*/)
+void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& visibleMapIDs, std::set<uint32> const& uiWorldMapAreaIDSwaps, std::set<uint32> const& preloadMapIDs, uint32 flags /*= 0x1F*/)
 {
     WorldPackets::Misc::PhaseShift phaseShift;
     phaseShift.ClientGUID = _player->GetGUID();
     phaseShift.PersonalGUID = _player->GetGUID();
     phaseShift.PhaseShifts = phaseIds;
-    phaseShift.VisibleMapIDs = terrainswaps;
-    phaseShift.UiWorldMapAreaIDSwaps = worldMapAreaSwaps;
+    phaseShift.PreloadMapIDs = preloadMapIDs;
+    phaseShift.VisibleMapIDs = visibleMapIDs;
+    phaseShift.UiWorldMapAreaIDSwaps = uiWorldMapAreaIDSwaps;
     SendPacket(phaseShift.Write());
 }
 

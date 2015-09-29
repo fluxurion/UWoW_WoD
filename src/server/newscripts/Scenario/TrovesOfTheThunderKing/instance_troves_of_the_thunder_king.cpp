@@ -48,7 +48,7 @@ public:
             WorldMapAreaIds.insert(748);
             WorldMapAreaIds.insert(907);
             WorldMapAreaIds.insert(910);
-            player->GetSession()->SendSetPhaseShift(std::set<uint32>(), std::set<uint32>(), WorldMapAreaIds, 8);
+            player->GetSession()->SendSetPhaseShift(std::set<uint32>(), std::set<uint32>(), WorldMapAreaIds, std::set<uint32>(), 8);
         }
 		
         void OnCreatureCreate(Creature* creature)

@@ -332,7 +332,7 @@ void PhaseData::SendPhaseshiftToPlayer()
             flags = (*itr)->flags;
     }
 
-    player->GetSession()->SendSetPhaseShift(phaseIds, terrainswaps, WorldMapAreaIds, flags);
+    player->GetSession()->SendSetPhaseShift(phaseIds, terrainswaps, WorldMapAreaIds, std::set<uint32>(), flags);
 
     uint32 zoneid, areaid;
     player->GetZoneAndAreaId(zoneid, areaid);
