@@ -128,7 +128,7 @@ public:
     Plot const* GetPlot(uint32 garrPlotInstanceId) const;
 
     // Buildings
-    void LearnBlueprint(uint32 garrBuildingId);
+    bool LearnBlueprint(uint32 garrBuildingId);
     void UnlearnBlueprint(uint32 garrBuildingId);
     void PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId);
     void CancelBuildingConstruction(uint32 garrPlotInstanceId);

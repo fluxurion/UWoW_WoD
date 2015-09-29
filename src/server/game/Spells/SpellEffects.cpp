@@ -8781,8 +8781,19 @@ void Spell::EffectLearnGarrisonBuilding(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    Player* player = unitTarget->ToPlayer();
+    if (!player)
+        return;
+
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
-        garrison->LearnBlueprint(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue);
+    {
+        if (garrison->LearnBlueprint(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue))
+        {
+            uint32 count = 1;
+            player->DestroyItemCount(itemTarget, count, true);
+            ExecuteLogEffectDestroyItem(effIndex, itemTarget->GetEntry());
+        }
+    }
 }
 
 void Spell::EffectCreateGarrison(SpellEffIndex effIndex)

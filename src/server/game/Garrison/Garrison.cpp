@@ -326,7 +326,7 @@ Garrison::Plot const* Garrison::GetPlot(uint32 garrPlotInstanceId) const
     return nullptr;
 }
 
-void Garrison::LearnBlueprint(uint32 garrBuildingId)
+bool Garrison::LearnBlueprint(uint32 garrBuildingId)
 {
     WorldPackets::Garrison::GarrisonLearnBlueprintResult learnBlueprintResult;
     learnBlueprintResult.BuildingID = garrBuildingId;
@@ -340,6 +340,11 @@ void Garrison::LearnBlueprint(uint32 garrBuildingId)
         _knownBuildings.insert(garrBuildingId);
 
     _owner->SendDirectMessage(learnBlueprintResult.Write());
+
+    if (learnBlueprintResult.Result = GARRISON_SUCCESS)
+        return false;
+    else
+        return true;
 }
 
 void Garrison::UnlearnBlueprint(uint32 garrBuildingId)
