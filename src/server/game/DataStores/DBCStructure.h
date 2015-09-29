@@ -553,6 +553,18 @@ struct CriteriaEntry
             uint32  field3;                                 //  main requirement
             // uint32  count;                               // treeCount in CriteriaTree main requirement count
         } raw;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING = 169
+        uint32 GarrBuildingID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON       = 170
+        uint32 GarrisonLevel;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION = 174
+        uint32 GarrMissionID;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT = 182
+        uint32 CharShipmentContainerID;
     };
 
     uint32  timedCriteriaStartType;                        // 3 m_timer_start_event
@@ -1642,7 +1654,7 @@ struct MapEntry
     uint32  addon;                                          // 16       m_expansionID
     uint32 unk_time;                                        // 17       m_raidOffset
     uint32 maxPlayers;                                      // 18       m_maxPlayers
-    int32 rootPhaseMap;                                     // 19 new 4.0.0, mapid, related to phasing
+    int32   ParentMapID;                                    // 19
     //uint32        CosmeticParentMapID                     // 20
     //uint32        TimeOffset                              // 21
     // Helpers

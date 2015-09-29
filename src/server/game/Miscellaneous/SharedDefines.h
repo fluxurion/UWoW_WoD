@@ -1257,11 +1257,11 @@ enum SpellEffects
     SPELL_EFFECT_UPGRADE_BATTLE_PET                 = 204,
     SPELL_EFFECT_205                                = 205, // Launch PvE/PvP Choice
     SPELL_EFFECT_CREATE_ITEM_3                      = 206, // Create item from Timeless Isle
-    SPELL_EFFECT_207                                = 207, // 0 spells
+    SPELL_EFFECT_LAUNCH_QUEST_TASK                  = 207, // 0 spells
     SPELL_EFFECT_REPUTATION_SET                     = 208, // Test Reputation Set
     SPELL_EFFECT_209                                = 209,
-    SPELL_EFFECT_210                                = 210,
-    SPELL_EFFECT_211                                = 211,
+    SPELL_EFFECT_LEARN_GARRISON_BUILDING            = 210,
+    SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION      = 211,
     SPELL_EFFECT_212                                = 212,
     SPELL_EFFECT_JUMP_DEST2                         = 213,
     SPELL_EFFECT_CREATE_GARRISON                    = 214,
@@ -1300,8 +1300,9 @@ enum SpellEffects
     SPELL_EFFECT_ADD_GARRISON_MISSION               = 247,
     SPELL_EFFECT_FINISH_SHIPMENT                    = 248,
     SPELL_EFFECT_249                                = 249,
-    SPELL_EFFECT_250                                = 250,
-    TOTAL_SPELL_EFFECTS                             = 251,
+    SPELL_EFFECT_TAKE_SCREENSHOT                    = 250,
+
+    TOTAL_SPELL_EFFECTS
 };
 
 enum PetTameResult

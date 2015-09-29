@@ -15,10 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GarrisonMgr_h__
-#define GarrisonMgr_h__
+#include "WorldSession.h"
+#include "Garrison.h"
+#include "GarrisonPackets.h"
 
-
-#define sGarrisonMgr GarrisonMgr::Instance()
-
-#endif // GarrisonMgr_h__

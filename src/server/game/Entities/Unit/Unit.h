@@ -746,7 +746,11 @@ enum NPCFlags
 enum NPCFlags2
 {
     UNIT_NPC_FLAG2_NONE                 = 0x00000000,
-    UNIT_NPC_FLAG2_UPGRADE_MASTER       = 0x00000001,       // 0 Upgrade Master
+    UNIT_NPC_FLAG2_UPGRADE_MASTER       = 0x00000001,
+    UNIT_NPC_FLAG_GARRISON_ARCHITECT    = 0x00000002,
+    UNIT_NPC_FLAG_SHIPMENT_CRAFTER      = 0x00000020,
+    UNIT_NPC_FLAG_GARRISON_MISSION_NPC  = 0x00000040,
+    UNIT_NPC_FLAG_TRADESKILL_NPC        = 0x00000080
 };
 
 enum MovementFlags
@@ -1781,9 +1785,9 @@ class Unit : public WorldObject
         void SendSpellDamageImmune(Unit* target, uint32 spellId, bool isPeriodic);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
-        virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false, bool stop = false);
+        virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
         // returns true if unit's position really changed
-        bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
+        bool UpdatePosition(const Position &pos, bool teleport = false);
         void UpdateOrientation(float orientation);
         void UpdateHeight(float newZ);
         void SendTeleportPacket(Position &oldPos);
@@ -2678,7 +2682,7 @@ class Unit : public WorldObject
         bool HandleProcMelleTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, double cooldown);
 
         void UpdateSplineMovement(uint32 t_diff);
-        void UpdateSplinePosition(bool stop = false);
+        void UpdateSplinePosition();
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;

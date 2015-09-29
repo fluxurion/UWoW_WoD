@@ -278,6 +278,8 @@ class Map : public GridRefManager<NGridType>
 
         void PlayerRelocation(Player*, float x, float y, float z, float orientation);
         void CreatureRelocation(Creature* creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true);
+        void GameObjectRelocation(GameObject* go, float x, float y, float z, float orientation, bool respawnRelocationOnFail = true);
+        void DynamicObjectRelocation(DynamicObject* go, float x, float y, float z, float orientation);
 
         template<class T, class CONTAINER> void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
 
@@ -352,11 +354,15 @@ class Map : public GridRefManager<NGridType>
         }
 
         void MoveAllCreaturesInMoveList();
+        void MoveAllGameObjectsInMoveList();
+        void MoveAllDynamicObjectsInMoveList();
+
         void RemoveAllObjectsInRemoveList();
         virtual void RemoveAllPlayers();
 
         // used only in MoveAllCreaturesInMoveList and ObjectGridUnloader
         bool CreatureRespawnRelocation(Creature* c, bool diffGridOnly);
+        bool GameObjectRespawnRelocation(GameObject* go, bool diffGridOnly);
 
         // assert print helper
         bool CheckGridIntegrity(Creature* c, bool moved) const;
@@ -392,6 +398,7 @@ class Map : public GridRefManager<NGridType>
         bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
         bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
         bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
+        bool IsGarrison() const { return i_mapEntry && i_mapEntry->IsGarrison(); }
         BattlegroundMap* ToBgMap() { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap*>(this); else return NULL; }
         uint32 ItemLevelCap() const;
         uint32 GetMaxPlayer() const;
@@ -466,8 +473,8 @@ class Map : public GridRefManager<NGridType>
         float GetHeight(uint32 phasemask, float x, float y, float z, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
         bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const;
         void Balance() { _dynamicTree.balance(); }
-        void RemoveGameObjectModel(const GameObjectModel& model) { /*_dynamicTree.remove(model);*/ }
-        void InsertGameObjectModel(const GameObjectModel& model) { /*_dynamicTree.insert(model);*/ }
+        void RemoveGameObjectModel(const GameObjectModel& model) { _dynamicTree.remove(model); }
+        void InsertGameObjectModel(const GameObjectModel& model) { _dynamicTree.insert(model); }
         bool ContainsGameObjectModel(const GameObjectModel& model) const { return _dynamicTree.contains(model);}
         bool getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist);
         void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
@@ -519,13 +526,25 @@ class Map : public GridRefManager<NGridType>
         void SendRemoveTransports(Player* player);
 
         bool CreatureCellRelocation(Creature* creature, Cell new_cell);
+        bool GameObjectCellRelocation(GameObject* go, Cell new_cell);
+        bool DynamicObjectCellRelocation(DynamicObject* go, Cell new_cell);
 
         template<class T> void InitializeObject(T* obj);
         void AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang);
         void RemoveCreatureFromMoveList(Creature* c);
+        void AddGameObjectToMoveList(GameObject* go, float x, float y, float z, float ang);
+        void RemoveGameObjectFromMoveList(GameObject* go);
+        void AddDynamicObjectToMoveList(DynamicObject* go, float x, float y, float z, float ang);
+        void RemoveDynamicObjectFromMoveList(DynamicObject* go);
 
         bool _creatureToMoveLock;
         std::vector<Creature*> _creaturesToMove;
+
+        bool _gameObjectsToMoveLock;
+        std::vector<GameObject*> _gameObjectsToMove;
+
+        bool _dynamicObjectsToMoveLock;
+        std::vector<DynamicObject*> _dynamicObjectsToMove;
 
         bool IsGridLoaded(const GridCoord &) const;
         void EnsureGridCreated(const GridCoord &);
@@ -557,6 +576,7 @@ class Map : public GridRefManager<NGridType>
 
     protected:
         void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
+        virtual void LoadGridObjects(NGridType* grid, Cell const& cell);
 
         std::mutex _mapLock;
         std::mutex _gridLock;

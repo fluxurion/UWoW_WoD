@@ -289,7 +289,7 @@ WorldPacket const* WorldPackets::LFG::QueueStatusUpdate::Write()
     _worldPacket << SubType;
     _worldPacket << Reason;
 
-    for (uint8 const id : Needs)
+    for (uint8 const id : {0, 1, 2})
         _worldPacket << Needs[id];
 
     _worldPacket << static_cast<uint32>(Slots.size());

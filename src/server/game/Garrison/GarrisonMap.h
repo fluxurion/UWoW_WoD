@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GarrisonMgr_h__
-#define GarrisonMgr_h__
+#ifndef GarrisonMap_h__
+#define GarrisonMap_h__
+
+#include "Map.h"
 
 
-#define sGarrisonMgr GarrisonMgr::Instance()
-
-#endif // GarrisonMgr_h__
+#endif // GarrisonMap_h__

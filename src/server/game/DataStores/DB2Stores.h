@@ -22,8 +22,8 @@
 #include "DB2Structure.h"
 #include "SharedDefines.h"
 
-#include <boost/regex.hpp>
 #include <array>
+#include <boost/regex.hpp>
 #include <list>
 
 extern DB2Storage<AreaGroupMemberEntry>             sAreaGroupMemberStore;

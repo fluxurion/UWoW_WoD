@@ -15,10 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GarrisonMgr_h__
-#define GarrisonMgr_h__
+#include "GarrisonMap.h"
+#include "Garrison.h"
+#include "ObjectAccessor.h"
+#include "ObjectGridLoader.h"
+#include "GameObject.h"
 
-
-#define sGarrisonMgr GarrisonMgr::Instance()
-
-#endif // GarrisonMgr_h__

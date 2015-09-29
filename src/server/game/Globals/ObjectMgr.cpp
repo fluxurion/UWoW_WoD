@@ -6365,27 +6365,27 @@ void ObjectMgr::LoadGameObjectTemplate()
     {
         if (GameObjectsEntry const* goe = sGameObjectsStore.LookupEntry(*itr))
         {
-            GameObjectTemplate& got = _gameObjectTemplateStore[goe->id];
+            GameObjectTemplate& got = _gameObjectTemplateStore[goe->ID];
 
-            got.entry          = goe->id;
-            got.type           = goe->type;
-            got.displayId      = goe->displayId;
-            got.name           = goe->name[DEFAULT_LOCALE].Str[DEFAULT_LOCALE];
+            got.entry          = goe->ID;
+            got.type           = goe->Type;
+            got.displayId      = goe->DisplayID;
+            got.name           = goe->Name[DEFAULT_LOCALE].Str[DEFAULT_LOCALE];
             got.IconName       = "";
             got.castBarCaption = "";
             got.unk1           = "";
             got.faction        = 0;
             got.flags          = 0;
-            got.size           = goe->size;
-            got.raw.data[0]    = goe->data[0];
-            got.raw.data[1]    = goe->data[1];
-            got.raw.data[2]    = goe->data[2];
-            got.raw.data[3]    = goe->data[3];
-            //ToDo: more research
-            /*got.raw.data[4]    = goe->data[4];
-            got.raw.data[5]    = goe->data[5];
-            got.raw.data[6]    = goe->data[6];
-            got.raw.data[7]    = goe->data[7];*/
+            got.size           = goe->Size;
+            got.raw.data[0]    = goe->Data[0];
+            got.raw.data[1]    = goe->Data[1];
+            got.raw.data[2]    = goe->Data[2];
+            got.raw.data[3]    = goe->Data[3];
+            //ToDo: more research 4-7
+            got.raw.data[4]    = goe->Data[4];
+            got.raw.data[5]    = goe->Data[5];
+            got.raw.data[6]    = goe->Data[6];
+            got.raw.data[7]    = goe->Data[7];
             for (uint8 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
                 got.questItems[i] = 0;
 
@@ -6612,6 +6612,10 @@ void ObjectMgr::LoadGameObjectTemplate()
             }
             case GAMEOBJECT_TYPE_BARBER_CHAIR:              //32
                 CheckAndFixGOChairHeightId(&got, got.barberChair.chairheight, 0);
+                break;
+            case GAMEOBJECT_TYPE_GARRISON_BUILDING:
+                //if (uint32 transportMap = got.garrisonBuilding.mapID)
+                //    _transportMaps.insert(transportMap);
                 break;
         }
 

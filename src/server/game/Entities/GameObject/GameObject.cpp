@@ -40,7 +40,7 @@ GameObject::GameObject() : WorldObject(false), m_model(NULL), m_goValue(new Game
     m_manual_anim(false), m_respawnTime(0), m_respawnDelayTime(300),
     m_lootState(GO_NOT_READY), m_spawnedByDefault(true), m_usetimes(0), m_spellId(0), m_cooldownTime(0), 
     m_goInfo(NULL), m_ritualOwner(NULL), m_goData(NULL), m_DBTableGuid(0), m_rotation(0), m_lootRecipient(),
-    m_lootRecipientGroup(), m_groupLootTimer(0), lootingGroupLowGUID(), m_isDynActive(false)
+    m_lootRecipientGroup(), m_groupLootTimer(0), lootingGroupLowGUID(), m_isDynActive(false), MapObject()
 {
     m_valuesCount = GAMEOBJECT_END;
     _dynamicValuesCount = GAMEOBJECT_DYNAMIC_END;
@@ -48,6 +48,8 @@ GameObject::GameObject() : WorldObject(false), m_model(NULL), m_goValue(new Game
     m_objectTypeId = TYPEID_GAMEOBJECT;
 
     m_updateFlag = (UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION);
+
+    m_stationaryPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 GameObject::~GameObject()
@@ -154,6 +156,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     SetMap(map);
 
     Relocate(x, y, z, ang);
+    m_stationaryPosition.Relocate(x, y, z, ang);
     if (!IsPositionValid())
     {
         sLog->outError(LOG_FILTER_GENERAL, "Gameobject (GUID: %u Entry: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", guidlow, name_id, x, y);
@@ -218,6 +221,8 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     SetGoState(go_state);
     SetGoArtKit(artKit);
     SetAIAnimKitId(aid);
+
+    m_model = GameObjectModel::Create(*this);
 
     if(m_goInfo->WorldEffectID)
         m_updateFlag |= UPDATEFLAG_HAS_WORLDEFFECTID;
@@ -2240,4 +2245,39 @@ bool GameObject::IsPersonalLoot() const
             return true;
 
     return false;
+}
+
+void GameObject::UpdateModelPosition()
+{
+    if (!m_model)
+        return;
+
+    if (GetMap()->ContainsGameObjectModel(*m_model))
+    {
+        GetMap()->RemoveGameObjectModel(*m_model);
+        //m_model->UpdatePosition(); why we cant use it here? that shit
+        GetMap()->InsertGameObjectModel(*m_model);
+    }
+}
+
+void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* = NULL*/) const
+{
+    if (m_DBTableGuid)
+    {
+        if (GameObjectData const* data = sObjectMgr->GetGOData(m_DBTableGuid))
+        {
+            x = data->posX;
+            y = data->posY;
+            z = data->posZ;
+            if (ori)
+                *ori = data->orientation;
+            return;
+        }
+    }
+
+    x = GetPositionX();
+    y = GetPositionY();
+    z = GetPositionZ();
+    if (ori)
+        *ori = GetOrientation();
 }

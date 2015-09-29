@@ -221,6 +221,7 @@ bool Transport::Create(ObjectGuid::LowType const& guidlow, uint32 entry, uint32 
 
     SetGoState(GO_STATE_READY);
     SetGoType(GameobjectTypes(goinfo->type));
+    UpdateRotationFields(0.0f, 1.0f);
 
     SetGoAnimProgress(animprogress);
     if (dynflags)
@@ -229,6 +230,8 @@ bool Transport::Create(ObjectGuid::LowType const& guidlow, uint32 entry, uint32 
     SetName(goinfo->name);
 
     SetZoneScript();
+
+    m_model = GameObjectModel::Create(*this);
 
     return true;
 }
@@ -761,14 +764,10 @@ ObjectGuid::LowType Transport::AddNPCPassenger(ObjectGuid::LowType tguid, uint32
     return tguid;
 }
 
-void Transport::UpdatePosition(MovementInfo* mi)
+void Transport::UpdatePosition(float x, float y, float z, float o)
 {
-    float transport_o = mi->pos.GetOrientation() - mi->transport.pos.GetOrientation();
-    float transport_x = mi->pos.m_positionX - (mi->transport.pos.m_positionX * std::cos(transport_o) - mi->transport.pos.m_positionY* std::sin(transport_o));
-    float transport_y = mi->pos.m_positionY - (mi->transport.pos.m_positionY * std::cos(transport_o) + mi->transport.pos.m_positionX* std::sin(transport_o));
-    float transport_z = mi->pos.m_positionZ - mi->transport.pos.m_positionZ;
-
-    Relocate(transport_x, transport_y, transport_z, transport_o);
+    Relocate(x, y, z, o);
+    UpdateModelPosition();
     UpdateNPCPositions();
 }
 
@@ -780,31 +779,10 @@ void Transport::UpdateNPCPositions()
 
         float x, y, z, o;
         npc->m_movementInfo.transport.pos.GetPosition(x, y, z, o);
-        CalculatePassengerPosition(x, y, z, o);
+
         GetMap()->CreatureRelocation(npc, x, y, z, o, false);
         npc->GetTransportHomePosition(x, y, z, o);
-        CalculatePassengerPosition(x, y, z, o);
+        CalculatePassengerPosition(x, y, z, &o);
         npc->SetHomePosition(x, y, z, o);
     }
-}
-
-void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
-{
-    float inx = x, iny = y, inz = z, ino = o;
-    o = GetOrientation() + ino;
-    x = GetPositionX() + inx * std::cos(GetOrientation()) - iny * std::sin(GetOrientation());
-    y = GetPositionY() + iny * std::cos(GetOrientation()) + inx * std::sin(GetOrientation());
-    z = GetPositionZ() + inz;
-}
-
-//! This method transforms supplied global coordinates into local offsets
-void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
-{
-    o = o - GetOrientation();
-    z -= GetPositionZ();
-    y -= GetPositionY();    // y = searchedY * std::cos(o) + searchedX * std::sin(o)
-    x -= GetPositionX();    // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
-    float inx = x, iny = y;
-    y = (iny - inx * tan(GetOrientation())) / (cos(GetOrientation()) + std::sin(GetOrientation()) * tan(GetOrientation()));
-    x = (inx + iny * tan(GetOrientation())) / (cos(GetOrientation()) + std::sin(GetOrientation()) * tan(GetOrientation()));
 }

@@ -19,51 +19,51 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include <string>
+#include <vector>
+#include <boost/dynamic_bitset_fwd.hpp>
+
 #include "AchievementMgr.h"
+#include "Bag.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
-#include "Bag.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "GroupReference.h"
-#include "ItemTemplate.h"
 #include "Item.h"
+#include "ItemTemplate.h"
 #include "MapReference.h"
 #include "NPCHandler.h"
-#include "Pet.h"
-#include "QuestDef.h"
-#include "ReputationMgr.h"
-#include "Unit.h"
-#include "Util.h"                                           // for Tokenizer typedef
-#include "WorldSession.h"
-#include "PhaseMgr.h"
 #include "Object.h"
 #include "Opcodes.h"
-#include "Packets/VehiclePackets.h"
-
-// for template
+#include "Pet.h"
+#include "PhaseMgr.h"
+#include "QuestDef.h"
+#include "ReputationMgr.h"
 #include "SpellMgr.h"
+#include "Unit.h"
+#include "Util.h"
+#include "WorldSession.h"
 
-#include<string>
-#include<vector>
-#include <boost/dynamic_bitset_fwd.hpp>
+#include "Packets/VehiclePackets.h"
 
 struct Mail;
 struct ItemExtendedCostEntry;
+
+class Bracket;
 class Channel;
 class Creature;
 class DynamicObject;
 class Group;
+class Guild;
 class OutdoorPvP;
 class Pet;
+class PhaseMgr;
 class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
-class PhaseMgr;
-class Bracket;
-class Guild;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -1962,7 +1962,7 @@ class Player : public Unit, public GridObject<Player>
         void SetDailyQuestStatus(uint32 quest_id);
         void SetWeeklyQuestStatus(uint32 quest_id);
         void SetSeasonalQuestStatus(uint32 quest_id);
-        void ResetDailyQuestStatus();
+        void DailyReset();
         void ResetWeeklyQuestStatus();
         void ResetSeasonalQuestStatus(uint16 event_id);
 
@@ -2597,8 +2597,8 @@ class Player : public Unit, public GridObject<Player>
         void SendResetInstanceFailed(uint32 reason, uint32 MapId);
         void SendResetFailedNotify();
 
-        bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false, bool stop = false);
-        bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
+        virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
+        bool UpdatePosition(Position const& pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z);
 
         void SendMessageToSet(WorldPacket const* data, bool self) {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet

@@ -69,7 +69,8 @@ class ObjectGridEvacuator
 {
     public:
         void Visit(CreatureMapType &m);
-        template<class T> void Visit(GridRefManager<T> &) {}
+        void Visit(GameObjectMapType &m);
+        template<class T> void Visit(GridRefManager<T> &) { }
 };
 
 //Clean up and remove from world

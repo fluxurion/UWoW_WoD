@@ -16,34 +16,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "DBCEnums.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "World.h"
-#include "WorldPacket.h"
-#include "DatabaseEnv.h"
 #include "AchievementMgr.h"
+#include "Battleground.h"
+#include "BattlegroundAB.h"
+#include "BattlegroundMgr.h"
+#include "Bracket.h"
 #include "CellImpl.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
+#include "DBCEnums.h"
+#include "DisableMgr.h"
+#include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GridNotifiersImpl.h"
-#include "Guild.h"
-#include "Language.h"
-#include "Player.h"
-#include "SpellMgr.h"
-#include "DisableMgr.h"
-#include "ScriptMgr.h"
-#include "MapManager.h"
-#include "Battleground.h"
-#include "BattlegroundMgr.h"
-#include "BattlegroundAB.h"
-#include "Map.h"
-#include "InstanceScript.h"
 #include "Group.h"
-#include "Bracket.h"
-#include "AchievementPackets.h"
+#include "Guild.h"
+#include "GuildMgr.h"
+#include "InstanceScript.h"
+#include "Language.h"
+#include "Map.h"
+#include "MapManager.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScenarioMgr.h"
-#include "Formulas.h"
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
+#include "World.h"
+#include "WorldPacket.h"
+
+#include "AchievementPackets.h"
 
 namespace Trinity
 {
@@ -1569,6 +1570,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL:
             case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN:
             case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP:
+            case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
                 canComplete = SetCriteriaProgress(achievement, criteriaTree, criteria, init ? 0 : 1, referencePlayer, PROGRESS_ACCUMULATE, progressMap, progress);
                 break;
             // std case: increment at miscValue1
@@ -1682,6 +1684,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+            case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
                 canComplete = SetCriteriaProgress(achievement, criteriaTree, criteria, 1, referencePlayer, PROGRESS_SET, progressMap, progress);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT:
@@ -1839,6 +1842,23 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_UNK154:
             case ACHIEVEMENT_CRITERIA_TYPE_UNK159:
             case ACHIEVEMENT_CRITERIA_TYPE_LEVEL_BATTLE_PET_CREDIT:
+            case ACHIEVEMENT_CRITERIA_TYPE_ENTER_AREA:
+            case ACHIEVEMENT_CRITERIA_TYPE_LEAVE_AREA:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
+            case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
+            case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
+            case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON:
+            case ACHIEVEMENT_CRITERIA_TYPE_START_GARRISON_MISSION:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION_COUNT:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION:
+            case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_COUNT:
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINT_COUNT:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT:
+            case ACHIEVEMENT_CRITERIA_TYPE_RAISE_GARRISON_FOLLOWER_ITEM_LEVEL:
+            case ACHIEVEMENT_CRITERIA_TYPE_RAISE_GARRISON_FOLLOWER_LEVEL:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY_COUNT:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
                 break;                                   // Not implemented yet :(
         }
 
@@ -1918,6 +1938,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(CriteriaTreeEntry const* criteriaTre
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
         case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
+        case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
             progress->completed = progress->counter >= 1;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
@@ -1997,6 +2018,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(CriteriaTreeEntry const* criteriaTre
         case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN:
         case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT:
         case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP:
+        case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
             progress->completed = progress->counter >= criteriaTree->requirement_count;
             break;
         // handle all statistic-only criteria here
@@ -3776,6 +3798,10 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementEntry const* achievemen
             if (!miscValue1 || miscValue1 != criteria->battlepet_level.level_up)
                 return false;
             break;
+        case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+            if (miscValue1 != criteria->GarrBuildingID)
+                return false;
+            break;
         default:
             break;
     }
@@ -4198,6 +4224,26 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                         check = false;
                     break;
                 }
+                case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY: // 145
+                {
+                    if (!referencePlayer)
+                        return false;
+
+                    break;
+                }
+                case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_LEVEL: // 146
+                {
+                    if (!referencePlayer)
+                        return false;
+
+                    break;
+                }
+                case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ILVL: // 184
+                {
+                    if (!referencePlayer)
+                        return false;
+                    break;
+                }
                 default:
                     break;
             }
@@ -4472,6 +4518,40 @@ char const* AchievementGlobalMgr::GetCriteriaTypeString(AchievementCriteriaTypes
             return "HONORABLE_KILLS_GUILD";
         case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
             return "KILL_CREATURE_TYPE_GUILD";
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
+            return "COMPLETE_DUNGEON_ENCOUNTER";
+        case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+            return "PLACE_GARRISON_BUILDING";
+        case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
+            return "UPGRADE_GARRISON_BUILDING";
+        case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
+            return "CONSTRUCT_GARRISON_BUILDING";
+        case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON:
+            return "UPGRADE_GARRISON";
+        case ACHIEVEMENT_CRITERIA_TYPE_START_GARRISON_MISSION:
+            return "START_GARRISON_MISSION";
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION_COUNT:
+            return "COMPLETE_GARRISON_MISSION_COUNT";
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION:
+            return "COMPLETE_GARRISON_MISSION";
+        case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_COUNT:
+            return "RECRUIT_GARRISON_FOLLOWER_COUNT";
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINT_COUNT:
+            return "LEARN_GARRISON_BLUEPRINT_COUNT";
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT:
+            return "COMPLETE_GARRISON_SHIPMENT";
+        case ACHIEVEMENT_CRITERIA_TYPE_RAISE_GARRISON_FOLLOWER_ITEM_LEVEL:
+            return "RAISE_GARRISON_FOLLOWER_ITEM_LEVEL";
+        case ACHIEVEMENT_CRITERIA_TYPE_RAISE_GARRISON_FOLLOWER_LEVEL:
+            return "RAISE_GARRISON_FOLLOWER_LEVEL";
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY:
+            return "OWN_TOY";
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY_COUNT:
+            return "OWN_TOY_COUNT";
+        case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
+            return "RECRUIT_GARRISON_FOLLOWER";
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
+            return "OWN_HEIRLOOMS";
         default:
             return "MISSING_TYPE";
     }
