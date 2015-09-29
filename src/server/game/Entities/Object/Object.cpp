@@ -3112,25 +3112,6 @@ bool WorldObject::IsInPersonnalVisibilityList(ObjectGuid const& guid) const
     return _visibilityPlayerList.find(guid) != _visibilityPlayerList.end();
 }
 
-void WorldObject::AddVisitor(Object* p)
-{
-    for (std::list<C_PTR>::iterator itr = visitors.begin(); itr != visitors.end(); ++itr)
-        if ((*itr).get() == p)
-            return;
-
-    visitors.push_back(p->get_ptr());
-}
-
-void WorldObject::RemoveVisitor(Object*p)
-{
-    for (std::list<C_PTR>::iterator itr = visitors.begin(); itr != visitors.end(); ++itr)
-        if ((*itr).get() == p)
-        {
-            visitors.erase(itr);
-            break;
-        }
-}
-
 void WorldObject::AddPlayersInPersonnalVisibilityList(GuidUnorderedSet const& viewerList)
 {
     for (auto guid : viewerList)
@@ -3342,36 +3323,7 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
 void WorldObject::SendMessageToSet(WorldPacket const* data, bool self)
 {
     if (IsInWorld())
-    {
-        for (auto target : visitors)
-        {
-            Player *player = target.get() ? target.get()->ToPlayer() : NULL;
-            if (!player)
-                continue;
-            // Send packet to all who are sharing the player's vision
-            /*if (!target->GetSharedVisionList().empty())
-            {
-                SharedVisionList::const_iterator i = target->GetSharedVisionList().begin();
-                for (; i != target->GetSharedVisionList().end(); ++i)
-                    if ((*i)->m_seer == target)
-                        SendPacket(*i);
-            }*/
-
-            if (player->m_seer == player || player->GetVehicle())
-            {
-                // never send packet to self
-                if (player == this /*|| (team && player->GetTeam() != team)*/)
-                    continue;
-
-                if (!player->HaveAtClient(this))
-                    continue;
-
-                if (WorldSession* session = player->GetSession())
-                    session->SendPacket(data);
-            }
-        }
-        //SendMessageToSetInRange(data, GetVisibilityRange(), self);
-    }
+        SendMessageToSetInRange(data, GetVisibilityRange(), self);
 }
 
 void WorldObject::SendMessageToSetInRange(WorldPacket const* data, float dist, bool /*self*/)
@@ -4394,7 +4346,6 @@ void WorldObject::DestroyForNearbyPlayers()
         DestroyForPlayer(player);
         player->m_clientGUIDs.erase(GetGUID());
     }
-    visitors.clear();
 }
 
 void WorldObject::DestroyVignetteForNearbyPlayers()

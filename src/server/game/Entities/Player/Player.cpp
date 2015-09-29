@@ -7697,39 +7697,10 @@ void Player::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcv
     if (skipped_rcvr != this)
         GetSession()->SendPacket(data);
 
-    for (auto target : visitors)
-    {
-        Player *player = target.get() ? target.get()->ToPlayer() : NULL;
-        if (!player)
-            continue;
-
-        // Send packet to all who are sharing the player's vision
-        /*if (!target->GetSharedVisionList().empty())
-        {
-            SharedVisionList::const_iterator i = target->GetSharedVisionList().begin();
-            for (; i != target->GetSharedVisionList().end(); ++i)
-                if ((*i)->m_seer == target)
-                    SendPacket(*i);
-        }*/
-
-        if (player->m_seer == player || player->GetVehicle())
-        {
-            // never send packet to self
-            if (player == this || skipped_rcvr == player)
-                continue;
-
-            if (!player->HaveAtClient(this))
-                continue;
-
-            if (WorldSession* session = player->GetSession())
-                session->SendPacket(data);
-        }
-    }
-
     // we use World::GetMaxVisibleDistance() because i cannot see why not use a distance
     // update: replaced by GetMap()->GetVisibilityDistance()
-    //Trinity::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr);
-    //VisitNearbyWorldObject(GetVisibilityRange(), notifier);
+    Trinity::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr);
+    VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
 void Player::SendDirectMessage(WorldPacket const* data) const
@@ -30239,7 +30210,6 @@ void Player::AddListner(WorldObject* o, bool /*update*/)
 {
     if(CanSeeVignette(o))
         AddVignette(o);
-    o->AddVisitor(this);
 }
 
 void Player::RemoveListner(WorldObject* o, bool update)
@@ -30250,7 +30220,6 @@ void Player::RemoveListner(WorldObject* o, bool update)
         if(update)
             SendVignette();
     }
-    o->RemoveVisitor(this);
 }
 
 bool Player::CanSeeVignette(WorldObject *o)
