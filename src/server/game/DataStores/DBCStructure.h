@@ -1686,6 +1686,7 @@ struct MapEntry
     }
 
     bool IsDynamicDifficultyMap() const { return (flags & MAP_FLAG_CAN_CHANGE_DIFFICULTY) != 0; }
+    bool IsGarrison() const { return (flags & MAP_FLAG_GARRISON) != 0; }
 
     bool IsDifficultyModeSupported(uint32 difficulty) const;
 };

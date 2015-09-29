@@ -136,6 +136,83 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // BattlePetBreedState.db2
     PrepareStatement(HOTFIX_SEL_BATTLE_PET_BREED_STATE, "SELECT ID, breedID, stateID, stateModifier FROM battle_pet_breed_state ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // GarrAbility.db2
+    PrepareStatement(HOTFIX_SEL_GARR_ABILITY, "SELECT ID, Flags, Name, Description, IconFileDataID, OtherFactionGarrAbilityID, GarrAbilityCategoryID"
+        " FROM garr_ability ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_ABILITY, "SELECT ID, Name_lang, Description_lang FROM garr_ability_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // GarrisonAbilityEffect.db2
+    PrepareStatement(HOTFIX_SEL_GARRISON_ABILITY_EFFECT, "SELECT ID, garrAbilityID FROM garrison_ability_effect ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrBuilding.db2
+    PrepareStatement(HOTFIX_SEL_GARR_BUILDING, "SELECT ID, HordeGameObjectID, AllianceGameObjectID, Unknown, Type, Level, NameAlliance, NameHorde, "
+        "Description, Tooltip, BuildDuration, CostCurrencyID, CostCurrencyAmount, HordeTexPrefixKitID, AllianceTexPrefixKitID, IconFileDataID, "
+        "BonusAmount, Flags, AllianceActivationScenePackageID, HordeActivationScenePackageID, MaxShipments, FollowerRequiredGarrAbilityID, "
+        "FollowerGarrAbilityEffectID, CostMoney FROM garr_building ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_BUILDING, "SELECT ID, NameAlliance_lang, NameHorde_lang, Description_lang, Tooltip_lang"
+        " FROM garr_building_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // GarrBuildingPlotInst.db2
+    PrepareStatement(HOTFIX_SEL_GARR_BUILDING_PLOT_INST, "SELECT ID, GarrBuildingID, UiTextureAtlasMemberID, GarrSiteLevelPlotInstID, "
+        "LandmarkOffsetX, LandmarkOffsetY FROM garr_building_plot_inst ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrClassSpec.db2
+    PrepareStatement(HOTFIX_SEL_GARR_CLASS_SPEC, "SELECT ID, NameMale, NameFemale, NameGenderless, ClassAtlasID, GarrFollItemSetID"
+        " FROM garr_class_spec ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_CLASS_SPEC, "SELECT ID, NameMale_lang, NameFemale_lang, NameGenderless_lang FROM garr_class_spec_locale"
+        " WHERE locale = ?", CONNECTION_SYNCH);
+
+    // GarrisonEncounter.db2
+    PrepareStatement(HOTFIX_SEL_GARRISON_ENCOUNTER, "SELECT ID, creatureID, name, modifier, modifier1 FROM garrison_encounter ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrisonEncounterXMechanic.db2
+    PrepareStatement(HOTFIX_SEL_GARRISON_ENCOUNTER_X_MECHANIC, "SELECT ID, encounterID, mechaincID FROM garrison_encounter_x_mechanic ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrFollower.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER, "SELECT ID, HordeCreatureID, AllianceCreatureID, HordeUiAnimRaceInfoID, AllianceUiAnimRaceInfoID, "
+        "Quality, HordeGarrClassSpecID, AllianceGarrClassSpecID, HordeGarrFollItemSetID, AllianceGarrFollItemSetID, Level, ItemLevelWeapon, "
+        "ItemLevelArmor, Unknown1, Flags, HordeSourceText, AllianceSourceText, Unknown2, Unknown3, HordePortraitIconID, AlliancePortraitIconID"
+        " FROM garr_follower ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_FOLLOWER, "SELECT ID, HordeSourceText_lang, AllianceSourceText_lang FROM garr_follower_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // GarrFollowerXAbility.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY, "SELECT ID, GarrFollowerID, GarrAbilityID, FactionIndex FROM garr_follower_x_ability"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrisonMechanic.db2
+    PrepareStatement(HOTFIX_SEL_GARRISON_MECHANIC, "SELECT ID, mechanicType, `mod` FROM garrison_mechanic ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrisonMission.db2
+    PrepareStatement(HOTFIX_SEL_GARRISON_MISSION, "SELECT ID, requiredLevel, requiredItemLevel, reqFollowersCount, missionTime, vaildTime, type, "
+        "reqResourcesCount, bonusXP, baseChance FROM garrison_mission ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrisonMissionReward.db2
+    PrepareStatement(HOTFIX_SEL_GARRISON_MISSION_REWARD, "SELECT ID, missionID, rewardXP, rewardItemID, currencyID, currencyValue"
+        " FROM garrison_mission_reward ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrisonMissionXEncounter.db2
+    PrepareStatement(HOTFIX_SEL_GARRISON_MISSION_X_ENCOUNTER, "SELECT ID, missionID, encounterID FROM garrison_mission_x_encounter ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrPlot.db2
+    PrepareStatement(HOTFIX_SEL_GARR_PLOT, "SELECT ID, GarrPlotUICategoryID, PlotType, Flags, Name, MinCount, MaxCount, "
+        "AllianceConstructionGameObjectID, HordeConstructionGameObjectID FROM garr_plot ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_PLOT, "SELECT ID, Name_lang FROM garr_plot_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // GarrPlotBuilding.db2
+    PrepareStatement(HOTFIX_SEL_GARR_PLOT_BUILDING, "SELECT ID, GarrPlotID, GarrBuildingID FROM garr_plot_building ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrPlotInstance.db2
+    PrepareStatement(HOTFIX_SEL_GARR_PLOT_INSTANCE, "SELECT ID, GarrPlotID, Name FROM garr_plot_instance ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_PLOT_INSTANCE, "SELECT ID, Name_lang FROM garr_plot_instance_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // GarrSiteLevel.db2
+    PrepareStatement(HOTFIX_SEL_GARR_SITE_LEVEL, "SELECT ID, Level, MapID, SiteID, UITextureKitID, TownHallX, TownHallY, MovieID, Level2, "
+        "UpgradeResourceCost, UpgradeMoneyCost FROM garr_site_level ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrSiteLevelPlotInst.db2
+    PrepareStatement(HOTFIX_SEL_GARR_SITE_LEVEL_PLOT_INST, "SELECT ID, GarrSiteLevelID, GarrPlotInstanceID, LandmarkX, LandmarkY, Unknown"
+        " FROM garr_site_level_plot_inst ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // CurrencyTypes.db2
     PrepareStatement(HOTFIX_SEL_CURRENCY_TYPES, "SELECT ID, CategoryID, Name, InventoryIcon1, InventoryIcon2, SpellWeight, SpellCategory, MaxQty, "
         "MaxEarnablePerWeek, Flags, Quality, Description FROM currency_types ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -143,14 +220,16 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM currency_types_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // QuestPackageItem.db2
-    PrepareStatement(HOTFIX_SEL_QUEST_PACKAGE_ITEM, "SELECT ID, packageEntry, ItemID, count, FilterType FROM quest_package_item ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_QUEST_PACKAGE_ITEM, "SELECT ID, QuestPackageID, ItemID, ItemCount, FilterType FROM quest_package_item ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // Mount.db2
+    PrepareStatement(HOTFIX_SEL_MOUNT, "SELECT Id, SpellId, MountTypeId, DisplayId, Flags, Name, Description, SourceDescription, Source, "
+        "PlayerConditionId FROM mount ORDER BY Id DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_MOUNT, "SELECT Id, Name_lang, Description_lang, SourceDescription_lang FROM mount_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // LanguageWords.db2
     PrepareStatement(HOTFIX_SEL_LANGUAGE_WORDS, "SELECT Id, langId, word FROM language_words ORDER BY Id DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_LANGUAGE_WORDS, "SELECT Id, word_lang FROM language_words_locale WHERE locale = ?", CONNECTION_SYNCH);
-
-    // ItemXBonusTree.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_X_BONUS_TREE, "SELECT ID, ItemID, BonusTreeID FROM item_x_bonus_tree ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // KeyChain.db2
     PrepareStatement(HOTFIX_SEL_KEY_CHAIN, "SELECT Id, Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8, Key9, Key10, Key11, Key12, Key13, Key14, "
@@ -233,21 +312,20 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_RULE_SET_ITEM_UPGRADE, "SELECT id, levelUpd, startUpgrade, itemEntry FROM rule_set_item_upgrade ORDER BY id DESC", CONNECTION_SYNCH);
 
     // GameObjects.db2
-    PrepareStatement(HOTFIX_SEL_GAME_OBJECTS, "SELECT id, map, displayId, position_x, position_y, position_z, rotation0, rotation1, rotation2, "
-        "rotation3, size, unk1, unk2, unk3, type, data1, data2, data3, data4, data5, data6, data7, data8, name FROM game_objects ORDER BY id DESC", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_GAME_OBJECTS, "SELECT id, name_lang FROM game_objects_locale WHERE locale = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_GAME_OBJECTS, "SELECT ID, MapID, DisplayID, PositionX, PositionY, PositionZ, RotationX, RotationY, RotationZ, "
+        "RotationW, Size, PhaseUseFlags, PhaseID, PhaseGroupID, Type, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Name FROM game_objects"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GAME_OBJECTS, "SELECT ID, Name_lang FROM game_objects_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // MapChallengeMode.db2
     PrepareStatement(HOTFIX_SEL_MAP_CHALLENGE_MODE, "SELECT id, map, unk1, unk2, season, bronze, silver, gold, unk3, unk4 FROM map_challenge_mode"
         " ORDER BY id DESC", CONNECTION_SYNCH);
 
-    // Mount.db2
-    PrepareStatement(HOTFIX_SEL_MOUNT, "SELECT Id, SpellId, MountTypeId, DisplayId, Flags, Name, Description, SourceDescription, Source, "
-        "PlayerConditionId FROM mount ORDER BY Id DESC", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_MOUNT, "SELECT Id, Name_lang, Description_lang, SourceDescription_lang FROM mount_locale WHERE locale = ?", CONNECTION_SYNCH);
-
     // SpellVisual.db2
     PrepareStatement(HOTFIX_SEL_SPELL_VISUAL, "SELECT ID, unk, unk2, unk3, unk4, unk5, unk6, unk7, unk8, unk9, unk10, unk11, unk12, unk13, unk14, "
         "unk15, unk16, unk17, unk18, unk19, unk20, unk21, unk22, unk23, unk24, hostileId, unk25, unk26, unk27, unk28 FROM spell_visual"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ItemXBonusTree.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_X_BONUS_TREE, "SELECT ID, ItemID, BonusTreeID FROM item_x_bonus_tree ORDER BY ID DESC", CONNECTION_SYNCH);
 }

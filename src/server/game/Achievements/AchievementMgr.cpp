@@ -28,6 +28,7 @@
 #include "DisableMgr.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
+#include "Garrison.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
@@ -4228,6 +4229,12 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                 {
                     if (!referencePlayer)
                         return false;
+                    Garrison* garrison = referencePlayer->GetGarrison();
+                    if (!garrison)
+                        return false;
+                    Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+                    if (!follower || follower->PacketInfo.Quality != reqValue)
+                        return false;
 
                     break;
                 }
@@ -4235,12 +4242,24 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                 {
                     if (!referencePlayer)
                         return false;
+                    Garrison* garrison = referencePlayer->GetGarrison();
+                    if (!garrison)
+                        return false;
+                    Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+                    if (!follower || follower->PacketInfo.FollowerLevel < reqValue)
+                        return false;
 
                     break;
                 }
                 case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ILVL: // 184
                 {
                     if (!referencePlayer)
+                        return false;
+                    Garrison* garrison = referencePlayer->GetGarrison();
+                    if (!garrison)
+                        return false;
+                    Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+                    if (!follower || follower->GetItemLevel() < reqValue)
                         return false;
                     break;
                 }

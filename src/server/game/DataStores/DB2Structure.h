@@ -355,15 +355,15 @@ struct BattlePetBreedStateEntry
     int32 stateModifier;
 };
 
-struct GarrisonAbilityEntry
+struct GarrAbilityEntry
 {
-    uint32 ID;                  // 0
-    //uint32 unk (flags?);      // 1
-    //string name;              // 2
-    //string description;       // 3
-    //uint32 fileDataEntry;     // 4
-    //uint32 unk2               // 5
-    //uint32 unk3               // 6
+    uint32 ID;                                                      // 0
+    uint32 Flags;                                                   // 1
+    LocalizedString* Name;                                          // 2
+    LocalizedString* Description;                                   // 3
+    uint32 IconFileDataID;                                          // 4
+    uint32 OtherFactionGarrAbilityID;                               // 5
+    uint32 GarrAbilityCategoryID;                                   // 6
 };
 
 struct GarrisonAbilityEffectEntry
@@ -381,78 +381,84 @@ struct GarrisonAbilityEffectEntry
     //uint32 unk6               // 10
 };
 
-struct GarrisonBuildingEntry
+struct GarrBuildingEntry
 {
-    uint32 ID;                  // 0
-    uint32 gameobjectID[2];     // 1-2
-    //uint32                    // 3
-    //uint32                    // 4
-    uint32 level;               // 5
-    char* name[2];              // 6-7
-    //string tooltip            // 8
-    //string description        // 9
-    uint32 buildingTime;        // 10
-    uint32 currencyID;          // 11
-    uint32 currencyValue;       // 12
-    //uint32                    // 13
-    //uint32                    // 14
-    //uint32                    // 15
-    //uint32                    // 16
-    //uint32                    // 17
-    //uint32                    // 18
-    //uint32                    // 19
-    uint32 workOrdersCount;     // 20
-    //uint32                    // 21
-    //uint32                    // 22
-    uint32 goldPrice;           // 23
+    uint32 ID;                                                      // 0
+    uint32 HordeGameObjectID;                                       // 1
+    uint32 AllianceGameObjectID;                                    // 2
+    uint32 Unknown;                                                 // 3
+    uint32 Type;                                                    // 4
+    uint32 Level;                                                   // 5
+    LocalizedString* NameAlliance;                                  // 6
+    LocalizedString* NameHorde;                                     // 7
+    LocalizedString* Description;                                   // 8
+    LocalizedString* Tooltip;                                       // 9
+    uint32 BuildDuration;                                           // 10
+    uint32 CostCurrencyID;                                          // 11
+    int32  CostCurrencyAmount;                                      // 12
+    uint32 HordeTexPrefixKitID;                                     // 13
+    uint32 AllianceTexPrefixKitID;                                  // 14
+    uint32 IconFileDataID;                                          // 15
+    uint32 BonusAmount;                                             // 16
+    uint32 Flags;                                                   // 17
+    uint32 AllianceActivationScenePackageID;                        // 18
+    uint32 HordeActivationScenePackageID;                           // 19
+    uint32 MaxShipments;                                            // 20
+    uint32 FollowerRequiredGarrAbilityID;                           // 21
+    uint32 FollowerGarrAbilityEffectID;                             // 22
+    int32  CostMoney;                                               // 23
 };
 
-struct GarrisonEncounterEntry
+struct GarrBuildingPlotInstEntry
 {
-    uint32 ID;                  // 0
-    uint32 creatureID;          // 1
-    char* name;                 // 2
-    float modifier;             // 3
-    float modifier1;            // 4
-    //uint32                    // 5
+    uint32 ID;                                                      // 0
+    uint32 GarrBuildingID;                                          // 1
+    uint32 UiTextureAtlasMemberID;                                  // 2
+    uint32 GarrSiteLevelPlotInstID;                                 // 3
+    DBCPosition2D LandmarkOffset;                                   // 4-5
 };
 
-struct GarrisonEncounterXMechanicEntry
+struct GarrClassSpecEntry
 {
-    uint32 ID;                  // 0
-    uint32 encounterID;         // 1
-    uint32 mechaincID;          // 2
+    uint32 ID;                                                      // 0
+    LocalizedString* NameMale;                                      // 1
+    LocalizedString* NameFemale;                                    // 2
+    LocalizedString* NameGenderless;                                // 3
+    uint32 ClassAtlasID;                                            // 4 UiTextureAtlasMember.db2 ref
+    uint32 GarrFollItemSetID;                                       // 5
 };
 
-struct GarrisonFollowerEntry
+struct GarrFollowerEntry
 {
-    uint32 ID;                  // 0
-    uint32 creatureEntry[2];    // 1-2
-    //uint32                    // 3
-    //uint32                    // 4
-    //uint32                    // 5
-    //uint32                    // 6
-    //uint32                    // 7
-    //uint32                    // 8
-    //uint32                    // 9
-    uint32 level;               // 10
-    uint32 weaponItemLevel;     // 11
-    uint32 armorItemLevel;      // 12
-    //uint32                    // 13
-    //uint32                    // 14
-    //string tooltip[2]         // 15-16
-    //uint32                    // 17
-    //uint32                    // 18
-    //uint32                    // 19
-    //uint32                    // 20
+    uint32 ID;                                                      // 0
+    uint32 HordeCreatureID;                                         // 1
+    uint32 AllianceCreatureID;                                      // 2
+    uint32 HordeUiAnimRaceInfoID;                                   // 3
+    uint32 AllianceUiAnimRaceInfoID;                                // 4
+    uint32 Quality;                                                 // 5
+    uint32 HordeGarrClassSpecID;                                    // 6
+    uint32 AllianceGarrClassSpecID;                                 // 7
+    uint32 HordeGarrFollItemSetID;                                  // 8
+    uint32 AllianceGarrFollItemSetID;                               // 9
+    uint32 Level;                                                   // 10
+    uint32 ItemLevelWeapon;                                         // 11
+    uint32 ItemLevelArmor;                                          // 12
+    uint32 Unknown1;                                                // 13
+    uint32 Flags;                                                   // 14
+    LocalizedString* HordeSourceText;                               // 15
+    LocalizedString* AllianceSourceText;                            // 16
+    int32 Unknown2;                                                 // 17
+    int32 Unknown3;                                                 // 18
+    uint32 HordePortraitIconID;                                     // 19
+    uint32 AlliancePortraitIconID;                                  // 20
 };
 
-struct GarrisonFollowerXAbilityEntry
+struct GarrFollowerXAbilityEntry
 {
-    uint32 ID;                  // 0
-    uint32 followerID;          // 1
-    uint32 garrAbilityID;       // 2
-    //uint32                    // 3
+    uint32 ID;                                                      // 0
+    uint32 GarrFollowerID;                                          // 1
+    uint32 GarrAbilityID;                                           // 2
+    uint32 FactionIndex;                                            // 3
 };
 
 struct GarrisonMechanicEntry
@@ -506,56 +512,54 @@ struct GarrisonMissionXEncounterEntry
     uint32 encounterID;         // 2
 };
 
-struct GarrisonPlotEntry
+struct GarrPlotEntry
 {
-    uint32 ID;                  // 0
-    //uint32                    // 1
-    uint32 type;                // 2
-    //uint32                    // 3
-    //string name               // 4
-    uint32 minCount;            // 5
-    uint32 maxCount;            // 6
-    //uint32                    // 7
-    //uint32                    // 8
+    uint32 ID;                                                      // 0
+    uint32 GarrPlotUICategoryID;                                    // 1
+    uint32 PlotType;                                                // 2
+    uint32 Flags;                                                   // 3
+    LocalizedString* Name;                                          // 4
+    uint32 MinCount;                                                // 5
+    uint32 MaxCount;                                                // 6
+    uint32 AllianceConstructionGameObjectID;                        // 7
+    uint32 HordeConstructionGameObjectID;                           // 8
 };
 
-struct GarrisonPlotBuildingEntry
+struct GarrPlotBuildingEntry
 {
-    uint32 ID;                  // 0
-    uint32 plotID;              // 1
-    uint32 buildingID;          // 2
+    uint32 ID;                                                      // 0
+    uint32 GarrPlotID;                                              // 1
+    uint32 GarrBuildingID;                                          // 2
 };
 
-struct GarrisonPlotInstanceEntry
+struct GarrPlotInstanceEntry
 {
-    uint32 ID;                  // 0
-    uint32 plotID;              // 1
-    //string name               // 2
+    uint32 ID;                                                      // 0
+    uint32 GarrPlotID;                                              // 1
+    LocalizedString* Name;                                          // 2
 };
 
-struct GarrisonSiteLevelEntry
+struct GarrSiteLevelEntry
 {
-    uint32 ID;                  // 0
-    uint32 level;               // 1
-    uint32 map;                 // 2
-    //uint32                    // 3
-    //uint32                    // 4
-    //float                     // 5
-    //float                     // 6
-    //uint32                    // 7
-    //uint32                    // 8
-    uint32 upgradeResourceCost; // 9
-    uint32 upgradeGoldCost;     // 10
+    uint32 ID;                                                      // 0
+    uint32 Level;                                                   // 1
+    uint32 MapID;                                                   // 2
+    uint32 SiteID;                                                  // 3
+    uint32 UITextureKitID;                                          // 4
+    DBCPosition2D TownHall;                                         // 5-6
+    uint32 MovieID;                                                 // 7
+    uint32 Level2;                                                  // 8
+    uint32 UpgradeResourceCost;                                     // 9
+    uint32 UpgradeMoneyCost;                                        // 10
 };
 
-struct GarrisonSiteLevelPlotInstEntry
+struct GarrSiteLevelPlotInstEntry
 {
     uint32 ID;                                                       // 0
-    uint32 siteLevelID;                                              // 1
-    uint32 plotInstanceID;                                           // 2
-    //float                                                          // 3
-    //float                                                          // 4
-    //uint32                                                         // 5
+    uint32 GarrSiteLevelID;                                          // 1
+    uint32 GarrPlotInstanceID;                                       // 2
+    DBCPosition2D Landmark;                                          // 3-4
+    uint32 Unknown;                                                  // 5
 };
 
 struct CurrencyTypesEntry
@@ -817,23 +821,21 @@ struct RuleSetItemUpgradeEntry
 
 struct GameObjectsEntry
 {
-    uint32 id;                  // 0 m_ID
-    uint32 map;                 // 1 mapId
-    uint32 displayId;           // 2
-    float position_x;           // 3
-    float position_y;           // 4
-    float position_z;           // 5
-    float rotation0;            // 6
-    float rotation1;            // 7
-    float rotation2;            // 8
-    float rotation3;            // 9
-    float size;                 // 10
-    uint32 unk1;                // 11
-    uint32 unk2;                // 12
-    uint32 unk3;                // 13
-    uint32 type;                // 14
-    uint32 data[GO_DBC_DATA_COUNT];             // 15-22
-    LocalizedString* name;                 // 23
+    uint32 ID;                                                      // 0
+    uint32 MapID;                                                   // 1
+    uint32 DisplayID;                                               // 2
+    DBCPosition3D Position;                                         // 3-5
+    float RotationX;                                                // 6
+    float RotationY;                                                // 7
+    float RotationZ;                                                // 8
+    float RotationW;                                                // 9
+    float Size;                                                     // 10
+    uint32 PhaseUseFlags;                                           // 11
+    uint32 PhaseID;                                                 // 12
+    uint32 PhaseGroupID;                                            // 13
+    uint32 Type;                                                    // 14
+    uint32 Data[GO_DBC_DATA_COUNT];                                 // 15-22
+    LocalizedString* Name;                                          // 23
 };
 
 struct ItemUpgradeData

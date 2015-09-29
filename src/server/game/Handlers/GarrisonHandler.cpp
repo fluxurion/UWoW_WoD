@@ -19,3 +19,38 @@
 #include "Garrison.h"
 #include "GarrisonPackets.h"
 
+void WorldSession::HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo& /*packet*/)
+{
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->SendInfo();
+}
+
+void WorldSession::HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::GarrisonPurchaseBuilding& packet)
+{
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_GARRISON_ARCHITECT))
+        return;
+
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->PlaceBuilding(packet.PlotInstanceID, packet.BuildingID);
+}
+
+void WorldSession::HandleGarrisonCancelConstruction(WorldPackets::Garrison::GarrisonCancelConstruction& packet)
+{
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_GARRISON_ARCHITECT))
+        return;
+
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->CancelBuildingConstruction(packet.PlotInstanceID);
+}
+
+void WorldSession::HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& /*packet*/)
+{
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->SendBlueprintAndSpecializationData();
+}
+
+void WorldSession::HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& /*packet*/)
+{
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->SendBuildingLandmarks(_player);
+}

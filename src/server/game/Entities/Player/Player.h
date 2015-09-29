@@ -55,6 +55,7 @@ class Bracket;
 class Channel;
 class Creature;
 class DynamicObject;
+class Garrison;
 class Group;
 class Guild;
 class OutdoorPvP;
@@ -984,6 +985,11 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_VISUAL                  = 44,
     PLAYER_LOGIN_QUERY_LOAD_LOOTCOOLDOWN            = 45,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES = 46,
+    PLAYER_LOGIN_QUERY_LOAD_GARRISON,
+    PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS,
+    PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS,
+    PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS,
+    PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES,
 
     MAX_PLAYER_LOGIN_QUERY
 };
@@ -3272,6 +3278,13 @@ class Player : public Unit, public GridObject<Player>
         void SendPvpRatedStats();
 
         /*********************************************************/
+        /***              GARRISON SYSTEM                      ***/
+        /*********************************************************/
+        void CreateGarrison(uint32 garrSiteId);
+        void DeleteGarrison();
+        Garrison* GetGarrison() { return _garrison.get(); }
+
+        /*********************************************************/
         /***              CHALLENGE SYSTEM                     ***/
         /*********************************************************/
         void ChallangeReward(MapChallengeModeEntry const* mode, ChallengeMode medal, uint32 recTime);
@@ -3742,6 +3755,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 upd_achieve_criteria_counter = 0;
 
         bool _advancedCombatLoggingEnabled;
+
+        std::unique_ptr<Garrison> _garrison;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

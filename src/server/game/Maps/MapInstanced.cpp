@@ -17,6 +17,7 @@
  */
 
 #include "Battleground.h"
+#include "GarrisonMap.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "MapInstanced.h"
@@ -139,7 +140,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
             }
         }
     }
-    else
+    else if (!IsGarrison())
     {
         InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficultyID(GetEntry()));
         InstanceSave* pSave = pBind ? pBind->save : NULL;
@@ -186,6 +187,13 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
                 map->SetSpawnMode(diff);
         }
     }
+    else
+    {
+        newInstanceId = player->GetGUID().GetCounter();
+        map = FindInstanceMap(newInstanceId);
+        if (!map)
+            map = CreateGarrison(newInstanceId, player);
+    }
 
     return map;
 }
@@ -223,6 +231,17 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     map->CreateInstanceData(load_data);
 
     m_InstancedMaps[InstanceId] = map;
+    return map;
+}
+
+GarrisonMap* MapInstanced::CreateGarrison(uint32 instanceId, Player* owner)
+{
+    std::lock_guard<std::mutex> lock(_mapLock);
+
+    GarrisonMap* map = new GarrisonMap(GetId(), GetGridExpiry(), instanceId, this, owner->GetGUID());
+    ASSERT(map->IsGarrison());
+
+    m_InstancedMaps[instanceId] = map;
     return map;
 }
 

@@ -496,6 +496,10 @@ class Spell
         void EffectBonusLoot(SpellEffIndex effIndex);
         void EffectJoinOrLeavePlayerParty(SpellEffIndex effIndex);
         void EffectSummonConversation(SpellEffIndex effIndex);
+        void EffectLearnGarrisonBuilding(SpellEffIndex effIndex);
+        void EffectCreateGarrison(SpellEffIndex effIndex);
+        void EffectAddGarrisonFollower(SpellEffIndex effIndex);
+        void EffectActivateGarrisonBuilding(SpellEffIndex effIndex);
 
         typedef std::set<Aura *> UsedSpellMods;
 

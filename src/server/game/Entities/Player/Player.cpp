@@ -5979,6 +5979,8 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
+            Garrison::DeleteFromDB(guid, trans);
+
             sBracketMgr->DeleteBracketInfo(playerguid);
             CharacterDatabase.CommitTransaction(trans);
             break;
@@ -19034,6 +19036,14 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     if(PreparedQueryResult PersonnalRateResult = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_PERSONAL_RATE))
         m_PersonnalXpRate = (PersonnalRateResult->Fetch())[0].GetFloat();
 
+    std::unique_ptr<Garrison> garrison = Trinity::make_unique<Garrison>(this);
+    if (garrison->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON),
+                             holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS),
+                             holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS),
+                             holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS),
+                             holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES)))
+        _garrison = std::move(garrison);
+
     if (mustResurrectFromUnlock)
         ResurrectPlayer(1, true);
 
@@ -21228,6 +21238,8 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveBattlePetSlots(trans);
     _SaveHonor();
     _SaveLootCooldown(trans);
+    if (_garrison)
+        _garrison->SaveToDB(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -25480,8 +25492,8 @@ void Player::SendInitialPacketsAfterAddToMap()
         SendRaidDifficulty((difficulty->Flags & DIFFICULTY_FLAG_LEGACY) != 0);
     }
 
-    // send garrison info there...
-    //GetGarrisonMgr()->SendToClient();
+    if (_garrison)
+        _garrison->SendRemoteInfo();
 
     WorldPackets::BattlePet::Journal journal;
     journal.Initialize(GetBattlePetMgr()->GetPetJournal(), GetBattlePetMgr()->GetPetBattleSlots(), GetBattlePetMgr(), this);
@@ -25934,6 +25946,9 @@ void Player::DailyReset()
     // DB data deleted in caller
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
+
+    if (_garrison)
+        _garrison->ResetFollowerActivationLimit();
 }
 
 void Player::ResetWeeklyQuestStatus()
@@ -30347,4 +30362,20 @@ bool Player::HasInstantCastModForSpell(SpellInfo const* spellInfo)
                 return true;
 
     return false;
+}
+
+void Player::CreateGarrison(uint32 garrSiteId)
+{
+    std::unique_ptr<Garrison> garrison(new Garrison(this));
+    if (garrison->Create(garrSiteId))
+        _garrison = std::move(garrison);
+}
+
+void Player::DeleteGarrison()
+{
+    if (_garrison)
+    {
+        _garrison->Delete();
+        _garrison.reset();
+    }
 }

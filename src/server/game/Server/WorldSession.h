@@ -603,6 +603,15 @@ namespace WorldPackets
         class RequestUpdate;
     }
 
+    namespace Garrison
+    {
+        class GetGarrisonInfo;
+        class GarrisonPurchaseBuilding;
+        class GarrisonCancelConstruction;
+        class GarrisonRequestBlueprintAndSpecializationData;
+        class GarrisonGetBuildingLandmarks;
+    }
+
     class Null final : public ClientPacket
     {
     public:
@@ -1580,6 +1589,12 @@ class WorldSession
         void HandleBattlePayDistributionAssign(WorldPackets::BattlePay::DistributionAssignToTarget& packet);
         void HandleBattlePayStartPurchase(WorldPackets::BattlePay::StartPurchase& packet);
         void HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::ConfirmPurchaseResponse& packet);
+
+        void HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo& packet);
+        void HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::GarrisonPurchaseBuilding& packet);
+        void HandleGarrisonCancelConstruction(WorldPackets::Garrison::GarrisonCancelConstruction& packet);
+        void HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& packet);
+        void HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& packet);
 
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);
         void HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet);

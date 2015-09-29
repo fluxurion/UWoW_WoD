@@ -49,6 +49,7 @@
 #include "DBCStores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "GarrisonMgr.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
 #include "GuildFinderMgr.h"
@@ -2132,6 +2133,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading archaeology digsite positions...");
     sObjectMgr->LoadDigSitePositions();
 
+    sLog->outInfo(LOG_FILTER_GENERAL, "Loading garrisons...");
+    sGarrisonMgr.Initialize();
+
     // Battle Pets some data
     sObjectMgr->LoadBattlePetBreedsToSpecies();
 
@@ -3296,6 +3300,10 @@ void World::ResetDailyQuests()
     sLog->outInfo(LOG_FILTER_GENERAL, "Daily quests reset for all characters.");
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY);
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_GARRISON_FOLLOWER_ACTIVATIONS);
+    stmt->setUInt32(0, 1);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
