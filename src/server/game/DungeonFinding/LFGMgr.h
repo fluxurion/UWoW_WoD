@@ -45,6 +45,24 @@ enum LfgOptions
     LFG_OPTION_ENABLE_RAID_BROWSER               = 0x02,
 };
 
+enum LfgGroup
+{
+    LFG_GROUP_HEROIC_WOD             = 48,
+};
+
+enum LfgQuestRequest
+{
+    LFG_QUEST_HEROIC_WOD_BRONZE_DAMAGE             = 37212,
+    LFG_QUEST_HEROIC_WOD_SILVER_DAMAGE             = 37213,
+    LFG_QUEST_HEROIC_WOD_GOLD_DAMAGE               = 37214,
+    LFG_QUEST_HEROIC_WOD_BRONZE_HEALER             = 37218,
+    LFG_QUEST_HEROIC_WOD_SILVER_HEALER             = 37219,
+    LFG_QUEST_HEROIC_WOD_GOLD_HEALER               = 37220,
+    LFG_QUEST_HEROIC_WOD_BRONZE_TANK               = 37215,
+    LFG_QUEST_HEROIC_WOD_SILVER_TANK               = 37216,
+    LFG_QUEST_HEROIC_WOD_GOLD_TANK                 = 37217,
+};
+
 enum LFGMgrEnum
 {
     LFG_TIME_ROLECHECK                           = 45 * IN_MILLISECONDS,
@@ -393,6 +411,8 @@ class LFGMgr
         LfgUpdateData GetLfgStatus(ObjectGuid guid);
         /// Checks if Seasonal dungeon is active
         bool IsSeasonActive(uint32 dungeonId);
+        // Check complete quest
+        bool IsCompleteChalange(Player* player, ObjectGuid guid);
         /// Gets the dungeon reward corresponding to given dungeon and player level
         LfgReward const* GetDungeonReward(uint32 dungeon, uint8 level);
         /// Returns all rewardable dungeons for given level and expansion

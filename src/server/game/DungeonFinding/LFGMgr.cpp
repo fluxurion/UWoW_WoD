@@ -161,7 +161,7 @@ void LFGMgr::LoadRewards()
             bonusQuestId = 0;
         }
 
-        RewardMapStore.insert(LfgRewardContainer::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId)));
+        RewardMapStore.insert(LfgRewardContainer::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId, bonusQuestId)));
         ++count;
     }
     while (result->NextRow());
@@ -1788,6 +1788,8 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
             lockData.status = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
         else if (dungeon->seasonal && !IsSeasonActive(dungeon->id))
             lockData.status = LFG_LOCKSTATUS_NOT_IN_SEASON;
+        else if (dungeon->dbc->groupId == LFG_GROUP_HEROIC_WOD && dungeon->dbc->type != LFG_TYPE_RANDOM && !IsCompleteChalange(player, guid)) // Check complete Proving Grounds for dungeon WOD
+            lockData.status = LFG_LOCKSTATUS_NOT_COMLETE_CHALANGE;
         // merge faction check with check on invalid TP pos and check on test invalid maps (BUT we still have to send it! LOL, in WoD blizz deleted invalid maps from client DBC)
         else if (!dungeon->dbc->FitsTeam(player->GetTeam()) || DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player)
             || (dungeon->type != LFG_TYPE_RANDOM && dungeon->x == 0.0f && dungeon->y == 0.0f && dungeon->z == 0.0f) || !dungeon->dbc->IsValid())
@@ -2150,6 +2152,28 @@ bool LFGMgr::IsSeasonActive(uint32 dungeonId)
     return false;
 }
 
+bool LFGMgr::IsCompleteChalange(Player* player, ObjectGuid guid)
+{
+    uint8 role = GetRoles(guid);
+    role &= ~PLAYER_ROLE_LEADER;
+    switch (role)
+    {
+        case PLAYER_ROLE_DAMAGE:
+            if(player->GetQuestRewardStatus(LFG_QUEST_HEROIC_WOD_SILVER_DAMAGE) || player->GetQuestRewardStatus(LFG_QUEST_HEROIC_WOD_GOLD_DAMAGE))
+                return true;
+            break;
+        case PLAYER_ROLE_HEALER:
+            if(player->GetQuestRewardStatus(LFG_QUEST_HEROIC_WOD_SILVER_HEALER) || player->GetQuestRewardStatus(LFG_QUEST_HEROIC_WOD_GOLD_HEALER))
+                return true;
+            break;
+        case PLAYER_ROLE_TANK:
+            if(player->GetQuestRewardStatus(LFG_QUEST_HEROIC_WOD_SILVER_TANK) || player->GetQuestRewardStatus(LFG_QUEST_HEROIC_WOD_GOLD_TANK))
+                return true;
+            break;
+    }
+    return false;
+}
+
 std::string LFGMgr::DumpQueueInfo(bool full)
 {
     uint32 size = uint32(QueuesStore.size());
@@ -2220,6 +2244,7 @@ LfgDungeonSet LFGMgr::GetRewardableDungeons(uint8 level, uint8 expansion)
     for (LFGDungeonContainer::const_iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
     {
         LFGDungeonData const& dungeon = itr->second;
+
         if (dungeon.dbc->CanBeRewarded() && (!dungeon.seasonal || sLFGMgr->IsSeasonActive(dungeon.id))
             && dungeon.expansion <= expansion && dungeon.minlevel <= level && level <= dungeon.maxlevel)
             if(lfg::LfgReward const* reward = GetDungeonReward(dungeon.Entry(), level))

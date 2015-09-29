@@ -46,8 +46,8 @@ void WorldPackets::LFG::BlackList::Initialize(::lfg::LfgLockMap const& lock, Obj
         WorldPackets::LFG::BlackList::BlackListInfo info;
         info.Slot = map.first;
         info.Reason = map.second.status;
-        info.SubReason1 = map.second.currItemLevel;
-        info.SubReason2 = map.second.reqItemLevel;
+        info.SubReason1 = map.second.reqItemLevel;
+        info.SubReason2 = map.second.currItemLevel;
         blackListData.push_back(info);
     }
 }
