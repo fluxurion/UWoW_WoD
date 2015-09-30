@@ -240,7 +240,7 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
         WorldPackets::LFG::BlackList list;
         list.PlayerGuid = map.first;
         list.Initialize(map.second);
-        result.BlackList.push_back(list);
+        result.blackList.push_back(list);
     }
 
     result.Ticket.RequesterGuid = GetPlayer()->GetGUID();

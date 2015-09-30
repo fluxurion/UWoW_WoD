@@ -171,7 +171,7 @@ namespace WorldPackets
             RideTicket Ticket;
             lfg::LfgJoinResult Result = lfg::LFG_JOIN_OK;
             lfg::LfgRoleCheckState ResultDetail = lfg::LFG_ROLECHECK_DEFAULT;
-            std::vector<BlackList> BlackList;
+            std::vector<BlackList> blackList;
         };
 
         class QueueStatusUpdate final : public ServerPacket

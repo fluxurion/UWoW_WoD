@@ -265,8 +265,8 @@ WorldPacket const* WorldPackets::LFG::JoinResult::Write()
     _worldPacket << Ticket;
     _worldPacket << static_cast<uint8>(Result);
     _worldPacket << static_cast<uint8>(ResultDetail);;
-    _worldPacket << static_cast<uint32>(BlackList.size());
-    for (auto const& map : BlackList)
+    _worldPacket << static_cast<uint32>(blackList.size());
+    for (auto const& map : blackList)
     {
         _worldPacket << *map.PlayerGuid;
         _worldPacket << static_cast<uint32>(map.blackListData.size());
