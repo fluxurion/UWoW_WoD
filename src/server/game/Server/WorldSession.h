@@ -610,6 +610,21 @@ namespace WorldPackets
         class GarrisonCancelConstruction;
         class GarrisonRequestBlueprintAndSpecializationData;
         class GarrisonGetBuildingLandmarks;
+        class GarrisonMissionBonusRoll;
+        class GarrisonRequestLandingPageShipmentInfo;
+        class GarrisonCheckUpgradeable;
+        class GarrisonStartMission;
+        class GarrisonCompleteMission;
+        class CreateShipment;
+        class GarrisonOpenMissionNpc;
+        class CompleteAllReadyShipments;
+        class UpgradeGarrison;
+        class TrophyData;
+        class RevertTrophy;
+        class GetTrophyList;
+        class GarrisonSetFollowerInactive;
+        class GarrisonRemoveFollowerFromBuilding;
+        class GarrisonAssignFollowerToBuilding;
     }
 
     class Null final : public ClientPacket
@@ -1595,6 +1610,21 @@ class WorldSession
         void HandleGarrisonCancelConstruction(WorldPackets::Garrison::GarrisonCancelConstruction& packet);
         void HandleGarrisonRequestBlueprintAndSpecializationData(WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializationData& packet);
         void HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::GarrisonGetBuildingLandmarks& packet);
+        void HandleGarrisonMissionBonusRoll(WorldPackets::Garrison::GarrisonMissionBonusRoll& packet);
+        void HandleGarrisonRequestLandingPageShipmentInfo(WorldPackets::Garrison::GarrisonRequestLandingPageShipmentInfo& packet);
+        void HandleGarrisonCheckUpgradeable(WorldPackets::Garrison::GarrisonCheckUpgradeable& packet);
+        void HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonStartMission& packet);
+        void HandleGarrisonCompleteMission(WorldPackets::Garrison::GarrisonCompleteMission& packet);
+        void HandleCreateShipment(WorldPackets::Garrison::CreateShipment& packet);
+        void HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::GarrisonOpenMissionNpc& packet);
+        void HandleCompleteAllReadyShipments(WorldPackets::Garrison::CompleteAllReadyShipments& packet);
+        void HandleUpgradeGarrison(WorldPackets::Garrison::UpgradeGarrison& packet);
+        void HandleTrophyData(WorldPackets::Garrison::TrophyData& packet);
+        void HandleRevertTrophy(WorldPackets::Garrison::RevertTrophy& packet);
+        void HandleGetTrophyList(WorldPackets::Garrison::GetTrophyList& packet);
+        void HandleGarrisonSetFollowerInactive(WorldPackets::Garrison::GarrisonSetFollowerInactive& packet);
+        void HandleGarrisonRemoveFollowerFromBuilding(WorldPackets::Garrison::GarrisonRemoveFollowerFromBuilding& packet);
+        void HandleGarrisonAssignFollowerToBuilding(WorldPackets::Garrison::GarrisonAssignFollowerToBuilding& packet);
 
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);
         void HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet);

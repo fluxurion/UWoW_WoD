@@ -59,6 +59,7 @@ public:
     uint64 GenerateFollowerDbId();
     std::list<GarrAbilityEntry const*> RollFollowerAbilities(GarrFollowerEntry const* follower, uint32 quality, uint32 faction, bool initial) const;
     std::list<GarrAbilityEntry const*> GetClassSpecAbilities(GarrFollowerEntry const* follower, uint32 faction) const;
+    uint64 GenerateMissionDbId();
 
 private:
     void InitializeDbIdSequences();
@@ -76,6 +77,7 @@ private:
     std::set<GarrAbilityEntry const*> _garrisonFollowerRandomTraits;
 
     uint64 _followerDbIdGenerator = UI64LIT(1);
+    uint64 _missionDbIdGenerator = UI64LIT(1);
 };
 
 #define sGarrisonMgr GarrisonMgr::Instance()

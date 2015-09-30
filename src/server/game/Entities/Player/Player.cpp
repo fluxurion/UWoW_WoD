@@ -24395,6 +24395,9 @@ uint32 Player::GetMaxMMR() const
 
 void Player::UpdateHomebindTime(uint32 time)
 {
+    if (GetMap()->IsGarrison())
+        return;
+
     // GMs never get homebind timer online
     if (m_InstanceValid || isGameMaster())
     {
@@ -25503,7 +25506,8 @@ void Player::SendInitialPacketsAfterAddToMap()
     GetSession()->SendPacket(journal.Write());
 
     // send timers if already start challenge for example
-    SendInitWorldTimers();
+    if (!GetMap()->IsGarrison())
+        SendInitWorldTimers();
 
     if (getClass() == CLASS_DEATH_KNIGHT)
     {

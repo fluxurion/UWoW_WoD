@@ -142,6 +142,8 @@ public:
     // Followers
     void AddFollower(uint32 garrFollowerId);
     Follower const* GetFollower(uint64 dbId) const;
+
+    // Missions
     Mission const* GetMission(uint64 dbId) const;
 
     void SendInfo();

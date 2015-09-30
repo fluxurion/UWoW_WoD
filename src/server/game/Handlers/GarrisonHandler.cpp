@@ -54,3 +54,58 @@ void WorldSession::HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::Ga
     if (Garrison* garrison = _player->GetGarrison())
         garrison->SendBuildingLandmarks(_player);
 }
+
+void WorldSession::HandleGarrisonMissionBonusRoll(WorldPackets::Garrison::GarrisonMissionBonusRoll& /*packet*/)
+{ }
+
+void WorldSession::HandleGarrisonRequestLandingPageShipmentInfo(WorldPackets::Garrison::GarrisonRequestLandingPageShipmentInfo& /*packet*/)
+{ }
+
+void WorldSession::HandleGarrisonCheckUpgradeable(WorldPackets::Garrison::GarrisonCheckUpgradeable& /*packet*/)
+{ }
+
+void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonStartMission& /*packet*/)
+{ }
+
+void WorldSession::HandleGarrisonCompleteMission(WorldPackets::Garrison::GarrisonCompleteMission& /*packet*/)
+{ }
+
+void WorldSession::HandleCreateShipment(WorldPackets::Garrison::CreateShipment& /*packet*/)
+{ }
+
+void WorldSession::HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::GarrisonOpenMissionNpc& /*packet*/)
+{ }
+
+void WorldSession::HandleCompleteAllReadyShipments(WorldPackets::Garrison::CompleteAllReadyShipments& /*packet*/)
+{ }
+
+void WorldSession::HandleUpgradeGarrison(WorldPackets::Garrison::UpgradeGarrison& /*packet*/)
+{ }
+
+void WorldSession::HandleTrophyData(WorldPackets::Garrison::TrophyData& packet)
+{
+    switch (packet.GetOpcode())
+    {
+        case CMSG_REPLACE_TROPHY:
+            break;
+        case CMSG_CHANGE_MONUMENT_APPEARANCE:
+            break;
+        default:
+            break;
+    }
+}
+
+void WorldSession::HandleRevertTrophy(WorldPackets::Garrison::RevertTrophy& /*packet*/)
+{ }
+
+void WorldSession::HandleGetTrophyList(WorldPackets::Garrison::GetTrophyList& /*packet*/)
+{ }
+
+void WorldSession::HandleGarrisonSetFollowerInactive(WorldPackets::Garrison::GarrisonSetFollowerInactive& /*packet*/)
+{ }
+
+void WorldSession::HandleGarrisonRemoveFollowerFromBuilding(WorldPackets::Garrison::GarrisonRemoveFollowerFromBuilding& /*packet*/)
+{ }
+
+void WorldSession::HandleGarrisonAssignFollowerToBuilding(WorldPackets::Garrison::GarrisonAssignFollowerToBuilding& /*packet*/)
+{ }

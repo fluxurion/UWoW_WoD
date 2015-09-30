@@ -101,6 +101,22 @@ namespace WorldPackets
             uint32 MissionState = 0;
         };
 
+        struct LandingPageData
+        {
+            uint32 MissionRecID = 0;
+            uint64 FollowerDBID = 0;
+            uint32 Unk1 = 0;
+            uint32 Unk2 = 0;
+        };
+
+        struct Shipment
+        {
+            uint32 ShipmentRecID = 0;
+            uint64 ShipmentID = 0;
+            time_t CreationTime = time(0);
+            int32 ShipmentDuration = 0;
+        };
+
         class GetGarrisonInfoResult final : public ServerPacket
         {
         public:
@@ -298,6 +314,342 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 GarrPlotInstanceID = 0;
+        };
+
+        class GarrisonRequestLandingPageShipmentInfo final : public ClientPacket
+        {
+        public:
+            GarrisonRequestLandingPageShipmentInfo(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_REQUEST_LANDING_PAGE_SHIPMENT_INFO, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GarrisonCheckUpgradeable final : public ClientPacket
+        {
+        public:
+            GarrisonCheckUpgradeable(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_CHECK_UPGRADEABLE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GarrisonMissionBonusRoll final : public ClientPacket
+        {
+        public:
+            GarrisonMissionBonusRoll(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_MISSION_BONUS_ROLL, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+            uint32 MissionRecID = 0;
+        };
+
+        class GarrisonMissionBonusRollResult final : public ServerPacket
+        {
+        public:
+            GarrisonMissionBonusRollResult() : ServerPacket(SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT, 36 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            GarrisonMission MissionData;
+            uint32 MissionRecID = 0;
+            uint32 Result = 0;
+        };
+
+        class GarrisonStartMission final : public ClientPacket
+        {
+        public:
+            GarrisonStartMission(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_START_MISSION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+            uint32 MissionRecID = 0;
+            std::vector<uint64> FollowerDBIDs;
+        };
+
+        class GarrisonCompleteMission final : public ClientPacket
+        {
+        public:
+            GarrisonCompleteMission(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_COMPLETE_MISSION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+            uint32 MissionRecID = 0;
+        };
+
+        class GarrisonAssignFollowerToBuildingResult final : public ServerPacket
+        {
+        public:
+            GarrisonAssignFollowerToBuildingResult() : ServerPacket(SMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING_RESULT, 8 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 FollowerDBID = 0;
+            int32 Result = 0;
+            int32 PlotInstanceID = 0;
+        };
+
+        class GarrisonLandingPage final : public ServerPacket
+        {
+        public:
+            GarrisonLandingPage() : ServerPacket(SMSG_GARRISON_LANDINGPAGE_SHIPMENTS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<LandingPageData> MsgData;
+        };
+
+        class GarrisonAddMissionResult final : public ServerPacket
+        {
+        public:
+            GarrisonAddMissionResult() : ServerPacket(SMSG_GARRISON_ADD_MISSION_RESULT, 36 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            GarrisonMission MissionData;
+            uint32 Result = 0;
+        };
+
+        class GarrisonUpgradeResult final : public ServerPacket
+        {
+        public:
+            GarrisonUpgradeResult() : ServerPacket(SMSG_GARRISON_UPGRADE_RESULT, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 GarrSiteLevelID = 0;
+            uint32 Result = 0;
+        };
+
+        class GarrisonStartMissionResult final : public ServerPacket
+        {
+        public:
+            GarrisonStartMissionResult() : ServerPacket(SMSG_GARRISON_START_MISSION_RESULT, 36 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
+            GarrisonMission MissionData;
+            std::vector<uint64> FollowerDBIDs;
+        };
+
+        class GarrisonIsUpgradeableResult final : public ServerPacket
+        {
+        public:
+            GarrisonIsUpgradeableResult() : ServerPacket(SMSG_GARRISON_IS_UPGRADEABLE_RESULT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
+        };
+
+        class CreateShipment final : public ClientPacket
+        {
+        public:
+            CreateShipment(WorldPacket&& packet) : ClientPacket(CMSG_CREATE_SHIPMENT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+        };
+
+        class GarrisonOpenMissionNpc final : public ClientPacket
+        {
+        public:
+            GarrisonOpenMissionNpc(WorldPacket&& packet) : ClientPacket(CMSG_OPEN_MISSION_NPC, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+        };
+
+        class CompleteAllReadyShipments final : public ClientPacket
+        {
+        public:
+            CompleteAllReadyShipments(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_ALL_READY_SHIPMENTS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid GUID;
+        };
+
+        class GetShipmentInfoResponse final : public ServerPacket
+        {
+        public:
+            GetShipmentInfoResponse() : ServerPacket(SMSG_GET_SHIPMENT_INFO_RESPONSE, 1 + 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            bool Success = false;
+            uint32 ShipmentID = 0;
+            uint32 MaxShipments = 0;
+            uint32 PlotInstanceID = 0;
+            std::vector<Shipment> Shipments;
+        };
+
+        class CreateShipmentResponse final : public ServerPacket
+        {
+        public:
+            CreateShipmentResponse() : ServerPacket(SMSG_CREATE_SHIPMENT_RESPONSE, 8 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 ShipmentID = 0;
+            uint32 ShipmentRecID = 0;
+            uint32 Result = 0;
+        };
+
+        class OpenShipmentNPCFromGossip final : public ServerPacket
+        {
+        public:
+            OpenShipmentNPCFromGossip() : ServerPacket(SMSG_OPEN_SHIPMENT_NPC_FROM_GOSSIP, 20) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid NpcGUID;
+            uint32 CharShipmentContainerID = 0;
+        };
+
+        class SetupTrophy final : public ServerPacket
+        {
+        public:
+            SetupTrophy() : ServerPacket(SMSG_GET_DISPLAYED_TROPHY_LIST_RESPONSE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            struct TrophyData
+            {
+                uint32 Unk1 = 0;
+                uint32 Unk2 = 0;
+            };
+
+            std::vector<TrophyData> Trophys;
+        };
+
+        class UpgradeGarrison final : public ClientPacket
+        {
+        public:
+            UpgradeGarrison(WorldPacket&& packet) : ClientPacket(CMSG_UPGRADE_GARRISON, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+        };
+
+        //< CMSG_REPLACE_TROPHY
+        //< CMSG_CHANGE_MONUMENT_APPEARANCE
+        class TrophyData final : public ClientPacket
+        {
+        public:
+            TrophyData(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid TrophyGUID;
+            uint32 NewTrophyID;
+        };
+
+        class RevertTrophy final : public ClientPacket
+        {
+        public:
+            RevertTrophy(WorldPacket&& packet) : ClientPacket(CMSG_REVERT_MONUMENT_APPEARANCE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid TrophyGUID;
+        };
+
+        class GetTrophyList final : public ClientPacket
+        {
+        public:
+            GetTrophyList(WorldPacket&& packet) : ClientPacket(CMSG_GET_TROPHY_LIST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 TrophyTypeID;
+        };
+
+        class GarrisonSetFollowerInactive final : public ClientPacket
+        {
+        public:
+            GarrisonSetFollowerInactive(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_SET_FOLLOWER_INACTIVE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint64 FollowerDBID;
+            bool Inactive = false;
+        };
+
+        class GarrisonRemoveFollowerFromBuilding final : public ClientPacket
+        {
+        public:
+            GarrisonRemoveFollowerFromBuilding(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING, std::move(packet)) { }
+
+            void Read() override;
+
+            uint64 FollowerDBID;
+            ObjectGuid NpcGUID;
+        };
+
+        class GarrisonAssignFollowerToBuilding final : public ClientPacket
+        {
+        public:
+            GarrisonAssignFollowerToBuilding(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+            uint32 PlotInstanceID;
+            uint64 FollowerDBID;
+        };
+
+        class GetTrophyListResponse final : public ServerPacket
+        {
+        public:
+            GetTrophyListResponse() : ServerPacket(SMSG_GET_TROPHY_LIST_RESPONSE, 1 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            struct TrophyData
+            {
+                uint32 TrophyID = 0;
+                uint32 Unk1 = 0;
+                uint32 Unk2 = 0;
+            };
+
+            bool Success = false;
+            std::vector<TrophyData> MsgData;
+        };
+
+        class ReplaceTrophyResponse final : public ServerPacket
+        {
+        public:
+            ReplaceTrophyResponse() : ServerPacket(SMSG_REPLACE_TROPHY_RESPONSE, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool Success = false;
+        };
+
+        class GarrisonOpenArchitect final : public ServerPacket
+        {
+        public:
+            GarrisonOpenArchitect() : ServerPacket(SMSG_GARRISON_OPEN_ARCHITECT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid NpcGUID;
+        };
+
+        class GarrisonOpenMissionNpcResponse final : public ServerPacket
+        {
+        public:
+            GarrisonOpenMissionNpcResponse() : ServerPacket(SMSG_GARRISON_OPEN_MISSION_NPC, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid NpcGUID;
         };
     }
 }
