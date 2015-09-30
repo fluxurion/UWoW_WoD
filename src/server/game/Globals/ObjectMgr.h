@@ -406,8 +406,8 @@ struct ConversationData
     uint32 flags;
 };
 
-typedef std::unordered_map<uint32/*entry*/, std::vector<ConversationData> > ConversationDataMap;
-typedef std::unordered_map<uint32/*entry*/, std::vector<ConversationCreature> > ConversationCreatureMap;
+typedef UNORDERED_MAP<uint32/*entry*/, std::vector<ConversationData> > ConversationDataMap;
+typedef UNORDERED_MAP<uint32/*entry*/, std::vector<ConversationCreature> > ConversationCreatureMap;
 
 typedef std::set<ObjectGuid::LowType> CellGuidSet;
 typedef std::map<ObjectGuid/*player guid*/, uint32/*instance*/> CellCorpseSet;
@@ -417,9 +417,8 @@ struct CellObjectGuids
     CellGuidSet gameobjects;
     CellCorpseSet corpses;
 };
-
-typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
-typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
+typedef UNORDERED_MAP<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
+typedef UNORDERED_MAP<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
 
 // Trinity string ranges
 #define MIN_TRINITY_STRING_ID           1                    // 'trinity_string'
@@ -1365,11 +1364,6 @@ class ObjectMgr
         CellObjectGuids const& GetCellObjectGuids(uint16 mapid, uint8 spawnMode, uint32 cell_id)
         {
             return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)][cell_id];
-        }
-
-        CellObjectGuidsMap const& GetMapObjectGuids(uint16 mapid, uint8 spawnMode)
-        {
-            return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)];
         }
 
         CreatureData const* GetCreatureData(ObjectGuid::LowType const& guid) const

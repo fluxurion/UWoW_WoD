@@ -278,8 +278,6 @@ class Map : public GridRefManager<NGridType>
 
         void PlayerRelocation(Player*, float x, float y, float z, float orientation);
         void CreatureRelocation(Creature* creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true);
-        void GameObjectRelocation(GameObject* go, float x, float y, float z, float orientation, bool respawnRelocationOnFail = true);
-        void DynamicObjectRelocation(DynamicObject* go, float x, float y, float z, float orientation);
 
         template<class T, class CONTAINER> void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
 
@@ -354,15 +352,11 @@ class Map : public GridRefManager<NGridType>
         }
 
         void MoveAllCreaturesInMoveList();
-        void MoveAllGameObjectsInMoveList();
-        void MoveAllDynamicObjectsInMoveList();
-
         void RemoveAllObjectsInRemoveList();
         virtual void RemoveAllPlayers();
 
         // used only in MoveAllCreaturesInMoveList and ObjectGridUnloader
         bool CreatureRespawnRelocation(Creature* c, bool diffGridOnly);
-        bool GameObjectRespawnRelocation(GameObject* go, bool diffGridOnly);
 
         // assert print helper
         bool CheckGridIntegrity(Creature* c, bool moved) const;
@@ -526,25 +520,13 @@ class Map : public GridRefManager<NGridType>
         void SendRemoveTransports(Player* player);
 
         bool CreatureCellRelocation(Creature* creature, Cell new_cell);
-        bool GameObjectCellRelocation(GameObject* go, Cell new_cell);
-        bool DynamicObjectCellRelocation(DynamicObject* go, Cell new_cell);
 
         template<class T> void InitializeObject(T* obj);
         void AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang);
         void RemoveCreatureFromMoveList(Creature* c);
-        void AddGameObjectToMoveList(GameObject* go, float x, float y, float z, float ang);
-        void RemoveGameObjectFromMoveList(GameObject* go);
-        void AddDynamicObjectToMoveList(DynamicObject* go, float x, float y, float z, float ang);
-        void RemoveDynamicObjectFromMoveList(DynamicObject* go);
 
         bool _creatureToMoveLock;
         std::vector<Creature*> _creaturesToMove;
-
-        bool _gameObjectsToMoveLock;
-        std::vector<GameObject*> _gameObjectsToMove;
-
-        bool _dynamicObjectsToMoveLock;
-        std::vector<DynamicObject*> _dynamicObjectsToMove;
 
         bool IsGridLoaded(const GridCoord &) const;
         void EnsureGridCreated(const GridCoord &);
@@ -576,7 +558,6 @@ class Map : public GridRefManager<NGridType>
 
     protected:
         void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
-        virtual void LoadGridObjects(NGridType* grid, Cell const& cell);
 
         std::mutex _mapLock;
         std::mutex _gridLock;

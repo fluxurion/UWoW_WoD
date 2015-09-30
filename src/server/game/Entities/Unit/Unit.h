@@ -1785,9 +1785,9 @@ class Unit : public WorldObject
         void SendSpellDamageImmune(Unit* target, uint32 spellId, bool isPeriodic);
 
         void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
-        virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
+        virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false, bool stop = false);
         // returns true if unit's position really changed
-        bool UpdatePosition(const Position &pos, bool teleport = false);
+        bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateOrientation(float orientation);
         void UpdateHeight(float newZ);
         void SendTeleportPacket(Position &oldPos);
@@ -2682,7 +2682,7 @@ class Unit : public WorldObject
         bool HandleProcMelleTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, double cooldown);
 
         void UpdateSplineMovement(uint32 t_diff);
-        void UpdateSplinePosition();
+        void UpdateSplinePosition(bool stop = false);
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;

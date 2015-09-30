@@ -780,19 +780,19 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         }
     }
 
-    if (building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING && building->GetGOInfo()->garrisonBuilding.mapID)
-    {
-        for (CellObjectGuidsMap::value_type const& cellGuids : sObjectMgr->GetMapObjectGuids(building->GetGOInfo()->garrisonBuilding.mapID, map->GetSpawnMode()))
-        {
-            for (ObjectGuid::LowType spawnId : cellGuids.second.creatures)
-                if (Creature* spawn = BuildingSpawnHelper<Creature, &Creature::SetHomePosition>(building, spawnId, map))
-                    BuildingInfo.Spawns.insert(spawn->GetGUID());
+    //if (building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING && building->GetGOInfo()->garrisonBuilding.mapID)
+    //{
+    //    for (CellObjectGuidsMap::value_type const& cellGuids : sObjectMgr->GetMapObjectGuids(building->GetGOInfo()->garrisonBuilding.mapID, map->GetSpawnMode()))
+    //    {
+    //        for (ObjectGuid::LowType spawnId : cellGuids.second.creatures)
+    //            if (Creature* spawn = BuildingSpawnHelper<Creature, &Creature::SetHomePosition>(building, spawnId, map))
+    //                BuildingInfo.Spawns.insert(spawn->GetGUID());
 
-            for (ObjectGuid::LowType spawnId : cellGuids.second.gameobjects)
-                if (GameObject* spawn = BuildingSpawnHelper<GameObject, &GameObject::RelocateStationaryPosition>(building, spawnId, map))
-                    BuildingInfo.Spawns.insert(spawn->GetGUID());
-        }
-    }
+    //        for (ObjectGuid::LowType spawnId : cellGuids.second.gameobjects)
+    //            if (GameObject* spawn = BuildingSpawnHelper<GameObject, &GameObject::RelocateStationaryPosition>(building, spawnId, map))
+    //                BuildingInfo.Spawns.insert(spawn->GetGUID());
+    //    }
+    //}
 
     BuildingInfo.Guid = building->GetGUID();
     return building;

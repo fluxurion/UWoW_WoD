@@ -224,7 +224,10 @@ namespace Movement
                 input.z -= vehicle->GetPositionZMinusOffset();
             }
             else if (Transport* transport = _owner.GetTransport())
-                transport->CalculatePassengerOffset(input.x, input.y, input.z);
+            {
+                float unused = 0.0f;
+                transport->CalculatePassengerOffset(input.x, input.y, input.z, unused);
+            }
         }
 
         return input;

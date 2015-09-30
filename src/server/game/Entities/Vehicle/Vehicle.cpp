@@ -604,8 +604,10 @@ void Vehicle::RelocatePassengers()
 
             float px, py, pz, po;
             passenger->m_movementInfo.transport.pos.GetPosition(px, py, pz, po);
-            CalculatePassengerPosition(px, py, pz, &po);
+            CalculatePassengerPosition(px, py, pz, po);
             passenger->UpdatePosition(px, py, pz, po);
+            //if (passenger->GetTypeId() == TYPEID_PLAYER)
+                //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "RelocatePassengers loc(%f %f %f)", px, py, pz);
         }
     }
 }
@@ -702,6 +704,25 @@ uint8 Vehicle::GetAvailableSeatCount() const
     return ret;
 }
 
+void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
+{
+    float inx = x, iny = y, inz = z, ino = o;
+    o = GetBase()->GetOrientation() + ino;
+    x = GetBase()->GetPositionX() + inx * std::cos(GetBase()->GetOrientation()) - iny * std::sin(GetBase()->GetOrientation());
+    y = GetBase()->GetPositionY() + iny * std::cos(GetBase()->GetOrientation()) + inx * std::sin(GetBase()->GetOrientation());
+    z = GetBase()->GetPositionZ() + inz;
+}
+
+void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
+{
+    o -= GetBase()->GetOrientation();
+    z -= GetBase()->GetPositionZ();
+    y -= GetBase()->GetPositionY();    // y = searchedY * std::cos(o) + searchedX * std::sin(o)
+    x -= GetBase()->GetPositionX();    // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
+    float inx = x, iny = y;
+    y = (iny - inx * tan(GetBase()->GetOrientation())) / (cos(GetBase()->GetOrientation()) + std::sin(GetBase()->GetOrientation()) * tan(GetBase()->GetOrientation()));
+    x = (inx + iny * tan(GetBase()->GetOrientation())) / (cos(GetBase()->GetOrientation()) + std::sin(GetBase()->GetOrientation()) * tan(GetBase()->GetOrientation()));
+}
 
 /**
  * @fn void Vehicle::RemovePendingEvent(VehicleJoinEvent* e)

@@ -49,20 +49,14 @@ class Transport : public GameObject, public TransportBase
         CreatureSet m_NPCPassengerSet;
         Creature * AddNPCPassengerCreature(ObjectGuid::LowType tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
         ObjectGuid::LowType AddNPCPassenger(ObjectGuid::LowType tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
-        void UpdatePosition(float x, float y, float z, float o);
+        void UpdatePosition(MovementInfo* mi);
         void UpdateNPCPositions();
 
         /// This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(float& x, float& y, float& z, float* o = nullptr) const override
-        {
-            TransportBase::CalculatePassengerPosition(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-        }
+        void CalculatePassengerPosition(float& x, float& y, float& z, float& o);
 
         /// This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(float& x, float& y, float& z, float* o = nullptr) const override
-        {
-            TransportBase::CalculatePassengerOffset(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-        }
+        void CalculatePassengerOffset(float& x, float& y, float& z, float& o);
 
         void BuildStartMovePacket(Map const* targetMap);
         void BuildStopMovePacket(Map const* targetMap);

@@ -493,20 +493,20 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
         UpdateSplinePosition();
 }
 
-void Unit::UpdateSplinePosition()
+void Unit::UpdateSplinePosition(bool stop/* = false*/)
 {
     m_movesplineTimer.Reset(positionUpdateDelay);
     Movement::Location loc = movespline->ComputePosition();
-    if (movespline->onTransport)
+    if (GetTransGUID())
     {
         Position& pos = m_movementInfo.transport.pos;
         pos.m_positionX = loc.x;
         pos.m_positionY = loc.y;
         pos.m_positionZ = loc.z;
         pos.SetOrientation(loc.orientation);
-
+        if (Unit* vehicle = GetVehicleBase())
         if (TransportBase* transport = GetDirectTransport())
-            transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, &loc.orientation);
+            transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, loc.orientation);
     }
 
     if (HasUnitState(UNIT_STATE_CANNOT_TURN))
@@ -515,7 +515,7 @@ void Unit::UpdateSplinePosition()
     //if (GetTypeId() == TYPEID_PLAYER)
         //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "UpdateSplinePosition loc(%f %f %f)", loc.x, loc.y, loc.z);
 
-    UpdatePosition(loc.x, loc.y, loc.z, loc.orientation, false);
+    UpdatePosition(loc.x, loc.y, loc.z, loc.orientation, false, stop);
 }
 
 void Unit::DisableSpline()
@@ -17663,9 +17663,8 @@ void Unit::StopMoving()
         return;
 
     // Update position using old spline
-    UpdateSplinePosition();
-    Movement::MoveSplineInit init(*this);
-    init.Stop();
+    UpdateSplinePosition(true);
+    Movement::MoveSplineInit(*this).Stop();
 }
 
 void Unit::SendMovementFlagUpdate(bool self /* = false */)
@@ -22639,22 +22638,27 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
     }
 }
 
-bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
+bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport, bool stop/* = false*/)
 {
     // prevent crash when a bad coord is sent by the client
     if (!Trinity::IsValidMapCoord(x, y, z, orientation))
+    {
+        sLog->outDebug(LOG_FILTER_UNITS, "Unit::UpdatePosition(%f, %f, %f) .. bad coordinates!", x, y, z);
         return false;
+    }
 
     bool turn = (GetOrientation() != orientation);
     bool relocated = (teleport || GetPositionX() != x || GetPositionY() != y || GetPositionZ() != z);
 
-    // TODO: Check if orientation transport offset changed instead of only global orientation
-    if (turn)
+    if (turn && !stop)
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+
+    //if (GetTypeId() == TYPEID_PLAYER)
+        //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "UpdatePosition loc(%f %f %f) relocated %i, GetPosition(%f %f %f)", x, y, z, relocated, GetPositionX(), GetPositionY(), GetPositionZ());
 
     if (relocated)
     {
-        if (!GetVehicle())
+        if (!stop)
             RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
 
         // move and update visible state if need
@@ -22666,15 +22670,14 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
     else if (turn)
         UpdateOrientation(orientation);
 
-    // code block for underwater state update
-    UpdateUnderwaterState(GetMap(), x, y, z);
+        // code block for underwater state update
+    if (!m_lastUnderWatterPos.IsInDist(this, World::Relocation_UpdateUnderwateLimit))
+    {
+        m_lastUnderWatterPos = *this;
+        UpdateUnderwaterState(GetMap(), x, y, z);
+    }
 
     return (relocated || turn);
-}
-
-bool Unit::UpdatePosition(const Position &pos, bool teleport)
-{
-    return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport);
 }
 
 //! Only server-side orientation update, does not broadcast to client

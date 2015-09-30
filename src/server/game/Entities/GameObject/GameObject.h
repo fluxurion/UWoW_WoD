@@ -893,7 +893,7 @@ class GameObjectModel;
 // 5 sec for bobber catch
 #define FISHING_BOBBER_READY_TIME 5
 
-class GameObject : public WorldObject, public GridObject<GameObject>, public MapObject
+class GameObject : public WorldObject, public GridObject<GameObject>
 {
     public:
         explicit GameObject();
@@ -1086,21 +1086,11 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         bool isDynActive() const { return m_isDynActive; }
         void setDynActive(bool active) { m_isDynActive = active; }
 
-        GameObjectModel* m_model;
-        void GetRespawnPosition(float &x, float &y, float &z, float* ori = NULL) const;
+        GameObjectModel * m_model;
 
         void EnableOrDisableGo(bool activate, bool alternative = false);
 
         uint32 GetVignetteId() const { return m_goInfo ? m_goInfo->GetVignetteId() : 0; }
-
-        float GetStationaryX() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionX(); return GetPositionX(); }
-        float GetStationaryY() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionY(); return GetPositionY(); }
-        float GetStationaryZ() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetPositionZ(); return GetPositionZ(); }
-        float GetStationaryO() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
-        void RelocateStationaryPosition(float x, float y, float z, float o) { m_stationaryPosition.Relocate(x, y, z, o); }
-        
-        void UpdateModelPosition();
-
     protected:
         bool AIM_Initialize();
         uint32      m_spellId;
@@ -1125,7 +1115,6 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         GameObjectValue * const m_goValue;
 
         uint64 m_rotation;
-        Position m_stationaryPosition;
 
         ObjectGuid m_lootRecipient;
         ObjectGuid m_lootRecipientGroup;

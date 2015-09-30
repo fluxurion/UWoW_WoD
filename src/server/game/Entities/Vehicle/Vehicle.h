@@ -93,20 +93,10 @@ class Vehicle : public TransportBase
         void InitMovementInfoForBase();
 
         /// This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(float& x, float& y, float& z, float* o /*= NULL*/) const override
-        {
-            TransportBase::CalculatePassengerPosition(x, y, z, o,
-                GetBase()->GetPositionX(), GetBase()->GetPositionY(),
-                GetBase()->GetPositionZ(), GetBase()->GetOrientation());
-        }
+        void CalculatePassengerPosition(float& x, float& y, float& z, float& o);
 
         /// This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(float& x, float& y, float& z, float* o /*= NULL*/) const override
-        {
-            TransportBase::CalculatePassengerOffset(x, y, z, o,
-                GetBase()->GetPositionX(), GetBase()->GetPositionY(),
-                GetBase()->GetPositionZ(), GetBase()->GetOrientation());
-        }
+        void CalculatePassengerOffset(float& x, float& y, float& z, float& o);
 
         void RemovePendingEvent(VehicleJoinEvent* e);
         void AddPendingEvent(VehicleJoinEvent* e);

@@ -7600,7 +7600,7 @@ int8 Player::GetFreeActionButton()
     return -1;
 }
 
-bool Player::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
+bool Player::UpdatePosition(float x, float y, float z, float orientation, bool teleport, bool stop /*=false*/)
 {
     // half opt method
     int gx=(int)(32-x/SIZE_OF_GRIDS);                       //grid x
