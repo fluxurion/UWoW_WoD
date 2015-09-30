@@ -270,7 +270,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Transport;
-            Position Position;
+            Position position;
             int32 ActualMapID = 0;
             int32 MapID = 0;
             bool Valid = false;
@@ -293,7 +293,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Position Position;
+            Position position;
             float Facing = 0.0f;
         };
 

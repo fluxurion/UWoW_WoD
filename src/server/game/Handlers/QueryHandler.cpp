@@ -216,7 +216,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     packet.Valid = true;
     packet.MapID = corpsemapid;
     packet.ActualMapID = mapID;
-    packet.Position = {x, y, z};
+    packet.position = {x, y, z};
     packet.Transport = corpse->GetTransGUID();
     SendPacket(packet.Write());
 }
@@ -284,12 +284,12 @@ void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTr
     WorldPackets::Query::CorpseTransportQuery response;
     if (!corpse || corpse->GetTransGUID().IsEmpty() || corpse->GetTransGUID() != packet.Transport)
     {
-        response.Position = {0.0f, 0.0f, 0.0f};
+        response.position = {0.0f, 0.0f, 0.0f};
         response.Facing = 0.0f;
     }
     else
     {
-        response.Position = {corpse->GetTransOffsetX(), corpse->GetTransOffsetY(), corpse->GetTransOffsetZ()};
+        response.position = {corpse->GetTransOffsetX(), corpse->GetTransOffsetY(), corpse->GetTransOffsetZ()};
         response.Facing = corpse->GetTransOffsetO();
     }
 

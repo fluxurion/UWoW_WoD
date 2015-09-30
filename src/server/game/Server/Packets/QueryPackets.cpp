@@ -329,7 +329,7 @@ WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
     _worldPacket.FlushBits();
 
     _worldPacket << ActualMapID;
-    _worldPacket << Position.PositionXYZStream();
+    _worldPacket << position.PositionXYZStream();
     _worldPacket << MapID;
     _worldPacket << Transport;
 
@@ -343,7 +343,7 @@ void WorldPackets::Query::QueryCorpseTransport::Read()
 
 WorldPacket const* WorldPackets::Query::CorpseTransportQuery::Write()
 {
-    _worldPacket << Position.PositionXYZStream();
+    _worldPacket << position.PositionXYZStream();
     _worldPacket << Facing;
 
     return &_worldPacket;
