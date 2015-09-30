@@ -13350,7 +13350,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM, item, 1);
         if (randomPropertyId)
             pItem->SetItemRandomProperties(randomPropertyId);
-        
+
         for (int32 bonusListID : bonusListIDs)
             pItem->AddBonuses(bonusListID);
 
@@ -20462,7 +20462,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             }
             else
             {
-                MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(difficulty));
+                MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId, Difficulty(difficulty));
                 if (!mapDiff)
                 {
                     sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) has bind to not existed difficulty %d instance for map %u", GetName(), GetGUID().GetCounter(), difficulty, mapId);
@@ -20501,7 +20501,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
 InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty)
 {
     // some instances only have one difficulty
-    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(mapid, difficulty);
+    MapDifficultyEntry const* mapDiff = GetDownscaledMapDifficultyData(mapid, difficulty);
     if (!mapDiff)
         return NULL;
 
@@ -20781,7 +20781,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
 
         Difficulty target_difficulty = GetDifficultyID(mapEntry);
 
-        MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(target_map, target_difficulty);
+        MapDifficultyEntry const* mapDiff = GetDownscaledMapDifficultyData(target_map, target_difficulty);
         if (!mapDiff)
             return false;
 
@@ -30056,7 +30056,7 @@ Difficulty Player::GetDifficultyID(MapEntry const* mapEntry) const
     if (!mapEntry->IsRaid())
         return m_dungeonDifficulty;
 
-    MapDifficulty const* defaultDifficulty = GetDefaultMapDifficulty(mapEntry->MapID);
+    MapDifficultyEntry const* defaultDifficulty = GetDefaultMapDifficulty(mapEntry->MapID);
     if (!defaultDifficulty)
         return m_legacyRaidDifficulty;
 

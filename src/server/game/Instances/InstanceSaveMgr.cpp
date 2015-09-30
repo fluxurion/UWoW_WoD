@@ -499,9 +499,9 @@ uint32 InstanceSaveManager::GetNumBoundGroupsTotal()
 
 time_t InstanceSave::GetResetTime() const
 {
-    if(MapDifficulty const* mapDiff = GetMapDifficultyData(GetMapId(), GetDifficultyID()))
-        if (mapDiff->resetTime)
-            return sWorld->getInstanceResetTime(mapDiff->resetTime);
+    if(MapDifficultyEntry const* mapDiff = GetMapDifficultyData(GetMapId(), GetDifficultyID()))
+        if (mapDiff->RaidDuration)
+            return sWorld->getInstanceResetTime(mapDiff->RaidDuration);
 
     // normal mode. 12h after plr leave dung in InstanceMap::SetResetSchedule
     return time(NULL) + 12 * HOUR;

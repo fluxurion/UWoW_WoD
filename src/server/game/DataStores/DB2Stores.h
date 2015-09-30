@@ -115,8 +115,9 @@ public:
 
     typedef std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvesContainer;
     typedef std::vector<ItemBonusEntry const*> ItemBonusList;
+    typedef std::vector<ItemXBonusTreeEntry const*> ItemXBonusTreeList;
     typedef std::unordered_map<uint32 /*bonusListId*/, ItemBonusList> ItemBonusListContainer;
-    typedef std::unordered_multimap<uint32 /*itemId*/, uint32 /*bonusTreeId*/> ItemToBonusTreeContainer;
+    typedef std::unordered_map<uint32 /*itemId*/, ItemXBonusTreeList> ItemToBonusTreeContainer;
     typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, uint32> ItemDisplayIdContainer;
     typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
     typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
@@ -156,6 +157,7 @@ public:
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     MountEntry const* GetMountById(uint32 id) const;
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
+    std::set<uint32> GetFindBonusTree(uint32 BonusTreeID, uint32 itemBonusTreeMod) const;
 
     BattlePetSpeciesBySpellIdMap _battlePetSpeciesBySpellId; // @TODO: move this to private and make special getters
     MapChallengeModeEntryMap _mapChallengeModeEntrybyMap; // @TODO: move this to private and make special getters

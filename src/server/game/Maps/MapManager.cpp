@@ -166,7 +166,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
 
     Difficulty targetDifficulty = player->GetDifficultyID(entry);
     //The player has a heroic mode and tries to enter into instance which has no a heroic mode
-    MapDifficulty const* mapDiff = GetMapDifficultyData(entry->MapID, targetDifficulty);
+    MapDifficultyEntry const* mapDiff = GetMapDifficultyData(entry->MapID, targetDifficulty);
     if (!mapDiff)
     {
         // Send aborted message for dungeons

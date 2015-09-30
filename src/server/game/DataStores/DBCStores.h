@@ -75,10 +75,10 @@ bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredT
 void Zone2MapCoordinates(float &x, float &y, uint32 zone);
 void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
 
-typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficulty>> MapDifficultyMap;
-MapDifficulty const* GetDefaultMapDifficulty(uint32 mapID);
-MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
-MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
+typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyMap;
+MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapID);
+MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
+MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);
 
 uint32 GetLiquidFlags(uint32 liquidType);
 

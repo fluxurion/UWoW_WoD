@@ -2739,14 +2739,14 @@ void InstanceMap::SetResetSchedule(bool on)
     }
 }
 
-MapDifficulty const* Map::GetMapDifficulty() const
+MapDifficultyEntry const* Map::GetMapDifficulty() const
 {
     return GetMapDifficultyData(GetId(), GetDifficultyID());
 }
 
 uint32 Map::GetDifficultyLootBonusTreeMod() const
 {
-    if (MapDifficulty const* mapDifficulty = GetMapDifficulty())
+    if (MapDifficultyEntry const* mapDifficulty = GetMapDifficulty())
         if (mapDifficulty->ItemBonusTreeModID)
             return mapDifficulty->ItemBonusTreeModID;
 
@@ -2779,14 +2779,14 @@ uint32 Map::GetMaxPlayer() const
 
 uint32 InstanceMap::GetMaxPlayers() const
 {
-    if (MapDifficulty const* mapDiff = GetMapDifficulty())
+    if (MapDifficultyEntry const* mapDiff = GetMapDifficulty())
     {
-        if (mapDiff->maxPlayers/* || IsRegularDifficulty()*/)    // Normal case (expect that regular difficulty always have correct maxplayers)
-            return mapDiff->maxPlayers;
+        if (mapDiff->MaxPlayers/* || IsRegularDifficulty()*/)    // Normal case (expect that regular difficulty always have correct maxplayers)
+            return mapDiff->MaxPlayers;
         else                                                // DBC have 0 maxplayers for heroic instances with expansion < 2
         {                                                   // The heroic entry exists, so we don't have to check anything, simply return normal max players
-            MapDifficulty const* normalDiff = GetMapDifficultyData(GetId(), DIFFICULTY_NORMAL);
-            return normalDiff ? normalDiff->maxPlayers : 0;
+            MapDifficultyEntry const* normalDiff = GetMapDifficultyData(GetId(), DIFFICULTY_NORMAL);
+            return normalDiff ? normalDiff->MaxPlayers : 0;
         }
     }
     else                                                    // I'd rather ASSERT(false);
@@ -2795,8 +2795,8 @@ uint32 InstanceMap::GetMaxPlayers() const
 
 uint32 InstanceMap::GetMaxResetDelay() const
 {
-    MapDifficulty const* mapDiff = GetMapDifficulty();
-    return mapDiff ? mapDiff->resetTime : 0;
+    MapDifficultyEntry const* mapDiff = GetMapDifficulty();
+    return mapDiff ? mapDiff->RaidDuration : 0;
 }
 
 /* ******* Battleground Instance Maps ******* */

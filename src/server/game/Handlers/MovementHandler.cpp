@@ -155,11 +155,11 @@ void WorldSession::HandleWorldPortAck()
     if (mInstance)
     {
         Difficulty diff = player->GetDifficultyID(mEntry);
-        if (MapDifficulty const* mapDiff = GetMapDifficultyData(mEntry->MapID, diff))
+        if (MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mEntry->MapID, diff))
         {
-            if (mapDiff->resetTime)
+            if (mapDiff->RaidDuration)
             {
-                if (time_t timeReset = sWorld->getInstanceResetTime(mapDiff->resetTime))
+                if (time_t timeReset = sWorld->getInstanceResetTime(mapDiff->RaidDuration))
                 {
                     uint32 timeleft = uint32(timeReset - time(NULL));
                     player->SendInstanceResetWarning(mEntry->MapID, diff, timeleft);

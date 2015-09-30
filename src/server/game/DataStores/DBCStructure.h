@@ -2584,20 +2584,6 @@ struct VectorArray
 
 typedef UNORDERED_MAP<uint32, VectorArray> NameGenVectorArraysMap;
 
-// Structures not used for casting to loaded DBC data and not required then packing
-struct MapDifficulty
-{
-    MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false), DifficultyID(0) {}
-    MapDifficulty(uint32 difficultyID, uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage, uint32 _ItemBonusTreeModID) :
-        DifficultyID(difficultyID), resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage), ItemBonusTreeModID(_ItemBonusTreeModID) {}
-
-    uint32 DifficultyID;
-    uint32 resetTime;
-    uint32 maxPlayers;
-    uint32 ItemBonusTreeModID;
-    bool hasErrorMessage;
-};
-
 struct TalentSpellPos
 {
     TalentSpellPos() : talent_id(0), rank(0) {}

@@ -357,12 +357,6 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 LootItem::LootItem(LootStoreItem const& li, Loot* loot)
 {
     item.ItemID = li.itemid;
-    if (loot->GetBonusTreeMod())
-    {
-        std::set<uint32> bonusList = sDB2Manager.GetItemBonusTree(item.ItemID, loot->GetBonusTreeMod());
-        item.ItemBonus.BonusListIDs.insert(item.ItemBonus.BonusListIDs.end(), bonusList.begin(), bonusList.end());
-    }
-
     type        = li.type;
     conditions  = li.conditions;
     currency    = type == LOOT_ITEM_TYPE_CURRENCY;

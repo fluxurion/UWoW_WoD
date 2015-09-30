@@ -2176,7 +2176,7 @@ Difficulty Group::GetDifficultyID(MapEntry const* mapEntry) const
     if (!mapEntry->IsRaid())
         return m_dungeonDifficulty;
 
-    MapDifficulty const* defaultDifficulty = GetDefaultMapDifficulty(mapEntry->MapID);
+    MapDifficultyEntry const* defaultDifficulty = GetDefaultMapDifficulty(mapEntry->MapID);
     if (!defaultDifficulty)
         return m_legacyRaidDifficulty;
 

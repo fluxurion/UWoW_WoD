@@ -267,14 +267,7 @@ void DB2Manager::InitDB2CustomStores()
         _itemBonusLists[bonus->BonusListID].push_back(bonus);
 
     for (ItemBonusTreeNodeEntry const* bonusTreeNode : sItemBonusTreeNodeStore)
-    {
-        uint32 bonusTreeId = bonusTreeNode->BonusTreeID;
-        while (bonusTreeNode)
-        {
-            _itemBonusTrees[bonusTreeId].insert(bonusTreeNode);
-            bonusTreeNode = sItemBonusTreeNodeStore.LookupEntry(bonusTreeNode->SubTreeID);
-        }
-    }
+        _itemBonusTrees[bonusTreeNode->BonusTreeID].insert(bonusTreeNode);
 
     for (ItemModifiedAppearanceEntry const* appearanceMod : sItemModifiedAppearanceStore)
         if (ItemAppearanceEntry const* appearance = sItemAppearanceStore.LookupEntry(appearanceMod->AppearanceID))
@@ -294,7 +287,7 @@ void DB2Manager::InitDB2CustomStores()
         _mapChallengeModeEntrybyMap[entry->map] = entry;
 
     for (ItemXBonusTreeEntry const* itemBonusTreeAssignment : sItemXBonusTreeStore)
-        _itemToBonusTree.insert({ itemBonusTreeAssignment->ItemID, itemBonusTreeAssignment->BonusTreeID });
+        _itemToBonusTree[itemBonusTreeAssignment->ItemID].push_back(itemBonusTreeAssignment);
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
         _questPackages[questPackageItem->QuestPackageID].push_back(questPackageItem);
@@ -637,19 +630,39 @@ MountEntry const* DB2Manager::GetMountById(uint32 id) const
 std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const
 {
     std::set<uint32> bonusListIDs;
-    auto itemIdRange = _itemToBonusTree.equal_range(itemId);
-    if (itemIdRange.first == itemIdRange.second)
+    auto itemIdRange = _itemToBonusTree.find(itemId);
+    if (itemIdRange == _itemToBonusTree.end())
         return bonusListIDs;
 
-    for (auto itemTreeItr = itemIdRange.first; itemTreeItr != itemIdRange.second; ++itemTreeItr)
+    for (auto itemTreeItr : itemIdRange->second)
     {
-        auto treeItr = _itemBonusTrees.find(itemTreeItr->second);
-        if (treeItr == _itemBonusTrees.end())
-            continue;
+        std::set<uint32> listBonus = GetFindBonusTree((*itemTreeItr).BonusTreeID, itemBonusTreeMod);
+        bonusListIDs.insert(listBonus.begin(), listBonus.end());
+    }
 
-        for (ItemBonusTreeNodeEntry const* bonusTreeNode : treeItr->second)
-            if (bonusTreeNode->BonusTreeModID == itemBonusTreeMod)
+    return bonusListIDs;
+}
+
+std::set<uint32> DB2Manager::GetFindBonusTree(uint32 BonusTreeID, uint32 itemBonusTreeMod) const
+{
+    std::set<uint32> bonusListIDs;
+
+    auto treeItr = _itemBonusTrees.find(BonusTreeID);
+    if (treeItr == _itemBonusTrees.end())
+        return bonusListIDs;
+
+    for (auto bonusTreeNode : treeItr->second)
+    {
+        if (bonusTreeNode->BonusTreeModID == itemBonusTreeMod)
+        {
+            if(bonusTreeNode->BonusListID)
                 bonusListIDs.insert(bonusTreeNode->BonusListID);
+            else if(bonusTreeNode->SubTreeID)
+            {
+                std::set<uint32> listBonus = GetFindBonusTree(bonusTreeNode->SubTreeID, itemBonusTreeMod);
+                bonusListIDs.insert(listBonus.begin(), listBonus.end());
+            }
+        }
     }
 
     return bonusListIDs;

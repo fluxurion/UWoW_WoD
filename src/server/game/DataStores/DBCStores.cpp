@@ -637,9 +637,8 @@ void InitDBCCustomStores()
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, "DB table `mapdifficulty_dbc` or MapDifficulty.dbc has non-existant difficulty %u.", entry->DifficultyID);
             continue;
         }
-        sMapDifficultyMap[entry->MapID][entry->DifficultyID] = MapDifficulty(entry->DifficultyID, entry->RaidDuration, entry->MaxPlayers, entry->Message_lang[0] > 0, entry->ItemBonusTreeModID);
+        sMapDifficultyMap[entry->MapID][entry->DifficultyID] = entry;
     }
-    sMapDifficultyStore.Clear();
 
     for (NameGenEntry const* entry : sNameGenStore)
         sGenNameVectoArraysMap[entry->race].stringVectorArray[entry->gender].push_back(std::string(entry->name));
@@ -1079,7 +1078,7 @@ void Map2ZoneCoordinates(float& x, float& y, uint32 zone)
     std::swap(x, y);                                         // client have map coords swapped
 }
 
-MapDifficulty const* GetDefaultMapDifficulty(uint32 mapID)
+MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapID)
 {
     auto itr = sMapDifficultyMap.find(mapID);
     if (itr == sMapDifficultyMap.end())
@@ -1095,14 +1094,14 @@ MapDifficulty const* GetDefaultMapDifficulty(uint32 mapID)
             continue;
 
         if (difficulty->Flags & DIFFICULTY_FLAG_DEFAULT)
-            return &p.second;
+            return p.second;
     }
 
-    return &itr->second.begin()->second;
+    return itr->second.begin()->second;
 }
 
 
-MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
+MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
 {
     auto itr = sMapDifficultyMap.find(mapId);
     if (itr == sMapDifficultyMap.end())
@@ -1112,17 +1111,17 @@ MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
     if (diffItr == itr->second.end())
         return nullptr;
 
-    return &diffItr->second;
+    return diffItr->second;
 }
 
-MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
+MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
 {
     DifficultyEntry const* diffEntry = sDifficultyStore.LookupEntry(difficulty);
     if (!diffEntry)
         return GetDefaultMapDifficulty(mapId);
 
     uint32 tmpDiff = difficulty;
-    MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
+    MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
     while (!mapDiff)
     {
         tmpDiff = diffEntry->FallbackDifficultyID;

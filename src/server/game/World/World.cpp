@@ -3334,7 +3334,7 @@ void World::InstanceDailyResetTime()
             uint32 mapid = mapDifficultyPair.first;
             Difficulty difficulty = (Difficulty)difficultyPair.first;
 
-            if (difficultyPair.second.resetTime == 86400)
+            if (difficultyPair.second->RaidDuration == 86400)
                 sInstanceSaveMgr->ResetOrWarnAll(mapid, difficulty);
         }
 
@@ -3350,7 +3350,7 @@ void World::InstanceHalfWeekResetTime()
            uint32 mapid = mapDifficultyPair.first;
            Difficulty difficulty = (Difficulty)difficultyPair.first;
 
-           if (difficultyPair.second.resetTime == 259200)
+           if (difficultyPair.second->RaidDuration == 259200)
                sInstanceSaveMgr->ResetOrWarnAll(mapid, difficulty);
        }
 
@@ -3366,7 +3366,7 @@ void World::InstanceWeeklyResetTime()
             uint32 mapid = mapDifficultyPair.first;
             Difficulty difficulty = (Difficulty)difficultyPair.first;
 
-            if (difficultyPair.second.resetTime == 604800)
+            if (difficultyPair.second->RaidDuration == 604800)
                 sInstanceSaveMgr->ResetOrWarnAll(mapid, difficulty);
         }
 
