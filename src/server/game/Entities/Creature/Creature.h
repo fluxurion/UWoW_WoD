@@ -194,6 +194,7 @@ struct CreatureTemplate
             case DIFFICULTY_10_HC:
             //case DIFFICULTY_CHALLENGE:
             case DIFFICULTY_MYTHIC_RAID:
+            case DIFFICULTY_MYTHIC_DUNGEON:
                 return 2;
             case DIFFICULTY_25_HC:
                 return 3;

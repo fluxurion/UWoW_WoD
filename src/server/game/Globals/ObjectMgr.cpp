@@ -9147,9 +9147,40 @@ const std::vector<CreatureDifficultyStat>* ObjectMgr::GetDifficultyStat(uint32 e
 
 CreatureDifficultyStat const* ObjectMgr::GetCreatureDifficultyStat(uint32 entry, uint8 diff) const
 {
+    uint8 statId = 0;
+    switch (diff)
+    {
+        case DIFFICULTY_HEROIC:
+        case DIFFICULTY_10_N:
+        case DIFFICULTY_CHALLENGE:
+        case DIFFICULTY_40:
+        case DIFFICULTY_HC_SCENARIO:
+        case DIFFICULTY_N_SCENARIO:
+        case DIFFICULTY_NORMAL_RAID:
+            statId = 0;
+            break;
+        case DIFFICULTY_NORMAL:
+        case DIFFICULTY_25_N:
+        case DIFFICULTY_HEROIC_RAID:
+            statId = 1;
+            break;
+        case DIFFICULTY_10_HC:
+        case DIFFICULTY_MYTHIC_RAID:
+        case DIFFICULTY_MYTHIC_DUNGEON:
+            statId = 2;
+            break;
+        case DIFFICULTY_25_HC:
+        case DIFFICULTY_LFR_NEW:
+            statId = 3;
+            break;
+        case DIFFICULTY_LFR:
+            statId = 4;
+            break;
+    }
+
     if (std::vector<CreatureDifficultyStat> const* diffStat = GetDifficultyStat(entry))
         for (std::vector<CreatureDifficultyStat>::const_iterator itr = diffStat->begin(); itr != diffStat->end(); ++itr)
-            if(itr->Difficulty == diff)
+            if(itr->Difficulty == statId)
                 return &(*itr);
 
     return NULL;

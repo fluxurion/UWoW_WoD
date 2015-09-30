@@ -307,7 +307,7 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
     SetEntry(entry);                                        // normal entry always
     if(!m_creatureInfo)
         m_creatureInfo = cinfo;                                 // map mode related always
-    m_creatureDiffData = sObjectMgr->GetCreatureDifficultyStat(cinfo->Entry, m_difficulty);                                 // map mode related always
+    m_creatureDiffData = sObjectMgr->GetCreatureDifficultyStat(cinfo->Entry, m_spawnMode);                                 // map mode related always
 
     // equal to player Race field, but creature does not have race
     SetByteValue(UNIT_FIELD_BYTES_0, 0, 0);
@@ -471,7 +471,7 @@ void Creature::UpdateStat()
     m_spawnMode = GetMap()->GetSpawnMode();
 
     CreatureTemplate const* cInfo = GetCreatureTemplate();
-    m_creatureDiffData = sObjectMgr->GetCreatureDifficultyStat(cInfo->Entry, m_difficulty);                                 // map mode related always
+    m_creatureDiffData = sObjectMgr->GetCreatureDifficultyStat(cInfo->Entry, m_spawnMode);                                 // map mode related always
 
     CreatureDifficultyStat const* diffStats = GetCreatureDiffStat();
 
