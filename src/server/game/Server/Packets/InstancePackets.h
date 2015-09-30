@@ -134,6 +134,16 @@ namespace WorldPackets
             int32 Delay = 0;
             uint32 Reason = 0;
         };
+
+        class BossKillCredit final : public ServerPacket
+        {
+        public:
+            BossKillCredit(int32 ID) : ServerPacket(SMSG_BOSS_KILL_CREDIT, 4), encounterID(ID) { }
+
+            WorldPacket const* Write() override;
+
+            int32 encounterID = 0;
+        };
     }
 }
 

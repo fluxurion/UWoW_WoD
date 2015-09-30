@@ -93,3 +93,10 @@ WorldPacket const* WorldPackets::Instance::RaidGroupOnly::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Instance::BossKillCredit::Write()
+{
+    _worldPacket << encounterID;
+
+    return &_worldPacket;
+}

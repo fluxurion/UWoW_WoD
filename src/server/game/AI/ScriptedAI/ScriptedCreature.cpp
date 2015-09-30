@@ -14,6 +14,7 @@
 #include "CellImpl.h"
 #include "ObjectMgr.h"
 #include "TemporarySummon.h"
+#include "InstancePackets.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary
@@ -544,6 +545,9 @@ void BossAI::_JustDied()
         Map* map = me->GetMap();
         if (!map->IsDungeon() || map->IsNonRaidDungeon())
             return;
+
+        if (DungeonEncounterEntry const* entry = GetDungeonEncounterByDisplayID(me->GetNativeDisplayId()))
+            map->SendToPlayers(WorldPackets::Instance::BossKillCredit(entry->id).Write());
 
         Map::PlayerList const& PlayerList = map->GetPlayers();
         for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
