@@ -230,7 +230,7 @@ bool Garrison::Create(uint32 garrSiteId)
     WorldPackets::Garrison::GarrisonCreateResult garrisonCreateResult;
     garrisonCreateResult.GarrSiteLevelID = _siteLevel->ID;
     _owner->SendDirectMessage(garrisonCreateResult.Write());
-    _owner->GetSession()->SendSetPhaseShift(_owner->GetPhases(),std::set<uint32>(), std::set<uint32>());
+    _owner->GetSession()->SendSetPhaseShift(_owner->GetPhases(),std::set<uint32>(), std::set<uint32>(), std::set<uint32>());
     SendRemoteInfo();
     return true;
 }
