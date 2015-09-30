@@ -144,6 +144,19 @@ namespace WorldPackets
 
             int32 encounterID = 0;
         };
+
+        //< SMSG_INSTANCE_ENCOUNTER_END
+        //< SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION
+        //< SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED
+        //< SMSG_UPDATE_DUNGEON_ENCOUNTER_FOR_LOOT
+        //< SMSG_CLEAR_BOSS_EMOTES
+        class NullSmsg : public ServerPacket
+        {
+        public:
+            NullSmsg(OpcodeServer opcode) : ServerPacket(opcode) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 

@@ -29,6 +29,7 @@
 #include "Group.h"
 #include "ScenarioMgr.h"
 #include "InstanceSaveMgr.h"
+#include "InstancePackets.h"
 
 #define CHALLENGE_START 5
 
@@ -550,8 +551,8 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
                 data.WriteBit(1); // Success
                 instance->SendToPlayers(&data);
             }
-            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_END);
-            instance->SendToPlayers(&data);
+
+            instance->SendToPlayers(WorldPackets::Instance::NullSmsg(SMSG_INSTANCE_ENCOUNTER_END).Write());
             break;
         }
         case ENCOUNTER_FRAME_ENGAGE:
