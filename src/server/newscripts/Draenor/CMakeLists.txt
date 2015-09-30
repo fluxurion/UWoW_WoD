@@ -24,6 +24,12 @@ set(scripts_STAT_SRCS
   Draenor/UpperBlackrockSpire/boss_commander_tharbek.cpp
   Draenor/UpperBlackrockSpire/boss_ragewing_untamed.cpp
   Draenor/UpperBlackrockSpire/boss_warlord_zaela.cpp
+
+  Draenor/ShadowmoonBurialGrounds/instance_shadowmoon_burial_grounds.cpp
+  Draenor/ShadowmoonBurialGrounds/boss_sadana_bloodfury.cpp
+  Draenor/ShadowmoonBurialGrounds/boss_nhallish.cpp
+  Draenor/ShadowmoonBurialGrounds/boss_bonemaw.cpp
+  Draenor/ShadowmoonBurialGrounds/boss_nerzhul.cpp
 )
 
 message("  -> Prepared: Draenor")

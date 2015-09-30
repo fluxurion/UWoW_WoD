@@ -14,7 +14,7 @@
 #include "CellImpl.h"
 #include "ObjectMgr.h"
 #include "TemporarySummon.h"
-#include "InstancePackets.h"
+#include "Packets/InstancePackets.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary

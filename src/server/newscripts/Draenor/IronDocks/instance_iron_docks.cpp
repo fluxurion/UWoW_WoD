@@ -295,7 +295,7 @@ public:
 
             if (dataHead1 == 'I' && dataHead2 == 'D')
             {
-                for (uint8 i = 0; i < 7; i++)
+                for (uint8 i = 0; i < 5; i++)
                 {
                     uint32 tmpDlg;
                     loadStream >> tmpDlg;

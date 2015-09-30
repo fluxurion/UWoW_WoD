@@ -29,7 +29,7 @@
 #include "Group.h"
 #include "ScenarioMgr.h"
 #include "InstanceSaveMgr.h"
-#include "InstancePackets.h"
+#include "Packets/InstancePackets.h"
 
 #define CHALLENGE_START 5
 

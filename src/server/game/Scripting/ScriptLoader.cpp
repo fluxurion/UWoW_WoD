@@ -109,6 +109,12 @@ void AddSC_boss_commander_tharbek();
 void AddSC_boss_ragewing_untamed();
 void AddSC_boss_warlord_zaela();
 
+void AddSC_instance_shadowmoon_burial_grounds();   // Shadowmoon Burial Grounds
+void AddSC_boss_sadana_bloodfury();
+void AddSC_boss_nhallish();
+void AddSC_boss_bonemaw();
+void AddSC_boss_nerzhul();
+
 //world
 void AddSC_areatrigger_scripts();
 void AddSC_emerald_dragons();
@@ -1078,6 +1084,12 @@ void AddDraenorScripts()
     AddSC_boss_commander_tharbek();
     AddSC_boss_ragewing_untamed();
     AddSC_boss_warlord_zaela();
+
+    AddSC_instance_shadowmoon_burial_grounds();   // Shadowmoon Burial Grounds
+    AddSC_boss_sadana_bloodfury();
+    AddSC_boss_nhallish();
+    AddSC_boss_bonemaw();
+    AddSC_boss_nerzhul();
 #endif
 }
 
