@@ -546,7 +546,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
 
 AuraEffect::AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster):
 m_base(base), m_spellInfo(base->GetSpellInfo()),
-m_baseAmount(baseAmount ? *baseAmount : m_spellInfo->GetEffect(effIndex, m_diffMode).BasePoints),
+m_baseAmount(baseAmount ? *baseAmount : m_spellInfo->GetEffect(effIndex, m_diffMode)->BasePoints),
 m_spellmod(NULL), m_periodicTimer(0), m_tickNumber(0), m_effIndex(effIndex),
 m_canBeRecalculated(true), m_isPeriodic(false),
 m_oldbaseAmount(0), saveTarget(NULL), m_crit_amount(0), m_crit_chance(0.0f),
@@ -594,7 +594,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
     Unit* target = GetBase()->GetUnitOwner();
 
     // default amount calculation
-    m_send_baseAmount = m_spellInfo->GetEffect(m_effIndex, m_diffMode).CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit(), castItem);
+    m_send_baseAmount = m_spellInfo->GetEffect(m_effIndex, m_diffMode)->CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit(), castItem);
     amount = m_send_baseAmount;
 
     if (GetBase()->InArenaNerf())
@@ -632,7 +632,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
     if (caster && caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->AttributesEx8 & SPELL_ATTR8_MASTERY_SPECIALIZATION))
     {
         m_canBeRecalculated = false;
-        amount += int32(caster->GetFloatValue(PLAYER_FIELD_MASTERY) * m_spellInfo->GetEffect(m_effIndex, m_diffMode).BonusCoefficient + 0.5f);
+        amount += int32(caster->GetFloatValue(PLAYER_FIELD_MASTERY) * m_spellInfo->GetEffect(m_effIndex, m_diffMode)->BonusCoefficient + 0.5f);
     }
 
     GetBase()->CallScriptEffectBeforeCalcAmountHandlers(const_cast<AuraEffect const*>(this), amount, m_canBeRecalculated);
@@ -1873,7 +1873,7 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
 
 void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= true*/, bool load /*= false*/)
 {
-    m_period = m_spellInfo->GetEffect(m_effIndex, m_diffMode).ApplyAuraPeriod;
+    m_period = m_spellInfo->GetEffect(m_effIndex, m_diffMode)->ApplyAuraPeriod;
                         
     // prepare periodics
     switch (GetAuraType())
@@ -2015,7 +2015,7 @@ void AuraEffect::CalculateSpellMod()
 
                 m_spellmod->type = SpellModType(GetAuraType());    // SpellModType value == spell aura types
                 m_spellmod->spellId = GetId();
-                m_spellmod->mask = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).SpellClassMask;
+                m_spellmod->mask = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->SpellClassMask;
                 m_spellmod->charges = GetBase()->GetCharges();
             }
             m_spellmod->value = GetAmount();
@@ -2032,7 +2032,7 @@ void AuraEffect::CalculateSpellMod()
 
                 m_spellmod->type = SPELLMOD_PCT;    // SpellModType value == spell aura types
                 m_spellmod->spellId = GetId();
-                m_spellmod->mask = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).SpellClassMask;
+                m_spellmod->mask = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->SpellClassMask;
                 m_spellmod->charges = GetBase()->GetCharges();
             }
             m_spellmod->value = GetAmount();
@@ -2336,7 +2336,7 @@ bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
         return false;
 
     // Check EffectClassMask
-    if (m_spellInfo->GetEffect(m_effIndex, m_diffMode).SpellClassMask & spell->SpellFamilyFlags)
+    if (m_spellInfo->GetEffect(m_effIndex, m_diffMode)->SpellClassMask & spell->SpellFamilyFlags)
         return true;
 
     return false;
@@ -2429,7 +2429,7 @@ void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo, S
 
 void AuraEffect::CleanupTriggeredSpells(Unit* target)
 {
-    uint32 tSpellId = m_spellInfo->GetEffect(GetEffIndex(), m_diffMode).TriggerSpell;
+    uint32 tSpellId = m_spellInfo->GetEffect(GetEffIndex(), m_diffMode)->TriggerSpell;
     if (!tSpellId)
         return;
 
@@ -2442,9 +2442,9 @@ void AuraEffect::CleanupTriggeredSpells(Unit* target)
 
     // needed for spell 43680, maybe others
     // TODO: is there a spell flag, which can solve this in a more sophisticated way?
-    if (m_spellInfo->GetEffect(GetEffIndex(), m_diffMode).ApplyAuraName == SPELL_AURA_PERIODIC_TRIGGER_SPELL)
+    if (m_spellInfo->GetEffect(GetEffIndex(), m_diffMode)->ApplyAuraName == SPELL_AURA_PERIODIC_TRIGGER_SPELL)
     {
-        if (uint32(m_spellInfo->GetDuration()) == m_spellInfo->GetEffect(GetEffIndex(), m_diffMode).ApplyAuraPeriod)
+        if (uint32(m_spellInfo->GetDuration()) == m_spellInfo->GetEffect(GetEffIndex(), m_diffMode)->ApplyAuraPeriod)
             return;
 
         if (tProto->StackAmount > 1)
@@ -3992,8 +3992,8 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
 
             //some spell has one aura of mount and one of vehicle
             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                if (GetSpellInfo()->GetEffect(i, m_diffMode).Effect == SPELL_EFFECT_SUMMON
-                    && GetSpellInfo()->GetEffect(i, m_diffMode).MiscValue == GetMiscValue())
+                if (GetSpellInfo()->GetEffect(i, m_diffMode)->Effect == SPELL_EFFECT_SUMMON
+                    && GetSpellInfo()->GetEffect(i, m_diffMode)->MiscValue == GetMiscValue())
                     displayId = 0;
         }
 
@@ -6925,7 +6925,7 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const* aurApp, uint8 mod
     if (GetAmount() <= 0)
         return;
 
-    if (GetSpellInfo()->GetEffect(m_effIndex, m_diffMode).ItemType == 0)
+    if (GetSpellInfo()->GetEffect(m_effIndex, m_diffMode)->ItemType == 0)
         return;
 
     //Adding items
@@ -6933,16 +6933,16 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const* aurApp, uint8 mod
     uint32 count = m_amount;
 
     ItemPosCountVec dest;
-    InventoryResult msg = plCaster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, GetSpellInfo()->GetEffect(m_effIndex, m_diffMode).ItemType, count, &noSpaceForCount);
+    InventoryResult msg = plCaster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, GetSpellInfo()->GetEffect(m_effIndex, m_diffMode)->ItemType, count, &noSpaceForCount);
     if (msg != EQUIP_ERR_OK)
     {
         count-=noSpaceForCount;
-        plCaster->SendEquipError(msg, NULL, NULL, GetSpellInfo()->GetEffect(m_effIndex, m_diffMode).ItemType);
+        plCaster->SendEquipError(msg, NULL, NULL, GetSpellInfo()->GetEffect(m_effIndex, m_diffMode)->ItemType);
         if (count == 0)
             return;
     }
 
-    Item* newitem = plCaster->StoreNewItem(dest, GetSpellInfo()->GetEffect(m_effIndex, m_diffMode).ItemType, true);
+    Item* newitem = plCaster->StoreNewItem(dest, GetSpellInfo()->GetEffect(m_effIndex, m_diffMode)->ItemType, true);
     if (!newitem)
     {
         plCaster->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
@@ -7090,7 +7090,7 @@ void AuraEffect::HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, boo
 {
     Unit* target = aurApp->GetTarget();
 
-    uint32 triggeredSpellId = m_spellInfo->GetEffect(m_effIndex, m_diffMode).TriggerSpell;
+    uint32 triggeredSpellId = m_spellInfo->GetEffect(m_effIndex, m_diffMode)->TriggerSpell;
     SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggeredSpellId);
     if (!triggeredSpellInfo)
         return;
@@ -7099,7 +7099,7 @@ void AuraEffect::HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, boo
     {
         if (apply)
         {
-            Unit* caster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? GetCaster() : target;
+            Unit* caster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo, target->GetMap()->GetDifficultyID()) ? GetCaster() : target;
 
             if (!caster)
                 return;
@@ -7111,13 +7111,13 @@ void AuraEffect::HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, boo
         }
         else
         {
-            ObjectGuid casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? GetCasterGUID() : target->GetGUID();
+            ObjectGuid casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo, target->GetMap()->GetDifficultyID()) ? GetCasterGUID() : target->GetGUID();
             target->RemoveAura(triggeredSpellId, casterGUID, 9, aurApp->GetRemoveMode());
         }
     }
     else if (mode & AURA_EFFECT_HANDLE_REAPPLY && apply)
     {
-        ObjectGuid casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? GetCasterGUID() : target->GetGUID();
+        ObjectGuid casterGUID = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo, target->GetMap()->GetDifficultyID()) ? GetCasterGUID() : target->GetGUID();
         // change the stack amount to be equal to stack amount of our aura
         Aura* triggeredAura = target->GetAura(triggeredSpellId, casterGUID);
         if (triggeredAura != NULL)
@@ -7278,7 +7278,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
             caster->CastSpell(caster, 109107);
     }
 
-    uint32 trigger_spell_id = m_spellInfo->GetEffect(m_effIndex, m_diffMode).TriggerSpell;
+    uint32 trigger_spell_id = m_spellInfo->GetEffect(m_effIndex, m_diffMode)->TriggerSpell;
 
     switch (GetSpellInfo()->SpellFamilyName)
     {
@@ -7558,7 +7558,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
 void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const
 {
     // generic casting code with custom spells and target/caster customs
-    uint32 triggerSpellId = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).TriggerSpell;
+    uint32 triggerSpellId = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->TriggerSpell;
 
     SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId);
     SpellInfo const* auraSpellInfo = GetSpellInfo();
@@ -7957,9 +7957,9 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
     // Reget trigger spell proto
     triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId);
 
-    if (triggeredSpellInfo && caster)
+    if (triggeredSpellInfo)
     {
-        if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? caster : target)
+        if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo, target->GetMap()->GetDifficultyID()) ? caster : target)
         {
             std::list<DynamicObject*> list;
             triggerCaster->GetDynObjectList(list, GetId());
@@ -7972,7 +7972,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
                         caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), triggerSpellId, true, NULL, this, owner ? owner->GetGUID() : ObjectGuid::Empty);
                 }
             }
-            else
+            else if (target)
                 triggerCaster->CastSpell(target, triggeredSpellInfo, true, NULL, this);
         }
     }
@@ -7987,10 +7987,10 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
 
 void AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit* caster, SpellEffIndex /*effIndex*/) const
 {
-    uint32 triggerSpellId = GetSpellInfo()->GetEffect(m_effIndex, m_diffMode).TriggerSpell;
+    uint32 triggerSpellId = GetSpellInfo()->GetEffect(m_effIndex, m_diffMode)->TriggerSpell;
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
     {
-        if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster() ? caster : target)
+        if (Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(m_spellInfo, target->GetMap()->GetDifficultyID()) ? caster : target)
         {
             int32 basepoints0 = GetAmount();
             GetBase()->CallScriptEffectChangeTickDamageHandlers(const_cast<AuraEffect const*>(this), basepoints0, target);
@@ -8014,7 +8014,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
     }
 
     // Consecrate ticks can miss and will not show up in the combat log
-    if (GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
+    if (GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
         caster->SpellHitResult(target, GetSpellInfo(), false, 1 << GetEffIndex()) != SPELL_MISS_NONE)
         return;
 
@@ -8060,7 +8060,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
 
     if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
     {
-        if (GetSpellInfo()->GetEffect(effIndex, m_diffMode).Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+        if (GetSpellInfo()->GetEffect(effIndex, m_diffMode)->Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
         {
             float critChance = 0.0f;
             damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, effIndex, GetBase()->GetStackAmount());
@@ -8194,7 +8194,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
 
         damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage);
     }
-    else if (GetSpellInfo()->GetEffect(effIndex, m_diffMode).Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+    else if (GetSpellInfo()->GetEffect(effIndex, m_diffMode)->Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
     {
         float critChance = 0.0f;
         damage = uint32(target->CountPctFromMaxHealth(damage));
@@ -8287,7 +8287,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster, S
         return;
     }
 
-    if (GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
+    if (GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
         caster->SpellHitResult(target, GetSpellInfo(), false, 1 << GetEffIndex()) != SPELL_MISS_NONE)
         return;
 
@@ -8340,7 +8340,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster, S
     int32 new_damage = caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), false);
     if (caster->isAlive())
     {
-        float gainMultiplier = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).CalcValueMultiplier(caster);
+        float gainMultiplier = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->CalcValueMultiplier(caster);
 
         uint32 heal = uint32(caster->SpellHealingBonusDone(caster, GetSpellInfo(), uint32(new_damage * gainMultiplier), DOT, effIndex, GetBase()->GetStackAmount()));
         heal = uint32(caster->SpellHealingBonusTaken(caster, GetSpellInfo(), heal, DOT, effIndex, GetBase()->GetStackAmount()));
@@ -8381,7 +8381,7 @@ void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster, 
     caster->ModifyHealth(-(int32)damage);
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: donator %u target %u damage %u.", caster->GetEntry(), target->GetEntry(), damage);
 
-    float gainMultiplier = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).CalcValueMultiplier(caster);
+    float gainMultiplier = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->CalcValueMultiplier(caster);
 
     damage = int32(damage * gainMultiplier);
 
@@ -8475,7 +8475,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster, SpellEf
             }
         }
 
-        if (GetSpellInfo()->GetEffect(effIndex, m_diffMode).Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+        if (GetSpellInfo()->GetEffect(effIndex, m_diffMode)->Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
         {
             float critChance = 0.0f;
             damage = caster->SpellHealingBonusDone(target, GetSpellInfo(), damage, DOT, effIndex, GetBase()->GetStackAmount());
@@ -8553,7 +8553,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster, Spe
         return;
     }
 
-    if (GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
+    if (GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
         caster->SpellHitResult(target, GetSpellInfo(), false, 1 << GetEffIndex()) != SPELL_MISS_NONE)
         return;
 
@@ -8582,7 +8582,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster, Spe
 
     int32 drainedAmount = -target->ModifyPower(powerType, -drainAmount, true);
 
-    float gainMultiplier = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).CalcValueMultiplier(caster);
+    float gainMultiplier = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->CalcValueMultiplier(caster);
 
     SpellPeriodicAuraLogInfo pInfo(this, drainedAmount, 0, 0, 0, gainMultiplier, false);
     target->SendPeriodicAuraLog(&pInfo);
@@ -8706,7 +8706,7 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster, Spe
 
     uint32 gain = uint32(-target->ModifyPower(powerType, -damage));
 
-    float dmgMultiplier = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).CalcValueMultiplier(caster);
+    float dmgMultiplier = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->CalcValueMultiplier(caster);
 
     SpellInfo const* spellProto = GetSpellInfo();
     // maybe has to be sent different to client, but not by SMSG_SPELL_PERIODIC_AURA_LOG
@@ -8737,7 +8737,7 @@ void AuraEffect::HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEve
     Unit* triggerCaster = aurApp->GetTarget();
     Unit* triggerTarget = eventInfo.GetProcTarget();
 
-    uint32 triggerSpellId = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).TriggerSpell;
+    uint32 triggerSpellId = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->TriggerSpell;
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
     {
         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AuraEffect::HandleProcTriggerSpellAuraProc: Triggering spell %u from aura %u proc", triggeredSpellInfo->Id, GetId());
@@ -8752,7 +8752,7 @@ void AuraEffect::HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp
     Unit* triggerCaster = aurApp->GetTarget();
     Unit* triggerTarget = eventInfo.GetProcTarget();
 
-    uint32 triggerSpellId = GetSpellInfo()->GetEffect(m_effIndex, m_diffMode).TriggerSpell;
+    uint32 triggerSpellId = GetSpellInfo()->GetEffect(m_effIndex, m_diffMode)->TriggerSpell;
     if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
     {
         int32 basepoints0 = GetAmount();
@@ -8810,7 +8810,7 @@ void AuraEffect::HandleRaidProcFromChargeAuraProc(AuraApplication* aurApp, ProcE
     {
         if (Unit* caster = GetCaster())
         {
-            float radius = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).CalcRadius(caster);
+            float radius = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->CalcRadius(caster);
 
             if (Unit* triggerTarget = target->GetNextRandomRaidMemberOrPet(radius))
             {
@@ -8852,7 +8852,7 @@ void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurA
     {
         if (Unit* caster = GetCaster())
         {
-            float radius = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).CalcRadius(caster);
+            float radius = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->CalcRadius(caster);
 
             if (Unit* triggerTarget = target->GetNextRandomRaidMemberOrPet(radius))
             {
@@ -9193,7 +9193,7 @@ void AuraEffect::HandleSummonController(AuraApplication const* aurApp, uint8 mod
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    uint32 summonSpellID = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).TriggerSpell;
+    uint32 summonSpellID = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->TriggerSpell;
 
     if (apply)
         GetCaster()->CastSpell(GetCaster(), summonSpellID, true);
@@ -9214,7 +9214,7 @@ void AuraEffect::HandleModNextSpell(AuraApplication const* aurApp, uint8 mode, b
     if (!player)
         return;
 
-    uint32 triggeredSpellId = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode).TriggerSpell;
+    uint32 triggeredSpellId = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->TriggerSpell;
     if (apply)
         player->AddTemporarySpell(triggeredSpellId);
     else

@@ -1596,7 +1596,7 @@ class spell_rage_of_the_empress : public SpellScriptLoader
                     return;
 
                 SpellInfo const* Spell = sSpellMgr->GetSpellInfo(SPELL_RAGE_OF_THE_EMPRESS_AURA);
-                bp0 = Spell->GetEffect(EFFECT_0, caster->GetSpawnMode()).BasePoints / targets.size();
+                bp0 = Spell->GetEffect(EFFECT_0, caster->GetSpawnMode())->BasePoints / targets.size();
             }
 
             void HandleOnHit()
