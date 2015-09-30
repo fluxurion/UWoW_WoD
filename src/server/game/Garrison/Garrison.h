@@ -106,10 +106,15 @@ public:
         WorldPackets::Garrison::GarrisonFollower PacketInfo;
     };
 
+    struct Mission
+    {
+        WorldPackets::Garrison::GarrisonMission PacketInfo;
+    };
+
     explicit Garrison(Player* owner);
 
     bool LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
-        PreparedQueryResult followers, PreparedQueryResult abilities);
+        PreparedQueryResult followers, PreparedQueryResult abilities, PreparedQueryResult missions);
     void SaveToDB(SQLTransaction trans);
     static void DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans);
 
@@ -137,6 +142,7 @@ public:
     // Followers
     void AddFollower(uint32 garrFollowerId);
     Follower const* GetFollower(uint64 dbId) const;
+    Mission const* GetMission(uint64 dbId) const;
 
     void SendInfo();
     void SendRemoteInfo() const;
@@ -158,6 +164,7 @@ private:
     std::unordered_set<uint32 /*garrBuildingId*/> _knownBuildings;
     std::unordered_map<uint64 /*dbId*/, Follower> _followers;
     std::unordered_set<uint32> _followerIds;
+    std::unordered_map<uint64 /*dbId*/, Mission> _missions;
 };
 
 #endif // Garrison_h__

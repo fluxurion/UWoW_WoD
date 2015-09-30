@@ -27,7 +27,7 @@ Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followe
 { }
 
 bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
-    PreparedQueryResult followers, PreparedQueryResult abilities)
+    PreparedQueryResult followers, PreparedQueryResult abilities, PreparedQueryResult missions)
 {
     if (!garrison)
         return false;
@@ -132,6 +132,32 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
             }
             while (abilities->NextRow());
         }
+    }
+
+    //           0             1          2              3          4               5                6             7 
+    // SELECT dbId, missionRecID, offerTime, offerDuration, startTime, travelDuration, missionDuration, missionState FROM character_garrison_missions WHERE guid = ?
+    if (missions)
+    {
+        do
+        {
+            Field* fields = missions->Fetch();
+
+            uint64 dbId = fields[0].GetUInt64();
+            uint32 missionRecID = fields[1].GetUInt32();
+            //if (!sGarrMissionStore.LookupEntry(missionRecID))
+            //    continue;
+
+            Mission& mission = _missions[dbId];
+            mission.PacketInfo.DbID = dbId;
+            mission.PacketInfo.MissionRecID = missionRecID;
+            mission.PacketInfo.OfferTime = fields[2].GetUInt32();
+            mission.PacketInfo.OfferDuration = fields[3].GetUInt32();
+            mission.PacketInfo.StartTime = fields[4].GetUInt32();
+            mission.PacketInfo.TravelDuration = fields[5].GetUInt32();
+            mission.PacketInfo.MissionDuration = fields[6].GetUInt32();
+            mission.PacketInfo.MissionState = fields[7].GetUInt32();
+        }
+        while (missions->NextRow());
     }
 
     return true;
@@ -520,6 +546,15 @@ Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const
     return nullptr;
 }
 
+Garrison::Mission const* Garrison::GetMission(uint64 dbId) const
+{
+    auto itr = _missions.find(dbId);
+    if (itr != _missions.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
 void Garrison::SendInfo()
 {
     WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfo;
@@ -537,6 +572,11 @@ void Garrison::SendInfo()
 
     for (auto const& p : _followers)
         garrisonInfo.Followers.push_back(&p.second.PacketInfo);
+
+    for (auto const& i : _missions)
+        garrisonInfo.Missions.push_back(&i.second.PacketInfo);
+    
+    garrisonInfo.ArchivedMissions.resize(0);
 
     _owner->SendDirectMessage(garrisonInfo.Write());
 }
