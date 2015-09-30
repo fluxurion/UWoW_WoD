@@ -225,14 +225,15 @@ DBCStorage<WMOAreaTableEntry>               sWMOAreaTableStore(WMOAreaTableEntry
 DBCStorage<WorldMapAreaEntry>               sWorldMapAreaStore(WorldMapAreaEntryfmt);
 DBCStorage<WorldMapOverlayEntry>            sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
 DBCStorage<WorldSafeLocsEntry>              sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
+DBCStorage<GtArmorMitigationByLvlEntry>     sGtArmorMitigationByLvlStore(GameTablefmt);
 
-GameTable<GtNPCManaCostScalerEntry>         sGtNPCManaCostScalerStore(GtNPCManaCostScalerfmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp1Store(GtNpcTotalHpfmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp2Store(GtNpcTotalHpfmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp3Store(GtNpcTotalHpfmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp4Store(GtNpcTotalHpfmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp5Store(GtNpcTotalHpfmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpStore(GtNpcTotalHpfmt);
+GameTable<GtNPCManaCostScalerEntry>         sGtNPCManaCostScalerStore(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp1Store(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp2Store(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp3Store(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp4Store(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp5Store(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpStore(GameTablefmt);
 GameTable<GtOCTLevelExperienceEntry>        sGtOCTLevelExperienceStore(GtOCTLevelExperiencefmt);
 GameTable<GtBarberShopCostBaseEntry>        sGtBarberShopCostBaseStore(GtBarberShopCostBasefmt);
 GameTable<GtBattlePetTypeDamageModEntry>    sGtBattlePetTypeDamageModStore(GtBattlePetTypeDamageModfmt);
@@ -503,6 +504,7 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DBC(sWorldMapAreaStore,                "WorldMapArea.dbc");
     LOAD_DBC(sWorldMapOverlayStore,             "WorldMapOverlay.dbc");
     LOAD_DBC(sWorldSafeLocsStore,               "WorldSafeLocs.dbc");
+    LOAD_DBC(sGtArmorMitigationByLvlStore,      "gtArmorMitigationByLvl.dbc");
 
 #undef LOAD_DBC
 

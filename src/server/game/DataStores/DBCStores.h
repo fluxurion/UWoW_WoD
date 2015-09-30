@@ -188,6 +188,7 @@ extern GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp3Store;
 extern GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp4Store;
 extern GameTable <GtNpcTotalHpEntry>            sGtNpcTotalHpExp5Store;
 
+extern DBCStorage<GtArmorMitigationByLvlEntry>  sGtArmorMitigationByLvlStore;
 extern DBCStorage<GuildPerkSpellsEntry>         sGuildPerkSpellsStore;
 extern DBCStorage<ImportPriceArmorEntry>        sImportPriceArmorStore;
 extern DBCStorage<ImportPriceQualityEntry>      sImportPriceQualityStore;

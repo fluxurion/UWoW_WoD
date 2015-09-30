@@ -1236,6 +1236,11 @@ struct GtNpcTotalHpEntry
     float    HP;
 };
 
+struct GtArmorMitigationByLvlEntry
+{
+    float    Armor;
+};
+
 struct GtOCTLevelExperienceEntry
 {
     float    Data;

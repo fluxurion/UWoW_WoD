@@ -8793,11 +8793,12 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         uint8 Class = fields[1].GetUInt8();
 
         GameTable<GtNpcTotalHpEntry>* hpTables[] = { &sGtNpcTotalHpStore, &sGtNpcTotalHpExp1Store, &sGtNpcTotalHpExp2Store, &sGtNpcTotalHpExp3Store, &sGtNpcTotalHpExp4Store, &sGtNpcTotalHpExp5Store, NULL };
+        GtArmorMitigationByLvlEntry const* gtArmorMitigation = sGtArmorMitigationByLvlStore.LookupEntry(Level - 1);
 
         CreatureBaseStats stats;
 
         stats.BaseMana = fields[2].GetUInt32();
-        stats.BaseArmor = fields[3].GetUInt32();
+        stats.BaseArmor = uint32(gtArmorMitigation->Armor)/*fields[3].GetUInt32()*/;
         stats.AttackPower = fields[4].GetUInt16();
         stats.RangedAttackPower = fields[5].GetUInt16();
 
