@@ -100,3 +100,114 @@ WorldPacket const* WorldPackets::Instance::BossKillCredit::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Instance::RaidInstanceMessage::Write()
+{
+    _worldPacket << Type;
+    _worldPacket << MapID;
+    _worldPacket << DifficultyID;
+    _worldPacket << TimeLeft;
+    _worldPacket.WriteBit(Locked);
+    _worldPacket.WriteBit(Extended);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::ChangePlayerDifficultyResult::Write()
+{
+    _worldPacket.WriteBits(Result, 4);
+    _worldPacket.FlushBits();
+
+    switch (Result)
+    {
+        case 5:
+        case 8:
+            _worldPacket.WriteBit(Cooldown);
+            _worldPacket.FlushBits();
+            _worldPacket << CooldownReason;
+            break;
+        case 11:
+            _worldPacket << InstanceDifficultyID;
+            _worldPacket << DifficultyRecID;
+            break;
+        case 2:
+            _worldPacket << MapID;
+            break;
+        case 4:
+            _worldPacket << Guid;
+            break;
+        default:
+            break;
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceGroupSizeChanged::Write()
+{
+    _worldPacket << GroupSize;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterStart::Write()
+{
+    _worldPacket << InCombatResCount;
+    _worldPacket << MaxInCombatResCount;
+    _worldPacket << CombatResChargeRecovery;
+    _worldPacket << NextCombatResChargeTime;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterEngageUnit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << TargetFramePriority;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterChangePriority::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << TargetFramePriority;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterDisengageUnit::Write()
+{
+    _worldPacket << Unit;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceEncounterGainCombatResurrectionCharge::Write()
+{
+    _worldPacket << InCombatResCount;
+    _worldPacket << CombatResChargeRecovery;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::EncounterStart::Write()
+{
+    _worldPacket << EncounterID;
+    _worldPacket << DifficultyID;
+    _worldPacket << GroupSize;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::EncounterEnd::Write()
+{
+    _worldPacket << EncounterID;
+    _worldPacket << DifficultyID;
+    _worldPacket << GroupSize;
+    _worldPacket.WriteBit(Success);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

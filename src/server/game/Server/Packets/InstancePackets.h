@@ -153,9 +153,131 @@ namespace WorldPackets
         class NullSmsg : public ServerPacket
         {
         public:
-            NullSmsg(OpcodeServer opcode) : ServerPacket(opcode) { }
+            NullSmsg(OpcodeServer opcode) : ServerPacket(opcode, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class RaidInstanceMessage final : public ServerPacket
+        {
+        public:
+            RaidInstanceMessage() : ServerPacket(SMSG_RAID_INSTANCE_MESSAGE, 1 + 4 + 4 + 4 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Type = 0;
+            int32 MapID = 0;
+            int32 DifficultyID = 0;
+            int32 TimeLeft = 0;
+            bool Locked = false;
+            bool Extended = false;
+        };
+
+        class ChangePlayerDifficultyResult final : public ServerPacket
+        {
+        public:
+            ChangePlayerDifficultyResult() : ServerPacket(SMSG_CHANGE_PLAYER_DIFFICULTY_RESULT, 1 + 1 + 4 + 4 + 4 + 4 + 16) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Result = 0;
+            bool Cooldown = false;
+            uint32 CooldownReason = 0;
+            uint32 InstanceDifficultyID = 0;
+            uint32 DifficultyRecID = 0;
+            uint32 MapID = 0;
+            ObjectGuid Guid;
+        };
+
+        class InstanceGroupSizeChanged final : public ServerPacket
+        {
+        public:
+            InstanceGroupSizeChanged() : ServerPacket(SMSG_INSTANCE_GROUP_SIZE_CHANGED, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 GroupSize = 0;
+        };
+
+        class InstanceEncounterStart final : public ServerPacket
+        {
+        public:
+            InstanceEncounterStart() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_START, 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 InCombatResCount = 0;
+            uint32 MaxInCombatResCount = 0;
+            uint32 CombatResChargeRecovery = 0;
+            uint32 NextCombatResChargeTime = 0;
+        };
+
+        class InstanceEncounterEngageUnit final : public ServerPacket
+        {
+        public:
+            InstanceEncounterEngageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint8 TargetFramePriority = 0;
+        };
+
+        class InstanceEncounterChangePriority final : public ServerPacket
+        {
+        public:
+            InstanceEncounterChangePriority() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint8 TargetFramePriority = 0;
+        };
+
+        class InstanceEncounterDisengageUnit final : public ServerPacket
+        {
+        public:
+            InstanceEncounterDisengageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+        };
+
+        class InstanceEncounterGainCombatResurrectionCharge final : public ServerPacket
+        {
+        public:
+            InstanceEncounterGainCombatResurrectionCharge() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 InCombatResCount = 0;
+            uint32 CombatResChargeRecovery = 0;
+        };
+
+        class EncounterStart final : public ServerPacket
+        {
+        public:
+            EncounterStart() : ServerPacket(SMSG_ENCOUNTER_START, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 EncounterID = 0;
+            uint32 DifficultyID = 0;
+            uint32 GroupSize = 0;
+        };
+
+        class EncounterEnd final : public ServerPacket
+        {
+        public:
+            EncounterEnd() : ServerPacket(SMSG_ENCOUNTER_END, 13) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 EncounterID = 0;
+            uint32 DifficultyID = 0;
+            uint32 GroupSize = 0;
+            bool Success = false;
         };
     }
 }

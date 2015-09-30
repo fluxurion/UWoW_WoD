@@ -522,34 +522,37 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
         {
             if (!unit)
                 return;
-            if(DungeonEncounterEntry const* dungeon = GetDungeonEncounterByDisplayID(unit->GetNativeDisplayId()))
+
+            if (DungeonEncounterEntry const* dungeon = GetDungeonEncounterByDisplayID(unit->GetNativeDisplayId()))
             {
-                WorldPacket data(SMSG_ENCOUNTER_START);
-                data << uint32(dungeon->id); // EncounterID
-                data << uint32(unit->GetSpawnMode()); // DifficultyID
-                data << uint32(instance->GetMaxPlayer()); // GroupSize
-                instance->SendToPlayers(&data);
+                WorldPackets::Instance::EncounterStart start;
+                start.EncounterID = dungeon->id;
+                start.DifficultyID = unit->GetSpawnMode();
+                start.GroupSize = instance->GetMaxPlayer();
+                instance->SendToPlayers(start.Write());
             }
-            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_START);
-            data << uint32(ResurectCount); // InCombatResCount
-            data << uint32(instance->Is25ManRaid() ? 3 : 1); // MaxInCombatResCount
-            data << uint32(216000); // CombatResChargeRecovery
-            data << uint32(216000); // NextCombatResChargeTime
-            instance->SendToPlayers(&data);
+
+            WorldPackets::Instance::InstanceEncounterStart eStart;
+            eStart.InCombatResCount = ResurectCount;
+            eStart.MaxInCombatResCount = instance->Is25ManRaid() ? 3 : 1;
+            eStart.CombatResChargeRecovery = 216000;
+            eStart.NextCombatResChargeTime = 216000;
+            instance->SendToPlayers(eStart.Write());
             break;
         }
         case ENCOUNTER_FRAME_INSTANCE_END:
         {
             if (!unit)
                 return;
-            if(DungeonEncounterEntry const* dungeon = GetDungeonEncounterByDisplayID(unit->GetNativeDisplayId()))
+
+            if (DungeonEncounterEntry const* dungeon = GetDungeonEncounterByDisplayID(unit->GetNativeDisplayId()))
             {
-                WorldPacket data(SMSG_ENCOUNTER_END);
-                data << uint32(dungeon->id); // EncounterID
-                data << uint32(unit->GetSpawnMode()); // DifficultyID
-                data << uint32(instance->GetMaxPlayer()); // GroupSize
-                data.WriteBit(1); // Success
-                instance->SendToPlayers(&data);
+                WorldPackets::Instance::EncounterEnd end;
+                end.EncounterID = dungeon->id;
+                end.DifficultyID = unit->GetSpawnMode();
+                end.GroupSize = instance->GetMaxPlayer();
+                end.Success = true;
+                instance->SendToPlayers(end.Write());
             }
 
             instance->SendToPlayers(WorldPackets::Instance::NullSmsg(SMSG_INSTANCE_ENCOUNTER_END).Write());
@@ -559,29 +562,32 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
         {
             if (!unit)
                 return;
-            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT);
-            data << unit->GetPackGUID();
-            data << uint8(param1);
-            instance->SendToPlayers(&data);
+
+            WorldPackets::Instance::InstanceEncounterEngageUnit engageUnit;
+            engageUnit.Unit = unit->GetGUID();
+            engageUnit.TargetFramePriority = param1;
+            instance->SendToPlayers(engageUnit.Write());
             break;
         }
         case ENCOUNTER_FRAME_DISENGAGE:
         {
             if (!unit)
                 return;
-            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT);
-            data << unit->GetPackGUID();
-            instance->SendToPlayers(&data);
+
+            WorldPackets::Instance::InstanceEncounterDisengageUnit disengageUnit;
+            disengageUnit.Unit = unit->GetGUID();
+            instance->SendToPlayers(disengageUnit.Write());
             break;
         }
         case ENCOUNTER_FRAME_UPDATE_PRIORITY:
         {
             if (!unit)
                 return;
-            WorldPacket data(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY);
-            data << unit->GetPackGUID();
-            data << uint8(param1);
-            instance->SendToPlayers(&data);
+
+            WorldPackets::Instance::InstanceEncounterChangePriority changePriority;
+            changePriority.Unit = unit->GetGUID();
+            changePriority.TargetFramePriority = param1;
+            instance->SendToPlayers(changePriority.Write());
             break;
         }
         /*case ENCOUNTER_FRAME_ADD_TIMER:
