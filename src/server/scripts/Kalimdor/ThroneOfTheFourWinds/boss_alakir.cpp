@@ -430,7 +430,7 @@ public:
 
         void SendWeather(WeatherState weather) const
         {
-            SendPacketToPlayers(WorldPackets::Misc::Weather::Weather(weather, 0.5f).Write());
+            SendPacketToPlayers(WorldPackets::Misc::Weather(weather, 0.5f).Write());
         }
 
         void SendPacketToPlayers(WorldPacket const* data) const

@@ -19,7 +19,7 @@
 #define BattlePetPacketsWorld_h__
 
 #include "Packet.h"
-#include "LfgPackets.h"
+#include "LFGPackets.h"
 #include "Unit.h"
 #include "BattlePetMgr.h"
 #include "Player.h"
