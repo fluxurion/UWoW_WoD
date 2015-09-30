@@ -8787,7 +8787,7 @@ void Spell::EffectLearnGarrisonBuilding(SpellEffIndex effIndex)
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
     {
-        if (garrison->LearnBlueprint(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue))
+        if (garrison->LearnBlueprint(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue))
         {
             uint32 count = 1;
             player->DestroyItemCount(itemTarget, count, true);
@@ -8804,7 +8804,7 @@ void Spell::EffectCreateGarrison(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->CreateGarrison(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue);
+    unitTarget->ToPlayer()->CreateGarrison(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
 }
 
 void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
@@ -8816,7 +8816,7 @@ void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
         return;
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
-        garrison->AddFollower(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue);
+        garrison->AddFollower(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
 }
 
 void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)
@@ -8828,5 +8828,5 @@ void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)
         return;
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
-        garrison->ActivateBuilding(m_spellInfo->GetEffect(effIndex, m_diffMode).MiscValue);
+        garrison->ActivateBuilding(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
 }
