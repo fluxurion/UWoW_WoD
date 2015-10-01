@@ -305,6 +305,8 @@ class BossAI : public ScriptedAI
         virtual void UpdateAI(uint32 diff);
         virtual bool _EnterEvadeMode();
 
+        void DoZoneInCombatCheck(uint32 diff);
+
         // Hook used to execute events scheduled into EventMap without the need
         // to override UpdateAI
         // note: You must re-schedule the event within this method if the event
@@ -361,6 +363,7 @@ class BossAI : public ScriptedAI
         BossBoundaryMap const* const _boundary;
         uint32 const _bossId;
         uint32 _checkareaTimer;
+        uint32 _checkZoneInCombatTimer;
 };
 
 class WorldBossAI : public ScriptedAI

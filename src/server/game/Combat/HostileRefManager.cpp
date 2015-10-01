@@ -189,7 +189,7 @@ void HostileRefManager::UpdateVisibility()
         HostileReference* nextRef = ref->next();
         if (!ref->getSource()->getOwner()->canSeeOrDetect(getOwner()))
         {
-            ref->etOnlineOfflineState(false);
+            ref->setOnlineOfflineState(false);
             nextRef = ref->next();
             //ref->removeReference();
             //delete ref;
@@ -197,4 +197,20 @@ void HostileRefManager::UpdateVisibility()
             ref->setOnlineOfflineState(true);
         ref = nextRef;
     }
+}
+
+//=================================================
+bool HostileRefManager::HasTarget(Unit* creature)
+{
+    HostileReference* ref = getFirst();
+    while (ref)
+    {
+        HostileReference* nextRef = ref->next();
+        if (ref->getSource()->getOwner() == creature)
+        {
+            return true;
+        }
+        ref = nextRef;
+    }
+    return false;
 }

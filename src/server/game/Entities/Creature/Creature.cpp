@@ -2519,7 +2519,7 @@ void Creature::SetInCombatWithZone()
             if (player->isGameMaster())
                 continue;
 
-            if (player->isAlive())
+            if (player->IsAlive() && !player->getHostileRefManager().HasTarget(this))
             {
                 this->SetInCombatWith(player);
                 player->SetInCombatWith(this);

@@ -529,7 +529,8 @@ BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
     summons(creature),
     _boundary(instance ? instance->GetBossBoundary(bossId) : NULL),
     _bossId(bossId),
-    _checkareaTimer(1000)
+    _checkareaTimer(1000),
+    _checkZoneInCombatTimer(5000)
 {
 }
 
@@ -700,12 +701,26 @@ void BossAI::SummonedCreatureDespawn(Creature* summon)
     summons.Despawn(summon);
 }
 
+void BossAI::DoZoneInCombatCheck(uint32 diff)
+{
+    if (_checkZoneInCombatTimer <= diff)
+        _checkZoneInCombatTimer = 5000;
+    else
+    {
+        _checkZoneInCombatTimer -= diff;
+        return;
+    }
+
+    me->SetInCombatWithZone();
+}
+
 void BossAI::UpdateAI(uint32 diff)
 {
     if (!UpdateVictim())
         return;
 
     events.Update(diff);
+    DoZoneInCombatCheck(diff);
 
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return;

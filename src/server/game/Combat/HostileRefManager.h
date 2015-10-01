@@ -64,6 +64,9 @@ class HostileRefManager : public RefManager<Unit, ThreatManager>
         // set state for one reference, defined by Unit
         void setOnlineOfflineState(Unit* creature, bool isOnline);
 
+        // allow check if already have some target in ref.
+        bool HasTarget(Unit* creature);
+
         // delete one reference, defined by Unit
         void deleteReference(Unit* creature);
 
