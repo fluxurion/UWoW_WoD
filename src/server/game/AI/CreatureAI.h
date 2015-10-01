@@ -63,6 +63,12 @@ enum SCEquip
     EQUIP_UNEQUIP   = 0
 };
 
+enum CreatureSummonGroup
+{
+    CREATURE_SUMMON_GROUP_RESET      = 0,
+    CREATURE_SUMMON_GROUP_COMBAT     = 1,
+};
+
 class CreatureAI : public UnitAI
 {
     protected:

@@ -3531,6 +3531,25 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     return summon;
 }
 
+/**
+* Summons group of creatures.
+*
+* @param group Id of group to summon.
+* @param list  List to store pointers to summoned creatures.
+*/
+
+void Map::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= NULL*/)
+{
+    std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetId(), SUMMONER_TYPE_MAP, group);
+    if (!data)
+        return;
+
+    for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
+        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, NULL, itr->time))
+            if (list)
+                list->push_back(summon);
+}
+
 void WorldObject::SetZoneScript()
 {
     if (Map* map = FindMap())
@@ -3739,6 +3758,95 @@ Creature* WorldObject::SummonTrigger(float x, float y, float z, float ang, uint3
     if (GetAI)
         summon->AIM_Initialize(GetAI(summon));
     return summon;
+}
+
+/**
+* Summons group of creatures. Should be called only by instances of Creature and GameObject classes.
+*
+* @param group Id of group to summon.
+* @param list  List to store pointers to summoned creatures.
+*/
+void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= NULL*/)
+{
+    ASSERT((GetTypeId() == TYPEID_GAMEOBJECT || GetTypeId() == TYPEID_UNIT) && "Only GOs and creatures can summon npc groups!");
+
+    std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
+    if (!data)
+        return;
+
+    TempSummonGroupKey groupKey = TempSummonGroupKey(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
+
+    //If group exist, do not summon, respawn
+    if(!tempSummonGroupList[groupKey].empty())
+    {
+        for (std::list<ObjectGuid>::const_iterator iter = tempSummonGroupList[groupKey].begin(); iter != tempSummonGroupList[groupKey].end(); ++iter)
+        {
+            if(Creature* temp = GetMap()->GetCreature(*iter))
+                temp->Respawn(false, 2);
+        }
+        return;
+    }
+
+    for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
+    {
+        switch (itr->sumType)
+        {
+            case SUMMON_ACTION_TYPE_DEFAULT:
+            {
+                if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, itr->sumType, itr->time))
+                {
+                    if (list)
+                        list->push_back(summon);
+
+                    tempSummonGroupList[groupKey].push_back(summon->GetGUID());
+                }
+            }
+            case SUMMON_ACTION_TYPE_ROUND:
+            {
+                float stepbyangle = 2*M_PI / itr->count;
+                for (uint8 i = 0; i < itr->count; ++i)
+                {
+                    float x = 0.0f, y = 0.0f;
+                    GetNearPoint2D(x, y, itr->distance, stepbyangle*i);
+                    Position pos {x, y, GetPositionZ()};
+
+                    if (TempSummon* summon = SummonCreature(itr->entry, pos, itr->sumType, itr->time))
+                    {
+                        if (list)
+                            list->push_back(summon);
+
+                        tempSummonGroupList[groupKey].push_back(summon->GetGUID());
+                    }
+                }
+            }
+        }
+    }
+}
+
+void WorldObject::SummonCreatureGroupDespawn(uint8 group, std::list<TempSummon*>* list /*= NULL*/)
+{
+    if(list)
+    {
+        for (std::list<TempSummon*>::const_iterator iter = list->begin(); iter != list->end(); ++iter)
+            if(TempSummon *const temp = *iter)
+                temp->DespawnOrUnsummon();
+        return;
+    }
+
+    std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
+    if (!data)
+        return;
+
+    TempSummonGroupKey groupKey = TempSummonGroupKey(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
+
+    if(tempSummonGroupList[groupKey].empty())
+        return;
+
+    for (std::list<ObjectGuid>::const_iterator iter = tempSummonGroupList[groupKey].begin(); iter != tempSummonGroupList[groupKey].end(); ++iter)
+    {
+        if(Creature* temp = GetMap()->GetCreature(*iter))
+            temp->DespawnOrUnsummon();
+    }
 }
 
 void WorldObject::GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const

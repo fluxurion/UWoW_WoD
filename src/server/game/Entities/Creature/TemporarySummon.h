@@ -21,6 +21,24 @@
 
 #include "Creature.h"
 
+enum SummonActionType
+{
+    SUMMON_ACTION_TYPE_DEFAULT      = 0,
+    SUMMON_ACTION_TYPE_ROUND        = 1,
+};
+
+/// Stores data for temp summons
+struct TempSummonData
+{
+    uint32 entry;           ///< Entry of summoned creature
+    Position pos;           ///< Position, where should be creature spawned
+    TempSummonType sumType; ///< Summon type, see TempSummonType for available types
+    uint8 count;            ///< Summon count  for non default action
+    uint8 actionType;       ///< Summon action type, option for any summon options
+    uint32 time;            ///< Despawn time, usable only with certain temp summon types
+    float distance;         ///< Distance from caster for non default action
+};
+
 class TempSummon : public Creature
 {
     public:

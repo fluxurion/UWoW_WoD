@@ -439,6 +439,8 @@ struct TrinityStringLocale
 typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
 typedef UNORDERED_MAP<ObjectGuid::LowType, CreatureData> CreatureDataContainer;
 typedef UNORDERED_MAP<ObjectGuid::LowType, GameObjectData> GameObjectDataContainer;
+typedef std::map<TempSummonGroupKey, std::vector<TempSummonData> > TempSummonDataContainer;
+
 struct PersonalLootData
 {
     uint32 entry;
@@ -1235,6 +1237,7 @@ class ObjectMgr
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
         void RestructCreatureGUID();
         void RestructGameObjectGUID();
+        void LoadTempSummons();
         void LoadCreatures();
         void LoadCreatureAIInstance();
         void LoadLinkedRespawn();
@@ -1364,6 +1367,15 @@ class ObjectMgr
         CellObjectGuids const& GetCellObjectGuids(uint16 mapid, uint8 spawnMode, uint32 cell_id)
         {
             return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)][cell_id];
+        }
+
+        std::vector<TempSummonData> const* GetSummonGroup(uint32 summonerId, SummonerType summonerType, uint8 group) const
+        {
+            TempSummonDataContainer::const_iterator itr = _tempSummonDataStore.find(TempSummonGroupKey(summonerId, summonerType, group));
+            if (itr != _tempSummonDataStore.end())
+                return &itr->second;
+
+            return NULL;
         }
 
         CreatureData const* GetCreatureData(ObjectGuid::LowType const& guid) const
@@ -1853,6 +1865,8 @@ class ObjectMgr
         GameObjectTemplateContainer _gameObjectTemplateStore;
         PersonalLootContainer _PersonalLootStore[MAX_LOOT_COOLDOWN_TYPE];
         PersonalLootContainer _PersonalLootBySpellStore;
+        /// Stores temp summon data grouped by summoner's entry, summoner's type and group id
+        TempSummonDataContainer _tempSummonDataStore;
 
         ItemTemplateContainer _itemTemplateStore;
         ItemLocaleContainer _itemLocaleStore;

@@ -98,7 +98,7 @@ struct ScriptedAI : public CreatureAI
     virtual void UpdateAI(uint32 diff);
 
     //Called at creature death
-    void JustDied(Unit* /*killer*/) {}
+    void JustDied(Unit* /*killer*/);
 
     void RecalcStats() {}
 
@@ -140,10 +140,10 @@ struct ScriptedAI : public CreatureAI
     // *************
 
     //Called at creature reset either by death or evade
-    void Reset() {}
+    void Reset();
 
     //Called at creature aggro either by MoveInLOS or Attack Start
-    void EnterCombat(Unit* /*victim*/) {}
+    void EnterCombat(Unit* /*victim*/);
 
     // *************
     //AI Helper Functions

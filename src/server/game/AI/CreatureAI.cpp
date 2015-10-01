@@ -221,6 +221,8 @@ void CreatureAI::EnterEvadeMode()
 
     if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
         me->GetVehicleKit()->Reset(true);
+
+    me->SummonCreatureGroupDespawn(CREATURE_SUMMON_GROUP_COMBAT);
 }
 
 /*void CreatureAI::AttackedBy(Unit* attacker)

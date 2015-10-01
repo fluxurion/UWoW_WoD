@@ -65,6 +65,13 @@ enum TempSummonType
     TEMPSUMMON_MANUAL_DESPAWN              = 8              // despawns when UnSummon() is called
 };
 
+enum SummonerType
+{
+    SUMMONER_TYPE_CREATURE      = 0,
+    SUMMONER_TYPE_GAMEOBJECT    = 1,
+    SUMMONER_TYPE_MAP           = 2
+};
+
 enum PhaseMasks
 {
     PHASEMASK_NORMAL   = 0x00000001,
@@ -95,7 +102,29 @@ class ZoneScript;
 class Unit;
 class Transport;
 
+/// Key for storing temp summon data in TempSummonDataContainer
+struct TempSummonGroupKey
+{
+    TempSummonGroupKey(uint32 summonerEntry, SummonerType summonerType, uint8 group)
+        : _summonerEntry(summonerEntry), _summonerType(summonerType), _summonGroup(group)
+    {
+    }
+
+    bool operator<(TempSummonGroupKey const& rhs) const
+    {
+        return std::tie(_summonerEntry, _summonerType, _summonGroup) <
+            std::tie(rhs._summonerEntry, rhs._summonerType, rhs._summonGroup);
+    }
+
+private:
+    uint32 _summonerEntry;      ///< Summoner's entry
+    SummonerType _summonerType; ///< Summoner's type, see SummonerType for available types
+    uint8 _summonGroup;         ///< Summon's group id
+};
+
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
+typedef std::map<TempSummonGroupKey, std::list<ObjectGuid>> TempSummonGroupMap;
+
 typedef cyber_ptr<Object> C_PTR;
 class Object
 {
@@ -351,6 +380,8 @@ class Object
         WorldObject const* ToWorldObject() const { return reinterpret_cast<WorldObject const*>(this); }
         //!  Get or Init cyber ptr.
         C_PTR get_ptr();
+
+        TempSummonGroupMap tempSummonGroupList;
     protected:
         Object();
 
@@ -1020,6 +1051,8 @@ class WorldObject : public Object, public WorldLocation
         }
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, ObjectGuid viewerGuid = ObjectGuid::Empty, GuidUnorderedSet* viewersList = NULL);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
+        void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
+        void SummonCreatureGroupDespawn(uint8 group, std::list<TempSummon*>* list = NULL);
 
         void GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const;
         void GetAreaTriggersWithEntryInRange(std::list<AreaTrigger*>& list, uint32 entry, ObjectGuid casterGuid, float fMaxSearchRange) const;
