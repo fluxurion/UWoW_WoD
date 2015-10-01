@@ -17,6 +17,14 @@ set(scripts_STAT_SRCS
   Draenor/IronDocks/boss_grimrail_enforcers.cpp
   Draenor/IronDocks/boss_oshir.cpp
   Draenor/IronDocks/boss_skulloc.cpp
+  
+  Draenor/BloodmaulSlagMines/bloodmaul_slag_mines.cpp
+  Draenor/BloodmaulSlagMines/bloodmaul_slag_mines.h
+  Draenor/BloodmaulSlagMines/bloodmaul_slag_mines_instance.cpp
+  Draenor/BloodmaulSlagMines/boss_forgemaster_gogduh.cpp
+  Draenor/BloodmaulSlagMines/boss_gugrokk.cpp
+  Draenor/BloodmaulSlagMines/boss_roltall.cpp
+  Draenor/BloodmaulSlagMines/boss_slave_watcher_crushto.cpp
 
   Draenor/UpperBlackrockSpire/instance_upper_blackrock_spire.cpp
   Draenor/UpperBlackrockSpire/boss_orebender_gorashan.cpp

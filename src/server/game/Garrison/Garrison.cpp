@@ -709,10 +709,12 @@ T* BuildingSpawnHelper(GameObject* building, ObjectGuid::LowType spawnId, Map* m
     float y = spawn->GetPositionY();
     float z = spawn->GetPositionZ();
     float o = spawn->GetOrientation();
-    TransportBase::CalculatePassengerPosition(x, y, z, &o, building->GetPositionX(), building->GetPositionY(), building->GetPositionZ(), building->GetOrientation());
 
-    spawn->Relocate(x, y, z, o);
-    (spawn->*SecondaryRelocate)(x, y, z, o);
+    //@TODO: fixup this function, we dont have CalculatePassengerPosition for (float&, float&, float&, float*, float, float, float, float)
+    //TransportBase::CalculatePassengerPosition(x, y, z, &o, building->GetPositionX(), building->GetPositionY(), building->GetPositionZ(), building->GetOrientation());
+
+    //spawn->Relocate(x, y, z, o);
+    //(spawn->*SecondaryRelocate)(x, y, z, o);
 
     if (!spawn->IsPositionValid())
     {

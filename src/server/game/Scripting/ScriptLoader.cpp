@@ -115,6 +115,13 @@ void AddSC_boss_nhallish();
 void AddSC_boss_bonemaw();
 void AddSC_boss_nerzhul();
 
+void AddSC_instance_bloodmaul_slag_mines(); //< Bloodmaul Slag Mines
+void AddSC_boss_slave_watcher_crushto();
+void AddSC_boss_forgemaster_gogduh();
+void AddSC_boss_roltall();
+void AddSC_boss_gugrokk();
+void AddSC_bloodmaul_slag_mines();
+
 //world
 void AddSC_areatrigger_scripts();
 void AddSC_emerald_dragons();
@@ -1090,6 +1097,14 @@ void AddDraenorScripts()
     AddSC_boss_nhallish();
     AddSC_boss_bonemaw();
     AddSC_boss_nerzhul();
+
+    AddSC_instance_bloodmaul_slag_mines(); //< Bloodmaul Slag Mines
+    AddSC_boss_slave_watcher_crushto();
+    AddSC_boss_forgemaster_gogduh();
+    AddSC_boss_roltall();
+    AddSC_boss_gugrokk();
+    AddSC_bloodmaul_slag_mines();
+
 #endif
 }
 
