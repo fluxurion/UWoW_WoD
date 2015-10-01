@@ -2735,6 +2735,8 @@ void AuraEffect::HandleModInvisibilityDetect(AuraApplication const* aurApp, uint
             target->m_invisibilityDetect.DelFlag(type);
 
         target->m_invisibilityDetect.AddValue(type, -GetAmount());
+        //then exit from visibility try to link posible off-line thread state for some atackers npc.
+        target->getHostileRefManager().UpdateVisibility();
     }
 
     // call functions which may have additional effects after chainging state of unit

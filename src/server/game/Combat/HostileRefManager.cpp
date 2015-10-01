@@ -189,10 +189,12 @@ void HostileRefManager::UpdateVisibility()
         HostileReference* nextRef = ref->next();
         if (!ref->getSource()->getOwner()->canSeeOrDetect(getOwner()))
         {
+            setOnlineOfflineState(false);
             nextRef = ref->next();
-            ref->removeReference();
-            delete ref;
-        }
+            //ref->removeReference();
+            //delete ref;
+        }else
+            setOnlineOfflineState(true);
         ref = nextRef;
     }
 }
