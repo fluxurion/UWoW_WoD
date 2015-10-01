@@ -104,11 +104,10 @@ GarrisonMap::GarrisonMap(uint32 id, time_t expiry, uint32 instanceId, Map* paren
 
 void GarrisonMap::LoadGridObjects(NGridType* grid, Cell const& cell)
 {
-    //ObjectGridLoader loader(*grid, this, cell);
-    //loader.LoadN();
+    Map::LoadGridObjects(grid, cell);
 
-    //GarrisonGridLoader loader(grid, this, cell);
-    //loader.LoadN();
+    GarrisonGridLoader loader(grid, this, cell);
+    loader.LoadN();
 }
 
 Garrison* GarrisonMap::GetGarrison()

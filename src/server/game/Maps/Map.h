@@ -559,6 +559,7 @@ class Map : public GridRefManager<NGridType>
 
     protected:
         void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
+        virtual void LoadGridObjects(NGridType* grid, Cell const& cell);
 
         std::mutex _mapLock;
         std::mutex _gridLock;

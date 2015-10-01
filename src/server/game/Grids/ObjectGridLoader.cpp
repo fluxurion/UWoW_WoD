@@ -73,7 +73,12 @@ template<class T> void ObjectGridLoader::SetObjectCell(T* /*obj*/, CellCoord con
 template<> void ObjectGridLoader::SetObjectCell(Creature* obj, CellCoord const& cellCoord)
 {
     Cell cell(cellCoord);
+    obj->SetCurrentCell(cell);
+}
 
+template<> void ObjectGridLoader::SetObjectCell(GameObject* obj, CellCoord const& cellCoord)
+{
+    Cell cell(cellCoord);
     obj->SetCurrentCell(cell);
 }
 
