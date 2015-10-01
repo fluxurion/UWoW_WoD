@@ -8,7 +8,7 @@ CREATE TABLE `creature_summon_groups` (
   `position_z` float NOT NULL DEFAULT '0',
   `orientation` float NOT NULL DEFAULT '0',
   `count` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `actionType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `distance` float NOT NULL DEFAULT '0',
   `summonType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `summonTime` int(10) unsigned NOT NULL DEFAULT '0'

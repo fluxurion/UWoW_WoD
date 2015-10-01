@@ -2463,10 +2463,13 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
             }
             else
             {
-                ScenarioProgress* progress = sScenarioMgr->GetScenarioProgress(GetInstanceId());
-                if(!progress)
-                    if (lfg::LFGDungeonData const* data = sLFGMgr->GetLFGDungeon(GetId(), GetDifficultyID(), player->GetTeam()))
-                        sScenarioMgr->AddScenarioProgress(GetInstanceId(), data, false);
+                if (IsScenario() || sObjectMgr->HasScenarioInMap(GetId()))
+                {
+                    ScenarioProgress* progress = sScenarioMgr->GetScenarioProgress(GetInstanceId());
+                    if(!progress)
+                        if (lfg::LFGDungeonData const* data = sLFGMgr->GetLFGDungeon(GetId(), GetDifficultyID(), player->GetTeam()))
+                            sScenarioMgr->AddScenarioProgress(GetInstanceId(), data, false);
+                }
             }
 
             // check for existing instance binds

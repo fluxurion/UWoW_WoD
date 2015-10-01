@@ -26,12 +26,14 @@ void WorldSession::HandleScenePlaybackCanceled(WorldPackets::Scene::SceneInstanc
 
 void WorldSession::HandleScenePlaybackComplete(WorldPackets::Scene::SceneInstance& packet)
 {
-    _player->SceneCompleted(packet.SceneInstanceID);
+    if(_player)
+        _player->SceneCompleted(packet.SceneInstanceID);
 }
 
 void WorldSession::HandleSceneTriggerEvent(WorldPackets::Scene::SceneTriggerEvent& packet)
 {
-    _player->TrigerScene(packet.SceneInstanceID, packet.Event);
+    if(_player)
+        _player->TrigerScene(packet.SceneInstanceID, packet.Event);
 }
 
 void WorldSession::HandleQueryScenarioPOI(WorldPackets::Scene::QueryScenarioPOI& packet)
