@@ -29,5 +29,51 @@
 
 #define BSMScriptName "instance_bloodmaul_slag_mines"
 
+enum DataTypes
+{
+    DATA_SLAVE_WATCHER_CRUSHTO = 1,
+
+    DATA_FORGEMASTER_GOGDUH,
+    DATA_MAGMOLATUS,
+
+    DATA_ROLTALL,
+
+    DATA_GUGROKK,
+    
+    //< Misc data
+    DATA_DEFENCE_WALL,
+    DATA_DEFENCE_WALL_2,
+    DATA_DRAW_BRIDGE,
+    DATA_SLAVE_WATCHER_CRUSHTO_EVENT,
+    DATA_FORGEMASTER_GOGDUH_EVENT,
+    DATA_CROMAN_SUMMONER,
+    DATA_CROMAN_PROGRESS,
+    DATA_CROMAN_GUID,
+};
+
+enum GameObjects
+{
+    GO_DEFENCE_WALL                         = 224643,
+    GO_DEFENCE_WALL_2                       = 225693,
+    GO_DRAW_BRIDGE                          = 224487,
+};
+
+enum Creatures
+{
+    BOSS_SLAVE_WATCHER_CRUSHTO              = 74787,
+    BOSS_FORGEMASTER_GOGDUH                 = 74366,
+    BOSS_MAGMOLATUS                         = 74475,
+    BOSS_ROLTALL                            = 75786,
+    BOSS_GUGROKK                            = 74790,
+
+    NPC_CROMAN                              = 81032,
+};
+
+enum iSpells
+{
+    SPELL_SUMMON_CRO_MO                     = 163647,
+    SPELL_CINDER_SPLASH_I                   = 152299, // summon 75360 - pre event for lh1 boss
+    SPELL_PILLAR_OF_FLAMES                  = 151626, // summon 75327
+};
 
 #endif // DEF_BLOODMAUL_SLAG_MINES_H

@@ -19,7 +19,7 @@
 #define Garrison_h__
 
 #include "Player.h"
-#include "GarrisonPackets.h"
+#include "Packets/GarrisonPackets.h"
 
 enum GarrisonFactionIndex
 {
