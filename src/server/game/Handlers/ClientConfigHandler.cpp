@@ -37,17 +37,19 @@ void WorldSession::HandleRequestAccountData(WorldPackets::ClientConfig::RequestA
     data.Size = adata->Data.size();
     data.DataType = request.DataType;
 
-    uLongf destSize = compressBound(data.Size);
-
-    data.CompressedData.resize(destSize);
-
-    if (data.Size && compress(data.CompressedData.contents(), &destSize, (uint8 const*)adata->Data.c_str(), data.Size) != Z_OK)
+    if (data.Size)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "RAD: Failed to compress account data");
-        return;
-    }
+        uLongf destSize = compressBound(data.Size);
 
-    data.CompressedData.resize(destSize);
+        data.CompressedData.resize(destSize);
+        
+        if (compress(data.CompressedData.contents(), &destSize, (uint8 const*)adata->Data.c_str(), data.Size) != Z_OK)
+        {
+            sLog->outError(LOG_FILTER_NETWORKIO, "RAD: Failed to compress account data");
+            return;
+        }
+        data.CompressedData.resize(destSize);
+    }
 
     SendPacket(data.Write());
 }
