@@ -3692,7 +3692,9 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
             triggeredByAura->GetBase()->SetDuration(0);
         }
         #ifdef WIN32
-        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare::CheckCast fail. spell id %u res %u source %u caster %d customCastFlags %u mask %u", m_spellInfo->Id, result, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask());
+        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare::CheckCast fail. spell id %u res %u m_caster %s m_originalCaster %s customCastFlags %u mask %u",
+            m_spellInfo->Id, result, m_caster->GetGUID().ToString().c_str(), m_originalCaster ? m_originalCaster->GetGUID().ToString().c_str() : "<none>",
+            _triggeredCastFlags, m_targets.GetTargetMask());
         #endif
         SendCastResult(result);
 
@@ -3731,7 +3733,11 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     // set timer base at cast time
     ReSetTimer();
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare: spell id %u source %u caster %d customCastFlags %u mask %u target %s", m_spellInfo->Id, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask(), m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->ToString().c_str() : "-");
+    #ifdef WIN32
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare: spell id %u m_caster %s m_originalCaster %s customCastFlags %u mask %u target %s", 
+        m_spellInfo->Id, m_caster->GetGUID ( ).ToString ( ).c_str ( ), m_originalCaster ? m_originalCaster->GetGUID ( ).ToString ( ).c_str ( ) : "<none>",
+        _triggeredCastFlags, m_targets.GetTargetMask ( ), m_targets.GetUnitTarget ( ) ? m_targets.GetUnitTarget ( )->ToString ( ).c_str ( ) : "-" );
+    #endif
 
     //Containers for channeled spells have to be set
     //TODO:Apply this to all casted spells if needed
