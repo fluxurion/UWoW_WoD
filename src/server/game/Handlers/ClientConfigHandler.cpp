@@ -81,5 +81,8 @@ void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClien
         return;
     }
 
-    SetAccountData(AccountDataType(packet.DataType), packet.Time, "");
+    std::string adata;
+    dest >> adata;
+
+    SetAccountData(AccountDataType(packet.DataType), packet.Time, adata);
 }
