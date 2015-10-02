@@ -3788,7 +3788,7 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
                 existCounter++;
             }
             else
-                tempSummonGroupList[groupKey].erase(iter);
+                tempSummonGroupList[groupKey].remove(*iter);
         }
         if(existCounter)
             return;
