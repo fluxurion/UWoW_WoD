@@ -1193,8 +1193,9 @@ void Unit::CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo
     }
 
     // TODO: this is a workaround - not needed anymore, but required for some scripts :(
-    if (!originalCaster && triggeredByAura)
-        originalCaster = triggeredByAura->GetCasterGUID();
+    //! by cyberbrest: i remove it as all prock spell by arrea with NeedsToBeTriggeredByCaster check are not work correct. ispesially new.
+    //if (!originalCaster && triggeredByAura)
+    //    originalCaster = triggeredByAura->GetCasterGUID();
 
     Spell* spell = new Spell(this, spellInfo, triggerFlags, originalCaster);
 
