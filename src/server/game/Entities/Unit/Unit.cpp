@@ -1194,6 +1194,7 @@ void Unit::CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo
 
     // TODO: this is a workaround - not needed anymore, but required for some scripts :(
     //! by cyberbrest: i remove it as all prock spell by arrea with NeedsToBeTriggeredByCaster check are not work correct. ispesially new.
+    //! if u uncomment it - force originalcaster guid on HandlePeriodicTriggerSpellAuraTick
     //if (!originalCaster && triggeredByAura)
     //    originalCaster = triggeredByAura->GetCasterGUID();
 
