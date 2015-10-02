@@ -3779,17 +3779,24 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
     //If group exist, do not summon, respawn
     if(!tempSummonGroupList[groupKey].empty())
     {
+        uint32 existCounter = 0;
         for (std::list<ObjectGuid>::const_iterator iter = tempSummonGroupList[groupKey].begin(); iter != tempSummonGroupList[groupKey].end(); ++iter)
         {
             if(Creature* temp = GetMap()->GetCreature(*iter))
+            {
                 temp->Respawn(false, 2);
+                existCounter++;
+            }
+            else
+                tempSummonGroupList[groupKey].erase(iter);
         }
-        return;
+        if(existCounter)
+            return;
     }
 
     for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
     {
-        switch (itr->sumType)
+        switch (itr->actionType)
         {
             case SUMMON_ACTION_TYPE_DEFAULT:
             {
@@ -3800,6 +3807,7 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
 
                     tempSummonGroupList[groupKey].push_back(summon->GetGUID());
                 }
+                break;
             }
             case SUMMON_ACTION_TYPE_ROUND:
             {
@@ -3818,6 +3826,7 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
                         tempSummonGroupList[groupKey].push_back(summon->GetGUID());
                     }
                 }
+                break;
             }
         }
     }

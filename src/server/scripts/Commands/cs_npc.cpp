@@ -217,6 +217,7 @@ public:
             { "delete",         SEC_GAMEMASTER,     false, NULL,              "", npcDeleteCommandTable },
             { "follow",         SEC_GAMEMASTER,     false, NULL,              "", npcFollowCommandTable },
             { "set",            SEC_GAMEMASTER,     false, NULL,                 "", npcSetCommandTable },
+            { "summon",         SEC_ADMINISTRATOR,  false, &HandleNpcSummonGroupCommand,       "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -1745,6 +1746,35 @@ public:
         }
 
         handler->PSendSysMessage(LANG_COMMAND_NEAROBJMESSAGE, distance, count);
+        return true;
+    }
+
+    static bool HandleNpcSummonGroupCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        char* groupIdtr = strtok((char*)args, " ");
+        char* delStr = strtok(NULL, " ");
+
+        uint32 groupId = groupIdtr ? atoi(groupIdtr) : 0;
+        uint32 del = delStr ? atoi(delStr) : 0;
+
+        Creature* creature = handler->getSelectedCreature();
+
+        if (!creature)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if(del)
+            creature->SummonCreatureGroupDespawn(groupId);
+        else
+            creature->SummonCreatureGroup(groupId);
+
+        handler->PSendSysMessage("Summon groupId '%u'", groupId);
         return true;
     }
 };
