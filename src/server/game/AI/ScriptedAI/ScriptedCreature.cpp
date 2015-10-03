@@ -498,21 +498,6 @@ void ScriptedAI::InitializeAI()
     CreatureAI::InitializeAI();
 }
 
-void ScriptedAI::EnterCombat(Unit* /*victim*/)
-{
-    me->SummonCreatureGroup(CREATURE_SUMMON_GROUP_COMBAT);
-}
-
-void ScriptedAI::Reset()
-{
-    me->SummonCreatureGroup(CREATURE_SUMMON_GROUP_RESET);
-}
-
-void ScriptedAI::JustDied(Unit* /*victim*/)
-{
-    me->SummonCreatureGroupDespawn(CREATURE_SUMMON_GROUP_RESET);
-}
-
 void Scripted_NoMovementAI::AttackStart(Unit* target)
 {
     if (!target)
@@ -625,8 +610,6 @@ void BossAI::_EnterCombat()
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_INSTANCE_START, me);
     }
-
-    me->SummonCreatureGroup(CREATURE_SUMMON_GROUP_COMBAT);
 }
 
 void BossAI::TeleportCheaters()

@@ -3776,22 +3776,15 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
 
     TempSummonGroupKey groupKey = TempSummonGroupKey(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
 
-    //If group exist, do not summon, respawn
+    //If group exist derespawn
     if(!tempSummonGroupList[groupKey].empty())
     {
-        uint32 existCounter = 0;
         for (std::list<ObjectGuid>::const_iterator iter = tempSummonGroupList[groupKey].begin(); iter != tempSummonGroupList[groupKey].end(); ++iter)
         {
-            if(Creature* temp = GetMap()->GetCreature(*iter))
-            {
-                temp->Respawn(false, 2);
-                existCounter++;
-            }
-            else
-                tempSummonGroupList[groupKey].remove(*iter);
+            if(Creature* temp = ObjectAccessor::GetCreature(*this, (*iter)))
+                temp->DespawnOrUnsummon();
         }
-        if(existCounter)
-            return;
+        tempSummonGroupList[groupKey].clear();
     }
 
     for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
@@ -3853,9 +3846,10 @@ void WorldObject::SummonCreatureGroupDespawn(uint8 group, std::list<TempSummon*>
 
     for (std::list<ObjectGuid>::const_iterator iter = tempSummonGroupList[groupKey].begin(); iter != tempSummonGroupList[groupKey].end(); ++iter)
     {
-        if(Creature* temp = GetMap()->GetCreature(*iter))
+        if(Creature* temp = ObjectAccessor::GetCreature(*this, *iter))
             temp->DespawnOrUnsummon();
     }
+    tempSummonGroupList[groupKey].clear();
 }
 
 void WorldObject::GetAttackableUnitListInRange(std::list<Unit*> &list, float fMaxSearchRange) const

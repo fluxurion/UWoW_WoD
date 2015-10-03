@@ -1369,14 +1369,7 @@ class ObjectMgr
             return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)][cell_id];
         }
 
-        std::vector<TempSummonData> const* GetSummonGroup(uint32 summonerId, SummonerType summonerType, uint8 group) const
-        {
-            TempSummonDataContainer::const_iterator itr = _tempSummonDataStore.find(TempSummonGroupKey(summonerId, summonerType, group));
-            if (itr != _tempSummonDataStore.end())
-                return &itr->second;
-
-            return NULL;
-        }
+        std::vector<TempSummonData> const* GetSummonGroup(uint32 summonerId, SummonerType summonerType, uint8 group) const;
 
         CreatureData const* GetCreatureData(ObjectGuid::LowType const& guid) const
         {

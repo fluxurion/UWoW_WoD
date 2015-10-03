@@ -163,6 +163,7 @@ public:
             { "vehicle_accessory",            SEC_ADMINISTRATOR, true,  &HandleReloadVehicleAccessoryCommand,           "", NULL },
             { "vehicle_template_accessory",   SEC_ADMINISTRATOR, true,  &HandleReloadVehicleTemplateAccessoryCommand,   "", NULL },
             { "world_visible_distance",       SEC_ADMINISTRATOR, true,  &HandleReloadWorldVisibleDistanceCommand,       "", NULL },
+            { "creature_summon_groups",       SEC_ADMINISTRATOR, true,  &HandleReloadSummonGroups,                      "", NULL },
             { NULL,                           0,                 false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -1374,6 +1375,13 @@ public:
     {
         sObjectMgr->LoadConversationData();
         handler->SendGlobalGMSysMessage("DB tables `conversation_data` and `conversation_creature` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadSummonGroups(ChatHandler* handler, const char* /*args*/)
+    {
+        sObjectMgr->LoadTempSummons();
+        handler->SendGlobalGMSysMessage("DB tables `creature_summon_groups` reloaded.");
         return true;
     }
 };

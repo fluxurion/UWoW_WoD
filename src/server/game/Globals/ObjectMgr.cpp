@@ -1552,6 +1552,17 @@ void ObjectMgr::LoadTempSummons()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u temp summons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+std::vector<TempSummonData> const* ObjectMgr::GetSummonGroup(uint32 summonerId, SummonerType summonerType, uint8 group) const
+{
+    TempSummonGroupKey groupKey = TempSummonGroupKey(summonerId, summonerType, group);
+
+    TempSummonDataContainer::const_iterator itr = _tempSummonDataStore.find(groupKey);
+    if (itr != _tempSummonDataStore.end())
+        return &itr->second;
+
+    return NULL;
+}
+
 void ObjectMgr::LoadCreatures()
 {
     uint32 oldMSTime = getMSTime();

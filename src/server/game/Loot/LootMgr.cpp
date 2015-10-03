@@ -2199,9 +2199,7 @@ void LoadLootTemplates_Gameobject()
     {
         if (uint32 lootid = itr->second.entry)
         {
-            if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Gameobject.ReportNotExistedId(lootid);
-            else
+            if (lootIdSet.find(lootid) != lootIdSet.end())
                 lootIdSetUsed.insert(lootid);
         }
     }
