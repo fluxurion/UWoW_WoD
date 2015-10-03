@@ -1406,7 +1406,10 @@ bool TempSummon::learnSpell(uint32 spellID)
 
     if (!m_loading && m_owner->ToPlayer())
     {
-        m_owner->ToPlayer()->GetSession()->SendPacket(WorldPackets::PetPackets::LearnedRemovedSpells(SMSG_PET_LEARNED_SPELLS, std::vector<uint32>(spellID)).Write());
+        WorldPackets::PetPackets::LearnedRemovedSpells packet(SMSG_PET_LEARNED_SPELLS);
+        packet.SpellIDs.push_back(spellID);
+        m_owner->ToPlayer()->GetSession()->SendPacket(packet.Write());
+
         m_owner->ToPlayer()->PetSpellInitialize();
     }
 
@@ -1477,7 +1480,11 @@ bool TempSummon::unlearnSpell(uint32 spellID)
         if (!m_loading && m_owner->ToPlayer())
         {
             if (Player* player = m_owner->ToPlayer())
-                player->GetSession()->SendPacket(WorldPackets::PetPackets::LearnedRemovedSpells(SMSG_PET_UNLEARNED_SPELLS, std::vector<uint32>(spellID)).Write());
+            {
+                WorldPackets::PetPackets::LearnedRemovedSpells packet(SMSG_PET_UNLEARNED_SPELLS);
+                packet.SpellIDs.push_back(spellID);
+                player->GetSession()->SendPacket(packet.Write());
+            }
         }
 
         return true;
