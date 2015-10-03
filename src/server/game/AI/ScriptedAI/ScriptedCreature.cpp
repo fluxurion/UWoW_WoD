@@ -521,6 +521,8 @@ BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
 
 void BossAI::_Reset()
 {
+    me->SummonCreatureGroupDespawn(CREATURE_SUMMON_GROUP_COMBAT);
+
     events.Reset();
     summons.DespawnAll();
 
@@ -530,10 +532,15 @@ void BossAI::_Reset()
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_INSTANCE_END, me);
     }
+
+    me->SummonCreatureGroup(CREATURE_SUMMON_GROUP_RESET);
 }
 
 void BossAI::_JustDied()
 {
+    me->SummonCreatureGroupDespawn(CREATURE_SUMMON_GROUP_RESET);
+    me->SummonCreatureGroupDespawn(CREATURE_SUMMON_GROUP_COMBAT);
+
     events.Reset();
     summons.DespawnAll();
     if (instance)
@@ -610,6 +617,8 @@ void BossAI::_EnterCombat()
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_INSTANCE_START, me);
     }
+
+    me->SummonCreatureGroup(CREATURE_SUMMON_GROUP_COMBAT);
 }
 
 void BossAI::TeleportCheaters()

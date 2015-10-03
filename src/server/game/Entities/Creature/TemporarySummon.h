@@ -23,8 +23,9 @@
 
 enum SummonActionType
 {
-    SUMMON_ACTION_TYPE_DEFAULT      = 0,
-    SUMMON_ACTION_TYPE_ROUND        = 1,
+    SUMMON_ACTION_TYPE_DEFAULT               = 0,
+    SUMMON_ACTION_TYPE_ROUND_HOME_POS        = 1,
+    SUMMON_ACTION_TYPE_ROUND_SUMMONER        = 2,
 };
 
 /// Stores data for temp summons

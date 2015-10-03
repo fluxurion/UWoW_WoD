@@ -3802,7 +3802,33 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
                 }
                 break;
             }
-            case SUMMON_ACTION_TYPE_ROUND:
+            case SUMMON_ACTION_TYPE_ROUND_HOME_POS:
+            {
+                float stepbyangle = 2*M_PI / itr->count;
+                for (uint8 i = 0; i < itr->count; ++i)
+                {
+                    float x = 0.0f, y = 0.0f;
+                    Position posHome{GetPositionX(), GetPositionY(), GetPositionZ()};
+                    if(ToCreature())
+                        posHome = ToCreature()->GetHomePosition();
+
+                    x = posHome.GetPositionX() + (GetObjectSize() + itr->distance) * std::cos(stepbyangle*i);
+                    y = posHome.GetPositionY() + (GetObjectSize() + itr->distance) * std::sin(stepbyangle*i);
+                    Trinity::NormalizeMapCoord(x);
+                    Trinity::NormalizeMapCoord(y);
+                    posHome.Relocate(x, y, GetPositionZ());
+
+                    if (TempSummon* summon = SummonCreature(itr->entry, posHome, itr->sumType, itr->time))
+                    {
+                        if (list)
+                            list->push_back(summon);
+
+                        tempSummonGroupList[groupKey].push_back(summon->GetGUID());
+                    }
+                }
+                break;
+            }
+            case SUMMON_ACTION_TYPE_ROUND_SUMMONER:
             {
                 float stepbyangle = 2*M_PI / itr->count;
                 for (uint8 i = 0; i < itr->count; ++i)
