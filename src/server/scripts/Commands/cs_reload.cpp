@@ -512,7 +512,6 @@ public:
             cInfo->questItems[5]      = fields[index++].GetUInt32();
             cInfo->movementId         = fields[index++].GetUInt32();
             cInfo->RegenHealth        = fields[index++].GetBool();
-            cInfo->equipmentId        = fields[index++].GetUInt32();
             cInfo->MechanicImmuneMask = fields[index++].GetUInt32();
             cInfo->flags_extra        = fields[index++].GetUInt32();
             cInfo->ScriptID           = sObjectMgr->GetScriptId(fields[index++].GetCString());

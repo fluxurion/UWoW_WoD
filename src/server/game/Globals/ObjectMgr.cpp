@@ -461,8 +461,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                             69          70          71         72            73            74          75           76          77          78           79          80
                                              "InhabitType, HoverHeight, HealthModifier, ManaModifier, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            81           82            83         84               85                  86          87           88           89            90
-                                             " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName, personalloot, VignetteId, WorldEffectID "
+    //                                            81           82            83             84                 85           86          87           88           89         90        91         92
+                                             " questItem6, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName, personalloot, VignetteId, WorldEffectID, AiID, MovementIDKit, MeleeID "
                                              "FROM creature_template;");
 
     if (!result)
@@ -560,13 +560,16 @@ void ObjectMgr::LoadCreatureTemplates()
 
         creatureTemplate.movementId         = fields[index++].GetUInt32();
         creatureTemplate.RegenHealth        = fields[index++].GetBool();
-        creatureTemplate.equipmentId        = fields[index++].GetUInt32();
         creatureTemplate.MechanicImmuneMask = fields[index++].GetUInt32();
         creatureTemplate.flags_extra        = fields[index++].GetUInt32();
         creatureTemplate.ScriptID           = GetScriptId(fields[index++].GetCString());
         creatureTemplate.personalloot       = fields[index++].GetUInt32();
         creatureTemplate.VignetteId         = fields[index++].GetUInt32();
         creatureTemplate.WorldEffectID      = fields[index++].GetUInt32();
+        creatureTemplate.AiID               = fields[index++].GetUInt32();
+        creatureTemplate.MovementIDKit      = fields[index++].GetUInt32();
+        creatureTemplate.MeleeID            = fields[index++].GetUInt32();
+
         if(creatureTemplate.type_flags & CREATURE_TYPEFLAGS_BOSS)
         {
             //Save loot spell
@@ -874,15 +877,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->MovementType = IDLE_MOTION_TYPE;
     }
 
-    if (cInfo->equipmentId > 0)                          // 0 no equipment
-    {
-        if (!GetEquipmentInfo(cInfo->equipmentId))
-        {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with `equipment_id` %u not found in table `creature_equip_template`, set to no equipment.", cInfo->Entry, cInfo->equipmentId);
-            const_cast<CreatureTemplate*>(cInfo)->equipmentId = 0;
-        }
-    }
-
     /// if not set custom creature scale then load scale from CreatureDisplayInfo.dbc
     if (cInfo->scale <= 0.0f)
     {
@@ -1027,11 +1021,28 @@ CreatureAddon const* ObjectMgr::GetCreatureTemplateAddon(uint32 entry)
     return NULL;
 }
 
-EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry)
+EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry, int8& id)
 {
     EquipmentInfoContainer::const_iterator itr = _equipmentInfoStore.find(entry);
-    if (itr != _equipmentInfoStore.end())
-        return &(itr->second);
+    if (itr == _equipmentInfoStore.end())
+        return NULL;
+
+    if (itr->second.empty())
+        return NULL;
+
+    if (id == -1) // select a random element
+    {
+        EquipmentInfoContainerInternal::const_iterator ritr = itr->second.begin();
+        std::advance(ritr, urand(0u, itr->second.size() - 1));
+        id = std::distance(itr->second.begin(), ritr) + 1;
+        return &ritr->second;
+    }
+    else
+    {
+        EquipmentInfoContainerInternal::const_iterator itr2 = itr->second.find(id);
+        if (itr2 != itr->second.end())
+            return &itr2->second;
+    }
 
     return NULL;
 }
@@ -1040,7 +1051,8 @@ void ObjectMgr::LoadEquipmentTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, itemEntry1, itemEntry2, itemEntry3 FROM creature_equip_template");
+    //                                                 0     1       2           3           4
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, ID, ItemID1, ItemID2, ItemID3 FROM creature_equip_template");
 
     if (!result)
     {
@@ -1054,12 +1066,13 @@ void ObjectMgr::LoadEquipmentTemplates()
         Field* fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
+        uint8 id = fields[1].GetUInt8();
 
-        EquipmentInfo& equipmentInfo = _equipmentInfoStore[entry];
+        EquipmentInfo& equipmentInfo = _equipmentInfoStore[entry][id];
 
-        equipmentInfo.ItemEntry[0] = fields[1].GetUInt32();
-        equipmentInfo.ItemEntry[1] = fields[2].GetUInt32();
-        equipmentInfo.ItemEntry[2] = fields[3].GetUInt32();
+        equipmentInfo.ItemEntry[0] = fields[2].GetUInt32();
+        equipmentInfo.ItemEntry[1] = fields[3].GetUInt32();
+        equipmentInfo.ItemEntry[2] = fields[4].GetUInt32();
 
         for (uint8 i = 0; i < MAX_EQUIPMENT_ITEMS; ++i)
         {
@@ -1569,8 +1582,8 @@ void ObjectMgr::LoadCreatures()
 
     //                                               0              1   2       3      4       5           6           7           8            9            10            11          12
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, zoneId, areaId, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
-    //        13            14         15       16            17         18         19          20          21                22                   23                     24                    25                  26            27        28      29
-        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.npcflag2, creature.unit_flags, creature.dynamicflags, creature.isActive, creature.PhaseId, AiID, MovementID, MeleeID "
+    //        13            14         15       16            17         18         19          20          21                22                   23                     24                    25                  26
+        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.npcflag2, creature.unit_flags, creature.dynamicflags, creature.isActive, creature.PhaseId "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1611,7 +1624,7 @@ void ObjectMgr::LoadCreatures()
         data.zoneId         = fields[index++].GetUInt16();
         data.areaId         = fields[index++].GetUInt16();
         data.displayid      = fields[index++].GetUInt32();
-        data.equipmentId    = fields[index++].GetInt32();
+        data.equipmentId    = fields[index++].GetInt8();
         data.posX           = fields[index++].GetFloat();
         data.posY           = fields[index++].GetFloat();
         data.posZ           = fields[index++].GetFloat();
@@ -1639,10 +1652,6 @@ void ObjectMgr::LoadCreatures()
                 data.PhaseID.insert(phase->ID);
         }
 
-        data.AiID = fields[index++].GetUInt32();
-        data.MovementID = fields[index++].GetUInt32();
-        data.MeleeID = fields[index++].GetUInt32();
-
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
         {
@@ -1656,13 +1665,13 @@ void ObjectMgr::LoadCreatures()
             WorldDatabase.PExecute("UPDATE creature SET spawnMask = %u WHERE guid = %u", spawnMasks[data.mapid], guid);
         }
 
-        // -1 no equipment, 0 use default
-        if (data.equipmentId > 0)
+        // -1 random, 0 no equipment,
+        if (data.equipmentId != 0)
         {
-            if (!GetEquipmentInfo(data.equipmentId))
+            if (!GetEquipmentInfo(data.id, data.equipmentId))
             {
                 sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (Entry: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.", data.id, data.equipmentId);
-                data.equipmentId = -1;
+                data.equipmentId = 0;
             }
         }
 
@@ -1994,7 +2003,7 @@ ObjectGuid::LowType ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 
     data.id = entry;
     data.mapid = mapId;
     data.displayid = 0;
-    data.equipmentId = cInfo->equipmentId;
+    data.equipmentId = 0;
     data.posX = x;
     data.posY = y;
     data.posZ = z;

@@ -1486,9 +1486,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* npc = (*itr)->ToCreature())
                 {
                     uint32 slot[3];
+                    int8 equipId = (int8)e.action.equip.entry;
                     if (e.action.equip.entry)
                     {
-                        EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(e.action.equip.entry);
+                        EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(npc->GetEntry(), equipId);
                         if (!einfo)
                         {
                             sLog->outError(LOG_FILTER_SQL, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info entry %u", e.action.equip.entry);

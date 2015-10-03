@@ -72,7 +72,7 @@ struct GameEventData
 struct ModelEquip
 {
     uint32 modelid;
-    uint32 equipment_id;
+    uint8 equipment_id;
     uint32 modelid_prev;
     uint32 equipement_id_prev;
 };

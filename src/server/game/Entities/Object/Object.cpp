@@ -3399,7 +3399,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     {
         std::list<Creature*> creatures;
         summoner->GetAliveCreatureListWithEntryInGrid(creatures, entry, 110.0f);
-        if(creatures.size() > 50)
+        if(creatures.size() > (GetInstanceId() ? 100 : 50))
             return NULL;
     }
 
@@ -3579,7 +3579,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, Objec
         {
             std::list<Creature*> creatures;
             GetAliveCreatureListWithEntryInGrid(creatures, entry, 110.0f);
-            if(creatures.size() > 50)
+            if(creatures.size() > (map->GetInstanceId() ? 100 : 50))
                 return NULL;
         }
         if (TempSummon* summon = map->SummonCreature(entry, pos, properties, duration, isType(TYPEMASK_UNIT) ? (Unit*)this : NULL, targetGuid, spellId))
@@ -3600,7 +3600,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempS
         {
             std::list<Creature*> creatures;
             GetAliveCreatureListWithEntryInGrid(creatures, entry, 110.0f);
-            if(creatures.size() > 50)
+            if(creatures.size() > (map->GetInstanceId() ? 100 : 50))
                 return NULL;
         }
         if (TempSummon* summon = map->SummonCreature(entry, pos, NULL, duration, isType(TYPEMASK_UNIT) ? (Unit*)this : NULL, ObjectGuid::Empty, 0, vehId, viewerGuid, viewersList))
@@ -3770,6 +3770,8 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
 {
     ASSERT((GetTypeId() == TYPEID_GAMEOBJECT || GetTypeId() == TYPEID_UNIT) && "Only GOs and creatures can summon npc groups!");
 
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "WorldObject:SummonCreatureGroup");
+
     std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
     if (!data)
         return;
@@ -3860,6 +3862,8 @@ void WorldObject::SummonCreatureGroupDespawn(uint8 group, std::list<TempSummon*>
                 temp->DespawnOrUnsummon();
         return;
     }
+
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "WorldObject:SummonCreatureGroupDespawn");
 
     std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
     if (!data)

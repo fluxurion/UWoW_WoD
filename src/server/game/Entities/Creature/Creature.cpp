@@ -160,7 +160,7 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(),
 m_PlayerDamageReq(0), m_lootRecipient(), m_lootRecipientGroup(), m_LootOtherRecipient(), m_corpseRemoveTime(0), m_respawnTime(0),
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
-m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
+m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_onVehicleAccessory(false)
 {
@@ -335,10 +335,13 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
     SetGender(minfo->gender);
 
     // Load creature equipment
-    if (!data || data->equipmentId == 0)                    // use default from the template
-        LoadEquipment(cinfo->equipmentId);
-    else if (data && data->equipmentId != -1)               // override, -1 means no equipment
+    if (!data || data->equipmentId == 0)
+        LoadEquipment(); // use default equipment (if available)
+    else if (data && data->equipmentId != 0)                // override, 0 means no equipment
+    {
+        m_originalEquipmentId = data->equipmentId;
         LoadEquipment(data->equipmentId);
+    }
 
     SetName(cinfo->Name);                              // at normal entry always
 
@@ -858,16 +861,6 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
 
     LoadCreaturesAddon();
 
-    if (data)
-    {
-        if (data->AiID)
-            SetAIAnimKitId(data->AiID);
-        if (data->MovementID)
-            SetMovementAnimKitId(data->MovementID);
-        if (data->MeleeID)
-            SetMeleeAnimKitId(data->MeleeID);
-    }
-
     //! Need to be called after LoadCreaturesAddon - MOVEMENTFLAG_HOVER is set there
     if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
     {
@@ -1199,7 +1192,7 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     data.areaId = areaId;
     data.phaseMask = phaseMask;
     data.displayid = displayId;
-    data.equipmentId = GetEquipmentId();
+    data.equipmentId = GetCurrentEquipmentId();
     data.posX = GetPositionX();
     data.posY = GetPositionY();
     data.posZ = GetPositionZMinusOffset();
@@ -1238,7 +1231,7 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     stmt->setUInt8(index++,  spawnMask);
     stmt->setUInt16(index++, uint16(GetPhaseMask()));
     stmt->setUInt32(index++, displayId);
-    stmt->setInt32(index++,  int32(GetEquipmentId()));
+    stmt->setUInt8(index++, GetCurrentEquipmentId());
     stmt->setFloat(index++,  GetPositionX());
     stmt->setFloat(index++,  GetPositionY());
     stmt->setFloat(index++,  GetPositionZ());
@@ -1488,6 +1481,13 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, int32 
     if(m_creatureInfo->WorldEffectID)
         SetUInt32Value(UNIT_FIELD_STATE_WORLD_EFFECT_ID, m_creatureInfo->WorldEffectID);
 
+    if (m_creatureInfo->AiID)
+        SetAIAnimKitId(m_creatureInfo->AiID);
+    if (m_creatureInfo->MovementIDKit)
+        SetMovementAnimKitId(m_creatureInfo->MovementIDKit);
+    if (m_creatureInfo->MeleeID)
+        SetMeleeAnimKitId(m_creatureInfo->MeleeID);
+
     return true;
 }
 
@@ -1600,9 +1600,9 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType guid, Map* map, bool addTo
     return true;
 }
 
-void Creature::LoadEquipment(uint32 equip_entry, bool force)
+void Creature::LoadEquipment(int8 id, bool force)
 {
-    if (equip_entry == 0)
+    if (id == 0)
     {
         if (force)
         {
@@ -1613,11 +1613,11 @@ void Creature::LoadEquipment(uint32 equip_entry, bool force)
         return;
     }
 
-    EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(equip_entry);
+    EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(GetEntry(), id);
     if (!einfo)
         return;
 
-    m_equipmentId = equip_entry;
+    m_equipmentId = id;
     for (uint8 i = 0; i < 3; ++i)
         SetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID + i, einfo->ItemEntry[i]);
 }
