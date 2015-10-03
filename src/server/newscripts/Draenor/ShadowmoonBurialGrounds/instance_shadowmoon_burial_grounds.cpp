@@ -9,8 +9,8 @@
 
 DoorData const doorData[] =
 {
-    //{GO_,       DATA_,         DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
-    {0,                   0,                  DOOR_TYPE_ROOM,       BOUNDARY_NONE}, // END
+    {GO_SADANA_DOOR_ENTER,      DATA_SADANA,      DOOR_TYPE_ROOM,       BOUNDARY_NONE},
+    {GO_SADANA_DOOR_EXIT,       DATA_SADANA,      DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
 };
 
 class instance_shadowmoon_burial_grounds : public InstanceMapScript
@@ -47,14 +47,15 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            /* switch (go->GetEntry())
+            switch (go->GetEntry())
             {
-                case GO_:
+                case GO_SADANA_DOOR_ENTER:
+                case GO_SADANA_DOOR_EXIT:
                     AddDoor(go, true);
                     break;
                 default:
                     break;
-            } */
+            }
         }
 
         void OnCreatureCreate(Creature* creature)

@@ -143,7 +143,8 @@ public:
                     {
                         case NOT_STARTED:
                             for (std::map<uint32, ObjectGuid>::iterator itr = skullocGUIDconteiner.begin(); itr != skullocGUIDconteiner.end(); ++itr)
-                                DoBossDespawn(itr->second, FIVE_SECONDS);
+                                if (Creature* skullocs = instance->GetCreature(itr->second))
+                                    skullocs->AI()->DespawnOnRespawn(FIVE_SECONDS);
                             break;
                         case IN_PROGRESS:
                             for (std::map<uint32, ObjectGuid>::iterator itr = skullocGUIDconteiner.begin(); itr != skullocGUIDconteiner.end(); ++itr)

@@ -145,7 +145,7 @@ public:
         void EnterEvadeMode()
         {
             BossAI::EnterEvadeMode();
-            instance->DoBossDespawn(me->GetGUID(), FIVE_SECONDS);
+            DespawnOnRespawn(FIVE_SECONDS);
         }
 
         void JustDied(Unit* /*killer*/)

@@ -223,6 +223,11 @@ void CreatureAI::EnterEvadeMode()
         me->GetVehicleKit()->Reset(true);
 }
 
+void CreatureAI::DespawnOnRespawn(uint32 uiTimeToDespawn)
+{
+    me->DespawnOrUnsummon();
+    me->SetRespawnTime(uiTimeToDespawn);
+}
 /*void CreatureAI::AttackedBy(Unit* attacker)
 {
     if (!me->getVictim())

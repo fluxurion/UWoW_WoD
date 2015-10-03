@@ -309,15 +309,6 @@ void InstanceScript::DoUseDoorOrButton(ObjectGuid uiGuid, uint32 uiWithRestoreTi
     }
 }
 
-void InstanceScript::DoBossDespawn(ObjectGuid uiGuid, uint32 uiTimeToDespawn)
-{
-    if (Creature* creature = instance->GetCreature(uiGuid))
-    {
-        creature->DespawnOrUnsummon();
-        creature->SetRespawnTime(uiTimeToDespawn);
-    }
-}
-
 void InstanceScript::DoRespawnGameObject(ObjectGuid uiGuid, uint32 uiTimeToDespawn)
 {
     if (GameObject* go = instance->GetGameObject(uiGuid))

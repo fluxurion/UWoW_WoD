@@ -4359,6 +4359,13 @@ void Unit::RemoveAurasByType(AuraType auraType, std::function<bool(AuraApplicati
     }
 }
 
+void Unit::RemoveAurasAllDots()
+{
+    RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+    RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+    RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+}
+
 void Unit::RemoveAurasWithAttribute(uint32 flags)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)

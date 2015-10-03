@@ -119,6 +119,8 @@ class CreatureAI : public UnitAI
 
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) {}
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) {}
+        
+        virtual void DespawnOnRespawn(uint32 uiTimeToDespawn);
 
         // Called when hit by a spell
         virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) {}

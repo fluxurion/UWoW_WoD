@@ -70,14 +70,20 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
     {
         case SPELLFAMILY_GENERIC:
         {
+            switch (spellproto->Id)
+            {
+                case 143301:
+                case 125500:
+                case 112955:
+                case 162652:
+                    return DIMINISHING_NONE;
+            }
             // Pet charge effects (Infernal Awakening, Demon Charge)
             if (spellproto->SpellVisual[0] == 2816 && spellproto->SpellIconID == 15)
                 return DIMINISHING_CONTROLLED_STUN;
             // Gnaw
             else if (spellproto->Id == 47481)
                 return DIMINISHING_CONTROLLED_STUN;
-            else if (spellproto->Id == 143301 || spellproto->Id == 125500 || spellproto->Id == 112955)
-                return DIMINISHING_NONE;
             break;
         }
         // Event spells

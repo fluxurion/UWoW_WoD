@@ -1984,6 +1984,7 @@ class Unit : public WorldObject
         void RemoveAllAurasByType(AuraType type);
         void DelayOwnedAuras(uint32 spellId, ObjectGuid caster, int32 delaytime);
         void RecalcArenaAuras();
+        void RemoveAurasAllDots();
 
         void _RemoveAllAuraStatMods();
         void _ApplyAllAuraStatMods();
