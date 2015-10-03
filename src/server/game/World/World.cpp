@@ -2531,7 +2531,7 @@ void World::SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self, u
     {
         // check if session and can receive global GM Messages and its not self
         WorldSession* session = itr->second;
-        if (!session || session == self || !AccountMgr::IsPlayerAccount(itr->second->GetSecurity()))
+        if (!session || session == self || AccountMgr::IsPlayerAccount(itr->second->GetSecurity()))
             continue;
 
         // Player should be in world
