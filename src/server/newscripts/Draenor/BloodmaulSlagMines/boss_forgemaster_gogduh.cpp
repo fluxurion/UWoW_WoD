@@ -110,7 +110,7 @@ public:
             events.ScheduleEvent(EVENT_1, 3 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_4, 2 * IN_MILLISECONDS);
 
-            Talk(NPC_TEXT_START_BATTLE);
+            Talk(uint8(NPC_TEXT_START_BATTLE));
         }
 
         void JustDied(Unit* /*killer*/)
@@ -140,14 +140,14 @@ public:
                 if (Creature* magmolatus = me->FindNearestCreature(NPC_LAVA_EXPLOSION_STALKER, 100))
                     magmolatus->AI()->DoAction(ACTION_2);
 
-                Talk(NPC_TEXT_10);
+                Talk(uint8(NPC_TEXT_10));
             }
 
             if (enableMagmolatus == 1 && me->HealthBelowPctDamaged(20, damage))
             {
                 ++enableMagmolatus;
                 if (Creature* magmolatus = me->FindNearestCreature(BOSS_MAGMOLATUS, 50))
-                    magmolatus->AI()->Talk(NPC_TEXT_1);
+                    magmolatus->AI()->Talk(uint8(NPC_TEXT_1));
             }
 
             if (enableMagmolatus == 2 && me->HealthBelowPctDamaged(10, damage))
@@ -163,7 +163,7 @@ public:
                 events.CancelEvent(EVENT_1);
                 events.CancelEvent(EVENT_3);
 
-                Talk(NPC_TEXT_11);
+                Talk(uint8(NPC_TEXT_11));
             }
 
             if (me->HealthBelowPctDamaged(1, damage))
@@ -261,14 +261,14 @@ public:
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     DoZoneInCombat();
-                    Talk(NPC_TEXT_2);
+                    Talk(uint8(NPC_TEXT_2));
 
                     if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                         AttackStart(target);
 
                     break;
                 case ACTION_2:
-                    Talk(NPC_TEXT_0);
+                    Talk(uint8(NPC_TEXT_0));
                     break;
                 default:
                     break;
@@ -300,7 +300,7 @@ public:
         {
             _JustDied();
 
-            Talk(NPC_TEXT_9);
+            Talk(uint8(NPC_TEXT_9));
         }
 
         void EnterEvadeMode()
@@ -335,7 +335,7 @@ public:
                     case EVENT_6:
                         events.ScheduleEvent(EVENT_6, 20 * IN_MILLISECONDS);
                         me->CastSpell(SelectTarget(SELECT_TARGET_RANDOM), SPELL_MOLTEN_IMPACT);
-                        Talk(NPC_TEXT_4);
+                        Talk(uint8(NPC_TEXT_4));
                         break;
                     case EVENT_7:
                         events.ScheduleEvent(EVENT_7, 16 * IN_MILLISECONDS);
@@ -343,14 +343,14 @@ public:
                         break;
                     case EVENT_14:
                         events.ScheduleEvent(EVENT_15, 2 * IN_MILLISECONDS);
-                        Talk(NPC_TEXT_3);
+                        Talk(uint8(NPC_TEXT_3));
                         break;
                     case EVENT_15:
                         events.ScheduleEvent(EVENT_16, 3 * IN_MILLISECONDS);
-                        Talk(NPC_TEXT_6);
+                        Talk(uint8(NPC_TEXT_6));
                         break;
                     case EVENT_16:
-                        Talk(NPC_TEXT_5);
+                        Talk(uint8(NPC_TEXT_5));
                         break;
                     default:
                         break;

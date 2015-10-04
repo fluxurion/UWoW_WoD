@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,7 @@
 
 #include <mutex>
 #include <unordered_map>
+#include <vector>
 #include "Define.h"
 #include "IVMapManager.h"
 
@@ -80,6 +81,7 @@ namespace VMAP
             // Tree to check collision
             ModelFileMap iLoadedModelFiles;
             InstanceTreeMap iInstanceMapTrees;
+            bool thread_safe_environment;
             // Mutex for iLoadedModelFiles
             std::mutex LoadedModelFilesLock;
 
@@ -89,6 +91,8 @@ namespace VMAP
             static uint32 GetLiquidFlagsDummy(uint32) { return 0; }
             static bool IsVMAPDisabledForDummy(uint32 /*entry*/, uint8 /*flags*/) { return false; }
 
+            InstanceTreeMap::const_iterator GetMapTree(uint32 mapId) const;
+
         public:
             // public for debug
             G3D::Vector3 convertPositionToInternalRep(float x, float y, float z) const;
@@ -97,6 +101,7 @@ namespace VMAP
             VMapManager2();
             ~VMapManager2(void);
 
+            void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
             int loadMap(const char* pBasePath, unsigned int mapId, int x, int y) override;
 
             void unloadMap(unsigned int mapId, int x, int y) override;

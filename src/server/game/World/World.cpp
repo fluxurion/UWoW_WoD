@@ -91,6 +91,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "VMapManager2.h"
 
 std::atomic<bool> World::m_stopEvent(false);
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1457,7 +1458,7 @@ void World::LoadConfigSettings(bool reload)
         sScriptMgr->OnConfigLoad(reload);
 }
 
-extern void LoadGameObjectModelList();
+extern void LoadGameObjectModelList(std::string const& dataPath);
 
 /// Initialize the World
 void World::SetInitialWorldSettings()
@@ -1470,6 +1471,13 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize detour memory management
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
+
+    ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
+    if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
+    {
+        vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
+        vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
+    }
 
     ///- Initialize config settings
     LoadConfigSettings();
@@ -1531,6 +1539,20 @@ void World::SetInitialWorldSettings()
     sDB2Manager.LoadHotfixData();
     HotfixDatabase.Close();
 
+    std::unordered_map<uint32, std::vector<uint32>> mapData;
+    for (MapEntry const* mapEntry : sMapStore)
+    {
+        mapData.insert(std::unordered_map<uint32, std::vector<uint32>>::value_type(mapEntry->MapID, std::vector<uint32>()));
+        if (mapEntry->ParentMapID != -1)
+            mapData[mapEntry->ParentMapID].push_back(mapEntry->MapID);
+    }
+
+    if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
+        vmmgr2->InitializeThreadUnsafe(mapData);
+
+    MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
+    mmmgr->InitializeThreadUnsafe(mapData);
+
     InitDBCCustomStores();  //init DBC custom conteiners after load DBC & DB
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo store...");
@@ -1549,7 +1571,7 @@ void World::SetInitialWorldSettings()
     sSpellMgr->LoadSpellCustomAttr();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GameObject models...");
-    LoadGameObjectModelList();
+    LoadGameObjectModelList(m_dataPath);
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading World Visible Distance...");
     sObjectMgr->LoadWorldVisibleDistance();

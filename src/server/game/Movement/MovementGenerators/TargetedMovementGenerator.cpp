@@ -97,19 +97,19 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     }
 
     if (!i_path)
-        i_path = new PathFinderMovementGenerator(&owner);
+        i_path = new PathGenerator(&owner);
 
     // allow pets following their master to cheat while generating paths
     bool forceDest = (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->isPet() && owner.HasUnitState(UNIT_STATE_FOLLOW));
     if (Creature* c = owner.ToCreature())
         forceDest |= c->isWorldBoss() || c->IsDungeonBoss();
 
-    i_path->calculate(x, y, z, forceDest);
+    i_path->CalculatePath(x, y, z, forceDest);
 
     //sLog->outDebug(LOG_FILTER_PETS, "_setTargetLocation Pet %u (%f %f %f) forceDest %i PathType %i Length %f size %i type %u",
-    //owner.GetEntry(), x, y, z, forceDest, i_path->getPathType(), i_path->GetTotalLength(), i_path->getPath().size(), static_cast<D*>(this)->GetMovementGeneratorType());
+    //owner.GetEntry(), x, y, z, forceDest, i_path->GetPathType(), i_path->GetTotalLength(), i_path->GetPath().size(), static_cast<D*>(this)->GetMovementGeneratorType());
 
-    if (i_path->getPathType() & PATHFIND_NOPATH && !forceDest)
+    if (i_path->GetPathType() & PATHFIND_NOPATH && !forceDest)
     {
         // When patch can't run to target?
         //if (!i_target->IsWithinLOSInMap(&owner))
@@ -125,10 +125,10 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     i_recalculateTravel = false;
 
     Movement::MoveSplineInit init(owner);
-    if (i_path->getPathType() & PATHFIND_NOPATH || i_target.getTarget()->GetTransGUID())
+    if (i_path->GetPathType() & PATHFIND_NOPATH || i_target.getTarget()->GetTransGUID())
         init.MoveTo(x,y,z);
     else
-        init.MovebyPath(i_path->getPath());
+        init.MovebyPath(i_path->GetPath());
     init.SetWalk(((D*)this)->EnableWalking());
     init.Launch();
 }

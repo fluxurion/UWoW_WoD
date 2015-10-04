@@ -148,11 +148,11 @@ void ChargeMovementGenerator::_setTargetLocation(Unit &unit)
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "ChargeMovementGenerator GetDestination (%f %f %f)", i_x, i_y, i_z);
 
     if(!i_path)
-        i_path = new PathFinderMovementGenerator(&unit);
+        i_path = new PathGenerator(&unit);
 
-    i_path->calculate(i_x, i_y, i_z, false);
+    i_path->CalculatePath(i_x, i_y, i_z, false);
 
-    if (i_path->getPathType() & PATHFIND_NOPATH)
+    if (i_path->GetPathType() & PATHFIND_NOPATH)
         return;
 
     if (i_path->GetTotalLength() > 40)
@@ -162,10 +162,10 @@ void ChargeMovementGenerator::_setTargetLocation(Unit &unit)
     i_recalculateTravel = false;
 
     Movement::MoveSplineInit init(unit);
-    if (i_path->getPathType() & PATHFIND_NOPATH || unit.GetTransGUID())
+    if (i_path->GetPathType() & PATHFIND_NOPATH || unit.GetTransGUID())
         init.MoveTo(i_x, i_y, i_z);
     else
-        init.MovebyPath(i_path->getPath());
+        init.MovebyPath(i_path->GetPath());
     if (speed > 0.0f)
         init.SetVelocity(speed);
     init.Launch();

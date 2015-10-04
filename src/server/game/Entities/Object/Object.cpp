@@ -2755,7 +2755,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
             if (!ToCreature()->CanFly())
             {
-                bool canSwim = ToCreature()->canSwim();
+                bool canSwim = ToCreature()->CanSwim();
                 float ground_z = z;
                 float max_z = canSwim
                     ? GetBaseMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK))
@@ -4709,4 +4709,87 @@ C_PTR Object::get_ptr()
     ptr.InitParent(this);
     ASSERT(ptr.numerator);  // It's very bad. If it hit nothing work.
     return ptr.shared_from_this();
+}
+
+void WorldObject::RebuildTerrainSwaps()
+{
+    // Clear all terrain swaps, will be rebuilt below
+    // Reason for this is, multiple phases can have the same terrain swap, we should not remove the swap if another phase still use it
+    _terrainSwaps.clear();
+    /*ConditionList conditions;
+
+    // Check all applied phases for terrain swap and add it only once
+    for (uint32 phaseId : _phases)
+    {
+        std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
+
+        for (uint32 swap : swaps)
+        {
+            // only add terrain swaps for current map
+            MapEntry const* mapEntry = sMapStore.LookupEntry(swap);
+            if (!mapEntry || mapEntry->ParentMapID != int32(GetMapId()))
+                continue;
+
+            conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+
+            if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+                _terrainSwaps.insert(swap);
+        }
+    }
+
+    // get default terrain swaps, only for current map always
+    std::list<uint32>& mapSwaps = sObjectMgr->GetDefaultTerrainSwaps(GetMapId());
+
+    for (uint32 swap : mapSwaps)
+    {
+        conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+
+        if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+            _terrainSwaps.insert(swap);
+    }*/
+
+    // online players have a game client with world map display
+    if (GetTypeId() == TYPEID_PLAYER)
+        RebuildWorldMapAreaSwaps();
+}
+
+void WorldObject::RebuildWorldMapAreaSwaps()
+{
+    // Clear all world map area swaps, will be rebuilt below
+    _worldMapAreaSwaps.clear();
+
+    // get ALL default terrain swaps, if we are using it (condition is true)
+    // send the worldmaparea for it, to see swapped worldmaparea in client from other maps too, not just from our current
+    /*TerrainPhaseInfo defaults = sObjectMgr->GetDefaultTerrainSwapStore();
+    for (TerrainPhaseInfo::const_iterator itr = defaults.begin(); itr != defaults.end(); ++itr)
+    {
+        for (uint32 swap : itr->second)
+        {
+            ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+            if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+            {
+                for (uint32 map : sObjectMgr->GetTerrainWorldMaps(swap))
+                    _worldMapAreaSwaps.insert(map);
+            }
+        }
+    }
+
+    // Check all applied phases for world map area swaps
+    for (uint32 phaseId : _phases)
+    {
+        std::list<uint32>& swaps = sObjectMgr->GetPhaseTerrainSwaps(phaseId);
+
+        for (uint32 swap : swaps)
+        {
+            // add world map swaps for ANY map
+
+            ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_TERRAIN_SWAP, swap);
+
+            if (sConditionMgr->IsObjectMeetToConditions(this, conditions))
+            {
+                for (uint32 map : sObjectMgr->GetTerrainWorldMaps(swap))
+                    _worldMapAreaSwaps.insert(map);
+            }
+        }
+    }*/
 }

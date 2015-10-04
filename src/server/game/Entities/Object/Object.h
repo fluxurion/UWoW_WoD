@@ -144,7 +144,8 @@ class Object
         void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY_ID, entry); }
         ObjectGuid const& GetVignetteGUID() const { return vignetteGuid; }
 
-        void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE, scale); }
+        float GetObjectScale() const { return GetFloatValue(OBJECT_FIELD_SCALE); }
+        virtual void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE, scale); }
 
         TypeID GetTypeId() const { return m_objectTypeId; }
         bool isType(uint16 mask) const { return (mask & m_objectType) != 0; }
@@ -927,6 +928,12 @@ class WorldObject : public Object, public WorldLocation
         std::set<uint32> GetPhases() const { return m_phaseId;  }
         bool InSamePhaseId(WorldObject const* obj) const { return obj->IgnorePhaseId() || InSamePhaseId(obj->GetPhases()); }
         bool InSamePhaseId(std::set<uint32> const& phase) const;
+        void RebuildTerrainSwaps();
+        void RebuildWorldMapAreaSwaps();
+        std::set<uint32> const& GetTerrainSwaps() const { return _terrainSwaps; }
+        std::set<uint32> const& GetWorldMapAreaSwaps() const { return _worldMapAreaSwaps; }
+        int32 GetDBPhase() const { return _dbPhase; }
+        bool IsInTerrainSwap(uint32 terrainSwap) const { return _terrainSwaps.find(terrainSwap) != _terrainSwaps.end(); }
 
         void setIgnorePhaseIdCheck(bool apply)  { m_ignorePhaseIdCheck = apply; }
         bool IgnorePhaseId() const { return m_ignorePhaseIdCheck; }
@@ -1187,6 +1194,9 @@ class WorldObject : public Object, public WorldLocation
         uint32 m_phaseMask;                                 // in area phase state
         std::set<uint32> m_phaseId;                         // special phase. It's new generation phase, when we should check id.
         bool m_ignorePhaseIdCheck;                          // like gm mode.
+        std::set<uint32> _terrainSwaps;
+        std::set<uint32> _worldMapAreaSwaps;
+        int32 _dbPhase;
 
         GuidUnorderedSet _visibilityPlayerList;
         GuidUnorderedSet _hideForGuid;

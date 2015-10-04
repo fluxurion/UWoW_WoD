@@ -3565,9 +3565,9 @@ bool Unit::isInAccessiblePlaceFor(Creature const* c) const
         return false;
 
     if (IsInWater())
-        return c->canSwim();
+        return c->CanSwim();
     else
-        return c->canWalk() || c->CanFly();
+        return c->CanWalk() || c->CanFly();
 }
 
 bool Unit::IsInWater() const
@@ -21631,6 +21631,8 @@ void Unit::SetPhaseId(std::set<uint32> const& newPhase, bool update)
             if (Creature* summon = GetMap()->GetCreature(m_SummonSlot[i]))
                 summon->SetPhaseId(newPhase, true);
 
+    RebuildTerrainSwaps();
+
     // Update visibility after phasing pets and summons so they wont despawn
     if (update)
         UpdateObjectVisibility();
@@ -24299,7 +24301,7 @@ void Unit::SendMovementForce(WorldObject* at, float windX, float windY, float wi
     {
         WorldPacket data(SMSG_MOVE_APPLY_MOVEMENT_FORCE);
         data << GetGUID();
-
+        data << uint32(m_movementCounter++); // SequenceIndex
         data << at->GetGUID(); //guid AT
         data << float(windType ? at->GetPositionX() : windX);
         data << float(windType ? at->GetPositionY() : windY);

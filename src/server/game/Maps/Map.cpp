@@ -45,7 +45,7 @@ union u_map_magic
 };
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
-u_map_magic MapVersionMagic = { {'v','1','.','4'} };
+u_map_magic MapVersionMagic = { {'v','1','.','5'} };
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
 u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
 u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
@@ -149,7 +149,7 @@ void Map::LoadMMap(int gx, int gy)
         //return;
 
     // DONT CHANGE "gy" and "gx" - Its necessary !
-    int mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gy, gx);
+    int mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap((sWorld->GetDataPath() + "mmaps").c_str(), GetId(), gx, gy);
     switch (mmapLoadResult)
     {
         case MMAP_LOAD_RESULT_OK:
@@ -1708,7 +1708,7 @@ inline bool IsOutdoorWMO(uint32 mogpFlags, int32 /*adtId*/, int32 /*rootId*/, in
     return outdoor;
 }
 
-bool Map::IsOutdoors(float x, float y, float z) const
+bool Map::IsOutdoors(float x, float y, float z, uint32& wmoId) const
 {
     uint32 mogpFlags;
     int32 adtId, rootId, groupId;
@@ -1718,9 +1718,10 @@ bool Map::IsOutdoors(float x, float y, float z) const
         return true;
 
     AreaTableEntry const* atEntry = 0;
-    WMOAreaTableEntry const* wmoEntry= GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
+    WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
     if (wmoEntry)
     {
+        wmoId = wmoEntry->ID;
         #ifdef TRINITY_DEBUG
         sLog->outDebug(LOG_FILTER_MAPS, "Got WMOAreaTableEntry! flag %u, AreaTableID %u", wmoEntry->Flags, wmoEntry->AreaTableID);
         #endif
@@ -1735,6 +1736,8 @@ bool Map::GetAreaInfo(float x, float y, float z, uint32 &flags, int32 &adtId, in
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     if (vmgr->getAreaInfo(GetId(), x, y, vmap_z, flags, adtId, rootId, groupId))
     {
+        //sLog->outDebug(LOG_FILTER_MAPS, "Map::GetAreaInfo GetId  %i, x %f, y %f, vmap_z %f, flags %i, adtId %i, rootId %i, groupId %i", GetId(), x, y, vmap_z, flags, adtId, rootId, groupId);
+
         // check if there's terrain between player height and object height
         if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
         {

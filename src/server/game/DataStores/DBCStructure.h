@@ -615,7 +615,7 @@ struct AreaTableEntry
     char*       ZoneName;                                   // 10
     //uint32    IntroSound;                                 // 11
     uint32      ExplorationLevel;                           // 12
-    //char*     AreaName_lang                               // 13
+    char*       AreaName_lang;                               // 13
     uint32      FactionGroupMask;                           // 14
     uint32      LiquidTypeID[4];                            // 15-18
     //float     AmbientMultiplier;                          // 19
@@ -2484,7 +2484,7 @@ struct WMOAreaTableEntry
     //uint32    IntroSound;                                 // 8
     uint32      Flags;                                      // 9 used for indoor/outdoor determination
     uint32      AreaTableID;                                // 10 link to AreaTableEntry.ID
-    //char*     AreaName_lang;                              // 11       m_AreaName_lang
+    char*       AreaName_lang;                              // 11       m_AreaName_lang
     //uint32    UWIntroSound;                               // 12
     //uint32    UWZoneMusic;                                // 13
     //uint32    UWAmbience;                                 // 14

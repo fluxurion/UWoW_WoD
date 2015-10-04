@@ -1,3 +1,4 @@
+#include "MapDefines.h"
 #include "Define.h"
 #include "VMapDefinitions.h"
 #include "MapTree.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -98,6 +98,8 @@ namespace VMAP
 
     bool StaticMapTree::getAreaInfo(Vector3 &pos, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const
     {
+        //sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::getAreaInfo");
+
         AreaInfoCallback intersectionCallBack(iTreeValues);
         iTree.intersectPoint(pos, intersectionCallBack);
         if (intersectionCallBack.aInfo.result)
@@ -107,6 +109,8 @@ namespace VMAP
             rootId = intersectionCallBack.aInfo.rootId;
             groupId = intersectionCallBack.aInfo.groupId;
             pos.z = intersectionCallBack.aInfo.ground_Z;
+
+            //sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::getAreaInfo flags %u adtId %i rootId %i groupId %i", flags, adtId, rootId, groupId);
             return true;
         }
         return false;
@@ -386,13 +390,12 @@ namespace VMAP
                     {
                         if (!iLoadedSpawns.count(referencedVal))
                         {
-#ifdef VMAP_DEBUG
                             if (referencedVal > iNTreeValues)
                             {
-                                sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u)", referencedVal, iNTreeValues);
+                                sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u) referenced in tile %s", referencedVal, iNTreeValues, tilefile.c_str());
                                 continue;
                             }
-#endif
+
                             iTreeValues[referencedVal] = ModelInstance(spawn, model);
                             iLoadedSpawns[referencedVal] = 1;
                         }

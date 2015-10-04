@@ -137,6 +137,7 @@ enum LocaleConstant
     LOCALE_ruRU =  8,
     LOCALE_ptPT =  9,
     LOCALE_itIT = 10,
+    LOCALE_none = 11,
 };
 
 const uint8 TOTAL_LOCALES = 11;

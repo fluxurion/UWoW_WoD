@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,7 +32,7 @@ char * wdtGetPlainName(char * FileName)
 
 extern HANDLE CascStorage;
 
-WDTFile::WDTFile(char* file_name, char* file_name1):WDT(CascStorage, file_name)
+WDTFile::WDTFile(char* file_name, char* file_name1):WDT(CascStorage, file_name), gnWMO(0)
 {
     filename.append(file_name1,strlen(file_name1));
 }

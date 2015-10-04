@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,8 @@
 #include "dbcfile.h"
 
 DBCFile::DBCFile(HANDLE mpq, const char* filename) :
-    _mpq(mpq), _filename(filename), _file(NULL), _data(NULL), _stringTable(NULL)
+    _mpq(mpq), _filename(filename), _file(NULL), _recordSize(0), _recordCount(0),
+    _fieldCount(0), _stringSize(0), _data(NULL), _stringTable(NULL)
 {
 }
 

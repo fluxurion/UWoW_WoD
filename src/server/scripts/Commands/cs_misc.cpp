@@ -344,21 +344,28 @@ public:
 
         uint32 haveMap = Map::ExistMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
         uint32 haveVMap = Map::ExistVMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
+        char* AreaName = areaEntry ? areaEntry->AreaName_lang : "<unknown>";
 
         if (haveVMap)
         {
-            if (map->IsOutdoors(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ()))
+            uint32 wmoId = 0;
+            if (map->IsOutdoors(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), wmoId))
                 handler->PSendSysMessage("You are outdoors");
             else
                 handler->PSendSysMessage("You are indoors");
+
+            if(wmoId)
+                if(WMOAreaTableEntry const* wmoAreaTableEntry = sWMOAreaTableStore.LookupEntry(wmoId))
+                    if(std::strlen(wmoAreaTableEntry->AreaName_lang) > 0)
+                        AreaName = wmoAreaTableEntry->AreaName_lang;
         }
         else
             handler->PSendSysMessage("no VMAP available for area info");
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
             object->GetMapId(), (mapEntry ? mapEntry->name : "<unknown>"),
-            zoneId, (zoneEntry ? zoneEntry->ZoneName : "<unknown>"),
-            areaId, (areaEntry ? areaEntry->ZoneName : "<unknown>"),
+            zoneId, (zoneEntry ? zoneEntry->AreaName_lang : "<unknown>"),
+            areaId, AreaName,
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),

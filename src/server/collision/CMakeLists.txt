@@ -12,27 +12,10 @@ if( USE_COREPCH )
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-file(GLOB_RECURSE sources_Management Management/*.cpp Management/*.h)
-file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
-file(GLOB_RECURSE sources_Models Models/*.cpp Models/*.h)
-file(GLOB sources_localdir *.cpp *.h)
-
-if (USE_COREPCH)
-  set(collision_STAT_PCH_HDR PrecompiledHeaders/collisionPCH.h)
-  set(collision_STAT_PCH_SRC PrecompiledHeaders/collisionPCH.cpp)
-endif ()
-
-set(collision_STAT_SRCS
-  ${collision_STAT_SRCS}
-  ${sources_Management}
-  ${sources_Maps}
-  ${sources_Models}
-  ${sources_localdir}
-)
-
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
+  ${CMAKE_SOURCE_DIR}/dep/cppformat
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
   ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour/Include
   ${CMAKE_SOURCE_DIR}/src/server/shared
@@ -80,6 +63,24 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${VALGRIND_INCLUDE_DIR}
+)
+
+file(GLOB_RECURSE sources_Management Management/*.cpp Management/*.h)
+file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
+file(GLOB_RECURSE sources_Models Models/*.cpp Models/*.h)
+file(GLOB sources_localdir *.cpp *.h)
+
+if (USE_COREPCH)
+  set(collision_STAT_PCH_HDR PrecompiledHeaders/collisionPCH.h)
+  set(collision_STAT_PCH_SRC PrecompiledHeaders/collisionPCH.cpp)
+endif ()
+
+set(collision_STAT_SRCS
+  ${collision_STAT_SRCS}
+  ${sources_Management}
+  ${sources_Maps}
+  ${sources_Models}
+  ${sources_localdir}
 )
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})

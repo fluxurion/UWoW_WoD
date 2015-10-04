@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,20 +40,20 @@ int CHECK_TREE_PERIOD = 200;
 } // namespace
 
 template<> struct HashTrait< GameObjectModel>{
-    static size_t hashCode(GameObjectModel const& g) { return (size_t)(void*)&g; }
+    static size_t hashCode(const GameObjectModel& g) { return (size_t)(void*)&g; }
 };
 
 template<> struct PositionTrait< GameObjectModel> {
-    static void getPosition(GameObjectModel const& g, G3D::Vector3& p) { p = g.getPosition(); }
+    static void getPosition(const GameObjectModel& g, G3D::Vector3& p) { p = g.getPosition(); }
 };
 
 template<> struct BoundsTrait< GameObjectModel> {
-    static void getBounds(GameObjectModel const& g, G3D::AABox& out) { out = g.getBounds();}
+    static void getBounds(const GameObjectModel& g, G3D::AABox& out) { out = g.getBounds();}
     static void getBounds2(const GameObjectModel* g, G3D::AABox& out) { out = g->getBounds();}
 };
 
 /*
-static bool operator == (GameObjectModel const& mdl, GameObjectModel const& mdl2){
+static bool operator == (const GameObjectModel& mdl, const GameObjectModel& mdl2){
     return &mdl == &mdl2;
 }
 */
@@ -114,17 +114,17 @@ DynamicMapTree::~DynamicMapTree()
     delete impl;
 }
 
-void DynamicMapTree::insert(GameObjectModel const& mdl)
+void DynamicMapTree::insert(const GameObjectModel& mdl)
 {
     impl->insert(mdl);
 }
 
-void DynamicMapTree::remove(GameObjectModel const& mdl)
+void DynamicMapTree::remove(const GameObjectModel& mdl)
 {
     impl->remove(mdl);
 }
 
-bool DynamicMapTree::contains(GameObjectModel const& mdl) const
+bool DynamicMapTree::contains(const GameObjectModel& mdl) const
 {
     return impl->contains(mdl);
 }
@@ -149,7 +149,7 @@ struct DynamicTreeIntersectionCallback
     bool did_hit;
     uint32 phase_mask;
     DynamicTreeIntersectionCallback(uint32 phasemask) : did_hit(false), phase_mask(phasemask) { }
-    bool operator()(const G3D::Ray& r, GameObjectModel const& obj, float& distance)
+    bool operator()(const G3D::Ray& r, const GameObjectModel& obj, float& distance)
     {
         did_hit = obj.intersectRay(r, distance, true, phase_mask);
         return did_hit;
@@ -165,7 +165,7 @@ struct DynamicTreeIntersectionCallback_WithLogger
     {
         sLog->outDebug(LOG_FILTER_MAPS, "Dynamic Intersection log");
     }
-    bool operator()(const G3D::Ray& r, GameObjectModel const& obj, float& distance)
+    bool operator()(const G3D::Ray& r, const GameObjectModel& obj, float& distance)
     {
         sLog->outDebug(LOG_FILTER_MAPS, "testing intersection with %s", obj.name.c_str());
         bool hit = obj.intersectRay(r, distance, true, phase_mask);

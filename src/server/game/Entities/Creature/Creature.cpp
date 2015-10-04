@@ -537,12 +537,12 @@ void Creature::Update(uint32 diff)
 
     if (IsInWater())
     {
-        if (canSwim())
+        if (CanSwim())
             AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     }
     else
     {
-        if (canWalk())
+        if (CanWalk())
             RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     }
 

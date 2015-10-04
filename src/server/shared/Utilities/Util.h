@@ -21,7 +21,7 @@
 
 #include "Define.h"
 #include "Common.h"
-#include "Log.h"
+#include "Logging\Log.h"
 
 #include <algorithm>
 #include <string>
