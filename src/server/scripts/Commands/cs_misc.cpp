@@ -344,7 +344,7 @@ public:
 
         uint32 haveMap = Map::ExistMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
         uint32 haveVMap = Map::ExistVMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
-        char* AreaName = areaEntry ? areaEntry->AreaName_lang : "<unknown>";
+        const char* AreaName = areaEntry ? areaEntry->AreaName_lang : "<unknown>";
 
         if (haveVMap)
         {
