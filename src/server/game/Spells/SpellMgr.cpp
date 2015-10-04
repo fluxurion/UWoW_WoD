@@ -5561,6 +5561,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 145718:  // Gusting Bomb
                     spellInfo->Speed = 25.f;
                     break;
+                case 153238:
+                    spellInfo->Effects[EFFECT_0].ApplyAuraPeriod = 2500;
+                    break;
                 default:
                     break;
             }

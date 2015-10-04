@@ -14,10 +14,8 @@ enum Says
     SAY_AGGRO           = 1,
     SAY_DEATH           = 2,
     SAY_KILL_PLAYER     = 3,
-    SAY_SPELL_1         = 4,
-    SAY_SPELL_2         = 5,
-    SAY_SPELL_3         = 6,
-    SAY_SPELL_4         = 7,
+    SAY_DARK_COMMUNION  = 4,
+    SAY_DARK_ECLIPSE    = 5,
 };
 
 enum Spells
@@ -82,13 +80,11 @@ public:
 
     struct boss_sadana_bloodfuryAI : public BossAI
     {
-        boss_sadana_bloodfuryAI(Creature* creature) : BossAI(creature, DATA_SADANA), summons(me)
+        boss_sadana_bloodfuryAI(Creature* creature) : BossAI(creature, DATA_SADANA)
         {
             DoCast(SPELL_SHADOW_RITUAL_VISUAL);
             intro = true;
         }
-
-        SummonList summons;
 
         bool intro;
 
@@ -96,7 +92,6 @@ public:
         {
             events.Reset();
             _Reset();
-            summons.DespawnAll();
             me->SetReactState(REACT_AGGRESSIVE);
 
             for (uint8 i = 0; i < 3; i++)
@@ -129,8 +124,16 @@ public:
         {
             Talk(SAY_DEATH);
             _JustDied();
+        }
 
-            summons.DespawnAll();
+        void KilledUnit(Unit* victim)
+        {
+            if (victim->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            uint8 rand = urand(0, 1);
+            if (rand)
+                Talk(SAY_KILL_PLAYER);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -143,11 +146,6 @@ public:
                     Talk(SAY_ENTER_ROOM);
                 }
             }
-        }
-
-        void JustSummoned(Creature* summon)
-        {
-            summons.Summon(summon);
         }
 
         void UpdateAI(uint32 diff)
@@ -184,6 +182,7 @@ public:
                     case EVENT_DARK_COMMUNION:
                         DoStopAttack();
                         DoCast(SPELL_DARK_COMMUNION);
+                        Talk(SAY_DARK_COMMUNION);
                         events.ScheduleEvent(EVENT_DARK_COMMUNION, 60000);
                         break;
                     case EVENT_DARK_ECLIPSE_1:
@@ -196,6 +195,7 @@ public:
                         DoCast(me, SPELL_TELEPORT_TO_HOME, true);
                         DoCast(me, SPELL_DARK_ECLIPSE_AT, true);
                         DoCast(SPELL_DARK_ECLIPSE_CHANNEL);
+                        Talk(SAY_DARK_ECLIPSE);
                         events.ScheduleEvent(EVENT_DARK_ECLIPSE_3, 6000);
                         break;
                     case EVENT_DARK_ECLIPSE_3:
@@ -240,7 +240,10 @@ public:
         void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
             if (target->GetTypeId() == TYPEID_PLAYER)
-                me->DespawnOrUnsummon();
+            {
+                me->RemoveAurasDueToSpell(SPELL_SHADOW_RUNE_1_AT);
+                me->RemoveAurasDueToSpell(SPELL_SHADOW_RUNE_2_AT);
+            }
         }
 
         void SpellHit(Unit* target, const SpellInfo* spell)

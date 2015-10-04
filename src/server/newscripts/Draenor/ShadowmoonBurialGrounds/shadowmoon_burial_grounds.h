@@ -24,12 +24,15 @@ enum eCreatures
     NPC_DARK_ECLIPSE        = 76052,
     NPC_DAGGERFALL          = 75981,
     NPC_DEFILED_SPIRIT      = 75966,
+    //Nhallish
+    NPC_POSSESSED_SOUL      = 75899,
 };
 
 enum eGameObjects
 {
     GO_SADANA_DOOR_ENTER    = 233921,
     GO_SADANA_DOOR_EXIT     = 233919,
+    GO_NHALLISH_DOOR        = 227851,
 };
 
 #endif

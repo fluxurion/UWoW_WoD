@@ -45,7 +45,7 @@ INSERT INTO `world_visible_distance` (`type`, `id`, `distance`, `comment`) VALUE
    -------------------------------------------- */
 delete from creature where id in (76417,76464);
 update creature set spawntimesecs = 86400 where id = 76413;
-update creature_template set rank = 3, mechanic_immune_mask = 617297919, flags_extra = 1, ScriptName = 'boss_orebender_gorashan' where entry = 76413;
+update creature_template set rank = 3, mechanic_immune_mask = 617299967, flags_extra = 1, ScriptName = 'boss_orebender_gorashan' where entry = 76413;
 update creature_template set ScriptName = 'npc_gorashan_power_rune', flags_extra = 130 where entry = 76417;
 update creature_template set movementType = 2, inhabitType = 7, flags_extra = 130 where entry = 76464;
 

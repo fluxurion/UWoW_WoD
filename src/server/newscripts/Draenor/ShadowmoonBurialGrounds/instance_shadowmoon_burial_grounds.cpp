@@ -11,6 +11,7 @@ DoorData const doorData[] =
 {
     {GO_SADANA_DOOR_ENTER,      DATA_SADANA,      DOOR_TYPE_ROOM,       BOUNDARY_NONE},
     {GO_SADANA_DOOR_EXIT,       DATA_SADANA,      DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    {GO_NHALLISH_DOOR,          DATA_NHALLISH,    DOOR_TYPE_ROOM,       BOUNDARY_NONE},
 };
 
 class instance_shadowmoon_burial_grounds : public InstanceMapScript
@@ -29,8 +30,6 @@ public:
         {
             SetBossNumber(MAX_ENCOUNTER);
         }
-
-        
 
         void Initialize()
         {
@@ -51,6 +50,7 @@ public:
             {
                 case GO_SADANA_DOOR_ENTER:
                 case GO_SADANA_DOOR_EXIT:
+                case GO_NHALLISH_DOOR:
                     AddDoor(go, true);
                     break;
                 default:
