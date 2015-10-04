@@ -19,7 +19,7 @@
 #ifndef _PATH_GENERATOR_H
 #define _PATH_GENERATOR_H
 
-#include "Maps\MapDefines.h"
+#include "MapDefines.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "MoveSplineInitArgs.h"
