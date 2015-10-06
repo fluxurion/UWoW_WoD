@@ -961,8 +961,8 @@ class spell_sha_earthquake : public SpellScriptLoader
             void OnTick(AuraEffect const* aurEff)
             {
                 if (Unit* caster = GetCaster())
-                    if (DynamicObject* dynObj = caster->GetDynObject(SPELL_SHA_EARTHQUAKE))
-                        caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), SPELL_SHA_EARTHQUAKE_TICK, true);
+                    if (AreaTrigger* atObj = caster->GetAreaObject(SPELL_SHA_EARTHQUAKE))
+                        caster->CastSpell(atObj->GetPositionX(), atObj->GetPositionY(), atObj->GetPositionZ(), SPELL_SHA_EARTHQUAKE_TICK, true);
             }
 
             void Register()
