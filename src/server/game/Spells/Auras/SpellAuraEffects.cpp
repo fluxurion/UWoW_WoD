@@ -1717,6 +1717,9 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
     {
         for (std::vector<SpellAuraDummy>::const_iterator itr = spellAuraDummy->begin(); itr != spellAuraDummy->end(); ++itr)
         {
+            if(itr->type != SPELL_DUMMY_DEFAULT)
+                continue;
+
             if (!(itr->effectmask & (1<<m_effIndex)))
                 continue;
 

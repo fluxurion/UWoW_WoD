@@ -1350,6 +1350,35 @@ class spell_rog_mutilate_t16 : public SpellScriptLoader
         }
 };
 
+// Internal Bleeding - 154953
+class spell_rog_internal_bleeding : public SpellScriptLoader
+{
+    public:
+        spell_rog_internal_bleeding() : SpellScriptLoader("spell_rog_internal_bleeding") { }
+
+        class spell_rog_internal_bleeding_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_internal_bleeding_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Player* plyarr = caster->ToPlayer())
+                        amount *= plyarr->GetComboPoints();
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_internal_bleeding_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_internal_bleeding_AuraScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_shuriken_toss();
@@ -1380,4 +1409,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_killing_spree();
     new spell_rog_blade_flurry_aoe();
     new spell_rog_mutilate_t16();
+    new spell_rog_internal_bleeding();
 }

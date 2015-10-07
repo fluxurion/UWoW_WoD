@@ -515,6 +515,9 @@ void Aura::CalculateDurationFromDummy(int32 &duration)
     {
         for (std::vector<SpellAuraDummy>::const_iterator itr = spellAuraDummy->begin(); itr != spellAuraDummy->end(); ++itr)
         {
+            if(itr->type != SPELL_DUMMY_DURATION)
+                continue;
+
             Unit* _targetAura = _caster;
             bool check = false;
 

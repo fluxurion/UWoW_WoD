@@ -145,7 +145,7 @@ enum SpellTriggeredType
     SPELL_TRIGGER_DAM_MAXHEALTH                 = 38,           // set basepoint to spell damage or max heal percent
 };
 
-enum SpellAuraDummyType
+enum SpellAuraDummyOption
 {
     SPELL_DUMMY_ENABLE                          = 0,            // enable or disable aura(set amount to 0)
     SPELL_DUMMY_ADD_PERC                        = 1,            // add percent to amount
@@ -162,6 +162,7 @@ enum SpellAuraDummyType
     SPELL_DUMMY_DURATION_ADD_VALUE              = 12,           // add value to duration
     SPELL_DUMMY_CASTTIME_ADD_PERC               = 13,           // add percent to castTime
     SPELL_DUMMY_CASTTIME_ADD_VALUE              = 14,           // add value to castTime
+    SPELL_DUMMY_MOD_PROC_FLAG                   = 15,           // modify procFlag
 };
 
 enum SpellTargetFilterType
@@ -753,6 +754,7 @@ struct SpellAuraDummy
 {
     int32 spellId;
     int32 spellDummyId;
+    int32 type;
     int32 target;
     int32 caster;
     int32 targetaura;

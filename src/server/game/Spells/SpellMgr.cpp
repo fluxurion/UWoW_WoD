@@ -2924,8 +2924,8 @@ void SpellMgr::LoadSpellTriggered()
         ++count;
     } while (result->NextRow());
 
-    //                                        0             1          2         3         4           5              6             7           8        9          10         11        12           13
-    result = WorldDatabase.Query("SELECT `spellId`, `spellDummyId`, `option`, `target`, `caster`, `targetaura`, `effectmask`, `effectDummy`, `aura`, `chance`, `removeAura`, `attr`, `attrValue`, `custombp` FROM `spell_aura_dummy`");
+    //                                        0             1          2         3         4           5              6             7           8        9          10         11        12           13        14
+    result = WorldDatabase.Query("SELECT `spellId`, `spellDummyId`, `option`, `target`, `caster`, `targetaura`, `effectmask`, `effectDummy`, `aura`, `chance`, `removeAura`, `attr`, `attrValue`, `custombp`, `type` FROM `spell_aura_dummy`");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 aura dummy spells. DB table `spell_aura_dummy` is empty.");
@@ -2950,6 +2950,7 @@ void SpellMgr::LoadSpellTriggered()
         int32 attr = fields[11].GetInt32();
         int32 attrValue = fields[12].GetInt32();
         float custombp = fields[13].GetFloat();
+        int32 type = fields[14].GetInt32();
 
         SpellInfo const* spellInfo = GetSpellInfo(abs(spellId));
         if (!spellInfo)
@@ -2974,6 +2975,7 @@ void SpellMgr::LoadSpellTriggered()
         tempdummy.attr = attr;
         tempdummy.attrValue = attrValue;
         tempdummy.custombp = custombp;
+        tempdummy.type = type;
         mSpellAuraDummyMap[spellId].push_back(tempdummy);
 
         ++count;

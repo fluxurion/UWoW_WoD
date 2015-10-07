@@ -12206,7 +12206,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         if (Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, tmpDamage);
 
-        CalculateFromDummy(victim, tmpDamage, spellProto, (1<<effIndex));
+        CalculateFromDummy(victim, &tmpDamage, NULL, spellProto, (1<<effIndex));
 
         if (getClass() == CLASS_PALADIN)
             if (RequiresCurrentSpellsToHolyPower(spellProto))
@@ -12673,7 +12673,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
         if ((*i)->GetCasterGUID() == GetGUID() && (*i)->IsAffectingSpell(spellProto))
             crit_chance += (*i)->GetAmount();
 
-    CalculateFromDummy(victim, crit_chance, spellProto, 131071, false);
+    CalculateFromDummy(victim, &crit_chance, NULL, spellProto, 131071, SPELL_DUMMY_CRIT);
 
     crit_chance = crit_chance > 0.0f ? crit_chance : 0.0f;
     critChance = crit_chance;
@@ -12900,7 +12900,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, damagetype == DOT ? SPELLMOD_DOT : SPELLMOD_DAMAGE, heal);
 
-    CalculateFromDummy(victim, heal, spellProto, (1<<effIndex));
+    CalculateFromDummy(victim, &heal, NULL, spellProto, (1<<effIndex));
 
     if (getClass() == CLASS_PALADIN)
         if (RequiresCurrentSpellsToHolyPower(spellProto))
@@ -13476,7 +13476,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         if (Player* modOwner = GetSpellModOwner())
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_DAMAGE, tmpDamage);
 
-        CalculateFromDummy(victim, tmpDamage, spellProto, effectMask);
+        CalculateFromDummy(victim, &tmpDamage, NULL, spellProto, effectMask);
     }
 
     if (Player* modOwner = GetSpellModOwner())
@@ -19809,9 +19809,9 @@ bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo c
     return true;
 }
 
-void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spellProto, uint32 mask, bool damage) const
+void Unit::CalculateFromDummy(Unit* victim, float* amountF, uint32* amountU, SpellInfo const* spellProto, uint32 mask, SpellAuraDummyType type) const
 {
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::CalculateFromDummy start GetId %i, amount %f, mask %i", spellProto->Id, amount, mask);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::CalculateFromDummy start GetId %i, amountF %f, mask %i amountU %u", spellProto->Id, amountF ? *amountF : 0.0f, mask, amountU ? *amountU : 0);
 
     if (std::vector<SpellAuraDummy> const* spellAuraDummy = sSpellMgr->GetSpellAuraDummy(spellProto->Id))
     {
@@ -19819,6 +19819,9 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
         {
             sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::CalculateFromDummy spellDummyId %i, effectmask %i, option %i, aura %i",
             itr->spellDummyId, itr->effectmask, itr->option, itr->aura);
+
+            if(itr->type != type)
+                continue;
 
             if (!(itr->effectmask & mask))
                 continue;
@@ -19842,7 +19845,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
             {
                 case SPELL_DUMMY_CRIT_RESET: //5
                 {
-                    if(damage)
+                    if(!amountF)
                         continue;
                     if(itr->aura > 0 && !_targetAura->HasAura(itr->aura))
                         continue;
@@ -19851,19 +19854,19 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
 
                     if(itr->spellDummyId > 0 && !_caster->HasAura(itr->spellDummyId))
                     {
-                        amount = 0.0f;
+                        *amountF = 0.0f;
                         check = true;
                     }
                     if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId)))
                     {
-                        amount = 0.0f;
+                        *amountF = 0.0f;
                         check = true;
                     }
                     break;
                 }
                 case SPELL_DUMMY_CRIT_ADD_PERC: //6
                 {
-                    if(damage)
+                    if(!amountF)
                         continue;
                     if(itr->aura > 0 && !_targetAura->HasAura(itr->aura))
                         continue;
@@ -19877,7 +19880,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                             float bp = itr->custombp;
                             if(!bp)
                                 bp = dummyEff->GetAmount();
-                            amount += CalculatePct(amount, bp);
+                            *amountF += CalculatePct(*amountF, bp);
                             check = true;
                         }
                     }
@@ -19888,7 +19891,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                             float bp = itr->custombp;
                             if(!bp)
                                 bp = dummyEff->GetAmount();
-                            amount -= CalculatePct(amount, bp);
+                            *amountF -= CalculatePct(*amountF, bp);
                             check = true;
                         }
                     }
@@ -19896,7 +19899,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                 }
                 case SPELL_DUMMY_CRIT_ADD_VALUE: //7
                 {
-                    if(damage)
+                    if(!amountF)
                         continue;
                     if(itr->aura > 0 && !_targetAura->HasAura(itr->aura))
                         continue;
@@ -19910,7 +19913,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                             float bp = itr->custombp;
                             if(!bp)
                                 bp = dummyEff->GetAmount();
-                            amount += bp;
+                            *amountF += bp;
                             check = true;
                         }
                     }
@@ -19921,7 +19924,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                             float bp = itr->custombp;
                             if(!bp)
                                 bp = dummyEff->GetAmount();
-                            amount -= bp;
+                            *amountF -= bp;
                             check = true;
                         }
                     }
@@ -19929,7 +19932,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                 }
                 case SPELL_DUMMY_DAMAGE_ADD_PERC: //9
                 {
-                    if(!damage)
+                    if(!amountF)
                         continue;
                     if(itr->aura > 0 && !_targetAura->HasAura(itr->aura))
                         continue;
@@ -19943,7 +19946,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                             float bp = itr->custombp;
                             if(!bp)
                                 bp = dummyEff->GetAmount();
-                            amount += CalculatePct(amount, bp);
+                            *amountF += CalculatePct(*amountF, bp);
                             check = true;
                         }
                     }
@@ -19954,7 +19957,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                             float bp = itr->custombp;
                             if(!bp)
                                 bp = dummyEff->GetAmount();
-                            amount -= CalculatePct(amount, bp);
+                            *amountF -= CalculatePct(*amountF, bp);
                             check = true;
                         }
                     }
@@ -19962,7 +19965,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                 }
                 case SPELL_DUMMY_DAMAGE_ADD_VALUE: //10
                 {
-                    if(!damage)
+                    if(!amountF)
                         continue;
                     if(itr->aura > 0 && !_targetAura->HasAura(itr->aura))
                         continue;
@@ -19976,7 +19979,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                             float bp = itr->custombp;
                             if(!bp)
                                 bp = dummyEff->GetAmount();
-                            amount += bp;
+                            *amountF += bp;
                             check = true;
                         }
                     }
@@ -19987,9 +19990,31 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                             float bp = itr->custombp;
                             if(!bp)
                                 bp = dummyEff->GetAmount();
-                            amount -= bp;
+                            *amountF -= bp;
                             check = true;
                         }
+                    }
+                    break;
+                }
+                case SPELL_DUMMY_MOD_PROC_FLAG: //15
+                {
+                    if(!amountU)
+                        continue;
+
+                    if(itr->aura > 0 && !_targetAura->HasAura(itr->aura))
+                        continue;
+                    if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
+                        continue;
+
+                    if(itr->spellDummyId > 0 && !_targetAura->HasAura(itr->spellDummyId))
+                    {
+                        *amountU &= ~uint32(itr->custombp);
+                        check = true;
+                    }
+                    if(itr->spellDummyId < 0 && _targetAura->HasAura(abs(itr->spellDummyId)))
+                    {
+                        *amountU &= ~uint32(itr->custombp);
+                        check = true;
                     }
                     break;
                 }
@@ -19998,6 +20023,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
                 _caster->RemoveAurasDueToSpell(itr->removeAura);
         }
     }
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::CalculateFromDummy end GetId %i, amountF %f, mask %i amountU %u", spellProto->Id, amountF ? *amountF : 0.0f, mask, amountU ? *amountU : 0);
 }
 
 void Unit::CalculateCastTimeFromDummy(int32& castTime, SpellInfo const* spellProto)
@@ -20006,6 +20032,9 @@ void Unit::CalculateCastTimeFromDummy(int32& castTime, SpellInfo const* spellPro
     {
         for (std::vector<SpellAuraDummy>::const_iterator itr = spellAuraDummy->begin(); itr != spellAuraDummy->end(); ++itr)
         {
+            if(itr->type != SPELL_DUMMY_TIME)
+                continue;
+
             Unit* _caster = this;
             Unit* _targetAura = this;
             bool check = false;
@@ -20133,6 +20162,9 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, SpellInfo const* spellProto
         EventProcFlag = spellProcEvent->procFlags;
     else
         EventProcFlag = spellProto->ProcFlags;       // else get from spell proto
+
+    CalculateFromDummy(victim, NULL, &EventProcFlag, spellProto, effect, SPELL_DUMMY_PROC);
+
     // Continue if no trigger exist
     if (!EventProcFlag)
         return false;

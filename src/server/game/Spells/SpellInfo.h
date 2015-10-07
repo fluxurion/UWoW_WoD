@@ -212,6 +212,16 @@ enum SpellTypes
     SPELL_TYPE_AUTOREPEATE                 = 0x00000010,
 };
 
+enum SpellAuraDummyType
+{
+    SPELL_DUMMY_DEFAULT                         = 0,
+    SPELL_DUMMY_DAMAGE                          = 1,
+    SPELL_DUMMY_CRIT                            = 2,
+    SPELL_DUMMY_TIME                            = 3,
+    SPELL_DUMMY_PROC                            = 4,
+    SPELL_DUMMY_DURATION                        = 5,
+};
+
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType);
 
 class SpellImplicitTargetInfo
