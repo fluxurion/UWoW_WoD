@@ -379,13 +379,13 @@ void ReadAreaTableDBC()
     size_t area_count = dbc.getRecordCount();
     maxAreaId = dbc.getMaxId();
     areas = new uint16[maxAreaId + 1];
-    memset(areas, 0xFF, sizeof(uint16) * (maxAreaId + 1));
+    memset(areas, 0xFFFF, sizeof(uint16) * (maxAreaId + 1));
 
     for (uint32 x = 0; x < area_count; ++x)
         areas[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
     CascCloseFile(dbcFile);
-    printf("Done! (%u areas loaded)\n", uint32(area_count));
+    printf("Done! (%u areas loaded. maxAreaId %u)\n", uint32(area_count), maxAreaId);
 }
 
 void ReadLiquidTypeTableDBC()

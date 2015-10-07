@@ -79,9 +79,9 @@ Map::~Map()
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
 {
-    int len = sWorld->GetDataPath().length()+strlen("maps/%04u%02u%02u.map")+1;
+    int len = sWorld->GetDataPath().length()+strlen("maps/%04u_%02u_%02u.map")+1;
     char* tmp = new char[len];
-    snprintf(tmp, len, (char *)(sWorld->GetDataPath()+"maps/%04u%02u%02u.map").c_str(), mapid, gx, gy);
+    snprintf(tmp, len, (char *)(sWorld->GetDataPath()+"maps/%04u_%02u_%02u.map").c_str(), mapid, gx, gy);
 
     bool ret = false;
     FILE* pf=fopen(tmp, "rb");
@@ -197,11 +197,11 @@ void Map::LoadMap(int gx, int gy, bool reload)
 
     // map file name
     char *tmp=NULL;
-    int len = sWorld->GetDataPath().length()+strlen("maps/%04u%02u%02u.map")+1;
+    int len = sWorld->GetDataPath().length()+strlen("maps/%04u_%02u_%02u.map")+1;
     tmp = new char[len];
-    snprintf(tmp, len, (char *)(sWorld->GetDataPath()+"maps/%04u%02u%02u.map").c_str(), GetId(), gx, gy);
-    #ifdef TRINITY_DEBUG
-    sLog->outInfo(LOG_FILTER_MAPS, "Loading map %s", tmp);
+    snprintf(tmp, len, (char *)(sWorld->GetDataPath()+"maps/%04u_%02u_%02u.map").c_str(), GetId(), gx, gy);
+    #ifdef WIN32
+    sLog->outInfo(LOG_FILTER_MAPS, "Loading map %s gx: %i, gy: %i", tmp, gx, gy);
     #endif
     // loading data
     GridMaps[gx][gy] = new GridMap();
@@ -385,10 +385,6 @@ void Map::EnsureGridCreated(const GridCoord &p)
         std::lock_guard<std::mutex> lock(_mapLock);
         if (!getNGrid(p.x_coord, p.y_coord))
         {
-            #ifdef TRINITY_DEBUG
-            sLog->outDebug(LOG_FILTER_MAPS, "Creating grid[%u, %u] for map %u instance %u", p.x_coord, p.y_coord, GetId(), i_InstanceId);
-            #endif
-
             setNGrid(new NGridType(p.x_coord*MAX_NUMBER_OF_GRIDS + p.y_coord, p.x_coord, p.y_coord, i_gridExpiry, sWorld->getBoolConfig(CONFIG_GRID_UNLOAD)),
                 p.x_coord, p.y_coord);
 
@@ -403,6 +399,10 @@ void Map::EnsureGridCreated(const GridCoord &p)
 
             if (!GridMaps[gx][gy])
                 LoadMapAndVMap(gx, gy);
+
+#ifdef WIN32
+            sLog->outDebug(LOG_FILTER_MAPS, "Creating grid[%u, %u] [gx: %i xy: %i] for map %u instance %u", p.x_coord, p.y_coord, gx, gy, GetId(), i_InstanceId);
+#endif
         }
     }
 }
@@ -417,7 +417,7 @@ void Map::EnsureGridLoadedForActiveObject(const Cell &cell, WorldObject* object)
     // refresh grid state & timer
     if (grid->GetGridState() != GRID_STATE_ACTIVE)
     {
-        #ifdef TRINITY_DEBUG
+        #ifdef WIN32
         sLog->outDebug(LOG_FILTER_MAPS, "Active object " UI64FMTD " triggers loading of grid [%u, %u] on map %u", object->GetGUID(), cell.GridX(), cell.GridY(), GetId());
         #endif
         ResetGridExpiry(*grid, 0.1f);
@@ -434,7 +434,7 @@ bool Map::EnsureGridLoaded(const Cell &cell)
     ASSERT(grid != NULL);
     if (!isGridObjectDataLoaded(cell.GridX(), cell.GridY()))
     {
-        #ifdef TRINITY_DEBUG
+        #ifdef WIN32
         sLog->outDebug(LOG_FILTER_MAPS, "Loading grid[%u, %u] for map %u instance %u", cell.GridX(), cell.GridY(), GetId(), i_InstanceId);
         #endif
 
@@ -1090,7 +1090,7 @@ bool GridMap::loadData(char *filename)
     // Not return error if file not found
     FILE* in = fopen(filename, "rb");
     if (!in)
-        return true;
+        return false;
 
     if (fread(&header, sizeof(header), 1, in) != 1)
     {
@@ -1249,11 +1249,12 @@ uint16 GridMap::getArea(float x, float y) const
     if (!_areaMap)
         return _gridArea;
 
-    x = 16 * (32 - x/SIZE_OF_GRIDS);
-    y = 16 * (32 - y/SIZE_OF_GRIDS);
+    x = 16 * (CENTER_GRID_ID - x / SIZE_OF_GRIDS);
+    y = 16 * (CENTER_GRID_ID - y / SIZE_OF_GRIDS);
     int lx = (int)x & 15;
     int ly = (int)y & 15;
-    return _areaMap[lx*16 + ly];
+    uint16 res = _areaMap[lx * 16 + ly];
+    return res;
 }
 
 float GridMap::getHeightFromFlat(float /*x*/, float /*y*/) const
@@ -1608,11 +1609,11 @@ inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 R
 inline GridMap* Map::GetGrid(float x, float y)
 {
     // half opt method
-    int gx=(int)(32-x/SIZE_OF_GRIDS);                       //grid x
-    int gy=(int)(32-y/SIZE_OF_GRIDS);                       //grid y
+    int gx = (int) (CENTER_GRID_ID - x / SIZE_OF_GRIDS);                       //grid x
+    int gy = (int) (CENTER_GRID_ID - y / SIZE_OF_GRIDS);                       //grid y
 
     // ensure GridMap is loaded
-    EnsureGridCreated(GridCoord(63-gx, 63-gy));
+    EnsureGridCreated(GridCoord(MAX_NUMBER_OF_GRIDS - gx, MAX_NUMBER_OF_GRIDS - gy));
 
     return GridMaps[gx][gy];
 }
