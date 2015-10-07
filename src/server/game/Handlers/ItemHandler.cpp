@@ -1489,3 +1489,12 @@ void WorldSession::HandleRepairItem(WorldPackets::Item::RepairItem& packet)
     else
         player->DurabilityRepairAll(true, discountMod, packet.UseGuildBank);
 }
+
+void WorldSession::HandleSortBagsOpcode(WorldPacket& /*recvPacket*/)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    player->SortBags();
+}

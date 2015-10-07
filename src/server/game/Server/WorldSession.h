@@ -1479,6 +1479,8 @@ class WorldSession
         // Socket gem
         void HandleSocketOpcode(WorldPacket& recvData);
 
+        void HandleSortBagsOpcode(WorldPacket& recvData);
+
         void HandleCancelTempEnchantmentOpcode(WorldPacket& recvData);
 
         void HandleGetItemPurchaseData(WorldPackets::Item::ItemRefundInfo& packet);

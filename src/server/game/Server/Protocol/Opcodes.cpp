@@ -758,7 +758,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_SIGN_PETITION,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Petition::SignPetition, &WorldSession::HandleSignPetition);
     DEFINE_HANDLER(CMSG_SILENCE_PARTY_TALKER,                               STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_SOCKET_GEMS,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSocketOpcode              );
-    DEFINE_HANDLER(CMSG_SORT_BAGS,                                          STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_SORT_BAGS,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSortBagsOpcode);
     DEFINE_HANDLER(CMSG_SORT_BANK_BAGS,                                     STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_SORT_REAGENT_BANK_BAGS,                             STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_SPELL_CLICK,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::SpellClick, &WorldSession::HandleSpellClick);

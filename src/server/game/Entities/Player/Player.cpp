@@ -11700,6 +11700,15 @@ uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
     return count;
 }
 
+void Player::SortBags()
+{
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+        if (Bag* pBag = GetBagByPos(i))
+            for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
+                if (Item* pItem = pBag->GetItemByPos(j))
+                    pItem->SendUpdateToPlayer(this);
+}
+
 uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem) const
 {
     uint32 count = 0;
