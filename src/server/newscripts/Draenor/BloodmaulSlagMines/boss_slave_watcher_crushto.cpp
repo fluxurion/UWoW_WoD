@@ -64,7 +64,7 @@ enum NPCs
     NPC_BLOODMAUL_WARDER                = 75210,
 };
 
-Position const warderPoint[] = 
+Position const warderPoint[] =
 {
     {2042.93f, -305.80f, 226.56f},
     {2053.88f, -307.19f, 226.61f}
@@ -228,7 +228,7 @@ public:
         void Reset()
         {
             events.Reset();
-            
+
             events.ScheduleEvent(EVENT_5, urand(4, 7) * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_6, 10 * IN_MILLISECONDS);
 
@@ -269,10 +269,10 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-    
+
     CreatureAI* GetAI(Creature* creature) const
     {
-       return new npc_captured_minerAI(creature);
+        return new npc_captured_minerAI(creature);
     }
 };
 
@@ -291,7 +291,7 @@ public:
             Unit* target = GetHitUnit();
             if (!caster || !target)
                 return;
-            
+
             caster->AddAura(SPELL_CRUSHING_LEAP_TRIGGER_1, target);
             caster->AddAura(SPELL_CRUSHING_LEAP_TRIGGER_2, target);
         }

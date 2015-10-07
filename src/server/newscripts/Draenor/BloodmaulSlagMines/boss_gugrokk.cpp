@@ -68,7 +68,7 @@ public:
 
     struct boss_gugrokkAI : public BossAI
     {
-        boss_gugrokkAI(Creature* creature) : BossAI(creature, DATA_GUGROKK)
+        boss_gugrokkAI(Creature* creature) : BossAI(creature, DATA_GUGROKK), summons(me)
         {
             instance = me->GetInstanceScript();
         }
@@ -108,11 +108,19 @@ public:
                             garrison->AddFollower(177); //< Croman
                 }
             }
+
+            summons.DespawnAll();
+        }
+
+        void JustSummoned(Creature* summon)
+        {
+            summons.Summon(summon);
         }
 
         void EnterEvadeMode()
         {
             _EnterEvadeMode();
+            summons.DespawnAll();
         }
 
         void UpdateAI(uint32 diff)
@@ -172,7 +180,7 @@ public:
                     {
                         events.ScheduleEvent(EVENT_4, 20 * IN_MILLISECONDS);
                         events.ScheduleEvent(EVENT_6, 3 * IN_MILLISECONDS);
-                        
+
                         float x = 0.0f, y = 0.0f;
                         GetRandPosFromCenterInDist(me->GetPositionX(), me->GetPositionY(), 7.0f, x, y);
                         me->CastSpell(x, y, me->GetPositionZ(), SPELL_SUMMON_UNSTABLE_SLAG);
@@ -201,6 +209,7 @@ public:
     private:
         InstanceScript* instance;
         EventMap events;
+        SummonList summons;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -251,8 +260,7 @@ public:
             {
                 me->AddAura(SPELL_MAGMA_ERUPTION_SSC, me);
                 aura_timer = 2 * IN_MILLISECONDS;
-            }
-            else
+            } else
                 aura_timer -= diff;
         }
 
@@ -340,8 +348,7 @@ public:
                         if (reached && (me->GetReactState() != REACT_AGGRESSIVE))
                             me->SetReactState(REACT_AGGRESSIVE);
                     }
-            }
-            else
+            } else
                 checkTimer -= diff;
 
             while (uint32 eventId = events.ExecuteEvent())

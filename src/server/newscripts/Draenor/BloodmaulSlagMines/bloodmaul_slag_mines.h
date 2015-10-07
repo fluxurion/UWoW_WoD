@@ -27,8 +27,6 @@
 #ifndef DEF_BLOODMAUL_SLAG_MINES_H
 #define DEF_BLOODMAUL_SLAG_MINES_H
 
-#define BSMScriptName "instance_bloodmaul_slag_mines"
-
 enum DataTypes
 {
     DATA_SLAVE_WATCHER_CRUSHTO = 1,
@@ -39,7 +37,7 @@ enum DataTypes
     DATA_ROLTALL,
 
     DATA_GUGROKK,
-    
+
     //< Misc data
     DATA_DEFENCE_WALL,
     DATA_DEFENCE_WALL_2,
@@ -49,6 +47,10 @@ enum DataTypes
     DATA_CROMAN_SUMMONER,
     DATA_CROMAN_PROGRESS,
     DATA_CROMAN_GUID,
+
+    DATA_BOULDER_R,
+    DATA_BOULDER_L,
+    DATA_BOULDER_M,
 };
 
 enum GameObjects

@@ -95,7 +95,7 @@ public:
         {
             events.Reset();
             events.ScheduleEvent(EVENT_1, 9 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_2, urand(2 * IN_MILLISECONDS, 7 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_2, urand(2, 7) * IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 diff)
@@ -187,7 +187,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-       return new npc_bloodmaul_flamespeakerAI(creature);
+        return new npc_bloodmaul_flamespeakerAI(creature);
     }
 };
 
@@ -464,7 +464,7 @@ public:
 
     struct npc_bloodmaul_warderAI : public ScriptedAI
     {
-        npc_bloodmaul_warderAI(Creature* creature) : ScriptedAI(creature) 
+        npc_bloodmaul_warderAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = me->GetInstanceScript();
         }
@@ -979,6 +979,7 @@ public:
                     break;
                 case ACTION_3:
                     events.ScheduleEvent(EVENT_5, 3 * IN_MILLISECONDS);
+                    events.CancelEvent(EVENT_3);
                     Talk(12); // 'Ну наконец-то.'
                     break;
                 default:
@@ -1010,8 +1011,7 @@ public:
                     case EVENT_3:
                     {
                         events.ScheduleEvent(EVENT_3, urand(15, 35) * IN_MILLISECONDS);
-                        uint32 textID = urand(0, 6);
-                        uint32 texts[7][2]
+                        uint32 texts[][2]
                         {
                             {0, 2}, // 'Никто не должен жить в рабстве!'
                             {1, 3}, // 'Давай, сейчас!'
@@ -1019,12 +1019,13 @@ public:
                             {3, 5}, // 'Если врага можно ранить, значит, его можно и убить!'
                             {4, 6}, // 'Ничто не может причинить мне боль! Только боль.'
                             {5, 7}, // 'Не для меня придет весна.'
-                            {6, 7}, // 'Хватит болтать!'
+                            {6, 8}, // 'Хватит болтать!'
                         };
-                        Talk(texts[textID][1]);
+                        Talk(texts[urand(0, 6)][1]);
                         break;
                     }
                     case EVENT_4:
+                        events.RescheduleEvent(EVENT_3, 15 * IN_MILLISECONDS);
                         Talk(9); // 'Но этому я могу довериться.'
                         break;
                     case EVENT_5:

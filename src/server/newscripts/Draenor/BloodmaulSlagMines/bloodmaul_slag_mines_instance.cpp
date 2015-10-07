@@ -23,7 +23,7 @@
 class instance_bloodmaul_slag_mines : public InstanceMapScript
 {
 public:
-    instance_bloodmaul_slag_mines() : InstanceMapScript(BSMScriptName, 1175) { }
+    instance_bloodmaul_slag_mines() : InstanceMapScript("instance_bloodmaul_slag_mines", 1175) { }
 
     struct instance_bloodmaul_slag_mines_InstanceScript : public InstanceScript
     {
@@ -35,6 +35,8 @@ public:
             crushtoEvent = 0;
             gogduhEvent = 0;
             cromanProgress = 0;
+            for (uint8 i = 0; i < 3; i++)
+                boulder[i] = 0;
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -172,6 +174,15 @@ public:
                 case DATA_CROMAN_PROGRESS:
                     cromanProgress = data;
                     break;
+                case DATA_BOULDER_R:
+                    boulder[0] = data;
+                    break;
+                case DATA_BOULDER_L:
+                    boulder[1] = data;
+                    break;
+                case DATA_BOULDER_M:
+                    boulder[2] = data;
+                    break;
                 default:
                     break;
             }
@@ -223,7 +234,7 @@ public:
 
     private:
         ObjectGuid crushtoGUID, gogduhGUID, magmolatusGUID, roltallGUID, gugrokkGUID, wallGUID, wall2GUID, bridgeGUID, summonerGuid, cromanGUID;
-        uint32 crushtoEvent, gogduhEvent, cromanProgress;
+        uint32 crushtoEvent, gogduhEvent, cromanProgress, boulder[3];
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const

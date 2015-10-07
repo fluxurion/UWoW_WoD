@@ -21,19 +21,17 @@
 
 enum Texts
 {
-    NPC_TEXT_0                          = 77662, //< Да… он слабеет…
-    NPC_TEXT_1                          = 77663, //< Убейте его! Я освобожусь!
-    NPC_TEXT_2                          = 77653, //< Вы – щебень среди скал…
-    NPC_TEXT_3                          = 77655, //< Я – горный обвал!
-    NPC_TEXT_4                          = 84226, //< %s создает |cFFFF0404|Hspell:150045|h["Расплавление"]|h|r!
-    NPC_TEXT_5                          = 77714, //< Обратитесь в прах!
-    NPC_TEXT_6                          = 77671, //< Я сотру вас с лица земли.
-    NPC_TEXT_7                          = 77868, //< Сотру в пыль!
-    NPC_TEXT_8                          = 77651, //< Сотру в порошок…
-    NPC_TEXT_9                          = 78568, //< Я возвращаюсь в землю…
-    NPC_TEXT_START_BATTLE               = 77647,
-    NPC_TEXT_10                         = 87603,
-    NPC_TEXT_11                         = 78492,
+    TEXT_0, //< Да… он слабеет…
+    TEXT_1, //< Убейте его! Я освобожусь!
+    TEXT_2, //< Вы – щебень среди скал…
+    TEXT_3, //< Я – горный обвал!
+    TEXT_4, //< Бах!
+    TEXT_5, //< //< Я сотру вас с лица земли.
+    TEXT_6, //< Обратитесь в прах!
+    TEXT_7, //< Я возвращаюсь в землю…
+    TEXT_8, //< Сотру в порошок…
+
+    //@TODO: find this text //< %s создает |cFFFF0404|Hspell:150045|h["Расплавление"]|h|r!
 };
 
 enum Spells
@@ -110,7 +108,7 @@ public:
             events.ScheduleEvent(EVENT_1, 3 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_4, 2 * IN_MILLISECONDS);
 
-            Talk(uint8(NPC_TEXT_START_BATTLE));
+            Talk(TEXT_1);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -140,15 +138,11 @@ public:
                 if (Creature* magmolatus = me->FindNearestCreature(NPC_LAVA_EXPLOSION_STALKER, 100))
                     magmolatus->AI()->DoAction(ACTION_2);
 
-                Talk(uint8(NPC_TEXT_10));
+                //Talk(TEXT_10);
             }
 
             if (enableMagmolatus == 1 && me->HealthBelowPctDamaged(20, damage))
-            {
                 ++enableMagmolatus;
-                if (Creature* magmolatus = me->FindNearestCreature(BOSS_MAGMOLATUS, 50))
-                    magmolatus->AI()->Talk(uint8(NPC_TEXT_1));
-            }
 
             if (enableMagmolatus == 2 && me->HealthBelowPctDamaged(10, damage))
             {
@@ -163,7 +157,7 @@ public:
                 events.CancelEvent(EVENT_1);
                 events.CancelEvent(EVENT_3);
 
-                Talk(uint8(NPC_TEXT_11));
+                //Talk(TEXT_11);
             }
 
             if (me->HealthBelowPctDamaged(1, damage))
@@ -193,10 +187,10 @@ public:
                     case EVENT_1:
                         events.ScheduleEvent(EVENT_1, 4 * IN_MILLISECONDS);
                         events.ScheduleEvent(EVENT_3, 1 * IN_MILLISECONDS);
-                        
+
                         if (Creature* magmolatus = me->FindNearestCreature(BOSS_MAGMOLATUS, 100))
                             magmolatus->AI()->DoAction(ACTION_2);
-                        
+
                         me->CastSpell(me, SPELL_MAGMA_BARRAGE);
                         break;
                     case EVENT_3:
@@ -207,8 +201,7 @@ public:
                                 stalker->AI()->DoAction(ACTION_3);
 
                             ++magmas;
-                        }
-                        else
+                        } else
                         {
                             magmas = 0;
                             events.CancelEvent(EVENT_3);
@@ -261,14 +254,14 @@ public:
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     DoZoneInCombat();
-                    Talk(uint8(NPC_TEXT_2));
+                    Talk(TEXT_2);
 
                     if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                         AttackStart(target);
 
                     break;
                 case ACTION_2:
-                    Talk(uint8(NPC_TEXT_0));
+                    Talk(TEXT_0);
                     break;
                 default:
                     break;
@@ -300,7 +293,7 @@ public:
         {
             _JustDied();
 
-            Talk(uint8(NPC_TEXT_9));
+            Talk(TEXT_8);
         }
 
         void EnterEvadeMode()
@@ -335,7 +328,7 @@ public:
                     case EVENT_6:
                         events.ScheduleEvent(EVENT_6, 20 * IN_MILLISECONDS);
                         me->CastSpell(SelectTarget(SELECT_TARGET_RANDOM), SPELL_MOLTEN_IMPACT);
-                        Talk(uint8(NPC_TEXT_4));
+                        Talk(TEXT_4);
                         break;
                     case EVENT_7:
                         events.ScheduleEvent(EVENT_7, 16 * IN_MILLISECONDS);
@@ -343,14 +336,14 @@ public:
                         break;
                     case EVENT_14:
                         events.ScheduleEvent(EVENT_15, 2 * IN_MILLISECONDS);
-                        Talk(uint8(NPC_TEXT_3));
+                        Talk(TEXT_3);
                         break;
                     case EVENT_15:
                         events.ScheduleEvent(EVENT_16, 3 * IN_MILLISECONDS);
-                        Talk(uint8(NPC_TEXT_6));
+                        Talk(TEXT_6);
                         break;
                     case EVENT_16:
-                        Talk(uint8(NPC_TEXT_5));
+                        //Talk(TEXT_5);
                         break;
                     default:
                         break;
@@ -447,7 +440,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-       return new npc_ruinationAI(creature);
+        return new npc_ruinationAI(creature);
     }
 };
 
