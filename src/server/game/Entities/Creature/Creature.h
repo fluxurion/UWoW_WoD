@@ -363,8 +363,19 @@ struct CreatureAddon
     std::vector<uint32> auras;
 };
 
+// `creature_evade_wmo_data` table
+struct CreatureEvadeWmoData
+{
+    uint32 entry;
+    float distance;
+    int32 wmoId;
+    int32 wmoSet;
+    int32 wmoGroupId;
+};
+
 typedef UNORDERED_MAP<ObjectGuid::LowType, CreatureAddon> CreatureAddonContainer;
 typedef UNORDERED_MAP<uint32, CreatureAddon> CreatureTemplateAddonContainer;
+typedef UNORDERED_MAP<uint32, CreatureEvadeWmoData> CreatureEvadeWmoDataContainer;
  
 
 struct CreatureModelInfo
@@ -918,6 +929,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         bool IsDespawn() const { return m_despan; }
 
+        CreatureEvadeWmoData const* GetEvadeWmoData() { return m_evadeWmoData; }
+
     protected:
         bool m_onVehicleAccessory;
 
@@ -993,6 +1006,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         //Formation var
         CreatureGroup* m_formation;
         bool TriggerJustRespawned;
+        CreatureEvadeWmoData const* m_evadeWmoData;
 };
 
 class AssistDelayEvent : public BasicEvent

@@ -976,6 +976,7 @@ class ObjectMgr
         EquipmentInfo const* GetEquipmentInfo(uint32 entry, int8& id);
         CreatureAddon const* GetCreatureAddon(ObjectGuid::LowType const& lowguid);
         CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
+        CreatureEvadeWmoData const* GetCreatureEvadeWmoData(uint32 entry);
         ItemTemplate const* GetItemTemplate(uint32 entry);
         ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
 
@@ -1231,6 +1232,7 @@ class ObjectMgr
         void LoadCreatureClassLevelStats();
         void LoadWorldVisibleDistance();
         void LoadCreatureLocales();
+        void LoadCreatureEvaseWmoData();
         void LoadCreatureDifficultyStat();
         void LoadCreatureTemplates();
         void LoadCreatureTemplateAddons();
@@ -1847,6 +1849,7 @@ class ObjectMgr
         CreatureModelContainer _creatureModelStore;
         CreatureAddonContainer _creatureAddonStore;
         CreatureTemplateAddonContainer _creatureTemplateAddonStore;
+        CreatureEvadeWmoDataContainer _creatureEvadeWmoDataStore;
         CreatureAIInstanceContainer _creatureAIInstance;
         CreatureAIInstanceDoorContainer _creatureAIInstanceDoor;
         CreatureAIInstanceGoContainer _creatureAIInstanceGo;

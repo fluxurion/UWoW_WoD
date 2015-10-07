@@ -325,7 +325,7 @@ class Map : public GridRefManager<NGridType>
         uint16 GetAreaFlag(float x, float y, float z, bool *isOutdoors=0) const;
         bool GetAreaInfo(float x, float y, float z, uint32 &mogpflags, int32 &adtId, int32 &rootId, int32 &groupId) const;
 
-        bool IsOutdoors(float x, float y, float z, uint32& wmoId) const;
+        bool IsOutdoors(float x, float y, float z) const;
 
         uint8 GetTerrainType(float x, float y) const;
         float GetWaterLevel(float x, float y) const;

@@ -590,6 +590,41 @@ void ObjectMgr::LoadCreatureTemplates()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadCreatureEvaseWmoData()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                                 0        1       2      3          4
+    QueryResult result = WorldDatabase.Query("SELECT entry, distance, wmoId, wmoSet, wmoGroupId FROM creature_evade_wmo_data;");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creature evade data. DB table `creature_evade_wmo_data` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 entry = fields[0].GetUInt32();
+
+        CreatureEvadeWmoData& creatureEvade = _creatureEvadeWmoDataStore[entry];
+
+        creatureEvade.entry       = entry;
+        creatureEvade.distance    = float(fields[1].GetUInt32());
+        creatureEvade.wmoId       = fields[2].GetUInt32();
+        creatureEvade.wmoSet      = fields[3].GetUInt32();
+        creatureEvade.wmoGroupId  = fields[4].GetUInt32();
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u creature evade data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void ObjectMgr::LoadCreatureDifficultyStat()
 {
     uint32 oldMSTime = getMSTime();
@@ -1016,6 +1051,15 @@ CreatureAddon const* ObjectMgr::GetCreatureTemplateAddon(uint32 entry)
 {
     CreatureTemplateAddonContainer::const_iterator itr = _creatureTemplateAddonStore.find(entry);
     if (itr != _creatureTemplateAddonStore.end())
+        return &(itr->second);
+
+    return NULL;
+}
+
+CreatureEvadeWmoData const* ObjectMgr::GetCreatureEvadeWmoData(uint32 entry)
+{
+    CreatureEvadeWmoDataContainer::const_iterator itr = _creatureEvadeWmoDataStore.find(entry);
+    if (itr != _creatureEvadeWmoDataStore.end())
         return &(itr->second);
 
     return NULL;

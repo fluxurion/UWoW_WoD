@@ -196,6 +196,7 @@ m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL), m_o
     m_despan = false;
 
     m_creatureDiffData = NULL;
+    m_evadeWmoData = NULL;
 }
 
 Creature::~Creature()
@@ -301,6 +302,7 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
 
     // get difficulty 1 mode entry
     m_difficulty = CreatureTemplate::GetDiffFromSpawn(GetMap()->GetSpawnMode());
+    m_evadeWmoData = sObjectMgr->GetCreatureEvadeWmoData(entry);
     //Save spawn mode
     m_spawnMode = GetMap()->GetSpawnMode();
 
@@ -512,12 +514,31 @@ void Creature::Update(uint32 diff)
 {
     volatile uint32 creatureEntry = GetEntry();
 
-	if (m_LOSCheckTimer <= diff)
-	{
-		m_LOSCheck_player = true;
-		m_LOSCheck_creature = true;
-		m_LOSCheckTimer = DEFAULT_VISIBILITY_NOTIFY_PERIOD*2;
-	} else m_LOSCheckTimer -= diff;
+    if (m_LOSCheckTimer <= diff)
+    {
+        m_LOSCheck_player = true;
+        m_LOSCheck_creature = true;
+        m_LOSCheckTimer = DEFAULT_VISIBILITY_NOTIFY_PERIOD*2;
+        if(m_evadeWmoData && IsAIEnabled && !IsInEvadeMode())
+        {
+            if(!m_evadeWmoData->wmoId && !m_evadeWmoData->wmoGroupId && m_evadeWmoData->distance > 0.0f)
+            {
+                if(GetDistance(GetHomePosition()) > m_evadeWmoData->distance)
+                    AI()->EnterEvadeMode();
+            }
+            else
+            {
+                uint32 mogpFlags;
+                int32 adtId, rootId, groupId;
+                if(GetMap()->GetAreaInfo(GetPositionX(), GetPositionY(), GetPositionZ(), mogpFlags, adtId, rootId, groupId))
+                {
+                    if((m_evadeWmoData->wmoId && m_evadeWmoData->wmoId != rootId) || (m_evadeWmoData->wmoGroupId && m_evadeWmoData->wmoGroupId != groupId) || (m_evadeWmoData->wmoSet != -1 && m_evadeWmoData->wmoSet != adtId))
+                        if(m_evadeWmoData->distance == 0.0f || GetDistance(GetHomePosition()) > m_evadeWmoData->distance)
+                            AI()->EnterEvadeMode();
+                }
+            }
+        }
+    } else m_LOSCheckTimer -= diff;
 
     bool isPlayersPet = false;
     if (Unit * unit = ToUnit())
@@ -1855,7 +1876,7 @@ void Creature::setDeathState(DeathState s)
 
 void Creature::Respawn(bool force, uint32 timer)
 {
-	Movement::MoveSplineInit(*this).Stop(true);
+    Movement::MoveSplineInit(*this).Stop(true);
     DestroyForNearbyPlayers();
 
     if (force)

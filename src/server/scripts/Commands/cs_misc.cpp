@@ -348,16 +348,21 @@ public:
 
         if (haveVMap)
         {
-            uint32 wmoId = 0;
-            if (map->IsOutdoors(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), wmoId))
+            uint32 mogpFlags;
+            int32 adtId, rootId, groupId;
+            if(map->GetAreaInfo(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), mogpFlags, adtId, rootId, groupId))
+            {
+                if(WMOAreaTableEntry const* wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId))
+                    if(std::strlen(wmoEntry->AreaName_lang) > 0)
+                        AreaName = wmoEntry->AreaName_lang;
+
+                handler->PSendSysMessage("WMO rootId %i adtId %i groupId %i mogpFlags %u", rootId, adtId, groupId, mogpFlags);
+            }
+
+            if (map->IsOutdoors(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ()))
                 handler->PSendSysMessage("You are outdoors");
             else
                 handler->PSendSysMessage("You are indoors");
-
-            if(wmoId)
-                if(WMOAreaTableEntry const* wmoAreaTableEntry = sWMOAreaTableStore.LookupEntry(wmoId))
-                    if(std::strlen(wmoAreaTableEntry->AreaName_lang) > 0)
-                        AreaName = wmoAreaTableEntry->AreaName_lang;
         }
         else
             handler->PSendSysMessage("no VMAP available for area info");
