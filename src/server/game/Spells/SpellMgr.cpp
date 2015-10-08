@@ -4431,12 +4431,13 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 124845: //Calamity
                     spellInfo->Effects[EFFECT_1].Effect = 0;
                     break;
-                case 115295:// Guard
+                case 115295: //Guard
                     spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_HEALING_DONE_PERCENT;
                     spellInfo->Effects[EFFECT_1].BasePoints = 30;
                     break;
-                case 126451:// Clash - Impact
+                case 126451: //Clash - Impact
                 case 129428: //Stone Guards - Dummy Searcher(cobalt mine)
+                case 154462: //Ritual of Bones
                     spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(29);
                     break;
                 case 121253:// Keg Smash

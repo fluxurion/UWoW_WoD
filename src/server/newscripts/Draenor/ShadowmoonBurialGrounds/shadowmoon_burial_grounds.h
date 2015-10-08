@@ -26,6 +26,14 @@ enum eCreatures
     NPC_DEFILED_SPIRIT      = 75966,
     //Nhallish
     NPC_POSSESSED_SOUL      = 75899,
+    //Bonemaw
+    NPC_INHALE              = 76250,
+    NPC_CARRION_WORM        = 76057,
+    //Ner'zhul
+    NPC_NERZHUL             = 76407,
+    NPC_PORTAL              = 85541,
+    NPC_OMEN_OF_DEATH       = 76462,
+    NPC_RITUAL_OF_BONES     = 76518,
 };
 
 enum eGameObjects
@@ -33,6 +41,8 @@ enum eGameObjects
     GO_SADANA_DOOR_ENTER    = 233921,
     GO_SADANA_DOOR_EXIT     = 233919,
     GO_NHALLISH_DOOR        = 227851,
+    GO_BONEMAW_DOOR_ENTER   = 233990,
+    GO_BONEMAW_DOOR_EXIT    = 233989,
 };
 
 #endif

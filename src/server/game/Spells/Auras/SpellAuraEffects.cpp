@@ -6335,6 +6335,9 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         {
             switch (GetId())
             {
+                case 154010:
+                    caster->CastSpell(caster, GetAmount(), true);
+                    break;
                 case 1515:                                      // Tame beast
                     // FIX_ME: this is 2.0.12 threat effect replaced in 2.1.x by dummy aura, must be checked for correctness
                     if (caster && target->CanHaveThreatList())
