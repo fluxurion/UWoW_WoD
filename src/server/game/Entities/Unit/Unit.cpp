@@ -19817,8 +19817,7 @@ void Unit::CalculateFromDummy(Unit* victim, float* amountF, uint32* amountU, Spe
     {
         for (std::vector<SpellAuraDummy>::const_iterator itr = spellAuraDummy->begin(); itr != spellAuraDummy->end(); ++itr)
         {
-            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::CalculateFromDummy spellDummyId %i, effectmask %i, option %i, aura %i",
-            itr->spellDummyId, itr->effectmask, itr->option, itr->aura);
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::CalculateFromDummy spellDummyId %i, effectmask %i, option %i, aura %i, type %i", itr->spellDummyId, itr->effectmask, itr->option, itr->aura, itr->type);
 
             if(itr->type != type)
                 continue;
@@ -20163,7 +20162,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, SpellInfo const* spellProto
     else
         EventProcFlag = spellProto->ProcFlags;       // else get from spell proto
 
-    CalculateFromDummy(victim, NULL, &EventProcFlag, spellProto, effect, SPELL_DUMMY_PROC);
+    //CalculateFromDummy(victim, NULL, &EventProcFlag, spellProto, effect, SPELL_DUMMY_PROC);
 
     // Continue if no trigger exist
     if (!EventProcFlag)
@@ -24335,10 +24334,13 @@ void Unit::SendMovementForce(WorldObject* at, float windX, float windY, float wi
         data << GetGUID();
         data << uint32(m_movementCounter++); // SequenceIndex
         data << at->GetGUID(); //guid AT
-        data << float(windType ? at->GetPositionX() : windX);
-        data << float(windType ? at->GetPositionY() : windY);
-        data << float(windType ? at->GetPositionZ() : windZ);
-        data << uint32(0); //Unk1 may TransportID
+        data << float(at->GetPositionX());
+        data << float(at->GetPositionY());
+        data << float(at->GetPositionZ());
+        data << float(windX);
+        data << float(windY);
+        data << float(windZ);
+        data << uint32(0/*TransportID*/);
         data << float(windSpeed);
         data.WriteBits(windType, 2); // Type
 
