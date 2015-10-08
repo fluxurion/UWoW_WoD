@@ -122,7 +122,11 @@ void PhaseMgr::Recalculate()
 
 inline bool PhaseMgr::CheckDefinition(PhaseDefinition const* phaseDefinition)
 {
-    return sConditionMgr->IsObjectMeetToConditions(player, sConditionMgr->GetConditionsForPhaseDefinition(phaseDefinition->zoneId, phaseDefinition->entry));
+    ConditionList const conditions = sConditionMgr->GetConditionsForPhaseDefinition(phaseDefinition->zoneId, phaseDefinition->entry);
+    if (conditions.empty())
+        return true;
+
+    return sConditionMgr->IsObjectMeetToConditions(player, conditions);
 }
 
 bool PhaseMgr::NeedsPhaseUpdateWithData(PhaseUpdateData const updateData) const
