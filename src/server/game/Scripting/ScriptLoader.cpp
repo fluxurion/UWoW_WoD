@@ -95,6 +95,7 @@ void AddSC_wp_commandscript();
 
 //draenor
 void AddSC_wod_dark_portal();
+void AddSC_wod_frostfire_ridge();
 
 void AddSC_instance_iron_docks();       // Iron Docks
 void AddSC_boss_fleshrender_nokgar();
@@ -1078,6 +1079,7 @@ void AddDraenorScripts()
 {
 #ifdef SCRIPTS
     AddSC_wod_dark_portal();
+    AddSC_wod_frostfire_ridge();
 
     AddSC_instance_iron_docks();       // Iron Docks
     AddSC_boss_fleshrender_nokgar();
