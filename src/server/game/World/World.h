@@ -587,8 +587,8 @@ enum ScriptCommands
     SCRIPT_COMMAND_MODEL                 = 32,               // source = Creature, datalong = model id
     SCRIPT_COMMAND_CLOSE_GOSSIP          = 33,               // source = Player
     SCRIPT_COMMAND_PLAYMOVIE             = 34,               // source = Player, datalong = movie id
-    SCRIPT_COMMAND_PLAYSCENE             = 35,               // source = Player, datalong = sceneID
-    SCRIPT_COMMAND_STOPSCENE             = 36,               // source = Player, datalong = sceneID
+    SCRIPT_COMMAND_PLAYSCENE             = 35,               // source = Player, datalong = sceneID miscValue 
+    SCRIPT_COMMAND_STOPSCENE             = 36,               // source = Player, datalong = sceneID miscValue
 };
 
 /// Storage class for commands issued for delayed execution

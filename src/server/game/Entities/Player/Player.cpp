@@ -30121,16 +30121,16 @@ Difficulty Player::CheckLoadedLegacyRaidDifficultyID(Difficulty difficulty)
     return difficulty;
 }
 
-void Player::SendSpellScene(uint32 sceneID, SpellInfo const* spellInfo, bool apply, Position* pos)
+void Player::SendSpellScene(uint32 miscValue, SpellInfo const* spellInfo, bool apply, Position* pos)
 {    
-    SpellScene const* spellScene = sSpellMgr->GetSpellScene(sceneID);
+    SpellScene const* spellScene = sSpellMgr->GetSpellScene(miscValue);
     if (!spellScene)
         return;
 
     if (apply)
     {
         WorldPackets::Scene::PlayScene scene;
-        scene.SceneID = sceneID;
+        scene.SceneID = miscValue;
         scene.PlaybackFlags = spellScene->PlaybackFlags;
         scene.SceneInstanceID = ++sceneInstanceID;
         scene.SceneScriptPackageID = spellScene->SceneScriptPackageID;
@@ -30138,14 +30138,14 @@ void Player::SendSpellScene(uint32 sceneID, SpellInfo const* spellInfo, bool app
         ToPlayer()->GetSession()->SendPacket(scene.Write());
 
         // Link aura effect
-        m_sceneInstanceID[sceneInstanceID] = sceneID;
-        m_sceneStatus[sceneID] = SCENE_LAUNCH;
+        m_sceneInstanceID[sceneInstanceID] = miscValue;
+        m_sceneStatus[miscValue] = SCENE_LAUNCH;
     }
     else
     {
         uint32 ID = 0;
         for (auto data : m_sceneInstanceID)
-            if (data.second == sceneID) // no break. get last.
+            if (data.second == miscValue) // no break. get last.
                 ID = data.first;
 
         if (!ID)    //as we have sctipt with finishing scene it now could be 0.
