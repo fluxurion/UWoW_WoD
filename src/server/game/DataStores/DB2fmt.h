@@ -49,6 +49,7 @@ char const GarrPlotFormat[] = "niiisiiii";
 char const GarrPlotInstanceFormat[] = "nis";
 char const GarrSiteLevelFormat[] = "niiiiffiiii";
 char const GarrSiteLevelPlotInstFormat[] = "niiffi";
+char const HeirloomFormat[] = "niisiiiiiiii";
 char const HolidaysFormat[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisiii";
 char const ItemAppearanceFormat[] = "nii";
 char const ItemBonusFormat[] = "niiiii";

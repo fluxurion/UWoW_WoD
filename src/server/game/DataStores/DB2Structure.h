@@ -73,6 +73,19 @@ struct CurvePointEntry
     float Y;                                                        // 4
 };
 
+struct HeirloomEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 ItemID;                                                  // 1
+    uint32 Flags;                                                   // 2
+    LocalizedString* SourceText;                                    // 3
+    uint32 Source;                                                  // 4
+    uint32 OldItem[2];                                              // 5-6
+    uint32 NextDifficultyItemID;                                    // 7
+    uint32 UpgradeItemID[2];                                        // 8-9
+    uint32 ItemBonusListID[2];                                      // 10-11
+};
+
 struct HolidaysEntry
 {
     uint32      ID;                                         // 0

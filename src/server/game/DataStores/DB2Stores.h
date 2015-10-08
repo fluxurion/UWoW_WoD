@@ -52,6 +52,7 @@ extern DB2Storage<GarrPlotEntry>                    sGarrPlotStore;
 extern DB2Storage<GarrPlotInstanceEntry>            sGarrPlotInstanceStore;
 extern DB2Storage<GarrSiteLevelEntry>               sGarrSiteLevelStore;
 extern DB2Storage<GarrSiteLevelPlotInstEntry>       sGarrSiteLevelPlotInstStore;
+extern DB2Storage<HeirloomEntry>                    sHeirloomStore;
 extern DB2Storage<HolidaysEntry>                    sHolidaysStore;
 extern DB2Storage<ItemAppearanceEntry>              sItemAppearanceStore;
 extern DB2Storage<ItemCurrencyCostEntry>            sItemCurrencyCostStore;
@@ -129,6 +130,7 @@ public:
     typedef std::unordered_map<uint32, ItemUpgradeData> ItemUpgradeDataMap;
     typedef std::unordered_map<uint32, std::vector<QuestPackageItemEntry const*>> QuestPackageItemContainer;
     typedef std::vector<uint32> ToyItemIdsContainer;
+    typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
 
     static DB2Manager& Instance()
     {
@@ -158,6 +160,8 @@ public:
     MountEntry const* GetMountById(uint32 id) const;
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
     std::set<uint32> GetFindBonusTree(uint32 BonusTreeID, uint32 itemBonusTreeMod) const;
+    HeirloomEntry const* GetHeirloomByItemId(uint32 itemId) const;
+    HeirloomEntry const* GetHeirloomByOldItem(uint32 itemId) const;
 
     BattlePetSpeciesBySpellIdMap _battlePetSpeciesBySpellId; // @TODO: move this to private and make special getters
     MapChallengeModeEntryMap _mapChallengeModeEntrybyMap; // @TODO: move this to private and make special getters
@@ -177,6 +181,7 @@ private:
     ItemUpgradeDataMap _itemUpgradeDataMap;
     QuestPackageItemContainer _questPackages;
     ToyItemIdsContainer _toys;
+    HeirloomItemsContainer _heirlooms;
 };
 
 #define sDB2Manager DB2Manager::Instance()

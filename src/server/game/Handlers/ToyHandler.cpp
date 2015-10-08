@@ -23,26 +23,29 @@ void WorldSession::HandleAddToy(WorldPackets::Toy::AddToy& packet)
 {
     if (!packet.Guid)
         return;
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    Item* item = _player->GetItemByGuid(packet.Guid);
+    Item* item = player->GetItemByGuid(packet.Guid);
     if (!item)
     {
-        _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+        player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
         return;
     }
 
     //if (!GetToyItemIdMatch(item->GetEntry()))
     //    return;
 
-    InventoryResult msg = _player->CanUseItem(item);
+    InventoryResult msg = player->CanUseItem(item);
     if (msg != EQUIP_ERR_OK)
     {
-        _player->SendEquipError(msg, item, nullptr);
+        player->SendEquipError(msg, item, nullptr);
         return;
     }
 
-    if (_collectionMgr->AddToy(item->GetEntry(), false))
-        _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+    if (player->GetCollectionMgr()->AddToy(item->GetEntry(), false))
+        player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 }
 
 void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
@@ -55,21 +58,26 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
     if (!spellInfo)
         return;
 
-    if (_player->isPossessing())
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    SpellCastTargets targets(_player, packet.Cast);
+    if (player->isPossessing())
+        return;
 
-    Spell* spell = new Spell(_player, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
+    SpellCastTargets targets(player, packet.Cast);
+
+    Spell* spell = new Spell(player, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
     spell->m_castItemEntry = packet.ItemID;
     spell->m_cast_count = packet.Cast.CastID;
     spell->m_misc.Data = packet.Cast.Misc;
-    //spell->m_misc.Raw.Data[1] = packet.Cast.Misc[1];
     spell->m_castFlagsEx |= CAST_FLAG_EX_USE_TOY_SPELL;
     spell->prepare(&targets);
 }
 
 void WorldSession::HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet)
 {
-    _collectionMgr->ToySetFavorite(packet.ItemID, packet.Favorite);
+    Player* player = GetPlayer();
+    if (player)
+        player->GetCollectionMgr()->ToySetFavorite(packet.ItemID, packet.Favorite);
 }

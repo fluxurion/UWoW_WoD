@@ -686,7 +686,8 @@ void KillRewarder::Reward()
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #endif
-Player::Player(WorldSession* session): Unit(true), m_achievementMgr(this), m_reputationMgr(this), phaseMgr(this), m_battlePetMgr(this)
+Player::Player(WorldSession* session): Unit(true),
+        m_achievementMgr(this), m_reputationMgr(this), phaseMgr(this), m_battlePetMgr(this), _collectionMgr(Trinity::make_unique<CollectionMgr>(this))
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -9644,6 +9645,9 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
         if (!spellproto)
             continue;
 
+        if (spellproto->HasAura(SPELL_AURA_MOD_XP_PCT) && !_collectionMgr->CanApplyHeirloomXpBonus(item->GetEntry(), getLevel()))
+            continue;
+
         ApplyEquipSpell(spellproto, item, apply, form_change);
     }
 }
@@ -10136,6 +10140,7 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
                 continue;
 
             _ApplyItemBonuses(m_items[i], i, apply);
+            ApplyItemEquipSpell(m_items[i], apply);
         }
     }
 }
@@ -12855,7 +12860,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
 
             ScalingStatDistributionEntry const* ssd = pProto->ScalingStatDistribution ? sScalingStatDistributionStore.LookupEntry(pProto->ScalingStatDistribution) : 0;
             // check allowed level (extend range to upper values if MaxLevel more or equal max player level, this let GM set high level with 1...max range items)
-            if (ssd && ssd->MaxLevel < DEFAULT_MAX_LEVEL && ssd->MaxLevel < getLevel())
+            if (ssd && ssd->MaxLevel < DEFAULT_MAX_LEVEL && ssd->MaxLevel < getLevel() && !sDB2Manager.GetHeirloomByItemId(pProto->ItemId))
                 return EQUIP_ERR_NOT_EQUIPPABLE;
 
             uint8 eslot = FindEquipSlot(pProto, slot, swap);
@@ -13357,6 +13362,13 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
         ItemAddedQuestCheck(item, count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM, item, 1);
+
+        if (sDB2Manager.GetHeirloomByItemId(item))
+        {
+            _collectionMgr->AddHeirloom(item, 0);
+            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS);
+        }
+
         if (randomPropertyId)
             pItem->SetItemRandomProperties(randomPropertyId);
 
@@ -13387,6 +13399,38 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
         }
     }
     return pItem;
+}
+
+std::vector<Item*> Player::GetItemListByEntry(uint32 entry, bool inBankAlso) const
+{
+    std::vector<Item*> itemList = std::vector<Item*>();
+
+    for (int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (item->GetEntry() == entry)
+                itemList.push_back(item);
+
+    for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+        if (Bag* pBag = GetBagByPos(i))
+            for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
+                if (Item* item = pBag->GetItemByPos(j))
+                    if (item->GetEntry() == entry)
+                        itemList.push_back(item);
+
+    for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_BAG_END; ++i)
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (item->GetEntry() == entry)
+                itemList.push_back(item);
+
+    if (inBankAlso)
+    {
+        for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
+            if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                if (item->GetEntry() == entry)
+                    itemList.push_back(item);
+    }
+
+    return itemList;
 }
 
 Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
@@ -19053,6 +19097,10 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
                              holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES),
                              holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_MISSIONS)))
         _garrison = std::move(garrison);
+    
+    std::unique_ptr<CollectionMgr> collection = Trinity::make_unique<CollectionMgr>(this);
+    if (_collectionMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TOYS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HEIRLOOMS)))
+        _collectionMgr = std::move(collection);
 
     if (mustResurrectFromUnlock)
         ResurrectPlayer(1, true);
@@ -19415,6 +19463,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
             {
                 ObjectGuid::LowType bGUID = fields[15].GetUInt64();
                 uint8  slot     = fields[16].GetUInt8();
+
+                _collectionMgr->CheckHeirloomUpgrades(item);
 
                 uint8 err = EQUIP_ERR_OK;
                 // Item is not in bag
@@ -21250,6 +21300,9 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveLootCooldown(trans);
     if (_garrison)
         _garrison->SaveToDB(trans);
+       
+    if (_collectionMgr)
+        _collectionMgr->SaveToDB(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -21257,10 +21310,6 @@ void Player::SaveToDB(bool create /*=false*/)
         _SaveStats(trans);
 
     CharacterDatabase.CommitTransaction(trans);
-
-    trans = LoginDatabase.BeginTransaction();
-    GetSession()->GetCollectionMgr()->SaveAccountToys(trans);
-    LoginDatabase.CommitTransaction(trans);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
@@ -25403,7 +25452,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     WorldPackets::Toy::AccountToysUpdate toysUpdate;
     toysUpdate.IsFullUpdate = true;
-    toysUpdate.Toys = &GetSession()->GetCollectionMgr()->GetAccountToys();
+    toysUpdate.Toys = &_collectionMgr->GetAccountToys();
     SendDirectMessage(toysUpdate.Write());
 
     WorldPackets::Character::InitialSetup initialSetup;

@@ -285,6 +285,14 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_GARRISON_MISSIONS, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TOYS);
+    stmt->setUInt32(0, m_accountId);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_TOYS, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HEIRLOOMS);
+    stmt->setUInt32(0, m_accountId);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_HEIRLOOMS, stmt);
+
     return res;
 }
 

@@ -1572,6 +1572,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN:
             case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP:
             case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
                 canComplete = SetCriteriaProgress(achievement, criteriaTree, criteria, init ? 0 : 1, referencePlayer, PROGRESS_ACCUMULATE, progressMap, progress);
                 break;
             // std case: increment at miscValue1
@@ -1859,7 +1860,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_RAISE_GARRISON_FOLLOWER_LEVEL:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_TOY_COUNT:
-            case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
                 break;                                   // Not implemented yet :(
         }
 
@@ -2020,6 +2020,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(CriteriaTreeEntry const* criteriaTre
         case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT:
         case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP:
         case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
             progress->completed = progress->counter >= criteriaTree->requirement_count;
             break;
         // handle all statistic-only criteria here
@@ -2179,6 +2180,7 @@ uint32 AchievementMgr<T>::IsCompletedCriteriaTreeCounter(CriteriaTreeEntry const
                 case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN:
                 case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT:
                 case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP:
+                case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
                     check = count >= criteriaTree->requirement_count;
                     break;
                 // handle all statistic-only criteria here
@@ -2379,6 +2381,7 @@ bool AchievementMgr<T>::IsCompletedCriteriaTree(CriteriaTreeEntry const* criteri
             case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN:
             case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT:
             case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP:
+            case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
                 check = count >= requirement_count;
                 break;
             // handle all statistic-only criteria here
@@ -2569,6 +2572,7 @@ bool AchievementMgr<T>::IsCompletedScenarioTree(CriteriaTreeEntry const* criteri
                 case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN:
                 case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT:
                 case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP:
+                case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
                     check = progress->counter >= criteriaTree->requirement_count;
                     break;
                 // handle all statistic-only criteria here
@@ -3467,6 +3471,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementEntry const* achievemen
         case ACHIEVEMENT_CRITERIA_TYPE_OBTAIN_BATTLEPET:
         case ACHIEVEMENT_CRITERIA_TYPE_COLLECT_BATTLEPET:
         case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN:
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
             if (m_completedAchievements.find(criteria->complete_achievement.linkedAchievement) == m_completedAchievements.end())

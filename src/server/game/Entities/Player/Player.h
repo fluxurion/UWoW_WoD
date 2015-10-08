@@ -991,6 +991,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS,
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES,
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_MISSIONS,
+    PLAYER_LOGIN_QUERY_LOAD_TOYS,
+    PLAYER_LOGIN_QUERY_LOAD_HEIRLOOMS,
 
     MAX_PLAYER_LOGIN_QUERY
 };
@@ -1673,6 +1675,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = NULL) const;
         Item* GetItemByGuid(ObjectGuid guid) const;
         Item* GetItemByEntry(uint32 entry) const;
+        std::vector<Item*> GetItemListByEntry(uint32 entry, bool inBankAlso = false) const;
         Item* GetItemByPos(uint16 pos) const;
         Item* GetItemByPos(uint8 bag, uint8 slot) const;
         Bag*  GetBagByPos(uint8 slot) const;
@@ -3287,6 +3290,11 @@ class Player : public Unit, public GridObject<Player>
         Garrison* GetGarrison() { return _garrison.get(); }
 
         /*********************************************************/
+        /***              Collection SYSTEM                    ***/
+        /*********************************************************/
+        CollectionMgr* GetCollectionMgr() const { return _collectionMgr.get(); }
+
+        /*********************************************************/
         /***              CHALLENGE SYSTEM                     ***/
         /*********************************************************/
         void ChallangeReward(MapChallengeModeEntry const* mode, ChallengeMode medal, uint32 recTime);
@@ -3759,6 +3767,7 @@ class Player : public Unit, public GridObject<Player>
         bool _advancedCombatLoggingEnabled;
 
         std::unique_ptr<Garrison> _garrison;
+        std::unique_ptr<CollectionMgr> _collectionMgr;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

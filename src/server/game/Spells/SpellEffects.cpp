@@ -25,6 +25,7 @@
 #include "BattlegroundTP.h"
 #include "BattlegroundWS.h"
 #include "CellImpl.h"
+#include "CollectionMgr.h"
 #include "Common.h"
 #include "Creature.h"
 #include "CreatureAI.h"
@@ -298,7 +299,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectSummonConversation,                       //219 SPELL_EFFECT_SUMMON_CONVERSATION
     &Spell::EffectAddGarrisonFollower,                      //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
-    &Spell::EffectNULL,                                     //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
+    &Spell::EffectCreateHeirloomItem,                       //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
     &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
     &Spell::EffectActivateGarrisonBuilding,                 //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
     &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
@@ -321,8 +322,8 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //242 SPELL_EFFECT_242
     &Spell::EffectNULL,                                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectNULL,                                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
-    &Spell::EffectNULL,                                     //246 SPELL_EFFECT_UPGRADE_HEIRLOOM
-    &Spell::EffectNULL,                                     //247 SPELL_EFFECT_FINISH_GARRISON_MISSION
+    &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
+    &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
     &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
     &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249
@@ -2929,7 +2930,7 @@ void Spell::EffectHealthLeech(SpellEffIndex effIndex)
     }
 }
 
-void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
+void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, std::vector<int32> const& bonusListIDs)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -3008,7 +3009,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
     if (num_to_add)
     {
         // create the new item and store it
-        Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid));
+        Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid), GuidSet(), bonusListIDs);
 
         if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
         {
@@ -8829,4 +8830,33 @@ void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
         garrison->ActivateBuilding(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
+}
+
+void Spell::EffectCreateHeirloomItem(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    CollectionMgr* collectionMgr = m_caster->ToPlayer()->GetCollectionMgr();
+    if (!collectionMgr)
+        return;
+
+    std::vector<int32> bonusList;
+    bonusList.push_back(collectionMgr->GetHeirloomBonus(m_misc.Data));
+
+    DoCreateItem(effIndex, m_misc.Data, bonusList);
+    ExecuteLogEffectCreateItem(effIndex, m_misc.Data);
+}
+
+void Spell::EffectUpgradeHeirloom(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    CollectionMgr* collectionMgr = m_caster->ToPlayer()->GetCollectionMgr();
+    if (collectionMgr)
+        collectionMgr->UpgradeHeirloom(m_misc.Data, m_castItemEntry);
 }

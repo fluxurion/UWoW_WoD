@@ -119,7 +119,7 @@ timeLastChannelUnmoderCommand(0),
 timeLastChannelUnmuteCommand(0),
 timeLastChannelKickCommand(0), timeLastHandleSendMail(0), timeLastHandleSellItem(0), timeLastHandlePlayerLogin(0), timeLastHandleSpellClick(0),
 timeCharEnumOpcode(0), timeAddIgnoreOpcode(0), timeMoveTeleportAck(0),
-playerLoginCounter(0), m_currentBankerGUID(), _collectionMgr(Trinity::make_unique<CollectionMgr>(this))
+playerLoginCounter(0), m_currentBankerGUID()
 {
     _warden = NULL;
     _pakagepersecond = 0;

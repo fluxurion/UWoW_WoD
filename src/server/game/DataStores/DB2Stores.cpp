@@ -51,6 +51,7 @@ DB2Storage<GarrPlotEntry>                   sGarrPlotStore("GarrPlot.db2", GarrP
 DB2Storage<GarrPlotInstanceEntry>           sGarrPlotInstanceStore("GarrPlotInstance.db2", GarrPlotInstanceFormat, HOTFIX_SEL_GARR_PLOT_INSTANCE);
 DB2Storage<GarrSiteLevelEntry>              sGarrSiteLevelStore("GarrSiteLevel.db2", GarrSiteLevelFormat, HOTFIX_SEL_GARR_SITE_LEVEL);
 DB2Storage<GarrSiteLevelPlotInstEntry>      sGarrSiteLevelPlotInstStore("GarrSiteLevelPlotInst.db2", GarrSiteLevelPlotInstFormat, HOTFIX_SEL_GARR_SITE_LEVEL_PLOT_INST);
+DB2Storage<HeirloomEntry>                   sHeirloomStore("Heirloom.db2", HeirloomFormat, HOTFIX_SEL_HEIRLOOM);
 DB2Storage<HolidaysEntry>                   sHolidaysStore("Holidays.db2", HolidaysFormat, HOTFIX_SEL_HOLIDAYS);
 DB2Storage<ItemAppearanceEntry>             sItemAppearanceStore("ItemAppearance.db2", ItemAppearanceFormat, HOTFIX_SEL_ITEM_APPEARANCE);
 DB2Storage<ItemBonusEntry>                  sItemBonusStore("ItemBonus.db2", ItemBonusFormat, HOTFIX_SEL_ITEM_BONUS);
@@ -185,6 +186,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sGarrPlotStore);
     LOAD_DB2(sGarrSiteLevelPlotInstStore);
     LOAD_DB2(sGarrSiteLevelStore);
+    LOAD_DB2(sHeirloomStore);
     LOAD_DB2(sHolidaysStore);
     LOAD_DB2(sItemAppearanceStore);
     LOAD_DB2(sItemBonusStore);
@@ -259,6 +261,9 @@ void DB2Manager::InitDB2CustomStores()
 
     for (ToyEntry const* toy : sToyStore)
         _toys.push_back(toy->ItemID);
+
+    for (HeirloomEntry const* heirloom : sHeirloomStore)
+        _heirlooms[heirloom->ItemID] = heirloom;
 
     for (AreaGroupMemberEntry const* areaGroupMember : sAreaGroupMemberStore)
         _areaGroupMembers[areaGroupMember->AreaGroupID].push_back(areaGroupMember->AreaID);
@@ -666,4 +671,24 @@ std::set<uint32> DB2Manager::GetFindBonusTree(uint32 BonusTreeID, uint32 itemBon
     }
 
     return bonusListIDs;
+}
+
+HeirloomEntry const* DB2Manager::GetHeirloomByItemId(uint32 itemId) const
+{
+    auto itr = _heirlooms.find(itemId);
+    if (itr != _heirlooms.end())
+        return itr->second;
+
+    return nullptr;
+}
+
+HeirloomEntry const* DB2Manager::GetHeirloomByOldItem(uint32 itemId) const
+{
+    for (HeirloomEntry const* heirloom : sHeirloomStore)
+    {
+        if (heirloom->OldItem[0] == itemId || heirloom->OldItem[1] == itemId)
+            return heirloom;
+    }
+
+    return nullptr;
 }

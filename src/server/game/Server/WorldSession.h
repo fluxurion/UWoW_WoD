@@ -985,8 +985,6 @@ class WorldSession
         uint32 GetRecruiterId() const { return recruiterId; }
         bool IsARecruiter() const { return isRecruiter; }
 
-        CollectionMgr* GetCollectionMgr() const { return _collectionMgr.get(); }
-
     public:                                                 // opcodes handlers
 
         void Handle_NULL(WorldPackets::Null& null);
@@ -1765,8 +1763,6 @@ class WorldSession
         ObjectGuid m_currentBankerGUID;
 
         AuthFlags atAuthFlag = AT_AUTH_FLAG_NONE;
-
-        std::unique_ptr<CollectionMgr> _collectionMgr;
 };
 
 class PacketSendEvent : public BasicEvent
