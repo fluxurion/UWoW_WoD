@@ -319,6 +319,12 @@ struct ScriptInfo
         {
             uint32 MovieID;         // datalong
         } PlayMovie;
+
+        struct                      // SCRIPT_COMMAND_PLAYSCENE (35)
+                                    // SCRIPT_COMMAND_STOPSCENE (36)
+        {
+            uint32 sceneID;         // datalong
+        } PlayScene;
     };
 
     std::string GetDebugInfo() const;

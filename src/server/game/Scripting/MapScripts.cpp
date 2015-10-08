@@ -927,11 +927,16 @@ void Map::ScriptsProcess()
                 break;
 
             case SCRIPT_COMMAND_PLAYMOVIE:
-                // For quest end or start event target is player. Somewhere else it's used?
+                // For quest end or start event target is player. Somewhere else it's used? On SCRIPT_COMMAND_PLAYSCENE/SCRIPT_COMMAND_STOPSCENE
                 if (Player* player = _GetScriptPlayer(target, true, step.script))
                     player->SendMovieStart(step.script->PlayMovie.MovieID);
                 break;
-
+            case SCRIPT_COMMAND_PLAYSCENE:
+            case SCRIPT_COMMAND_STOPSCENE:
+                // For quest end or start event target is player.
+                if (Player* player = _GetScriptPlayer(target, true, step.script))
+                    player->SendSpellScene(step.script->PlayScene.sceneID, NULL, step.script->command == SCRIPT_COMMAND_PLAYSCENE, player);
+                break;
             default:
                 sLog->outError(LOG_FILTER_TSCR, "Unknown script command %s.", step.script->GetDebugInfo().c_str());
                 break;

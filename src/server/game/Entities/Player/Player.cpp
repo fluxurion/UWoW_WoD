@@ -30148,7 +30148,8 @@ void Player::SendSpellScene(uint32 sceneID, SpellInfo const* spellInfo, bool app
             if (data.second == sceneID) // no break. get last.
                 ID = data.first;
 
-        ASSERT(ID);
+        if (!ID)    //as we have sctipt with finishing scene it now could be 0.
+            return;
 
         ToPlayer()->GetSession()->SendPacket(WorldPackets::Scene::CancelScene(ID).Write());
     }

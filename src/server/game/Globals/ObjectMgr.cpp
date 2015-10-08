@@ -123,6 +123,8 @@ std::string GetScriptCommandName(ScriptCommands command)
         case SCRIPT_COMMAND_MODEL: res = "SCRIPT_COMMAND_MODEL"; break;
         case SCRIPT_COMMAND_CLOSE_GOSSIP: res = "SCRIPT_COMMAND_CLOSE_GOSSIP"; break;
         case SCRIPT_COMMAND_PLAYMOVIE: res = "SCRIPT_COMMAND_PLAYMOVIE"; break;
+        case SCRIPT_COMMAND_PLAYSCENE: res = "SCRIPT_COMMAND_PLAYSCENE"; break;
+        case SCRIPT_COMMAND_STOPSCENE: res = "SCRIPT_COMMAND_STOPSCENE"; break;
         default:
         {
             char sz[32];
