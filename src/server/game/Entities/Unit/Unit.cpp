@@ -3630,7 +3630,7 @@ void Unit::DeMorph()
 Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, ObjectGuid casterGUID /*= 0*/)
 {
     ASSERT(casterGUID || caster);
-    if (!casterGUID)
+    if (casterGUID.IsEmpty())
     {
         if(!caster->ToCreature() || caster->isAnySummons() || isAnySummons())
             casterGUID = caster->GetGUID();
@@ -4022,7 +4022,7 @@ void Unit::RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveMode removeMode)
 void Unit::RemoveOwnedAura(uint32 spellId, ObjectGuid casterGUID, uint32 reqEffMask, AuraRemoveMode removeMode)
 {
     for (AuraMap::iterator itr = m_ownedAuras.lower_bound(spellId); itr != m_ownedAuras.upper_bound(spellId);)
-        if (((itr->second->GetEffectMask() & reqEffMask) == reqEffMask) && (!casterGUID || itr->second->GetCasterGUID() == casterGUID))
+        if (((itr->second->GetEffectMask() & reqEffMask) == reqEffMask) && (casterGUID.IsEmpty() || itr->second->GetCasterGUID() == casterGUID))
         {
             RemoveOwnedAura(itr, removeMode);
             itr = m_ownedAuras.lower_bound(spellId);
@@ -4051,7 +4051,7 @@ void Unit::RemoveOwnedAura(Aura* aura, AuraRemoveMode removeMode)
 Aura* Unit::GetOwnedAura(uint32 spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID, uint32 reqEffMask, Aura* except) const
 {
     for (AuraMap::const_iterator itr = m_ownedAuras.lower_bound(spellId); itr != m_ownedAuras.upper_bound(spellId); ++itr)
-        if (((itr->second->GetEffectMask() & reqEffMask) == reqEffMask) && (!casterGUID || itr->second->GetCasterGUID() == casterGUID) && (!itemCasterGUID || itr->second->GetCastItemGUID() == itemCasterGUID) && (!except || except != itr->second))
+        if (((itr->second->GetEffectMask() & reqEffMask) == reqEffMask) && (casterGUID.IsEmpty() || itr->second->GetCasterGUID() == casterGUID) && (itemCasterGUID.IsEmpty() || itr->second->GetCastItemGUID() == itemCasterGUID) && (!except || except != itr->second))
             return itr->second;
     return NULL;
 }
@@ -4075,7 +4075,7 @@ void Unit::RemoveAura(uint32 spellId, ObjectGuid caster, uint32 reqEffMask, Aura
     {
         Aura const* aura = iter->second->GetBase();
         if (((aura->GetEffectMask() & reqEffMask) == reqEffMask)
-            && (!caster || aura->GetCasterGUID() == caster))
+            && (caster.IsEmpty() || aura->GetCasterGUID() == caster))
         {
             RemoveAura(iter, removeMode);
             return;
@@ -4155,7 +4155,7 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, ObjectGuid casterGUID, uint32 r
     {
         Aura const* aura = iter->second->GetBase();
         if (((aura->GetEffectMask() & reqEffMask) == reqEffMask)
-            && (!casterGUID || aura->GetCasterGUID() == casterGUID))
+            && (casterGUID.IsEmpty() || aura->GetCasterGUID() == casterGUID))
         {
             RemoveAura(iter, removeMode);
             iter = m_appliedAuras.lower_bound(spellId);
@@ -4171,7 +4171,7 @@ void Unit::RemoveAuraFromStack(uint32 spellId, ObjectGuid casterGUID, AuraRemove
     {
         Aura* aura = iter->second;
         if ((aura->GetType() == UNIT_AURA_TYPE)
-            && (!casterGUID || aura->GetCasterGUID() == casterGUID))
+            && (casterGUID.IsEmpty() || aura->GetCasterGUID() == casterGUID))
         {
             aura->ModStackAmount(-num, removeMode);
             return;
@@ -4327,7 +4327,7 @@ void Unit::RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID, Aura* exc
         }
 
         ++next;
-        if (aura != except && (!casterGUID || aura->GetCasterGUID() == casterGUID)
+        if (aura != except && (casterGUID.IsEmpty() || aura->GetCasterGUID() == casterGUID)
             && ((negative && !aurApp->IsPositive()) || (positive && aurApp->IsPositive())))
         {
             uint32 removedAuras = m_removedAurasCount;
@@ -4458,7 +4458,7 @@ void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, ui
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
         Aura const* aura = iter->second->GetBase();
-        if (!casterGUID || aura->GetCasterGUID() == casterGUID)
+        if (casterGUID.IsEmpty() || aura->GetCasterGUID() == casterGUID)
         {
             SpellInfo const* spell = aura->GetSpellInfo();
             if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
@@ -4687,7 +4687,7 @@ void Unit::DelayOwnedAuras(uint32 spellId, ObjectGuid caster, int32 delaytime)
     for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);++iter)
     {
         Aura* aura = iter->second;
-        if (!caster || aura->GetCasterGUID() == caster)
+        if (caster.IsEmpty() || aura->GetCasterGUID() == caster)
         {
             if (aura->GetDuration() < delaytime)
                 aura->SetDuration(0);
@@ -4737,7 +4737,7 @@ std::list<AuraEffect*> Unit::GetAuraEffectsByMechanic(uint32 mechanic_mask) cons
 AuraEffect* Unit::GetAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid caster) const
 {
     for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
-        if (itr->second->HasEffect(effIndex) && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
+        if (itr->second->HasEffect(effIndex) && (caster.IsEmpty() || itr->second->GetBase()->GetCasterGUID() == caster))
             return itr->second->GetBase()->GetEffect(effIndex);
     return NULL;
 }
@@ -4776,7 +4776,7 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames family, uint32 f
         SpellInfo const* spell = (*i)->GetSpellInfo();
         if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
         {
-            if (casterGUID && (*i)->GetCasterGUID() != casterGUID)
+            if (!casterGUID.IsEmpty() && (*i)->GetCasterGUID() != casterGUID)
                 continue;
             return (*i);
         }
@@ -4789,7 +4789,7 @@ AuraApplication * Unit::GetAuraApplication(uint32 spellId, ObjectGuid casterGUID
     for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
     {
         Aura const* aura = itr->second->GetBase();
-        if (((aura->GetEffectMask() & reqEffMask) == reqEffMask) && (!casterGUID || aura->GetCasterGUID() == casterGUID) && (!itemCasterGUID || aura->GetCastItemGUID() == itemCasterGUID) && (!except || except != itr->second))
+        if (((aura->GetEffectMask() & reqEffMask) == reqEffMask) && (casterGUID.IsEmpty() || aura->GetCasterGUID() == casterGUID) && (itemCasterGUID.IsEmpty() || aura->GetCastItemGUID() == itemCasterGUID) && (!except || except != itr->second))
             return itr->second;
     }
     return NULL;
@@ -4861,7 +4861,7 @@ void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelCharges
 bool Unit::HasAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid caster) const
 {
     for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
-        if (itr->second->HasEffect(effIndex) && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
+        if (itr->second->HasEffect(effIndex) && (caster.IsEmpty() || itr->second->GetBase()->GetCasterGUID() == caster))
             return true;
     return false;
 }
@@ -4933,7 +4933,7 @@ bool Unit::HasNegativeAuraWithInterruptFlag(uint32 flag, ObjectGuid guid)
         return false;
     for (AuraApplicationList::iterator iter = m_interruptableAuras.begin(); iter != m_interruptableAuras.end(); ++iter)
     {
-        if (!(*iter)->IsPositive() && (*iter)->GetBase()->GetSpellInfo()->AuraInterruptFlags & flag && (!guid || (*iter)->GetBase()->GetCasterGUID() == guid))
+        if (!(*iter)->IsPositive() && (*iter)->GetBase()->GetSpellInfo()->AuraInterruptFlags & flag && (guid.IsEmpty() || (*iter)->GetBase()->GetCasterGUID() == guid))
             return true;
     }
     return false;
@@ -4944,7 +4944,7 @@ bool Unit::HasNegativeAuraWithAttribute(uint32 flag, ObjectGuid guid)
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end(); ++iter)
     {
         Aura const* aura = iter->second->GetBase();
-        if (!iter->second->IsPositive() && aura->GetSpellInfo()->Attributes & flag && (!guid || aura->GetCasterGUID() == guid))
+        if (!iter->second->IsPositive() && aura->GetSpellInfo()->Attributes & flag && (guid.IsEmpty() || aura->GetCasterGUID() == guid))
             return true;
     }
     return false;
@@ -11107,7 +11107,7 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
         return;
 
     SetGuidValue(UNIT_FIELD_SUMMONED_BY, owner);
-    if (!owner)
+    if (owner.IsEmpty())
         return;
 
     // Update owner dependent fields
@@ -20249,7 +20249,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, SpellInfo const* spellProto
     // Check spellProcEvent data requirements
     if (!alredyCheck && !sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
     {
-        //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "IsTriggeredAtSpellProcEvent: false procSpell %i, EventProcFlag %i, active %i, procExtra %i, isVictim %i procFlag %u Id %u", procSpell ? procSpell->Id : 0, EventProcFlag, active, procExtra, isVictim, procFlag, spellProto->Id);
+        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "IsTriggeredAtSpellProcEvent: false procSpell %i, EventProcFlag %i, active %i, procExtra %i, isVictim %i procFlag %u Id %u", procSpell ? procSpell->Id : 0, EventProcFlag, active, procExtra, isVictim, procFlag, spellProto->Id);
         return false;
     }
 

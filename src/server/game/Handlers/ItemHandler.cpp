@@ -878,12 +878,12 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
         recvData >> gem_guids[i];
 
-    if (!item_guid)
+    if (item_guid.IsEmpty())
         return;
 
     //cheat -> tried to socket same gem multiple times
-    if ((gem_guids[0] && (gem_guids[0] == gem_guids[1] || gem_guids[0] == gem_guids[2])) ||
-        (gem_guids[1] && (gem_guids[1] == gem_guids[2])))
+    if ((!gem_guids[0].IsEmpty() && (gem_guids[0] == gem_guids[1] || gem_guids[0] == gem_guids[2])) ||
+        (!gem_guids[1].IsEmpty() && (gem_guids[1] == gem_guids[2])))
         return;
 
     Item* itemTarget = _player->GetItemByGuid(item_guid);
@@ -899,7 +899,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
     Item* Gems[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        Gems[i] = gem_guids[i] ? _player->GetItemByGuid(gem_guids[i]) : NULL;
+        Gems[i] = !gem_guids[i].IsEmpty() ? _player->GetItemByGuid(gem_guids[i]) : NULL;
 
     GemPropertiesEntry const* GemProps[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get geminfo from dbc storage
@@ -1422,7 +1422,7 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
 bool WorldSession::CanUseBank(ObjectGuid bankerGUID) const
 {
     // bankerGUID parameter is optional, set to 0 by default.
-    if (!bankerGUID)
+    if (bankerGUID.IsEmpty())
         bankerGUID = m_currentBankerGUID;
 
     bool isUsingBankCommand = (bankerGUID == GetPlayer()->GetGUID() && bankerGUID == m_currentBankerGUID);

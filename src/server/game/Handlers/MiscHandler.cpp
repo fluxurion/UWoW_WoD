@@ -90,7 +90,8 @@ void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet)
 
 void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
 {
-    if (ObjectGuid lguid = GetPlayer()->GetLootGUID())
+    ObjectGuid lguid = GetPlayer()->GetLootGUID();
+    if (!lguid.IsEmpty())
         DoLootRelease(lguid);
     GetPlayer()->ClearAoeLootList();
 
@@ -245,7 +246,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
 
         if (!AccountMgr::IsPlayerAccount(GetSecurity()) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realmHandle.Index)))
         {
-            if (friendGuid)
+            if (!friendGuid.IsEmpty())
             {
                 if (friendGuid == GetPlayer()->GetGUID())
                     friendResult = FRIEND_SELF;

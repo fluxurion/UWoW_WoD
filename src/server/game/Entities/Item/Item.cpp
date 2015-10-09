@@ -457,7 +457,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType const& guid, ObjectGuid const& owner_g
     //    AddDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0);
 
     // set owner (not if item is only loaded for gbank/auction/mail
-    if (owner_guid)
+    if (!owner_guid.IsEmpty())
         SetOwnerGUID(owner_guid);
 
     bool need_save = false;                                 // need explicit save data at load fixes

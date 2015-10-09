@@ -325,7 +325,7 @@ Aura* Aura::TryRefreshStackOrCreate(SpellInfo const* spellproto, uint32 tryEffMa
 {
     ASSERT(spellproto);
     ASSERT(owner);
-    ASSERT(caster || casterGUID);
+    ASSERT(caster || !casterGUID.IsEmpty());
     ASSERT(tryEffMask <= MAX_EFFECT_MASK);
     if (refresh)
         *refresh = false;
@@ -355,7 +355,7 @@ Aura* Aura::TryCreate(SpellInfo const* spellproto, uint32 tryEffMask, WorldObjec
 {
     ASSERT(spellproto);
     ASSERT(owner);
-    ASSERT(caster || casterGUID);
+    ASSERT(caster || !casterGUID.IsEmpty());
     ASSERT(tryEffMask <= MAX_EFFECT_MASK);
     uint32 effMask = Aura::BuildEffectMaskForOwner(spellproto, tryEffMask, owner);
     if(caster)
@@ -370,10 +370,10 @@ Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* own
     ASSERT(effMask);
     ASSERT(spellproto);
     ASSERT(owner);
-    ASSERT(caster || casterGUID);
+    ASSERT(caster || !casterGUID.IsEmpty());
     ASSERT(effMask <= MAX_EFFECT_MASK);
     // try to get caster of aura
-    if (casterGUID)
+    if (!casterGUID.IsEmpty())
     {
         if (owner->GetGUID() == casterGUID)
             caster = owner->ToUnit();
@@ -610,7 +610,7 @@ void Aura::CalculateDurationFromDummy(int32 &duration)
 }
 
 Aura::Aura(SpellInfo const* spellproto, WorldObject* owner, Unit* caster, Item* castItem, ObjectGuid casterGUID, uint16 stackAmount) :
-m_spellInfo(spellproto), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()),
+m_spellInfo(spellproto), m_casterGuid(!casterGUID.IsEmpty() ? casterGUID : caster->GetGUID()),
 m_castItemGuid(castItem ? castItem->GetGUID() : ObjectGuid::Empty), m_applyTime(time(NULL)),
 m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(stackAmount ? stackAmount: 1),
@@ -3330,7 +3330,7 @@ void Aura::SetAuraTimer(int32 time, ObjectGuid guid)
     {
         SetDuration(time);
         SetMaxDuration(time);
-        if(AuraApplication *aur = GetApplicationOfTarget(guid ? guid : m_casterGuid))
+        if(AuraApplication *aur = GetApplicationOfTarget(!guid.IsEmpty() ? guid : m_casterGuid))
             aur->ClientUpdate();
     }
 }

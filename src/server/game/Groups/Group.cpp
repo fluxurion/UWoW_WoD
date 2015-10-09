@@ -581,7 +581,7 @@ bool Group::AddMember(Player* player)
 
 bool Group::RemoveCreatureMember(ObjectGuid const& guid)
 {
-    if (!guid)
+    if (guid.IsEmpty())
         return false;
 
     BroadcastGroupUpdate();

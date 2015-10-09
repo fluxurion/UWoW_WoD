@@ -123,7 +123,7 @@ void npc_escortAI::MoveInLineOfSight(Unit* who)
 
 void npc_escortAI::JustDied(Unit* /*killer*/)
 {
-    if (!HasEscortState(STATE_ESCORT_ESCORTING) || !m_uiPlayerGUID || !m_pQuestForEscort)
+    if (!HasEscortState(STATE_ESCORT_ESCORTING) || m_uiPlayerGUID.IsEmpty() || !m_pQuestForEscort)
         return;
 
     if (Player* player = GetPlayerForEscort())

@@ -93,7 +93,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     if (normalizePlayerName(packet.Info.Target))
         receiverGuid = ObjectMgr::GetPlayerGUIDByName(packet.Info.Target);
 
-    if (!receiverGuid)
+    if (receiverGuid.IsEmpty())
     {
         sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: not existed!) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u",
             player->GetGUID().GetCounter(), packet.Info.Target.c_str(), packet.Info.Subject.c_str(), packet.Info.Body.c_str(), packet.Info.Attachments.size(), packet.Info.SendMoney, packet.Info.Cod, packet.Info.StationeryID, packet.Info.PackageID);

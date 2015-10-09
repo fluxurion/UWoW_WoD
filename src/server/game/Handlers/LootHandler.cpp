@@ -137,7 +137,7 @@ void WorldSession::HandleLootMoney(WorldPackets::Loot::LootMoney& /*packet*/)
     AoeMap* listloot = player->GetAoeLootList();
     AoeMap* temploot;
     AoeMap templootguid;
-    if (!guid && listloot->empty())
+    if (guid.IsEmpty() && listloot->empty())
         return;
 
     if(!listloot->empty())

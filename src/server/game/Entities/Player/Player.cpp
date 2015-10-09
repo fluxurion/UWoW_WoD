@@ -3107,7 +3107,7 @@ bool Player::CanInteractWithQuestGiver(Object* questGiver)
 Creature* Player::GetNPCIfCanInteractWith(ObjectGuid guid, uint32 npcflagmask, uint32 npcflagmask2)
 {
     // unit checks
-    if (!guid)
+    if (guid.IsEmpty())
         return NULL;
 
     if (!IsInWorld())
@@ -4262,7 +4262,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                         ObjectGuid petguid = GetBattlePetMgr()->GetPetGUIDBySpell(spellInfo->Id);
                         // hardcode hack check on pet count
                         uint32 petCount = GetBattlePetMgr()->GetPetCount(creature->Entry);
-                        if (!petguid && petCount < 1)
+                        if (petguid.IsEmpty() && petCount < 1)
                         {
                             petguid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>()->Generate());
                             // generate stats
@@ -9546,7 +9546,7 @@ bool Player::CheckItemEquipDependentSpell(SpellInfo const* spellInfo, ObjectGuid
 
             for (uint8 i = EQUIPMENT_SLOT_MAINHAND; i < EQUIPMENT_SLOT_TABARD; ++i)
                 if (Item* checkItem = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
-                    if (!itemGUID || itemGUID != checkItem->GetGUID())
+                    if (itemGUID.IsEmpty() || itemGUID != checkItem->GetGUID())
                         if (ItemTemplate const* checkItemTemplate = checkItem->GetTemplate())
                             if (spellInfo->EquippedItemSubClassMask & (1 << checkItemTemplate->SubClass))
                                 resemblance++;
@@ -9561,7 +9561,7 @@ bool Player::CheckItemEquipDependentSpell(SpellInfo const* spellInfo, ObjectGuid
             int32 resemblanceMask = 0;
             for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_MAINHAND; ++i)
                 if (Item* checkItem = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
-                    if (!itemGUID || itemGUID != checkItem->GetGUID())
+                    if (itemGUID.IsEmpty() || itemGUID != checkItem->GetGUID())
                         if (ItemTemplate const* checkItemTemplate = checkItem->GetTemplate())
                             if (spellInfo->EquippedItemSubClassMask & (1 << checkItemTemplate->SubClass))
                                 resemblanceMask |= (1 << checkItemTemplate->GetInventoryType());
@@ -17664,7 +17664,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid)
 {
     uint16 addKillCount = 1;
     uint32 real_entry = entry;
-    if (guid)
+    if (!guid.IsEmpty())
     {
         Creature* killed = GetMap()->GetCreature(guid);
         if (killed && killed->GetEntry())
@@ -17672,15 +17672,15 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid)
 
         if(killed)
         {
-            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE, killed->GetCreatureType(), addKillCount, 0, guid ? GetMap()->GetCreature(guid) : NULL);
+            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE, killed->GetCreatureType(), addKillCount, 0, GetMap()->GetCreature(guid));
             if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-                guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, killed->GetCreatureType(), addKillCount, 0, guid ? GetMap()->GetCreature(guid) : NULL, this);
+                guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD, killed->GetCreatureType(), addKillCount, 0, GetMap()->GetCreature(guid), this);
         }
     }
 
     GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_CREATURE, real_entry);   // MUST BE CALLED FIRST
     GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_CREATURE2, real_entry);   // MUST BE CALLED FIRST
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, real_entry, addKillCount, 0, guid ? GetMap()->GetCreature(guid) : NULL);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, real_entry, addKillCount, 0, !guid.IsEmpty() ? GetMap()->GetCreature(guid) : NULL);
 
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
@@ -19569,7 +19569,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         uint32 randomProperty = fields[4].GetUInt32();
         uint32 suffixFactor = fields[5].GetUInt32();
 
-        if (!itemId)
+        if (itemId.IsEmpty())
         {
             sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid id (item id: %u, entry: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry);
             continue;
@@ -22587,7 +22587,8 @@ void Player::UpdateDuelFlag(time_t currTime)
 
 Pet* Player::GetPet() const
 {
-    if (ObjectGuid pet_guid = GetPetGUID())
+    ObjectGuid pet_guid = GetPetGUID();
+    if (!pet_guid.IsEmpty())
     {
         if (!pet_guid.IsPet())
             return NULL;
@@ -23089,17 +23090,18 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
 void Player::AddSpellMod(SpellModifier* mod, bool apply)
 {
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Player::AddSpellMod %d", mod->spellId);
-    Opcodes opcode = Opcodes((mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER);
+    OpcodeServer opcode = (mod->type == SPELLMOD_FLAT) ? SMSG_SET_FLAT_SPELL_MODIFIER : SMSG_SET_PCT_SPELL_MODIFIER;
+
+    WorldPackets::Spells::SetSpellModifier packet(opcode);
 
     int i = 0;
-    flag128 _mask = 0;
-    uint32 modTypeCount = 0;            // count of mods per one mod->op
+    flag128 _mask;
 
-    WorldPacket data(opcode);
-    data << uint32(1);  // count of different mod->op's in packet
-    data << uint8(mod->op);
-    size_t writePos = data.wpos();
-    data << uint32(modTypeCount);
+    /// @todo Implement sending of bulk modifiers instead of single
+    packet.Modifiers.resize(1);
+    WorldPackets::Spells::SpellModifier& spellMod = packet.Modifiers[0];
+
+    spellMod.ModIndex = mod->op;
 
     for (int eff = 0; eff < 128; ++eff)
     {
@@ -23109,53 +23111,29 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
         _mask[i] = uint32(1) << (eff - (32 * i));
         if (mod->mask & _mask)
         {
-            if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
-            {
-                float val = 1.0f;
+            WorldPackets::Spells::SpellModifierData modData;
 
-                for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
-                    if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                    {
-                        if (!apply && (*itr)->spellId == mod->spellId)
-                            continue;
-
-                        AddPct(val, (*itr)->value);
-                    }
-
-                if (mod->value && apply)
-                    AddPct(val, mod->value);
-
-                if (mod->op == SPELLMOD_GLOBAL_COOLDOWN && val < 0.666666666f)
-                    val = 0.666666666f;
-
-                data << float(val);
-                data << uint8(eff);
-                ++modTypeCount;
-                continue;
-            }
-
-            int32 val = 0;
             for (SpellModList::iterator itr = m_spellMods[mod->op].begin(); itr != m_spellMods[mod->op].end(); ++itr)
                 if ((*itr)->type == mod->type && (*itr)->mask & _mask)
-                    val += (*itr)->value;
-            val += apply ? mod->value : -(mod->value);
+                    modData.ModifierValue += (*itr)->value;
 
-            data << uint8(eff);
-            data << float(val);
-            ++modTypeCount;
+            modData.ModifierValue += apply ? mod->value : -(mod->value);
+            if (mod->type == SPELLMOD_PCT)
+                modData.ModifierValue = 1.0f + (modData.ModifierValue * 0.01f);
+
+            modData.ClassIndex = eff;
+
+            spellMod.ModifierData.push_back(modData);
         }
     }
 
-
-    data.put<uint32>(writePos, modTypeCount);
-    SendDirectMessage(&data);
+    SendDirectMessage(packet.Write());
 
     if (apply)
         m_spellMods[mod->op].push_back(mod);
     else
     {
-        if (!m_spellMods[mod->op].empty())
-            m_spellMods[mod->op].remove(mod);
+        m_spellMods[mod->op].remove(mod);
         // mods bound to aura will be removed in AuraEffect::~AuraEffect
         if (!mod->ownerAura)
             delete mod;
@@ -24994,7 +24972,8 @@ bool Player::CanAlwaysSee(WorldObject const* obj) const
     if (m_mover == obj)
         return true;
 
-    if (ObjectGuid guid = GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT))
+    ObjectGuid guid = GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT);
+    if (!guid.IsEmpty())
         if (obj->GetGUID() == guid)
             return true;
 
@@ -27026,7 +27005,8 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 
 WorldObject* Player::GetViewpoint() const
 {
-    if (ObjectGuid guid = GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT))
+    ObjectGuid guid = GetGuidValue(PLAYER_FIELD_FARSIGHT_OBJECT);
+    if (!guid.IsEmpty())
         return (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_SEER);
     return NULL;
 }

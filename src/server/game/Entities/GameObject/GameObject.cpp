@@ -90,7 +90,7 @@ void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 void GameObject::RemoveFromOwner()
 {
     ObjectGuid ownerGUID = GetOwnerGUID();
-    if (!ownerGUID)
+    if (ownerGUID.IsEmpty())
         return;
 
     if (Unit* owner = ObjectAccessor::GetUnit(*this, ownerGUID))
@@ -920,7 +920,8 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
     }
 
     // Always seen by owner and friendly units
-    if (ObjectGuid guid = GetOwnerGUID())
+    ObjectGuid guid = GetOwnerGUID();
+    if (!guid.IsEmpty())
     {
         if (seer->GetGUID() == guid)
             return true;

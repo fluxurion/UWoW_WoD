@@ -166,15 +166,15 @@ void ScenarioProgress::Reward(bool bonus)
         if (!player || !player->IsInWorld() || player->isGameMaster())
             continue;
 
-        if (!groupGuid)
+        if (groupGuid.IsEmpty())
             groupGuid = player->GetGroup() ? player->GetGroup()->GetGUID() : ObjectGuid::Empty;
 
-        if (groupGuid)
+        if (!groupGuid.IsEmpty())
             break;
     }
 
     // should not happen
-    if (!groupGuid)
+    if (groupGuid.IsEmpty())
         return;
 
     uint32 dungeonId = sLFGMgr->GetDungeon(groupGuid);

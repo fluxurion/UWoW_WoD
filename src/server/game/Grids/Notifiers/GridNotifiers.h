@@ -1076,7 +1076,7 @@ namespace Trinity
             AreaTriggerWithEntryInObjectRangeCheck(WorldObject const* obj, uint32 entry, ObjectGuid casterGuid, float range) : i_obj(obj), i_entry(entry), i_casterGuid(casterGuid), i_range(range) {}
             bool operator()(AreaTrigger* at)
             {
-                if (i_obj->IsWithinDistInMap(at, i_range) && i_entry == at->GetEntry() && (!i_casterGuid || i_casterGuid == at->GetCasterGUID()))
+                if (i_obj->IsWithinDistInMap(at, i_range) && i_entry == at->GetEntry() && (i_casterGuid.IsEmpty() || i_casterGuid == at->GetCasterGUID()))
                     return true;
 
                 return false;

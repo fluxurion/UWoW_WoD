@@ -78,7 +78,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
         return;
 
     Unit* owner = me->GetCharmerOrOwner();
-    Unit* victim = i_victimGuid ? ObjectAccessor::GetUnit(*me, i_victimGuid) : NULL;
+    Unit* victim = !i_victimGuid.IsEmpty() ? ObjectAccessor::GetUnit(*me, i_victimGuid) : NULL;
     if (!owner)
         return;
 

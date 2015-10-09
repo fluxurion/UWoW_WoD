@@ -684,7 +684,7 @@ void Battlefield::AddPlayerToResurrectQueue(ObjectGuid npcGuid, ObjectGuid playe
         if (!(*itr))
             continue;
 
-        if (!npcGuid || (*itr)->HasNpc(npcGuid))
+        if (npcGuid.IsEmpty() || (*itr)->HasNpc(npcGuid))
         {
             (*itr)->AddPlayer(playerGuid);
             break;

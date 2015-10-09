@@ -6808,7 +6808,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
             {
                 if (apply)
                 {
-                    if (ObjectGuid guid = caster->m_SummonSlot[4])
+                    ObjectGuid guid = caster->m_SummonSlot[4];
+                    if (!guid.IsEmpty())
                     {
                         if (Creature* totem = caster->GetMap()->GetCreature(guid))
                             if (totem->isTotem())
@@ -9108,7 +9109,8 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
     }
     else if(!apply)
     {
-        if (ObjectGuid areaTriggerGuid = GetBase()->GetSpellAreaTrigger())
+        ObjectGuid areaTriggerGuid = GetBase()->GetSpellAreaTrigger();
+        if (!areaTriggerGuid.IsEmpty())
             if(AreaTrigger* areaTrigger = ObjectAccessor::GetAreaTrigger(*GetCaster(), areaTriggerGuid))
                 areaTrigger->SetDuration(0);
     }

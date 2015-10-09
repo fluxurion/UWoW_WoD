@@ -1167,7 +1167,7 @@ void Pet::_LoadAuras(uint32 timediff)
             uint8 slot = fields[0].GetUInt8();
             caster_guid.SetRawValue(fields[1].GetBinary());
             // NULL guid stored - pet is the caster of the spell - see Pet::_SaveAuras
-            if (!caster_guid)
+            if (caster_guid.IsEmpty())
                 caster_guid = GetGUID();
             uint32 spellid = fields[2].GetUInt32();
             uint32 effmask = fields[3].GetUInt32();

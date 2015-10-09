@@ -290,7 +290,7 @@ std::string InstanceScript::GetBossSaveData()
 
 void InstanceScript::DoUseDoorOrButton(ObjectGuid uiGuid, uint32 uiWithRestoreTime, bool bUseAlternativeState)
 {
-    if (!uiGuid)
+    if (uiGuid.IsEmpty())
         return;
 
     GameObject* go = instance->GetGameObject(uiGuid);

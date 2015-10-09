@@ -3514,7 +3514,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
     summon->InitStats(duration);
 
-    if (viewerGuid)
+    if (!viewerGuid.IsEmpty())
         summon->AddPlayerInPersonnalVisibilityList(viewerGuid);
 
     if (viewersList)
@@ -3730,7 +3730,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     else
         go->SetSpawnedByDefault(false);
 
-    if (viewerGuid)
+    if (!viewerGuid.IsEmpty())
         go->AddPlayerInPersonnalVisibilityList(viewerGuid);
 
     if (viewersList)

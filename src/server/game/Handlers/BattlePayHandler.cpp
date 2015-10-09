@@ -51,7 +51,7 @@ void WorldSession::SendBattlePayDistribution(uint8 status, uint64 DistributionID
     distributionBattlePay.object.Status = status;
     distributionBattlePay.object.ProductID = PRODUCT_LEVEL_UP_90;
 
-    if (TargetPlayer)
+    if (!TargetPlayer.IsEmpty())
     {
         distributionBattlePay.object.TargetPlayer = TargetPlayer;
         distributionBattlePay.object.TargetVirtualRealm = GetVirtualRealmAddress();

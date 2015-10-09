@@ -33,7 +33,7 @@ m_timer(0), m_lifetime(0), onUnload(false), m_loading(false), m_owner(owner)
 
 Unit* TempSummon::GetSummoner() const
 {
-    return m_summonerGUID ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL;
 }
 
 void TempSummon::Update(uint32 diff)

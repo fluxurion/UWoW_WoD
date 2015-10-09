@@ -511,7 +511,8 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (_player)
     {
-        if (ObjectGuid lguid = _player->GetLootGUID())
+        ObjectGuid lguid = _player->GetLootGUID();
+        if (!lguid.IsEmpty())
             DoLootRelease(lguid);
         _player->ClearAoeLootList();
 

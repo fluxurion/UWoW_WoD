@@ -484,7 +484,7 @@ Loot::Loot(uint32 _gold)
 
 void Loot::GenerateLootGuid(ObjectGuid objGuid)
 {
-    m_guid = ObjectGuid::Create<HighGuid::LootObject>(objGuid ? objGuid.GetMapId() : 0, 0, sObjectMgr->GetGenerator<HighGuid::LootObject>()->Generate());
+    m_guid = ObjectGuid::Create<HighGuid::LootObject>(objGuid.GetMapId(), 0, sObjectMgr->GetGenerator<HighGuid::LootObject>()->Generate());
 }
 
 // Inserts the item into the loot (called by LootTemplate processors)

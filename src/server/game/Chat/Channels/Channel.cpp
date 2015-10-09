@@ -796,7 +796,7 @@ void Channel::SendToAll(WorldPacket const* data, ObjectGuid const& p)
         Player* player = ObjectAccessor::FindPlayer(i->first);
         if (player)
         {
-            if (!p || !player->GetSocial()->HasIgnore(p))
+            if (p.IsEmpty() || !player->GetSocial()->HasIgnore(p))
                 player->GetSession()->SendPacket(data);
         }
     }

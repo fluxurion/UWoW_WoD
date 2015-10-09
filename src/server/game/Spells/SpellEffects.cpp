@@ -4251,7 +4251,8 @@ void Spell::EffectUntrainTalents(SpellEffIndex /*effIndex*/)
     if (!unitTarget || m_caster->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    if (ObjectGuid guid = m_caster->GetGUID()) // the trainer is the caster
+    ObjectGuid guid = m_caster->GetGUID();
+    if (!guid.IsEmpty()) // the trainer is the caster
         unitTarget->ToPlayer()->SendTalentWipeConfirm(guid, false);
 }
 
@@ -6491,7 +6492,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     float x, y, z, o;
 
     ObjectGuid guid = m_caster->m_ObjectSlot[slot];
-    if (guid)
+    if (!guid.IsEmpty())
     {
         if (GameObject* obj = m_caster->GetMap()->GetGameObject(guid))
         {
@@ -6577,7 +6578,8 @@ void Spell::EffectSurvey(SpellEffIndex effIndex)
         return;
     }
 
-    if (ObjectGuid const& guid = m_caster->m_ObjectSlot[slot])
+    ObjectGuid const& guid = m_caster->m_ObjectSlot[slot];
+    if (!guid.IsEmpty())
     {
         if (GameObject* obj = m_caster->GetMap()->GetGameObject(guid))
         {

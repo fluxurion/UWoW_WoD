@@ -574,7 +574,7 @@ m_absorb(0), m_resist(0), m_blocked(0), m_interupted(false), m_effect_targets(NU
             if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
                 m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->DamageType);
 
-    if (originalCasterGUID)
+    if (!originalCasterGUID.IsEmpty())
         m_originalCasterGUID = originalCasterGUID;
     else
         m_originalCasterGUID = m_caster->GetGUID();
@@ -3415,7 +3415,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                         m_spellAura->SetEffectTargets(list_efftarget);
                     if(m_triggeredByAura)
                         m_spellAura->SetTriggeredAuraEff(m_triggeredByAura);
-                    if(ObjectGuid dynObjGuid = GetSpellDynamicObject())
+                    ObjectGuid dynObjGuid = GetSpellDynamicObject();
+                    if(!dynObjGuid.IsEmpty())
                         m_spellAura->SetSpellDynamicObject(dynObjGuid);
                     if (m_targets.HasDst())
                         AddDst(m_targets.GetDstPos());
@@ -5375,7 +5376,7 @@ void Spell::SendChannelStart(uint32 duration)
     ObjectGuid dynObjGuid = GetSpellDynamicObject();
     ObjectGuid channelGuid = m_caster->GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT);
 
-    if (!channelTarget && !m_spellInfo->NeedsExplicitUnitTarget())
+    if (channelTarget.IsEmpty() && !m_spellInfo->NeedsExplicitUnitTarget())
         if (m_UniqueTargetInfo.size() + m_UniqueGOTargetInfo.size() == 1)   // this is for TARGET_SELECT_CATEGORY_NEARBY
             if (!m_UniqueTargetInfo.empty())
                 channelTarget = !m_UniqueTargetInfo.empty() ? m_UniqueTargetInfo.front().targetGUID : m_UniqueGOTargetInfo.front().targetGUID;
@@ -5398,11 +5399,11 @@ void Spell::SendChannelStart(uint32 duration)
 
     m_timer = duration;
 
-    if (!channelGuid)
+    if (channelGuid.IsEmpty())
     {
-        if (dynObjGuid)
+        if (!dynObjGuid.IsEmpty())
             m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, dynObjGuid);
-        else if (channelTarget)
+        else if (!channelTarget.IsEmpty())
             m_caster->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, channelTarget);
     }
 

@@ -1216,7 +1216,7 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &player
     if (player)
     {
         group = player->GetGroup();
-        if (!guid || !offline)
+        if (guid.IsEmpty() || !offline)
             guid = player->GetGUID();
     }
     else
@@ -1226,7 +1226,7 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &player
         else
             player = m_session->GetPlayer();
 
-        if (!guid || !offline)
+        if (guid.IsEmpty() || !offline)
             guid  = player->GetGUID();
         group = player->GetGroup();
     }

@@ -784,7 +784,7 @@ void LFGMgr::LeaveLfg(ObjectGuid guid)
 */
 void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = 0 */, uint8 roles /* = PLAYER_ROLE_NONE */)
 {
-    if (!gguid)
+    if (gguid.IsEmpty())
         return;
 
     LfgRolesMap check_roles;
@@ -793,7 +793,7 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = 0 */, uint8 
         return;
 
     LfgRoleCheck& roleCheck = itRoleCheck->second;
-    bool sendRoleChosen = roleCheck.state != LFG_ROLECHECK_DEFAULT && guid;
+    bool sendRoleChosen = roleCheck.state != LFG_ROLECHECK_DEFAULT && !guid.IsEmpty();
 
     LfgDungeonSet dungeons;
     if (roleCheck.rDungeonId)
@@ -809,7 +809,7 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = 0 */, uint8 
                 roles = roles & PLAYER_ROLE_LEADER | PLAYER_ROLE_DAMAGE;
     }
 
-    if (!guid)
+    if (guid.IsEmpty())
         roleCheck.state = LFG_ROLECHECK_ABORTED;
     else if (roles < PLAYER_ROLE_TANK)                            // Player selected no role.
         roleCheck.state = LFG_ROLECHECK_NO_ROLE;
@@ -1113,7 +1113,7 @@ void LFGMgr::UpdateProposal(WorldPackets::LFG::ProposalResponse response)
         if (sendUpdate)
            SendLfgUpdateProposal(pguid, proposal);
 
-        if (gguid)
+        if (!gguid.IsEmpty())
         {
             waitTime = int32((response.Ticket.Time - queue.GetJoinTime(gguid)) / IN_MILLISECONDS);
             SendLfgUpdateParty(pguid, updateData);
@@ -1301,7 +1301,7 @@ void LFGMgr::InitBoot(ObjectGuid gguid, ObjectGuid kicker, ObjectGuid victim, st
 void LFGMgr::UpdateBoot(ObjectGuid guid, bool accept)
 {
     ObjectGuid gguid = GetGroup(guid);
-    if (!gguid)
+    if (gguid.IsEmpty())
         return;
 
     LfgPlayerBootContainer::iterator itBoot = BootsStore.find(gguid);
@@ -2068,7 +2068,7 @@ void LFGMgr::SendLfgQueueStatus(ObjectGuid guid, LfgQueueStatusData const& data)
 
 bool LFGMgr::IsLfgGroup(ObjectGuid guid)
 {
-    return guid && guid.IsParty() && GroupsStore[guid].IsLfgGroup();
+    return !guid.IsEmpty() && guid.IsParty() && GroupsStore[guid].IsLfgGroup();
 }
 
 LFGQueue& LFGMgr::GetQueue(ObjectGuid guid)
@@ -2078,7 +2078,7 @@ LFGQueue& LFGMgr::GetQueue(ObjectGuid guid)
     {
         GuidSet const& players = GetPlayers(guid);
         ObjectGuid pguid = players.empty() ? ObjectGuid::Empty : (*players.begin());
-        if (pguid)
+        if (!pguid.IsEmpty())
             queueId = GetTeam(pguid);
     }
     else
