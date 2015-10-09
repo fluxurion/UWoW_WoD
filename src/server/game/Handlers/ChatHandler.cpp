@@ -700,8 +700,6 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
     uint8 unk;
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_CHAT_REPORT_IGNORED");
-
     recvData >> unk;                                       // probably related to spam reporting
 
     //recvData.ReadGuidMask<0, 6, 7, 3, 2, 1, 4, 5>(guid);
@@ -719,7 +717,6 @@ void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
 void WorldSession::HandleChannelDeclineInvite(WorldPacket &recvPacket)
 {
     recvPacket.rfinish();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
 }
 
 void WorldSession::SendPlayerNotFoundNotice(std::string name)

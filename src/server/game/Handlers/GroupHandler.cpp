@@ -260,17 +260,10 @@ void WorldSession::HandlePartyInviteResponse(WorldPackets::Party::PartyInviteRes
     }
 }
 
-//! 6.0.3
 void WorldSession::HandlePartyUninvite(WorldPackets::Party::PartyUninvite& packet)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_UNINVITE_GUID");
-
-    //can't uninvite yourself
     if (packet.TargetGUID == GetPlayer()->GetGUID())
-    {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSession::HandleGroupUninviteGuidOpcode: leader %s(%d) tried to uninvite himself from the group.", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
         return;
-    }
 
     PartyResult res = GetPlayer()->CanUninviteFromGroup();
     if (res != ERR_PARTY_RESULT_OK)
@@ -461,8 +454,6 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     Player* target = ObjectAccessor::FindPlayer(target_playerguid);
     if (!target)
         return;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleLootMasterGiveOpcode (CMSG_MASTER_LOOT_ITEM, 0x02A3) Target = [%s].", target->GetName());
 
     for (uint32 i = 0; i < count; ++i)
     {
@@ -680,8 +671,6 @@ void WorldSession::HandleSetAssistantLeader(WorldPackets::Party::SetAssistantLea
 //! 5.4.1
 void WorldSession::HandlePartyAssignmentOpcode(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_PARTY_ASSIGNMENT");
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;

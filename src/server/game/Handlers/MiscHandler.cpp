@@ -161,8 +161,6 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
     }
 
     GetPlayer()->PetSpellInitialize();
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_LOGOUT_CANCEL_ACK Message");
 }
 
 void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
@@ -288,19 +286,9 @@ void WorldSession::HandleBugOpcode(WorldPacket& recvData)
     recvData >> typelen;
     type = recvData.ReadString(typelen);
 
-    if (suggestion == 0)
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SUPPORT_TICKET_SUBMIT_BUG [Bug Report]");
-    else
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SUPPORT_TICKET_SUBMIT_BUG [Suggestion]");
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", type.c_str());
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", content.c_str());
-
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
-
     stmt->setString(0, type);
     stmt->setString(1, content);
-
     CharacterDatabase.Execute(stmt);
 }
 
@@ -491,8 +479,6 @@ void WorldSession::HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCa
 
 void WorldSession::HandleCompleteMovie(WorldPacket& /*recvData*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_COMPLETE_MOVIE");
-
     if (!_player)
         return;
 

@@ -527,7 +527,6 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
 
 void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recvData)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM_IN_SLOT");
     ObjectGuid vendorguid, bagguid;
     uint32 item, slot, count;
     uint8 bagslot;
@@ -1350,8 +1349,6 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
     Player* player = GetPlayer();
 
     recvData >> upgradeId >> unk1 >> unk2;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_UPGRADE_ITEM upgradeId %u, unk1 %u, unk2 %u", upgradeId, unk1, unk2);
 
     //recvData.ReadGuidMask<4, 3>(itemGuid);
     //recvData.ReadGuidMask<4, 6, 7, 3>(npcGuid);

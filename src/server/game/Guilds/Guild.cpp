@@ -56,8 +56,6 @@ void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, Guil
     data.WriteBits(param.size(), 8);
     data.WriteString(param);
     session->SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_COMMAND_RESULT)");
 }
 
 //! 6.0.3
@@ -1390,7 +1388,6 @@ void Guild::HandleRoster(WorldSession* session /*= NULL*/)
         session->SendPacket(&data);
     else
         BroadcastPacket(&data);
-    //sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_ROSTER)");
 }
 
 //! 6.0.3
@@ -1419,8 +1416,6 @@ void Guild::HandleQuery(WorldSession* session)
     data.WriteString(m_name);
 
     session->SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_QUERY_GUILD_INFO_RESPONSE)");
 }
 
 //! 6.0.3
@@ -1708,8 +1703,6 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     data.WriteString(m_name);
 
     pInvitee->GetSession()->SendPacket(&data);
-
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_INVITE)");
 }
 
 void Guild::HandleAcceptMember(WorldSession* session)
@@ -2060,7 +2053,6 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
     data << float(0.f);                                                                 // Guild XP multiplier
 
     session->SendPacket(&data);
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_PARTY_STATE)");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2070,7 +2062,6 @@ void Guild::SendEventLog(WorldSession* session) const
     WorldPacket data(SMSG_GUILD_EVENT_LOG_QUERY_RESULTS, 4 + m_eventLog->GetSize() * 21);
     m_eventLog->WritePacket(data);
     session->SendPacket(&data);
-    //sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_EVENT_LOG_QUERY_RESULTS)");
 }
 
 //! 6.0.3
@@ -2096,7 +2087,6 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
             data.WriteBit(0);
 
         session->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_BANK_LOG_QUERY_RESULTS) for tab %u", tabId);
     }
 }
 
@@ -2201,7 +2191,6 @@ void Guild::SendPermissions(WorldSession* session) const
     }
 
     session->SendPacket(&data);
-    //sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent (SMSG_GUILD_PERMISSIONS_QUERY_RESULTS)");
 }
 
 void Guild::SendMoneyInfo(WorldSession* session) const
@@ -2212,7 +2201,6 @@ void Guild::SendMoneyInfo(WorldSession* session) const
     // Now _GetMemberRemainingMoney return int value no need double convertation
     data << int64(_GetMemberRemainingMoney(session->GetPlayer()->GetGUID()));
     session->SendPacket(&data);
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY");
 }
 
 void Guild::SendLoginInfo(WorldSession* session)
@@ -3285,8 +3273,6 @@ void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, u
     BroadcastPacket(&data);
 
     member->ChangeRank(rank);
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GUILD_SEND_RANK_CHANGE");
 }
 
 //! ToDo: remove. not used in WOD
@@ -3522,8 +3508,6 @@ void Guild::GuildNewsLog::BuildNewsData(WorldPacket& data)
 //! 6.0.3
 void Guild::SendMotd(WorldSession* session)
 {
-    sLog->outDebug(LOG_FILTER_GUILD, "WORLD: Sent guild MOTD (SMSG_GUILD_EVENT_MOTD)");
-
     WorldPacket data(SMSG_GUILD_EVENT_MOTD, m_motd.size() + 2);
     data.WriteBits(m_motd.size(), 10);
     data.WriteString(m_motd);

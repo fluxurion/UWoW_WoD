@@ -1325,7 +1325,6 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 //! 5.4.1
 void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Group::MasterLoot (SMSG_MASTER_LOOT_CANDIDATE_LIST)");
     uint32 real_count = 0;
 
     ByteBuffer dataBuffer(GetMembersCount()*8);

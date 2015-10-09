@@ -18249,7 +18249,6 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint
     //data << uint8(QUEST_OBJECTIVE_PLAYERKILLS);
 
     GetSession()->SendPacket(&data);
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_UPDATE_ADD_PVP_CREDIT");
 }
 
 /*********************************************************/

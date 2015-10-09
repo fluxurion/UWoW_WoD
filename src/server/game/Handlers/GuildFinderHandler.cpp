@@ -24,8 +24,6 @@
 
 void WorldSession::HandleGuildFinderAddRecruit(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_ADD_RECRUIT");
-
     if (sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUID()).size() == 10)
         return;
 
@@ -69,7 +67,6 @@ void WorldSession::HandleGuildFinderAddRecruit(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_BROWSE");
     uint32 classRoles = 0;
     uint32 availability = 0;
     uint32 guildInterests = 0;
@@ -156,8 +153,6 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildFinderDeclineRecruit(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_DECLINE_RECRUIT");
-
     ObjectGuid playerGuid;
 
     uint8 bitOrder[8] = {5, 1, 3, 7, 6, 2, 0, 4};
@@ -174,8 +169,6 @@ void WorldSession::HandleGuildFinderDeclineRecruit(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_GET_APPLICATIONS"); // Empty opcode
-
     std::list<MembershipRequest> applicatedGuilds = sGuildFinderMgr->GetAllMembershipRequestsForPlayer(GetPlayer()->GetGUID());
     uint32 applicationsCount = applicatedGuilds.size();
     WorldPacket data(SMSG_LF_GUILD_APPLICATIONS, 7 + 54 * applicationsCount);
@@ -236,8 +229,6 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
 // Lists all recruits for a guild - Misses times
 void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_GET_RECRUITS");
-
     uint32 unkTime = 0;
     //recvPacket >> unkTime;
 
@@ -298,8 +289,6 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildFinderPostRequest(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_POST_REQUEST"); // Empty opcode
-
     Player* player = GetPlayer();
 
     if (!player->GetGuildId()) // Player must be in guild
@@ -335,8 +324,6 @@ void WorldSession::HandleGuildFinderPostRequest(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_REMOVE_RECRUIT");
-
     ObjectGuid guildGuid;
 
     uint8 bitOrder[8] = {3, 7, 4, 2, 6, 1, 0, 5};
@@ -354,8 +341,6 @@ void WorldSession::HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket)
 // Sent any time a guild master sets an option in the interface and when listing / unlisting his guild
 void WorldSession::HandleGuildFinderSetGuildPost(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_SET_GUILD_POST");
-
     uint32 classRoles = 0;
     uint32 availability = 0;
     uint32 guildInterests =  0;

@@ -197,7 +197,6 @@ void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
 //
 //void WorldSession::HandleDuelAcceptResultOpcode(WorldPacket& recvPacket)
 //{
-//    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DUEL_ACCEPT_RESULT");
 //
 //    ObjectGuid guid;
 //    //recvPacket.ReadGuidMask<3, 5, 2, 4, 0, 6>(guid);
@@ -219,11 +218,7 @@ void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
 //
 //        if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
 //            return;
-//
-//        //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_DUEL_ACCEPTED");
-//        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUID().GetCounter(), player->GetName());
-//        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUID().GetCounter(), plTarget->GetName());
-//
+
 //        time_t now = time(NULL);
 //        player->duel->startTimer = now;
 //        plTarget->duel->startTimer = now;
