@@ -3117,6 +3117,7 @@ bool IsCCSpell(SpellInfo const *spellInfo, uint8 EffMask, bool nodamage)
             case SPELL_AURA_MOD_FEAR_2:
             case SPELL_AURA_MOD_STUN:
             case SPELL_AURA_MOD_ROOT:
+            case SPELL_AURA_MOD_ROOTED:
             case SPELL_AURA_MOD_SILENCE:
             case SPELL_AURA_TRANSFORM:
             case SPELL_AURA_MOD_DISARM:

@@ -651,12 +651,14 @@ void AreaTrigger::DoAction(Unit* unit, ActionInfo& action)
         }
         case AT_ACTION_TYPE_APPLY_MOVEMENT_FORCE:
         {
-            unit->SendMovementForce(this, atInfo.windX, atInfo.windY, atInfo.windZ, atInfo.windSpeed, atInfo.windType, true);
+            if(!unit->HasAuraType(SPELL_AURA_DISABLE_MOVEMENT_FORCE))
+                unit->SendMovementForce(this, atInfo.windX, atInfo.windY, atInfo.windZ, atInfo.windSpeed, atInfo.windType, true);
             break;
         }
         case AT_ACTION_TYPE_REMOVE_MOVEMENT_FORCE:
         {
-            unit->SendMovementForce(this, atInfo.windX, atInfo.windY, atInfo.windZ, atInfo.windSpeed, atInfo.windType, false);
+            if(!target->GetForceGUID().IsEmpty())
+                unit->SendMovementForce(this, atInfo.windX, atInfo.windY, atInfo.windZ, atInfo.windSpeed, atInfo.windType, false);
             break;
         }
         case AT_ACTION_TYPE_CHANGE_DURATION_ANY_AT:

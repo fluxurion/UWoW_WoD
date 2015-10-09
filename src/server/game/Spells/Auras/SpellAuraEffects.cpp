@@ -494,14 +494,14 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //433 SPELL_AURA_433
     &AuraEffect::HandleNULL,                                      //434 SPELL_AURA_434
     &AuraEffect::HandleNULL,                                      //435 SPELL_AURA_435
-    &AuraEffect::HandleNULL,                                      //436 SPELL_AURA_436
+    &AuraEffect::HandleNULL,                                      //436 SPELL_AURA_MOD_DAMAGE_FROM_LIQUID ?
     &AuraEffect::HandleNULL,                                      //437 SPELL_AURA_437
     &AuraEffect::HandleNULL,                                      //438
     &AuraEffect::HandleNULL,                                      //439
     &AuraEffect::HandleNULL,                                      //440 SPELL_AURA_MULTISTRIKE_DAMAGE_PCT
-    &AuraEffect::HandleNoImmediateEffect,                         //441 SPELL_AURA_MOD_MULTISTRIKE_PCT
-    &AuraEffect::HandleNoImmediateEffect,                         //442 SPELL_AURA_MOD_READINESS_PCT
-    &AuraEffect::HandleNoImmediateEffect,                         //443 SPELL_AURA_MOD_LIFE_STEAL_PCT
+    &AuraEffect::HandleModMultistrikePct,                         //441 SPELL_AURA_MOD_MULTISTRIKE_PCT
+    &AuraEffect::HandleModReadinessPct,                           //442 SPELL_AURA_MOD_READINESS_PCT
+    &AuraEffect::HandleModLifeStealPct,                           //443 SPELL_AURA_MOD_LIFE_STEAL_PCT
     &AuraEffect::HandleNULL,                                      //444
     &AuraEffect::HandleNULL,                                      //445
     &AuraEffect::HandleNULL,                                      //446
@@ -513,11 +513,11 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //452
     &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_CHARGE_RECOVERY_MOD
     &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER
-    &AuraEffect::HandleNULL,                                      //455
+    &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOTED
     &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE
     &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN
     &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY
-    &AuraEffect::HandleNULL,                                      //459
+    &AuraEffect::HandleDisableMovementForce,                      //459 SPELL_AURA_DISABLE_MOVEMENT_FORCE
     &AuraEffect::HandleNULL,                                      //460 SPELL_AURA_RESET_COOLDOWNS_AT_DUEL_START
     &AuraEffect::HandleNULL,                                      //461
     &AuraEffect::HandleNULL,                                      //462
@@ -526,10 +526,10 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
     &AuraEffect::HandleModStatBonusPercent,                       //467 SPELL_AURA_MOD_STAT_BONUS_PCT
-    &AuraEffect::HandleNULL,                                      //468
-    &AuraEffect::HandleNULL,                                      //469
+    &AuraEffect::HandleNoImmediateEffect,                         //468 SPELL_AURA_PROC_ON_HP_BELOW implemented in Unit::ModifyHealth
+    &AuraEffect::HandleLootBonus,                                 //469 SPELL_AURA_LOOT_BONUS_NEW
     &AuraEffect::HandleNULL,                                      //470
-    &AuraEffect::HandleNoImmediateEffect,                         //471 SPELL_AURA_MOD_VERSALITY_PCT
+    &AuraEffect::HandleModVersalityPct,                           //471 SPELL_AURA_MOD_VERSALITY_PCT
     &AuraEffect::HandleNULL,                                      //472
     &AuraEffect::HandleNULL,                                      //473 SPELL_AURA_PREVENT_ITEMS_DURABILITY_LOSS
     &AuraEffect::HandleNULL,                                      //474
@@ -539,7 +539,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //478
     &AuraEffect::HandleNULL,                                      //479
     &AuraEffect::HandleNULL,                                      //480
-    &AuraEffect::HandleNULL,                                      //481
+    &AuraEffect::HandleNULL,                                      //481 SPELL_AURA_ACTIVETED_DEATH_RUNE
     &AuraEffect::HandleNULL,                                      //482
     &AuraEffect::HandleNULL,                                      //483
 };
@@ -646,6 +646,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
         case SPELL_AURA_MOD_FEAR_2:
         //case SPELL_AURA_MOD_STUN:
         case SPELL_AURA_MOD_ROOT:
+        case SPELL_AURA_MOD_ROOTED:
         case SPELL_AURA_TRANSFORM:
             m_canBeRecalculated = false;
             if (!m_spellInfo->ProcFlags)
@@ -9233,4 +9234,67 @@ void AuraEffect::HandleModNextSpell(AuraApplication const* aurApp, uint8 mode, b
         player->AddTemporarySpell(triggeredSpellId);
     else
         player->RemoveTemporarySpell(triggeredSpellId);
+}
+
+void AuraEffect::HandleModMultistrikePct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    target->UpdateMultistrike();
+}
+
+void AuraEffect::HandleModReadinessPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    target->UpdateReadiness();
+}
+
+void AuraEffect::HandleModLifeStealPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    target->UpdateLifesteal();
+}
+
+void AuraEffect::HandleModVersalityPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    target->UpdateVersality();
+}
+
+void AuraEffect::HandleDisableMovementForce(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    if (!target)
+        return;
+
+    ObjectGuid forceGuid = target->GetForceGUID();
+    if(!forceGuid.IsEmpty())
+        if(WorldObject* at = ObjectAccessor::GetWorldObject(*target, forceGuid))
+            target->SendMovementForce(at, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, false);
 }

@@ -512,11 +512,11 @@ enum AuraType
     SPELL_AURA_452                                          = 452,
     SPELL_AURA_CHARGE_RECOVERY_MOD                          = 453,
     SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER                   = 454,
-    SPELL_AURA_455                                          = 455,
+    SPELL_AURA_MOD_ROOTED                                   = 455,
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE            = 456,
     SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN      = 457,
     SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY                = 458,
-    SPELL_AURA_459                                          = 459,
+    SPELL_AURA_DISABLE_MOVEMENT_FORCE                       = 459,
     SPELL_AURA_RESET_COOLDOWNS_AT_DUEL_START                = 460,
     SPELL_AURA_461                                          = 461,
     SPELL_AURA_462                                          = 462,
@@ -525,8 +525,8 @@ enum AuraType
     SPELL_AURA_MOD_BONUS_ARMOR                              = 465,
     SPELL_AURA_MOD_BONUS_ARMOR_PCT                          = 466, // Affects bonus armor gain from all sources except base stats
     SPELL_AURA_MOD_STAT_BONUS_PCT                           = 467, // Affects stat gain from all sources except base stats
-    SPELL_AURA_468                                          = 468,
-    SPELL_AURA_469                                          = 469,
+    SPELL_AURA_PROC_ON_HP_BELOW                             = 468,
+    SPELL_AURA_LOOT_BONUS_NEW                               = 469,
     SPELL_AURA_MOD_VERSALITY_PCT                            = 471,
     SPELL_AURA_472                                          = 472,
     SPELL_AURA_PREVENT_ITEMS_DURABILITY_LOSS                = 473,
@@ -537,7 +537,7 @@ enum AuraType
     SPELL_AURA_478                                          = 478,
     SPELL_AURA_479                                          = 479,
     SPELL_AURA_480                                          = 480,
-    SPELL_AURA_481                                          = 481,
+    SPELL_AURA_ACTIVETED_DEATH_RUNE                         = 481,
     SPELL_AURA_482                                          = 482,
     SPELL_AURA_483                                          = 483,
     TOTAL_AURAS                                             = 484   //6.1.2

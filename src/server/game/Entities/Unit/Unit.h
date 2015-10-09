@@ -1732,7 +1732,7 @@ class Unit : public WorldObject
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
         bool isFeared()  const { return (HasAuraType(SPELL_AURA_MOD_FEAR) || HasAuraType(SPELL_AURA_MOD_FEAR_2)); }
-        bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT); }
+        bool isInRoots() const { return HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOTED); }
         bool IsPolymorphed() const;
 
         bool isFrozen() const;
@@ -2512,6 +2512,14 @@ class Unit : public WorldObject
         {
             return m_curTargetGUID;
         }
+        void SetForceGUID(ObjectGuid const& guid)
+        {
+            m_curForceGUID = guid;
+        }
+        ObjectGuid GetForceGUID()
+        {
+            return m_curForceGUID;
+        }
         Unit* GetTargetUnit() const;
 
         ObjectGuid m_SpecialTarget;
@@ -2720,6 +2728,7 @@ class Unit : public WorldObject
         uint32 m_reducedThreatPercent;
         ObjectGuid m_misdirectionTargetGUID;
         ObjectGuid m_curTargetGUID;
+        ObjectGuid m_curForceGUID;
 
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after beginning removing from world

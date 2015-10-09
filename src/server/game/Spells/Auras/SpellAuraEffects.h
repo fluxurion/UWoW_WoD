@@ -244,6 +244,10 @@ class AuraEffect
         void HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleIncreaseModRatingPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModMultistrikePct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModReadinessPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModLifeStealPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModVersalityPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -328,6 +332,7 @@ class AuraEffect
         void HandleLootBonus(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleSummonController(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModNextSpell(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleDisableMovementForce(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const;

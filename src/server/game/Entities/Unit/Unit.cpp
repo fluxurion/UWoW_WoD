@@ -6479,6 +6479,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                             case SPELL_AURA_MOD_FEAR:
                             case SPELL_AURA_MOD_STUN:
                             case SPELL_AURA_MOD_ROOT:
+                            case SPELL_AURA_MOD_ROOTED:
                                 triggered_spell_id = 89024;
                             break;
                         }
@@ -14418,8 +14419,24 @@ int32 Unit::ModifyHealth(int32 dVal)
         return 0;
 
     int64 curHealth = (int32)GetHealth();
-
     int64 val = dVal + curHealth;
+
+    if(dVal < 0)
+    {
+        AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(SPELL_AURA_PROC_ON_HP_BELOW);
+        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+        {
+            int64 curCount = CountPctFromMaxHealth((*i)->GetAmount());
+            uint32 triggered_spell_id = (*i)->GetTriggerSpell() ? (*i)->GetTriggerSpell(): 0;
+            SpellInfo const* triggerEntry = sSpellMgr->GetSpellInfo(triggered_spell_id);
+            if (curCount < curHealth && curCount > val)
+            {
+                if(triggerEntry)
+                    CastSpell(this, triggered_spell_id, true, NULL, (*i));
+            }
+        }
+    }
+
     if (val <= 0)
     {
         SetHealth(0);
@@ -16819,6 +16836,7 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_MOD_FEAR] = true; // Aura does not have charges but needs to be removed on trigger
     isTriggerAura[SPELL_AURA_MOD_FEAR_2] = true;
     isTriggerAura[SPELL_AURA_MOD_ROOT] = true;
+    isTriggerAura[SPELL_AURA_MOD_ROOTED] = true;
     isTriggerAura[SPELL_AURA_TRANSFORM] = true;
     isTriggerAura[SPELL_AURA_REFLECT_SPELLS] = true;
     isTriggerAura[SPELL_AURA_DAMAGE_IMMUNITY] = true;
@@ -16873,6 +16891,7 @@ bool InitTriggerAuraData()
     isAlwaysTriggeredAura[SPELL_AURA_CAST_WHILE_WALKING] = true;
     isAlwaysTriggeredAura[SPELL_AURA_MOD_CAST_TIME_WHILE_MOVING] = true;
     isAlwaysTriggeredAura[SPELL_AURA_WATER_WALK] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOTED] = true;
 
     isDamageCapAura[SPELL_AURA_MOD_CONFUSE] = true;
     isDamageCapAura[SPELL_AURA_MOD_FEAR] = true;
@@ -16880,6 +16899,7 @@ bool InitTriggerAuraData()
     isDamageCapAura[SPELL_AURA_MOD_ROOT] = true;
     isDamageCapAura[SPELL_AURA_MOD_STUN] = true;
     isDamageCapAura[SPELL_AURA_TRANSFORM] = true;
+    isDamageCapAura[SPELL_AURA_MOD_ROOTED] = true;
 
     return true;
 }
@@ -17390,6 +17410,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_MOD_FEAR_2:
                     case SPELL_AURA_MOD_STUN:
                     case SPELL_AURA_MOD_ROOT:
+                    case SPELL_AURA_MOD_ROOTED:
                     case SPELL_AURA_TRANSFORM:
                     {
                         if (procExtra & PROC_EX_INTERNAL_HOT)
@@ -20782,7 +20803,7 @@ void Unit::SetControlled(bool apply, UnitState state)
         {
             case UNIT_STATE_STUNNED: if (HasAuraType(SPELL_AURA_MOD_STUN))    return;
                                     else    SetStunned(false);    break;
-            case UNIT_STATE_ROOT:    if (HasAuraType(SPELL_AURA_MOD_ROOT) || GetVehicle())    return;
+            case UNIT_STATE_ROOT:    if (HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOTED) || GetVehicle())    return;
                                     else    SetRooted(false);     break;
             case UNIT_STATE_CONFUSED:if (HasAuraType(SPELL_AURA_MOD_CONFUSE)) return;
                                     else    SetConfused(false);   break;
@@ -24338,6 +24359,8 @@ void Unit::SendMovementForce(WorldObject* at, float windX, float windY, float wi
 
     if(apply)
     {
+        SetForceGUID(at->GetGUID());
+
         WorldPacket data(SMSG_MOVE_APPLY_MOVEMENT_FORCE);
         data << GetGUID();
         data << uint32(m_movementCounter++); // SequenceIndex
@@ -24356,6 +24379,8 @@ void Unit::SendMovementForce(WorldObject* at, float windX, float windY, float wi
     }
     else
     {
+        SetForceGUID(ObjectGuid::Empty);
+
         WorldPacket data(SMSG_MOVE_REMOVE_MOVEMENT_FORCE);
         data << GetGUID();
         data << uint32(m_movementCounter++); // SequenceIndex
