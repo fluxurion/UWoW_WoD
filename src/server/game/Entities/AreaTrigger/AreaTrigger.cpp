@@ -657,7 +657,7 @@ void AreaTrigger::DoAction(Unit* unit, ActionInfo& action)
         }
         case AT_ACTION_TYPE_REMOVE_MOVEMENT_FORCE:
         {
-            if(!target->GetForceGUID().IsEmpty())
+            if(!unit->GetForceGUID().IsEmpty())
                 unit->SendMovementForce(this, atInfo.windX, atInfo.windY, atInfo.windZ, atInfo.windSpeed, atInfo.windType, false);
             break;
         }

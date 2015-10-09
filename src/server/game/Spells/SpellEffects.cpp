@@ -304,7 +304,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectActivateGarrisonBuilding,                 //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
     &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
     &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226
-    &Spell::EffectNULL,                                     //227 SPELL_EFFECT_227
+    &Spell::EffectTeleportUnits,                            //227 SPELL_EFFECT_TELEPORT
     &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228
     &Spell::EffectNULL,                                     //229 SPELL_EFFECT_SET_FOLLOWER_QUALITY
     &Spell::EffectNULL,                                     //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL

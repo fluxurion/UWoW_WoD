@@ -1306,7 +1306,7 @@ enum SpellEffects
     SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING         = 224,
     SPELL_EFFECT_GRANT_BATTLEPET_LEVEL              = 225,
     SPELL_EFFECT_226                                = 226,
-    SPELL_EFFECT_227                                = 227,
+    SPELL_EFFECT_TELEPORT                           = 227,
     SPELL_EFFECT_228                                = 228,
     SPELL_EFFECT_SET_FOLLOWER_QUALITY               = 229,
     SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL       = 230,
