@@ -502,8 +502,9 @@ class Spell
         void EffectActivateGarrisonBuilding(SpellEffIndex effIndex);
         void EffectCreateHeirloomItem(SpellEffIndex effIndex);
         void EffectUpgradeHeirloom(SpellEffIndex effIndex);
+        void EffectGieveExperience(SpellEffIndex effIndex);
 
-        typedef std::set<Aura *> UsedSpellMods;
+        typedef std::set<Aura*> UsedSpellMods;
 
         Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = ObjectGuid::Empty, bool skipCheck = false, bool replaced = false);
         ~Spell();
