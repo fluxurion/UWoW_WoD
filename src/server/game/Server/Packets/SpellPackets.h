@@ -789,6 +789,23 @@ namespace WorldPackets
 
             int32 SpellID = 0;
         };
+
+        class PlaySpellVisual final : public ServerPacket
+        {
+        public:
+            PlaySpellVisual() : ServerPacket(SMSG_PLAY_SPELL_VISUAL, 32 + 16 + 4 + 1 + 4) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Source;
+            ObjectGuid Target;
+            Position TargetPosition;
+            int32 SpellVisualID = 0;
+            uint16 ReflectStatus = 0;
+            uint16 MissReason = 0;
+            bool SpeedAsTime = false;
+            float TravelSpeed = 0.0f;
+        };
     }
 }
 

@@ -23914,67 +23914,55 @@ void DelayCastEvent::Execute(Unit *caster)
 void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position const* position, Unit* target, uint32 type, uint32 visualId)
 {
     bool exist = false;
-    uint32 SpellVisualID = 0;
-    uint16 MissReason = 0;
-    uint16 ReflectStatus = 0;
-    float TravelSpeed = spellInfo->Speed;
-    float positionX = 0.0f;
-    float positionY = 0.0f;
-    float positionZ = 0.0f;
-    bool positionFind = false;
-    if (const std::vector<SpellVisual> *spell_visual = sSpellMgr->GetSpellVisual(spellInfo->Id))
+
+    WorldPackets::Spells::PlaySpellVisual visual;
+    visual.Source = GetGUID();
+    if (target)
+        visual.Target = target->GetGUID();
+    visual.TravelSpeed = spellInfo->Speed;
+
+    if (auto const* spellVisual = sSpellMgr->GetSpellVisual(spellInfo->Id))
     {
-        float chance = 100.0f / spell_visual->size();
-        for (std::vector<SpellVisual>::const_iterator i = spell_visual->begin(); i != spell_visual->end(); ++i)
+        float chance = 100.0f / spellVisual->size();
+        for (auto const& x : *spellVisual)
         {
-            if(i->type != type)
-                continue;
-            if(i->type == SPELL_VISUAL_TYPE_CUSTOM && i->SpellVisualID != visualId)
+            if (x.type != type)
                 continue;
 
-            SpellVisualID = i->SpellVisualID;
-            MissReason = i->MissReason;
-            ReflectStatus = i->ReflectStatus;
-            if(i->TravelSpeed)
-                TravelSpeed = i->TravelSpeed;
-            positionFind = i->SpeedAsTime;
+            if (x.type == SPELL_VISUAL_TYPE_CUSTOM && x.SpellVisualID != visualId)
+                continue;
+
+            visual.SpellVisualID = x.SpellVisualID;
+            visual.MissReason = x.MissReason;
+            visual.ReflectStatus = x.ReflectStatus;
+            if (x.TravelSpeed)
+                visual.TravelSpeed = x.TravelSpeed;
+            visual.SpeedAsTime = x.SpeedAsTime;
             exist = true;
-            if(!type && roll_chance_f(chance))
+            if (!type && roll_chance_f(chance))
                 break;
         }
     }
 
-    if(!exist)
+    if (!exist)
         return;
 
-    if(TravelSpeed)
+    if (visual.TravelSpeed)
     {
         if (target && target != this)
         {
-            positionX = target->GetPositionX();
-            positionY = target->GetPositionY();
-            positionZ = target->GetPositionZ();
-        }
-        else
+            visual.TargetPosition.m_positionX = target->GetPositionX();
+            visual.TargetPosition.m_positionY = target->GetPositionY();
+            visual.TargetPosition.m_positionZ = target->GetPositionZ();
+        } else
         {
-            positionX = position->GetPositionX();
-            positionY = position->GetPositionY();
-            positionZ = position->GetPositionZ();
+            visual.TargetPosition.m_positionX = position->GetPositionX();
+            visual.TargetPosition.m_positionY = position->GetPositionY();
+            visual.TargetPosition.m_positionZ = position->GetPositionZ();
         }
     }
-
-    ObjectGuid casterGuid = GetGUID();
-    ObjectGuid targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
-    WorldPacket data(SMSG_PLAY_SPELL_VISUAL, 50);
-    data.WriteBit(positionFind);            // hasPosition
-    data << uint16(MissReason);               // word10
-    data << uint32(SpellVisualID);             //Spell Visual dword14
-    data << float(positionZ);           // z
-    data << float(TravelSpeed);               // speed
-    data << uint16(ReflectStatus);               // word34
-    data << float(positionX);           // x
-    data << float(positionY);           // y
-    SendMessageToSet(&data, true);
+    
+    SendMessageToSet(visual.Write(), true);
 }
 
 //! 6.0.3 ToDo: Check IT

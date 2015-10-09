@@ -806,3 +806,19 @@ WorldPacket const* WorldPackets::Spells::ScriptCast::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::PlaySpellVisual::Write()
+{
+    _worldPacket << Source;
+    _worldPacket << Target;
+    _worldPacket << TargetPosition.PositionXYZStream();
+    _worldPacket << SpellVisualID;
+    _worldPacket << TravelSpeed;
+    _worldPacket << MissReason;
+    _worldPacket << ReflectStatus;
+    _worldPacket << TargetPosition.GetOrientation();
+    _worldPacket.WriteBit(SpeedAsTime);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
