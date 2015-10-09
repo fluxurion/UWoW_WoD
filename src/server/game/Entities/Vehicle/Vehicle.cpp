@@ -562,9 +562,9 @@ void Vehicle::RemovePassenger(Unit* unit)
             _me->RemoveCharmedBy(unit);
         else if (seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_UNK2)
         {
-            unit->ToPlayer()->SetClientControl(unit, 1);
+            unit->ToPlayer()->SetClientControl(unit, true);
             unit->ToPlayer()->SetViewpoint(_me, false);
-            unit->ToPlayer()->SetClientControl(_me, 0);
+            unit->ToPlayer()->SetClientControl(_me, false);
         }
     }
 

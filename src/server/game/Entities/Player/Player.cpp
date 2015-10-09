@@ -15973,7 +15973,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
                 return;
             }
 
-            GetSession()->SendBattleGroundList(guid, bgTypeId);
+            sBattlegroundMgr->SendBattlegroundList(this, guid, bgTypeId);
             break;
         }
         case GOSSIP_OPTION_SCENARIO:
@@ -26638,7 +26638,7 @@ void Player::ResurectUsingRequestData()
     SpawnCorpseBones();
 }
 
-void Player::SetClientControl(Unit* target, uint8 allowMove)
+void Player::SetClientControl(Unit* target, bool allowMove)
 {
     WorldPackets::Movement::ControlUpdate update;
     update.Guid = target->GetGUID();

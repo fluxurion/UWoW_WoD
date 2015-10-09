@@ -45,9 +45,9 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Battleground::RideTicket&
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::StatusHeader const& header)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::BattlefieldStatusHeader const& header)
 {
-    data << header.TicketData;
+    data << header.Ticket;
 
     data << header.QueueID;
     data << header.RangeMin;
@@ -62,9 +62,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::StatusHeade
     return data;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Battleground::StatusHeader& header)
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Battleground::BattlefieldStatusHeader& header)
 {
-    data >> header.TicketData;
+    data >> header.Ticket;
 
     data >> header.QueueID;
     data >> header.RangeMin;
@@ -113,7 +113,7 @@ void WorldPackets::Battleground::ExitRequest::Read()
 
 void WorldPackets::Battleground::Port::Read()
 {
-    _worldPacket >> TicketData;
+    _worldPacket >> Ticket;
     AcceptedInvite = _worldPacket.ReadBit();
 }
 
@@ -309,14 +309,14 @@ WorldPacket const* WorldPackets::Battleground::PlayerPositions::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Battleground::StatusNone::Write()
+WorldPacket const* WorldPackets::Battleground::BattlefieldStatusNone::Write()
 {
     _worldPacket << Ticket;
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Battleground::StatusNeedConfirmation::Write()
+WorldPacket const* WorldPackets::Battleground::BattlefieldStatusNeedConfirmation::Write()
 {
     _worldPacket << Header;
     _worldPacket << Mapid;
@@ -326,7 +326,7 @@ WorldPacket const* WorldPackets::Battleground::StatusNeedConfirmation::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Battleground::StatusFailed::Write()
+WorldPacket const* WorldPackets::Battleground::BattlefieldStatusFailed::Write()
 {
     _worldPacket << Ticket;
     _worldPacket << QueueID;
@@ -478,7 +478,7 @@ WorldPacket const* WorldPackets::Battleground::BFMgrEntering::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Battleground::StatusQueued::Write()
+WorldPacket const* WorldPackets::Battleground::BattlefieldStatusQueued::Write()
 {
     _worldPacket << Header;
 
@@ -493,7 +493,7 @@ WorldPacket const* WorldPackets::Battleground::StatusQueued::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Battleground::StatusActive::Write()
+WorldPacket const* WorldPackets::Battleground::BattlefieldStatusActive::Write()
 {
     _worldPacket << Header;
 

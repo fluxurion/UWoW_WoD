@@ -341,8 +341,7 @@ void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 Trigger)
 
 void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
-    std::map<ObjectGuid, BattlegroundScore*>::iterator itr = PlayerScores.find(Source->GetGUID());
-
+    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
     if (itr == PlayerScores.end())                         // player not found...
         return;
 
@@ -495,11 +494,11 @@ void BattlegroundIC::EndBattleground(uint32 winner)
 void BattlegroundIC::RealocatePlayers(ICNodePointType nodeType)
 {
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-    std::vector<ObjectGuid> ghost_list = m_ReviveQueue[BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1 + nodeType - 2]];
+    GuidVector ghost_list = m_ReviveQueue[BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1 + nodeType - 2]];
     if (!ghost_list.empty())
     {
         WorldSafeLocsEntry const* ClosestGrave = NULL;
-        for (std::vector<ObjectGuid>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
+        for (GuidVector::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
             Player* player = ObjectAccessor::FindPlayer(*itr);
             if (!player)

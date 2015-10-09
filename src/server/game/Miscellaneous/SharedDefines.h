@@ -4715,10 +4715,10 @@ enum BattlegroundTypeId
     BATTLEGROUND_TV                 = 719, // Tol'vir Arena
     BATTLEGROUND_DG                 = 754, // Deepwind Gorge
     BATTLEGROUND_TTP                = 757, // The Tiger's Peak
-    BATTLEGROUND_SS_VS_TM           = 789  // Southshore vs. Tarren Mill
-};
+    BATTLEGROUND_SS_VS_TM           = 789, // Southshore vs. Tarren Mill
 
-#define MAX_BATTLEGROUND_TYPE_ID 758
+    MAX_BATTLEGROUND_TYPE_ID
+};
 
 enum BracketType
 {

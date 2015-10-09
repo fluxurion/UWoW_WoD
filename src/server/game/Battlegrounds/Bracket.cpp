@@ -17,15 +17,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Bracket.h"
-#include "DatabaseEnv.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
+#include "Bracket.h"
+#include "DatabaseEnv.h"
 
 Bracket::Bracket(ObjectGuid guid, BracketType type) :
-    m_owner(guid), m_Type(type), m_rating(0), m_state(BRACKET_NEW), m_ratingLastChange(0), m_mmr_lastChage(0)
+m_owner(guid), m_Type(type), m_rating(0), m_state(BRACKET_NEW), m_ratingLastChange(0), m_mmr_lastChage(0)
 {
-    m_mmv    = sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
+    m_mmv = sWorld->getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
     memset(values, 0, sizeof(uint32) * BRACKET_END);
 }
 
@@ -68,20 +68,18 @@ int GetRatingMod(int ownRating, int opponentRating, bool won /*, float confidenc
             mod = 48.0f * (won_mod - chance);
         else
             mod = (24.0f + (24.0f * (1300.0f - float(ownRating)) / 300.0f)) * (won_mod - chance);
-    }
-    else
+    } else
         mod = 24.0f * (won_mod - chance);
 
-	// in any way should be decrase
-	if (!won && mod == 0.0f && ownRating > 0)
-		return -1.0f;
+    // in any way should be decrase
+    if (!won && mod == 0.0f && ownRating > 0)
+        return -1.0f;
 
     return (int)ceil(mod);
 
 }
 
-
-int GetMatchmakerRatingMod(int ownRating, int opponentRating, bool won )
+int GetMatchmakerRatingMod(int ownRating, int opponentRating, bool won)
 {
     // 'Chance' calculation - to beat the opponent
     // This is a simulation. Not much info on how it really works
@@ -110,9 +108,9 @@ int GetMatchmakerRatingMod(int ownRating, int opponentRating, bool won )
 void Bracket::SaveStats(SQLTransaction* trans)
 {
     int32 index = 0;
-    PreparedStatement* stmt = NULL;
+    PreparedStatement* stmt = nullptr;
 
-    switch(m_state)
+    switch (m_state)
     {
         case BRACKET_NEW:
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHARACTER_BRACKETS_STATS);
@@ -174,7 +172,7 @@ uint16 Bracket::FinishGame(bool win, uint16 opponents_mmv)
 
     if (m_rating > values[BRACKET_BEST])
         values[BRACKET_BEST] = m_rating;
-    
+
     if (Player* player = ObjectAccessor::FindPlayer(m_owner))
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, m_rating, GetSlotByType());
 
@@ -197,12 +195,16 @@ uint16 Bracket::GetSlotByType()
 {
     switch (m_Type)
     {
-        case BRACKET_TYPE_ARENA_2: return 2;
-        case BRACKET_TYPE_ARENA_3: return 3;
-        case BRACKET_TYPE_ARENA_5: return 5;
+        case BRACKET_TYPE_ARENA_2:
+            return 2;
+        case BRACKET_TYPE_ARENA_3:
+            return 3;
+        case BRACKET_TYPE_ARENA_5:
+            return 5;
         default:
             break;
     }
+
     return 0xFF;
 }
 

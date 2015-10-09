@@ -2323,7 +2323,7 @@ void WorldSession::HandleReorderCharacters(WorldPacket& recvData)
 {
     uint32 charactersCount = recvData.ReadBits(9);
 
-    std::vector<ObjectGuid> guids(charactersCount);
+    GuidVector guids(charactersCount);
     uint8 position;
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();

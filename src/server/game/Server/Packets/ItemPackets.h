@@ -256,8 +256,8 @@ namespace WorldPackets
             uint32 Count;
             ObjectGuid NpcGUID;
             std::vector<ItemInstance> Items;
-            std::vector<ObjectGuid> SrcItemGUID;
-            std::vector<ObjectGuid> SrcVoidItemGUID;
+            GuidVector SrcItemGUID;
+            GuidVector SrcVoidItemGUID;
             std::vector<uint32> Slots;
         };
 

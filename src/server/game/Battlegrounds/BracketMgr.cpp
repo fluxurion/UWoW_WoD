@@ -33,21 +33,21 @@ void BracketMgr::LoadCharacterBrackets()
 
         BracketType bType = (BracketType)fields[0].GetUInt8();
         ObjectGuid owner = ObjectGuid::Create<HighGuid::Player>(fields[9].GetUInt64());
-        Bracket * bracket = TryGetOrCreateBracket(owner, bType);
+        Bracket* bracket = TryGetOrCreateBracket(owner, bType);
 
         uint16 rating = fields[1].GetUInt16();
         uint16 rating_best = fields[2].GetUInt16();
         uint16 rating_best_week = fields[3].GetUInt16();
         uint16 mmv = fields[4].GetUInt16();
-        uint32 games      = fields[5].GetUInt32();
-        uint32 wins       = fields[6].GetUInt32();
+        uint32 games = fields[5].GetUInt32();
+        uint32 wins = fields[6].GetUInt32();
         uint32 week_games = fields[7].GetUInt16();
-        uint32 week_wins  = fields[8].GetUInt16();
+        uint32 week_wins = fields[8].GetUInt16();
 
         bracket->InitStats(rating, mmv, games, wins, week_games, week_wins, rating_best_week, rating_best);
         ++count;
-    }
-    while (result->NextRow());
+    } while (result->NextRow());
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u brackets data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -56,8 +56,7 @@ Bracket* BracketMgr::TryGetOrCreateBracket(ObjectGuid guid, BracketType bType)
     BracketContainer::iterator itr = m_conteiner.find(guid);
     if (itr == m_conteiner.end())
     {
-        Bracket *b = NULL;
-        b = new Bracket(guid, bType);
+        Bracket* b = new Bracket(guid, bType);
         m_conteiner[guid][bType] = b;
         return b;
     }
@@ -65,8 +64,7 @@ Bracket* BracketMgr::TryGetOrCreateBracket(ObjectGuid guid, BracketType bType)
     BracketList::iterator itr2 = m_conteiner[guid].find(bType);
     if (itr2 == m_conteiner[guid].end())
     {
-        Bracket *b = NULL;
-        b = new Bracket(guid, bType);
+        Bracket* b = new Bracket(guid, bType);
         m_conteiner[guid][bType] = b;
         return b;
     }

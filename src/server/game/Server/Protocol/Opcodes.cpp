@@ -205,7 +205,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_BATTLEFIELD_LEAVE,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::NullCmsg, &WorldSession::HandleLeaveBattlefield); // HandleBfExitRequest ???
     DEFINE_HANDLER(CMSG_BATTLEFIELD_LIST,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::ListClient, &WorldSession::HandleBattlefieldList);
     DEFINE_HANDLER(CMSG_BATTLEFIELD_PORT,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::Port, &WorldSession::HandleBattleFieldPort);
-    DEFINE_HANDLER(CMSG_BATTLEMASTER_HELLO,                                 STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_BATTLEMASTER_HELLO,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleBattlemasterHello);
     DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::Join, &WorldSession::HandleBattlemasterJoin);
     DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN_ARENA,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::JoinArena, &WorldSession::HandleBattlemasterJoinArena);
     DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN_SKIRMISH,                         STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
@@ -620,7 +620,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_PLAYER_LOGIN,                                       STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::PlayerLogin, &WorldSession::HandlePlayerLoginOpcode            );
     DEFINE_HANDLER(CMSG_PROTOCOL_MISMATCH,                                  STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PUSH_QUEST_TO_PARTY,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePushQuestToParty          );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_PVP_LOG_DATA,                            STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandlePVPLogDataOpcode          );
+    DEFINE_HANDLER(CMSG_PVP_LOG_DATA,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Battleground::NullCmsg, &WorldSession::HandlePVPLogData);
     DEFINE_HANDLER(CMSG_QUERY_BATTLE_PET_NAME,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BattlePet::Query, &WorldSession::HandleBattlePetNameQuery);
     DEFINE_HANDLER(CMSG_QUERY_CORPSE_LOCATION_FROM_CLIENT,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryCorpseLocationFromClient, &WorldSession::HandleQueryCorpseLocation);
     DEFINE_HANDLER(CMSG_QUERY_CORPSE_TRANSPORT,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Query::QueryCorpseTransport, &WorldSession::HandleQueryCorpseTransport);

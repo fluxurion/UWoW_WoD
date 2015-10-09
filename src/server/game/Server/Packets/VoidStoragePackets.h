@@ -103,7 +103,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<ObjectGuid> RemovedItems;
+            GuidVector RemovedItems;
             std::vector<VoidItem> AddedItems;
         };
 

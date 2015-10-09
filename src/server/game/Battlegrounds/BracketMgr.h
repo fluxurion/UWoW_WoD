@@ -21,7 +21,7 @@ class BracketMgr
             return &instance;
         }
 
-        typedef UNORDERED_MAP<ObjectGuid, BracketList> BracketContainer;
+        typedef std::unordered_map<ObjectGuid, BracketList> BracketContainer;
 
         void LoadCharacterBrackets();
 
@@ -33,4 +33,5 @@ class BracketMgr
 };
 
 #define sBracketMgr BracketMgr::instance()
+
 #endif

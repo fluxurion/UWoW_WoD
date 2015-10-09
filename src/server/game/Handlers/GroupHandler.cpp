@@ -422,7 +422,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     ObjectGuid target_playerguid;
 
     uint32 count = recvData.ReadBits(23);
-    std::vector<ObjectGuid> guids(count);
+    GuidVector guids(count);
     std::vector<uint8> types(count);
 
     //recvData.ReadGuidMask<6, 2>(target_playerguid);

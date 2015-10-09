@@ -1022,12 +1022,12 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             SpawnBGObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION+3*node, RESPAWN_IMMEDIATELY); //neutral aura spawn
             SpawnBGObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+GetTeamIndexByTeamId(owner)+3*node, RESPAWN_ONE_DAY); //teeamaura despawn
             // Those who are waiting to resurrect at this object are taken to the closest own object's graveyard
-            std::vector<ObjectGuid> ghost_list = m_ReviveQueue[BgCreatures[node]];
+            GuidVector ghost_list = m_ReviveQueue[BgCreatures[node]];
             if (!ghost_list.empty())
             {
                 Player* waitingPlayer;  // player waiting at graveyard for resurrection
                 WorldSafeLocsEntry const* closestGrave = NULL;
-                for (std::vector<ObjectGuid>::iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
+                for (GuidVector::iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
                 {
                     waitingPlayer = ObjectAccessor::FindPlayer(*ghost_list.begin());
                     if (!waitingPlayer)

@@ -318,7 +318,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
         if (bg)
         {
             bg->AddPlayerToResurrectQueue(unit->GetGUID(), player->GetGUID());
-            sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(player, bg, unit->GetGUID());
+            sBattlegroundMgr->SendAreaSpiritHealerQuery(player, bg, unit->GetGUID());
             return;
         }
     }

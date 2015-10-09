@@ -314,8 +314,8 @@ namespace WorldPackets
             uint32 CastFlags = 0;
             uint32 CastFlagsEx = 0;
             uint32 CastTime = 0;
-            std::vector<ObjectGuid> HitTargets;
-            std::vector<ObjectGuid> MissTargets;
+            GuidVector HitTargets;
+            GuidVector MissTargets;
             std::vector<SpellMissStatus> MissStatus;
             SpellTargetData Target;
             std::vector<SpellPowerData> RemainingPower;

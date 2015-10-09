@@ -2007,7 +2007,7 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
 }
 
 //! ToDo: Arena check battlegroup
-GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot)
+GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid)
 {
     // check if this group is LFG group
     if (isLFGGroup())
@@ -2054,7 +2054,10 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
             return ERR_BATTLEGROUND_JOIN_FAILED;
         // don't allow cross-faction join as group
         if (member->GetTeam() != team)
+        {
+            errorGuid = member->GetGUID();
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
+        }
         // not in the same battleground level braket, don't let join
         PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->mapId, member->getLevel());
         if (memberBracketEntry != bracketEntry)

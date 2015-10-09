@@ -887,8 +887,6 @@ class WorldSession
         void SendSpiritResurrect();
         void SendBindPoint(Creature* npc);
 
-        void SendBattleGroundList(ObjectGuid guid, BattlegroundTypeId bgTypeId);
-
         void SendTradeStatus(WorldPackets::Trade::TradeStatus& packet);
         void SendUpdateTrade(bool trader_data = true);
         void SendCancelTrade();
@@ -1393,10 +1391,9 @@ class WorldSession
         void HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& packet);
         void HandleDismissCritter(WorldPackets::PetPackets::DismissCritter& packet);
 
-        //Battleground
-        void HandleBattlemasterHelloOpcode(WorldPacket& recvData);
+        void HandleBattlemasterHello(WorldPackets::NPC::Hello& packet);
         void HandleBattlemasterJoin(WorldPackets::Battleground::Join& packet);
-        void HandlePVPLogDataOpcode(WorldPacket& recvData);
+        void HandlePVPLogData(WorldPackets::Battleground::NullCmsg& packet);
         void HandleBattleFieldPort(WorldPackets::Battleground::Port& packet);
         void HandleBattlefieldList(WorldPackets::Battleground::ListClient& packet);
         void HandleLeaveBattlefield(WorldPackets::Battleground::NullCmsg& packet);

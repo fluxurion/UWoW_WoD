@@ -250,8 +250,7 @@ class BattlegroundSSM : public Battleground
         int32 m_timerPointsUpdate;
         int32 m_timerCartsUpdate;
 
-        typedef std::vector<ObjectGuid> PlayersNearPointType;
-        PlayersNearPointType m_PlayersNearPoint[SSM_POINTS_MAX + 1];
+        GuidVector m_PlayersNearPoint[SSM_POINTS_MAX + 1];
 };
 
 #endif

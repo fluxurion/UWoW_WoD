@@ -19,9 +19,9 @@
 #ifndef __BATTLEGROUNDQUEUE_H
 #define __BATTLEGROUNDQUEUE_H
 
+#include "Battleground.h"
 #include "Common.h"
 #include "DBCEnums.h"
-#include "Battleground.h"
 #include "EventProcessor.h"
 #include "LockedMap.h"
 #include "Packets/BattlegroundPackets.h"
@@ -64,7 +64,6 @@ enum BattlegroundQueueGroupTypes
     BG_QUEUE_NORMAL_HORDE       = 3,
     BG_QUEUE_MAX
 };
-#define BG_QUEUE_GROUP_TYPES_COUNT 4
 
 class Battleground;
 class BattlegroundQueue
@@ -104,13 +103,13 @@ class BattlegroundQueue
              BG_QUEUE_NORMAL_ALLIANCE   is used for normal (or small) alliance groups or non-rated arena matches
              BG_QUEUE_NORMAL_HORDE      is used for normal (or small) horde groups or non-rated arena matches
         */
-        GroupsQueueType m_QueuedGroups[MAX_BATTLEGROUND_BRACKETS][BG_QUEUE_GROUP_TYPES_COUNT];
+        GroupsQueueType m_QueuedGroups[MAX_BATTLEGROUND_BRACKETS][BG_QUEUE_MAX];
 
         // class to select and invite groups to bg
         class SelectionPool
         {
         public:
-            SelectionPool(): PlayerCount(0) {};
+            SelectionPool(): PlayerCount(0) { };
             void Init();
             bool AddGroup(GroupQueueInfo* ginfo, uint32 desiredCount);
             bool KickGroup(uint32 size);
@@ -143,11 +142,8 @@ class BGQueueInviteEvent : public BasicEvent
 {
     public:
         BGQueueInviteEvent(ObjectGuid pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint32 removeTime) :
-          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_RemoveTime(removeTime)
-          {
-          };
-        virtual ~BGQueueInviteEvent() {};
-
+          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_RemoveTime(removeTime) { };
+        virtual ~BGQueueInviteEvent() { };
         virtual bool Execute(uint64 e_time, uint32 p_time);
         virtual void Abort(uint64 e_time);
     private:
@@ -166,11 +162,9 @@ class BGQueueRemoveEvent : public BasicEvent
 {
     public:
         BGQueueRemoveEvent(ObjectGuid pl_guid, uint32 bgInstanceGUID, BattlegroundTypeId BgTypeId, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)
-            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId)
-        {}
+            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId) { }
 
-        virtual ~BGQueueRemoveEvent() {}
-
+        virtual ~BGQueueRemoveEvent() { }
         virtual bool Execute(uint64 e_time, uint32 p_time);
         virtual void Abort(uint64 e_time);
     private:

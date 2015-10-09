@@ -27,26 +27,26 @@
 
 enum BracketState
 {
-   BRACKET_UNCHANGED = 0,
-   BRACKET_CHANGED   = 1,
-   BRACKET_NEW       = 2,
-   BRACKET_REMOVED   = 3     //not removed just set count == 0
+    BRACKET_UNCHANGED   = 0,
+    BRACKET_CHANGED     = 1,
+    BRACKET_NEW         = 2,
+    BRACKET_REMOVED     = 3     //not removed just set count == 0
 };
 
 class Bracket
 {
 public:
     Bracket(ObjectGuid guid, BracketType type);
-    ~Bracket() {};
+    ~Bracket() { };
 
     void InitStats(uint16 rating, uint16 mmr, uint32 games, uint32 wins, uint32 week_games, uint32 week_wins, uint16 best_week, uint16 best);
 
     uint16 getRating() const { return m_rating; }
     int16 getRatingLastChange() const { return m_ratingLastChange; }
-    uint16 getMMV()    const { return m_mmv;    }
+    uint16 getMMV() const { return m_mmv; }
     int16 getLastMMRChange() const{ return m_mmr_lastChage; }
-    
-    void SaveStats(SQLTransaction* trans = NULL);
+
+    void SaveStats(SQLTransaction* trans = nullptr);
 
     uint16 FinishGame(bool win, uint16 opponents_mmv);
     uint32 GetBracketInfo(BracketInfoType i) const { return values[i]; }

@@ -43,16 +43,16 @@ namespace WorldPackets
             uint32 Time = 0;
         };
 
-        struct StatusHeader
+        struct BattlefieldStatusHeader
         {
+            RideTicket Ticket;
             uint64 QueueID = 0;
-            uint8 RangeMin = 0;
-            uint8 RangeMax = 0;
-            uint8 TeamSize = 0;
             uint32 InstanceID = 0;
-            bool RegisteredMatch = 0;
-            bool TournamentRules = 0;
-            RideTicket TicketData;
+            uint8 RangeMax = 0;
+            uint8 RangeMin = 0;
+            uint8 TeamSize = 0;
+            bool RegisteredMatch = false;
+            bool TournamentRules = false;
         };
 
         struct BracketInfo
@@ -117,7 +117,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            RideTicket TicketData;
+            RideTicket Ticket;
             bool AcceptedInvite = false;
         };
 
@@ -153,7 +153,7 @@ namespace WorldPackets
         class PVPLogData final : public ServerPacket
         {
         public:
-            PVPLogData() : ServerPacket(SMSG_PVP_LOG_DATA, 0) { }
+            PVPLogData() : ServerPacket(SMSG_PVP_LOG_DATA, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -322,33 +322,33 @@ namespace WorldPackets
             std::vector<BattlegroundPlayerPosition> FlagCarriers;
         };
 
-        class StatusNone final : public ServerPacket
+        class BattlefieldStatusNone final : public ServerPacket
         {
         public:
-            StatusNone() : ServerPacket(SMSG_BATTLEFIELD_STATUS_NONE, 25) { }
+            BattlefieldStatusNone() : ServerPacket(SMSG_BATTLEFIELD_STATUS_NONE, 25) { }
 
             WorldPacket const* Write() override;
 
             RideTicket Ticket;
         };
 
-        class StatusNeedConfirmation final : public ServerPacket
+        class BattlefieldStatusNeedConfirmation final : public ServerPacket
         {
         public:
-            StatusNeedConfirmation() : ServerPacket(SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION, 25) { }
+            BattlefieldStatusNeedConfirmation() : ServerPacket(SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION, 25) { }
 
             WorldPacket const* Write() override;
 
-            StatusHeader Header;
+            BattlefieldStatusHeader Header;
             uint32 Mapid = 0;
             uint32 Timeout = 0;
             uint8 Role = 0;
         };
 
-        class StatusFailed final : public ServerPacket
+        class BattlefieldStatusFailed final : public ServerPacket
         {
         public:
-            StatusFailed() : ServerPacket(SMSG_BATTLEFIELD_STATUS_FAILED, 25) { }
+            BattlefieldStatusFailed() : ServerPacket(SMSG_BATTLEFIELD_STATUS_FAILED, 25) { }
 
             WorldPacket const* Write() override;
 
@@ -489,7 +489,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            StatusHeader Header;
+            BattlefieldStatusHeader Header;
             uint32 Mapid = 0;
             uint32 Timeout = 0;
             uint8 TotalPlayers[2];
@@ -530,14 +530,14 @@ namespace WorldPackets
             uint64 QueueID = 0;
         };
 
-        class StatusQueued final : public ServerPacket
+        class BattlefieldStatusQueued final : public ServerPacket
         {
         public:
-            StatusQueued() : ServerPacket(SMSG_BATTLEFIELD_STATUS_QUEUED, 11) { }
+            BattlefieldStatusQueued() : ServerPacket(SMSG_BATTLEFIELD_STATUS_QUEUED, 11) { }
 
             WorldPacket const* Write() override;
 
-            StatusHeader Header;
+            BattlefieldStatusHeader Header;
             uint32 AverageWaitTime = 0;
             uint32 WaitTime = 0;
             bool AsGroup = false;
@@ -545,14 +545,14 @@ namespace WorldPackets
             bool EligibleForMatchmaking = false;
         };
 
-        class StatusActive final : public ServerPacket
+        class BattlefieldStatusActive final : public ServerPacket
         {
         public:
-            StatusActive() : ServerPacket(SMSG_BATTLEFIELD_STATUS_ACTIVE, 14) { }
+            BattlefieldStatusActive() : ServerPacket(SMSG_BATTLEFIELD_STATUS_ACTIVE, 14) { }
 
             WorldPacket const* Write() override;
 
-            StatusHeader Header;
+            BattlefieldStatusHeader Header;
             uint32 Mapid = 0;
             uint32 StartTimer = 0;
             uint32 ShutdownTimer = 0;
@@ -605,6 +605,7 @@ namespace WorldPackets
         //< CMSG_REQUEST_RATED_BATTLEFIELD_INFO
         //< CMSG_GET_PVP_OPTIONS_ENABLED
         //< CMSG_BATTLEFIELD_LEAVE
+        //< CMSG_PVP_LOG_DATA
         class NullCmsg final : public ClientPacket
         {
         public:
@@ -644,7 +645,7 @@ namespace WorldPackets
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::RideTicket const& ticket);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Battleground::RideTicket& ticket);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::StatusHeader const& header);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Battleground::StatusHeader& header);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::BattlefieldStatusHeader const& header);
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Battleground::BattlefieldStatusHeader& header);
 
 #endif // BattlegroundPackets_h__

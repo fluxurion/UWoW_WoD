@@ -333,7 +333,7 @@ enum SpellEffectHandleMode
 
 struct EffectExecuteData
 {
-    std::vector<ObjectGuid> guids;
+    GuidVector guids;
     std::vector<uint32> param1;
     std::vector<uint32> param2;
     std::vector<float> floatParam;
