@@ -921,11 +921,9 @@ void WorldSession::HandleWarGameAccept(WorldPacket& recvPacket) { }
 
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
 {
-    ObjectGuid guid = _player->GetGUID();
-
-    WorldPacket data(SMSG_SPECIAL_MOUNT_ANIM, 8 + 1);
-
-    GetPlayer()->SendMessageToSet(&data, false);
+    Player* player = GetPlayer();
+    if (player)
+        player->SendMessageToSet(WorldPackets::Misc::SpecialMountAnim(player->GetGUID()).Write(), false);
 }
 
 void WorldSession::HandleSummonResponse(WorldPackets::Movement::SummonResponse& packet)

@@ -743,6 +743,16 @@ namespace WorldPackets
             int32 AreaID = 0;
             bool ConfirmSummon = false;
         };
+
+        class SpecialMountAnim final : public ServerPacket
+        {
+        public:
+            SpecialMountAnim(ObjectGuid guid) : ServerPacket(SMSG_SPECIAL_MOUNT_ANIM, 16), UnitGUID(guid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+        };
     }
 }
 

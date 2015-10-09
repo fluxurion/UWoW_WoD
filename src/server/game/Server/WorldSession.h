@@ -1291,7 +1291,6 @@ class WorldSession
         void HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& castRequest);
         void HandleCancelCast(WorldPackets::Spells::CancelCast& packet);
         void HandleCancelAura(WorldPackets::Spells::CancelAura& packet);
-        void HandleCancelGrowthAura(WorldPacket& recvPacket);
         void HandleCancelAutoRepeatSpellOpcode(WorldPacket& recvPacket);
 
         void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);

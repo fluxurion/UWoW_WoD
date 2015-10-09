@@ -697,10 +697,6 @@ void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
     pet->AddCreatureSpellCooldown(spellId);
 }
 
-void WorldSession::HandleCancelGrowthAura(WorldPacket& /*recvPacket*/)
-{
-}
-
 void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPacket& /*recvPacket*/)
 {
     // may be better send SMSG_CANCEL_AUTO_REPEAT?

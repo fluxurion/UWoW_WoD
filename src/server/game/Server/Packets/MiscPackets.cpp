@@ -521,3 +521,10 @@ WorldPacket const* WorldPackets::Misc::SummonRequest::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::SpecialMountAnim::Write()
+{
+    _worldPacket << UnitGUID;
+
+    return &_worldPacket;
+}

@@ -25477,32 +25477,19 @@ void Player::SendInitialPacketsAfterAddToMap()
     GetZoneAndAreaId(newzone, newarea);
     UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
 
-    InstanceMap* inst = GetMap()->ToInstanceMap();
-
-    /// SMSG_WORLD_SERVER_INFO
     WorldPackets::Misc::WorldServerInfo worldServerInfo;
     //worldServerInfo.IneligibleForLootMask;
     worldServerInfo.WeeklyReset = sWorld->GetNextWeeklyQuestsResetTime() - WEEK;
-    worldServerInfo.InstanceGroupSize = inst ? inst->GetMaxPlayers() : 0;
+    InstanceMap* inst = GetMap()->ToInstanceMap();
+    if (inst)
+        worldServerInfo.InstanceGroupSize = inst->GetMaxPlayers();
     //worldServerInfo.IsTournamentRealm = 0;
     //worldServerInfo.RestrictedAccountMaxLevel;
     //worldServerInfo.RestrictedAccountMaxMoney;
     worldServerInfo.DifficultyID = GetMap()->GetDifficultyID();
     SendDirectMessage(worldServerInfo.Write());
 
-    // SMSG_UPDATE_TALENT_DATA x 2 for pet (unspent points and talents in separate packets...)
-    /* 
-        smthng like this...
-
-        WorldPacket data(SMSG_PET_GUIDS);
-        data.WriteBits(m_petlist.size(), 24);
-        for (auto itr : m_petlist)
-        {
-            data.WriteGuidMask<4, 7, 6, 1, 0, 2, 3, 5>(itr->second.guid);
-            data.WriteGuidBytes<4, 2, 6, 5, 3, 0, 1, 7>(itr->second.guid);
-        }
-        GetSession()->SendPacket(&data);
-    */
+    // SMSG_UPDATE_TALENT_DATA
 
     // SMSG_POWER_UPDATE
 
@@ -25655,7 +25642,6 @@ void Player::SendTransferAborted(uint32 mapID, TransferAbortReason reason, uint8
     GetSession()->SendPacket(aborted.Write());
 }
 
-//! 6.0.3
 void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time)
 {
     // type of warning, based on the time remaining until reset
