@@ -1935,7 +1935,7 @@ void Player::UpdateVersality()
 
 void Player::UpdateMultistrike()
 {
-    float value = 0.f;
+    float value = 0.0f;
 
     value += GetRatingBonusValue(CR_MULTISTRIKE);
     value += GetTotalAuraModifier(SPELL_AURA_MOD_MULTISTRIKE_PCT, true);
@@ -1943,7 +1943,17 @@ void Player::UpdateMultistrike()
     if (value)
         SetFloatValue(PLAYER_FIELD_MULTISTRIKE, value);
 
-    SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, 0.3f); // const data
+    UpdateMultistrikeDamage();
+}
+
+void Player::UpdateMultistrikeDamage()
+{
+    float value = 0.3f; // base value
+
+    value *= GetTotalAuraModifier(SPELL_AURA_MULTISTRIKE_DAMAGE_PCT, true);
+
+    if (value)
+        SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, value);
 }
 
 void Player::UpdateReadiness()

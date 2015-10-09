@@ -2552,6 +2552,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateAllRunesRegen();
         void UpdateVersality();
         void UpdateMultistrike();
+        void UpdateMultistrikeDamage();
         void UpdateReadiness();
         void UpdateCRSpeed();
         void UpdateLifesteal();

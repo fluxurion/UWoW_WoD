@@ -245,6 +245,7 @@ class AuraEffect
         void HandleIncreaseModRatingPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMultistrikePct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModMultistrikeDamagePct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModReadinessPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModLifeStealPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModVersalityPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;

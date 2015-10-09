@@ -498,7 +498,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //437 SPELL_AURA_437
     &AuraEffect::HandleNULL,                                      //438
     &AuraEffect::HandleNULL,                                      //439
-    &AuraEffect::HandleNULL,                                      //440 SPELL_AURA_MULTISTRIKE_DAMAGE_PCT
+    &AuraEffect::HandleModMultistrikeDamagePct,                   //440 SPELL_AURA_MULTISTRIKE_DAMAGE_PCT
     &AuraEffect::HandleModMultistrikePct,                         //441 SPELL_AURA_MOD_MULTISTRIKE_PCT
     &AuraEffect::HandleModReadinessPct,                           //442 SPELL_AURA_MOD_READINESS_PCT
     &AuraEffect::HandleModLifeStealPct,                           //443 SPELL_AURA_MOD_LIFE_STEAL_PCT
@@ -9246,6 +9246,18 @@ void AuraEffect::HandleModMultistrikePct(AuraApplication const* aurApp, uint8 mo
         return;
 
     target->UpdateMultistrike();
+}
+
+void AuraEffect::HandleModMultistrikeDamagePct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    target->UpdateMultistrikeDamage();
 }
 
 void AuraEffect::HandleModReadinessPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
