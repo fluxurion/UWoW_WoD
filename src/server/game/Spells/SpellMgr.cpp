@@ -3815,15 +3815,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 81751: // Atonement
                     spellInfo->AttributesEx2 &= ~SPELL_ATTR2_CANT_CRIT;
                     break;
-                case 90289: // Removing Death Grip cooldown
-                case 36563: // Shadowstep
-                    spellInfo->AttributesEx12 |= SPELL_ATTR12_HAVE_STABLE_FLYTIME;
-                    break;
                 case 147303: // Arena Deserter DR (Test Spell)
                     spellInfo->AttributesEx |= SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR;
                     spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
                     spellInfo->Attributes |= SPELL_ATTR0_HIDE_IN_COMBAT_LOG;
-                    spellInfo->AttributesEx12 |= SPELL_ATTR12_CAN_BE_SAVED;
                     spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ANY;
                     spellInfo->Effects[EFFECT_0].TargetB = 0;
@@ -3853,20 +3848,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Attributes |= SPELL_ATTR0_CANT_USED_IN_COMBAT;
                     spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
                     break;
-                case 79577: // Eclipse
-                case 56835:  // Reaping
-                case 50034:  // Blood Rites
-                case 34487: // Master Marksman
-                case 76659: // Mastery: Wild Quiver
-                case 137639: // Storm, Earth, and Fire
-                    spellInfo->AttributesEx12 |= SPELL_ATTR12_PROC_ONLY_ON_CAST;
-                    break;
-                case 101545: // Flying Serpent Kick
-                case 109132: // Roll
-                case 115008: // Chi Torpedo
-                case 130393: // Blink Strikes - Hunter pet
-                    spellInfo->AttributesEx12 |= SPELL_ATTR12_CANT_CAST_ROOTED;
-                    break;
                 case 137049: // Hotfix Passive 
                     spellInfo->Effects[EFFECT_5].Effect = SPELL_EFFECT_APPLY_AURA;
                     spellInfo->Effects[EFFECT_5].BasePoints = 100;
@@ -3877,10 +3858,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 101546: // Spinning Crane Kick
                     spellInfo->Attributes &= ~SPELL_ATTR0_ABILITY;
-                    break;
-                case 116680: // Thunder Focus Tea
-                case 115399: // Chi Brew
-                    spellInfo->AttributesEx12 |= SPELL_ATTR12_DOESENT_INTERRUPT_CHANNELING;
                     break;
                 case 119032: // Spectral Guise
                     spellInfo->AttributesEx4 |= SPELL_ATTR4_UNK19;
@@ -3944,8 +3921,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 137619: // Marked for Death
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-                    spellInfo->AttributesEx12 |= SPELL_ATTR12_DOESENT_INTERRUPT_CHANNELING;
-                    spellInfo->AttributesEx12 |= SPELL_ATTR12_HAVE_STABLE_FLYTIME;
+                    spellInfo->AttributesEx3 &= ~SPELL_ATTR3_DEATH_PERSISTENT;
                     break;
                 case 5487:  // Bear Form
                     spellInfo->Effects[2].BasePoints = 120;

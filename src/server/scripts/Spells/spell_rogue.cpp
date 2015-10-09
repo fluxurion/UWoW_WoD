@@ -1379,6 +1379,41 @@ class spell_rog_internal_bleeding : public SpellScriptLoader
         }
 };
 
+// Marked for Death - 137619
+class spell_rog_marked_for_death : public SpellScriptLoader
+{
+    public:
+        spell_rog_marked_for_death() : SpellScriptLoader("spell_rog_marked_for_death") { }
+
+        class spell_rog_marked_for_death_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_marked_for_death_AuraScript);
+
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                    if (removeMode == AURA_REMOVE_BY_DEATH)
+                    {
+                        if (Player* rogue = caster->ToPlayer())
+                            rogue->RemoveSpellCooldown(137619, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_marked_for_death_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_marked_for_death_AuraScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_shuriken_toss();
@@ -1410,4 +1445,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_blade_flurry_aoe();
     new spell_rog_mutilate_t16();
     new spell_rog_internal_bleeding();
+    new spell_rog_marked_for_death();
 }

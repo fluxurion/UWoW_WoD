@@ -1287,7 +1287,7 @@ bool Aura::IsDeathPersistent() const
 
 bool Aura::CanBeSaved() const
 {
-    if (IsPassive() && !(GetSpellInfo()->AttributesEx12 & SPELL_ATTR12_CAN_BE_SAVED))
+    if (IsPassive())
         return false;
 
     if (GetCasterGUID() != GetOwner()->GetGUID())
@@ -2255,20 +2255,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             {
                 switch (GetId())
                 {
-                    case 137619: // Marked for Death
-                    {
-                        if (removeMode != AURA_REMOVE_BY_DEATH)
-                            break;
-
-                        if (!caster)
-                            break;
-
-                        if (Player* rogue = caster->ToPlayer())
-                        {
-                            rogue->RemoveSpellCooldown(137619, true);
-                        }
-                        break;
-                    }
                     case 89775:  // Hemorrhage
                     case 703:    // Garrote
                     case 1943:   // Rupture

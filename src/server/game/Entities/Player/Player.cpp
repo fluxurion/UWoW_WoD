@@ -8240,7 +8240,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     {
         uint8 limit = 6;
 
-        KillInfo &info = m_killsPerPlayer[victim->GetGUID().GetCounter()];
+        KillInfo &info = m_killsPerPlayer[victim->GetGUIDLow()];
         // gradually decrease the honor for subsequent kills
         // no honor reward for killing a player more than 'limit' times per day
         honor *= (float)(limit - info.count) / (float)limit;
@@ -29476,7 +29476,7 @@ void Player::_LoadHonor(PreparedQueryResult result)
         do
         {
             Field *fields  = result->Fetch();
-            ObjectGuid::LowType victim_guid = fields[0].GetUInt64();
+            uint64 victim_guid = fields[0].GetUInt64();
             uint32 count = fields[1].GetUInt32();
 
             KillInfo &info = m_killsPerPlayer[victim_guid];
@@ -29498,7 +29498,7 @@ void Player::_SaveHonor()
     if(m_flushKills)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_KILL);
-        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, GetGUIDLow());
         CharacterDatabase.Execute(stmt);
 
         m_flushKills = false;
@@ -29513,7 +29513,7 @@ void Player::_SaveHonor()
             {
                 case KILL_NEW:
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_KILL);
-                    stmt->setUInt64(0, GetGUID().GetCounter());
+                    stmt->setUInt64(0, GetGUIDLow());
                     stmt->setUInt64(1, itr->first);
                     stmt->setUInt32(2, itr->second.count);
                     CharacterDatabase.Execute(stmt);
@@ -29521,7 +29521,7 @@ void Player::_SaveHonor()
                 case KILL_CHANGED:
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_KILL);
                     stmt->setUInt32(0, itr->second.count);
-                    stmt->setUInt64(1, GetGUID().GetCounter());
+                    stmt->setUInt64(1, GetGUIDLow());
                     stmt->setUInt64(2, itr->first);
                     CharacterDatabase.Execute(stmt);
                     break;

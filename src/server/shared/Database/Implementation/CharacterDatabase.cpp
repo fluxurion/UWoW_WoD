@@ -654,7 +654,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     //character_kill
     PrepareStatement(CHAR_SEL_PLAYER_KILL, "SELECT victim_guid, count FROM character_kill WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_PLAYER_KILL, "DELETE FROM character_kill WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_REP_PLAYER_KILL, "REPLACE INTO character_kill (guid, victim_guid, count) VALUES ('%u','%u','%u')", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_REP_PLAYER_KILL, "REPLACE INTO character_kill (guid, victim_guid, count) VALUES (?, ? ,?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_PLAYER_KILL, "UPDATE character_kill SET count=? WHERE guid = ? AND victim_guid = ?", CONNECTION_ASYNC);
 
     //Loot cooldown system
