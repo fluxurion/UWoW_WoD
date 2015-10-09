@@ -510,3 +510,14 @@ void WorldPackets::Misc::WorldTeleport::Read()
     _worldPacket >> Pos;
     _worldPacket >> Facing;
 }
+
+WorldPacket const* WorldPackets::Misc::SummonRequest::Write()
+{
+    _worldPacket << SummonerGUID;
+    _worldPacket << SummonerVirtualRealmAddress;
+    _worldPacket << AreaID;
+    _worldPacket.WriteBit(ConfirmSummon);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

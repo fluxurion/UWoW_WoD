@@ -730,6 +730,19 @@ namespace WorldPackets
             G3D::Vector3 Pos;
             float Facing = 0.0f;
         };
+
+        class SummonRequest final : public ServerPacket
+        {
+        public:
+            SummonRequest() : ServerPacket(SMSG_SUMMON_REQUEST, 16 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SummonerGUID;
+            uint32 SummonerVirtualRealmAddress = 0;
+            int32 AreaID = 0;
+            bool ConfirmSummon = false;
+        };
     }
 }
 

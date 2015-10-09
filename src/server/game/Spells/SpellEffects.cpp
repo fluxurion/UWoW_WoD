@@ -6222,14 +6222,12 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
 
     unitTarget->ToPlayer()->SetSummonPoint(m_caster->GetMapId(), x, y, z);
 
-    ObjectGuid guid = m_caster->GetGUID();
-    WorldPacket data(SMSG_SUMMON_REQUEST, 8 + 4 + 4 + 1);
-    //data.WriteGuidMask<5, 6, 0, 2, 7, 3, 1, 4>(guid);
-    //data.WriteGuidBytes<4, 2>(guid);
-    data << uint32(m_caster->GetZoneId());                  // summoner zone
-    //data.WriteGuidBytes<0, 1, 5, 7, 6, 3>(guid);
-    data << uint32(GetVirtualRealmAddress());
-    unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
+    WorldPackets::Misc::SummonRequest request;
+    request.SummonerGUID = m_caster->GetGUID();
+    request.SummonerVirtualRealmAddress = GetVirtualRealmAddress();
+    request.AreaID = m_caster->GetZoneId();
+    request.ConfirmSummon = false; //@TODO
+    unitTarget->ToPlayer()->GetSession()->SendPacket(request.Write());
 }
 
 void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
