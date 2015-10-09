@@ -606,7 +606,6 @@ struct QuestPackageItemEntry
 struct MountEntry
 {
     uint32 Id;
-    uint32 SpellId;
     uint32 MountTypeId;
     uint32 DisplayId;
     uint32 Flags;
@@ -614,7 +613,28 @@ struct MountEntry
     LocalizedString* Description;
     LocalizedString* SourceDescription;
     uint32 Source;
+    uint32 SpellId;
     uint32 PlayerConditionId;
+};
+
+/*struct MountCapabilityEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 Flags;                                                   // 1
+    uint32 RequiredRidingSkill;                                     // 2
+    uint32 RequiredArea;                                            // 3
+    uint32 RequiredAura;                                            // 4
+    uint32 RequiredSpell;                                           // 5
+    uint32 SpeedModSpell;                                           // 6
+    int32  RequiredMap;                                             // 7
+};*/
+
+struct MountTypeXCapabilityEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 MountTypeID;                                             // 1
+    uint32 OrderIndex;                                              // 2
+    uint32 MountCapabilityID;                                       // 3
 };
 
 struct LanguageWordsEntry

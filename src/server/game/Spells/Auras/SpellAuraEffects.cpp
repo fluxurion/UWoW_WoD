@@ -3969,6 +3969,14 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
         uint32 displayId = 0;
         uint32 vehicleId = 0;
 
+        if (MountEntry const* mountEntry = sDB2Manager.GetMount(GetId()))
+        {
+            displayId = mountEntry->DisplayId;
+            // TODO: CREATE TABLE mount_vehicle (mountId, vehicleCreatureId) for future mounts that are vehicles (new mounts no longer have proper data in MiscValue)
+            //if (MountVehicle const* mountVehicle = sObjectMgr->GetMountVehicle(mountEntry->Id))
+            //    creatureEntry = mountVehicle->VehicleCreatureId;
+        }
+
         // Festive Holiday Mount
         if (target->HasAura(62061))
         {
@@ -3980,14 +3988,18 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
 
         if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(creatureEntry))
         {
+            vehicleId = ci->VehicleId;
+
             uint32 team = 0;
             if (target->GetTypeId() == TYPEID_PLAYER)
                 team = target->ToPlayer()->GetTeam();
 
-            displayId = ObjectMgr::ChooseDisplayId(team, ci);
-            sObjectMgr->GetCreatureModelRandomGender(&displayId);
+            if (!displayId || vehicleId)
+            {
+                displayId = ObjectMgr::ChooseDisplayId(team, ci);
+                sObjectMgr->GetCreatureModelRandomGender(&displayId);
+            }
 
-            vehicleId = ci->VehicleId;
 
             //some spell has one aura of mount and one of vehicle
             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)

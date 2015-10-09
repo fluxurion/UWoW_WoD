@@ -13854,8 +13854,8 @@ void Unit::UpdateMount()
         for (AuraEffectList::const_reverse_iterator itr = auras.rbegin(); itr != auras.rend(); ++itr)
         {
             AuraEffect* aura = *itr;
-            aura->GetMiscValueB();
-            mountType = sMountTypeStore.LookupEntry(uint32(aura->GetMiscValueB()));
+            if(MountEntry const* mountEntry = sDB2Manager.GetMount(aura->GetId()))
+                mountType = sMountTypeStore.LookupEntry(mountEntry->MountTypeId);
             if (mountType)
             {
                 effect = aura;

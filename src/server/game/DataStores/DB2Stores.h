@@ -112,6 +112,8 @@ typedef std::vector<HotfixNotify> HotfixData;
 class DB2Manager
 {
 public:
+    DEFINE_DB2_SET_COMPARATOR(MountTypeXCapabilityEntry);
+
     typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
 
     typedef std::map<uint32 /*curveID*/, std::map<uint32/*index*/, CurvePointEntry const*, std::greater<uint32>>> HeirloomCurvesContainer;
@@ -122,6 +124,9 @@ public:
     typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, uint32> ItemDisplayIdContainer;
     typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
     typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
+    typedef std::unordered_map<uint32, MountEntry const*> MountContainer;
+    typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
+    typedef std::unordered_map<uint32, MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
     typedef std::vector<std::string> LanguageWordsSize;
     typedef std::map<uint32 /*word length*/, LanguageWordsSize> LanguageWordsMap;
     typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
@@ -157,7 +162,9 @@ public:
     BattlePetSpeciesEntry const* GetBattlePetSpeciesEntry(uint32 creatureEntry);
     void FillPathDestList(uint32 from, uint32 prev);
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
+    MountEntry const* GetMount(uint32 spellId) const;
     MountEntry const* GetMountById(uint32 id) const;
+    MountTypeXCapabilitySet const* GetMountCapabilities(uint32 mountType) const;
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
     std::set<uint32> GetFindBonusTree(uint32 BonusTreeID, uint32 itemBonusTreeMod) const;
     HeirloomEntry const* GetHeirloomByItemId(uint32 itemId) const;
@@ -175,6 +182,8 @@ private:
     ItemDisplayIdContainer _itemDisplayIDs;
     ItemToBonusTreeContainer _itemToBonusTree;
     ItemSpecOverridesContainer _itemSpecOverrides;
+    MountContainer _mountsBySpellId;
+    MountCapabilitiesByTypeContainer _mountCapabilitiesByType;
     std::list<uint32> sGameObjectsList;
     std::map<uint32 /*landID*/, LanguageWordsMap> sLanguageWordsMapStore;
     AreaGroupMemberContainer _areaGroupMembers;

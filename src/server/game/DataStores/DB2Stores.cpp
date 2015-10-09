@@ -67,7 +67,9 @@ DB2Storage<ItemXBonusTreeEntry>             sItemXBonusTreeStore("ItemXBonusTree
 DB2Storage<KeyChainEntry>                   sKeyChainStore("KeyChain.db2", KeyChainFormat, HOTFIX_SEL_KEY_CHAIN);
 DB2Storage<LanguageWordsEntry>              sLanguageWordsStore("LanguageWords.db2", LanguageWordsFormat, HOTFIX_SEL_LANGUAGE_WORDS);
 DB2Storage<MapChallengeModeEntry>           sMapChallengeModeStore("MapChallengeMode.db2", MapChallengeModeFormat, HOTFIX_SEL_MAP_CHALLENGE_MODE);
+//DB2Storage<MountCapabilityEntry>            sMountCapabilityStore("MountCapability.db2", MountCapabilityFormat, HOTFIX_SEL_MOUNT_CAPABILITY);
 DB2Storage<MountEntry>                      sMountStore("Mount.db2", MountFormat, HOTFIX_SEL_MOUNT);
+//DB2Storage<MountTypeXCapabilityEntry>       sMountTypeXCapabilityStore("MountTypeXCapability.db2", MountTypeXCapabilityFormat, HOTFIX_SEL_MOUNT_TYPE_X_CAPABILITY);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore("OverrideSpellData.db2", OverrideSpellDataFormat, HOTFIX_SEL_OVERRIDE_SPELL_DATA);
 DB2Storage<PhaseGroupEntry>                 sPhaseGroupStore("PhaseXPhaseGroup.db2", PhaseGroupFormat, HOTFIX_SEL_PHASE_GROUP);
 DB2Storage<QuestPackageItemEntry>           sQuestPackageItemStore("QuestPackageItem.db2", QuestPackageItemFormat, HOTFIX_SEL_QUEST_PACKAGE_ITEM);
@@ -202,7 +204,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemXBonusTreeStore);
     //LOAD_DB2(sLanguageWordsStore);
     LOAD_DB2(sMapChallengeModeStore);
+    //LOAD_DB2(sMountCapabilityStore); // for 622
     LOAD_DB2(sMountStore);
+    //LOAD_DB2(sMountTypeXCapabilityStore); // for 622
     LOAD_DB2(sOverrideSpellDataStore);
     LOAD_DB2(sPhaseGroupStore);
     LOAD_DB2(sQuestPackageItemStore);
@@ -287,6 +291,12 @@ void DB2Manager::InitDB2CustomStores()
             if (scalingCurves.count(curvePoint->CurveID))
                 _heirloomCurvePoints[curvePoint->CurveID][curvePoint->Index] = curvePoint;
     }
+
+    for (MountEntry const* mount : sMountStore)
+        _mountsBySpellId[mount->SpellId] = mount;
+
+    //for (MountTypeXCapabilityEntry const* mount : sMountTypeXCapabilityStore)
+        //_mountCapabilitiesByType[mount->MountTypeID].insert(mount);
 
     for (MapChallengeModeEntry const* entry : sMapChallengeModeStore)
         _mapChallengeModeEntrybyMap[entry->map] = entry;
@@ -627,9 +637,27 @@ std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItem
     return nullptr;
 }
 
+MountEntry const* DB2Manager::GetMount(uint32 spellId) const
+{
+    auto itr = _mountsBySpellId.find(spellId);
+    if (itr != _mountsBySpellId.end())
+        return itr->second;
+
+    return nullptr;
+}
+
 MountEntry const* DB2Manager::GetMountById(uint32 id) const
 {
     return sMountStore.LookupEntry(id);
+}
+
+DB2Manager::MountTypeXCapabilitySet const* DB2Manager::GetMountCapabilities(uint32 mountType) const
+{
+    auto itr = _mountCapabilitiesByType.find(mountType);
+    if (itr != _mountCapabilitiesByType.end())
+        return &itr->second;
+
+    return nullptr;
 }
 
 std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const
@@ -691,4 +719,11 @@ HeirloomEntry const* DB2Manager::GetHeirloomByOldItem(uint32 itemId) const
     }
 
     return nullptr;
+}
+
+bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabilityEntry const* left, MountTypeXCapabilityEntry const* right)
+{
+    if (left->MountTypeID == right->MountTypeID)
+        return left->OrderIndex < right->OrderIndex;
+    return left->ID < right->ID;
 }
