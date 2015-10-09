@@ -8864,12 +8864,12 @@ void Spell::EffectGieveExperience(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    uint32 xp = CalculatePct(m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_NEXT_LEVEL_XP), m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValueB);
+    uint32 xp = CalculatePct(unitTarget->ToPlayer()->GetUInt32Value(PLAYER_FIELD_NEXT_LEVEL_XP), m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValueB);
     if (xp)
-        m_caster->ToPlayer()->GiveXP(xp, m_caster);
+        unitTarget->ToPlayer()->GiveXP(xp, unitTarget);
 }
 
 void Spell::EffectRemovePhase(SpellEffIndex effIndex)
@@ -8877,8 +8877,8 @@ void Spell::EffectRemovePhase(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    m_caster->ToPlayer()->RemovePhase(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
+    unitTarget->ToPlayer()->RemovePhase(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
 }
