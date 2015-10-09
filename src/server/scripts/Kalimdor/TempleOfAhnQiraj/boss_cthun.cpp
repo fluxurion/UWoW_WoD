@@ -514,7 +514,7 @@ public:
         ObjectGuid StomachEnterTarget;
 
         //Stomach map, bool = true then in stomach
-        UNORDERED_MAP<ObjectGuid, bool> Stomach_Map;
+        std::unordered_map<ObjectGuid, bool> Stomach_Map;
 
         void Reset()
         {
@@ -568,7 +568,7 @@ public:
             if (Stomach_Map.empty())
                 return NULL;
 
-            UNORDERED_MAP<ObjectGuid, bool>::const_iterator i = Stomach_Map.begin();
+            std::unordered_map<ObjectGuid, bool>::const_iterator i = Stomach_Map.begin();
 
             std::list<Unit*> temp;
             std::list<Unit*>::const_iterator j;
@@ -716,7 +716,7 @@ public:
 
                         DoCast(me, SPELL_PURPLE_COLORATION, true);
 
-                        UNORDERED_MAP<ObjectGuid, bool>::iterator i = Stomach_Map.begin();
+                        std::unordered_map<ObjectGuid, bool>::iterator i = Stomach_Map.begin();
 
                         //Kick all players out of stomach
                         while (i != Stomach_Map.end())
@@ -748,7 +748,7 @@ public:
                     if (StomachAcidTimer <= diff)
                     {
                         //Apply aura to all players in stomach
-                        UNORDERED_MAP<ObjectGuid, bool>::iterator i = Stomach_Map.begin();
+                        std::unordered_map<ObjectGuid, bool>::iterator i = Stomach_Map.begin();
 
                         while (i != Stomach_Map.end())
                         {

@@ -481,7 +481,7 @@ class Map : public GridRefManager<NGridType>
         time_t GetLinkedRespawnTime(ObjectGuid const& guid) const;
         time_t GetCreatureRespawnTime(ObjectGuid::LowType const& dbGuid) const
         {
-            UNORDERED_MAP<ObjectGuid::LowType /*dbGUID*/, time_t>::const_iterator itr = _creatureRespawnTimes.find(dbGuid);
+            std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t>::const_iterator itr = _creatureRespawnTimes.find(dbGuid);
             if (itr != _creatureRespawnTimes.end())
                 return itr->second;
 
@@ -490,7 +490,7 @@ class Map : public GridRefManager<NGridType>
 
         time_t GetGORespawnTime(ObjectGuid::LowType const& dbGuid) const
         {
-            UNORDERED_MAP<ObjectGuid::LowType /*dbGUID*/, time_t>::const_iterator itr = _goRespawnTimes.find(dbGuid);
+            std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t>::const_iterator itr = _goRespawnTimes.find(dbGuid);
             if (itr != _goRespawnTimes.end())
                 return itr->second;
 
@@ -640,8 +640,8 @@ class Map : public GridRefManager<NGridType>
                 m_activeNonPlayers.erase(obj);
         }
 
-        UNORDERED_MAP<ObjectGuid::LowType /*dbGUID*/, time_t> _creatureRespawnTimes;
-        UNORDERED_MAP<ObjectGuid::LowType /*dbGUID*/, time_t> _goRespawnTimes;
+        std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t> _creatureRespawnTimes;
+        std::unordered_map<ObjectGuid::LowType /*dbGUID*/, time_t> _goRespawnTimes;
 };
 
 enum InstanceResetMethod

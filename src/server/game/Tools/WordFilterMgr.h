@@ -34,7 +34,7 @@ class WordFilterMgr
             return &instance;
         }
 
-        /// Note for 0.6v : Will used std::map instead of UNORDERED_MAP, because of problems with cross-platform compilation.
+        /// Note for 0.6v : Will used std::map instead of std::unordered_map, because of problems with cross-platform compilation.
         // [letter][analogs] 
         typedef std::map<char, std::string> LetterAnalogMap; 
         // [converted][original]

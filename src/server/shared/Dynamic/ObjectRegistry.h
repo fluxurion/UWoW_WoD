@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,12 +47,12 @@ class ObjectRegistry
         }
 
         /// Inserts a registry item
-        bool InsertItem(T *obj, Key key, bool override = false)
+        bool InsertItem(T *obj, Key key, bool _override = false)
         {
             typename RegistryMapType::iterator iter = i_registeredObjects.find(key);
             if ( iter != i_registeredObjects.end() )
             {
-                if ( !override )
+                if ( !_override )
                     return false;
                 delete iter->second;
                 i_registeredObjects.erase(iter);
@@ -96,7 +96,7 @@ class ObjectRegistry
             return i_registeredObjects;
         }
 
-        ObjectRegistry() {}
+        ObjectRegistry() { }
         ~ObjectRegistry()
         {
             for (typename RegistryMapType::iterator iter=i_registeredObjects.begin(); iter != i_registeredObjects.end(); ++iter)
@@ -108,4 +108,3 @@ class ObjectRegistry
 };
 
 #endif
-

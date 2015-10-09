@@ -140,7 +140,7 @@ class InstanceSave
         std::mutex _playerListLock;
 };
 
-typedef UNORDERED_MAP<uint32 /*PAIR32(map, difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
+typedef std::unordered_map<uint32 /*PAIR32(map, difficulty)*/, time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
 
 class InstanceSaveManager
 {
@@ -151,7 +151,7 @@ class InstanceSaveManager
         ~InstanceSaveManager();
 
     public:
-        typedef UNORDERED_MAP<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
+        typedef std::unordered_map<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
 
         static InstanceSaveManager* instance()
         {

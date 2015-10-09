@@ -27,7 +27,7 @@ private:
     ~GuildMgr();
 
 public:
-    typedef UNORDERED_MAP<ObjectGuid::LowType, Guild*> GuildContainer;
+    typedef std::unordered_map<ObjectGuid::LowType, Guild*> GuildContainer;
 
     static GuildMgr* instance()
     {

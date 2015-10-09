@@ -248,8 +248,8 @@ struct CreatureDifficultyStat
 };
 
 // Benchmarked: Faster than std::map (insert/find)
-typedef UNORDERED_MAP<ObjectGuid::LowType, CreatureTemplate> CreatureTemplateContainer;
-typedef UNORDERED_MAP<uint32, std::vector<CreatureDifficultyStat> > CreatureDifficultyStatContainer;
+typedef std::unordered_map<ObjectGuid::LowType, CreatureTemplate> CreatureTemplateContainer;
+typedef std::unordered_map<uint32, std::vector<CreatureDifficultyStat> > CreatureDifficultyStatContainer;
 
 // Defines base stats for creatures (used to calculate HP/mana/armor).
 struct CreatureBaseStats
@@ -293,7 +293,7 @@ struct CreatureBaseStats
     static CreatureBaseStats const* GetBaseStats(uint8 level, uint8 unitClass);
 };
 
-typedef UNORDERED_MAP<uint16, CreatureBaseStats> CreatureBaseStatsContainer;
+typedef std::unordered_map<uint16, CreatureBaseStats> CreatureBaseStatsContainer;
 
 struct CreatureLocale
 {
@@ -373,9 +373,9 @@ struct CreatureEvadeWmoData
     int32 wmoGroupId;
 };
 
-typedef UNORDERED_MAP<ObjectGuid::LowType, CreatureAddon> CreatureAddonContainer;
-typedef UNORDERED_MAP<uint32, CreatureAddon> CreatureTemplateAddonContainer;
-typedef UNORDERED_MAP<uint32, CreatureEvadeWmoData> CreatureEvadeWmoDataContainer;
+typedef std::unordered_map<ObjectGuid::LowType, CreatureAddon> CreatureAddonContainer;
+typedef std::unordered_map<uint32, CreatureAddon> CreatureTemplateAddonContainer;
+typedef std::unordered_map<uint32, CreatureEvadeWmoData> CreatureEvadeWmoDataContainer;
  
 
 struct CreatureModelInfo
@@ -388,7 +388,7 @@ struct CreatureModelInfo
 };
 
 // Benchmarked: Faster than std::map (insert/find)
-typedef UNORDERED_MAP<uint16, CreatureModelInfo> CreatureModelContainer;
+typedef std::unordered_map<uint16, CreatureModelInfo> CreatureModelContainer;
 
 // `creature_ai_instance` table
 struct CreatureAIInstance
@@ -398,7 +398,7 @@ struct CreatureAIInstance
     uint32 bossidactivete;
 };
 
-typedef UNORDERED_MAP<uint32, CreatureAIInstance> CreatureAIInstanceContainer;
+typedef std::unordered_map<uint32, CreatureAIInstance> CreatureAIInstanceContainer;
 
 // `creature_ai_instance_door` table
 
@@ -552,7 +552,7 @@ struct TrainerSpell
     bool IsCastable() const { return learnedSpell[0] != spell; }
 };
 
-typedef UNORDERED_MAP<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
+typedef std::unordered_map<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
 
 struct TrainerSpellData
 {
@@ -596,7 +596,7 @@ struct PetSpell
     PetSpellType type;
 };
 
-typedef UNORDERED_MAP<uint32, PetSpell> PetSpellMap;
+typedef std::unordered_map<uint32, PetSpell> PetSpellMap;
 typedef std::vector<uint32> AutoSpellList;
 
 // max different by z coordinate for creature aggro reaction

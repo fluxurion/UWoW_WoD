@@ -122,7 +122,7 @@ private:
     uint8 _summonGroup;         ///< Summon's group id
 };
 
-typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
+typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 typedef std::map<TempSummonGroupKey, std::list<ObjectGuid>> TempSummonGroupMap;
 
 typedef cyber_ptr<Object> C_PTR;

@@ -88,7 +88,7 @@ struct PolygonPOI
     float x;
     float y;
 };
-typedef UNORDERED_MAP<uint32, PolygonPOI> PolygonPOIMap;
+typedef std::unordered_map<uint32, PolygonPOI> PolygonPOIMap;
 typedef std::vector<Vector3> PositionsArray;
 
 struct AreaTriggerAction

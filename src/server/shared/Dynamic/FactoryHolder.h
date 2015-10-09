@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,8 +31,8 @@ class FactoryHolder
     public:
         typedef ObjectRegistry<FactoryHolder<T, Key >, Key > FactoryHolderRegistry;
 
-        FactoryHolder(Key k) : i_key(k) {}
-        virtual ~FactoryHolder() {}
+        FactoryHolder(Key k) : i_key(k) { }
+        virtual ~FactoryHolder() { }
         inline Key key() const { return i_key; }
 
         void RegisterSelf(void) { FactoryHolderRegistry::instance()->InsertItem(this, i_key); }
@@ -52,7 +52,7 @@ template<class T>
 class Permissible
 {
     public:
-        virtual ~Permissible() {}
+        virtual ~Permissible() { }
         virtual int Permit(const T *) const = 0;
 };
 #endif

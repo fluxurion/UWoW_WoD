@@ -21,7 +21,6 @@
 
 #include "Define.h"
 
-#include "Dynamic/UnorderedMap.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +29,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <assert.h>
+#include <unordered_map>
 
 #if PLATFORM == PLATFORM_WINDOWS
 #define STRCASECMP stricmp

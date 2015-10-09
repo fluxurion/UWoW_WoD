@@ -151,7 +151,7 @@ class AuctionHouseMgr
             return &instance;
         }
 
-        typedef UNORDERED_MAP<ObjectGuid::LowType, Item*> ItemMap;
+        typedef std::unordered_map<ObjectGuid::LowType, Item*> ItemMap;
 
         AuctionHouseObject* GetAuctionsMap(uint32 factionTemplateId);
         AuctionHouseObject* GetBidsMap(uint32 factionTemplateId);
