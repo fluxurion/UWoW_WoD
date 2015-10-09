@@ -106,7 +106,7 @@ void WorldSession::HandleGetChallengeModeRewards(WorldPackets::ChallengeMode::Mi
         {
             mapReward.Money = 198450; // "best time in seconds." - wat? what is it ? best time? 
             //for (bla bla bla)
-            mapReward.CurrencyRewards.emplace_back(uint32(CURRENCY_TYPE_VALOR_POINTS), sChallengeMgr->GetValorPointsReward(i));
+            //mapReward.CurrencyRewards.emplace_back(uint32(CURRENCY_TYPE_VALOR_POINTS), sChallengeMgr->GetValorPointsReward(i));
         }
     }
 

@@ -1765,7 +1765,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetCurrencyWeekCap(uint32 id);
         void ResetCurrencyWeekCap();
         uint32 GetCurrencyWeekCap(CurrencyTypesEntry const* currency);
-        uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
         void UpdateConquestCurrencyCap(uint32 currency);
         /// modify currency flag
         void ModifyCurrencyFlag(uint32 id, uint8 flag);

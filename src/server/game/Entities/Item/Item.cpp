@@ -1597,12 +1597,14 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
                 break;
             }
             case INVTYPE_SHIELD:
+            {
                 ImportPriceShieldEntry const* shieldPrice = sImportPriceShieldStore.LookupEntry(1); // it only has two rows, it's unclear which is the one used
                 if (!shieldPrice)
                     return 0;
 
                 typeFactor = shieldPrice->Factor;
                 break;
+            }
             case INVTYPE_WEAPONMAINHAND:
                 wepType = 0;
                 break;

@@ -2253,27 +2253,29 @@ LfgDungeonSet LFGMgr::GetRewardableDungeons(uint8 level, uint8 expansion)
     return randomDungeons;
 }
 
-uint32 LFGMgr::GetBonusValorPoints(uint32 dungeonId) const
+uint32 LFGMgr::GetBonusCurrency(uint32 dungeonId) const
 {
-    switch (dungeonId & 0xFFFFF)
-    {
-        case 492:   // Greenstone Village
-        case 539:   // Brewmoon Festival
-        case 589:   // A Little Patience
-        case 619:   // A Little Patience
-            return 5;
-        case 470:   // Shado-Pan Monastery
-            return 15;
-        case 472:   // Scholomance
-            return 10;
-        case 554:   // Siege of Niuzao Temple
-            return 5;
-        case 566:   // Theramore's Fall
-        case 567:   // Theramore's Fall
-            return 5;
-        default:
-            break;
-    }
+    //< any bonus currency on WOD ?
+
+    //switch (dungeonId & 0xFFFFF)
+    //{
+    //    case 492:   // Greenstone Village
+    //    case 539:   // Brewmoon Festival
+    //    case 589:   // A Little Patience
+    //    case 619:   // A Little Patience
+    //        return 5;
+    //    case 470:   // Shado-Pan Monastery
+    //        return 15;
+    //    case 472:   // Scholomance
+    //        return 10;
+    //    case 554:   // Siege of Niuzao Temple
+    //        return 5;
+    //    case 566:   // Theramore's Fall
+    //    case 567:   // Theramore's Fall
+    //        return 5;
+    //    default:
+    //        break;
+    //}
 
     return 0;
 }
@@ -2309,7 +2311,7 @@ bool LfgReward::RewardPlayer(Player* player, LFGDungeonData const* randomDungeon
     // if we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
     if (player->CanRewardQuest(quest, false))
     {
-        player->RewardQuest(quest, 0, NULL, false);
+        player->RewardQuest(quest, 0, nullptr, false);
 
         // reward lfg bonus reputation on first completion
         if (uint32 bonusRep = randomDungeon && !bonusObjective ? randomDungeon->dbc->bonusRepAmt : 0)
@@ -2323,12 +2325,11 @@ bool LfgReward::RewardPlayer(Player* player, LFGDungeonData const* randomDungeon
         done = true;
         // we give reward without informing client (retail does this)
         if (quest = sObjectMgr->GetQuestTemplate(otherQuest))
-            player->RewardQuest(quest, 0, NULL, false);
+            player->RewardQuest(quest, 0, nullptr, false);
     }
 
-    // reward bonus valor points for certain dungeons
-    if (uint32 bonusValor = !bonusObjective && normalDungeon && normalDungeon != randomDungeon ? sLFGMgr->GetBonusValorPoints(normalDungeon->id) : 0)
-        player->ModifyCurrency(CURRENCY_TYPE_VALOR_POINTS, bonusValor * GetCurrencyPrecision(CURRENCY_TYPE_VALOR_POINTS));
+    if (uint32 bonusCurrency = !bonusObjective && normalDungeon && normalDungeon != randomDungeon ? sLFGMgr->GetBonusCurrency(normalDungeon->id) : 0)
+        player->ModifyCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, bonusCurrency * GetCurrencyPrecision(CURRENCY_TYPE_GARRISON_RESOURCES));
 
     return done;
 }

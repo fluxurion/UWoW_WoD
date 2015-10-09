@@ -212,7 +212,7 @@ void WorldPackets::Loot::SetLootSpecialization::Read()
 WorldPacket const* WorldPackets::Loot::MasterLootCandidateList::Write()
 {
     _worldPacket << LootObj;
-    _worldPacket << static_cast<uint32>(Players.size);
+    _worldPacket << static_cast<uint32>(Players.size());
     for (ObjectGuid const& i : Players)
         _worldPacket << i;
 

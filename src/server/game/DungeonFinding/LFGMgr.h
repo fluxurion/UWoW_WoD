@@ -418,7 +418,7 @@ class LFGMgr
         /// Returns all rewardable dungeons for given level and expansion
         LfgDungeonSet GetRewardableDungeons(uint8 level, uint8 expansion);
         ///
-        uint32 GetBonusValorPoints(uint32 dungeonId) const;
+        uint32 GetBonusCurrency(uint32 dungeonId) const;
         /// Teleport a player to/from selected dungeon
         void TeleportPlayer(Player* player, bool out, bool fromOpcode = false);
         /// Inits new proposal to boot a player

@@ -1132,8 +1132,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     SetUInt32Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
     SetCurrency(CURRENCY_TYPE_HONOR_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_HONOR_POINTS));
-    SetCurrency(CURRENCY_TYPE_APEXIS_CRYSTALS, sWorld->getIntConfig(CONFIG_CURRENCY_START_APEXIS_CRYSTALS));
-    SetCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_JUSTICE_POINTS));
+    SetCurrency(CURRENCY_TYPE_APEXIS_CRYSTAL, sWorld->getIntConfig(CONFIG_CURRENCY_START_APEXIS_CRYSTALS));
     SetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_CONQUEST_POINTS));
 
     // start with every map explored
@@ -8447,17 +8446,17 @@ void Player::SendPvpRewards()
     packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_POINTS));                           //RewardPointsThisWeek
     packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_POINTS));                          //MaxRewardPointsThisWeek
 
-    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RATED_BG) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RATED_BG));             //RatedRewardPointsThisWeek
-    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RATED_BG) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RATED_BG));            //RatedMaxRewardPointsThisWeek
+    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_RATED_BG_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_RATED_BG_META));             //RatedRewardPointsThisWeek
+    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_RATED_BG_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_RATED_BG_META));            //RatedMaxRewardPointsThisWeek
 
-    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));                   //RandomRewardPointsThisWeek
-    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));                  //RandomMaxRewardPointsThisWeek
+    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_ARENA_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_ARENA_META));                   //RandomRewardPointsThisWeek
+    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_ARENA_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_ARENA_META));                  //RandomMaxRewardPointsThisWeek
 
-    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));                   //ArenaRewardPointsThisWeek
-    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));                  //ArenaMaxRewardPointsThisWeek
+    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_ARENA_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_ARENA_META));                   //ArenaRewardPointsThisWeek
+    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_ARENA_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_ARENA_META));                  //ArenaMaxRewardPointsThisWeek
 
-    packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_ARENA));     //ArenaRewardPoints
-    packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RBG_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_META_RATED_BG));    //RatedRewardPoints
+    packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_ARENA_META));     //ArenaRewardPoints
+    packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RBG_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_RATED_BG_META));    //RatedRewardPoints
 
     //ReadShortageReward
     for (uint32 i = 0; i < 2; ++i)
@@ -8552,7 +8551,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         count = weekCap;
 
     // count can't be more then totalCap if used (totalCap > 0)
-    uint32 totalCap = GetCurrencyTotalCap(currency);
+    uint32 totalCap = currency->MaxQty;
     if (totalCap && (count > int32(totalCap)))
         count = totalCap;
 
@@ -8676,14 +8675,14 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency)
         case CURRENCY_TYPE_CONQUEST_POINTS:
             if(curentCap == 0)
             {
-                cap = std::max(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA), GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RATED_BG));
+                cap = std::max(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_ARENA_META), GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_RATED_BG_META));
                 if (itr != _currencyStorage.end())
                     itr->second.curentCap = cap;
             }
             else
                 cap = curentCap;
             break;
-        case CURRENCY_TYPE_CONQUEST_META_ARENA:
+        case CURRENCY_TYPE_CONQUEST_ARENA_META:
             // should add precision mod = 100
             if (curentCap == 0)
             {
@@ -8694,7 +8693,7 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency)
             else
                 cap = curentCap;
             break;
-        case CURRENCY_TYPE_CONQUEST_META_RATED_BG:
+        case CURRENCY_TYPE_CONQUEST_RATED_BG_META:
             // should add precision mod = 100
             if (curentCap == 0)
             {
@@ -8708,39 +8707,6 @@ uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency)
             else
                 cap = curentCap;
             break;
-    }
-
-    return cap;
-}
-
-uint32 Player::GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const
-{
-    // @TODO: Possibly use caps from CurrencyTypes.dbc
-    uint32 cap = currency->MaxQty;
-
-    switch (currency->ID)
-    {
-        case CURRENCY_TYPE_HONOR_POINTS:
-        {
-            uint32 honorcap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_HONOR_POINTS);
-            if (honorcap > 0)
-                cap = honorcap;
-            break;
-        }
-        case CURRENCY_TYPE_APEXIS_CRYSTALS:
-        {
-            uint32 apexiscap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS);
-            if (apexiscap > 0)
-                cap = apexiscap;
-            break;
-        }
-        case CURRENCY_TYPE_JUSTICE_POINTS:
-        {
-            uint32 justicecap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_JUSTICE_POINTS);
-            if (justicecap > 0)
-                cap = justicecap;
-            break;
-        }
     }
 
     return cap;
@@ -24158,7 +24124,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
         return false;
     }
 
-    if (uint32 totalCap = GetCurrencyTotalCap(proto))
+    if (uint32 totalCap = proto->MaxQty)
     {
         if (GetCurrency(currency) >= totalCap)
         {
@@ -27537,7 +27503,7 @@ bool Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
 
             uint32 amount = lootItem->count * entry->GetPrecision();
 
-            if (uint32 totalCap = GetCurrencyTotalCap(entry))
+            if (uint32 totalCap = entry->MaxQty)
             {
                 if (GetCurrency(id) + amount > totalCap)
                 {

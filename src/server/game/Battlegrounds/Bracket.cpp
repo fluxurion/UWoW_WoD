@@ -180,7 +180,7 @@ uint16 Bracket::FinishGame(bool win, uint16 opponents_mmv)
     //if (Player* player = ObjectAccessor::FindPlayer(m_owner))
     //{
     //    if (m_rating > player->GetMaxPersonalArenaRatingRequirement(BRACKET_TYPE_ARENA_2))
-    //        player->UpdateConquestCurrencyCap(CURRENCY_TYPE_CONQUEST_META_ARENA);        
+    //        player->UpdateConquestCurrencyCap(CURRENCY_TYPE_CONQUEST_ARENA_META);        
     //}
 
     if (m_state == BRACKET_UNCHANGED)
