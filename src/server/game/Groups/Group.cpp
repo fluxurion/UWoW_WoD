@@ -1322,47 +1322,22 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
     }
 }
 
-//! 5.4.1
-void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
+void Group::MasterLoot(Loot* /*loot*/, WorldObject* lootObj)
 {
-    uint32 real_count = 0;
-
-    ByteBuffer dataBuffer(GetMembersCount()*8);
-    ObjectGuid guid_looted = pLootedObject->GetGUID();
-    WorldPacket data(SMSG_MASTER_LOOT_CANDIDATE_LIST, 12 + GetMembersCount()*8);
-    //data.WriteGuidMask<5, 4, 6, 1, 0>(guid_looted);
-    uint32 pos = data.bitwpos();
-    data.WriteBits(0, 24);
-
-    for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    WorldPackets::Loot::MasterLootCandidateList list;
+    list.LootObj = lootObj->GetGUID();
+    for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
         Player* looter = itr->getSource();
         if (!looter->IsInWorld())
             continue;
 
-        if (looter->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
-        {
-            //HardHack! Plr should have off-like hiGuid
-            //ObjectGuid guid = MAKE_NEW_GUID(looter->GetGUID().GetCounter(), 0, HighGuid::Player_MOP);
-
-            //data.WriteGuidMask<0, 6, 3, 1, 5, 7, 4, 2>(guid);
-            //dataBuffer.WriteGuidBytes<6, 7, 2, 0, 5, 3, 1, 4>(guid);
-            ++real_count;
-            if (real_count >= 10)
-                break;
-        }
+        if (looter->IsWithinDistInMap(lootObj, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
+            list.Players.push_back(ObjectGuid::Create<HighGuid::Player>(looter->GetGUID().GetCounter())); //HardHack! Plr should have off-like hiGuid
     }
 
-    //data.WriteGuidMask<2, 3, 7>(guid_looted);
-    data.PutBits<uint32>(pos, real_count, 24);
-
-    data.FlushBits();
-
-    data.append(dataBuffer);
-    //data.WriteGuidBytes<7, 0, 3, 2, 1, 4, 5, 6>(guid_looted);
-
     if (Player* player = ObjectAccessor::FindPlayer(GetLooterGuid()))
-        player->GetSession()->SendPacket(&data);
+        player->GetSession()->SendPacket(list.Write());
 }
 
 void Group::DoRollForAllMembers(ObjectGuid guid, uint8 slot, uint32 mapid, Loot* loot, LootItem& item, Player* player)

@@ -116,7 +116,7 @@ WorldPacket const* WorldPackets::Loot::StartLootRoll::Write()
 {
     _worldPacket << LootObj;
     _worldPacket << MapID;
-	_worldPacket << LootItems;
+    _worldPacket << LootItems;
     _worldPacket << RollTime;
     _worldPacket << ValidRolls;
     _worldPacket << Method;
@@ -207,4 +207,14 @@ WorldPacket const* WorldPackets::Loot::LootList::Write()
 void WorldPackets::Loot::SetLootSpecialization::Read()
 {
     _worldPacket >> SpecID;
+}
+
+WorldPacket const* WorldPackets::Loot::MasterLootCandidateList::Write()
+{
+    _worldPacket << LootObj;
+    _worldPacket << static_cast<uint32>(Players.size);
+    for (ObjectGuid const& i : Players)
+        _worldPacket << i;
+
+    return &_worldPacket;
 }

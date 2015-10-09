@@ -275,6 +275,17 @@ namespace WorldPackets
             ObjectGuid LootObj;
             LootItem LootItems;
         };
+
+        class MasterLootCandidateList final : public ServerPacket
+        {
+        public:
+            MasterLootCandidateList() : ServerPacket(SMSG_MASTER_LOOT_CANDIDATE_LIST, 4 + 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LootObj;
+            std::vector<ObjectGuid> Players;
+        };
     }
 }
 
