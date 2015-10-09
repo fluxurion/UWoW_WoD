@@ -753,6 +753,15 @@ namespace WorldPackets
 
             ObjectGuid UnitGUID;
         };
+
+        //< SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI
+        class NullSMsg final : public ServerPacket
+        {
+        public:
+            NullSMsg(OpcodeServer opcode) : ServerPacket(opcode, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 

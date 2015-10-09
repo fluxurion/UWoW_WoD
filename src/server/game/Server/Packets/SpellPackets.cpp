@@ -799,3 +799,10 @@ WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::ScriptCast::Write()
+{
+    _worldPacket << SpellID;
+
+    return &_worldPacket;
+}

@@ -1133,10 +1133,13 @@ const SpellScene* SpellMgr::GetSpellScene(int32 miscValue) const
     return itr != mSpellSceneMap.end() ? &(itr->second) : NULL;
 }
 
-const std::vector<SpellPendingCast>* SpellMgr::GetSpellPendingCast(int32 spell_id) const
+const std::vector<SpellPendingCast>* SpellMgr::GetSpellPendingCast(int32 spellID) const
 {
-    SpellPendingCastMap::const_iterator itr = mSpellPendingCastMap.find(spell_id);
-    return itr != mSpellPendingCastMap.end() ? &(itr->second) : NULL;
+    auto itr = mSpellPendingCastMap.find(spellID);
+    if (itr != mSpellPendingCastMap.end())
+        return &itr->second;
+
+    return nullptr;
 }
 
 const uint32 SpellMgr::GetMountListId(uint32 spell_id, uint32 teamid) const

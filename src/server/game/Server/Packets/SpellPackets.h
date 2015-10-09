@@ -779,6 +779,16 @@ namespace WorldPackets
 
             std::vector<ResyncRune> Runes;
         };
+
+        class ScriptCast final : public ServerPacket
+        {
+        public:
+            ScriptCast(int32 spellID) : ServerPacket(SMSG_SCRIPT_CAST, 4), SpellID(spellID) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+        };
     }
 }
 

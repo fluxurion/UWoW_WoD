@@ -5031,28 +5031,27 @@ void Spell::SendSpellStart()
 
 void Spell::SendSpellPendingCast()
 {
-    uint32 _spellId = 0;
+    uint32 spellID = 0;
     Player* player = m_caster->ToPlayer();
-    if(!player)
+    if (!player)
         return;
 
-    if (const std::vector<SpellPendingCast> *spell_pending = sSpellMgr->GetSpellPendingCast(m_spellInfo->Id))
+    if (auto const* spellPending = sSpellMgr->GetSpellPendingCast(m_spellInfo->Id))
     {
         bool check = false;
-        for (std::vector<SpellPendingCast>::const_iterator i = spell_pending->begin(); i != spell_pending->end(); ++i)
+        for (std::vector<SpellPendingCast>::const_iterator i = spellPending->begin(); i != spellPending->end(); ++i)
         {
             switch (i->option)
             {
                 case 0: // Check Spec
                 {
-                    if(player->GetLootSpecID() == i->check)
+                    if (player->GetLootSpecID() == i->check)
                     {
-                        _spellId = i->pending_id;
+                        spellID = i->pending_id;
                         check = true;
                     }
                     break;
                 }
-
             }
 
             if (check)
@@ -5060,12 +5059,8 @@ void Spell::SendSpellPendingCast()
         }
     }
 
-    if(!_spellId)
-        return;
-
-    WorldPacket data(SMSG_SCRIPT_CAST, 4);
-    data << uint32(_spellId);           //Spell Id
-    player->GetSession()->SendPacket(&data);
+    if (spellID)
+        player->GetSession()->SendPacket(WorldPackets::Spells::ScriptCast(spellID).Write());
 }
 
 void Spell::SendSpellGo()
