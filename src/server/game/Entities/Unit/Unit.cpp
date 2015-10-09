@@ -17118,7 +17118,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "ProcDamageAndSpell: procSpell %u procTriggered %u procFlag %u procExtra %u isVictim %u", procSpell ? procSpell->Id : 0, procTriggered.size(), procFlag, procExtra, isVictim);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "ProcDamageAndSpell: procSpell %u procTriggered %u procFlag %u procExtra %u isVictim %u", procSpell ? procSpell->Id : 0, procTriggered.size(), procFlag, procExtra, isVictim);
 
     // Nothing found
     if (procTriggered.empty())
@@ -17396,6 +17396,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     {
                         if (procExtra & PROC_EX_INTERNAL_HOT)
                             break;
+
+                        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SPELL_AURA_MOD_CONFUSE: casting mending (triggered by %s dummy aura of spell %u), procSpell %u",
+                            (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId(), (procSpell ? procSpell->Id : 0));
 
                         // chargeable mods are breaking on hit
                         if (useCharges && int32(dmgInfoProc->GetDamage() + dmgInfoProc->GetAbsorb()))
