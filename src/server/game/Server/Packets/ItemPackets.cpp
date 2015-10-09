@@ -385,3 +385,15 @@ WorldPacket const* WorldPackets::Item::ItemCooldown::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Item::EnchantmentLog::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << Owner;
+    _worldPacket << ItemGUID;
+    _worldPacket << ItemID;
+    _worldPacket << Enchantment;
+    _worldPacket << EnchantSlot;
+
+    return &_worldPacket;
+}

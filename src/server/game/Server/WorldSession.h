@@ -935,7 +935,7 @@ class WorldSession
         void HandleBlackMarketRequestItems(WorldPackets::BlackMarket::BlackMarketRequestItems& packet);
         void HandleBlackMarketBidOnItem(WorldPackets::BlackMarket::BlackMarketBidOnItem& packet);
 
-        void SendEnchantmentLog(ObjectGuid const& Target, ObjectGuid const& Caster, ObjectGuid const& item, uint32 ItemID, uint32 SpellID);
+        void SendEnchantmentLog(ObjectGuid const& Target, ObjectGuid const& Caster, ObjectGuid const& item, uint32 ItemID, uint32 SpellID, EnchantmentSlot slot);
         void SendItemEnchantTimeUpdate(ObjectGuid const& Playerguid, ObjectGuid const& Itemguid, uint32 slot, uint32 Duration);
 
         //Taxi
