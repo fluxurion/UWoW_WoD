@@ -651,15 +651,6 @@ MountEntry const* DB2Manager::GetMountById(uint32 id) const
     return sMountStore.LookupEntry(id);
 }
 
-DB2Manager::MountTypeXCapabilitySet const* DB2Manager::GetMountCapabilities(uint32 mountType) const
-{
-    auto itr = _mountCapabilitiesByType.find(mountType);
-    if (itr != _mountCapabilitiesByType.end())
-        return &itr->second;
-
-    return nullptr;
-}
-
 std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const
 {
     std::set<uint32> bonusListIDs;
@@ -721,9 +712,18 @@ HeirloomEntry const* DB2Manager::GetHeirloomByOldItem(uint32 itemId) const
     return nullptr;
 }
 
-bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabilityEntry const* left, MountTypeXCapabilityEntry const* right)
-{
-    if (left->MountTypeID == right->MountTypeID)
-        return left->OrderIndex < right->OrderIndex;
-    return left->ID < right->ID;
-}
+//bool DB2Manager::MountTypeXCapabilityEntryComparator::Compare(MountTypeXCapabilityEntry const* left, MountTypeXCapabilityEntry const* right)
+//{
+//    if (left->MountTypeID == right->MountTypeID)
+//        return left->OrderIndex < right->OrderIndex;
+//    return left->ID < right->ID;
+//}
+
+//DB2Manager::MountTypeXCapabilitySet const* DB2Manager::GetMountCapabilities(uint32 mountType) const
+//{
+//    auto itr = _mountCapabilitiesByType.find(mountType);
+//    if (itr != _mountCapabilitiesByType.end())
+//        return &itr->second;
+//
+//    return nullptr;
+//}
