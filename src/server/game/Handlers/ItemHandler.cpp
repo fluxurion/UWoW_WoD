@@ -748,30 +748,6 @@ void WorldSession::HandleAutoStoreBankItem(WorldPackets::Bank::AutoStoreBankItem
     }
 }
 
-void WorldSession::SendEnchantmentLog(ObjectGuid const& target, ObjectGuid const& caster, ObjectGuid const& item, uint32 itemID, uint32 spellID, EnchantmentSlot slot)
-{
-    WorldPackets::Item::EnchantmentLog log;
-    log.Caster = caster;
-    log.Owner = target;
-    log.ItemGUID = item;
-    log.ItemID = itemID;
-    log.EnchantSlot = spellID;
-    log.Enchantment = slot;
-    SendPacket(log.Write());
-}
-
-void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid const& Playerguid, ObjectGuid const& Itemguid, uint32 slot, uint32 Duration)
-{
-    //! 6.0.3
-    WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, 8 + 8 + 1 + 1 + 4 + 4);
-    data << Itemguid;
-    data << uint32(Duration);
-    data << uint32(slot);
-    data << Playerguid;
-
-    SendPacket(&data);
-}
-
 //! 6.0.3
 void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 {

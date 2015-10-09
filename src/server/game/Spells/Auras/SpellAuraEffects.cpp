@@ -434,7 +434,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModIncreaseSpeed,                      //373 SPELL_AURA_INCREASE_MIN_SWIM_SPEED
     &AuraEffect::HandleNoImmediateEffect,                         //374 SPELL_AURA_MOD_FALL_DAMAGE
     &AuraEffect::HandleNULL,                                      //375 SPELL_AURA_375
-    &AuraEffect::HandleNoImmediateEffect,                         //376 SPELL_AURA_MOD_CURRENCY_GAIN_FROM_CREATURE
+    &AuraEffect::HandleNoImmediateEffect,                         //376 SPELL_AURA_MOD_CURRENCY_GAIN2
     &AuraEffect::HandleNULL,                                      //377 SPELL_AURA_CAST_WHILE_WALKING2
     &AuraEffect::HandleNULL,                                      //378 SPELL_AURA_378
     &AuraEffect::HandleModManaRegen,                              //379 SPELL_AURA_MOD_BASE_MANA_REGEN_PERCENT

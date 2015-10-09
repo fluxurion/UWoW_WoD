@@ -343,6 +343,8 @@ class Item : public Object
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid = ObjectGuid::Empty);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
         void SetEnchantmentCharges(EnchantmentSlot slot, uint32 charges);
+        void SendEnchantmentLog(Player* player, ObjectGuid const& Caster, ObjectGuid const& item, uint32 ItemID, uint32 SpellID, EnchantmentSlot slot);
+        void SendItemEnchantTimeUpdate(Player* player, ObjectGuid const& Itemguid, uint32 slot, uint32 Duration);
         void ClearEnchantment(EnchantmentSlot slot);
         uint32 GetEnchantmentId(EnchantmentSlot slot)       const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET);}
         uint32 GetEnchantmentDuration(EnchantmentSlot slot) const { return GetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET);}

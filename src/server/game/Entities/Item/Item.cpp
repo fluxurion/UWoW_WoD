@@ -1001,10 +1001,10 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
     if (slot < MAX_INSPECTED_ENCHANTMENT_SLOT)
     {
         if (uint32 oldEnchant = GetEnchantmentId(slot))
-            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), ObjectGuid::Empty, GetGUID(), GetEntry(), oldEnchant, slot);
+            SendEnchantmentLog(owner, ObjectGuid::Empty, GetGUID(), GetEntry(), oldEnchant, slot);
 
         if (id)
-            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetGUID(), GetEntry(), id, slot);
+            SendEnchantmentLog(owner, caster, GetGUID(), GetEntry(), id, slot);
     }
 
     SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET, id);
@@ -1015,6 +1015,29 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
     ForceValuesUpdateAtIndex(ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_CHARGES_OFFSET);
 
     SetState(ITEM_CHANGED, owner);
+}
+
+void Item::SendEnchantmentLog(Player* player, ObjectGuid const& caster, ObjectGuid const& item, uint32 itemID, uint32 spellID, EnchantmentSlot slot)
+{
+    WorldPackets::Item::EnchantmentLog log;
+    log.Caster = caster;
+    log.Owner = player->GetGUID();
+    log.ItemGUID = item;
+    log.ItemID = itemID;
+    log.EnchantSlot = spellID;
+    log.Enchantment = slot;
+    player->GetSession()->SendPacket(log.Write());
+}
+
+void Item::SendItemEnchantTimeUpdate(Player* player, ObjectGuid const& Itemguid, uint32 slot, uint32 Duration)
+{
+    //! 6.0.3
+    WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, 8 + 8 + 1 + 1 + 4 + 4);
+    data << Itemguid;
+    data << uint32(Duration);
+    data << uint32(slot);
+    data << player->GetGUID();
+    player->GetSession()->SendPacket(&data);
 }
 
 void Item::SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner)

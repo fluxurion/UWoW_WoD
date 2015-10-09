@@ -8257,7 +8257,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
     if (victim)
     {
-        AuraEffectList const& mMultipliers = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN_FROM_CREATURE);
+        AuraEffectList const& mMultipliers = GetAuraEffectsByType(SPELL_AURA_MOD_CURRENCY_GAIN2);
         for (AuraEffectList::const_iterator itr = mMultipliers.begin(); itr != mMultipliers.end(); ++itr)
         {
             if ((*itr)->GetMiscValueB() == victim->GetCreatureType() && (*itr)->GetMiscValue() == CURRENCY_TYPE_HONOR_POINTS)
@@ -15228,7 +15228,7 @@ void Player::AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 dur
     }
     if (item && duration > 0)
     {
-        GetSession()->SendItemEnchantTimeUpdate(GetGUID(), item->GetGUID(), slot, uint32(duration/1000));
+        item->SendItemEnchantTimeUpdate(this, item->GetGUID(), slot, uint32(duration/1000));
         m_enchantDuration.push_back(EnchantDuration(item, slot, duration));
     }
 }
@@ -15624,8 +15624,8 @@ void Player::UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 
 
 void Player::SendEnchantmentDurations()
 {
-    for (EnchantDurationList::const_iterator itr = m_enchantDuration.begin(); itr != m_enchantDuration.end(); ++itr)
-        GetSession()->SendItemEnchantTimeUpdate(GetGUID(), itr->item->GetGUID(), itr->slot, uint32(itr->leftduration) / 1000);
+    for (auto const& x : m_enchantDuration)
+        x.item->SendItemEnchantTimeUpdate(this, x.item->GetGUID(), x.slot, x.leftduration / 1000);
 }
 
 void Player::SendItemDurations()

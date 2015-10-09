@@ -434,7 +434,7 @@ enum AuraType
     SPELL_AURA_INCREASE_MIN_SWIM_SPEED                      = 373,  // Not sure if increase only swim, but in Roll (Monk), blizz send only update swim speed packet
     SPELL_AURA_MOD_FALL_DAMAGE                              = 374,
     SPELL_AURA_375                                          = 375,  // 0 auras
-    SPELL_AURA_MOD_CURRENCY_GAIN_FROM_CREATURE              = 376,  // ????
+    SPELL_AURA_MOD_CURRENCY_GAIN2                           = 376,
     SPELL_AURA_CAST_WHILE_WALKING2                          = 377,
     SPELL_AURA_378                                          = 378,  // 0 auras
     SPELL_AURA_MOD_BASE_MANA_REGEN_PERCENT                  = 379,
