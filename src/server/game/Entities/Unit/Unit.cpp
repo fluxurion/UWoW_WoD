@@ -21477,15 +21477,14 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
         aura->ModStackAmount(stack);
 }
 
-//! ToDo: test it
-void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
+void Unit::SendPlaySpellVisualKit(uint32 id, uint32 kitType, uint32 duration /*= 0*/)
 {
-    WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
-    data << GetGUID();
-    data << uint32(id); // SpellVisualKit.db2 index
-    data << uint32(unkParam);
-    data << uint32(0);
-    SendMessageToSet(&data, true);
+    WorldPackets::Spells::PlaySpellVisualKit packet;
+    packet.Unit = GetGUID();
+    packet.KitRecID = id;
+    packet.KitType = kitType;
+    packet.Duration = duration;
+    SendMessageToSet(packet.Write(), true);
 }
 
 void Unit::ApplyResilience(Unit const* victim, int32* damage, bool isCrit) const

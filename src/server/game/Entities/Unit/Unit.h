@@ -1772,7 +1772,7 @@ class Unit : public WorldObject
         Aura* AddAura(uint32 spellId, Unit* target, Item* castItem = NULL, uint16 stackAmount = 0);
         Aura* AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target, Item* castItem = NULL, uint16 stackAmount = 0);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
-        void SendPlaySpellVisualKit(uint32 id, uint32 unkParam);
+        void SendPlaySpellVisualKit(uint32 id, uint32 kitType, uint32 duration = 0);
 
         void DeMorph();
 

@@ -806,6 +806,19 @@ namespace WorldPackets
             bool SpeedAsTime = false;
             float TravelSpeed = 0.0f;
         };
+
+        class PlaySpellVisualKit final : public ServerPacket
+        {
+        public:
+            PlaySpellVisualKit() : ServerPacket(SMSG_PLAY_SPELL_VISUAL_KIT, 16 + 12) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            int32 KitType = 0;
+            uint32 Duration = 0;
+            int32 KitRecID = 0;
+        };
     }
 }
 
