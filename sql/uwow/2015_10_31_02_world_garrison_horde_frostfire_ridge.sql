@@ -10,17 +10,19 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 ('6720', '1', '0', '3441', '0', '0', '16', 'Draenor. FrostFireRidge. While not rew q33868'),
 ('6720', '2', '0', '3195', '0', '0', '16', 'Draenor. FrostFireRidge. While not teken q34402'),
 ('6720', '3', '0', '2406 2537 3007 3021 3023 3025 3026 3427 3592 4086', '0', '0', '16', 'Draenor. FrostFireRidge.');
-
+-- complete 34364
+--  2406 2537 3007 3021 3023 3025 3026 3331 3427 3592 3962 4086 4177
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 6720;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (23, 6720, 1, 0, 0, 14, 0, 33815, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. While non 33815'),
 (23, 6720, 2, 0, 0, 14, 0, 34402, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. While non 34402');
 
 -- Сцены
-REPLACE INTO `spell_scene` (`SceneScriptPackageID`, `MiscValue`, `PlaybackFlags`, `trigerSpell`, MonsterCredit, `comment`) VALUES
-('771', '578', '16', '0', '0', 'Draenor. FrostFireRidge. q33815'),
-('778', '594', '16', '0', '0', 'Draenor. FrostFireRidge. q34402 spell 158228');
-UPDATE spell_scene SET `ScriptName` = 'sceneTrigger_q33815' WHERE MiscValue = 578;
+REPLACE INTO `spell_scene` (`SceneScriptPackageID`, `MiscValue`, `PlaybackFlags`, `trigerSpell`, MonsterCredit, ScriptName, `comment`) VALUES
+('771', '578', '16', '0', '0', 'sceneTrigger_q33815', 'Draenor. FrostFireRidge. q33815'),
+('778', '594', '16', '0', '0', '', 'Draenor. FrostFireRidge. q34402 spell 158228'),
+('789', '604', '16', '0', '0', '', 'Draenor. FrostFireRidge. q34364 spell 169422');
+
 
 -- Spell Area
 DELETE FROM `spell_area` WHERE area in (6720);
@@ -35,10 +37,10 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 
 ('34379', '33816', '0', '0');
 
--- Q: Родина Северных Волков
+-- Q: 33868 Родина Северных Волков
 REPLACE INTO `area_queststart` (`id`, `quest`) VALUES ('7257', '33868');
 
--- Q: Песня льда и огня
+-- Q: 33815 Песня льда и огня
 UPDATE `quest_template` SET `StartScript` = '33815', `CompleteScript` = '33815' WHERE `quest_template`.`ID` = 33815;
 DELETE FROM `quest_start_scripts` WHERE id = 33815;
 INSERT INTO `quest_start_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES 

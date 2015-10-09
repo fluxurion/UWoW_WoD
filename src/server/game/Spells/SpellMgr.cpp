@@ -5545,6 +5545,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 153238:
                     spellInfo->Effects[EFFECT_0].ApplyAuraPeriod = 2500;
                     break;
+                case 169422:  // Q: 34364
+                    spellInfo->Effects[EFFECT_0].MiscValue = 604;
+                    spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_ACTIVATE_SCENE;
+                    break;
                 default:
                     break;
             }
