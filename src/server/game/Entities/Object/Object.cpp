@@ -1451,7 +1451,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targ
                     SpellVisualEntry const* visualEntry = sSpellVisualStore.LookupEntry(visualId);
                     if(caster && visualEntry && visualEntry->hostileId && caster->IsHostileTo(target))
                     {
-                        *data << ((dynType << 28) | visualEntry->hostileId);
+                        fieldBuffer << ((dynType << 28) | visualEntry->hostileId);
                         continue; //skip by custom write
                     }
                 }
@@ -1466,7 +1466,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targ
                     SpellVisualEntry const* visualEntry = sSpellVisualStore.LookupEntry(visualId);
                     if(caster && visualEntry && visualEntry->hostileId && caster->IsHostileTo(target))
                     {
-                        *data << (visualEntry->hostileId);
+                        fieldBuffer << (visualEntry->hostileId);
                         continue; //skip by custom write
                     }
                 }
