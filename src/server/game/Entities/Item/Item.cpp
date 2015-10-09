@@ -1505,9 +1505,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
     normalSellPrice = true;
 
     if (proto->Flags2 & ITEM_FLAGS_EXTRA_HAS_NORMAL_PRICE)
-    {
         return proto->BuyPrice;
-    }
     else
     {
         ImportPriceQualityEntry const* qualityPrice = sImportPriceQualityStore.LookupEntry(proto->Quality + 1);
@@ -1519,26 +1517,26 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
         float qualityFactor = qualityPrice->Factor;
         float baseFactor = 0.0f;
 
-        uint32 __inventoryType = proto->GetInventoryType();
+        uint32 inventoryType = proto->GetInventoryType();
 
-        if (__inventoryType == INVTYPE_WEAPON ||
-            __inventoryType == INVTYPE_2HWEAPON ||
-            __inventoryType == INVTYPE_WEAPONMAINHAND ||
-            __inventoryType == INVTYPE_WEAPONOFFHAND ||
-            __inventoryType == INVTYPE_RANGED ||
-            __inventoryType == INVTYPE_THROWN ||
-            __inventoryType == INVTYPE_RANGEDRIGHT)
+        if (inventoryType == INVTYPE_WEAPON ||
+            inventoryType == INVTYPE_2HWEAPON ||
+            inventoryType == INVTYPE_WEAPONMAINHAND ||
+            inventoryType == INVTYPE_WEAPONOFFHAND ||
+            inventoryType == INVTYPE_RANGED ||
+            inventoryType == INVTYPE_THROWN ||
+            inventoryType == INVTYPE_RANGEDRIGHT)
             baseFactor = basePrice->WeaponFactor;
         else
             baseFactor = basePrice->ArmorFactor;
 
-        if (__inventoryType == INVTYPE_ROBE)
-            __inventoryType = INVTYPE_CHEST;
+        if (inventoryType == INVTYPE_ROBE)
+            inventoryType = INVTYPE_CHEST;
 
         float typeFactor = 0.0f;
         uint8 wepType = -1;
 
-        switch (__inventoryType)
+        switch (inventoryType)
         {
             case INVTYPE_HEAD:
             case INVTYPE_SHOULDERS:
@@ -1550,7 +1548,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
             case INVTYPE_HANDS:
             case INVTYPE_CLOAK:
             {
-                ImportPriceArmorEntry const* armorPrice = sImportPriceArmorStore.LookupEntry(__inventoryType);
+                ImportPriceArmorEntry const* armorPrice = sImportPriceArmorStore.LookupEntry(inventoryType);
                 if (!armorPrice)
                     return 0;
 
@@ -1558,59 +1556,47 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
                 {
                     case ITEM_SUBCLASS_ARMOR_MISCELLANEOUS:
                     case ITEM_SUBCLASS_ARMOR_CLOTH:
-                    {
                         typeFactor = armorPrice->ClothFactor;
                         break;
-                    }
                     case ITEM_SUBCLASS_ARMOR_LEATHER:
-                    {
-                        typeFactor = armorPrice->ClothFactor;
+                        typeFactor = armorPrice->LeatherFactor;
                         break;
-                    }
                     case ITEM_SUBCLASS_ARMOR_MAIL:
-                    {
-                        typeFactor = armorPrice->ClothFactor;
+                        typeFactor = armorPrice->MailFactor;
                         break;
-                    }
                     case ITEM_SUBCLASS_ARMOR_PLATE:
-                    {
-                        typeFactor = armorPrice->ClothFactor;
+                        typeFactor = armorPrice->PlateFactor;
                         break;
-                    }
                     default:
-                    {
                         return 0;
-                    }
                 }
 
                 break;
             }
             case INVTYPE_SHIELD:
-            {
                 ImportPriceShieldEntry const* shieldPrice = sImportPriceShieldStore.LookupEntry(1); // it only has two rows, it's unclear which is the one used
                 if (!shieldPrice)
                     return 0;
 
                 typeFactor = shieldPrice->Factor;
                 break;
-            }
             case INVTYPE_WEAPONMAINHAND:
-                //wepType = 0;             // unk enum, fall back .... 0 seems incorrect value... we use here 0-4, should not here be 1-5?
-                //break;
+                wepType = 0;
+                break;
             case INVTYPE_WEAPONOFFHAND:
-                //wepType = 1;             // unk enum, fall back
-                //break;
+                wepType = 1;
+                break;
             case INVTYPE_WEAPON:
-                //wepType = 2;             // unk enum, fall back
-                //break;
+                wepType = 2;
+                break;
             case INVTYPE_2HWEAPON:
-                //wepType = 3;             // unk enum, fall back
-                //break;
+                wepType = 3;
+                break;
             case INVTYPE_RANGED:
             case INVTYPE_RANGEDRIGHT:
             case INVTYPE_RELIC:
             {
-                wepType = 4;             // unk enum
+                wepType = 4;
 
                 ImportPriceWeaponEntry const* weaponPrice = sImportPriceWeaponStore.LookupEntry(wepType + 1);
                 if (!weaponPrice)
