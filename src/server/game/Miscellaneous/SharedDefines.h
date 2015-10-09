@@ -1284,7 +1284,7 @@ enum SpellEffects
     SPELL_EFFECT_APPLY_AURA_WITH_VALUE              = 202,
     SPELL_EFFECT_REMOVE_AURA_2                      = 203, // Based on 144863 -> This spell remove auras.
     SPELL_EFFECT_UPGRADE_BATTLE_PET                 = 204,
-    SPELL_EFFECT_205                                = 205, // Launch PvE/PvP Choice
+    SPELL_EFFECT_LAUNCH_QUEST_CHOICE                = 205, // Launch PvE/PvP Choice
     SPELL_EFFECT_CREATE_ITEM_3                      = 206, // Create item from Timeless Isle
     SPELL_EFFECT_LAUNCH_QUEST_TASK                  = 207, // 0 spells
     SPELL_EFFECT_REPUTATION_SET                     = 208, // Test Reputation Set
