@@ -9396,6 +9396,11 @@ void ObjectMgr::RestructCreatureGUID()
 
         SQLTransaction worldTrans = WorldDatabase.BeginTransaction();
 
+        if (oldGUID == newGUID)
+        {
+            newGUID++;
+            continue;
+        }
         // World Database
         worldTrans->PAppend("UPDATE creature SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
         worldTrans->PAppend("UPDATE creature_addon SET guid = %u WHERE guid = %u;", newGUID, oldGUID);
@@ -9433,6 +9438,12 @@ void ObjectMgr::RestructGameObjectGUID()
     {
         Field *fields = result->Fetch();
         uint32 oldGUID = fields[0].GetUInt32();
+
+        if (oldGUID == newGUID)
+        {
+            newGUID++;
+            continue;
+        }
 
         SQLTransaction worldTrans = WorldDatabase.BeginTransaction();
         // World Database
