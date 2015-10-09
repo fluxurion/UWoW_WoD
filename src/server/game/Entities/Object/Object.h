@@ -919,7 +919,7 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         uint32 GetPhaseMask() const { return m_phaseMask; }
-        void RemovePhase(uint32 removePhaseID) { return SetPhaseMask(m_phaseMask - removePhaseID, true); }
+        bool RemovePhase(uint32 removePhaseID) { return m_phaseId.erase(removePhaseID); }
         bool InSamePhase(WorldObject const* obj) const { return InSamePhase(obj->GetPhaseMask()) && InSamePhaseId(obj); }
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }
 
