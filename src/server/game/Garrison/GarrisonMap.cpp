@@ -69,7 +69,7 @@ void GarrisonGridLoader::LoadN()
 
 void GarrisonGridLoader::Visit(GameObjectMapType& m)
 {
-    std::vector<Garrison::Plot*> plots = i_garrison->GetPlots();
+    /*std::vector<Garrison::Plot*> plots = i_garrison->GetPlots();
     if (!plots.empty())
     {
         CellCoord cellCoord = i_cell.GetCellCoord();
@@ -88,7 +88,7 @@ void GarrisonGridLoader::Visit(GameObjectMapType& m)
             go->AddToWorld();
             ++i_gameObjects;
         }
-    }
+    }*/
 }
 
 void GarrisonGridLoader::Visit(CreatureMapType& /*m*/)
