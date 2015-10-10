@@ -3259,32 +3259,32 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         }
     }
 
-    // Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
-    m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo, m_triggeredByAuraSpell != nullptr);
-    if (m_diminishGroup)
-    {
-        m_diminishLevel = DIMINISHING_LEVEL_1;
-        // Special handling for Deep Freeze & Ring of Frost diminishing
-        // Ring of Frost
-        if (m_spellInfo->Id == 82691)
-        {
-            m_diminishLevel = unit->GetDiminishing(DIMINISHING_DEEP_FREEZE);
-            if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
-                unit->IncrDiminishing(DIMINISHING_RING_OF_FROST);
-        }
-        // Deep Freze
-        else if (m_spellInfo->Id == 44572)
-        {
-            m_diminishLevel = unit->GetDiminishing(DIMINISHING_RING_OF_FROST);
-            if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
-                unit->IncrDiminishing(DIMINISHING_DEEP_FREEZE);
-        }
-        m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
-        DiminishingReturnsType type = GetDiminishingReturnsGroupType(m_diminishGroup);
-        // Increase Diminishing on unit, current informations for actually casts will use values above
-        if ((type == DRTYPE_PLAYER && unit->GetCharmerOrOwnerPlayerOrPlayerItself()) || type == DRTYPE_ALL)
-            unit->IncrDiminishing(m_diminishGroup);
-    }
+    //// Get Data Needed for Diminishing Returns, some effects may have multiple auras, so this must be done on spell hit, not aura add
+    //m_diminishGroup = GetDiminishingReturnsGroupForSpell(m_spellInfo, m_triggeredByAuraSpell != nullptr);
+    //if (m_diminishGroup)
+    //{
+    //    m_diminishLevel = DIMINISHING_LEVEL_1;
+    //    // Special handling for Deep Freeze & Ring of Frost diminishing
+    //    // Ring of Frost
+    //    if (m_spellInfo->Id == 82691)
+    //    {
+    //        m_diminishLevel = unit->GetDiminishing(DIMINISHING_DEEP_FREEZE);
+    //        if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
+    //            unit->IncrDiminishing(DIMINISHING_RING_OF_FROST);
+    //    }
+    //    // Deep Freze
+    //    else if (m_spellInfo->Id == 44572)
+    //    {
+    //        m_diminishLevel = unit->GetDiminishing(DIMINISHING_RING_OF_FROST);
+    //        if (unit->GetCharmerOrOwnerPlayerOrPlayerItself())
+    //            unit->IncrDiminishing(DIMINISHING_DEEP_FREEZE);
+    //    }
+    //    m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
+    //    DiminishingReturnsType type = GetDiminishingReturnsGroupType(m_diminishGroup);
+    //    // Increase Diminishing on unit, current informations for actually casts will use values above
+    //    if ((type == DRTYPE_PLAYER && unit->GetCharmerOrOwnerPlayerOrPlayerItself()) || type == DRTYPE_ALL)
+    //        unit->IncrDiminishing(m_diminishGroup);
+    //}
 
     uint32 aura_effmask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)

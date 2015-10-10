@@ -1897,7 +1897,7 @@ enum Mechanics
     MECHANIC_NONE             = 0,
     MECHANIC_CHARM            = 1,
     MECHANIC_DISORIENTED      = 2,
-    MECHANIC_DISARM           = 3,
+    //MECHANIC_DISARM           = 3, deprecated
     MECHANIC_DISTRACT         = 4,
     MECHANIC_FEAR             = 5,
     MECHANIC_GRIP             = 6,
@@ -1936,7 +1936,7 @@ enum Mechanics
 #define IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK (\
     (1<<MECHANIC_CHARM)|(1<<MECHANIC_DISORIENTED)|(1<<MECHANIC_FEAR)| \
     (1<<MECHANIC_ROOT)|(1<<MECHANIC_SLEEP)|(1<<MECHANIC_SNARE)| \
-    (1<<MECHANIC_STUN)|(1<<MECHANIC_FREEZE)|(1<<MECHANIC_SILENCE)|(1<<MECHANIC_DISARM)|(1<<MECHANIC_INCAPACITATE)| \
+    (1<<MECHANIC_STUN)|(1<<MECHANIC_FREEZE)|(1<<MECHANIC_SILENCE)|(1<<MECHANIC_INCAPACITATE)| \
     (1<<MECHANIC_POLYMORPH)|(1<<MECHANIC_BANISH)|(1<<MECHANIC_SHACKLE)| \
     (1<<MECHANIC_TURN)|(1<<MECHANIC_HORROR)|(1<<MECHANIC_DAZE)| \
     (1<<MECHANIC_SAPPED))
@@ -4473,32 +4473,17 @@ enum DiminishingReturnsType
     DRTYPE_ALL          = 2                                 // this spell is diminished in every case
 };
 
-// Diminishing Return Groups
 enum DiminishingGroup
 {
-    DIMINISHING_NONE                = 0,
-    DIMINISHING_BANISH              = 1,
-    DIMINISHING_CHARGE              = 2,
-    DIMINISHING_OPENING_STUN        = 3, // Cheap Shot and Pounce
-    DIMINISHING_CONTROLLED_STUN     = 4,
-    DIMINISHING_CONTROLLED_ROOT     = 5,
-    DIMINISHING_CYCLONE             = 6,
-    DIMINISHING_DISARM              = 7,
-    DIMINISHING_DISORIENT           = 8, // Several spells where name cant be generalized.
-    DIMINISHING_ENTRAPMENT          = 9,
-    DIMINISHING_FEAR                = 10,
-    DIMINISHING_HORROR              = 11,
-    DIMINISHING_MIND_CONTROL        = 12,
-    DIMINISHING_ROOT                = 13,
-    DIMINISHING_STUN                = 14,
-    DIMINISHING_SCATTER_SHOT        = 15,
-    DIMINISHING_SILENCE             = 16,
-    DIMINISHING_SLEEP               = 17,
-    DIMINISHING_TAUNT               = 18,
-    DIMINISHING_LIMITONLY           = 19,
-    DIMINISHING_DRAGONS_BREATH      = 20,
-    DIMINISHING_DEEP_FREEZE         = 21,
-    DIMINISHING_RING_OF_FROST       = 22,
+    DIMINISHING_NONE             = 0,
+    DIMINISHING_ROOT             = 1,
+    DIMINISHING_STUN             = 2,
+    DIMINISHING_INCAPACITATE     = 3,
+    DIMINISHING_DISORIENT        = 4,
+    DIMINISHING_SILENCE          = 5,
+    DIMINISHING_AOE_KNOCKBACK    = 6,
+    DIMINISHING_TAUNT            = 7,
+    DIMINISHING_LIMITONLY        = 8
 };
 
 enum SummonCategory
@@ -4783,7 +4768,7 @@ enum SpellFamilyNames
     SPELLFAMILY_PET         = 17,
     SPELLFAMILY_UNK3        = 50,
     SPELLFAMILY_MONK        = 53,
-    SPELLFAMILY_PET_ABILITY = 57,
+    SPELLFAMILY_WARLOCK_PET = 57,
 };
 
 // stored in character_pet.slot

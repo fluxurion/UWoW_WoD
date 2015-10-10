@@ -4142,7 +4142,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
 
     // On success dispel
     // Devour Magic
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PET_ABILITY && m_spellInfo->Category == SPELLCATEGORY_DEVOUR_MAGIC)
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK_PET && m_spellInfo->Category == SPELLCATEGORY_DEVOUR_MAGIC)
     {
         m_caster->CastSpell(m_caster, 19658, true);
         // Glyph of Felhunter
@@ -7603,7 +7603,7 @@ void Spell::EffectStealBeneficialBuff(SpellEffIndex effIndex)
 
     // On success dispel
     // Devour Magic
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PET_ABILITY && m_spellInfo->Category == SPELLCATEGORY_DEVOUR_MAGIC)
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK_PET && m_spellInfo->Category == SPELLCATEGORY_DEVOUR_MAGIC)
     {
         m_caster->CastSpell(m_caster, 19658, true);
         // Glyph of Felhunter
