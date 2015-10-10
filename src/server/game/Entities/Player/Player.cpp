@@ -93,7 +93,7 @@
 #include "EquipmentSetPackets.h"
 #include "Garrison.h"
 #include "InstancePackets.h"
-#include "InstancePackets.h"
+#include "UpdatePackets.h"
 #include "LootPackets.h"
 #include "MiscPackets.h"
 #include "MovementPackets.h"
@@ -25358,19 +25358,12 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendCurrencies();
 
     // Reset Vignitte data
-    WorldPacket data (SMSG_VIGNETTE_UPDATE, 21);
-    data.WriteBit(1);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    data << uint32(0);
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(WorldPackets::Update::VignetteUpdate(true).Write());
 
     SendEquipmentSetList();
     m_achievementMgr.SendAllAchievementData(this);  //second send
 
-    data.Initialize(SMSG_RESUME_TOKEN, 15);
+    WorldPacket data (SMSG_RESUME_TOKEN, 15);
     data << uint32(0);
     data.WriteBits(2, 2);
     GetSession()->SendPacket(&data);
@@ -29887,82 +29880,70 @@ void Player::CheckItemCapLevel(bool hasCap)
 // ToDo2: system should work not at creature udapte, but at zone entering.
 void Player::SendVignette(bool force)
 {
-    if(m_vignettes.empty())
+    if (m_vignettes.empty())
         return;
 
     uint32 removedCount = 0;
     uint32 addedCount = 0;
     uint32 updatedCount = 0;
 
-    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end(); ++itr)
+    for (auto const& x : m_vignettes)
     {
-        if (itr->second.remove)
+        if (x.second.remove)
             removedCount++;
-        if (itr->second.add)
+
+        if (x.second.add)
             addedCount++;
-        if (itr->second.update)
+
+        if (x.second.update)
             updatedCount++;
     }
 
-    if(!removedCount && !addedCount && !updatedCount)
+    if (!removedCount && !addedCount && !updatedCount)
         return;
 
-    WorldPacket data(SMSG_VIGNETTE_UPDATE, 20);
-    data.WriteBit(force);
+    WorldPackets::Update::VignetteUpdate vignetteUpdate;
+    vignetteUpdate.ForceUpdate = force;
 
-    data << uint32(removedCount);
     for (auto itr = m_vignettes.begin(); itr != m_vignettes.end();)
     {
         if (itr->second.remove)
         {
-            data << itr->second.guid;
+            vignetteUpdate.Removed.IDs.push_back(itr->second.guid);
             m_vignettes.erase(itr++);
             continue;
         }
         ++itr;
     }
 
-    data << uint32(addedCount);
-    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end(); ++itr)
+    for (auto& x : m_vignettes)
     {
-        if (itr->second.add)
-            data << itr->second.guid;
-    }
-
-    data << uint32(addedCount);
-    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end(); ++itr)
-    {
-        if (itr->second.add)
+        if (x.second.add)
         {
-            data << float(itr->second.position.GetPositionX()) << float(itr->second.position.GetPositionY()) << float(itr->second.position.GetPositionZ());
-            data << itr->first;
-            data << itr->second.vignetteId;
-            data << itr->second.zoneId;
-            itr->second.add = false;
+            vignetteUpdate.Added.IdList.IDs.push_back(x.second.guid);
+            WorldPackets::Update::VignetteClientData data;
+            data.ObjGUID = x.first;
+            data.Position = x.second.position;
+            data.VignetteID = x.second.vignetteId;
+            data.ZoneID = x.second.zoneId;
+            vignetteUpdate.Added.Data.push_back(data);
+            x.second.add = false;
+        }
+
+        if (x.second.update)
+        {
+            vignetteUpdate.Updated.IdList.IDs.push_back(x.second.guid);
+            WorldPackets::Update::VignetteClientData data;
+            data.ObjGUID = x.first;
+            data.Position = x.second.position;
+            data.VignetteID = x.second.vignetteId;
+            data.ZoneID = x.second.zoneId;
+            vignetteUpdate.Updated.Data.push_back(data);
+            x.second.update = false;
         }
     }
 
-    data << uint32(updatedCount);
-    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end(); ++itr)
-    {
-        if (itr->second.update)
-            data << itr->second.guid;
-    }
-
-    data << uint32(updatedCount);
-    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end(); ++itr)
-    {
-        if (itr->second.update)
-        {
-            data << float(itr->second.position.GetPositionX()) << float(itr->second.position.GetPositionY()) << float(itr->second.position.GetPositionZ());
-            data << itr->first;
-            data << itr->second.vignetteId;
-            data << itr->second.zoneId;
-            itr->second.update = false;
-        }
-    }
-
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(vignetteUpdate.Write());
 }
 
 bool TeleportEvent::Execute(uint64, uint32)

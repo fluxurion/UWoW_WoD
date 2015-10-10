@@ -58,6 +58,38 @@ namespace WorldPackets
             uint8 Tier = 0;
         };
 
+        struct VignetteInstanceIDList
+        {
+            std::vector<ObjectGuid> IDs;
+        };
+
+        struct VignetteClientData
+        {
+            ObjectGuid ObjGUID;
+            Position Position;
+            int32 VignetteID = 0;
+            int32 ZoneID = 0;
+        };
+
+        struct VignetteClientDataSet
+        {
+            VignetteInstanceIDList IdList;
+            std::vector<VignetteClientData> Data;
+        };
+
+        class VignetteUpdate  final : public ServerPacket
+        {
+        public:
+            VignetteUpdate() : ServerPacket(SMSG_VIGNETTE_UPDATE, 20 + 1) { }
+            VignetteUpdate(bool update) : ServerPacket(SMSG_VIGNETTE_UPDATE, 20 + 1), ForceUpdate(update) { }
+
+            WorldPacket const* Write() override;
+
+            VignetteClientDataSet Updated;
+            VignetteClientDataSet Added;
+            VignetteInstanceIDList Removed;
+            bool ForceUpdate = false;
+        };
     }
 }
 
