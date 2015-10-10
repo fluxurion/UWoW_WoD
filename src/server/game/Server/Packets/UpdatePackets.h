@@ -60,7 +60,7 @@ namespace WorldPackets
 
         struct VignetteInstanceIDList
         {
-            std::vector<ObjectGuid> IDs;
+            GuidVector IDs;
         };
 
         struct VignetteClientData
