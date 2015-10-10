@@ -1524,7 +1524,7 @@ void World::SetInitialWorldSettings()
     uint32 server_type = IsFFAPvPRealm() ? uint32(REALM_TYPE_PVP) : getIntConfig(CONFIG_GAME_TYPE);
     uint32 realm_zone = getIntConfig(CONFIG_REALM_ZONE);
 
-    LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realmHandle.Index);      // One-time query
+    LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realm.Id.Realm);      // One-time query
 
     ///- Remove the bones (they should not exist in DB though) and old corpses after a restart
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CORPSES);
@@ -2029,7 +2029,7 @@ void World::SetInitialWorldSettings()
     m_startTime = m_gameTime;
 
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
-                            realmHandle.Index, uint32(m_startTime), _FULLVERSION);       // One-time query
+                            realm.Id.Realm, uint32(m_startTime), _FULLVERSION);       // One-time query
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
@@ -2167,7 +2167,7 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading realm name...");
 
     m_realmName = "Mist of Pandaria servers";
-    QueryResult realmResult = LoginDatabase.PQuery("SELECT name FROM realmlist WHERE id = %u", realmHandle.Index);
+    QueryResult realmResult = LoginDatabase.PQuery("SELECT name FROM realmlist WHERE id = %u", realm.Id.Realm);
     if (realmResult)
         m_realmName = (*realmResult)[0].GetString();
 
@@ -2407,13 +2407,13 @@ void World::Update(uint32 diff)
 
         stmt->setUInt32(0, tmpDiff);
         stmt->setUInt16(1, uint16(maxOnlinePlayers));
-        stmt->setUInt32(2, realmHandle.Index);
+        stmt->setUInt32(2, realm.Id.Realm);
         stmt->setUInt32(3, uint32(m_startTime));
 
         LoginDatabase.Execute(stmt);
 
         if (!m_bool_configs[CONFIG_DISABLE_NEW_ONLINE])
-            LoginDatabase.PQuery("REPLACE INTO `online` (`realmID`, `online`, `diff`, `uptime`) VALUES ('%u', '%u', '%u', '%u')", realmHandle.Index, GetActiveSessionCount(), GetUpdateTime(), GetUptime());
+            LoginDatabase.PQuery("REPLACE INTO `online` (`realmID`, `online`, `diff`, `uptime`) VALUES ('%u', '%u', '%u', '%u')", realm.Id.Realm, GetActiveSessionCount(), GetUpdateTime(), GetUptime());
     }
 
     /// <li> Clean logs table
@@ -3111,13 +3111,13 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);
         stmt->setUInt32(0, accountId);
-        stmt->setUInt32(1, realmHandle.Index);
+        stmt->setUInt32(1, realm.Id.Realm);
         LoginDatabase.Execute(stmt);
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS);
         stmt->setUInt8(0, charCount);
         stmt->setUInt32(1, accountId);
-        stmt->setUInt32(2, realmHandle.Index);
+        stmt->setUInt32(2, realm.Id.Realm);
         LoginDatabase.Execute(stmt);
     }
 }
@@ -3411,7 +3411,7 @@ void World::ResetLootCooldown()
 void World::LoadDBAllowedSecurityLevel()
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST_SECURITY_LEVEL);
-    stmt->setInt32(0, int32(realmHandle.Index));
+    stmt->setInt32(0, int32(realm.Id.Realm));
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (result)
@@ -3840,8 +3840,8 @@ void World::Transfer()
     //state 2 error to many char on acc
     //state 3 dump char to waiting buy transfer
     //state 4 waiting buy transfer
-    QueryResult toDump = LoginDatabase.PQuery("SELECT `id`, `account`, `perso_guid`, `to`, `state` FROM transferts WHERE `from` = %u AND state IN (0,3)", realmHandle.Index);
-    QueryResult toLoad = LoginDatabase.PQuery("SELECT `id`, `account`, `perso_guid`, `from`, `dump`, `toacc`, `transferId` FROM transferts WHERE `to` = %u AND state = 1", realmHandle.Index);
+    QueryResult toDump = LoginDatabase.PQuery("SELECT `id`, `account`, `perso_guid`, `to`, `state` FROM transferts WHERE `from` = %u AND state IN (0,3)", realm.Id.Realm);
+    QueryResult toLoad = LoginDatabase.PQuery("SELECT `id`, `account`, `perso_guid`, `from`, `dump`, `toacc`, `transferId` FROM transferts WHERE `to` = %u AND state = 1", realm.Id.Realm);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "World::Transfer()");
 
@@ -3924,7 +3924,7 @@ void World::Transfer()
                     stmt->setUInt32(1, account);
                     stmt->setUInt64(2, guid);
                     stmt->setUInt32(3, from);
-                    stmt->setUInt32(4, realmHandle.Index);
+                    stmt->setUInt32(4, realm.Id.Realm);
                     stmt->setString(5, dump);
                     stmt->setUInt32(6, toacc);
                     stmt->setUInt32(7, newguid);
@@ -3932,7 +3932,7 @@ void World::Transfer()
                     LoginDatabase.Execute(stmt);
                     if(transferId)
                     {
-                        if (realmHandle.Index == 59)
+                        if (realm.Id.Realm == 59)
                             LoginDatabase.PQuery("UPDATE `transfer_requests` SET `guid` = '%u' WHERE `id` = '%u'", newguid, transferId);
                         else
                             LoginDatabase.PQuery("UPDATE `transfer_requests` SET `status` = '%u', `guid` = '%u' WHERE `id` = '%u'", dumpState, newguid, transferId);
@@ -3942,7 +3942,7 @@ void World::Transfer()
             else
             {
                 LoginDatabase.PQuery("UPDATE `transferts` SET `error` = '%u', `nb_attempt` = `nb_attempt` + 1 WHERE `id` = '%u'", dumpState, transaction);
-                if (transferId && realmHandle.Index != 59)
+                if (transferId && realm.Id.Realm != 59)
                     LoginDatabase.PQuery("UPDATE `transfer_requests` SET `status` = '%u' WHERE `id` = '%u'", dumpState, transferId);
                 continue;
             }
@@ -3953,5 +3953,5 @@ void World::Transfer()
 
 uint32 GetVirtualRealmAddress()
 {
-    return uint32(realmHandle.Region) << 24 | uint32(realmHandle.Battlegroup) << 16 | realmHandle.Index;
+    return uint32(realm.Id.Region) << 24 | uint32(realm.Id.Site) << 16 | realm.Id.Realm;
 }

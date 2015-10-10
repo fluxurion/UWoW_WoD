@@ -1,19 +1,19 @@
 /*
-* Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef __MESSAGEBUFFER_H_
 #define __MESSAGEBUFFER_H_
@@ -55,9 +55,9 @@ public:
 
     uint8* GetBasePointer() { return _storage.data(); }
 
-    uint8* GetReadPointer() { return &_storage[_rpos]; }
+    uint8* GetReadPointer() { return GetBasePointer() + _rpos; }
 
-    uint8* GetWritePointer() { return &_storage[_wpos]; }
+    uint8* GetWritePointer() { return GetBasePointer() + _wpos; }
 
     void ReadCompleted(size_type bytes) { _rpos += bytes; }
 
@@ -84,9 +84,9 @@ public:
     // Ensures there's "some" free space, make sure to call Normalize() before this
     void EnsureFreeSpace()
     {
-        // Double the size of the buffer if it's already full
+        // resize buffer if it's already full
         if (GetRemainingSpace() == 0)
-            _storage.resize(_storage.size() * 2);
+            _storage.resize(_storage.size() * 3 / 2);
     }
 
     void Write(void const* data, std::size_t size)

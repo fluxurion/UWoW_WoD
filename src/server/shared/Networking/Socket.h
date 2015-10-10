@@ -50,6 +50,7 @@ public:
 
     virtual ~Socket()
     {
+        _closed = true;
         boost::system::error_code error;
         _socket.close(error);
     }
@@ -62,7 +63,7 @@ public:
             return false;
 
 #ifndef TC_SOCKET_USE_IOCP
-        std::unique_lock<std::mutex> guard(_writeLock, std::try_to_lock);
+        std::unique_lock<std::mutex> guard(_writeLock);
         if (!guard)
             return true;
 
@@ -97,25 +98,6 @@ public:
             std::bind(&Socket<T>::ReadHandlerInternal, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2));
     }
 
-    void ReadData(std::size_t size)
-    {
-        if (!IsOpen())
-            return;
-
-        boost::system::error_code error;
-
-        std::size_t bytesRead = boost::asio::read(_socket, boost::asio::buffer(_readBuffer.GetWritePointer(), size), error);
-
-        _readBuffer.WriteCompleted(bytesRead);
-
-        if (error || bytesRead != size)
-        {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "Socket::ReadData: %s errored with: %i (%s)", GetRemoteIpAddress().to_string().c_str(), error.value(), error.message().c_str());
-
-            CloseSocket();
-        }
-    }
-
     void QueuePacket(MessageBuffer&& buffer, std::unique_lock<std::mutex>& guard)
     {
         _writeQueue.push(std::move(buffer));
@@ -139,6 +121,8 @@ public:
         if (shutdownError)
             sLog->outDebug(LOG_FILTER_NETWORKIO, "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
                 shutdownError.value(), shutdownError.message().c_str());
+
+        OnClose();
     }
 
     /// Marks the socket for closing after write buffer becomes empty
@@ -147,6 +131,8 @@ public:
     MessageBuffer& GetReadBuffer() { return _readBuffer; }
 
 protected:
+    virtual void OnClose() { }
+
     virtual void ReadHandler() = 0;
 
     bool AsyncProcessQueue(std::unique_lock<std::mutex>&)
@@ -179,6 +165,8 @@ protected:
 #ifndef TC_SOCKET_USE_IOCP
     MessageBuffer _writeBuffer;
 #endif
+
+    boost::asio::io_service& io_service() { return _socket.get_io_service(); }
 
 private:
     void ReadHandlerInternal(boost::system::error_code error, size_t transferredBytes)

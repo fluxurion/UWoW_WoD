@@ -445,7 +445,7 @@ void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession
         return;
     }
 
-    /*if (realmIndex != realmHandle.Index)
+    /*if (realmIndex != realm.Id.Realm)
     {
         SendAuthResponseError(REALM_LIST_REALM_NOT_FOUND);
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (bad realm).");
@@ -539,7 +539,7 @@ void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession
     // Checks gmlevel per Realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
     stmt->setUInt32(0, id);
-    stmt->setInt32(1, int32(realmHandle.Index));
+    stmt->setInt32(1, int32(realm.Id.Realm));
     result = LoginDatabase.Query(stmt);
 
     if (!result)

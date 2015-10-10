@@ -82,6 +82,11 @@ int main(int argc, char** argv)
     sLog->outInfo(LOG_FILTER_BATTLENET, "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     sLog->outInfo(LOG_FILTER_BATTLENET, "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
 
+    // Seed the OpenSSL's PRNG here.
+    // That way it won't auto-seed when calling BigNumber::SetRand and slow down the first world login
+    BigNumber seed;
+    seed.SetRand(16 * 8);
+
     // bnetserver PID file creation
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
     if (!pidFile.empty())
@@ -242,11 +247,13 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
         store(command_line_parser(argc, argv).options(all).allow_unregistered().run(), variablesMap);
         notify(variablesMap);
     }
-    catch (std::exception& e) {
+    catch (std::exception& e)
+    {
         std::cerr << e.what() << "\n";
     }
 
-    if (variablesMap.count("help")) {
+    if (variablesMap.count("help"))
+    {
         std::cout << all << "\n";
     }
 

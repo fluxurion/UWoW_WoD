@@ -691,7 +691,7 @@ void Channel::Say(ObjectGuid const& guid, const char *what, uint32 lang)
         c.chatTag = player ? player->GetChatTag() : 0;
         c.language = lang;
         c.chatType = CHAT_MSG_CHANNEL;
-        c.realmId = realmHandle.Index;
+        c.realmId = realm.Id.Realm;
 
         WorldPacket data;
         Trinity::BuildChatPacket(data, c);

@@ -111,7 +111,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         else
         {
             bidder_accId = ObjectMgr::GetPlayerAccountIdByGUID(bidderGuid);
-            bidder_security = AccountMgr::GetSecurity(bidder_accId, realmHandle.Index);
+            bidder_security = AccountMgr::GetSecurity(bidder_accId, realm.Id.Realm);
 
             if (!AccountMgr::IsPlayerAccount(bidder_security)) // not do redundant DB requests
             {

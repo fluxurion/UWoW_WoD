@@ -87,6 +87,7 @@ target_link_libraries(bnetserver
   ipc
   shared
   zmqpp
+  format
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
   ${ZMQ_LIBRARY}

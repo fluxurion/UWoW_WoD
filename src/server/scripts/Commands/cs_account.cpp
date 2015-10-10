@@ -509,7 +509,7 @@ public:
             stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
 
             stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt32(1, realmHandle.Index);
+            stmt->setUInt32(1, realm.Id.Realm);
         }
 
         LoginDatabase.Execute(stmt);

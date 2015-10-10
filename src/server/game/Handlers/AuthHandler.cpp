@@ -54,7 +54,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool hasAccountData, bool queued
         response.SuccessInfo->CurrencyID = CURRENCY_RUB;
         response.SuccessInfo->TimeRemain = 0;
 
-        std::string realmName = sObjectMgr->GetRealmName(realmHandle.Index);
+        std::string realmName = sObjectMgr->GetRealmName(realm.Id.Realm);
         response.SuccessInfo->VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false, realmName, realmName);
         response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
         response.SuccessInfo->AvailableRaces = &sObjectMgr->GetRaceExpansionRequirements();

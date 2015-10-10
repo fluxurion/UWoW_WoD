@@ -244,7 +244,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
         team = Player::TeamForRace(fields[1].GetUInt8());
         friendAccountId = fields[2].GetUInt32();
 
-        if (!AccountMgr::IsPlayerAccount(GetSecurity()) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realmHandle.Index)))
+        if (!AccountMgr::IsPlayerAccount(GetSecurity()) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realm.Id.Realm)))
         {
             if (!friendGuid.IsEmpty())
             {
@@ -532,7 +532,7 @@ void WorldSession::HandleRealmQueryNameOpcode(WorldPacket& recvData)
     uint32 realmId = recvData.read<uint32>();
 
     WorldPacket data(SMSG_REALM_QUERY_RESPONSE, 10 + 10 + 1 + 1 + 1 + 4);
-    if (realmId != realmHandle.Index && realmId != GetVirtualRealmAddress())  // Cheater ?
+    if (realmId != realm.Id.Realm && realmId != GetVirtualRealmAddress())  // Cheater ?
     {
         data << uint32(realmId);
         data << uint8(1);

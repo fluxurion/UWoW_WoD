@@ -1747,7 +1747,7 @@ public:
         std::string lastLogin   = handler->GetTrinityString(LANG_ERROR);
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PINFO);
-        stmt->setInt32(0, int32(realmHandle.Index));
+        stmt->setInt32(0, int32(realm.Id.Realm));
         stmt->setUInt32(1, accId);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
