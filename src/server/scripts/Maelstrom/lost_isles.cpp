@@ -856,26 +856,13 @@ public:
                 caster->RemoveAura(SPELL_WEED_WHACKER_BUF);
             }else
             {
-                /*caster->CastSpell(caster, 68216, true); // summon bunny
+                //caster->CastSpell(caster, 68216, true); // summon bunny
                 //bunny cast channel on plr 68214 
                 //if (TempSummon* summon = caster->GetMap()->SummonCreature(35903, *caster))
                 //{
                 //    summon->CastSpell(caster, 68214, true);
                 //    summon->CastSpell(caster, 68217, true);
                 //}
-                WorldPacket data(SMSG_MOVE_SET_VEHICLE_REC_ID, 16);
-                //data.WriteGuidMask<1, 5, 0, 6, 4, 3, 7, 2>(caster->GetGUID());
-                //data.WriteGuidBytes<7, 2, 5, 6, 4>(caster->GetGUID());
-                data << uint32(493);
-                //data.WriteGuidBytes<3, 1, 0>(caster->GetGUID());
-                data << uint32(534);          //unk
-                caster->SendMessageToSet(&data, true);
-
-                data.Initialize(SMSG_SET_VEHICLE_REC_ID, 8 + 1 + 4);
-                data << uint32(493);
-                //data.WriteGuidMask<5, 3, 6, 2, 1, 4, 0, 7>(caster->GetGUID());
-                //data.WriteGuidBytes<6, 0, 1, 3, 5, 7, 2, 4>(caster->GetGUID());
-                caster->SendMessageToSet(&data, true);*/
 
                 caster->CastSpell(caster, SPELL_WEED_WHACKER, true);
                 caster->CastSpell(caster, SPELL_WEED_WHACKER_BUF, true);

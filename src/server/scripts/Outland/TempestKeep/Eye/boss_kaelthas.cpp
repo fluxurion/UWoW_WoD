@@ -923,15 +923,7 @@ class boss_kaelthas : public CreatureScript
 
                                                 unit->CastSpell(unit, SPELL_GRAVITY_LAPSE, true, 0, NULL, me->GetGUID());
                                                 unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_AURA, true, 0, NULL, me->GetGUID());
-
-                                                //Using packet workaround
-                                                WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
-                                                ObjectGuid guid = unit->GetGUID();
-                                                //data.WriteGuidMask<6, 2, 4, 1, 0, 5, 7, 3>(guid);
-                                                //data.WriteGuidBytes<7, 6, 4>(guid);
-                                                data << uint32(0);          //! movement counter
-                                                //data.WriteGuidBytes<2, 3, 1, 0, 5>(guid);
-                                                unit->SendMessageToSet(&data, true);
+                                                unit->SetCanFly(true);
                                             }
                                         }
                                         GravityLapse_Timer = 10000;
@@ -952,16 +944,7 @@ class boss_kaelthas : public CreatureScript
                                         for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
                                         {
                                             if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
-                                            {
-                                                //Using packet workaround
-                                                WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
-                                                ObjectGuid guid = unit->GetGUID();
-                                                //data.WriteGuidMask<7, 6, 5, 1, 2, 4, 3, 0>(guid);
-                                                //data.WriteGuidBytes<0, 6, 3, 7, 2, 1, 5>(guid);
-                                                data << uint32(0);          //! movement counter
-                                                //data.WriteGuidBytes<4>(guid);
-                                                unit->SendMessageToSet(&data, true);
-                                            }
+                                                unit->SetCanFly(false);
                                         }
 
                                         me->RemoveAurasDueToSpell(SPELL_NETHER_VAPOR);

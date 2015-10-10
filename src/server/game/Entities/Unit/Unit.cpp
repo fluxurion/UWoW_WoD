@@ -23723,17 +23723,14 @@ void Unit::SendMoveflag2_0x1000_Update(bool on)
     {
         WorldPacket data(SMSG_SET_MOVEFLAG2_0x1000, 8 + 1 + 4);
         data << uint32(0);
-        //data.WriteGuidMask<5, 1, 3, 0, 2, 6, 7, 4>(guid);
-        //data.WriteGuidBytes<3, 1, 2, 7, 6, 0, 5, 4>(guid);
+        data << guid;
         ToPlayer()->SendDirectMessage(&data);
     }
     else
     {
         WorldPacket data(SMSG_UNSET_MOVEFLAG2_0x1000, 8 + 1 + 4);
-        //data.WriteGuidMask<5, 0, 3, 4, 7, 1, 2, 6>(guid);
-        //data.WriteGuidBytes<7>(guid);
+        data << guid;
         data << uint32(0);
-        //data.WriteGuidBytes<3, 4, 2, 0, 1, 5, 6>(guid);
         ToPlayer()->SendDirectMessage(&data);
     }
 }
