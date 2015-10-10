@@ -60,9 +60,9 @@ WorldPacket const* WorldPackets::Update::VignetteUpdate::Write()
     _worldPacket << static_cast<uint32>(Added.Data.size());
     for (auto const& x : Added.Data)
     {
-        _worldPacket << x.Position.m_positionX;
-        _worldPacket << x.Position.m_positionY;
-        _worldPacket << x.Position.m_positionZ;
+        _worldPacket << x.Pos.m_positionX;
+        _worldPacket << x.Pos.m_positionY;
+        _worldPacket << x.Pos.m_positionZ;
         _worldPacket << x.ObjGUID;
         _worldPacket << x.VignetteID;
         _worldPacket << x.ZoneID;
@@ -75,9 +75,9 @@ WorldPacket const* WorldPackets::Update::VignetteUpdate::Write()
     _worldPacket << static_cast<uint32>(Updated.Data.size());
     for (auto const& x : Updated.Data)
     {
-        _worldPacket << x.Position.m_positionX;
-        _worldPacket << x.Position.m_positionY;
-        _worldPacket << x.Position.m_positionZ;
+        _worldPacket << x.Pos.m_positionX;
+        _worldPacket << x.Pos.m_positionY;
+        _worldPacket << x.Pos.m_positionZ;
         _worldPacket << x.ObjGUID;
         _worldPacket << x.VignetteID;
         _worldPacket << x.ZoneID;

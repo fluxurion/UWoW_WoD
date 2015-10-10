@@ -29862,7 +29862,7 @@ void Player::SendVignette(bool force)
             vignetteUpdate.Added.IdList.IDs.push_back(x.second.guid);
             WorldPackets::Update::VignetteClientData data;
             data.ObjGUID = x.first;
-            data.Position = x.second.position;
+            data.Pos = x.second.position;
             data.VignetteID = x.second.vignetteId;
             data.ZoneID = x.second.zoneId;
             vignetteUpdate.Added.Data.push_back(data);
@@ -29874,7 +29874,7 @@ void Player::SendVignette(bool force)
             vignetteUpdate.Updated.IdList.IDs.push_back(x.second.guid);
             WorldPackets::Update::VignetteClientData data;
             data.ObjGUID = x.first;
-            data.Position = x.second.position;
+            data.Pos = x.second.position;
             data.VignetteID = x.second.vignetteId;
             data.ZoneID = x.second.zoneId;
             vignetteUpdate.Updated.Data.push_back(data);

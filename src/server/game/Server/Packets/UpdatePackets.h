@@ -66,7 +66,7 @@ namespace WorldPackets
         struct VignetteClientData
         {
             ObjectGuid ObjGUID;
-            Position Position;
+            Position Pos;
             int32 VignetteID = 0;
             int32 ZoneID = 0;
         };
