@@ -40,13 +40,13 @@ void WorldSession::SendAuthResponse(uint8 code, bool hasAccountData, bool queued
 
     if (queued)
     {
-        response.WaitInfo = WorldPackets::Auth::AuthResponse::AuthWaitInfo();
+        response.WaitInfo = boost::in_place();
         response.WaitInfo->WaitCount = queuePos;
     }
 
     if (code == AUTH_OK)
     {
-        response.SuccessInfo = WorldPackets::Auth::AuthResponse::AuthSuccessInfo();
+        response.SuccessInfo = boost::in_place();
 
         response.SuccessInfo->AccountExpansionLevel = Expansion();
         response.SuccessInfo->ActiveExpansionLevel = Expansion();
