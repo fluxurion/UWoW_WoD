@@ -76,12 +76,6 @@ template<> void ObjectGridLoader::SetObjectCell(Creature* obj, CellCoord const& 
     obj->SetCurrentCell(cell);
 }
 
-template<> void ObjectGridLoader::SetObjectCell(GameObject* obj, CellCoord const& cellCoord)
-{
-    Cell cell(cellCoord);
-    obj->SetCurrentCell(cell);
-}
-
 template <class T>
 void AddObjectHelper(CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map, T *obj)
 {

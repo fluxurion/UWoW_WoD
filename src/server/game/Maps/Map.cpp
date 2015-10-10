@@ -316,15 +316,6 @@ void Map::AddToGrid(Creature* obj, Cell const& cell)
     obj->SetCurrentCell(cell);
 }
 
-template<>
-void Map::AddToGrid(GameObject* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
-}
-
 void Map::SwitchGridContainers(Creature* obj, bool on)
 {
     ASSERT(!obj->IsPermanentWorldObject());
@@ -502,13 +493,7 @@ void Map::InitializeObject(T* /*obj*/)
 template<>
 void Map::InitializeObject(Creature* obj)
 {
-    obj->_moveState = MAP_OBJECT_CELL_MOVE_NONE;
-}
-
-template<>
-void Map::InitializeObject(GameObject* obj)
-{
-    obj->_moveState = MAP_OBJECT_CELL_MOVE_NONE;
+    obj->_moveState = CREATURE_CELL_MOVE_NONE;
 }
 
 template<class T>
@@ -776,7 +761,7 @@ void Map::AddCreatureToMoveList(Creature* c, float x, float y, float z, float an
     if (_creatureToMoveLock) //can this happen?
         return;
 
-    if (c->_moveState == MAP_OBJECT_CELL_MOVE_NONE)
+    if (c->_moveState == CREATURE_CELL_MOVE_NONE)
         _creaturesToMove.push_back(c);
     c->SetNewCellPosition(x, y, z, ang);
 }
@@ -786,8 +771,8 @@ void Map::RemoveCreatureFromMoveList(Creature* c)
     if (_creatureToMoveLock) //can this happen?
         return;
 
-    if (c->_moveState == MAP_OBJECT_CELL_MOVE_ACTIVE)
-        c->_moveState = MAP_OBJECT_CELL_MOVE_INACTIVE;
+    if (c->_moveState == CREATURE_CELL_MOVE_ACTIVE)
+        c->_moveState = CREATURE_CELL_MOVE_INACTIVE;
 }
 
 void Map::MoveAllCreaturesInMoveList()
@@ -801,13 +786,13 @@ void Map::MoveAllCreaturesInMoveList()
 
         volatile uint32 creatureEntry = c->GetEntry();
 
-        if (c->_moveState != MAP_OBJECT_CELL_MOVE_ACTIVE)
+        if (c->_moveState != CREATURE_CELL_MOVE_ACTIVE)
         {
-            c->_moveState = MAP_OBJECT_CELL_MOVE_NONE;
+            c->_moveState = CREATURE_CELL_MOVE_NONE;
             continue;
         }
 
-        c->_moveState = MAP_OBJECT_CELL_MOVE_NONE;
+        c->_moveState = CREATURE_CELL_MOVE_NONE;
         if (!c->IsInWorld())
             continue;
 

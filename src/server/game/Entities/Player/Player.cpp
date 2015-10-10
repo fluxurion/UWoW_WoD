@@ -19790,7 +19790,7 @@ void Player::_LoadMail()
     m_mail.clear();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
