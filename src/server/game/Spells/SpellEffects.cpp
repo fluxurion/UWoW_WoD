@@ -637,15 +637,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
-                        {
-                            float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-
-                            if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION
-                                || m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_COMBAT)
-                                damage += int32(ap * combo * 0.028f);
-                            else if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_SUBTLETY)
-                                damage += int32(ap * combo * 0.034f);
-                        }
+                            damage += int32(float(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)) * combo * 0.09f);
                     }
                 }
                 // Deadly Throw
@@ -653,15 +645,9 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
-                        if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
+                        if (uint32 combo = m_caster->ToPlayer()->GetComboPoints())
                         {
-                            float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-
-                            if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_ASSASSINATION
-                                || m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_COMBAT)
-                                damage += int32(ap * combo * 0.12f);
-                            else if (m_caster->ToPlayer()->GetSpecializationId(m_caster->ToPlayer()->GetActiveSpec()) == SPEC_ROGUE_SUBTLETY)
-                                damage += int32(ap * combo * 0.149f);
+                            damage += int32(float(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)) * combo * 0.178f);
                             if(combo >= 3)
                                 m_caster->CastSpell(unitTarget, 137576, true);
                         }
