@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ namespace Connection_Patcher
         struct Common
         {
             static const std::vector<unsigned char> Portal() { return { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
-            static const std::vector<unsigned char> Modulus() 
+            static const std::vector<unsigned char> Modulus()
             {
                 return
                 {
@@ -50,6 +50,7 @@ namespace Connection_Patcher
                     0xF0, 0xB8, 0x32, 0xCB, 0x5B, 0x66, 0xCE, 0x51, 0x54, 0xB4, 0xC3, 0xD3, 0xD4, 0xDC, 0xB3, 0xEE
                 };
             }
+            static const std::string VersionsFile() { return "trinity6.github.io/%s/%s/build/versi"; };
         };
     }
 }

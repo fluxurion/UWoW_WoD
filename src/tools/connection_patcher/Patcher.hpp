@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,21 +19,33 @@
 #ifndef CONNECTION_PATCHER_PATCHER_HPP
 #define CONNECTION_PATCHER_PATCHER_HPP
 
-#include "Constants/BinaryTypes.hpp"
+#include "Helper.hpp"
 
-#include <boost/filesystem.hpp>
+#include <fstream>
+#include <iostream>
+#include <iterator>
 
 namespace Connection_Patcher
 {
-    struct Patcher
+    class Patcher
     {
-        std::vector<unsigned char> binary;
-        Constants::BinaryTypes Type;
-
-        Patcher (boost::filesystem::path file);
+    public:
+        Patcher(boost::filesystem::path file);
 
         void Patch(std::vector<unsigned char> const& bytes, std::vector<unsigned char> const& pattern);
-        void Finish (boost::filesystem::path out);
+        void Finish(boost::filesystem::path out);
+        Constants::BinaryTypes GetType() const { return binaryType; }
+        std::vector<unsigned char> const& GetBinary() const { return binary; }
+
+    private:
+        void ReadFile();
+        void WriteFile(boost::filesystem::path const& path);
+
+        boost::filesystem::path filePath;
+        std::vector<unsigned char> binary;
+        Constants::BinaryTypes binaryType;
+
+
     };
 }
 

@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,6 @@
 #define CONNECTION_PATCHER_CONSTANTS_BINARYTYPES_HPP
 
 #include <cstdint>
-#include <vector>
-#include <string>
 
 namespace Connection_Patcher
 {
