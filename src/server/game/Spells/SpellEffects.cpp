@@ -666,7 +666,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     {
                         if (Unit* hunter = m_caster->GetOwner())
                         {
-                            damage += int32(hunter->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.168f);
+                            damage += int32(hunter->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.333f);
 
                             // Deals 100% more damage and costs 100% more Focus when your pet has 50 or more Focus.
                             if (m_caster->GetPower(POWER_FOCUS) >= 50)
