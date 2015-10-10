@@ -1880,7 +1880,6 @@ enum AuraStateType
     AURA_STATE_HEALTHLESS_35_PERCENT        = 13,           // C T |
     AURA_STATE_CONFLAGRATE                  = 14,           //   T |
     AURA_STATE_SWIFTMEND                    = 15,           //   T |
-    AURA_STATE_DEADLY_POISON                = 16,           //   T |
     AURA_STATE_ENRAGE                       = 17,           // C   |
     AURA_STATE_BLEEDING                     = 18,           //    T|
     AURA_STATE_UNKNOWN19                    = 19,           //     |
@@ -1890,8 +1889,7 @@ enum AuraStateType
     AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23            // C   |
 };
 
-#define PER_CASTER_AURA_STATE_MASK (\
-    (1<<(AURA_STATE_CONFLAGRATE-1))|(1<<(AURA_STATE_DEADLY_POISON-1)))
+#define PER_CASTER_AURA_STATE_MASK ((1<<(AURA_STATE_CONFLAGRATE-1)))
 
 // Spell mechanics
 enum Mechanics

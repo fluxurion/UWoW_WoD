@@ -8105,22 +8105,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                         basepoints0 = maxAmt;
                     break;
                 }
-                // Ancient Crusader (player)
-                case 86701:
-                {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return false;
-
-                    //if caster has no guardian of ancient kings aura then remove dummy aura
-                    if (!HasAura(86698))
-                    {
-                        RemoveAurasDueToSpell(86701);
-                        return false;
-                    }
-
-                    CastSpell(this, 86700, true);
-                    return true;
-                }
                 // Ancient Crusader (guardian)
                 case 86703:
                 {
@@ -8128,45 +8112,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                         return false;
 
                     GetOwner()->CastSpell(this, 86700, true);
-                    return true;
-                }
-                // Ancient Healer
-                case 86674:
-                {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return false;
-
-                    if (effIndex != 0)
-                        return false;
-
-                    // if caster has no guardian of ancient kings aura then remove dummy aura
-                    if (!HasAura(86669))
-                    {
-                        RemoveAurasDueToSpell(86674);
-                        return false;
-                    }
-
-                    // check for single target spell (TARGET_SINGLE_FRIEND, NO_TARGET)
-                    if (!(procSpell->GetEffect(triggeredByAura->GetEffIndex(), GetSpawnMode())->TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY) &&
-                        (procSpell->GetEffect(triggeredByAura->GetEffIndex(), GetSpawnMode())->TargetB.GetTarget() == 0))
-                        return false;
-
-                    std::list<Creature*> petlist;
-                    GetCreatureListWithEntryInGrid(petlist, 46499, 100.0f);
-                    if (!petlist.empty())
-                    {
-                        for (std::list<Creature*>::const_iterator itr = petlist.begin(); itr != petlist.end(); ++itr)
-                        {
-                            Unit* pPet = (*itr);
-                            if (pPet->GetOwnerGUID() == GetGUID())
-                            {
-                                int32 bp0 = damage;
-                                int32 bp1 = damage / 10;
-                                pPet->CastCustomSpell(victim, 86678, &bp0, &bp1, NULL, true);
-                            }
-                        }
-                    }
-
                     return true;
                 }
             }
@@ -12473,21 +12418,6 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                             return true;
                         }
                         break;
-                    case SPELLFAMILY_PALADIN:
-                    {
-                        switch (spellProto->Id)
-                        {
-                            case 25912: // Holy Shock Damage
-                            case 25914: // Holy Shock Heal
-                            {
-                                crit_chance += 25.0f;
-                                break;
-                            }
-                            default:
-                                break;
-                        }
-                        break;
-                    }
                     case SPELLFAMILY_DRUID:
                         // Improved Faerie Fire
                         if (victim->HasAuraState(AURA_STATE_FAERIE_FIRE))

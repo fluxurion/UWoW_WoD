@@ -2376,34 +2376,18 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (caster && caster->HasAura(108209)) // Shadow Focus
                     {
                         if (apply)
-                        {
                             caster->CastSpell(caster, 112942, true);
-                        }
-                        else
-                        {
-                            if (!caster->HasAura(1784) && !caster->HasAura(11327))
-                            {
+                        else if (!caster->HasAura(1784) && !caster->HasAura(11327))
                                 caster->RemoveAura(112942);
-                            }
-                        }
                     }
 
                     if (caster && caster->HasAura(31223)) // Master of subtlety
                     {
                         if (apply)
-                        {
                             caster->CastSpell(caster, 31665, true);
-                        }
-                        else
-                        {
-                            if (!caster->HasAura(1784) && !caster->HasAura(11327) && !caster->HasAura(115191))
-                            {
+                        else if (!caster->HasAura(1784) && !caster->HasAura(11327) && !caster->HasAura(115191))
                                 if (Aura * aur = caster->GetAura(31665))
-                                {
                                     aur->SetAuraTimer(6000);
-                                }
-                            }
-                        }
                     }
                     break;
                 }

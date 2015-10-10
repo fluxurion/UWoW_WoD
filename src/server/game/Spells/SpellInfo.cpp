@@ -2531,10 +2531,6 @@ AuraStateType SpellInfo::GetAuraState() const
     if (SpellFamilyName == SPELLFAMILY_DRUID && SpellFamilyFlags[0] & 0x50)
         return AURA_STATE_SWIFTMEND;
 
-    // Deadly poison aura state
-    if (SpellFamilyName == SPELLFAMILY_ROGUE && SpellFamilyFlags[0] & 0x10000)
-        return AURA_STATE_DEADLY_POISON;
-
     // Enrage aura state (excluding Vengeance buff)
     if (Dispel == DISPEL_ENRAGE && Id != 132365)
         return AURA_STATE_ENRAGE;
