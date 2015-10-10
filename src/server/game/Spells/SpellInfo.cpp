@@ -1203,13 +1203,13 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
         for (uint32 i = 0; i < sSpecializationSpellStore.GetNumRows(); i++)
         {
             specializationInfo = sSpecializationSpellStore.LookupEntry(i);
-            if(!specializationInfo)
+            if (!specializationInfo)
                 continue;
 
             if (specializationInfo->LearnSpell == Id)
                 SpecializationIdList.insert(specializationInfo->SpecializationEntry);
 
-            if(specializationInfo->OverrideSpell == Id)
+            if (specializationInfo->OverrideSpell == Id)
                 SpecializationOverrideSpellList.insert(specializationInfo);
         }
     }

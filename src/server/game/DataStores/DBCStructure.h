@@ -2302,7 +2302,7 @@ struct TalentEntry
     //uint32  m_categoryMask1;                      // 6
     //uint32  m_categoryMask2;                      // 7
     uint32  classId;                                // 8
-    uint32  spellOverride;                          // 9
+    uint32  OverridesSpellID;                       // 9
     char*   description;                            // 10
 
 };

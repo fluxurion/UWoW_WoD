@@ -76,6 +76,7 @@ char const SoundEntriesFormat[] = "nisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifi
 char const SpellAuraRestrictionsFormat[] = "niiiiiiii";
 char const SpellCastingRequirementsFormat[] = "niiiiii";
 char const SpellClassOptionsFormat[] = "niiiiii";
+char const SpellLearnSpellFormat[] = "niii";
 char const SpellMiscFormat[] = "niiiiiiiiiiiiiiiiifiiiiif";
 char const SpellPowerFormat[] = "niiiiiiiiiffif";
 char const SpellReagentsFormat[] = "niiiiiiiiiiiiiiiiii";

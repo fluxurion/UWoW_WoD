@@ -689,7 +689,7 @@ struct SoundEntriesEntry
 
 struct SpellAuraRestrictionsEntry
 {
-    uint32    ID;                                         // 0
+    uint32      ID;                                         // 0
     uint32      CasterAuraState;                            // 1
     uint32      TargetAuraState;                            // 2
     uint32      ExcludeCasterAuraState;                     // 3
@@ -717,6 +717,14 @@ struct SpellClassOptionsEntry
     uint32      ModalNextSpell;                             // 1
     flag128     SpellClassMask;                             // 2
     uint32      SpellClassSet;                              // 3
+};
+
+struct SpellLearnSpellEntry
+{
+    uint32      ID;                                         // 0
+    uint32      LearnSpellID;                               // 1
+    uint32      SpellID;                                    // 2
+    uint32      OverridesSpellID;                           // 3
 };
 
 struct SpellMiscEntry
@@ -760,18 +768,18 @@ struct SpellPowerEntry
     uint32      PowerDisplayId;                             // 8
     uint32      UnitPowerBarID;                             // 9
     float       PowerCostPercentage;                        // 10
-    float       PowerCostPercentagePerSecond;                // 11
+    float       PowerCostPercentagePerSecond;               // 11
     uint32      RequiredAura;                               // 12
     float       HealthCostPercentage;                       // 13
 };
 
 struct SpellReagentsEntry
 {
-    uint32    Id;                                           // 0        m_ID
-    int32     Reagent[MAX_SPELL_REAGENTS];                  // 1-8      m_reagent
-    uint32    ReagentCount[MAX_SPELL_REAGENTS];             // 9-16     m_reagentCount
-    uint32    ReagentCurrency;                              // 17
-    uint32    ReagentCurrencyCount;                         // 18
+    uint32      Id;                                         // 0
+    int32       Reagent[MAX_SPELL_REAGENTS];                // 1-8
+    uint32      ReagentCount[MAX_SPELL_REAGENTS];           // 9-16
+    uint32      ReagentCurrency;                            // 17
+    uint32      ReagentCurrencyCount;                       // 18
 };
 
 struct SpellRuneCostEntry

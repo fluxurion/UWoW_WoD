@@ -2240,8 +2240,6 @@ class Player : public Unit, public GridObject<Player>
         bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
         uint32 CalculateTalentsPoints() const;
-        void CastPassiveTalentSpell(uint32 spellId);
-        void RemovePassiveTalentSpell(uint32 spellId);
 
         void ResetSpec(bool takeMoney = true);
 

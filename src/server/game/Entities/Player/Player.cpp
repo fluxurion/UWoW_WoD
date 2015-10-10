@@ -3968,9 +3968,7 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
             sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Player::addSpell: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_spell`.", talent->spellId);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
             stmt->setUInt32(0, talent->spellId);
-
             CharacterDatabase.Execute(stmt);
         }
         else
@@ -3987,9 +3985,7 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
             sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Player::addTalent: Broken spell #%u learning not allowed, deleting for all characters in `character_talent`.", talent->spellId);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
             stmt->setUInt32(0, talent->spellId);
-
             CharacterDatabase.Execute(stmt);
         }
         else
@@ -4448,7 +4444,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         SetUsedTalentCount(GetUsedTalentCount() + 1);
         SetFreeTalentPoints(GetFreeTalentPoints() -1);
-        CastPassiveTalentSpell(spellInfo->Id);
     }
 
     // update free primary prof.points (if any, can be none in case GM .learn prof. learning)
@@ -4519,10 +4514,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
     for (SpellLearnSpellMap::const_iterator itr2 = spell_bounds.first; itr2 != spell_bounds.second; ++itr2)
     {
-        //Check requarement for spells on spellbook
-        if (itr2->second.reqSpell && !HasSpell(itr2->second.reqSpell))
-            continue;
-
         if (!itr2->second.autoLearned)
         {
             if (!IsInWorld() || !itr2->second.active)       // at spells loading, no output, but allow save
@@ -4795,8 +4786,6 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         if (freeProfs <= sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL))
             SetFreePrimaryProfessions(freeProfs);
     }
-
-    RemovePassiveTalentSpell(spell_id);
 
     // remove dependent skill
     SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spell_id);
@@ -27997,7 +27986,6 @@ bool Player::LearnTalent(uint32 talentId)
     // learn! (other talent ranks will unlearned at learning)
     AddTalent(talentInfo, GetActiveSpec(), true);
     learnSpell(spellid, false);
-    CastPassiveTalentSpell(spellid);
 
     sLog->outInfo(LOG_FILTER_GENERAL, "TalentID: %u Spell: %u Spec: %u\n", talentId, spellid, GetActiveSpec());
     return true;
@@ -29366,55 +29354,6 @@ void Player::CheckSpellAreaOnQuestStatusChange(uint32 quest_id)
     }
 }
 
-void Player::CastPassiveTalentSpell(uint32 spellId)
-{
-    switch (spellId)
-    {
-        case 1463:  // Incanter's Ward
-            if (!HasAura(118858))
-                CastSpell(this, 118858, true); // +6% damage and 65% mana regen
-            break;
-        case 16188: // Ancestral Swiftness
-            if (!HasAura(51470))
-                CastSpell(this, 51470, true);  // +5% spell haste
-            if (!HasAura(121617))
-                CastSpell(this, 121617, true); // +5% melee haste
-            break;
-        case 96268: // Death's Advance
-            if (!HasAura(124285))
-                CastSpell(this, 124285, true); // +10% speed
-            break;
-        case 108505:// Archimonde's Vengeance
-            if (!HasAura(116403))
-                CastSpell(this, 116403, true); // Passive
-            break;
-        default:
-            break;
-    }
-}
-
-void Player::RemovePassiveTalentSpell(uint32 spellId)
-{
-    switch (spellId)
-    {
-        case 1463:  // Incanter's Ward
-            RemoveAura(118858);
-            break;
-        case 16188: // Ancestral Swiftness
-            RemoveAura(51470);
-            RemoveAura(121617);
-            break;
-        case 96268: // Death's Advance
-            RemoveAura(124285);
-            break;
-        case 108505:// Archimonde's Vengeance
-            RemoveAura(116403);
-            break;
-        default:
-            break;
-    }
-}
-
 void Player::SendMusic(uint32 soundKitID)
 {
     GetSession()->SendPacket(WorldPackets::Misc::PlayMusic(soundKitID).Write());
@@ -30094,7 +30033,7 @@ void Player::SendSpellScene(uint32 miscValue, SpellInfo const* spellInfo, bool a
         scene.PlaybackFlags = spellScene->PlaybackFlags;
         scene.SceneInstanceID = ++sceneInstanceID;
         scene.SceneScriptPackageID = spellScene->SceneScriptPackageID;
-        scene.Pos = {pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), pos->GetOrientation()};
+        scene.Pos = pos->GetPosition();
         ToPlayer()->GetSession()->SendPacket(scene.Write());
 
         // Link aura effect

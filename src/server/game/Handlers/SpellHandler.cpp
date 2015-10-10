@@ -276,7 +276,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
             if (itr->second->state == PLAYERSPELL_REMOVED)
                 continue;
 
-            if (itr->second->talentEntry->spellOverride == cast.Cast.SpellID)
+            if (itr->second->talentEntry->OverridesSpellID == cast.Cast.SpellID)
             {
                 if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(itr->second->talentEntry->spellId))
                 {

@@ -1570,8 +1570,8 @@ void SpellMgr::LoadSpellLearnSpells()
 
     mSpellLearnSpells.clear();                              // need for reload case
 
-    //                                                  0      1        2       3
-    QueryResult result = WorldDatabase.Query("SELECT entry, SpellID, Active, ReqSpell FROM spell_learn_spell");
+    //                                                  0      1        2
+    QueryResult result = WorldDatabase.Query("SELECT entry, SpellID, Active FROM spell_learn_spell");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell learn spells. DB table `spell_learn_spell` is empty.");
@@ -1587,8 +1587,8 @@ void SpellMgr::LoadSpellLearnSpells()
 
         SpellLearnSpellNode node;
         node.spell       = fields[1].GetUInt32();
+        node.overridesSpell = 0;
         node.active      = fields[2].GetBool();
-        node.reqSpell    = fields[3].GetUInt32();
         node.autoLearned = false;
 
         if (!GetSpellInfo(spell_id))
@@ -1598,7 +1598,7 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
         }
 
-        if (!GetSpellInfo(node.spell) || node.reqSpell && !GetSpellInfo(node.reqSpell))
+        if (!GetSpellInfo(node.spell))
         {
             sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_learn_spell` learning not existed spell %u", spell_id, node.spell);
             WorldDatabase.PExecute("DELETE FROM `spell_learn_spell` WHERE SpellID = %u", node.spell);
@@ -1616,12 +1616,14 @@ void SpellMgr::LoadSpellLearnSpells()
         ++count;
     } while (result->NextRow());
 
+    // copy state loaded from db
+    SpellLearnSpellMap dbSpellLearnSpells = mSpellLearnSpells;
+
     // search auto-learned spells and add its to map also for use in unlearn spells/talents
     uint32 dbc_count = 0;
     for (uint32 spell = 0; spell < GetSpellInfoStoreSize(); ++spell)
     {
         SpellInfo const* entry = GetSpellInfo(spell);
-
         if (!entry)
             continue;
 
@@ -1632,6 +1634,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 SpellLearnSpellNode dbc_node;
                 dbc_node.spell = entry->Effects[i].TriggerSpell;
                 dbc_node.active = true;                     // all dbc based learned spells is active (show in spell book or hide by client itself)
+                dbc_node.overridesSpell = 0;
 
                 // ignore learning not existed spells (broken/outdated/or generic learnig spell 483
                 if (!GetSpellInfo(dbc_node.spell))
@@ -1642,7 +1645,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 // other required explicit dependent learning
                 dbc_node.autoLearned = entry->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET || /*GetTalentSpellCost(spell) > 0 ||*/ entry->IsPassive() || entry->HasEffect(SPELL_EFFECT_SKILL_STEP);
 
-                SpellLearnSpellMapBounds db_node_bounds = GetSpellLearnSpellMapBounds(spell);
+                SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spell);
 
                 bool found = false;
                 for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
@@ -1665,7 +1668,52 @@ void SpellMgr::LoadSpellLearnSpells()
         }
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell learn spells + %u found in DBC in %u ms", count, dbc_count, GetMSTimeDiffToNow(oldMSTime));
+    for (SpellLearnSpellEntry const* spellLearnSpell : sSpellLearnSpellStore)
+    {
+        if (!GetSpellInfo(spellLearnSpell->SpellID))
+            continue;
+
+        SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spellLearnSpell->LearnSpellID);
+        bool found = false;
+        for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
+        {
+            if (itr->second.spell == spellLearnSpell->SpellID)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Found redundant record (entry: %u, SpellID: %u) in `spell_learn_spell`, spell added automatically from SpellLearnSpell.db2", spellLearnSpell->LearnSpellID, spellLearnSpell->SpellID);
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+            continue;
+
+        // Check if it is already found in Spell.dbc, ignore silently if yes
+        SpellLearnSpellMapBounds dbc_node_bounds = GetSpellLearnSpellMapBounds(spellLearnSpell->LearnSpellID);
+        found = false;
+        for (SpellLearnSpellMap::const_iterator itr = dbc_node_bounds.first; itr != dbc_node_bounds.second; ++itr)
+        {
+            if (itr->second.spell == spellLearnSpell->SpellID)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+            continue;
+
+        SpellLearnSpellNode dbcLearnNode;
+        dbcLearnNode.spell = spellLearnSpell->SpellID;
+        dbcLearnNode.overridesSpell = spellLearnSpell->OverridesSpellID;
+        dbcLearnNode.active = true;
+        dbcLearnNode.autoLearned = false;
+
+        mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(spellLearnSpell->LearnSpellID, dbcLearnNode));
+        ++dbc_count;
+    }
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell learn spells, %u found in Spell.dbc in %u ms", count, dbc_count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellTargetPositions()
