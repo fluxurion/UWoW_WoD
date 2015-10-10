@@ -637,38 +637,6 @@ class spell_rog_crimson_tempest : public SpellScriptLoader
         }
 };
 
-// Called by Wound Poison - 8680, Deadly Poison - 2818, Mind-Numbing Poison - 5760, Crippling Poison - 3409
-// Paralytic Poison - 113952, Leeching Poison - 112961 and Deadly Poison : Instant damage - 113780
-// Master Poisoner - 58410
-class spell_rog_master_poisoner : public SpellScriptLoader
-{
-    public:
-        spell_rog_master_poisoner() : SpellScriptLoader("spell_rog_master_poisoner") { }
-
-        class spell_rog_master_poisoner_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_master_poisoner_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(ROGUE_SPELL_MASTER_POISONER_AURA))
-                            _player->CastSpell(target, ROGUE_SPELL_MASTER_POISONER_DEBUFF, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_rog_master_poisoner_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_master_poisoner_SpellScript();
-        }
-};
-
 // Called by Deadly Poison - 2818
 // Deadly Poison : Instant damage - 113780
 class spell_rog_deadly_poison_instant_damage : public SpellScriptLoader
@@ -1414,6 +1382,186 @@ class spell_rog_marked_for_death : public SpellScriptLoader
         }
 };
 
+// Deadly Poison - 2818
+class spell_rog_deadly_poison_venom : public SpellScriptLoader
+{
+    public:
+        spell_rog_deadly_poison_venom() : SpellScriptLoader("spell_rog_deadly_poison_venom") { }
+
+        class spell_rog_deadly_poison_venom_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_deadly_poison_venom_AuraScript);
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
+                    {
+                        if (Aura* aura = caster->GetAura(156719))
+                            aura->ModStackAmount(1);
+                        else
+                            caster->CastSpell(caster, 156719, true);
+                    }
+                }
+            }
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
+                    {
+                        if (Aura* aura = caster->GetAura(156719))
+                            aura->ModStackAmount(-1);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_rog_deadly_poison_venom_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_deadly_poison_venom_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_deadly_poison_venom_AuraScript();
+        }
+};
+
+// Crippling Poison - 3409
+class spell_rog_crippling_poison_venom : public SpellScriptLoader
+{
+    public:
+        spell_rog_crippling_poison_venom() : SpellScriptLoader("spell_rog_crippling_poison_venom") { }
+
+        class spell_rog_crippling_poison_venom_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_crippling_poison_venom_AuraScript);
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
+                    {
+                        if (Aura* aura = caster->GetAura(156719))
+                            aura->ModStackAmount(1);
+                        else
+                            caster->CastSpell(caster, 156719, true);
+                    }
+                }
+            }
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
+                    {
+                        if (Aura* aura = caster->GetAura(156719))
+                            aura->ModStackAmount(-1);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_rog_crippling_poison_venom_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_crippling_poison_venom_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_crippling_poison_venom_AuraScript();
+        }
+};
+
+// Wound Poison - 8680
+class spell_rog_wound_poison_venom : public SpellScriptLoader
+{
+    public:
+        spell_rog_wound_poison_venom() : SpellScriptLoader("spell_rog_wound_poison_venom") { }
+
+        class spell_rog_wound_poison_venom_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_wound_poison_venom_AuraScript);
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
+                    {
+                        if (Aura* aura = caster->GetAura(156719))
+                            aura->ModStackAmount(1);
+                        else
+                            caster->CastSpell(caster, 156719, true);
+                    }
+                }
+            }
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
+                    {
+                        if (Aura* aura = caster->GetAura(156719))
+                            aura->ModStackAmount(-1);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_rog_wound_poison_venom_AuraScript::HandleApply, EFFECT_1, SPELL_AURA_MOD_HEALING_PCT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_rog_wound_poison_venom_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_MOD_HEALING_PCT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_wound_poison_venom_AuraScript();
+        }
+};
+
+// Death from Above  - 178236
+class spell_rog_death_from_above_jump : public SpellScriptLoader
+{
+    public:
+        spell_rog_death_from_above_jump() : SpellScriptLoader("spell_rog_death_from_above_jump") { }
+
+        class spell_rog_death_from_above_jump_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_rog_death_from_above_jump_SpellScript);
+
+            void HandleOnCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    WorldLocation summonPos = *GetExplTargetDest();
+                    Position offset = { 0.0f, 0.0f, 8.0f, 0.0f };
+                    summonPos.RelocateOffset(offset);
+                    SetExplTargetDest(summonPos);
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_rog_death_from_above_jump_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_rog_death_from_above_jump_SpellScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_shuriken_toss();
@@ -1429,7 +1577,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_redirect();
     new spell_rog_shroud_of_concealment();
     new spell_rog_crimson_tempest();
-    new spell_rog_master_poisoner();
     new spell_rog_deadly_poison_instant_damage();
     new spell_rog_paralytic_poison();
     new spell_rog_shiv();
@@ -1446,4 +1593,8 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_mutilate_t16();
     new spell_rog_internal_bleeding();
     new spell_rog_marked_for_death();
+    new spell_rog_deadly_poison_venom();
+    new spell_rog_crippling_poison_venom();
+    new spell_rog_wound_poison_venom();
+    new spell_rog_death_from_above_jump();
 }

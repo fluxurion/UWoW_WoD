@@ -20168,7 +20168,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, SpellInfo const* spellProto
     // Check spellProcEvent data requirements
     if (!alredyCheck && !sSpellMgr->IsSpellProcEventCanTriggeredBy(spellProcEvent, EventProcFlag, procSpell, procFlag, procExtra, active))
     {
-        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "IsTriggeredAtSpellProcEvent: false procSpell %i, EventProcFlag %i, active %i, procExtra %i, isVictim %i procFlag %u Id %u", procSpell ? procSpell->Id : 0, EventProcFlag, active, procExtra, isVictim, procFlag, spellProto->Id);
+        //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "IsTriggeredAtSpellProcEvent: false procSpell %i, EventProcFlag %i, active %i, procExtra %i, isVictim %i procFlag %u Id %u", procSpell ? procSpell->Id : 0, EventProcFlag, active, procExtra, isVictim, procFlag, spellProto->Id);
         return false;
     }
 
@@ -24313,6 +24313,22 @@ bool Unit::HasMyAura(uint32 spellId)
         if (Aura const* aura = (*itr))
             if (aura->GetId() == spellId)
                 return true;
+    }
+    return false;
+}
+
+bool Unit::HasMyAura(Aura const* hasAura, bool check)
+{
+    for (AuraList::const_iterator itr = m_my_Auras.begin(); itr != m_my_Auras.end(); ++itr)
+    {
+        if (Aura const* aura = (*itr))
+            if (aura->GetId() == hasAura->GetId())
+            {
+                if(aura == hasAura && check)
+                    return true;
+                else if(aura != hasAura && !check)
+                        return true;
+            }
     }
     return false;
 }
