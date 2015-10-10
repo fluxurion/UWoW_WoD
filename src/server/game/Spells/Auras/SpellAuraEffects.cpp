@@ -1186,13 +1186,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
             case 48391: // Owlkin Frenzy
                 ApplyPct(amount, target->GetCreatePowers(POWER_MANA));
                 break;
-            case 54428: // Divine Plea
-                int32 manaPerc;
-                manaPerc = CalculatePct(caster->GetMaxPower(POWER_MANA), m_spellInfo->Effects[1].BasePoints) / GetTotalTicks();
-                amount = CalculatePct(caster->GetTotalStatValue(STAT_SPIRIT), amount);
-                if(amount < manaPerc)
-                   amount = manaPerc;
-                break;
             case 29166: // Innervate
                 if (!caster)
                     break;

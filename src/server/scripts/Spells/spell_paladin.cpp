@@ -28,19 +28,12 @@
 
 enum PaladinSpells
 {
-    PALADIN_SPELL_DIVINE_PLEA                    = 54428,
     SPELL_BLESSING_OF_LOWER_CITY_DRUID           = 37878,
     SPELL_BLESSING_OF_LOWER_CITY_PALADIN         = 37879,
     SPELL_BLESSING_OF_LOWER_CITY_PRIEST          = 37880,
     SPELL_BLESSING_OF_LOWER_CITY_SHAMAN          = 37881,
     SPELL_DIVINE_STORM                           = 53385,
-    SPELL_DIVINE_STORM_DUMMY                     = 54171,
-    SPELL_DIVINE_STORM_HEAL                      = 54172,
     SPELL_FORBEARANCE                            = 25771,
-    PALADIN_SPELL_WORD_OF_GLORY                  = 85673,
-    PALADIN_SPELL_WORD_OF_GLORY_HEAL             = 130551,
-    PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY         = 54936,
-    PALADIN_SPELL_GLYPH_OF_WORD_OF_GLORY_DAMAGE  = 115522,
     PALADIN_SPELL_CONSECRATION_AREA_DUMMY        = 81298,
     PALADIN_SPELL_CONSECRATION_DAMAGE            = 81297,
     PALADIN_SPELL_HOLY_PRISM_ALLIES              = 114871,
@@ -890,48 +883,6 @@ class spell_pal_blessing_of_faith : public SpellScriptLoader
         }
 };
 
-class spell_pal_divine_storm : public SpellScriptLoader
-{
-    public:
-        spell_pal_divine_storm() : SpellScriptLoader("spell_pal_divine_storm") { }
-
-        class spell_pal_divine_storm_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_divine_storm_SpellScript);
-
-            uint32 healPct;
-
-            bool Validate(SpellInfo const* /* spell */)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DIVINE_STORM_DUMMY))
-                    return false;
-                return true;
-            }
-
-            bool Load()
-            {
-                healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
-                return true;
-            }
-
-            void TriggerHeal()
-            {
-                Unit* caster = GetCaster();
-                caster->CastCustomSpell(SPELL_DIVINE_STORM_DUMMY, SPELLVALUE_BASE_POINT0, (GetHitDamage() * healPct) / 100, caster, true);
-            }
-
-            void Register()
-            {
-                AfterHit += SpellHitFn(spell_pal_divine_storm_SpellScript::TriggerHeal);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pal_divine_storm_SpellScript();
-        }
-};
-
 // Lay on Hands - 633
 class spell_pal_lay_on_hands : public SpellScriptLoader
 {
@@ -1600,6 +1551,47 @@ class spell_pal_shield_of_glory : public SpellScriptLoader
         }
 };
 
+// 70769 Divine Storm!
+class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
+{
+    public:
+        spell_gen_divine_storm_cd_reset() : SpellScriptLoader("spell_gen_divine_storm_cd_reset") {}
+
+        class spell_gen_divine_storm_cd_reset_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_divine_storm_cd_reset_SpellScript);
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            bool Validate(SpellInfo const* /*SpellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DIVINE_STORM))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                if (caster->HasSpellCooldown(SPELL_DIVINE_STORM))
+                    caster->RemoveSpellCooldown(SPELL_DIVINE_STORM, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_divine_storm_cd_reset_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_divine_storm_cd_reset_SpellScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_glyph_of_avenging_wrath();
@@ -1621,7 +1613,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_consecration_area();
     new spell_pal_ardent_defender();
     new spell_pal_blessing_of_faith();
-    new spell_pal_divine_storm();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
     new spell_pal_selfless_healer();
@@ -1638,4 +1629,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_judgment();
     new spell_pal_exorcism();
     new spell_pal_shield_of_glory();
+    new spell_gen_divine_storm_cd_reset();
 }
