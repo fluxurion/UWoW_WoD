@@ -573,3 +573,148 @@ WorldPacket const* WorldPackets::BattlePet::GuidData::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattlePetUpdate const& update)
+{
+    data << update.BattlePetGUID;
+
+    data << update.SpeciesID;
+    data << update.DisplayID;
+    data << update.CollarID;
+
+    data << update.Level;
+    data << update.Xp;
+
+    data << update.CurHealth;
+    data << update.MaxHealth;
+    data << update.Power;
+    data << update.Speed;
+    data << update.NpcTeamMemberID;
+
+    data << update.BreedQuality;
+    data << update.StatusFlags;
+
+    data << update.Slot;
+
+    data << static_cast<uint32>(update.Abilities.size());
+    data << static_cast<uint32>(update.Auras.size());
+    data << static_cast<uint32>(update.States.size());
+    for (auto const& x : update.Abilities)
+        data << x;
+    for (auto const& v : update.Auras)
+        data << v;
+    for (auto const& c : update.States)
+        data << c;
+
+    data.WriteBits(update.CustomName.size(), 7);
+    data.WriteString(update.CustomName);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveAbility const& ability)
+{
+    data << ability.AbilityID;
+    data << ability.CooldownRemaining;
+    data << ability.LockdownRemaining;
+    data << ability.AbilityIndex;
+    data << ability.Pboid;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattlePlayerUpdate const& update)
+{
+    data << update.CharacterID;
+
+    data << update.TrapAbilityID;
+    data << update.TrapStatus;
+
+    data << update.RoundTimeSecs;
+
+    data << update.FrontPet;
+    data << update.InputFlags;
+
+    data.WriteBits(update.Pets.size(), 2);
+    data.FlushBits();
+
+    for (auto const& z : update.Pets)
+        data << z;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveState const& state)
+{
+    data << state.StateID;
+    data << state.StateValue;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveAura const& aura)
+{
+    data << aura.AbilityID;
+    data << aura.InstanceID;
+    data << aura.RoundsRemaining;
+    data << aura.CurrentRound;
+    data << aura.CasterPBOID;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleEnviroUpdate const& update)
+{
+    data << static_cast<uint32>(update.Auras.size());
+    data << static_cast<uint32>(update.States.size());
+    for (auto const& x : update.Auras)
+        data << x;
+    for (auto const& v : update.States)
+        data << v;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleFullUpdate const& update)
+{
+    for (int8 i = 0; i < 2; ++i)
+        data << update.Players[i];
+
+    for (int8 i = 0; i < 3; ++i)
+        data << update.Enviros[i];
+
+    data << update.WaitingForFrontPetsMaxSecs;
+    data << update.PvpMaxRoundTime;
+
+    data << update.CurRound;
+    data << update.NpcCreatureID;
+    data << update.NpcDisplayID;
+
+    data << update.CurPetBattleState;
+    data << update.ForfeitPenalty;
+
+    data << update.InitialWildPetGUID;
+
+    data.WriteBit(update.IsPVP);
+    data.WriteBit(update.CanAwardXP);
+    data.FlushBits();
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::BattlePet::PetBattleInitialUpdate::Write()
+{
+    _worldPacket << MsgData;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::BattlePet::BattlePetError::Write()
+{
+    _worldPacket.WriteBits(Result, 4);
+    _worldPacket.FlushBits();
+
+    _worldPacket << CreatureID;
+
+    return &_worldPacket;
+}

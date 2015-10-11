@@ -219,11 +219,14 @@ void WorldSession::HandlePetBattleRequestWild(WorldPackets::BattlePet::RequestWi
 
 void WorldSession::HandlePetBattleInputFirstPet(WorldPacket& recvData)
 {
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
     uint8 firstPetID;
     recvData >> firstPetID;
 
-    PetBattleWild* petBattle = _player->GetBattlePetMgr()->GetPetBattleWild();
-
+    PetBattleWild* petBattle = player->GetBattlePetMgr()->GetPetBattleWild();
     if (!petBattle)
         return;
 
@@ -240,6 +243,10 @@ void WorldSession::HandlePetBattleRequestUpdate(WorldPackets::BattlePet::Request
 
 void WorldSession::HandlePetBattleInput(WorldPacket& recvData)
 {
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
     bool bit = recvData.ReadBit();
     bool bit1 = recvData.ReadBit();
     bool bit2 = recvData.ReadBit();
@@ -267,8 +274,7 @@ void WorldSession::HandlePetBattleInput(WorldPacket& recvData)
     if (!bit4)
         recvData >> newFrontPet;
 
-    PetBattleWild* petBattle = _player->GetBattlePetMgr()->GetPetBattleWild();
-
+    PetBattleWild* petBattle = player->GetBattlePetMgr()->GetPetBattleWild();
     if (!petBattle)
         return;
 
@@ -297,13 +303,21 @@ void WorldSession::HandlePetBattleInput(WorldPacket& recvData)
 
 void WorldSession::HandlePetBattleFinalNotify(WorldPackets::BattlePet::NullCmsg& /*packet*/)
 {
-    if (PetBattleWild* petBattle = _player->GetBattlePetMgr()->GetPetBattleWild())
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    if (PetBattleWild* petBattle = player->GetBattlePetMgr()->GetPetBattleWild())
         petBattle->FinishPetBattle();
 }
 
 void WorldSession::HandlePetBattleQuitNotify(WorldPacket& recvData)
 {
-    if (PetBattleWild* petBattle = _player->GetBattlePetMgr()->GetPetBattleWild())
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    if (PetBattleWild* petBattle = player->GetBattlePetMgr()->GetPetBattleWild())
     {
         petBattle->SetAbandoned(true);
         petBattle->SetWinner(TEAM_ENEMY);

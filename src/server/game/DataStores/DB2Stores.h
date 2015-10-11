@@ -170,8 +170,8 @@ public:
     std::set<uint32> GetFindBonusTree(uint32 BonusTreeID, uint32 itemBonusTreeMod) const;
     HeirloomEntry const* GetHeirloomByItemId(uint32 itemId) const;
     HeirloomEntry const* GetHeirloomByOldItem(uint32 itemId) const;
+    uint8 GetBattlePetSpeciesBySpellID(uint32 entry) const;
 
-    BattlePetSpeciesBySpellIdMap _battlePetSpeciesBySpellId; // @TODO: move this to private and make special getters
     MapChallengeModeEntryMap _mapChallengeModeEntrybyMap; // @TODO: move this to private and make special getters
 private:
     StorageMap _stores;
@@ -192,6 +192,7 @@ private:
     QuestPackageItemContainer _questPackages;
     ToyItemIdsContainer _toys;
     HeirloomItemsContainer _heirlooms;
+    BattlePetSpeciesBySpellIdMap _battlePetSpeciesBySpellId;
 };
 
 #define sDB2Manager DB2Manager::Instance()

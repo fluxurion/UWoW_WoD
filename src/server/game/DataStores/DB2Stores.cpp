@@ -729,3 +729,12 @@ HeirloomEntry const* DB2Manager::GetHeirloomByOldItem(uint32 itemId) const
 //
 //    return nullptr;
 //}
+
+uint8 DB2Manager::GetBattlePetSpeciesBySpellID(uint32 entry) const
+{
+    auto const it = _battlePetSpeciesBySpellId.find(entry);
+    if (it != _battlePetSpeciesBySpellId.end())
+        return it->second->petType;
+
+    return 0;
+}

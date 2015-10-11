@@ -33,7 +33,7 @@
 
 class InstanceScript;
 
-class SummonList : public std::list<ObjectGuid>
+class SummonList : public GuidList
 {
     public:
         explicit SummonList(Creature* creature) : me(creature) {}

@@ -82,7 +82,7 @@ public:
         bool CanActivate() const;
 
         ObjectGuid Guid;
-        std::unordered_set<ObjectGuid> Spawns;
+        GuidUnorderedSet Spawns;
         Optional<WorldPackets::Garrison::GarrisonBuildingInfo> PacketInfo;
     };
 

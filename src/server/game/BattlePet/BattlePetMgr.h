@@ -28,6 +28,55 @@
 #include "DBCStores.h"
 #include "DB2Stores.h"
 
+enum BattlepetResult : uint32
+{
+    ERR_PETBATTLE_CREATE_FAILED,
+    ERR_PETBATTLE_NOT_HERE,
+    ERR_PETBATTLE_NOT_HERE_ON_TRANSPORT,
+    ERR_PETBATTLE_NOT_HERE_UNEVEN_GROUND,
+    ERR_PETBATTLE_NOT_HERE_OBSTRUCTED,
+    ERR_PETBATTLE_NOT_WHILE_IN_COMBAT,
+    ERR_PETBATTLE_NOT_WHILE_DEAD,
+    ERR_PETBATTLE_NOT_WHILE_FLYING,
+    ERR_PETBATTLE_TARGET_INVALID,
+    ERR_PETBATTLE_TARGET_OUT_OF_RANGE,
+    ERR_PETBATTLE_TARGET_NOT_CAPTURABLE,
+    ERR_PETBATTLE_NOT_A_TRAINER,
+    ERR_PETBATTLE_DECLINED,
+    ERR_PETBATTLE_IN_BATTLE,
+    ERR_PETBATTLE_INVALID_LOADOUT,
+    ERR_PETBATTLE_ALL_PETS_DEAD,
+    ERR_PETBATTLE_NO_PETS_IN_SLOTS,
+    ERR_PETBATTLE_NO_ACCOUNT_LOCK,
+    ERR_PETBATTLE_WILD_PET_TAPPED,
+
+    ERR_PETBATTLE_NOT_WHILE_IN_MATCHED_BATTLE,
+    ERR_PETBATTLE_QUEUE_QUEUED,
+    ERR_PETBATTLE_QUEUE_ALREADY_QUEUED,
+    ERR_PETBATTLE_QUEUE_JOIN_FAILED,
+    ERR_PETBATTLE_QUEUE_JOURNAL_LOCK,
+    ERR_PETBATTLE_QUEUE_REMOVED,
+    ERR_PETBATTLE_QUEUE_PROPOSAL_DECLINED,
+    ERR_PETBATTLE_QUEUE_PROPOSAL_TIMEOUT,
+    ERR_PETBATTLE_QUEUE_OPPONENT_DECLINED,
+    ERR_PETBATTLE_QUEUE_REQUEUED_INTERNAL,
+    ERR_PETBATTLE_QUEUE_REQUEUED_REMOVED,
+    ERR_PETBATTLE_QUEUE_SLOT_LOCKED,
+    ERR_PETBATTLE_QUEUE_SLOT_EMPTY,
+    ERR_PETBATTLE_QUEUE_SLOT_NO_TRACKER,
+    ERR_PETBATTLE_QUEUE_SLOT_NO_SPECIES,
+    ERR_PETBATTLE_QUEUE_SLOT_CANT_BATTLE,
+    ERR_PETBATTLE_QUEUE_SLOT_REVOKED,
+    ERR_PETBATTLE_QUEUE_SLOT_DEAD,
+    ERR_PETBATTLE_QUEUE_SLOT_NO_PET,
+
+    ERR_PETBATTLE_QUEUE_NOT_WHILE_NEUTRAL,
+    ERR_PETBATTLE_GAME_TIME_LIMIT_WARNING,
+    ERR_PETBATTLE_GAME_ROUNDS_LIMIT_WARNING,
+
+    ERR_PETBATTLE_INTERNAL
+};
+
 enum BattlePetsMiscData
 {
     MAX_ACTIVE_BATTLE_PETS          = 3,
@@ -185,14 +234,6 @@ public:
     uint32 GetCreatureEntry() { return creatureEntry; }
     bool IsDead() { return health <= 0; }
     bool IsHurt() { return !IsDead() && health < maxHealth; }
-    uint8 GetType()
-    {
-        auto const it = sDB2Manager._battlePetSpeciesBySpellId.find(creatureEntry);
-        if (it != sDB2Manager._battlePetSpeciesBySpellId.end())
-            return it->second->petType;
-
-        return 0;
-    }
     uint32 GetAbilityID(uint8 rank);
 
 private:
@@ -374,14 +415,6 @@ public:
     uint32 GetCreatureEntry() { return creatureEntry; }
     bool IsDead() { return health <= 0; }
     bool IsHurt() { return !IsDead() && health < maxHealth; }
-    uint8 GetType()
-    {
-        auto const it = sDB2Manager._battlePetSpeciesBySpellId.find(creatureEntry);
-        if (it != sDB2Manager._battlePetSpeciesBySpellId.end())
-            return it->second->petType;
-
-        return 0;
-    }
     bool HasAbility(uint32 abilityID)
     {
         for (uint8 i = 0; i < MAX_ACTIVE_BATTLE_PET_ABILITIES; ++i)
@@ -625,7 +658,7 @@ public:
     void InitBattleSlot(ObjectGuid guid, uint8 slotID);
 
     void CloseWildPetBattle();
-    void SendUpdatePets(std::list<ObjectGuid> &updates, bool added = false);
+    void SendUpdatePets(GuidList& updates, bool added = false);
 
     void CreateWildBattle(Player* initiator, ObjectGuid wildCreatureGuid);
 
@@ -749,13 +782,6 @@ public:
 
         return true;
     }
-
-    //ToDo: WoD: check need it?
-    //ObjectGuid InverseGuid(ObjectGuid guid)
-    //{
-    //    return ((guid & 0x00000000000000FF) << 56) | ((guid & 0x000000000000FF00) << 40) | ((guid & 0x0000000000FF0000) << 24) | ((guid & 0x00000000FF000000) <<  8) |
-    //    ((guid & 0x000000FF00000000) >>  8) | ((guid & 0x0000FF0000000000) >> 24) | ((guid & 0x00FF000000000000) >> 40) | ((guid & 0xFF00000000000000) >> 56);
-    //}
 
     PetBattleWild* GetPetBattleWild() { return m_petBattleWild; }
 

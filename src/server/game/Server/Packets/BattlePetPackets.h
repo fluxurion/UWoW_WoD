@@ -459,6 +459,106 @@ namespace WorldPackets
 
             ObjectGuid BattlePetGUID;
         };
+
+        struct PetBattleActiveAura
+        {
+            int32 AbilityID = 0;
+            uint32 InstanceID = 0;
+            int32 RoundsRemaining = 0;
+            int32 CurrentRound = 0;
+            uint8 CasterPBOID = 0;
+        };
+
+        struct PetBattleActiveState
+        {
+            uint32 StateID = 0;
+            int32 StateValue = 0;
+        };
+
+        struct PetBattleActiveAbility
+        {
+            int32 AbilityID = 0;
+            int16 CooldownRemaining = 0;
+            int16 LockdownRemaining = 0;
+            int8 AbilityIndex = 0;
+            uint8 Pboid = 0;
+        };
+
+        struct PetBattlePetUpdate
+        {
+            ObjectGuid BattlePetGUID;
+            int32 SpeciesID = 0;
+            int32 DisplayID = 0;
+            int32 CollarID = 0;
+            int16 Level = 0;
+            int16 Xp = 0;
+            int32 CurHealth = 0;
+            int32 MaxHealth = 0;
+            int32 Power = 0;
+            int32 Speed = 0;
+            int32 NpcTeamMemberID = 0;
+            uint16 BreedQuality = 0;
+            uint16 StatusFlags = 0;
+            int8 Slot = 0;
+            std::string CustomName;
+            std::vector<PetBattleActiveAbility> Abilities;
+            std::vector<PetBattleActiveAura> Auras;
+            std::vector<PetBattleActiveState> States;
+        };
+
+        struct PetBattlePlayerUpdate
+        {
+            ObjectGuid CharacterID;
+            int32 TrapAbilityID = 0;
+            int32 TrapStatus = 0;
+            uint16 RoundTimeSecs = 0;
+            std::vector<PetBattlePetUpdate> Pets;
+            int8 FrontPet = 0;
+            uint8 InputFlags = 0;
+        };
+
+        struct PetBattleEnviroUpdate
+        {
+            std::vector<PetBattleActiveAura> Auras;
+            std::vector<PetBattleActiveState> States;
+        };
+
+        struct PetBattleFullUpdate
+        {
+            uint16 WaitingForFrontPetsMaxSecs = 0;
+            uint16 PvpMaxRoundTime = 0;
+            int32 CurRound = 0;
+            uint32 NpcCreatureID = 0;
+            uint32 NpcDisplayID = 0;
+            int8 CurPetBattleState = 0;
+            uint8 ForfeitPenalty = 0;
+            ObjectGuid InitialWildPetGUID;
+            bool IsPVP = false;
+            bool CanAwardXP = false;
+            PetBattlePlayerUpdate Players[2] = { };
+            PetBattleEnviroUpdate Enviros[3] = { };
+        };
+
+        class PetBattleInitialUpdate final : public ServerPacket
+        {
+        public:
+            PetBattleInitialUpdate() : ServerPacket(SMSG_PET_BATTLE_INITIAL_UPDATE, 124) { }
+
+            WorldPacket const* Write() override;
+
+            PetBattleFullUpdate MsgData;
+        };
+
+        class BattlePetError final : public ServerPacket
+        {
+        public:
+            BattlePetError() : ServerPacket(SMSG_BATTLE_PET_ERROR, 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = ::BattlepetResult::ERR_PETBATTLE_CREATE_FAILED;
+            int32 CreatureID = 0;
+        };
     }
 }
 
@@ -473,5 +573,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::FinalRound con
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::Locations const& locations);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::BattlePet::Locations& locations);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::BattlePet::InputData& locations);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattlePlayerUpdate const& update);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleEnviroUpdate const& update);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleFullUpdate const& update);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveAbility const& ability);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveState const& state);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveAura const& aura);
 
 #endif // BattlePetPacketsWorld_h__
