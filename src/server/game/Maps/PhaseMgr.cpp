@@ -447,6 +447,8 @@ bool PhaseMgr::IsConditionTypeSupported(ConditionTypes const conditionType)
         case CONDITION_SCENE_SEEN:
         case CONDITION_SCENE_TRIGER_EVENT:
         case CONDITION_QUEST_OBJECTIVE_DONE:
+        case CONDITION_AREAID:
+        case CONDITION_ZONEID:
             return true;
         default:
             return false;
