@@ -223,6 +223,8 @@ extern int main(int argc, char **argv)
 
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    realm.PopulationLevel = 0.0f;
+    realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
 
     // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
     if (int coreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
