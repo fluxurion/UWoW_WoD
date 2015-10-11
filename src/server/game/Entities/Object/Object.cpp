@@ -353,8 +353,25 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (HasMovementUpdate)
     {
         Unit const* unit = ToUnit();
+        uint32 movementFlags = unit->m_movementInfo.GetMovementFlags();
+        uint16 movementFlagsExtra = unit->m_movementInfo.GetExtraMovementFlags();
+        if (GetTypeId() == TYPEID_UNIT)
+            movementFlags &= MOVEMENTFLAG_MASK_CREATURE_ALLOWED;
+        // these break update packet
+        {
+            if (GetTypeId() == TYPEID_UNIT)
+                movementFlags &= MOVEMENTFLAG_MASK_CREATURE_ALLOWED;
+            else
+            {
+                if (movementFlags & (MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY))
+                    movementFlags &= ~(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR | MOVEMENTFLAG_FALLING_SLOW);
+                if ((movementFlagsExtra & MOVEMENTFLAG2_INTERPOLATED_TURNING) == 0)
+                    movementFlags &= ~MOVEMENTFLAG_FALLING;
+            }
+        }
+
         bool HasFallDirection = unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING);
-        bool HasFall = HasFallDirection || unit->m_movementInfo.jump.fallTime != 0;
+        bool HasFall = HasFallDirection || movementFlagsExtra & MOVEMENTFLAG2_INTERPOLATED_TURNING;
         bool HasSpline = unit->IsSplineEnabled();
 
         *data << GetPackGUID();                                         // MoverGUID
@@ -363,10 +380,19 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         *data << float(unit->GetPositionX());
         *data << float(unit->GetPositionY());
         *data << float(unit->GetPositionZ());
-        *data << float(unit->GetOrientation());
+        *data << float(G3D::fuzzyEq(unit->GetOrientation(), 0.0f) ? 0.0f : Position::NormalizeOrientation(unit->GetOrientation()));
 
-        *data << float(unit->m_movementInfo.pitch);                     // Pitch
-        *data << float(unit->m_movementInfo.splineElevation);           // StepUpStartElevation
+                                                                        // Pitch
+        if ((movementFlags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) ||
+            (movementFlagsExtra & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+            *data << float(Position::NormalizePitch(unit->m_movementInfo.pitch));
+        else
+            *data << float(0.0f);
+
+        if (movementFlags & MOVEMENTFLAG_SPLINE_ELEVATION)              // StepUpStartElevation
+            *data << float(unit->m_movementInfo.splineElevation);
+        else
+            *data << float(0.0f);
 
         uint32 removeMovementForcesCount = 0;
         *data << uint32(removeMovementForcesCount);                     // Count of RemoveForcesIDs
@@ -375,8 +401,8 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         //for (uint32 i = 0; i < removeMovementForcesCount; ++i)
         //    *data << ObjectGuid(RemoveForcesIDs);
 
-        data->WriteBits(unit->GetUnitMovementFlags(), 30);
-        data->WriteBits(unit->GetExtraUnitMovementFlags(), 15);
+        data->WriteBits(movementFlags, 30);
+        data->WriteBits(movementFlagsExtra, 15);
         data->WriteBit(!unit->m_movementInfo.transport.guid.IsEmpty()); // HasTransport
         data->WriteBit(HasFall);                                        // HasFall
         data->WriteBit(HasSpline);                                      // HasSpline - marks that the unit uses spline movement
@@ -499,7 +525,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     {
         Unit const* unit = ToUnit();
         *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->ID); // RecID
-        *data << float(unit->GetOrientation());                         // InitialRawFacing
+        *data << float(Position::NormalizeOrientation(unit->GetOrientation())); // InitialRawFacing
     }
 
     if (AnimKitCreate)
