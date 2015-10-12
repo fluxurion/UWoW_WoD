@@ -552,8 +552,6 @@ void GameObject::Update(uint32 diff)
                     m_usetimes = 0;
                 }
 
-                SetGoState(GO_STATE_READY);
-
                 //any return here in case battleground traps
                 if (GetGOInfo()->flags & GO_FLAG_NODESPAWN)
                 {
@@ -564,12 +562,15 @@ void GameObject::Update(uint32 diff)
                         SendObjectDeSpawnAnim(GetGUID());
                         m_respawnTime = time(NULL) + m_respawnDelayTime;
                         UpdateObjectVisibility();
-
                         loot.clear();
-                        SetLootState(GO_READY);
                     }
+                    //CD for using. not need as we set this state after CD launched. So just set ready state.
+                    SetGoState(GO_STATE_READY);
+                    SetLootState(GO_READY);
                     return;
                 }
+
+                SetGoState(GO_STATE_READY);
             }
 
             loot.clear();
@@ -1155,6 +1156,9 @@ void GameObject::Use(Unit* user)
     if (Player* playerUser = user->ToPlayer())
     {
         if (sScriptMgr->OnGossipHello(playerUser, this))
+            return;
+
+        if (AI()->GossipUse(playerUser))
             return;
 
         // We do not allow players to use the hidden objects.
@@ -2114,12 +2118,20 @@ void GameObject::SetGoState(GOState state)
     switch (state)
     {
         case GO_STATE_READY:
+            if (m_goInfo->SpellStateVisualID)
+                SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, m_goInfo->SpellStateVisualID);
             if(GetGOInfo()->SpellVisualID)
                 SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, GetGOInfo()->SpellVisualID);
+            if (m_goInfo->StateWorldEffectID)
+                SetUInt32Value(GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID, m_goInfo->StateWorldEffectID);
             break;
         default:
+            if (m_goInfo->SpellStateVisualID)
+                SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, m_goInfo->SpellStateVisualID);
             if(GetGOInfo()->SpellVisualID)
                 SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, 0);
+            if (m_goInfo->StateWorldEffectID)
+                SetUInt32Value(GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID, 0);
             break;
     }
 }
