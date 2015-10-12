@@ -61,26 +61,28 @@ public:
         void InitializeAI()
         { 
             Reset();
-            if (Creature *tree = go->FindNearestCreature(NPC_TREE, 5.0f))
-                tree->SetUInt32Value(UNIT_FIELD_STATE_SPELL_VISUAL_ID, 0);
-
+            events.ScheduleEvent(TEXT_GENERIC_2, 1000);
         }
 
-        bool GossipHello(Player* player) override
+        bool GossipUse(Player* player) override
         {
-            go->UseDoorOrButton(30, false, player);
+            Creature * tree = go->GetMap()->GetCreature(treeGUID);
 
-            Creature *tree = player->FindNearestCreature(NPC_TREE, 5.0f);
+            //Creature *tree = player->FindNearestCreature(NPC_TREE, 5.0f);
 
-            if (!tree || tree->GetUInt32Value(UNIT_FIELD_STATE_SPELL_VISUAL_ID) || go->IsInvisibleDueToDespawn())
-                return false;
-            
-            treeGUID = tree->GetGUID();
+            if (!tree 
+                || !tree->isAlive()
+                || tree->GetUInt32Value(UNIT_FIELD_STATE_SPELL_VISUAL_ID))
+                return true;
+            player->KillCreditGO(go->GetEntry(), go->GetGUID());
+
             tree->SetUInt32Value(UNIT_FIELD_STATE_SPELL_VISUAL_ID, 39303);
-            player->CastSpell(player, SPELL_SUMMON, true);
+            player->CastSpell(player, go->GetGOInfo()->GetSpell(), true);
             events.ScheduleEvent(TEXT_GENERIC_1, 15000);
 
-            return false;
+            go->UseDoorOrButton(30, false, player);
+            go->SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 8743);
+            return true;
         }
 
         void UpdateAI(uint32 diff)
@@ -88,10 +90,31 @@ public:
             events.Update(diff);
             while (uint32 eventId = events.ExecuteEvent())
             {
-                if (Creature * tree = go->GetMap()->GetCreature(treeGUID))
+                if (eventId == TEXT_GENERIC_1)
                 {
-                    tree->SetUInt32Value(UNIT_FIELD_STATE_SPELL_VISUAL_ID, 0);
-                    tree->ForcedDespawn();
+                    if (Creature * tree = go->GetMap()->GetCreature(treeGUID))
+                    {
+                        tree->SetUInt32Value(UNIT_FIELD_STATE_SPELL_VISUAL_ID, 0);
+                        tree->SetCorpseDelay(0);
+                        tree->SetRespawnDelay(30);
+                        tree->ForcedDespawn();
+                    }
+                }else
+                { 
+                    if (Creature *tree = go->FindNearestCreature(NPC_TREE, 5.0f))
+                    {
+                        tree->SetUInt32Value(UNIT_FIELD_STATE_SPELL_VISUAL_ID, 0);
+                        treeGUID = tree->GetGUID();
+                        if (!tree->isAlive())
+                            tree->Respawn();
+                    }
+                    else
+                    {
+                        Position pos;
+                        tree->GetRandomNearPosition(pos, 5.0f);
+                        if (TempSummon* summon = go->SummonCreature(NPC_TREE, pos))
+                            treeGUID = summon->GetGUID();
+                    }
                 }
             }
         }
@@ -134,7 +157,7 @@ public:
                 return;
             if (Creature * tree = me->GetMap()->GetCreature(treeGUID))
                 me->SetFacingToObject(tree);
-            me->HandleEmoteCommand(UNIT_NPC_EMOTESTATE);
+            me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_2);
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_WORK_CHOPWOOD_2);
         }
 
