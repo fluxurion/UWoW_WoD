@@ -48,7 +48,8 @@ void PhaseMgr::RemoveUpdateFlag(PhaseUpdateFlag updateFlag)
 {
     _UpdateFlags &= ~updateFlag;
 
-    if (updateFlag == PHASE_UPDATE_FLAG_ZONE_UPDATE)
+    if (updateFlag == PHASE_UPDATE_FLAG_ZONE_UPDATE ||
+        updateFlag == PHASE_UPDATE_FLAG_AREA_UPDATE)
     {
         // Update zone changes
         if (phaseData.HasActiveDefinitions())
