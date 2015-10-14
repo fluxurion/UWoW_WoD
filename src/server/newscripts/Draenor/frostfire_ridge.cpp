@@ -52,7 +52,8 @@ public:
         enum data
         {
             SPELL_SUMMON = 160657,
-            NPC_TREE = 79525
+            NPC_TREE = 79525,
+            __QUEST = 34375,
         };
 
         EventMap events;
@@ -66,9 +67,10 @@ public:
 
         bool GossipUse(Player* player) override
         {
-            Creature * tree = go->GetMap()->GetCreature(treeGUID);
+            if (player->GetQuestStatus(__QUEST) != QUEST_STATUS_INCOMPLETE)
+                return true;
 
-            //Creature *tree = player->FindNearestCreature(NPC_TREE, 5.0f);
+            Creature * tree = go->GetMap()->GetCreature(treeGUID);
 
             if (!tree 
                 || !tree->isAlive()
@@ -170,7 +172,7 @@ public:
                 return;
             }
             me->PlayDirectSound(SOUNDID, player);
-            if (Creature *tree = player->FindNearestCreature(NPC_TREE, 5.0f))
+            if (Creature *tree = player->FindNearestCreature(NPC_TREE, 10.0f))
             {
                 Position pos;
                 tree->GetRandomNearPosition(pos, 5.0f);
