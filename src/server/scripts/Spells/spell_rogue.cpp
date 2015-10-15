@@ -529,7 +529,7 @@ class spell_rog_redirect : public SpellScriptLoader
                     if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
                         return SPELL_FAILED_DONT_REPORT;
 
-                    if (!GetCaster()->ToPlayer()->GetComboPoints())
+                    if (!GetCaster()->ToPlayer()->GetComboPoints(GetSpellInfo()->Id))
                         return SPELL_FAILED_NO_COMBO_POINTS;
                 }
                 else
@@ -544,7 +544,7 @@ class spell_rog_redirect : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        uint8 cp = _player->GetComboPoints();
+                        uint8 cp = _player->GetComboPoints(GetSpellInfo()->Id);
 
                         if (cp > 5)
                             cp = 5;
@@ -986,7 +986,7 @@ class spell_rog_eviscerate : public SpellScriptLoader
                     }
                     if (target && caster->HasAura(14171) || caster->HasAura(14172))
                     {
-                        uint8 comboPoint = caster->m_movedPlayer ? caster->m_movedPlayer->GetComboPoints() : 1;
+                        uint8 comboPoint = caster->m_movedPlayer ? caster->m_movedPlayer->GetComboPoints(GetSpellInfo()->Id) : 1;
                         uint32 chance = 10 * comboPoint;
                         if(caster->HasAura(14172))
                             chance *= 2;
@@ -1332,7 +1332,7 @@ class spell_rog_internal_bleeding : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Player* plyarr = caster->ToPlayer())
-                        amount *= plyarr->GetComboPoints();
+                        amount *= plyarr->GetComboPoints(GetSpellInfo()->Id);
             }
 
             void Register()

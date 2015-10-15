@@ -1209,7 +1209,7 @@ class spell_dru_ferocious_bite : public SpellScriptLoader
             void HandleBeforeCast()
             {
                 if (GetCaster()->ToPlayer())
-                    comboPoints = GetCaster()->ToPlayer()->GetComboPoints();
+                    comboPoints = GetCaster()->ToPlayer()->GetComboPoints(GetSpellInfo()->Id);
             }
 
             void HandleOnHit()
@@ -1299,7 +1299,7 @@ class spell_dru_rip : public SpellScriptLoader
             void HandleBeforeCast()
             {
                 if (GetCaster()->ToPlayer())
-                    comboPoints = GetCaster()->ToPlayer()->GetComboPoints();
+                    comboPoints = GetCaster()->ToPlayer()->GetComboPoints(GetSpellInfo()->Id);
             }
 
             void HandleOnHit()

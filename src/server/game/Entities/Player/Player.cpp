@@ -25265,7 +25265,7 @@ void Player::GainSpellComboPoints(int8 count)
 
 uint8 Player::GetComboPoints(uint32 spellId)
 {
-    uint8 add = m_comboPoints;
+    uint8 add = 0;
     uint8 cost = 5;
     uint8 mod = 0;
     if(HasAura(138148))

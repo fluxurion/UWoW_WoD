@@ -3068,6 +3068,12 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     if (unitTarget->GetMaxPower(power) == 0)
         return;
 
+    if(power == POWER_COMBO_POINTS) //Hack for used old CP system
+    {
+        EffectAddComboPoints(effIndex);
+        return;
+    }
+
     // Some level depends spells
     int level_multiplier = 0;
     int level_diff = 0;
@@ -5926,7 +5932,7 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
             return;
     }
 
-    if (m_spellInfo->Id == 139546 || m_spellInfo->Id == 144859) //Add CP after use old CP
+    if (/*m_spellInfo->Id == 139546 || */m_spellInfo->Id == 144859) //Add CP after use old CP
         m_caster->m_movedPlayer->SaveAddComboPoints(damage);
     else
         m_caster->m_movedPlayer->AddComboPoints(unitTarget, damage, this);
