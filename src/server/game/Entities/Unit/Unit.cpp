@@ -18712,6 +18712,8 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                     if(Player* player = target->ToPlayer())
                     {
                         uint32 triggered_spell_id = abs(itr->spell_trigger);
+                        if(!triggered_spell_id)
+                            triggered_spell_id = procSpell->Id;
                         if(itr->aura && !procSpell)
                             continue;
                         if(itr->aura && procSpell && itr->aura != procSpell->Id)

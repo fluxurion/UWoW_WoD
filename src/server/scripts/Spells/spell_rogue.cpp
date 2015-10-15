@@ -484,19 +484,16 @@ class spell_rog_venomous_wounds : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (Unit* target = GetTarget())
-                    {
                         AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
                         if (removeMode == AURA_REMOVE_BY_DEATH)
                         {
                             if (Aura* rupture = aurEff->GetBase())
                             {
-                                // If an enemy dies while afflicted by your Rupture, you regain energy proportional to the remaining Rupture duration
-                                int32 duration = int32(rupture->GetDuration() / 1000);
-                                caster->CastCustomSpell(caster, ROGUE_SPELL_VENOMOUS_VIM_ENERGIZE, &duration, NULL, NULL, true);
+                                float perc = rupture->GetDuration() / rupture->GetMaxDuration();
+                                int32 bp = int32(caster->GetMaxPower(POWER_ENERGY) * perc);
+                                caster->CastCustomSpell(caster, ROGUE_SPELL_VENOMOUS_VIM_ENERGIZE, &bp, NULL, NULL, true);
                             }
                         }
-                    }
                 }
             }
 
