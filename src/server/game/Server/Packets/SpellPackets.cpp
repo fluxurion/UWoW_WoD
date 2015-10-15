@@ -577,9 +577,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHistoryEntry
 {
     data << uint32(historyEntry.SpellID);
     data << uint32(historyEntry.ItemID);
-    data << uint32(historyEntry.Category);
-    data << int32(historyEntry.RecoveryTime);
-    data << int32(historyEntry.CategoryRecoveryTime);
+    if(historyEntry.OnHold)
+    {
+        data << uint32(historyEntry.Category);
+        data << int32(historyEntry.RecoveryTime);
+        data << int32(historyEntry.CategoryRecoveryTime);
+    }
+    else
+    {
+        data << uint32(0);
+        data << int32(historyEntry.RecoveryTime);
+        data << int32(0);
+    }
     data.WriteBit(historyEntry.OnHold);
     data.FlushBits();
 
