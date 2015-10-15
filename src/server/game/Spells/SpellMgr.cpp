@@ -4207,7 +4207,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                     spellInfo->Effects[EFFECT_1].Scaling.Coefficient = 0;
                     spellInfo->Effects[EFFECT_1].Scaling.Variance = 0;
-                    spellInfo->Effects[EFFECT_1].BonusCoefficient = 0.91f;
                     break;
                 case 24340: // Meteor
                 case 26558: // Meteor

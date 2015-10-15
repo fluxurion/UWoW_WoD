@@ -1464,6 +1464,19 @@ class spell_pal_judgment : public SpellScriptLoader
                             }
                         }
                     }
+
+
+                    if (caster->HasAura(20154) && caster->HasAura(152263))
+                        caster->AddAura(156989, caster);
+
+                    if (caster->HasAura(31801) && caster->HasAura(152263))
+                        caster->AddAura(156990, caster);
+
+                    if (caster->HasAura(20164) && caster->HasAura(152263))
+                        caster->AddAura(156987, caster);
+
+                    if (caster->HasAura(20165) && caster->HasAura(152263))
+                        caster->AddAura(156988, caster);
                 }
             }
 
