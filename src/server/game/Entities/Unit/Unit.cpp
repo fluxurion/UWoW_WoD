@@ -3142,18 +3142,6 @@ float Unit::GetUnitParryChance() const
     return chance > 0.0f ? chance : 0.0f;
 }
 
-float Unit::GetUnitMissChance(WeaponAttackType attType) const
-{
-    float miss_chance = 3.00f;
-
-    if (attType == RANGED_ATTACK)
-        miss_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE);
-    else
-        miss_chance -= GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE);
-
-    return miss_chance;
-}
-
 float Unit::GetUnitBlockChance() const
 {
     if (!HasAuraWithAttribute(10, SPELL_ATTR10_CAN_PARRY_DODGE_BLOCK) && (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED)))
@@ -21413,19 +21401,16 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage, bool isCrit) const
 // Crit or block - determined on damage calculation phase! (and can be both in some time)
 float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, uint32 spellId) const
 {
-    //calculate miss chance
-    float missChance = victim->GetUnitMissChance(attType);
-
-    // for example
-    // | caster | target | miss 
-    //    90        90      3
-    //    90        91     4.5
-    //    90        92      6
-    //    90        93     7.5
+    float missChance = 0.0f;
 
     int16 level_diff = victim->getLevel() - getLevel();
-    missChance += 1.5f * level_diff;
+    if (level_diff > 4)
+        missChance +=  1.5f * level_diff;
 
+    if (attType == RANGED_ATTACK)
+        missChance -= GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE);
+    else
+        missChance -= GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE);
 
     if (!spellId && haveOffhandWeapon())
         missChance += 19;
@@ -21452,6 +21437,7 @@ float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, u
         return 0.0f;
     if (missChance > 100.0f)
         return 100.0f;
+
     return missChance;
 }
 
