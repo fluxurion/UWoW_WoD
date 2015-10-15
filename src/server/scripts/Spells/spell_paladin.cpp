@@ -196,15 +196,15 @@ class spell_pal_sacred_shield : public SpellScriptLoader
                             int32 amount = 0;
                             switch(_player->GetSpecializationId(_player->GetActiveSpec()))
                             {
-                                case SPEC_PALADIN_HOLY:
-                                case SPEC_PALADIN_RETRIBUTION:
-                                    amount = int32(343 + caster->GetSpellPowerDamage(SPELL_SCHOOL_MASK_HOLY) * 1.17f);
-                                    break;
                                 case SPEC_PALADIN_PROTECTION:
-                                    amount = int32(240 + caster->GetSpellPowerDamage(SPELL_SCHOOL_MASK_HOLY) * 0.819f);
+                                case SPEC_PALADIN_RETRIBUTION:
+                                    amount = int32(caster->GetSpellPowerDamage(SPELL_SCHOOL_MASK_HOLY) * 1.306f);
+                                    break;
+                                case SPEC_PALADIN_HOLY:
+                                    amount = int32(caster->GetSpellPowerDamage(SPELL_SCHOOL_MASK_HOLY) * 0.995f);
                                     break;
                             }
-                            _player->CastCustomSpell(target, PALADIN_SPELL_SACRED_SHIELD, &amount, NULL, NULL, true, NULL, aurEff);
+                            _player->CastCustomSpell(target, PALADIN_SPELL_SACRED_SHIELD, &amount, nullptr, nullptr, true, nullptr, aurEff);
                         }
                 }
             }
