@@ -103,7 +103,7 @@ enum class HighGuid
     UserRouter       = 38,
     PVPQueueGroup    = 39,
     UserClient       = 40,
-    PetBattle        = 41,  //NYI
+    PetBattle        = 41,
     UniqueUserClient = 42,
     BattlePet        = 43,
 

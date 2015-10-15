@@ -4245,48 +4245,22 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 learnSpell(prev_spell, true);
         }
 
-        if(spellInfo->IsMountOrCompanions())
+        if (spellInfo->IsMountOrCompanions())
         {
             // added battlepets
             uint32 petEntry = spellInfo->GetBattlePetEntry();
-            if(petEntry)
+            if (petEntry)
             {
                 if (BattlePetSpeciesEntry const* spEntry = sDB2Manager.GetBattlePetSpeciesEntry(petEntry))
                 {
-                    if (CreatureTemplate const* creature = sObjectMgr->GetCreatureTemplate(petEntry))
+                    ObjectGuid::LowType petguid = GetBattlePetMgr()->GetPetGUIDBySpell(spellInfo->Id);
+                    uint32 petCount = GetBattlePetMgr()->GetPetCount(spEntry->CreatureEntry);
+                    if (petguid && petCount < 1)
                     {
-                        // check exist pet in journal
-                        ObjectGuid petguid = GetBattlePetMgr()->GetPetGUIDBySpell(spellInfo->Id);
-                        // hardcode hack check on pet count
-                        uint32 petCount = GetBattlePetMgr()->GetPetCount(creature->Entry);
-                        if (petguid.IsEmpty() && petCount < 1)
-                        {
-                            petguid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>()->Generate());
-                            // generate stats
-                            // quality must be generated!
-                            // level, depends of pet source
-                            uint16 breedID = GetBattlePetMgr()->GetRandomBreedID(spEntry->ID);
-                            uint8 quality = 2;
-                            uint8 level = 1;
-                            BattlePetStatAccumulator* accumulator = new BattlePetStatAccumulator(spEntry->ID, breedID);
-                            accumulator->CalcQualityMultiplier(quality, level);
-                            uint32 health = accumulator->CalculateHealth();
-                            uint32 power = accumulator->CalculatePower();
-                            uint32 speed = accumulator->CalculateSpeed();
-                            delete accumulator;
-                            GetBattlePetMgr()->AddPetToList(petguid, spEntry->ID, petEntry, level, creature->Modelid1, power, speed, health, health, quality, 0, 0, spellInfo->Id, "", breedID, STATE_UPDATED);
-                            if (learning)
-                            {
-                                GuidList newPets;
-                                newPets.clear();
-                                newPets.push_back(petguid);
-
-                                GetBattlePetMgr()->SendUpdatePets(newPets, true);
-                            }
-                            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, petEntry);
-                            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OBTAIN_BATTLEPET, spEntry->ID);
-                            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_BATTLEPET);
-                        }
+                        GetBattlePetMgr()->AddPet(spEntry->ID, petEntry, GetBattlePetMgr()->GetRandomBreedID(spEntry->ID), GetBattlePetMgr()->GetRandomQuailty());
+                        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, petEntry);
+                        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OBTAIN_BATTLEPET, spEntry->ID);
+                        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_BATTLEPET);
                     }
                 }
             }
@@ -13331,8 +13305,6 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
         for (int32 bonusListID : bonusListIDs)
             pItem->AddBonuses(bonusListID);
 
-        /*if (petData)
-            pItem->SetItemBattlePet(petData, true);*/
         pItem = StoreItem(dest, pItem, update);
 
         if (allowedLooters.size() > 1 && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
@@ -15590,7 +15562,7 @@ void Player::SendItemDurations()
         (*itr)->SendTimeUpdate(this);
 }
 
-void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast, PetJournalInfo * petInfo, bool bonusRoll)
+void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast, BattlePetMgr::BattlePet* petInfo /*= nullptr*/, bool bonusRoll)
 {
     if (!item)                                               // prevent crash
         return;
@@ -15605,10 +15577,13 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     packet.QuestLogItemID = 0;
     packet.Quantity = count;
     packet.QuantityInInventory = GetItemCount(item->GetEntry());
-    packet.BattlePetBreedID = petInfo ? petInfo->GetBreedID() : 0;
-    packet.BattlePetBreedQuality = petInfo ? petInfo->GetQuality() : 0;
-    packet.BattlePetSpeciesID = petInfo ? petInfo->GetSpeciesID() : 0;
-    packet.BattlePetLevel = petInfo ? petInfo->GetLevel() : 0;
+    if (petInfo)
+    {
+        packet.BattlePetBreedID = petInfo->PacketInfo.BreedID;
+        packet.BattlePetBreedQuality = petInfo->PacketInfo.BreedQuality;
+        packet.BattlePetSpeciesID = petInfo->PacketInfo.SpeciesID;
+        packet.BattlePetLevel = petInfo->PacketInfo.Level;
+    }
     packet.Pushed = received;
     packet.IsEncounterLoot = false;
     packet.Created = created;
@@ -18855,8 +18830,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     }
 
     // load battle pets journal ans slots before spells and other
-    _LoadBattlePets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PETS));
-    _LoadBattlePetSlots(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PET_SLOTS));
+    GetBattlePetMgr()->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PETS),
+                                  holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PET_SLOTS));
 
     // load skills after InitStatsForLevel because it triggering aura apply also
     _LoadSkills(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSKILLS));
@@ -20254,88 +20229,6 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
     while (result->NextRow());
 }
 
-void Player::_LoadBattlePets(PreparedQueryResult result)
-{
-    if (!result)
-        return;
-
-    do
-    {
-        // SELECT guid, customName, creatureEntry, speciesID, spell, level, displayID, power, speed, health, maxHealth, quality, xp, flags FROM character_battle_pet_journal WHERE ownerAccID = ?
-        Field* fields = result->Fetch();
-
-        ObjectGuid guid = ObjectGuid::Create<HighGuid::BattlePet>(fields[0].GetUInt64());
-        std::string customName = fields[1].GetString();
-        uint32 creatureEntry = fields[2].GetUInt32();
-        uint32 speciesID = fields[3].GetUInt32();
-        uint32 spell = fields[4].GetUInt32();
-        uint8 level = fields[5].GetUInt8();
-        uint32 displayID = fields[6].GetUInt32();
-        uint16 power = fields[7].GetUInt16();
-        uint16 speed = fields[8].GetUInt16();
-        uint32 health = fields[9].GetUInt32();
-        uint32 maxHealth = fields[10].GetUInt32();
-        uint8 quality = fields[11].GetUInt8();
-        uint16 xp = fields[12].GetUInt16();
-        uint16 flags = fields[13].GetUInt16();
-        int16 breedID = fields[14].GetUInt16();
-
-        // recalculate stats after change breed
-        if (!breedID)
-        {
-            breedID = GetBattlePetMgr()->GetRandomBreedID(speciesID);
-
-            if (!breedID)
-                continue;
-
-            float pct = float(health * 100.0f) / maxHealth;
-
-            BattlePetStatAccumulator* accumulator = new BattlePetStatAccumulator(speciesID, breedID);
-            accumulator->CalcQualityMultiplier(quality, level);
-            maxHealth = accumulator->CalculateHealth();
-            power = accumulator->CalculatePower();
-            speed = accumulator->CalculateSpeed();
-            delete accumulator;
-
-            if (pct != 100.0f)
-                health = int32(maxHealth * float(pct / 100.0f));
-            else
-                health = maxHealth;
-        }
-
-        // prevent some undefined behavoir
-        if (health > maxHealth)
-            health = maxHealth;
-
-        GetBattlePetMgr()->AddPetToList(guid, speciesID, creatureEntry, level, displayID, power, speed, health, maxHealth, quality, xp, flags, spell, customName, breedID, STATE_NORMAL);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, creatureEntry);
-    }
-    while (result->NextRow());
-}
-
-void Player::_LoadBattlePetSlots(PreparedQueryResult result)
-{
-    if (!result)
-    {
-        // initial first
-        for (int i = 0; i < MAX_ACTIVE_BATTLE_PETS; ++i)
-            GetBattlePetMgr()->InitBattleSlot(ObjectGuid::Empty, i);
-        return;
-    }
-
-    // SELECT slot_0, slot_1, slot_2 FROM character_battle_pet WHERE ownerAccID = ?
-    Field* fields = result->Fetch();
-
-    ObjectGuid petGUIDs[3] = { ObjectGuid::Empty, ObjectGuid::Empty, ObjectGuid::Empty };
-
-    petGUIDs[0] = ObjectGuid::Create<HighGuid::BattlePet>(fields[0].GetUInt64());
-    petGUIDs[1] = ObjectGuid::Create<HighGuid::BattlePet>(fields[1].GetUInt64());
-    petGUIDs[2] = ObjectGuid::Create<HighGuid::BattlePet>(fields[2].GetUInt64());
-
-    for (int i = 0; i < MAX_ACTIVE_BATTLE_PETS; ++i)
-        GetBattlePetMgr()->InitBattleSlot(petGUIDs[i], i);
-}
-
 void Player::_LoadGroup(PreparedQueryResult result)
 {
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUID().GetCounter());
@@ -21249,8 +21142,6 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveCurrency(trans);
     _SaveCUFProfiles(trans);
     _SaveArchaeology(trans);
-    _SaveBattlePets(trans);
-    _SaveBattlePetSlots(trans);
     _SaveHonor();
     _SaveLootCooldown(trans);
     if (_garrison)
@@ -21258,6 +21149,8 @@ void Player::SaveToDB(bool create /*=false*/)
        
     if (_collectionMgr)
         _collectionMgr->SaveToDB(trans);
+
+    GetBattlePetMgr()->SaveToDB(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -22183,69 +22076,6 @@ void Player::_SaveCUFProfiles(SQLTransaction& trans)
             trans->Append(stmt);
         }
     }
-}
-
-void Player::_SaveBattlePets(SQLTransaction& trans)
-{
-    PetJournal journal = GetBattlePetMgr()->GetPetJournal();
-
-    // nothing to save
-    if (journal.empty())
-        return;
-
-    // save journal
-    for (PetJournal::const_iterator pet = journal.begin(); pet != journal.end(); ++pet)
-    {
-        PetJournalInfo* pjInfo = pet->second;
-
-        if (!pjInfo)
-            continue;
-
-        if (pjInfo->GetState() == STATE_DELETED)
-        {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_BATTLE_PET_LIST);
-            stmt->setUInt32(0, GetSession()->GetAccountId());
-            stmt->setUInt64(1, pet->first.GetCounter());
-            trans->Append(stmt);
-        }
-        else if (pjInfo->GetState() == STATE_UPDATED)
-        {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SAVE_ACCOUNT_BATTLE_PET_LIST);
-            stmt->setUInt32(0, GetSession()->GetAccountId());
-            stmt->setUInt64(1, pet->first.GetCounter());
-            stmt->setString(2, pjInfo->GetCustomName());
-            stmt->setUInt32(3, pjInfo->GetCreatureEntry());
-            stmt->setInt32(4, pjInfo->GetSpeciesID());
-            stmt->setInt32(5, pjInfo->GetSummonSpell());
-            stmt->setUInt8(6, pjInfo->GetLevel());
-            stmt->setInt32(7, pjInfo->GetDisplayID());
-            stmt->setUInt16(8, pjInfo->GetPower());
-            stmt->setUInt16(9, pjInfo->GetSpeed());
-            stmt->setInt32(10, pjInfo->GetHealth());
-            stmt->setInt32(11, pjInfo->GetMaxHealth());
-            stmt->setUInt8(12, pjInfo->GetQuality());
-            stmt->setUInt16(13, pjInfo->GetXP());
-            stmt->setUInt16(14, pjInfo->GetFlags());
-            stmt->setInt16(15, pjInfo->GetBreedID());
-
-            trans->Append(stmt);
-
-            pjInfo->SetState(STATE_NORMAL);
-        }
-    }
-}
-
-void Player::_SaveBattlePetSlots(SQLTransaction& trans)
-{
-    // save slots
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SAVE_ACCOUNT_BATTLE_PET_SLOTS);
-    stmt->setUInt32(0, GetSession()->GetAccountId());
-    for (int i = 0; i < 3; ++i)
-    {
-        PetBattleSlot * slot = GetBattlePetMgr()->GetPetBattleSlot(i);
-        stmt->setUInt64(i+1, slot ? slot->GetPet() : 0);
-    }
-    trans->Append(stmt);
 }
 
 // save player stats -- only for external usage
@@ -25322,13 +25152,13 @@ void Player::SendInitialPacketsBeforeAddToMap()
 {
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
     GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
+    
+    GetSession()->SendPacket(WorldPackets::BattlePet::NullSMsg(SMSG_BATTLE_PET_JOURNAL_LOCK_ACQUIRED/* : SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED*/).Write());
 
     /// SMSG_CATEGORY_COOLDOWN
     SendCategoryCooldownMods();
 
     // guild bank list wtf?
-
-    GetSession()->SendPacket(WorldPackets::BattlePet::NullSMsg(SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED).Write());
 
     /// SMSG_BIND_POINT_UPDATE
     SendBindPointUpdate();
@@ -25486,12 +25316,6 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (_garrison)
         _garrison->SendRemoteInfo();
-
-    WorldPackets::BattlePet::Journal journal;
-    journal.Initialize(GetBattlePetMgr()->GetPetJournal(), GetBattlePetMgr()->GetPetBattleSlots(), GetBattlePetMgr(), this);
-    journal.HasJournalLock = false;
-    journal.TrapLevel = 0;
-    GetSession()->SendPacket(journal.Write());
 
     // send timers if already start challenge for example
     if (!GetMap()->IsGarrison())

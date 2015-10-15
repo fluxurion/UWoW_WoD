@@ -3710,53 +3710,36 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 }
                 case SUMMON_TYPE_MINIPET:
                 {
-                    ObjectGuid guid = m_caster->GetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID);
-                    if (PetJournalInfo * petInfo = m_caster->ToPlayer()->GetBattlePetMgr()->GetPetInfoByPetGUID(guid))
+                    summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_targets.GetUnitTargetGUID(), m_spellInfo->Id);
+
+                    if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
+                        return;
+
+                    summon->SelectLevel(summon->GetCreatureTemplate());       // some summoned creaters have different from 1 DB data for level/hp
+                    summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
+
+                    summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+
+                    // handle unique pets with the only creatureEntry and existing summonSpellID
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Id != SPELL_SUMMON_BATTLE_PET && sDB2Manager.GetBattlePetSpeciesBySpellID(summon->GetEntry()))
                     {
-                        if (!petInfo)
-                            return;
-
-                        summon = m_caster->GetMap()->SummonCreature(petInfo->GetCreatureEntry(), *destTarget, properties, duration, m_originalCaster, m_targets.GetUnitTargetGUID(), m_spellInfo->Id);
-
-                        if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
-                            return;
-
-                        // summoner operation fields
-                        //m_caster->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, battlePetGUID);
-                        m_caster->SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, petInfo->GetQuality());
-                        m_caster->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, petInfo->GetLevel());
-
-                        // summon operation fields
-                        summon->SetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID, guid);
-                        // timestamp for custom name cache
-                        if (petInfo->GetCustomName() != "")
-                            summon->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, time(NULL));
-                        // level for client
-                        summon->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, petInfo->GetLevel());
-                        // some pet data
-                        summon->SetLevel(summon->GetCreatureTemplate()->maxlevel);       // some summoned creaters have different from 1 DB data for level/hp
-                        summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
-
-                        summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-
-                        // not flag for summons battle pets
-                        if (summon->GetCreatureTemplate()->type == CREATURE_TYPE_WILD_PET)
-                            summon->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-
-                        summon->SetHealth(petInfo->GetHealth());
-                        summon->SetMaxHealth(petInfo->GetMaxHealth());
-                        // more....
+                        ObjectGuid::LowType battlePetGUIDlow = m_caster->ToPlayer()->GetBattlePetMgr()->GetPetGUIDBySpell(m_spellInfo->Id);
+                        if (battlePetGUIDlow)
+                        {
+                            if (auto petInfo = m_caster->ToPlayer()->GetBattlePetMgr()->GetPet(ObjectGuid::Create<HighGuid::BattlePet>(battlePetGUIDlow)))
+                            {
+                                m_caster->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, ObjectGuid::Create<HighGuid::BattlePet>(battlePetGUIDlow));
+                                summon->SetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID, ObjectGuid::Create<HighGuid::BattlePet>(battlePetGUIDlow));
+                                if (petInfo->PacketInfo.CustomName != "")
+                                    summon->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, time(nullptr));
+                                m_caster->SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, petInfo->PacketInfo.BreedQuality);
+                                summon->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, petInfo->PacketInfo.Level);
+                                summon->SetHealth(petInfo->PacketInfo.Health);
+                                summon->SetMaxHealth(petInfo->PacketInfo.MaxHealth);
+                            }
+                        }
                     }
-                    else
-                        //!!!!!!!!!!!!!!! WARNING!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        //- -----------------------------------------------
-                        ObjectGuid battlePetGUID/* = summonBattlePetGuid*/;
-                    {
-                        summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_targets.GetUnitTargetGUID(), m_spellInfo->Id);
 
-                        if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
-                            return;
-                    }
                     summon->AI()->EnterEvadeMode();
                     break;
                 }
@@ -8348,53 +8331,39 @@ void Spell::EffectUncageBattlePet(SpellEffIndex effIndex)
         return;
 
     Player* player = m_caster->ToPlayer();
-
     if (!player)
         return;
 
-    // get data from cage
     uint32 speciesID = m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
-    uint32 tempData = m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_BREED_DATA);    //(breedId) | (breedQuality << 24)
-    uint32 level = m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_LEVEL);
-    uint32 quality = tempData >> 24;
-    uint32 breedID = tempData & 0xFF;
+    uint32 tempData = m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_BREED_DATA);
 
-    if (BattlePetSpeciesEntry const* bp = sBattlePetSpeciesStore.LookupEntry(speciesID))
+    BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(speciesID);
+    if (!speciesEntry)
+        return;
+
+    BattlePetMgr* battlePetMgr = player->GetBattlePetMgr();
+    if (!battlePetMgr)
+        return;
+
+    if (battlePetMgr->GetPetCount(speciesID) >= MAX_ACTIVE_BATTLE_PETS)
     {
-        // TODO: fix it
-        if (player->HasActiveSpell(bp->spellId))
-            return;
-        // create new pet guid
-        ObjectGuid petguid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>()->Generate());
-        // add pet
-        if (CreatureTemplate const* creature = sObjectMgr->GetCreatureTemplate(bp->CreatureEntry))
-        {
-            // init stats for uncage
-            BattlePetStatAccumulator* accumulator = new BattlePetStatAccumulator(speciesID, breedID);
-            accumulator->CalcQualityMultiplier(quality, level);
-            uint32 health = accumulator->CalculateHealth();
-            uint32 power = accumulator->CalculatePower();
-            uint32 speed = accumulator->CalculateSpeed();
-            delete accumulator;
-            player->GetBattlePetMgr()->AddPetToList(petguid, bp->ID, bp->CreatureEntry, level, creature->Modelid1, power, speed, health, health, quality, 0, 0, bp->spellId, "", breedID, STATE_UPDATED);
-        }
-        GuidList updates;
-        updates.clear();
-        updates.push_back(petguid);
-        // update for client
-        player->GetBattlePetMgr()->SendUpdatePets(updates, true);
-        // learn pet spell, hack, TODO: fix it
-        player->learnSpell(bp->spellId, false);
-        // destroy the cage
-        uint32 count = 1;
-        player->DestroyItemCount(m_CastItem, count, true);
-
-        // prevent crash at access to deleted m_targets.GetItemTarget
-        if (m_CastItem == m_targets.GetItemTarget())
-            m_targets.SetItemTarget(NULL);
-
-        m_CastItem = NULL;
+        battlePetMgr->SendError(BATTLEPETRESULT_CANT_HAVE_MORE_PETS_OF_THAT_TYPE, speciesEntry->CreatureEntry);
+        SendCastResult(SPELL_FAILED_CANT_ADD_BATTLE_PET);
+        return;
     }
+
+    // learn pet spell, hack, TODO: fix it
+    if (!player->HasSpell(speciesEntry->spellId))
+        player->learnSpell(speciesEntry->spellId, false);
+
+    battlePetMgr->AddPet(speciesID, speciesEntry->CreatureEntry, tempData & 0xFF, tempData >> 24, m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_LEVEL));
+    player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+    
+    // prevent crash at access to deleted m_targets.GetItemTarget
+    if (m_CastItem == m_targets.GetItemTarget())
+        m_targets.SetItemTarget(nullptr);
+
+    m_CastItem = nullptr;
 }
 
 void Spell::EffectUnlockPetBattles(SpellEffIndex effIndex)
@@ -8403,13 +8372,14 @@ void Spell::EffectUnlockPetBattles(SpellEffIndex effIndex)
         return;
 
     Player* player = m_caster->ToPlayer();
-
     if (!player)
         return;
 
-    // unlock battles
     if (!player->HasFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED))
+    {
         player->SetFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_PET_BATTLES_UNLOCKED);
+        player->GetBattlePetMgr()->UnlockSlot(0);
+    }
 }
 
 void Spell::EffectHealBattlePetPct(SpellEffIndex effIndex)
@@ -8418,34 +8388,12 @@ void Spell::EffectHealBattlePetPct(SpellEffIndex effIndex)
         return;
 
     Player* player = m_caster->ToPlayer();
-
     if (!player)
         return;
 
-    PetJournal journal = player->GetBattlePetMgr()->GetPetJournal();
-
-    // healed/revived hurt pets
-    GuidList updates;
-    updates.clear();
-    for (PetJournal::const_iterator j = journal.begin(); j != journal.end(); ++j)
-    {
-        PetJournalInfo * petInfo = j->second;
-
-        if (!petInfo)
-            continue;
-
-        // calc health restore pct
-        int32 healthPct = m_spellInfo->GetEffect(effIndex, m_diffMode)->CalcValue(m_caster);
-        if (petInfo->IsDead() || petInfo->IsHurt())
-        {
-            int32 restoreHealth = int32(petInfo->GetMaxHealth() * healthPct / 100.0f);
-            petInfo->SetHealth(restoreHealth);
-            petInfo->SetState(STATE_UPDATED);
-            updates.push_back(j->first);
-        }
-    }
-
-    player->GetBattlePetMgr()->SendUpdatePets(updates);
+    BattlePetMgr* battlePetMgr = player->GetBattlePetMgr();
+    if (battlePetMgr)
+        battlePetMgr->HealBattlePetsPct(m_spellInfo->GetEffect(effIndex, m_diffMode)->CalcValue(m_caster));
 }
 
 //! Based on SPELL_EFFECT_ACTIVATE_SCENE3 spell 117790

@@ -21,73 +21,377 @@
 #include "BattlePetMgr.h"
 #include "BattlePetPackets.h"
 
-BattlePetMgr::BattlePetMgr(Player* owner) : m_player(owner), m_petBattleWild(nullptr)
+void BattlePetMgr::Initialize()
+{ }
+
+BattlePetMgr::BattlePetMgr(Player* owner) : _player(owner), _petBattle(nullptr)
 {
-    // clear journal
-    m_PetJournal.clear();
-    // clear slots
-    m_battleSlots.clear();
+    for (uint8 i = 0; i < MAX_ACTIVE_BATTLE_PETS; ++i)
+    {
+        WorldPackets::BattlePet::BattlePetSlot slot;
+        slot.SlotIndex = i;
+        _slots.push_back(slot);
+    }
+
+    _queueTimer = 0;
+    _waitTimesAvgStore = 0;
 }
 
-void BattlePetMgr::AddPetToList(ObjectGuid guid, uint32 speciesID, uint32 creatureEntry, uint8 level, uint32 display, uint16 power, uint16 speed, uint32 health, uint32 maxHealth, uint8 quality, uint16 xp, uint16 flags, uint32 spellID, std::string customName, int16 breedID, uint8 state)
+BattlePetMgr::~BattlePetMgr()
 {
-    m_PetJournal[guid] = new PetJournalInfo(speciesID, creatureEntry, level, display, power, speed, health, maxHealth, quality, xp, flags, spellID, customName, breedID, state);
+    _compatibleMapStore.clear();
+    _queueDataStore.clear();
+    _currentQueueStore.clear();
+    _newToQueueStore.clear();
 }
 
-void BattlePetMgr::InitBattleSlot(ObjectGuid guid, uint8 index)
+bool BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slots)
 {
-    m_battleSlots[index] = new PetBattleSlot(guid);
+    if (pets)
+    {
+        do
+        {
+            // SELECT guid, customName, creatureEntry, speciesID, spell, level, displayID, power, speed, health, maxHealth, quality, xp, flags FROM character_battle_pet_journal WHERE ownerAccID = ?
+            Field* fields = pets->Fetch();
+
+            BattlePet pet;
+            pet.PacketInfo.BattlePetGUID = ObjectGuid::Create<HighGuid::BattlePet>(fields[0].GetUInt64());
+            pet.PacketInfo.CustomName = fields[1].GetString();
+            pet.nonPacketData.CreatureID = fields[2].GetUInt32();
+            pet.PacketInfo.SpeciesID = fields[3].GetUInt32();
+            pet.nonPacketData.SpellID = fields[4].GetUInt32();
+            pet.PacketInfo.Level = fields[5].GetUInt8();
+            pet.PacketInfo.DisplayID = fields[6].GetUInt32();
+            pet.PacketInfo.Power = fields[7].GetUInt16();
+            pet.PacketInfo.Speed = fields[8].GetUInt16();
+            pet.PacketInfo.Health = fields[9].GetUInt32();
+            pet.PacketInfo.MaxHealth = fields[10].GetUInt32();
+            pet.PacketInfo.BreedQuality = fields[11].GetUInt8();
+            pet.PacketInfo.Xp = fields[12].GetUInt16();
+            pet.PacketInfo.BattlePetDBFlags = fields[13].GetUInt16();
+            pet.PacketInfo.BreedID = fields[14].GetUInt16();
+            pet.PacketInfo.CollarID = 0;
+            pet.PacketInfo.OwnerGuid = _player->GetGUID();
+            pet.PacketInfo.NoRename = false;
+
+            // recalculate stats after change breed
+            if (!pet.PacketInfo.BreedID)
+            {
+                pet.PacketInfo.BreedID = GetRandomBreedID(pet.PacketInfo.SpeciesID);
+                if (!pet.PacketInfo.BreedID)
+                    continue;
+
+                float pct = float(pet.PacketInfo.Health * 100.0f) / pet.PacketInfo.MaxHealth;
+                CalculateStats(pet.PacketInfo.SpeciesID, pet.PacketInfo.BreedID, pet.PacketInfo.BreedQuality, pet.PacketInfo.Level, pet.PacketInfo.MaxHealth, pet.PacketInfo.Power, pet.PacketInfo.Speed);
+                if (pct != 100.0f)
+                    pet.PacketInfo.Health = int32(pet.PacketInfo.MaxHealth * float(pct / 100.0f));
+                else
+                    pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;
+            }
+
+            // prevent some undefined behavoir
+            if (pet.PacketInfo.Health > pet.PacketInfo.MaxHealth)
+                pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;
+
+             _pets[pet.PacketInfo.BattlePetGUID.GetCounter()] = pet;
+
+            _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, pet.nonPacketData.CreatureID);
+        }
+        while (pets->NextRow());
+    }
+
+    if (slots)
+    {
+        uint8 i = 0;
+        do
+        {
+            Field* fields = slots->Fetch();
+            _slots[i].SlotIndex = fields[0].GetUInt8();
+            auto itr = _pets.find(fields[1].GetUInt64());
+            if (itr != _pets.end())
+                _slots[i].Pet = itr->second.PacketInfo;
+            _slots[i].Locked = fields[2].GetBool();
+            i++;
+
+            if (i > MAX_ACTIVE_BATTLE_PETS)
+                return true;
+        }
+        while (slots->NextRow());
+    }
+
+    return true;
+}
+
+void BattlePetMgr::SaveToDB(SQLTransaction trans)
+{
+    PreparedStatement* stmt = nullptr;
+    uint32 accountID = _player->GetSession()->GetAccountId();
+    if (accountID == 0)
+        return;
+
+    for (auto x : _pets)
+    {
+        switch (x.second.SaveInfo)
+        {
+            case STATE_DELETED:
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_BATTLE_PET_LIST);
+                stmt->setUInt32(0, accountID);
+                stmt->setUInt64(1, x.first);
+                trans->Append(stmt);
+                break;
+            case STATE_UPDATED:
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SAVE_ACCOUNT_BATTLE_PET_LIST);
+                stmt->setUInt32(0, accountID);
+                stmt->setUInt64(1, x.first);
+                stmt->setString(2, x.second.PacketInfo.CustomName);
+                stmt->setUInt32(3, x.second.nonPacketData.CreatureID);
+                stmt->setInt32(4, x.second.PacketInfo.SpeciesID);
+                stmt->setInt32(5, x.second.nonPacketData.SpellID);
+                stmt->setUInt8(6, x.second.PacketInfo.Level);
+                stmt->setInt32(7, x.second.PacketInfo.DisplayID);
+                stmt->setUInt16(8, x.second.PacketInfo.Power);
+                stmt->setUInt16(9, x.second.PacketInfo.Speed);
+                stmt->setInt32(10, x.second.PacketInfo.Health);
+                stmt->setInt32(11, x.second.PacketInfo.MaxHealth);
+                stmt->setUInt8(12, x.second.PacketInfo.BreedQuality);
+                stmt->setUInt16(13, x.second.PacketInfo.Xp);
+                stmt->setUInt16(14, x.second.PacketInfo.BattlePetDBFlags);
+                stmt->setInt16(15, x.second.PacketInfo.BreedID);
+                trans->Append(stmt);
+                x.second.SaveInfo = STATE_NORMAL;
+                break;
+            default:
+                break;
+        }
+    }
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_BATTLE_PET_SLOTS);
+    stmt->setUInt32(0, accountID);
+    trans->Append(stmt);
+
+    for (auto const& slot : _slots)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_BATTLE_PET_SLOTS);
+        stmt->setUInt8(0, slot.SlotIndex);
+        stmt->setUInt32(1, accountID);
+        stmt->setUInt64(2, slot.Pet.BattlePetGUID.GetCounter());
+        stmt->setBool(3, slot.Locked);
+        trans->Append(stmt);
+    }
+}
+
+int32 BattlePetMgr::BattlePet::GetBaseStateValue(BattlePetState state)
+{
+    int32 value = 0;
+
+    auto breedState = sDB2Manager._battlePetBreedStateByBreedId.equal_range(PacketInfo.BreedID);
+    for (auto itr = breedState.first; itr != breedState.second; ++itr)
+        value = std::get<1>(itr->second);
+
+    auto speciesState = sDB2Manager._battlePetBreedStateByBreedId.equal_range(PacketInfo.SpeciesID);
+    for (auto itr1 = speciesState.first; itr1 != speciesState.second; ++itr1)
+        value += std::get<1>(itr1->second);
+
+    return value;
+}
+
+void BattlePetMgr::CalculateStats(uint32 speciesID, uint16 breedID, uint8 quality, uint8 lvl, uint32& maxHealth, uint32& power, uint32& speed)
+{
+    uint32 healthMod = 0;
+    uint32 powerMod = 0;
+    uint32 speedMod = 0;
+    uint32 val = 0;
+
+    auto bounds = sDB2Manager._battlePetSpeciesStateBySpecId.equal_range(speciesID);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+    {
+        BattlePetStateEntry const* state = sBattlePetStateStore.LookupEntry(std::get<0>(itr->second));
+        if (!state)
+            break;
+
+        switch (state->flags)
+        {
+            val = std::get<1>(itr->second);
+            case STATE_STAT_SPEED:
+                speedMod += val;
+                break;
+            case STATE_STAT_STAMINA:
+                healthMod += val;
+                break;
+            case STATE_STAT_POWER:
+                powerMod += val;
+                break;
+            default:
+                break;
+        }
+    }
+
+    auto bounds1 = sDB2Manager._battlePetBreedStateByBreedId.equal_range(breedID);
+    for (auto itr1 = bounds1.first; itr1 != bounds1.second; ++itr1)
+    {
+        BattlePetStateEntry const* state = sBattlePetStateStore.LookupEntry(std::get<0>(itr1->second));
+        if (!state)
+            break;
+
+        switch (state->flags)
+        {
+            val = std::get<1>(itr1->second);
+            case STATE_STAT_SPEED:
+                speedMod += val;
+                break;
+            case STATE_STAT_STAMINA:
+                healthMod += val;
+                break;
+            case STATE_STAT_POWER:
+                powerMod += val;
+                break;
+            default:
+                break;
+        }
+    }
+
+    float multiplier = sDB2Manager.CalcBattlePetQualityMuliplier(quality, lvl);
+
+    maxHealth = (5.0f * healthMod * multiplier) + 100.0f + 0.5f;
+    power = (speedMod * multiplier) + 0.5f;
+    speed = (powerMod * multiplier) + 0.5f;
+}
+
+void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level /*= 1*/, BattlePetSaveInfo state /*= STATE_NORMAL*/)
+{
+    if (!sBattlePetSpeciesStore.LookupEntry(species))
+        return;
+
+    BattlePet pet;
+    pet.PacketInfo.BattlePetGUID = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>()->Generate());
+    pet.PacketInfo.SpeciesID = species;
+    pet.nonPacketData.CreatureID = creatureId;
+    pet.PacketInfo.Level = level;
+    pet.PacketInfo.BreedID = breed;
+    pet.PacketInfo.BreedQuality = quality;
+    pet.PacketInfo.CustomName.clear();
+    pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;
+    CalculateStats(species, breed, quality, level, pet.PacketInfo.Health, pet.PacketInfo.Power, pet.PacketInfo.Speed);
+    pet.SaveInfo = state;
+    _pets[pet.PacketInfo.BattlePetGUID.GetCounter()] = pet;
+
+    std::vector<BattlePet> updates;
+    updates.push_back(pet);
+    SendUpdatePets(updates, true);
+}
+
+BattlePetMgr::BattlePet* BattlePetMgr::GetPet(ObjectGuid guid)
+{
+    auto itr = _pets.find(guid.GetCounter());
+    if (itr != _pets.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+void BattlePetMgr::UnlockSlot(uint8 slot)
+{
+    if (!_slots[slot].Locked)
+        return;
+
+    _slots[slot].Locked = false;
+
+    WorldPackets::BattlePet::SlotUpdates updates;
+    updates.Slots.push_back(_slots[slot]);
+    updates.AutoSlotted = false; //@TODO: find some pet flags for this...
+    updates.NewSlotUnlocked = true;
+    _player->GetSession()->SendPacket(updates.Write());
 }
 
 bool BattlePetMgr::SlotIsLocked(uint8 index)
 {
-    bool locked = true;
+    if (index > MAX_ACTIVE_BATTLE_PETS)
+        return true;
 
     switch (index)
     {
         case 0:
-            locked = !m_player->HasSpell(119467);
-            break;
+            return !_player->HasSpell(SPELL_BATTLE_PET_TRAINING);
         case 1:
-            locked = !m_player->HasAchieved(7433), false;
-            break;
+            return !_player->HasAchieved(7433);
         case 2:
-            locked = !m_player->HasAchieved(6566), false;
-            break;
-        default:
-            break;
+            return !_player->HasAchieved(6566);
     }
 
-    return locked;
+    return true;
 }
 
-void BattlePetMgr::CloseWildPetBattle()
+void BattlePetMgr::ClosePetBattle()
 {
-    // remove battle object
-    delete m_petBattleWild;
-    m_petBattleWild = nullptr;
+    delete _petBattle;
+    _petBattle = nullptr;
 }
 
-void BattlePetMgr::SendUpdatePets(GuidList& updates, bool added)
+void BattlePetMgr::SendJournal()
+{
+    WorldPackets::BattlePet::BattlePetJournal battlePetJournal;
+    battlePetJournal.TrapLevel = 0;
+    battlePetJournal.HasJournalLock = _player->HasSpell(SPELL_BATTLE_PET_TRAINING);
+   
+    battlePetJournal.Slots = GetPetBattleSlots();
+
+    for (auto i : _pets)
+    {
+        if (i.second.SaveInfo == STATE_DELETED)
+            continue;
+
+        WorldPackets::BattlePet::BattlePet pet;
+        pet.BattlePetGUID = ObjectGuid::Create<HighGuid::BattlePet>(i.first);
+        pet.SpeciesID = i.second.PacketInfo.SpeciesID;
+        pet.DisplayID = i.second.PacketInfo.DisplayID;
+        pet.CollarID = i.second.nonPacketData.CreatureID;
+        pet.BreedID = i.second.PacketInfo.BreedID;
+        pet.Level = i.second.PacketInfo.Level;
+        pet.Xp = i.second.PacketInfo.Xp;
+        pet.BattlePetDBFlags = i.second.PacketInfo.BattlePetDBFlags;
+        pet.Power = i.second.PacketInfo.Power;
+        pet.Health = i.second.PacketInfo.Health;
+        pet.MaxHealth = i.second.PacketInfo.MaxHealth;
+        pet.Speed = i.second.PacketInfo.Speed;
+        pet.BreedQuality = i.second.PacketInfo.BreedQuality;
+        pet.CustomName = i.second.PacketInfo.CustomName;
+        pet.NoRename = false; // what we should do?
+        pet.OwnerGuid = _player->GetGUID();
+        battlePetJournal.Pets.push_back(pet);
+    }
+
+    _player->GetSession()->SendPacket(battlePetJournal.Write());
+}
+
+void BattlePetMgr::SendUpdatePets(std::vector<BattlePet> updates, bool added /*= false*/)
 {
     WorldPackets::BattlePet::Updates update;
     update.AddedPet = added;
+    for (auto pet : updates)
+        if (pet.SaveInfo != STATE_DELETED)
+            update.Pets.push_back(pet.PacketInfo);
 
-    for (auto const& i : updates)
-    {
-        PetJournalInfo* petInfo = GetPetInfoByPetGUID(i);
-        if (!petInfo || petInfo->GetState() == STATE_DELETED)
-            continue;
-
-        WorldPackets::BattlePet::BattlePet petData;
-        petData.Initialize(petInfo, i, m_player);
-        update.Pets.push_back(petData);
-    }
-
-    m_player->GetSession()->SendPacket(update.Write());
+    _player->GetSession()->SendPacket(update.Write());
 }
 
-// testing....
+void BattlePetMgr::HealBattlePetsPct(uint8 pct)
+{
+    std::vector<BattlePet> updates;
+
+    for (auto& pet : _pets)
+        if (pet.second.PacketInfo.Health < pet.second.PacketInfo.MaxHealth)
+        {
+            if (pet.second.IsDead() || pet.second.IsHurt())
+            {
+                pet.second.PacketInfo.Health += CalculatePct(pet.second.PacketInfo.MaxHealth, pct);
+                pet.second.SaveInfo = STATE_UPDATED;
+                updates.push_back(pet.second);
+            }
+        }
+
+    SendUpdatePets(updates, false);
+}
+
 uint32 BattlePetMgr::GetXPForNextLevel(uint8 level)
 {
     switch (level)
@@ -122,9 +426,7 @@ uint32 BattlePetMgr::GetXPForNextLevel(uint8 level)
 
 uint8 BattlePetMgr::GetRandomQuailty()
 {
-    // 42% - grey, 33% - white, 19% - green, 6% - rare
-    uint32 r = urand(0, 1000);
-
+    uint32 r = urand(0, 1000); // 42% - grey, 33% - white, 19% - green, 6% - rare
     uint8 quality = 0;
     if (r >= 420 && r < 750)
         quality = 1;
@@ -141,101 +443,451 @@ uint16 BattlePetMgr::GetRandomBreedID(uint32 speciesID)
     if (std::vector<uint32> const* breeds = sObjectMgr->GetPossibleBreedsForSpecies(speciesID))
     {
         uint32 sum = 0;
-        for (std::vector<uint32>::const_iterator itr = breeds->begin(); itr != breeds->end(); ++itr)
-            sum += GetWeightForBreed((*itr));
+        for (auto itr : *breeds)
+            sum += GetWeightForBreed(itr);
 
         uint32 r = urand(0, sum);
         uint32 current_sum = 0;
 
-        for (std::vector<uint32>::const_iterator itr = breeds->begin(); itr != breeds->end(); ++itr)
+        for (auto itr : *breeds)
         {
-            uint16 breedID = (*itr);
-            if (current_sum <= r && r < current_sum + GetWeightForBreed(breedID))
-                return breedID;
+            if (current_sum <= r && r < current_sum + GetWeightForBreed(itr))
+                return itr;
 
-            current_sum += GetWeightForBreed(breedID);
+            current_sum += GetWeightForBreed(itr);
         }
     }
 
     return 0;
 }
 
-void BattlePetMgr::CreateWildBattle(Player* initiator, ObjectGuid wildCreatureGuid)
+uint8 BattlePetMgr::GetWeightForBreed(uint16 breedID)
 {
-    delete m_petBattleWild;
-    m_petBattleWild = new PetBattleWild(initiator);
-    m_petBattleWild->Init(wildCreatureGuid);
+    uint8 weight = 0;
+    switch (breedID)
+    {
+        case 3:
+            weight = 60;
+            break;
+        case 4:
+        case 5:
+        case 6:
+            weight = 10;
+            break;
+        case 7:
+        case 8:
+        case 9:
+            weight = 20;
+            break;
+        case 10:
+        case 11:
+        case 12:
+            weight = 30;
+            break;
+        default:
+            break;
+    }
+
+    return weight;
+}
+
+void BattlePetMgr::CreatePetBattle(Player* initiator, ObjectGuid wildCreatureGuid)
+{
+    delete _petBattle;
+    _petBattle = new PetBattle(initiator);
+    _petBattle->Init(wildCreatureGuid);
+}
+
+void BattlePetMgr::InitializePetBattle(WorldPackets::BattlePet::BattleRequest packet)
+{
+    uint8 reason = 0;
+    if (AllSlotsEmpty())
+        reason = 16;
+    else if (AllSlotsDead())
+        reason = 15;
+
+    if (reason)
+    {
+        SendPetBattleRequestFailed(reason);
+        return;
+    }
+
+    _player->GetSession()->SendPacket(WorldPackets::BattlePet::FinalizeLocation(packet.Location).Write());
+    CreatePetBattle(_player, packet.TargetGUID);
 }
 
 void BattlePetMgr::SendPetBattleRequestFailed(uint8 reason)
 {
     WorldPackets::BattlePet::RequestFailed request;
     request.Reason = reason;
-    m_player->GetSession()->SendPacket(request.Write());
+    _player->GetSession()->SendPacket(request.Write());
 }
 
-BattlePetStatAccumulator::BattlePetStatAccumulator(uint32 _speciesID, uint16 _breedID) : healthMod(0), powerMod(0), speedMod(0), qualityMultiplier(0.0f)
+void BattlePetMgr::SendBattleQueueProposeMatch()
 {
-    for (BattlePetSpeciesStateEntry const* speciesState : sBattlePetSpeciesStateStore)
-        if (speciesState->SpeciesID == _speciesID)
-            Accumulate(speciesState->State, speciesState->Value);
-
-    for (BattlePetBreedStateEntry const* state : sBattlePetBreedStateStore)
-        if (state->breedID == _breedID)
-            Accumulate(state->stateID, state->stateModifier);
+    _player->GetSession()->SendPacket(WorldPackets::BattlePet::NullSMsg(SMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH).Write());
 }
 
-PetBattleWild::PetBattleWild(Player* owner) : m_player(owner)
+uint32 BattlePetMgr::GetPetCount(uint32 creatureEntry)
+{
+    uint32 count = 0;
+
+    for (auto pet : _pets)
+    {
+        if (pet.second.SaveInfo == STATE_DELETED)
+            continue;
+
+        if (pet.second.nonPacketData.CreatureID == creatureEntry)
+            ++count;
+    }
+
+    return count;
+}
+
+void BattlePetMgr::DeletePetByPetGUID(ObjectGuid guid)
+{
+    BattlePet* pet = GetPet(guid);
+    if (!pet)
+        return;
+
+    pet->SaveInfo = STATE_DELETED;
+}
+
+ObjectGuid::LowType BattlePetMgr::GetPetGUIDBySpell(uint32 spell)
+{
+    for (auto v : _pets)
+    {
+        if (v.second.SaveInfo == STATE_DELETED)
+            continue;
+
+        if (v.second.nonPacketData.SpellID == spell)
+            return v.first;
+    }
+
+    return ObjectGuid::LowType();
+}
+
+ObjectGuid::LowType BattlePetMgr::GetPetGUIDBySlot(uint8 index)
+{
+    for (auto x : _slots)
+    {
+        if (x.SlotIndex = index)
+            return x.Pet.BattlePetGUID.GetCounter();
+    }
+
+    return ObjectGuid::LowType(0);
+}
+
+bool BattlePetMgr::AllSlotsEmpty()
+{
+    for (auto s : _slots)
+        if (!s.Pet.BattlePetGUID.IsEmpty())
+            return false;
+
+    return true;
+}
+
+bool BattlePetMgr::AllSlotsDead()
+{
+    for (auto s : _slots)
+    {
+        if (!s.Pet.BattlePetGUID.IsEmpty())
+        {
+            if (s.Pet.Health <= 0)
+                return false;
+        }
+        else
+            return false;
+    }
+
+    return true;
+}
+
+bool BattlePetMgr::CanAwardXP()
+{
+    for (auto s : _slots)
+        if (auto pet = GetPet(s.Pet.BattlePetGUID))
+            if (pet->PacketInfo.Level < 25)
+                return true;
+
+    return false;
+}
+
+uint32 BattlePetMgr::CalcAvengerPetsLevelInSlots()
+{
+    uint32 lvl = 1;
+    uint8 count = 1;
+    {
+        for (auto const x : _slots)
+        {
+            if (auto const p = GetPet(x.Pet.BattlePetGUID))
+            {
+                lvl += p->PacketInfo.Level;
+                count++;
+                if (count > MAX_ACTIVE_BATTLE_PETS)
+                    break;
+            }
+        }
+    }
+
+    return lvl / count;
+}
+
+bool BattlePetMgr::PetIsSlotted(ObjectGuid guid)
+{
+    for (auto s : _slots)
+        if (s.Pet.BattlePetGUID == guid)
+            return true;
+
+    return false;
+}
+
+void BattlePetMgr::SendError(BattlePetError error, uint32 creatureId /*= 0*/)
+{
+    WorldPackets::BattlePet::BattlePetError battlePetError;
+    battlePetError.Result = error;
+    battlePetError.CreatureID = creatureId;
+    _player->GetSession()->SendPacket(battlePetError.Write());
+}
+
+void BattlePetMgr::SendPetBattleQueueStatus(QueueStatusData data)
+{
+    if (!_player)
+        return;
+
+    auto* session = _player->GetSession();
+    if (session)
+    {
+        WorldPackets::BattlePet::PetBattleQueueStatus status;
+        status.Msg.Status = data.status;
+        status.Msg.SlotResult.clear();
+        status.Msg.ClientWaitTime = time(nullptr) - data.joinTime;
+        status.Msg.AverageWaitTime = _waitTimesAvgStore;
+        status.Msg.Ticket.RequesterGuid = session->GetBattlenetAccountGUID();
+        status.Msg.Ticket.Id = uint32(sObjectMgr->GetGenerator<HighGuid::PetBattle>()->Generate());
+        status.Msg.Ticket.Type = 5; // always 5 ?
+        status.Msg.Ticket.Time = time(nullptr);
+        session->SendPacket(status.Write());
+    }
+}
+
+void BattlePetMgr::JoinPvpBattleQueue()
+{
+    AddQueueData(_player->GetGUID(), time(nullptr), CalcAvengerPetsLevelInSlots(), PET_BATTLE_QUEUE_STATUS_JOINED);
+    SendPetBattleQueueStatus(GetQueueData(_player->GetGUID()));
+}
+
+void BattlePetMgr::LeavePvpBattleQueue()
+{
+    QueueStatusData data;
+    data.avgLevel = CalcAvengerPetsLevelInSlots();
+    //data.joinTime = time(nullptr); not needed?
+    data.status = PET_BATTLE_QUEUE_STATUS_LEAVE;
+    SendPetBattleQueueStatus(data);
+    RemoveQueueData(_player->GetGUID());
+}
+
+BattlePetMgr::QueueStatusData::QueueStatusData() : joinTime(time_t(time(nullptr))), avgLevel(0), status(PET_BATTLE_QUEUE_STATUS_INIT)
+{ }
+
+BattlePetMgr::QueueStatusData::QueueStatusData(time_t _joinTime, int32 _avgLevel, PetBattleQueueStatus _status)
+{
+    joinTime = _joinTime;
+    avgLevel = _avgLevel;
+    status = _status;
+}
+
+void BattlePetMgr::AddQueueData(ObjectGuid guid, time_t joinTime, int32 avgLevel, PetBattleQueueStatus status)
+{
+    _queueDataStore[guid] = QueueStatusData(joinTime, avgLevel, status);
+    AddToQueue(guid);
+}
+
+void BattlePetMgr::AddToQueue(ObjectGuid guid)
+{
+    auto itr = _queueDataStore.find(guid);
+    if (itr == _queueDataStore.end())
+        return;
+
+    _newToQueueStore.push_back(guid);
+}
+
+BattlePetMgr::QueueStatusData BattlePetMgr::GetQueueData(ObjectGuid guid)
+{
+    auto it = _queueDataStore.find(guid);
+    if (it != _queueDataStore.end())
+        return it->second;
+
+    return QueueStatusData();
+}
+
+void BattlePetMgr::RemoveQueueData(ObjectGuid guid)
+{
+    auto it = _queueDataStore.find(guid);
+    if (it != _queueDataStore.end())
+        _queueDataStore.erase(it);
+}
+
+void BattlePetMgr::UpdateQueueTimers(time_t currTime)
+{
+    QueueStatusData data;
+    data.avgLevel = CalcAvengerPetsLevelInSlots();
+    data.joinTime -= currTime;
+    SendPetBattleQueueStatus(data);
+}
+
+uint8 BattlePetMgr::FindPvpBattle()
+{
+    uint8 proposals = 0;
+    GuidList firstNew;
+    while (!_newToQueueStore.empty())
+    {
+        ObjectGuid frontguid = _newToQueueStore.front();
+        firstNew.clear();
+        firstNew.push_back(frontguid);
+        _newToQueueStore.remove(frontguid);
+
+        GuidList temporalList = _currentQueueStore;
+        auto compatibles = FindNewBattles(firstNew, temporalList);
+        if (compatibles == PET_PVP_BATTLE_MATCH)
+            ++proposals;
+        else
+            _currentQueueStore.push_back(frontguid);
+    }
+
+    return proposals;
+}
+
+std::string ConcatenateGuids(GuidList const& check)
+{
+    if (check.empty())
+        return "";
+
+    GuidSet guids(check.begin(), check.end());
+    std::ostringstream o;
+    GuidSet::const_iterator it = guids.begin();
+    o << *it;
+    for (++it; it != guids.end(); ++it)
+        o << '|' << *it;
+
+    return o.str();
+}
+
+PetPvpBattleCompatibility BattlePetMgr::GetCompatibles(std::string const& key)
+{
+    auto itr = _compatibleMapStore.find(key);
+    if (itr != _compatibleMapStore.end())
+        return itr->second.compatibility;
+
+    return PET_PVP_BATTLE_PENDING;
+}
+
+void BattlePetMgr::SetCompatibles(std::string const& key, PetPvpBattleCompatibility compatibles)
+{
+    auto& data = _compatibleMapStore[key];
+    data.compatibility = compatibles;
+}
+
+PetPvpBattleCompatibility BattlePetMgr::CheckCompatibility(GuidList check)
+{
+    std::string strGuids = ConcatenateGuids(check);
+    SetCompatibles(strGuids, PET_PVP_BATTLE_MATCH);
+    return PET_PVP_BATTLE_MATCH;
+}
+
+PetPvpBattleCompatibility BattlePetMgr::FindNewBattles(GuidList& check, GuidList& all)
+{
+    std::string strGuids = ConcatenateGuids(check);
+    auto compatibles = GetCompatibles(strGuids);
+    if (compatibles == PET_PVP_BATTLE_PENDING)
+        compatibles = CheckCompatibility(check);
+
+    if (compatibles == PET_PVP_BATTLE_TOO_DIFFERENT_LEVELS)
+        return compatibles;
+
+    while (!all.empty())
+    {
+        check.push_back(all.front());
+        all.pop_front();
+        auto subcompatibility = FindNewBattles(check, all);
+        if (subcompatibility == PET_PVP_BATTLE_MATCH)
+            return PET_PVP_BATTLE_MATCH;
+        check.pop_back();
+    }
+    return compatibles;
+}
+
+void BattlePetMgr::Update(uint32 diff)
+{
+    FindPvpBattle();
+    time_t currTime = time(nullptr);
+    if (_queueTimer > 10 * IN_MILLISECONDS)
+    {
+        _queueTimer = 0;
+        UpdateQueueTimers(currTime);
+        UpdateWaitTimeAvg(currTime);
+    }
+    else
+        _queueTimer += diff;
+}
+
+void BattlePetMgr::UpdateWaitTimeAvg(int32 waitTime)
+{
+    _waitTimesAvgStore += waitTime;
+}
+
+PetBattle::PetBattle(Player* owner) : _player(owner)
 {
     battleInfo.clear();
-
     nextRoundFinal = false;
     abandoned = false;
 }
 
-bool PetBattleWild::PrepareBattleInfo(ObjectGuid creatureGuid)
+BattlePetFamily BattlePetMgr::BattlePet::GetFamily()
+{
+    if (BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(PacketInfo.SpeciesID))
+        return BattlePetFamily(speciesEntry->petType);
+
+    return BATTLE_PET_FAMILY_MAX;
+}
+
+bool PetBattle::PrepareBattleInfo(ObjectGuid creatureGuid)
 {
     int8 petID = 0;
 
     // PLAYER (copying data from journal and other sources)
     for (uint8 i = 0; i < MAX_ACTIVE_BATTLE_PETS; ++i)
     {
-        if (PetBattleSlot* _slot = m_player->GetBattlePetMgr()->GetPetBattleSlot(i))
+        if (auto x = _player->GetBattlePetMgr()->GetPetBattleSlot(i))
         {
-            if (!_slot->IsEmpty())
+            if (auto petInfo = _player->GetBattlePetMgr()->GetPet(x->Pet.BattlePetGUID))
             {
-                if (PetJournalInfo* petInfo = m_player->GetBattlePetMgr()->GetPetInfoByPetGUID(_slot->GetPet()))
-                {
-                    // dead or deleted pets are not valid
-                    if (petInfo->IsDead() || petInfo->GetState() == STATE_DELETED)
-                        continue;
+                // dead or deleted pets are not valid
+                if (petInfo->IsDead() || petInfo->SaveInfo == STATE_DELETED)
+                    continue;
 
-                    PetBattleInfo* pbInfo = new PetBattleInfo();
+                PetBattleInfo* pbInfo = new PetBattleInfo();
 
-                    pbInfo->SetPetID(petID);
-                    pbInfo->SetTeam(TEAM_ALLY);
-                    pbInfo->SetGUID(_slot->GetPet());
-                    pbInfo->CopyPetInfo(petInfo);
+                pbInfo->SetPetID(petID);
+                pbInfo->SetTeam(TEAM_ALLY);
+                pbInfo->SetGUID(x->Pet.BattlePetGUID);
+                pbInfo->CopyPetInfo(_player, x->Pet.BattlePetGUID); //petInfo);
 
-                    for (uint8 j = 0; j < MAX_ACTIVE_BATTLE_PET_ABILITIES; ++j)
-                        pbInfo->SetAbilityID(petInfo->GetAbilityID(j), j);
+                for (uint8 j = 0; j < MAX_ACTIVE_BATTLE_PET_ABILITIES; ++j)
+                    pbInfo->SetAbilityID(petInfo->GetAbilityID(j), j);
 
-                    ++petID;
-
-                    // added to array
-                    battleInfo.push_back(pbInfo);
-                }
+                ++petID;
+                battleInfo.push_back(pbInfo);
             }
         }
     }
 
     // NPC (creating new data)
-    Creature* wildPet = m_player->GetMap()->GetCreature(creatureGuid);
+    Creature* wildPet = _player->GetMap()->GetCreature(creatureGuid);
     if (!wildPet)
         return false;
 
     uint8 wildPetLevel = wildPet->GetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL);
-
     BattlePetSpeciesEntry const* s = sDB2Manager.GetBattlePetSpeciesEntry(wildPet->GetEntry());
     if (!s)
         return false;
@@ -257,35 +909,32 @@ bool PetBattleWild::PrepareBattleInfo(ObjectGuid creatureGuid)
     for (uint8 i = 0; i < creatureCount; ++i)
     {
         // roll random quality and breed
-        uint8 quality = m_player->GetBattlePetMgr()->GetRandomQuailty();
-        uint16 breedID = m_player->GetBattlePetMgr()->GetRandomBreedID(s->ID);
+        //uint8 quality = _player->GetBattlePetMgr()->GetRandomQuailty();
+        //uint16 breedID = _player->GetBattlePetMgr()->GetRandomBreedID(s->ID);
+        //uint32 health = 0;
+        //uint32 power = 0;
+        //uint32 speed = 0;
+        //_player->GetBattlePetMgr()->CalculateStats(s->ID, breedID, quality, wildPetLevel, health, power, speed);
 
-        BattlePetStatAccumulator* accumulator = new BattlePetStatAccumulator(s->ID, breedID);
-        accumulator->CalcQualityMultiplier(quality, wildPetLevel);
-        uint32 health = accumulator->CalculateHealth();
-        uint32 power = accumulator->CalculatePower();
-        uint32 speed = accumulator->CalculateSpeed();
-        delete accumulator;
+        //BattlePetSlot* slot = new BattlePetSlot(ObjectGuid::Empty);
+        //PetJournalInfo* petInfo = new PetJournalInfo(s->ID, wildPet->GetEntry(), wildPetLevel, t->Modelid1, power, speed, health, health, quality, 0, 0, s->spellId, "", breedID, STATE_NORMAL);
+        //PetBattleInfo* pbInfo = new PetBattleInfo();
 
-        PetBattleSlot* slot = new PetBattleSlot(ObjectGuid::Empty);
-        PetJournalInfo* petInfo = new PetJournalInfo(s->ID, wildPet->GetEntry(), wildPetLevel, t->Modelid1, power, speed, health, health, quality, 0, 0, s->spellId, "", breedID, STATE_NORMAL);
-        PetBattleInfo* pbInfo = new PetBattleInfo();
+        //pbInfo->SetPetID(petID);
+        //pbInfo->SetTeam(TEAM_ENEMY);
+        //pbInfo->SetGUID(slot->GetPet());
+        //pbInfo->CopyPetInfo(petInfo);
 
-        pbInfo->SetPetID(petID);
-        pbInfo->SetTeam(TEAM_ENEMY);
-        pbInfo->SetGUID(slot->GetPet());
-        pbInfo->CopyPetInfo(petInfo);
+        //for (uint8 j = 0; j < MAX_ACTIVE_BATTLE_PET_ABILITIES; ++j)
+        //    pbInfo->SetAbilityID(petInfo->GetAbilityID(j), j);
 
-        for (uint8 j = 0; j < MAX_ACTIVE_BATTLE_PET_ABILITIES; ++j)
-            pbInfo->SetAbilityID(petInfo->GetAbilityID(j), j);
-
-        delete slot;
-        delete petInfo;
+        //delete slot;
+        //delete petInfo;
 
         ++petID;
 
         // added to array
-        battleInfo.push_back(pbInfo);
+        //battleInfo.push_back(pbInfo);
     }
 
     SetBattleState(1);
@@ -294,21 +943,18 @@ bool PetBattleWild::PrepareBattleInfo(ObjectGuid creatureGuid)
     return true;
 }
 
-uint8 PetBattleWild::GetTotalPetCountInTeam(uint8 team, bool onlyActive)
+uint8 PetBattle::GetTotalPetCountInTeam(uint8 team, bool onlyActive)
 {
     uint8 count = 0;
 
     for (auto const& x : battleInfo)
     {
-        PetBattleInfo* pb = x;
-        if (!pb || pb->GetTeam() != team)
+        if (x->GetTeam() != team)
             continue;
 
         if (onlyActive)
-        {
-            if (pb->IsDead() || pb->Captured() || pb->Caged())
+            if (x->IsDead() || x->Captured() || x->Caged())
                 continue;
-        }
 
         ++count;
     }
@@ -316,126 +962,172 @@ uint8 PetBattleWild::GetTotalPetCountInTeam(uint8 team, bool onlyActive)
     return count;
 }
 
-PetBattleInfo* PetBattleWild::GetFrontPet(uint8 team)
+PetBattleInfo* PetBattle::GetPet(uint8 petNumber)
 {
-    for (auto const& x : battleInfo)
+    for (auto v : battleInfo)
     {
-        PetBattleInfo* pb = x;
-        if (!pb || pb->GetTeam() != team || !pb->IsFrontPet())
+        if (v->GetPetID() != petNumber)
             continue;
 
-        return pb;
+        return v;
     }
 
     return nullptr;
 }
 
-void PetBattleWild::SetFrontPet(uint8 team, uint8 petNumber)
+PetBattleInfo* PetBattle::GetFrontPet(uint8 team)
 {
     for (auto const& x : battleInfo)
     {
-        PetBattleInfo* pb = x;
-        if (!pb || pb->GetTeam() != team)
+        if (x->GetTeam() != team || !x->IsFrontPet())
             continue;
 
-        pb->SetFrontPet(false);
+        return x;
     }
 
+    return nullptr;
+}
+
+PetBattleInfo* PetBattle::GetNotFrontPet(uint8 team)
+{
     for (auto const& x : battleInfo)
     {
-        PetBattleInfo* pb = x;
-        if (!pb || pb->GetTeam() != team || pb->GetPetID() != petNumber)
+        if (x->GetTeam() != team || x->IsFrontPet())
             continue;
 
-        pb->SetFrontPet(true);
+        return x;
+    }
+
+    return nullptr;
+}
+
+void PetBattle::SetFrontPet(uint8 team, uint8 petNumber)
+{
+    if (PetBattleInfo* pb = GetFrontPet(team))
+        pb->SetFrontPet(false);
+
+    if (PetBattleInfo* pb1 = GetPet(petNumber))
+        pb1->SetFrontPet(true);
+}
+
+void PetBattle::SetWinner(uint8 team)
+{
+    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    {
+        if (i == team)
+            winners[i] = 1;
+        else
+            winners[i] = 0;
     }
 }
 
-void PetBattleWild::SendFullUpdate(ObjectGuid creatureGuid)
+uint8 PetBattle::GetWinner()
 {
-    WorldPackets::BattlePet::PetBattleFullUpdate fullUpdate;
-    fullUpdate.WaitingForFrontPetsMaxSecs = 30;
-    fullUpdate.PvpMaxRoundTime = 30;
-    fullUpdate.CurRound = 0;
-    fullUpdate.NpcCreatureID = 0;
-    fullUpdate.NpcDisplayID = 0;
-    fullUpdate.CurPetBattleState = GetBattleState();
-    fullUpdate.ForfeitPenalty = 10;
-    fullUpdate.InitialWildPetGUID = creatureGuid;
-    fullUpdate.IsPVP = false;
-    fullUpdate.CanAwardXP = false;
-
-    for (uint8 i = 0; i < 3; ++i)
+    for (uint8 i = 0; i < MAX_TEAMS; ++i)
     {
-        fullUpdate.Enviros[i].Auras.reserve(0);
-        for (auto const& c : {0})
-        {
-            WorldPackets::BattlePet::PetBattleActiveAura activeAura;
-            activeAura.AbilityID = 0;
-            activeAura.InstanceID = 0;
-            activeAura.RoundsRemaining = 0;
-            activeAura.CurrentRound = 0;
-            activeAura.CasterPBOID = 0;
-            fullUpdate.Enviros[i].Auras.push_back(activeAura);
-        }
-
-        fullUpdate.Enviros[i].States.reserve(0);
-        for (auto const& c : {0})
-        {
-            WorldPackets::BattlePet::PetBattleActiveState activeState;
-            activeState.StateID = 0; // stateID from BattlePetState.db2 -> Stat_Speed / Stat_Power / Stat_Stamina / Stat_CritChance
-            activeState.StateValue = 0; // some fucking strange value!
-            fullUpdate.Enviros[i].States.push_back(activeState);
-        }
+        if (winners[i] == 1)
+            return i;
     }
 
-    for (uint8 i = 0; i < 2; ++i)
-    {
-        fullUpdate.Players[i].CharacterID = teamGuids[i];
-        fullUpdate.Players[i].TrapAbilityID = 427;
-        fullUpdate.Players[i].TrapStatus = 2;
-        fullUpdate.Players[i].RoundTimeSecs = 0;
-        fullUpdate.Players[i].FrontPet = 0;
-        fullUpdate.Players[i].InputFlags = 6;
-        fullUpdate.Players[i].Pets.reserve(GetTotalPetCountInTeam(i));
+    return 0;
+}
 
-        for (auto const& v : battleInfo)
+uint8 PetBattle::GetPetTeamIndex(uint8 petNumber)
+{
+    switch (petNumber)
+    {
+        case 0: return 0;
+        case 1: return 1;
+        case 2: return 2;
+        case 3: return 0;
+        case 4: return 1;
+        case 5: return 2;
+        default: return 0;
+    }
+}
+
+uint8 PetBattle::GetTeamByPetID(uint8 petNumber)
+{
+    switch (petNumber)
+    {
+        case 0:
+        case 1:
+        case 2:
+            return 0;
+        case 3:
+        case 4:
+        case 5:
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+void PetBattle::InitializePetBattle(ObjectGuid targetGuid)
+{
+    auto mgr = _player->GetBattlePetMgr();
+
+    bool isPvP = targetGuid.IsPlayer();
+
+    teamGuids[0] = _player->GetGUID();
+    if (isPvP)
+        teamGuids[1] = targetGuid;
+
+    WorldPackets::BattlePet::PetBattleInitialUpdate initial;
+    initial.MsgData.WaitingForFrontPetsMaxSecs = MaxRoundTime[isPvP ? 1 : 0];
+    initial.MsgData.PvpMaxRoundTime = MaxRoundTime[isPvP ? 1 : 0];
+    initial.MsgData.CurRound = 0;
+    initial.MsgData.NpcCreatureID = 0;
+    initial.MsgData.NpcDisplayID = 0;
+    initial.MsgData.CurPetBattleState = GetBattleState();
+    initial.MsgData.ForfeitPenalty = 10;
+    initial.MsgData.InitialWildPetGUID = targetGuid;
+    initial.MsgData.IsPVP = isPvP;
+    initial.MsgData.CanAwardXP = mgr->CanAwardXP();
+
+    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    {
+        initial.MsgData.Players[i].CharacterID = teamGuids[i];
+        initial.MsgData.Players[i].TrapAbilityID = TrapSpells[0];
+        initial.MsgData.Players[i].TrapStatus = PET_BATTLE_TRAP_ERR_2;
+        initial.MsgData.Players[i].RoundTimeSecs = MaxRoundTime[isPvP ? 1 : 0];
+        initial.MsgData.Players[i].FrontPet = 0;
+        initial.MsgData.Players[i].InputFlags = 6;
+
+        for (auto const& x : battleInfo)
         {
-            PetBattleInfo* pb = v;
-            if (pb->GetTeam() != i)
+            if (x->GetTeam() != i)
                 continue;
 
             WorldPackets::BattlePet::PetBattlePetUpdate petUpdate;
-            petUpdate.BattlePetGUID = pb->GetGUID();
-            petUpdate.SpeciesID = pb->GetSpeciesID();
-            petUpdate.DisplayID = pb->GetDisplayID();
+            petUpdate.BattlePetGUID = x->GetGUID();
+            petUpdate.SpeciesID = x->GetSpeciesID();
+            petUpdate.DisplayID = x->GetDisplayID();
             petUpdate.CollarID = 0;
-            petUpdate.Level = pb->GetLevel();
-            petUpdate.Xp = pb->GetXP();
-            petUpdate.CurHealth = pb->GetHealth();
-            petUpdate.MaxHealth = pb->GetMaxHealth();
-            petUpdate.Power = pb->GetPower();
-            petUpdate.Speed = pb->GetSpeed();
+            petUpdate.Level = x->GetLevel();
+            petUpdate.Xp = x->GetXP();
+            petUpdate.CurHealth = x->GetHealth();
+            petUpdate.MaxHealth = x->GetMaxHealth();
+            petUpdate.Power = x->GetPower();
+            petUpdate.Speed = x->GetSpeed();
             petUpdate.NpcTeamMemberID = 0;
-            petUpdate.BreedQuality = pb->GetQuality();
-            petUpdate.StatusFlags = 1; // unk value
-            petUpdate.Slot = GetTeamIndex(pb->GetPetID());
-            petUpdate.CustomName = pb->GetCustomName();
+            petUpdate.BreedQuality = x->GetQuality();
+            petUpdate.StatusFlags = 0;
+            petUpdate.Slot = GetPetTeamIndex(x->GetPetID());
+            petUpdate.CustomName = x->GetCustomName();
 
-            petUpdate.Abilities.reserve(MAX_ACTIVE_BATTLE_PET_ABILITIES);
             for (uint8 k = 0; k < MAX_ACTIVE_BATTLE_PET_ABILITIES; ++k)
             {
-                WorldPackets::BattlePet::PetBattleActiveAbility ability;
-                ability.AbilityID = pb->GetAbilityID(k);
-                ability.CooldownRemaining = 0;
-                ability.LockdownRemaining = 0;
-                ability.AbilityIndex = 0 /*battleInfo[i][j]->GetAbilityInfoByIndex(k)->GetID()*/;
-                ability.Pboid = 0;
-                petUpdate.Abilities.push_back(ability);
+                WorldPackets::BattlePet::PetBattleActiveAbility activeAbility;
+                activeAbility.AbilityID = x->GetAbilityID(k);
+                activeAbility.CooldownRemaining = 0;
+                activeAbility.LockdownRemaining = 0;
+                activeAbility.AbilityIndex = k;
+                activeAbility.Pboid = 0;
+                petUpdate.Abilities.push_back(activeAbility);
             }
 
-            petUpdate.Auras.reserve(0);
-            for (auto const& c : {0})
+            for (auto const& x : {0})
             {
                 WorldPackets::BattlePet::PetBattleActiveAura activeAura;
                 activeAura.AbilityID = 0;
@@ -443,97 +1135,139 @@ void PetBattleWild::SendFullUpdate(ObjectGuid creatureGuid)
                 activeAura.RoundsRemaining = 0;
                 activeAura.CurrentRound = 0;
                 activeAura.CasterPBOID = 0;
-                petUpdate.Auras.push_back(activeAura);
+                //petUpdate.Auras.push_back(activeAura);
             }
 
-            petUpdate.States.reserve(0);
-            for (auto const& c : {0})
+
+            if (auto pet = mgr->GetPet(x->GetGUID()))
             {
-                WorldPackets::BattlePet::PetBattleActiveState activeState;
-                activeState.StateID = 0; // stateID from BattlePetState.db2 -> Stat_Speed / Stat_Power / Stat_Stamina / Stat_CritChance
-                activeState.StateValue = 0; // some fucking strange value!
-                petUpdate.States.push_back(activeState);
+                petUpdate.States[STATE_STAT_STAMINA] = pet->GetBaseStateValue(STATE_STAT_STAMINA); // 1700;
+                petUpdate.States[STATE_STAT_SPEED] = pet->GetBaseStateValue(STATE_STAT_SPEED); // 1600;
+                petUpdate.States[STATE_STAT_CRIT_CHANCE] = pet->GetBaseStateValue(STATE_STAT_CRIT_CHANCE); // 5;
+                petUpdate.States[STATE_STAT_POWER] = pet->PacketInfo.Power;
+                petUpdate.States[FamilyStates[pet->GetFamily()]] = 1;
+                initial.MsgData.Players[i].Pets.push_back(petUpdate);
             }
-
-            fullUpdate.Players[i].Pets.push_back(petUpdate);
         }
     }
 
-    WorldPackets::BattlePet::PetBattleInitialUpdate initialUpdate;
-    initialUpdate.MsgData = fullUpdate;
-    m_player->GetSession()->SendPacket(initialUpdate.Write());
+    for (uint8 i = 0; i < MAX_ACTIVE_BATTLE_PET_ABILITIES; ++i)
+    {
+        for (auto const& x : {0})
+        {
+            WorldPackets::BattlePet::PetBattleActiveAura activeAura;
+            activeAura.AbilityID = 0;
+            activeAura.InstanceID = 0;
+            activeAura.RoundsRemaining = 0;
+            activeAura.CurrentRound = 0;
+            activeAura.CasterPBOID = 0;
+            //initial.MsgData.Enviros[i].Auras.push_back(activeAura);
+        }
+
+        //for (auto const& v : {0})
+        //    initial.MsgData.Enviros[i].States.push_back({0, 0});
+    }
+
+    _player->GetSession()->SendPacket(initial.Write());
 }
 
-void PetBattleInfo::CopyPetInfo(PetJournalInfo* petInfo)
+void PetBattleInfo::CopyPetInfo(Player* player, ObjectGuid petGuid /*BattlePetMgr::BattlePet* petInfo*/)
 {
-    // copying from journal
-    speciesID = petInfo->GetSpeciesID();
-    summonSpellID = petInfo->GetSummonSpell();
-    creatureEntry = petInfo->GetCreatureEntry();
-    displayID = petInfo->GetDisplayID();
-    customName = petInfo->GetCustomName();
-    breedID = petInfo->GetBreedID();
-    health = petInfo->GetHealth();
-    maxHealth = petInfo->GetMaxHealth();
-    speed = petInfo->GetSpeed();
-    power = petInfo->GetPower();
-    flags = petInfo->GetFlags();
-    quality = petInfo->GetQuality();
-    level = petInfo->GetLevel();
-    xp = petInfo->GetXP();
-    // for final stage
-    totalXP = petInfo->GetXP();
-    newLevel = petInfo->GetLevel();
+    auto petInfo = player->GetBattlePetMgr()->GetPet(petGuid);
+    speciesID = petInfo->PacketInfo.SpeciesID;
+    summonSpellID = petInfo->nonPacketData.SpellID;
+    creatureEntry = petInfo->nonPacketData.CreatureID;
+    displayID = petInfo->PacketInfo.DisplayID;
+    customName = petInfo->PacketInfo.CustomName;
+    breedID = petInfo->PacketInfo.BreedID;
+    health = petInfo->PacketInfo.Health;
+    maxHealth = petInfo->PacketInfo.MaxHealth;
+    speed = petInfo->PacketInfo.Speed;
+    power = petInfo->PacketInfo.Power;
+    flags = petInfo->PacketInfo.BattlePetDBFlags;
+    quality = petInfo->PacketInfo.BreedQuality;
+    level = petInfo->PacketInfo.Level;
+    xp = petInfo->PacketInfo.Xp;
+    totalXP = petInfo->PacketInfo.Xp;
+    newLevel = petInfo->PacketInfo.Level;
 
     frontPet = false;
     captured = false;
     caged = false;
 }
 
-void PetBattleWild::Init(ObjectGuid creatureGuid)
+bool PetBattleInfo::HasAbility(uint32 abilityID)
 {
-    if (PrepareBattleInfo(creatureGuid))
-        SendFullUpdate(creatureGuid);
+    for (uint8 i = 0; i < MAX_ACTIVE_BATTLE_PET_ABILITIES; ++i)
+        if (GetAbilityID(i) == abilityID)
+            return true;
+
+    return false;
 }
 
-bool PetBattleWild::FirstRoundHandler(uint8 allyFrontPetID, uint8 enemyFrontPetID)
+void PetBattle::Init(ObjectGuid creatureGuid)
 {
-    PetBattleRoundResults* firstRound = new PetBattleRoundResults(0);
+    if (PrepareBattleInfo(creatureGuid))
+        InitializePetBattle(creatureGuid);
+}
+
+bool PetBattle::FirstRoundHandler(uint8 allyFrontPetID, uint8 enemyFrontPetID)
+{
+    RoundResults firstRound;
+    firstRound.PacketInfo.CurRound = 0;
 
     // set active pets for team
     SetFrontPet(TEAM_ALLY, allyFrontPetID);
     SetFrontPet(TEAM_ENEMY, enemyFrontPetID);
 
-    PetBattleEffect* effect = new PetBattleEffect(0, 0, 4, 0, 0, 0, 0);
-    PetBattleEffectTarget* target = new PetBattleEffectTarget(allyFrontPetID, 3);
+    PetBattle::RoundResults::Effect effect;
+    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_4;
+    PetBattle::RoundResults::Effect::Target target;
+    target.PacketInfo.Petx = allyFrontPetID;
+    effect.PacketInfo.EffectTargetData.emplace_back(target.PacketInfo);
+    firstRound.PacketInfo.EffectData.emplace_back(effect.PacketInfo);
 
-    effect->targets.push_back(target);
-    firstRound->effects.push_back(effect);
+    PetBattle::RoundResults::Effect effect1;
+    effect1.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_4;
+    effect1.PacketInfo.CasterPBOID = 3;
+    PetBattle::RoundResults::Effect::Target target1;
+    target1.PacketInfo.Petx = enemyFrontPetID;
+    target1.PacketInfo.Type = EFFECT_TARGET_3;
+    effect1.PacketInfo.EffectTargetData.emplace_back(target1.PacketInfo);
+    firstRound.PacketInfo.EffectData.emplace_back(effect1.PacketInfo);
 
-    PetBattleEffect* effect1 = new PetBattleEffect(3, 0, 4, 0, 0, 0, 0);
-    PetBattleEffectTarget* target1 = new PetBattleEffectTarget(enemyFrontPetID, 3);
-
-    effect1->targets.push_back(target1);
-    firstRound->effects.push_back(effect1);
-
-    SendFirstRound(firstRound);
-    delete firstRound;
+    CheckTrapStatuses(&firstRound);
+    SendFirstRound(&firstRound);
 
     return true;
 }
 
-void PetBattleWild::SendFirstRound(PetBattleRoundResults* firstRound)
+void PetBattle::SendFirstRound(RoundResults* roundResult)
 {
     WorldPackets::BattlePet::BattleRound round(SMSG_PET_BATTLE_FIRST_ROUND);
-    round.MsgData.Initialize(firstRound);
-    m_player->GetSession()->SendPacket(round.Write());
+
+    round.MsgData.NextPetBattleState = GetBattleState();
+    round.MsgData.CurRound = roundResult->PacketInfo.CurRound;
+
+    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    {
+        round.MsgData.NextInputFlags[i] = roundResult->PacketInfo.NextInputFlags[i];
+        round.MsgData.NextTrapStatus[i] = roundResult->PacketInfo.NextTrapStatus[i];
+        round.MsgData.RoundTimeSecs[i] = roundResult->PacketInfo.RoundTimeSecs[i];
+    }
+
+    round.MsgData.EffectData = roundResult->PacketInfo.EffectData;
+    round.MsgData.Ability = roundResult->PacketInfo.Ability;
+    round.MsgData.PetXDied = roundResult->PacketInfo.PetXDied;
+
+    _player->GetSession()->SendPacket(round.Write());
 }
 
-void PetBattleWild::ForceReplacePetHandler(uint32 roundID, uint8 newFrontPet, uint8 team)
+void PetBattle::ForceReplacePetHandler(uint32 roundID, uint8 newFrontPet, uint8 team)
 {
-    PetBattleRoundResults* round = new PetBattleRoundResults(roundID);
+    RoundResults round;
+    round.PacketInfo.CurRound = roundID;
 
-    // check active pets
     PetBattleInfo* frontPet = GetFrontPet(team);
     if (!frontPet)
         return;
@@ -542,24 +1276,37 @@ void PetBattleWild::ForceReplacePetHandler(uint32 roundID, uint8 newFrontPet, ui
     if (GetTeamByPetID(newFrontPet) != team)
         return;
 
-    round->ProcessPetSwap(frontPet->GetPetID(), newFrontPet);
-    SendForceReplacePet(round);
+    round.ProcessPetSwap(frontPet->GetPetID(), newFrontPet);
+    SendForceReplacePet(&round);
 
     SetFrontPet(team, newFrontPet);
-
-    delete round;
 }
 
-void PetBattleWild::SendForceReplacePet(PetBattleRoundResults* round)
+void PetBattle::SendForceReplacePet(RoundResults* roundResult)
 {
-    WorldPackets::BattlePet::BattleRound roundResult(SMSG_PET_BATTLE_REPLACEMENTS_MADE);
-    roundResult.MsgData.Initialize(round);
-    m_player->GetSession()->SendPacket(roundResult.Write());
+    WorldPackets::BattlePet::BattleRound round(SMSG_PET_BATTLE_REPLACEMENTS_MADE);
+    round.MsgData.NextPetBattleState = GetBattleState();
+    round.MsgData.CurRound = roundResult->PacketInfo.CurRound;
+
+    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    {
+        round.MsgData.NextInputFlags[i] = roundResult->PacketInfo.NextInputFlags[i];
+        round.MsgData.NextTrapStatus[i] = roundResult->PacketInfo.NextTrapStatus[i];
+        round.MsgData.RoundTimeSecs[i] = roundResult->PacketInfo.RoundTimeSecs[i];
+    }
+
+    round.MsgData.EffectData = roundResult->PacketInfo.EffectData;
+    round.MsgData.Ability = roundResult->PacketInfo.Ability;
+    round.MsgData.PetXDied = roundResult->PacketInfo.PetXDied;
+
+    _player->GetSession()->SendPacket(round.Write());
 }
 
-bool PetBattleWild::UseAbilityHandler(uint32 abilityID, uint32 roundID)
+bool PetBattle::UseAbilityHandler(uint32 abilityID, uint32 roundID)
 {
-    PetBattleRoundResults* round = new PetBattleRoundResults(roundID);
+    RoundResults round;
+    round.PacketInfo.CurRound = roundID;
+
     // default state - need system for control it
     SetBattleState(2);
 
@@ -584,21 +1331,19 @@ bool PetBattleWild::UseAbilityHandler(uint32 abilityID, uint32 roundID)
     {
         // first turn: attack - TODO: script battle for wild pets (death check in some process)
         uint32 castAbilityID = (attacker->GetTeam() == TEAM_ALLY) ? abilityID : attacker->GetAbilityID(0);
-
         if (!castAbilityID)
             return false;
 
-        uint32 effectID = GetVisualEffectIDByAbilityID(castAbilityID);
-        round->ProcessAbilityDamage(attacker, victim, castAbilityID, effectID, 1);
+        uint32 effectID = sDB2Manager.GetBattlePetTurnByAbility(castAbilityID);
+        round.ProcessAbilityDamage(attacker, victim, castAbilityID, effectID, 1);
 
         // second turn: response - TODO: script battle for wild pets (death check in some process)
         castAbilityID = (victim->GetTeam() == TEAM_ALLY) ? abilityID : victim->GetAbilityID(0);
-
         if (!castAbilityID)
             return false;
 
-        effectID = GetVisualEffectIDByAbilityID(castAbilityID);
-        round->ProcessAbilityDamage(victim, attacker, castAbilityID, effectID, 2);
+        effectID = sDB2Manager.GetBattlePetTurnByAbility(castAbilityID);
+        round.ProcessAbilityDamage(victim, attacker, castAbilityID, effectID, 2);
 
         // find right place for some handler
         if (allyPet->IsDead() && !GetTotalPetCountInTeam(allyPet->GetTeam(), true))
@@ -617,73 +1362,69 @@ bool PetBattleWild::UseAbilityHandler(uint32 abilityID, uint32 roundID)
     else
         return false;
 
-    round->AuraProcessingBegin();
-    round->AuraProcessingEnd();
+    round.AuraProcessingBegin();
+    round.AuraProcessingEnd();
 
     // increase round number
-    round->roundID++;
-    SetCurrentRoundID(round->roundID);
+    round.PacketInfo.CurRound++;
+    SetCurrentRoundID(round.PacketInfo.CurRound);
 
-    CheckTrapStatuses(round);
-    CheckInputFlags(round);
+    CheckTrapStatuses(&round);
+    CheckInputFlags(&round);
 
-    SendRoundResults(round);
+    SendRoundResults(&round);
 
     // find right place for some handler
     if (enemyPet->IsDead() && GetTotalPetCountInTeam(TEAM_ENEMY, true))
-        ForceReplacePetHandler(round->roundID, enemyPet->GetPetID() + 1, TEAM_ENEMY);
+        ForceReplacePetHandler(round.PacketInfo.CurRound, enemyPet->GetPetID() + 1, TEAM_ENEMY);
     else if (allyPet->IsDead() && GetTotalPetCountInTeam(TEAM_ALLY, true) == 1)
-        ForceReplacePetHandler(round->roundID, GetLastAlivePetID(TEAM_ALLY), TEAM_ALLY);
+        ForceReplacePetHandler(round.PacketInfo.CurRound, GetLastAlivePetID(TEAM_ALLY), TEAM_ALLY);
 
     // return to default state - need system for control it
-    petBattleState = 2;
+    SetBattleState(2);
 
-    delete round;
     return true;
 }
 
-int8 PetBattleWild::GetLastAlivePetID(uint8 team)
+int8 PetBattle::GetLastAlivePetID(uint8 team)
 {
     for (auto const& x : battleInfo)
     {
-        PetBattleInfo* pb = x;
-
-        if (!pb || pb->GetTeam() != team)
+        if (x->GetTeam() != team)
             continue;
 
-        if (!pb->IsDead() && !pb->Captured() && !pb->Caged())
-            return pb->GetPetID();
+        if (!x->IsDead() && !x->Captured() && !x->Caged())
+            return x->GetPetID();
     }
 
     return -1;
 }
 
-uint32 PetBattleWild::GetCurrentRoundID()
+uint32 PetBattle::GetCurrentRoundID()
 {
     return currentRoundID;
 }
 
-bool PetBattleWild::SkipTurnHandler(uint32 _roundID)
+bool PetBattle::SkipTurnHandler(uint32 roundID)
 {
-    PetBattleRoundResults* round = new PetBattleRoundResults(_roundID);
-    // default state - need system for control it
-    petBattleState = 2;
+    RoundResults round;
+    round.PacketInfo.CurRound = roundID;
 
-    // check active pets
+    SetBattleState(2);
+
     PetBattleInfo* allyPet = GetFrontPet(TEAM_ALLY);
     PetBattleInfo* enemyPet = GetFrontPet(TEAM_ENEMY);
     if (!allyPet || !enemyPet)
         return false;
 
-    round->ProcessSkipTurn(allyPet->GetPetID());
+    round.ProcessSkipTurn(allyPet->GetPetID());
 
     // response enemy after player pet skip turn
     uint32 castAbilityID = enemyPet->GetAbilityID(0);
     if (!castAbilityID)
         return false;
 
-    uint32 effectID = GetVisualEffectIDByAbilityID(castAbilityID);
-    round->ProcessAbilityDamage(enemyPet, allyPet, castAbilityID, effectID, 1);
+    round.ProcessAbilityDamage(enemyPet, allyPet, castAbilityID, sDB2Manager.GetBattlePetTurnByAbility(castAbilityID), 1);
 
     // find right place for some handler
     if (allyPet->IsDead() && !GetTotalPetCountInTeam(allyPet->GetTeam(), true))
@@ -694,26 +1435,25 @@ bool PetBattleWild::SkipTurnHandler(uint32 _roundID)
     else if (allyPet->IsDead() && GetTotalPetCountInTeam(allyPet->GetTeam(), true) > 1)
         SetBattleState(3);
 
-    round->AuraProcessingBegin();
-    round->AuraProcessingEnd();
+    round.AuraProcessingBegin();
+    round.AuraProcessingEnd();
 
     // increase round number
-    round->roundID++;
-    SetCurrentRoundID(round->roundID);
+    round.PacketInfo.CurRound++;
+    SetCurrentRoundID(round.PacketInfo.CurRound);
 
-    CheckTrapStatuses(round);
-    CheckInputFlags(round);
+    CheckTrapStatuses(&round);
+    CheckInputFlags(&round);
 
-    SendRoundResults(round);
+    SendRoundResults(&round);
 
     if (allyPet->IsDead() && GetTotalPetCountInTeam(TEAM_ALLY, true) == 1)
-        ForceReplacePetHandler(round->roundID, GetLastAlivePetID(TEAM_ALLY), TEAM_ALLY);
+        ForceReplacePetHandler(round.PacketInfo.CurRound, GetLastAlivePetID(TEAM_ALLY), TEAM_ALLY);
 
-    delete round;
     return true;
 }
 
-bool PetBattleWild::UseTrapHandler(uint32 _roundID)
+bool PetBattle::UseTrapHandler(uint32 roundID)
 {
     // check active pets
     PetBattleInfo* allyPet = GetFrontPet(TEAM_ALLY);
@@ -731,19 +1471,27 @@ bool PetBattleWild::UseTrapHandler(uint32 _roundID)
     // check chance - base implemented
     uint8 trapped = 1;
     //if (roll_chance_i(70))
-        //trapped = 1;
+    //trapped = 1;
 
-    PetBattleRoundResults* round = new PetBattleRoundResults(_roundID);
+    RoundResults round;
+    round.PacketInfo.CurRound = roundID;
+
     // default state - need system for control it
-    petBattleState = 2;
+    SetBattleState(2);
 
     // demo
-    PetBattleEffect* effect = new PetBattleEffect(allyPet->GetPetID(), 698, 5, 0, 0, 1, 1);
-    PetBattleEffectTarget * target = new PetBattleEffectTarget(enemyPet->GetPetID(), 1);
-    target->status = trapped;
-
-    effect->AddTarget(target);
-    round->AddEffect(effect);
+    PetBattle::RoundResults::Effect effect;
+    effect.PacketInfo.CasterPBOID = allyPet->GetPetID();
+    effect.PacketInfo.AbilityEffectID = 698;
+    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_5;
+    effect.PacketInfo.TurnInstanceID = 1;
+    effect.PacketInfo.StackDepth = 1;
+    PetBattle::RoundResults::Effect::Target target;
+    target.PacketInfo.Petx = enemyPet->GetPetID();
+    target.PacketInfo.Type = EFFECT_TARGET_1;
+    target.PacketInfo.NewStatValue = trapped;
+    effect.PacketInfo.EffectTargetData.emplace_back(target.PacketInfo);
+    round.PacketInfo.EffectData.emplace_back(effect.PacketInfo);
 
     // demo
     if (!trapped)
@@ -753,7 +1501,7 @@ bool PetBattleWild::UseTrapHandler(uint32 _roundID)
     else
     {
         enemyPet->SetCaptured(true);
-        round->petXDiedNumbers.push_back(enemyPet->GetPetID());
+        round.PacketInfo.PetXDied.push_back(enemyPet->GetPetID());
 
         if (!GetTotalPetCountInTeam(TEAM_ENEMY, true))
         {
@@ -762,35 +1510,34 @@ bool PetBattleWild::UseTrapHandler(uint32 _roundID)
         }
     }
 
-    round->AuraProcessingBegin();
-    round->AuraProcessingEnd();
+    round.AuraProcessingBegin();
+    round.AuraProcessingEnd();
 
     // set trap status
-    round->SetTrapStatus(TEAM_ALLY, PET_BATTLE_TRAP_ERR_8);
+    round.PacketInfo.NextTrapStatus[TEAM_ALLY] = PET_BATTLE_TRAP_ERR_8;
 
     // increase round
-    round->roundID++;
-    SetCurrentRoundID(round->roundID);
+    round.PacketInfo.CurRound++;
+    SetCurrentRoundID(round.PacketInfo.CurRound);
 
-    SendRoundResults(round);
+    SendRoundResults(&round);
 
     if (GetTotalPetCountInTeam(TEAM_ENEMY, true))
-        ForceReplacePetHandler(round->roundID, enemyPet->GetPetID() + 1, TEAM_ENEMY);
+        ForceReplacePetHandler(round.PacketInfo.CurRound, enemyPet->GetPetID() + 1, TEAM_ENEMY);
 
-    delete round;
     return true;
 }
 
-bool PetBattleWild::SwapPetHandler(uint8 newFrontPet, uint32 _roundID)
+bool PetBattle::SwapPetHandler(uint8 newFrontPet, uint32 roundID)
 {
-    PetBattleRoundResults* round = new PetBattleRoundResults(_roundID);
-    // default state - need system for control it
-    petBattleState = 2;
+    RoundResults round;
+    round.PacketInfo.CurRound = roundID;
+
+    SetBattleState(2);
 
     // check active pets
     PetBattleInfo* allyPet = GetFrontPet(TEAM_ALLY);
     PetBattleInfo* enemyPet = GetFrontPet(TEAM_ENEMY);
-
     if (!allyPet || !enemyPet)
         return false;
 
@@ -799,27 +1546,29 @@ bool PetBattleWild::SwapPetHandler(uint8 newFrontPet, uint32 _roundID)
 
     if (allyPet->GetPetID() == newFrontPet)
     {
-        SkipTurnHandler(_roundID);
+        SkipTurnHandler(roundID);
         return true;
     }
 
-    round->ProcessPetSwap(allyPet->GetPetID(), newFrontPet);
+    // cheater check
+    PetBattleInfo* _newFrontPet = GetPet(newFrontPet);
+    if (!_newFrontPet || _newFrontPet->IsDead())
+        return false;
+
+    round.ProcessPetSwap(allyPet->GetPetID(), newFrontPet);
 
     SetFrontPet(TEAM_ALLY, newFrontPet);
-    // check front pet
-    allyPet = GetFrontPet(TEAM_ALLY);
 
+    allyPet = GetFrontPet(TEAM_ALLY);
     if (!allyPet)
         return false;
 
     // response enemy after player pet swap
     uint32 castAbilityID = enemyPet->GetAbilityID(0);
-
     if (!castAbilityID)
         return false;
 
-    uint32 effectID = GetVisualEffectIDByAbilityID(castAbilityID);
-    round->ProcessAbilityDamage(enemyPet, allyPet, castAbilityID, effectID, 1);
+    round.ProcessAbilityDamage(enemyPet, allyPet, castAbilityID, sDB2Manager.GetBattlePetTurnByAbility(castAbilityID), 1);
 
     // find right place for some handler
     if (allyPet->IsDead() && !GetTotalPetCountInTeam(allyPet->GetTeam(), true))
@@ -830,33 +1579,33 @@ bool PetBattleWild::SwapPetHandler(uint8 newFrontPet, uint32 _roundID)
     else if (allyPet->IsDead() && GetTotalPetCountInTeam(allyPet->GetTeam(), true) > 1)
         SetBattleState(3);
 
-    round->AuraProcessingBegin();
-    round->AuraProcessingEnd();
+    round.AuraProcessingBegin();
+    round.AuraProcessingEnd();
 
     // increase round number
-    round->roundID++;
-    SetCurrentRoundID(round->roundID);
+    round.PacketInfo.CurRound++;
+    SetCurrentRoundID(round.PacketInfo.CurRound);
 
-    CheckTrapStatuses(round);
-    SendRoundResults(round);
+    CheckTrapStatuses(&round);
+    CheckInputFlags(&round);
+
+    SendRoundResults(&round);
 
     if (allyPet->IsDead() && GetTotalPetCountInTeam(TEAM_ALLY, true) == 1)
-        ForceReplacePetHandler(round->roundID, GetLastAlivePetID(TEAM_ALLY), TEAM_ALLY);
+        ForceReplacePetHandler(round.PacketInfo.CurRound, GetLastAlivePetID(TEAM_ALLY), TEAM_ALLY);
 
-    delete round;
     return true;
 }
 
-void PetBattleWild::CheckTrapStatuses(PetBattleRoundResults* round)
+void PetBattle::CheckTrapStatuses(RoundResults* round)
 {
-    // check active pets
     PetBattleInfo* allyPet = GetFrontPet(TEAM_ALLY);
     PetBattleInfo* enemyPet = GetFrontPet(TEAM_ENEMY);
     if (!allyPet || !enemyPet)
         return;
 
     // default for wild pets and NPC
-    round->SetTrapStatus(TEAM_ENEMY, PET_BATTLE_TRAP_ERR_2);
+    round->PacketInfo.NextTrapStatus[TEAM_ENEMY] = PET_BATTLE_TRAP_ERR_2;
 
     if (enemyPet->Caged() || enemyPet->Captured())
         return;
@@ -868,36 +1617,49 @@ void PetBattleWild::CheckTrapStatuses(PetBattleRoundResults* round)
 
     // some checks
     uint32 creatureEntry = enemyPet->GetCreatureEntry();
-    if (m_player->GetBattlePetMgr()->GetPetCount(creatureEntry) >= 3)
+    if (_player->GetBattlePetMgr()->GetPetCount(creatureEntry) >= 3)
         allyTrapStatus = PET_BATTLE_TRAP_ERR_5;
 
     if (allyPet->IsDead() || enemyPet->IsDead())
         allyTrapStatus = PET_BATTLE_TRAP_ERR_3;
 
-    round->SetTrapStatus(TEAM_ALLY, allyTrapStatus);
+    round->PacketInfo.NextTrapStatus[TEAM_ALLY] = allyTrapStatus;
 }
 
-void PetBattleWild::CheckInputFlags(PetBattleRoundResults* round)
+void PetBattle::CheckInputFlags(RoundResults* round)
 {
-    for (uint8 i = 0; i < 2; ++i)
-        round->SetInputFlags(i, 0);
+    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+        round->PacketInfo.NextInputFlags[i] = 0;
 
     // check special state
     if (GetBattleState() == 3)
     {
-        round->SetInputFlags(TEAM_ALLY, 8);
-        round->SetInputFlags(TEAM_ENEMY, 6);
+        round->PacketInfo.NextInputFlags[TEAM_ALLY] = 8;
+        round->PacketInfo.NextInputFlags[TEAM_ENEMY] = 6;
     }
 }
 
-void PetBattleWild::SendRoundResults(PetBattleRoundResults* result)
+void PetBattle::SendRoundResults(RoundResults* roundResult)
 {
     WorldPackets::BattlePet::BattleRound round(SMSG_PET_BATTLE_ROUND_RESULT);
-    round.MsgData.Initialize(result);
-    m_player->GetSession()->SendPacket(round.Write());
+    round.MsgData.NextPetBattleState = GetBattleState();
+    round.MsgData.CurRound = roundResult->PacketInfo.CurRound;
+
+    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    {
+        round.MsgData.NextInputFlags[i] = roundResult->PacketInfo.NextInputFlags[i];
+        round.MsgData.NextTrapStatus[i] = roundResult->PacketInfo.NextTrapStatus[i];
+        round.MsgData.RoundTimeSecs[i] = roundResult->PacketInfo.RoundTimeSecs[i];
+    }
+
+    round.MsgData.EffectData = roundResult->PacketInfo.EffectData;
+    round.MsgData.Ability = roundResult->PacketInfo.Ability;
+    round.MsgData.PetXDied = roundResult->PacketInfo.PetXDied;
+
+    _player->GetSession()->SendPacket(round.Write());
 }
 
-bool PetBattleWild::FinalRoundHandler(bool abandoned)
+bool PetBattle::FinalRoundHandler(bool abandoned)
 {
     PetBattleInfo* allyPet = GetFrontPet(TEAM_ALLY);
     PetBattleInfo* enemyPet = GetFrontPet(TEAM_ENEMY);
@@ -920,7 +1682,7 @@ bool PetBattleWild::FinalRoundHandler(bool abandoned)
         // formula
         uint16 rewardXp = (enemyPet->GetLevel() + 9) * (levelDiff + 5);
 
-        Unit::AuraEffectList const& auras = m_player->GetAuraEffectsByType(SPELL_AURA_MOD_BATTLE_PET_XP_GAIN);
+        Unit::AuraEffectList const& auras = _player->GetAuraEffectsByType(SPELL_AURA_MOD_BATTLE_PET_XP_GAIN);
         for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
             rewardXp *= (*itr)->GetAmount();
 
@@ -928,23 +1690,18 @@ bool PetBattleWild::FinalRoundHandler(bool abandoned)
             rewardXp = 0;
 
         newXp = oldXp + rewardXp;
-        uint32 totalXp = m_player->GetBattlePetMgr()->GetXPForNextLevel(allyPet->GetLevel());
+        uint32 totalXp = _player->GetBattlePetMgr()->GetXPForNextLevel(allyPet->GetLevel());
 
         // check level-up
         if (newXp >= totalXp)
         {
             allyPet->SetNewLevel(allyPet->GetLevel() + 1);
-            uint16 remXp = newXp - totalXp;
-            allyPet->SetTotalXP(remXp);
+            allyPet->SetTotalXP(newXp - totalXp);
 
-            // recalculate stats
-            BattlePetStatAccumulator* accumulator = new BattlePetStatAccumulator(allyPet->GetSpeciesID(), allyPet->GetBreedID());
-            accumulator->CalcQualityMultiplier(allyPet->GetQuality(), allyPet->GetNewLevel());
-            uint32 health = accumulator->CalculateHealth();
-            uint32 power = accumulator->CalculatePower();
-            uint32 speed = accumulator->CalculateSpeed();
-            delete accumulator;
-
+            uint32 health = 0;
+            uint32 power = 0;
+            uint32 speed = 0;
+            _player->GetBattlePetMgr()->CalculateStats(allyPet->GetSpeciesID(), allyPet->GetBreedID(), allyPet->GetQuality(), allyPet->GetNewLevel(), health, power, speed);
             allyPet->SetHealth(health);
             allyPet->SetMaxHealth(health);
             allyPet->SetPower(power);
@@ -960,15 +1717,14 @@ bool PetBattleWild::FinalRoundHandler(bool abandoned)
             // all alive pets penalty
             for (auto const& x : battleInfo)
             {
-                PetBattleInfo* pb = x;
-                if (!pb || pb->GetTeam() != TEAM_ALLY)
+                if (x->GetTeam() != TEAM_ALLY)
                     continue;
 
-                if (!pb->IsDead())
+                if (!x->IsDead())
                 {
-                    int32 percent10 = pb->GetHealth() / 10;
-                    int32 newHealth = pb->GetHealth() - percent10;
-                    pb->SetHealth(newHealth);
+                    int32 percent10 = x->GetHealth() / 10;
+                    int32 newHealth = x->GetHealth() - percent10;
+                    x->SetHealth(newHealth);
                 }
             }
         }
@@ -979,258 +1735,136 @@ bool PetBattleWild::FinalRoundHandler(bool abandoned)
     return true;
 }
 
-void PetBattleWild::SendFinalRound()
+void PetBattle::SendFinalRound(bool pvpBattle /*= false*/)
 {
     WorldPackets::BattlePet::SceneObjectFinalRound round;
     round.MsgData.Abandoned = abandoned;
-    round.MsgData.PvpBattle = false;
-
-    for (uint8 i = 0; i < 2; i++)
+    round.MsgData.PvpBattle = pvpBattle;
+    for (uint8 i = 0; i < MAX_TEAMS; ++i)
     {
-        round.MsgData.Winner[i] = winners[i];
-        round.MsgData.NpcCreatureID[i] = 0;
-
-        for (auto const& n : battleInfo)
+        for (auto const& x : battleInfo)
         {
-            PetBattleInfo* pb = n;
-            if (!pb || pb->GetTeam() != i)
+            if (x->GetTeam() != i)
                 continue;
 
             WorldPackets::BattlePet::FinalPet pet;
-            pet.Guid = pb->GetGUID();
-            pet.Level = pb->GetNewLevel();
-            pet.Health = pb->GetHealth();
-            pet.MaxHealth = pb->GetMaxHealth();
-            pet.InitialLevel = pb->GetLevel();
-            pet.Pboid = pb->GetPetID();
-            pet.Captured = pb->Captured();
-            pet.Caged = pb->Caged();
+            pet.Guid = x->GetGUID();
+            pet.Level = x->GetNewLevel();
+            pet.Health = x->GetHealth();
+            pet.MaxHealth = x->GetMaxHealth();
+            pet.InitialLevel = x->GetLevel();
+            pet.Pboid = x->GetPetID();
+            pet.Captured = x->Captured();
+            pet.Caged = x->Caged();
             pet.SeenAction = false;
-            pet.AwardedXP = pb->GetTotalXP() || (pb->GetLevel() < pb->GetNewLevel());
-            pet.Xp = pb->GetTotalXP();
+            pet.AwardedXP = x->GetTotalXP() || (x->GetLevel() < x->GetNewLevel());
+            pet.Xp = x->GetTotalXP();
             round.MsgData.Pets.push_back(pet);
         }
+
+        round.MsgData.NpcCreatureID[i] = 0;
     }
 
-    m_player->GetSession()->SendPacket(round.Write());
+    _player->GetSession()->SendPacket(round.Write());
 }
 
-void PetBattleWild::SendFinishPetBattle()
+void PetBattle::SendFinishPetBattle()
 {
-    m_player->GetSession()->SendPacket(WorldPackets::BattlePet::NullSMsg(SMSG_PET_BATTLE_FINISHED).Write());
+    _player->GetSession()->SendPacket(WorldPackets::BattlePet::NullSMsg(SMSG_PET_BATTLE_FINISHED).Write());
 }
 
-void PetBattleWild::UpdatePetsAfterBattle()
+void PetBattle::UpdatePetsAfterBattle()
 {
     GuidList updates;
     updates.clear();
+    std::vector<BattlePetMgr::BattlePet> pets;
 
-    // find trapped pets
-    for (uint8 i = 0; i < 2; ++i)
+    for (uint8 i = 0; i < MAX_TEAMS; ++i)
     {
         for (auto const& v : battleInfo)
         {
-            PetBattleInfo* pb = v;
-            if (!pb || pb->GetTeam() != i)
+            if (v->GetTeam() != i)
                 continue;
 
-            if (i == TEAM_ENEMY && !pb->Captured())
+            if (i == TEAM_ENEMY && !v->Captured())
                 continue;
 
             // update loadout
             if (i == TEAM_ALLY)
             {
-                PetJournalInfo* loadoutInfo = m_player->GetBattlePetMgr()->GetPetInfoByPetGUID(pb->GetGUID());
-
+                auto loadoutInfo = _player->GetBattlePetMgr()->GetPet(v->GetGUID());
                 if (!loadoutInfo)
                     continue;
 
-                // recalculate stats
-                BattlePetStatAccumulator* accumulator = new BattlePetStatAccumulator(pb->GetSpeciesID(), pb->GetBreedID());
-                accumulator->CalcQualityMultiplier(pb->GetQuality(), pb->GetNewLevel());
-                uint32 health = accumulator->CalculateHealth();
-                uint32 power = accumulator->CalculatePower();
-                uint32 speed = accumulator->CalculateSpeed();
-                delete accumulator;
-
+                uint32 health = 0;
+                uint32 power = 0;
+                uint32 speed = 0;
+                _player->GetBattlePetMgr()->CalculateStats(v->GetSpeciesID(), v->GetBreedID(), v->GetQuality(), v->GetNewLevel(), health, power, speed);
                 // update
-                loadoutInfo->SetLevel(pb->GetNewLevel());
-                if (pb->IsDead())
-                    loadoutInfo->SetHealth(0);
+                loadoutInfo->PacketInfo.Level = v->GetNewLevel();
+                if (v->IsDead())
+                    loadoutInfo->PacketInfo.Health = 0;
                 else
-                    loadoutInfo->SetHealth(pb->GetHealth());
-                loadoutInfo->SetQuality(pb->GetQuality());
-                loadoutInfo->SetXP(pb->GetTotalXP());
-                loadoutInfo->SetPower(power);
-                loadoutInfo->SetSpeed(speed);
-                loadoutInfo->SetMaxHealth(health);
-                loadoutInfo->SetState(STATE_UPDATED);
+                    loadoutInfo->PacketInfo.Health = v->GetHealth();
+                loadoutInfo->PacketInfo.BreedQuality = v->GetQuality();
+                loadoutInfo->PacketInfo.Xp = v->GetTotalXP();
+                loadoutInfo->PacketInfo.Power = power;
+                loadoutInfo->PacketInfo.Speed = speed;
+                loadoutInfo->PacketInfo.MaxHealth = health;
+                loadoutInfo->SaveInfo = STATE_UPDATED;
+                loadoutInfo->PacketInfo.BattlePetGUID = v->GetGUID();
 
-                updates.push_back(pb->GetGUID());
+                pets.push_back(*loadoutInfo);
             }
             // update trapped pets and added in journal
             else
             {
-                ObjectGuid petguid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>()->Generate());
-
-                BattlePetStatAccumulator* accumulator = new BattlePetStatAccumulator(pb->GetSpeciesID(), pb->GetBreedID());
-                accumulator->CalcQualityMultiplier(pb->GetQuality(), pb->GetLevel());
-                uint32 health = accumulator->CalculateHealth();
-                uint32 power = accumulator->CalculatePower();
-                uint32 speed = accumulator->CalculateSpeed();
-                delete accumulator;
-
-                m_player->GetBattlePetMgr()->AddPetToList(petguid, pb->GetSpeciesID(), pb->GetCreatureEntry(), pb->GetLevel(), pb->GetDisplayID(), power, speed, pb->GetHealth(), health, pb->GetQuality(), 0, 0, pb->GetSummonSpell(), "", pb->GetBreedID(), STATE_UPDATED);
+                _player->GetBattlePetMgr()->AddPet(v->GetSpeciesID(), v->GetCreatureEntry(), v->GetBreedID(), v->GetQuality(), v->GetLevel());
                 // hack, fix it!
-                if (pb->GetSummonSpell())
-                    m_player->learnSpell(pb->GetSummonSpell(), false);
+                if (v->GetSummonSpell())
+                    _player->learnSpell(v->GetSummonSpell(), false);
 
-                GuidList newPets;
-                newPets.clear();
-                newPets.push_back(petguid);
-
-                m_player->GetBattlePetMgr()->SendUpdatePets(newPets, true);
-                m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, pb->GetCreatureEntry());
-                m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_BATTLEPET);
-                m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_PET_IN_BATTLE, pb->GetSpeciesID(), pb->GetQuality(), sDB2Manager.GetBattlePetSpeciesBySpellID(pb->GetCreatureEntry()));
-                m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT);
+                _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, v->GetCreatureEntry());
+                _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_BATTLEPET);
+                _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_PET_IN_BATTLE, v->GetSpeciesID(), v->GetQuality(), sDB2Manager.GetBattlePetSpeciesBySpellID(v->GetCreatureEntry()));
+                _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT);
             }
 
             if (GetWinner() == TEAM_ALLY)
             {
-                m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN, 0, 0, sDB2Manager.GetBattlePetSpeciesBySpellID(pb->GetCreatureEntry()));
+                _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN, 0, 0, sDB2Manager.GetBattlePetSpeciesBySpellID(v->GetCreatureEntry()));
 
-                if (pb->GetNewLevel() > pb->GetLevel())
-                    m_player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP, pb->GetNewLevel());
+                if (v->GetNewLevel() > v->GetLevel())
+                    _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP, v->GetNewLevel());
             }
             else
-                m_player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE_PET_BATTLE);
+                _player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE_PET_BATTLE);
         }
     }
 
-    if (!updates.empty())
-        m_player->GetBattlePetMgr()->SendUpdatePets(updates, false);
+    if (!pets.empty())
+        _player->GetBattlePetMgr()->SendUpdatePets(pets, false);
 }
 
-void PetBattleWild::FinishPetBattle(bool error)
+void PetBattle::FinishPetBattle(bool error)
 {
     SendFinishPetBattle();
 
     if (!error)
         UpdatePetsAfterBattle();
 
-    m_player->GetBattlePetMgr()->CloseWildPetBattle();
+    _player->GetBattlePetMgr()->ClosePetBattle();
 }
 
-uint32 PetBattleWild::GetVisualEffectIDByAbilityID(uint32 abilityID, uint8 turnIndex)
-{
-    for (BattlePetAbilityTurnEntry const* tEntry : sBattlePetAbilityTurnStore)
-    {
-        if (tEntry->AbilityID == abilityID && tEntry->turnIndex == turnIndex)
-        {
-            for (BattlePetAbilityEffectEntry const* eEntry : sBattlePetAbilityEffectStore)
-                if (eEntry->TurnEntryID == tEntry->ID)
-                    return eEntry->ID;
-        }
-    }
-
-    return 0;
-}
-
-PetBattleAbilityInfo::PetBattleAbilityInfo(uint32 _ID, uint32 _speciesID)
-{
-    BattlePetAbilityEntry const* abilityEntry = sBattlePetAbilityStore.LookupEntry(_ID);
-    if (abilityEntry)
-    {
-        // get data from abilityEntry
-        ID = abilityEntry->ID;
-        Type = abilityEntry->Type;
-        turnCooldown = abilityEntry->turnCooldown;
-        auraAbilityID = abilityEntry->auraAbilityID;
-        auraDuration = abilityEntry->auraDuration;
-        // get data from xAbilityEntry
-        // fucking blizzard...
-        for (BattlePetSpeciesXAbilityEntry const* xEntry : sBattlePetSpeciesXAbilityStore)
-        {
-            if (xEntry->abilityID == abilityEntry->ID && xEntry->speciesID == _speciesID)
-            {
-                requiredLevel = xEntry->requiredLevel;
-                rank = xEntry->rank;
-                break;
-            }
-        }
-    }
-}
-
-uint32 PetBattleAbilityInfo::GetEffectProperties(uint8 properties, uint32 effectIdx, uint32 turnIndex)
-{
-    char* desc = "Points";
-    // get string for properties
-    switch (properties)
-    {
-        case 1: desc = "Accuracy"; break;
-        default: break;
-    }
-
-    // get turn data entry
-    for (BattlePetAbilityTurnEntry const* tEntry : sBattlePetAbilityTurnStore)
-    {
-        if (tEntry->AbilityID == ID && tEntry->turnIndex == turnIndex)
-        {
-            // get effect data
-            for (BattlePetAbilityEffectEntry const* eEntry : sBattlePetAbilityEffectStore)
-            {
-                if (eEntry->TurnEntryID == tEntry->ID)
-                {
-                    // get effect properties data
-                    for (BattlePetEffectPropertiesEntry const* pEntry : sBattlePetEffectPropertiesStore)
-                    {
-                        if (eEntry->propertiesID == pEntry->ID)
-                        {
-                            for (uint8 l = 0; l < MAX_EFFECT_PROPERTIES; ++l)
-                            {
-                                if (!strcmp(pEntry->propertyDescs[DEFAULT_LOCALE][l].Str[DEFAULT_LOCALE], desc))
-                                    return eEntry->propertyValues[l];
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return 0;
-}
-
-float PetBattleAbilityInfo::GetAttackModifier(uint8 attackType, uint8 defenseType)
-{
-    // maybe number of attack types?
-    uint32 formulaValue = 0xA;
-    uint32 modId = defenseType * formulaValue + Type;
-
-    //! TODO: check IT
-    if (GtBattlePetTypeDamageModEntry const* gt = sGtBattlePetTypeDamageModStore.EvaluateTable(defenseType - 1, Type - 1))
-        return gt->value;
-
-    //for (GtBattlePetTypeDamageModEntry const* gt : sGtBattlePetTypeDamageModStore)
-    //{
-    //    if (gt->Id == modId)
-    //        return gt->value;
-    //}
-
-    return 0.0f;
-}
-
-// PetJournalInfo
-uint32 PetJournalInfo::GetAbilityID(uint8 rank)
+uint32 BattlePetMgr::BattlePet::GetAbilityID(uint8 rank)
 {
     for (BattlePetSpeciesXAbilityEntry const* xEntry : sBattlePetSpeciesXAbilityStore)
     {
-        if (xEntry->speciesID == speciesID && xEntry->rank == rank)
+        if (xEntry->speciesID == PacketInfo.SpeciesID && xEntry->rank == rank)
         {
             if (rank == 0)
             {
-                if (flags & BATTLE_PET_FLAG_CUSTOM_ABILITY_1)
+                if (PacketInfo.BattlePetDBFlags & BATTLE_PET_FLAG_CUSTOM_ABILITY_1)
                 {
                     if (xEntry->requiredLevel == 10)
                         return xEntry->abilityID;
@@ -1246,7 +1880,7 @@ uint32 PetJournalInfo::GetAbilityID(uint8 rank)
 
             if (rank == 1)
             {
-                if (flags & BATTLE_PET_FLAG_CUSTOM_ABILITY_2)
+                if (PacketInfo.BattlePetDBFlags & BATTLE_PET_FLAG_CUSTOM_ABILITY_2)
                 {
                     if (xEntry->requiredLevel == 15)
                         return xEntry->abilityID;
@@ -1262,7 +1896,7 @@ uint32 PetJournalInfo::GetAbilityID(uint8 rank)
 
             if (rank == 2)
             {
-                if (flags & BATTLE_PET_FLAG_CUSTOM_ABILITY_3)
+                if (PacketInfo.BattlePetDBFlags & BATTLE_PET_FLAG_CUSTOM_ABILITY_3)
                 {
                     if (xEntry->requiredLevel == 20)
                         return xEntry->abilityID;
@@ -1279,126 +1913,152 @@ uint32 PetJournalInfo::GetAbilityID(uint8 rank)
     }
 
     return 0;
+
+    //bool customAbility = false;
+
+    //switch (rank)
+    //{
+    //    case 0:
+    //        customAbility = (PacketInfo.BattlePetDBFlags & BATTLE_PET_FLAG_CUSTOM_ABILITY_1) ? true : false;
+    //        break;
+    //    case 1:
+    //        customAbility = (PacketInfo.BattlePetDBFlags & BATTLE_PET_FLAG_CUSTOM_ABILITY_2) ? true : false;
+    //        break;
+    //    case 2:
+    //        customAbility = (PacketInfo.BattlePetDBFlags & BATTLE_PET_FLAG_CUSTOM_ABILITY_3) ? true : false;
+    //        break;
+    //    default:
+    //        break;
+    //}
+    //
+    //return sDB2Manager.GetBattlePetXAbilityEntryBySpec(speciesID, customAbility, rank);
 }
 
-// PetBattleRoundResults
-PetBattleRoundResults::~PetBattleRoundResults()
-{
-    // delete targets
-    for (std::list<PetBattleEffect*>::iterator itr = effects.begin(); itr != effects.end(); ++itr)
-        for (std::list<PetBattleEffectTarget*>::iterator itr2 = (*itr)->targets.begin(); itr2 != (*itr)->targets.end(); ++itr2)
-            delete (*itr2);
-
-    // delete effects
-    for (std::list<PetBattleEffect*>::iterator itr = effects.begin(); itr != effects.end(); ++itr)
-        delete (*itr);
-}
-
-void PetBattleRoundResults::ProcessAbilityDamage(PetBattleInfo* caster, PetBattleInfo* target, uint32 abilityID, uint32 effectID, uint8 turnInstanceID)
+void PetBattle::RoundResults::ProcessAbilityDamage(PetBattleInfo* caster, PetBattleInfo* target, uint32 abilityID, uint32 effectID, uint8 TurnInstanceID)
 {
     // check on dead
     if (caster->IsDead() || target->IsDead())
         return;
 
+    // simple combination of effect 0 and target type 6
+
+    PetBattle::RoundResults::Effect effect;
+    effect.PacketInfo.CasterPBOID = caster->GetPetID();
+    effect.PacketInfo.AbilityEffectID = effectID;
+    effect.PacketInfo.TurnInstanceID = TurnInstanceID;
+    effect.PacketInfo.StackDepth = 1;
+    PetBattle::RoundResults::Effect::Target t;
+    t.PacketInfo.Petx = target->GetPetID();
+    t.PacketInfo.Type = EFFECT_TARGET_6;
+
+    // get ability data
+    if (BattlePetAbilityEntry const* entry = sBattlePetAbilityStore.LookupEntry(abilityID))
+        effect.abilityEntry = entry;
+    if (!effect.abilityEntry)
+        return;
+
     // base pre-calculate damage and flags
-    PetBattleAbilityInfo* ainfo = new PetBattleAbilityInfo(abilityID, caster->GetSpeciesID());
-    uint16 flags = ainfo->CalculateHitResult(caster, target);
+    uint16 flags = effect.CalculateHitResult(target);
     bool crit = false;
     if (flags & PETBATTLE_EFFECT_FLAG_CRIT)
         crit = true;
-    uint32 damage = ainfo->CalculateDamage(caster, target, crit);
-
-    // simple combination of effect 0 and target type 6
-    PetBattleEffect* effect = new PetBattleEffect(caster->GetPetID(), effectID, 0, flags, 0, turnInstanceID, 1);
-    PetBattleEffectTarget* t = new PetBattleEffectTarget(target->GetPetID(), 6);
+    effect.PacketInfo.Flags = flags;
 
     // process in battle
-    int32 newHealth = target->GetHealth() - damage;
-    target->SetHealth(newHealth);
+    t.PacketInfo.Health = target->GetHealth() - effect.CalculateDamage(caster, target, crit);
+    target->SetHealth(t.PacketInfo.Health);
 
     // process for round result
-    t->remainingHealth = newHealth;
-
-    effect->AddTarget(t);
-    AddEffect(effect);
+    effect.PacketInfo.EffectTargetData.emplace_back(t.PacketInfo);
+    PacketInfo.EffectData.emplace_back(effect.PacketInfo);
 
     // process if victim dead
     if (target->IsDead())
     {
-        // added petID to died ID
-        AddDeadPet(target->GetPetID());
-        // set state DEAD (testing!)
-        ProcessSetState(caster, target, effectID, 1, 1, turnInstanceID);
+        PacketInfo.PetXDied.push_back(target->GetPetID());
+        ProcessSetState(caster, target, effectID, 1, 1, TurnInstanceID);
     }
 }
 
-void PetBattleRoundResults::AddDeadPet(uint8 petNumber)
+void PetBattle::RoundResults::ProcessSetState(PetBattleInfo* caster, PetBattleInfo* target, uint32 effectID, uint8 stateID, uint32 stateValue, uint8 TurnInstanceID)
 {
-    petXDiedNumbers.push_back(petNumber);
+    PetBattle::RoundResults::Effect effect;
+    effect.PacketInfo.CasterPBOID = caster->GetPetID();
+    effect.PacketInfo.AbilityEffectID = effectID;
+    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_6;
+    effect.PacketInfo.SourceAuraInstanceID = TurnInstanceID;
+    effect.PacketInfo.StackDepth = 1;
+    PetBattle::RoundResults::Effect::Target t;
+    t.PacketInfo.Petx = target->GetPetID();
+    t.PacketInfo.Type = EFFECT_TARGET_4;
+    t.PacketInfo.StateID = stateID;
+    t.PacketInfo.StateValue = stateValue;
+    effect.PacketInfo.EffectTargetData.emplace_back(t.PacketInfo);
+    PacketInfo.EffectData.emplace_back(effect.PacketInfo);
 }
 
-void PetBattleRoundResults::ProcessSetState(PetBattleInfo* caster, PetBattleInfo* target, uint32 effectID, uint8 stateID, uint32 stateValue, uint8 turnInstanceID)
-{
-    PetBattleEffect* effect = new PetBattleEffect(caster->GetPetID(), effectID, 6, 0, 0, turnInstanceID, 1);
-    PetBattleEffectTarget* t = new PetBattleEffectTarget(target->GetPetID(), 4);
-
-    t->stateID = stateID;
-    t->stateValue = stateValue;
-
-    effect->AddTarget(t);
-    AddEffect(effect);
-}
-
-void PetBattleRoundResults::ProcessPetSwap(uint8 oldPetNumber, uint8 newPetNumber)
+void PetBattle::RoundResults::ProcessPetSwap(uint8 oldPetNumber, uint8 newPetNumber)
 {
     // simple combination of effect 4 and target type 3
-    PetBattleEffect* effect = new PetBattleEffect(oldPetNumber, 0, 4, 0, 0, 0, 0);
-    PetBattleEffectTarget* target = new PetBattleEffectTarget(newPetNumber, 3);
-
-    effect->AddTarget(target);
-    AddEffect(effect);
+    PetBattle::RoundResults::Effect effect;
+    effect.PacketInfo.CasterPBOID = oldPetNumber;
+    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_4;
+    PetBattle::RoundResults::Effect::Target target;
+    target.PacketInfo.Petx = newPetNumber;
+    target.PacketInfo.Type = EFFECT_TARGET_3;
+    effect.PacketInfo.EffectTargetData.emplace_back(target.PacketInfo);
+    PacketInfo.EffectData.emplace_back(effect.PacketInfo);
 }
 
-void PetBattleRoundResults::ProcessSkipTurn(uint8 petNumber)
+void PetBattle::RoundResults::ProcessSkipTurn(uint8 petNumber)
 {
     // simple combination of effect 4 and target type 3
-    PetBattleEffect* effect = new PetBattleEffect(petNumber, 0, 4, 1, 0, 0, 0);
-    PetBattleEffectTarget* target = new PetBattleEffectTarget(petNumber, 3);
-
-    effect->AddTarget(target);
-    AddEffect(effect);
+    PetBattle::RoundResults::Effect effect;
+    effect.PacketInfo.CasterPBOID = petNumber;
+    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_4;
+    effect.PacketInfo.Flags = PETBATTLE_EFFECT_FLAG_INVALID_TARGET; //@TODO check flag...
+    PetBattle::RoundResults::Effect::Target target;
+    target.PacketInfo.Petx = petNumber;
+    target.PacketInfo.Type = EFFECT_TARGET_3;
+    effect.PacketInfo.EffectTargetData.emplace_back(target.PacketInfo);
+    PacketInfo.EffectData.emplace_back(effect.PacketInfo);
 }
 
-void PetBattleRoundResults::AuraProcessingBegin()
+void PetBattle::RoundResults::AuraProcessingBegin()
 {
-    PetBattleEffect* effect = new PetBattleEffect(-1, 0, 13, 0, 0, 0, 0);
-    PetBattleEffectTarget* target = new PetBattleEffectTarget(-1, 3);
-
-    effect->AddTarget(target);
-    AddEffect(effect);
+    PetBattle::RoundResults::Effect effect;
+    effect.PacketInfo.CasterPBOID = -1;
+    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_13;
+    PetBattle::RoundResults::Effect::Target target;
+    target.PacketInfo.Petx = -1;
+    target.PacketInfo.Type = EFFECT_TARGET_3;
+    effect.PacketInfo.EffectTargetData.emplace_back(target.PacketInfo);
+    PacketInfo.EffectData.emplace_back(effect.PacketInfo);
 }
 
-void PetBattleRoundResults::AuraProcessingEnd()
+void PetBattle::RoundResults::AuraProcessingEnd()
 {
-    PetBattleEffect* effect = new PetBattleEffect(-1, 0, 14, 0, 0, 0, 0);
-    PetBattleEffectTarget* target = new PetBattleEffectTarget(-1, 3);
-
-    effect->AddTarget(target);
-    AddEffect(effect);
+    PetBattle::RoundResults::Effect effect;
+    effect.PacketInfo.CasterPBOID = -1;
+    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_14;
+    PetBattle::RoundResults::Effect::Target target;
+    target.PacketInfo.Petx = -1;
+    target.PacketInfo.Type = EFFECT_TARGET_3;
+    effect.PacketInfo.EffectTargetData.emplace_back(target.PacketInfo);
+    PacketInfo.EffectData.emplace_back(effect.PacketInfo);
 }
 
-int32 PetBattleAbilityInfo::GetBaseDamage(PetBattleInfo* attacker, uint32 effectIdx, uint32 turnIndex)
+int32 PetBattle::RoundResults::Effect::GetBaseDamage(PetBattleInfo* attacker, uint32 turnIndex)
 {
-    uint32 basePoints = GetEffectProperties(BASEPOINTS, effectIdx, turnIndex);
+    uint32 basePoints = GetProperties(BASEPOINTS, turnIndex);
     return basePoints * (1 + attacker->GetPower() * 0.05f);
 }
 
-int32 PetBattleAbilityInfo::CalculateDamage(PetBattleInfo* attacker, PetBattleInfo* victim, bool crit)
+int32 PetBattle::RoundResults::Effect::CalculateDamage(PetBattleInfo* attacker, PetBattleInfo* victim, bool crit)
 {
     int32 baseDamage = GetBaseDamage(attacker);
     int32 cleanDamage = urand(baseDamage - 5, baseDamage + 5);
-    // mods
-    float mod = GetAttackModifier(GetType(), sDB2Manager.GetBattlePetSpeciesBySpellID(victim->GetCreatureEntry()));
+    float mod = GetAttackModifier(abilityEntry->Type, sDB2Manager.GetBattlePetSpeciesBySpellID(victim->GetCreatureEntry()));
     int32 finalDamage = cleanDamage * mod;
     if (crit)
         finalDamage *= 2;
@@ -1406,11 +2066,10 @@ int32 PetBattleAbilityInfo::CalculateDamage(PetBattleInfo* attacker, PetBattleIn
     return finalDamage;
 }
 
-int16 PetBattleAbilityInfo::CalculateHitResult(PetBattleInfo* attacker, PetBattleInfo* victim)
+int16 PetBattle::RoundResults::Effect::CalculateHitResult(PetBattleInfo* victim)
 {
     uint16 flags = PETBATTLE_EFFECT_FLAG_BASE;
-    // mods
-    float mod = GetAttackModifier(GetType(), sDB2Manager.GetBattlePetSpeciesBySpellID(victim->GetCreatureEntry()));
+    float mod = GetAttackModifier(abilityEntry->Type, sDB2Manager.GetBattlePetSpeciesBySpellID(victim->GetCreatureEntry()));
 
     if (roll_chance_i(5))
         flags |= PETBATTLE_EFFECT_FLAG_CRIT;
@@ -1421,4 +2080,39 @@ int16 PetBattleAbilityInfo::CalculateHitResult(PetBattleInfo* attacker, PetBattl
         flags |= PETBATTLE_EFFECT_FLAG_WEAK;
 
     return flags;
+}
+
+uint32 PetBattle::RoundResults::Effect::GetProperties(uint8 properties, uint32 turnIndex)
+{
+    LocalizedString desc;
+    desc.Str[LOCALE_enUS] = "Points";
+
+    switch (properties)
+    {
+        case 1:
+            desc.Str[LOCALE_enUS] = "Accuracy";
+            break;
+        default:
+            break;
+    }
+
+    for (BattlePetAbilityTurnEntry const* tEntry : sBattlePetAbilityTurnStore)
+        if (tEntry->AbilityID == abilityEntry->ID && tEntry->turnIndex == turnIndex)
+            for (BattlePetAbilityEffectEntry const* eEntry : sBattlePetAbilityEffectStore)
+                if (eEntry->TurnEntryID == tEntry->ID)
+                    for (BattlePetEffectPropertiesEntry const* entry : sBattlePetEffectPropertiesStore)
+                        if (eEntry->propertiesID == entry->ID)
+                            for (uint8 l = 0; l < MAX_EFFECT_PROPERTIES; ++l)
+                                if (!strcmp(entry->propertyDescs[LOCALE_enUS][l].Str[LOCALE_enUS], desc.Str[LOCALE_enUS]))
+                                    return eEntry->propertyValues[l];
+
+    return 0;
+}
+
+float PetBattle::RoundResults::Effect::GetAttackModifier(uint8 attackType, uint8 defenseType)
+{
+    if (GtBattlePetTypeDamageModEntry const* gt = sGtBattlePetTypeDamageModStore.EvaluateTable(defenseType - 1, attackType - 1))
+        return gt->value;
+
+    return 1.0f;
 }

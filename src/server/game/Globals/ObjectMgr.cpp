@@ -262,6 +262,7 @@ template<> ObjectGuidGenerator<HighGuid::AreaTrigger>* ObjectMgr::GetGenerator()
 template<> ObjectGuidGenerator<HighGuid::LootObject>* ObjectMgr::GetGenerator() { return &_lootObjectGuidGenerator; }
 template<> ObjectGuidGenerator<HighGuid::Transport>* ObjectMgr::GetGenerator() { return &_moTransportGuidGenerator; }
 template<> ObjectGuidGenerator<HighGuid::BattlePet>* ObjectMgr::GetGenerator() { return &_BattlePetGuidGenerator; }
+template<> ObjectGuidGenerator<HighGuid::PetBattle>* ObjectMgr::GetGenerator() { return &_PetBattleGuidGenerator; }
 template<> ObjectGuidGenerator<HighGuid::Conversation>* ObjectMgr::GetGenerator() { return &_conversationGuidGenerator; }
 
 template<HighGuid type>
@@ -6372,6 +6373,11 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM account_battle_pet_journal");
     if (result)
         _BattlePetGuidGenerator.Set((*result)[0].GetUInt64() + 1);
+
+    //@TODO make table to save PetBattles
+    result = CharacterDatabase.Query("SELECT MAX(guid) FROM account_battle_pet_journal");
+    if (result)
+        _PetBattleGuidGenerator.Set((*result)[0].GetUInt64() + 1);
 }
 
 uint32 ObjectMgr::GenerateAuctionID()

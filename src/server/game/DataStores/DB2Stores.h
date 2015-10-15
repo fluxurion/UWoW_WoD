@@ -131,12 +131,18 @@ public:
     typedef std::vector<std::string> LanguageWordsSize;
     typedef std::map<uint32 /*word length*/, LanguageWordsSize> LanguageWordsMap;
     typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
-    typedef std::unordered_map<uint32, BattlePetSpeciesEntry const*> BattlePetSpeciesBySpellIdMap;
     typedef std::unordered_map<uint32, MapChallengeModeEntry const*> MapChallengeModeEntryMap;
     typedef std::unordered_map<uint32, ItemUpgradeData> ItemUpgradeDataMap;
     typedef std::unordered_map<uint32, std::vector<QuestPackageItemEntry const*>> QuestPackageItemContainer;
     typedef std::vector<uint32> ToyItemIdsContainer;
     typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
+    typedef std::multimap<uint32, std::pair<uint32, int32>> BattlePetBreedStateByBreedMap;
+    typedef std::multimap<uint32, std::pair<uint32, int32>> BattlePetSpeciesStateBySpecMap;
+    typedef std::map<uint32, BattlePetSpeciesEntry const*> BattlePetSpeciesBySpellIdMap;
+    typedef std::multimap<uint32, std::pair<uint32, uint8>> BattlePetTurnByAbilityIdMap;
+    typedef std::multimap<uint32, BattlePetSpeciesXAbilityEntry const*> BattlePetXAbilityEntryBySpecIdMap;
+    typedef std::map<uint32, uint8> BattlePetQualityMultiplierMap;
+    typedef std::map<uint32, BattlePetAbilityEffectEntry const*> BattlePetEffectEntryByTurnIdMap;
 
     static DB2Manager& Instance()
     {
@@ -160,7 +166,6 @@ public:
     ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
     LanguageWordsMap const* GetLanguageWordMap(uint32 landID);
     LanguageWordsSize const* GetLanguageWordsBySize(uint32 landID, uint32 size);
-    BattlePetSpeciesEntry const* GetBattlePetSpeciesEntry(uint32 creatureEntry);
     void FillPathDestList(uint32 from, uint32 prev);
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     MountEntry const* GetMount(uint32 spellId) const;
@@ -171,8 +176,14 @@ public:
     HeirloomEntry const* GetHeirloomByItemId(uint32 itemId) const;
     HeirloomEntry const* GetHeirloomByOldItem(uint32 itemId) const;
     uint8 GetBattlePetSpeciesBySpellID(uint32 entry) const;
+    float CalcBattlePetQualityMuliplier(uint8 quality, uint8 level);
+    uint32 GetBattlePetTurnByAbility(uint32 abilityID, uint8 turnIndex = 1);
+    uint32 GetBattlePetXAbilityEntryBySpec(uint32 speciesID, uint32 customAbility, uint8 rank);
+    BattlePetSpeciesEntry const* GetBattlePetSpeciesEntry(uint32 creatureEntry);
 
     MapChallengeModeEntryMap _mapChallengeModeEntrybyMap; // @TODO: move this to private and make special getters
+    BattlePetBreedStateByBreedMap _battlePetBreedStateByBreedId;
+    BattlePetSpeciesStateBySpecMap _battlePetSpeciesStateBySpecId;
 private:
     StorageMap _stores;
     HotfixData _hotfixData;
@@ -192,6 +203,10 @@ private:
     QuestPackageItemContainer _questPackages;
     ToyItemIdsContainer _toys;
     HeirloomItemsContainer _heirlooms;
+    BattlePetQualityMultiplierMap _battlePetQualityMultiplierId;
+    BattlePetTurnByAbilityIdMap _battlePetTurnByAbilityId;
+    BattlePetXAbilityEntryBySpecIdMap _battlePetXAbilityEntryBySpecId;
+    BattlePetEffectEntryByTurnIdMap _battlePetEffectEntryByTurnId;
     BattlePetSpeciesBySpellIdMap _battlePetSpeciesBySpellId;
 };
 

@@ -104,6 +104,8 @@ public:
             { "setdynamicvalue",SEC_ADMINISTRATOR,  false, &HandleDebugSetDynamicValueCommand, "", NULL },
             { "setitemvalue",   SEC_ADMINISTRATOR,  false, &HandleDebugSetItemValueCommand,    "", NULL },
             { "setvalue",       SEC_ADMINISTRATOR,  false, &HandleDebugSetValueCommand,        "", NULL },
+            { "battlepeterror", SEC_ADMINISTRATOR,  false, &HandleDebugBattlePetErrorCommand, "", NULL },
+            { "battlepeterequestfailed", SEC_ADMINISTRATOR,  false, &HandleDebugBattlePetRequestFailedCommand, "", NULL },
             { "setvid",         SEC_ADMINISTRATOR,  false, &HandleDebugSetVehicleIdCommand,    "", NULL },
             { "spawnvehicle",   SEC_ADMINISTRATOR,  false, &HandleDebugSpawnVehicleCommand,    "", NULL },
             { "spellpower",     SEC_REALM_LEADER,   false, &HandleDebugModifySpellpowerCommand,     "", NULL },
@@ -1212,6 +1214,39 @@ public:
         }
 
         unit->ModifyAuraState(AuraStateType(abs(state)), state > 0);
+        return true;
+    }
+
+    static bool HandleDebugBattlePetErrorCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* x = strtok((char*)args, " ");
+        char* y = strtok(NULL, " ");
+        if (!x)
+            return false;
+
+        Player* target = handler->getSelectedObject()->ToPlayer();
+        if (target)
+            target->GetBattlePetMgr()->SendError(static_cast<BattlePetError>(atoi(x)), uint32(atoi(y)));
+
+        return true;
+    }
+
+    static bool HandleDebugBattlePetRequestFailedCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* x = strtok((char*)args, " ");
+        if (!x)
+            return false;
+
+        Player* target = handler->getSelectedObject()->ToPlayer();
+        if (target)
+            target->GetBattlePetMgr()->SendPetBattleRequestFailed(uint32(atoi(x)));
+
         return true;
     }
 

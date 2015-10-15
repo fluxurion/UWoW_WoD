@@ -1,0 +1,1 @@
+INSERT INTO `battle_pet_species` VALUES ('1328', '73356', '669468', '148050', '6', '0', '2', '|cFFFFD200Drop:|r Garnia|n|cFFFFD200Zone:|r Timeless Isle', 'The waters of Ruby Lake are colored a strange reddish hue, possibly due to the ruby crystals found deep within the mountains of the Timeless Isle.', '0');

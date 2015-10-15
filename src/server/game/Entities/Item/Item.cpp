@@ -511,57 +511,6 @@ bool Item::LoadFromDB(ObjectGuid::LowType const& guid, ObjectGuid const& owner_g
         AddBonuses(bonusListID);
     }
 
-/*
-    uint32 dynMod1 = fields[8].GetUInt32(); //reforgeId,  NOT ANY MORE ON WOD
-    uint32 dynMod2 = fields[9].GetUInt32();   //transmogrifyId
-    uint32 dynMod3 = fields[10].GetUInt32();  //upgradeId
-
-    if (isBattlePet())
-    {
-        if (dynMod1 && dynMod2 && dynMod3)
-        {
-            if (BattlePetSpeciesEntry const* bp = sBattlePetSpeciesStore.LookupEntry(dynMod1))
-                SetBattlePet(dynMod1, dynMod2, dynMod3);
-        }
-    }
-    else
-    {
-        if (dynMod1)
-        {
-            if (ItemReforgeEntry const* reforge = sItemReforgeStore.LookupEntry(dynMod1))
-                SetReforge(dynMod1);
-        }
-
-        if (dynMod2)
-        {
-            if (ItemTemplate const* transProto = sObjectMgr->GetItemTemplate(dynMod2))
-            {
-                if (proto->Class == transProto->Class)
-                    SetTransmogrification(dynMod2);
-            }
-        }
-
-        //! ON WOD IT'S DONE ON GETLEVEL
-        ItemLevel = proto->ItemLevel;
-        if (ItemUpgradeData const* upgradeData = sDB2Manager.GetItemUpgradeData(entry))
-        {
-            for (uint32 i = 0; i < MAX_ITEM_UPDGRADES; ++i)
-            {
-                ItemUpgradeEntry const* upgradeEntry = upgradeData->upgrade[i];
-
-                if (!upgradeEntry)
-                    continue;
-
-                if (upgradeEntry->id == dynMod3 || !dynMod3 && !upgradeEntry->prevUpgradeId)
-                {
-                    ItemLevel += upgradeEntry->levelBonus;
-                    SetUpgradeId(upgradeEntry->id);
-                    break;
-                }
-            }
-        }
-    }*/
-
     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[7].GetInt16());
     // recalculate suffix factor
     if (GetItemRandomPropertyId() < 0)
@@ -755,28 +704,6 @@ void Item::SetItemRandomProperties(int32 randomPropId)
         }
     }
 }
-
-/*void Item::SetItemBattlePet(PetInfo* petData, bool apply)
-{
-    if (apply)
-    {
-        m_battlePetData = petData;
-        // set dynamic data
-        SetFlag(ITEM_FIELD_MODIFIERS_MASK, 0x38);
-        SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, petData->speciesID);
-        SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 1, 0);
-        SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 2, petData->level);
-    }
-    else
-    {
-        m_battlePetData = NULL;
-        // set dynamic data
-        RemoveFlag(ITEM_FIELD_MODIFIERS_MASK, 0x38);
-        SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 0, 0);
-        SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 1, 0);
-        SetDynamicUInt32Value(ITEM_DYNAMIC_FIELD_MODIFIERS, 2, 0);
-    }
-}*/
 
 void Item::UpdateItemSuffixFactor()
 {

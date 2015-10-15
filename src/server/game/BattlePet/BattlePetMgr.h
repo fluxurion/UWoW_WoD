@@ -27,54 +27,22 @@
 #include "DBCEnums.h"
 #include "DBCStores.h"
 #include "DB2Stores.h"
+#include "Packets/BattlePetPackets.h"
 
-enum BattlepetResult : uint32
+enum BattlePetError
 {
-    ERR_PETBATTLE_CREATE_FAILED,
-    ERR_PETBATTLE_NOT_HERE,
-    ERR_PETBATTLE_NOT_HERE_ON_TRANSPORT,
-    ERR_PETBATTLE_NOT_HERE_UNEVEN_GROUND,
-    ERR_PETBATTLE_NOT_HERE_OBSTRUCTED,
-    ERR_PETBATTLE_NOT_WHILE_IN_COMBAT,
-    ERR_PETBATTLE_NOT_WHILE_DEAD,
-    ERR_PETBATTLE_NOT_WHILE_FLYING,
-    ERR_PETBATTLE_TARGET_INVALID,
-    ERR_PETBATTLE_TARGET_OUT_OF_RANGE,
-    ERR_PETBATTLE_TARGET_NOT_CAPTURABLE,
-    ERR_PETBATTLE_NOT_A_TRAINER,
-    ERR_PETBATTLE_DECLINED,
-    ERR_PETBATTLE_IN_BATTLE,
-    ERR_PETBATTLE_INVALID_LOADOUT,
-    ERR_PETBATTLE_ALL_PETS_DEAD,
-    ERR_PETBATTLE_NO_PETS_IN_SLOTS,
-    ERR_PETBATTLE_NO_ACCOUNT_LOCK,
-    ERR_PETBATTLE_WILD_PET_TAPPED,
+    BATTLEPETRESULT_TOO_HIGH_LEVEL_TO_UNCAGE         = 1,
+    BATTLEPETRESULT_CANT_HAVE_MORE_PETS              = 9,
+    BATTLEPETRESULT_CANT_HAVE_MORE_PETS_OF_THAT_TYPE = 12,
 
-    ERR_PETBATTLE_NOT_WHILE_IN_MATCHED_BATTLE,
-    ERR_PETBATTLE_QUEUE_QUEUED,
-    ERR_PETBATTLE_QUEUE_ALREADY_QUEUED,
-    ERR_PETBATTLE_QUEUE_JOIN_FAILED,
-    ERR_PETBATTLE_QUEUE_JOURNAL_LOCK,
-    ERR_PETBATTLE_QUEUE_REMOVED,
-    ERR_PETBATTLE_QUEUE_PROPOSAL_DECLINED,
-    ERR_PETBATTLE_QUEUE_PROPOSAL_TIMEOUT,
-    ERR_PETBATTLE_QUEUE_OPPONENT_DECLINED,
-    ERR_PETBATTLE_QUEUE_REQUEUED_INTERNAL,
-    ERR_PETBATTLE_QUEUE_REQUEUED_REMOVED,
-    ERR_PETBATTLE_QUEUE_SLOT_LOCKED,
-    ERR_PETBATTLE_QUEUE_SLOT_EMPTY,
-    ERR_PETBATTLE_QUEUE_SLOT_NO_TRACKER,
-    ERR_PETBATTLE_QUEUE_SLOT_NO_SPECIES,
-    ERR_PETBATTLE_QUEUE_SLOT_CANT_BATTLE,
-    ERR_PETBATTLE_QUEUE_SLOT_REVOKED,
-    ERR_PETBATTLE_QUEUE_SLOT_DEAD,
-    ERR_PETBATTLE_QUEUE_SLOT_NO_PET,
-
-    ERR_PETBATTLE_QUEUE_NOT_WHILE_NEUTRAL,
-    ERR_PETBATTLE_GAME_TIME_LIMIT_WARNING,
-    ERR_PETBATTLE_GAME_ROUNDS_LIMIT_WARNING,
-
-    ERR_PETBATTLE_INTERNAL
+    // wrong order
+    BATTLEPETRESULT_DUPLICATE_CONVERTED_PET,
+    BATTLEPETRESULT_NEED_TO_UNLOCK,
+    BATTLEPETRESULT_BAD_PARAM,
+    BATTLEPETRESULT_LOCKED_PET_ALREADY_EXISTS,
+    BATTLEPETRESULT_OK,
+    BATTLEPETRESULT_UNCAPTURABLE,
+    BATTLEPETRESULT_CANT_INVALID_CHARACTER_GUID
 };
 
 enum BattlePetsMiscData
@@ -82,10 +50,11 @@ enum BattlePetsMiscData
     MAX_ACTIVE_BATTLE_PETS          = 3,
     MAX_ACTIVE_BATTLE_PET_ABILITIES = 3,
     MAX_BATTLE_PET_LEVEL            = 25,
-    BATTLE_PET_SUMMON_SPELL         = 118301,
+    SPELL_SUMMON_BATTLE_PET         = 118301,
+    SPELL_BATTLE_PET_TRAINING       = 119467,
 };
 
-enum BattlePetStates
+enum BattlePetSaveInfo
 {
     STATE_NORMAL  = 0,
     STATE_UPDATED = 1,
@@ -94,8 +63,10 @@ enum BattlePetStates
 
 enum BattlePetTeam
 {
-    TEAM_ALLY = 0,
-    TEAM_ENEMY = 1
+    TEAM_ALLY   = 0,
+    TEAM_ENEMY  = 1,
+
+    MAX_TEAMS
 };
 
 enum BattlePetBreeds
@@ -114,39 +85,100 @@ enum BattlePetBreeds
 
 enum BattlePetDBFlags
 {
-    BATTLE_PET_FLAG_FAVORITE = 0x01,
-    BATTLE_PET_FLAG_REVOKED = 0x04,
-    BATTLE_PET_FLAG_LOCKED_FOR_CONVERT = 0x08,
-    BATTLE_PET_FLAG_CUSTOM_ABILITY_1 = 0x10,
-    BATTLE_PET_FLAG_CUSTOM_ABILITY_2 = 0x20,
-    BATTLE_PET_FLAG_CUSTOM_ABILITY_3 = 0x40,
+    BATTLE_PET_FLAG_FAVORITE            = 0x01,
+    BATTLE_PET_FLAG_UNK                 = 0x02,
+    BATTLE_PET_FLAG_REVOKED             = 0x04,
+    BATTLE_PET_FLAG_LOCKED_FOR_CONVERT  = 0x08,
+    BATTLE_PET_FLAG_CUSTOM_ABILITY_1    = 0x10,
+    BATTLE_PET_FLAG_CUSTOM_ABILITY_2    = 0x20,
+    BATTLE_PET_FLAG_CUSTOM_ABILITY_3    = 0x40
 };
 
 enum BattlePetDBSpeciesFlags
 {
-    SPECIES_FLAG_UNK1 = 0x02,
-    SPECIES_FLAG_UNK2 = 0x04,
-    SPECIES_FLAG_CAPTURABLE = 0x08,
-    SPECIES_FLAG_CANT_TRADE = 0x10, // ~(unsigned __int8)(v3->speciesFlags >> 4) & 1 (cannot put in cage)
-    SPECIES_FLAG_UNOBTAINABLE = 0x20,
-    SPECIES_FLAG_UNIQUE = 0x40, // (v2->speciesFlags >> 6) & 1)
-    SPECIES_FLAG_CANT_BATTLE = 0x80,
-    SPECIES_FLAG_UNK3 = 0x200,
-    SPECIES_FLAG_ELITE = 0x400,
+    SPECIES_FLAG_UNK1                   = 0x02,
+    SPECIES_FLAG_UNK2                   = 0x04,
+    SPECIES_FLAG_CAPTURABLE             = 0x08,
+    SPECIES_FLAG_CANT_TRADE             = 0x10, // ~(unsigned __int8)(v3->speciesFlags >> 4) & 1 (cannot put in cage)
+    SPECIES_FLAG_UNOBTAINABLE           = 0x20,
+    SPECIES_FLAG_UNIQUE                 = 0x40, // (v2->speciesFlags >> 6) & 1)
+    SPECIES_FLAG_CANT_BATTLE            = 0x80,
+    SPECIES_FLAG_UNK3                   = 0x200,
+    SPECIES_FLAG_ELITE                  = 0x400,
 };
 
 enum BattlePetSpeciesSource
 {
-    SOURCE_LOOT = 0,
-    SOURCE_QUEST = 1,
-    SOURCE_VENDOR = 2,
-    SOURCE_PROFESSION = 3,
-    SOURCE_PET_BATTLE = 4,
-    SOURCE_ACHIEVEMENT = 5,
-    SOURCE_GAME_EVENT = 6,
-    SOURCE_PROMO = 7,
-    SOURCE_TCG = 8,
-    SOURCE_NOT_AVALIABLE = 0xFFFFFFFF,
+    SOURCE_LOOT                         = 0,
+    SOURCE_QUEST                        = 1,
+    SOURCE_VENDOR                       = 2,
+    SOURCE_PROFESSION                   = 3,
+    SOURCE_PET_BATTLE                   = 4,
+    SOURCE_ACHIEVEMENT                  = 5,
+    SOURCE_GAME_EVENT                   = 6,
+    SOURCE_PROMO                        = 7,
+    SOURCE_TCG                          = 8,
+    SOURCE_NOT_AVALIABLE                = 0xFFFFFFFF,
+};
+
+enum BattlePetState
+{
+    STATE_MAX_HEALTH_BONUS          = 2,
+    STATE_INTERNAL_INITIAL_LEVEL    = 17,
+    STATE_STAT_POWER                = 18,
+    STATE_STAT_STAMINA              = 19,
+    STATE_STAT_SPEED                = 20,
+    STATE_MOD_DAMAGE_DEALT_PERCENT  = 23,
+    STATE_STAT_CRIT_CHANCE          = 40,
+
+    STATE_PASSIVE_CRITTER           = 42,
+    STATE_PASSIVE_BEAST             = 43,
+    STATE_PASSIVE_HUMANOID          = 44,
+    STATE_PASSIVE_FLYING            = 45,
+    STATE_PASSIVE_DRAGON            = 46,
+    STATE_PASSIVE_ELEMENTAL         = 47,
+    STATE_PASSIVE_MECHANICAL        = 48,
+    STATE_PASSIVE_MAGIC             = 49,
+    STATE_PASSIVE_UNDEAD            = 50,
+    STATE_PASSIVE_AQUATIC           = 51,
+    STATE_GENDER                    = 78,
+    STATE_COSMETIC_WATER_BUBBLED    = 85,
+    STATE_SPECIAL_IS_COCKROACH      = 93,
+    STATE_COSMETIC_FLY_TIER         = 128,
+    STATE_COSMETIC_BIGGLESWORTH     = 144,
+    STATE_PASSIVE_ELITE             = 153,
+    STATE_PASSIVE_BOSS              = 162,
+    STATE_COSMETIC_TREASURE_GOBLIN  = 176
+};
+
+enum BattlePetFamily
+{
+    BATTLE_PET_FAMILY_HUMANOID      = 0,
+    BATTLE_PET_FAMILY_DRAGONKIN     = 1,
+    BATTLE_PET_FAMILY_FLYING        = 2,
+    BATTLE_PET_FAMILY_UNDEAD        = 3,
+    BATTLE_PET_FAMILY_CRITTER       = 4,
+    BATTLE_PET_FAMILY_MAGIC         = 5,
+    BATTLE_PET_FAMILY_ELEMENTAL     = 6,
+    BATTLE_PET_FAMILY_BEAST         = 7,
+    BATTLE_PET_FAMILY_AQUATIC       = 8,
+    BATTLE_PET_FAMILY_MECHANICAL    = 9,
+
+    BATTLE_PET_FAMILY_MAX
+};
+
+BattlePetState const FamilyStates[BATTLE_PET_FAMILY_MAX] =
+{
+    STATE_PASSIVE_HUMANOID,
+    STATE_PASSIVE_DRAGON,
+    STATE_PASSIVE_FLYING,
+    STATE_PASSIVE_UNDEAD,
+    STATE_PASSIVE_CRITTER,
+    STATE_PASSIVE_MAGIC,
+    STATE_PASSIVE_ELEMENTAL,
+    STATE_PASSIVE_BEAST,
+    STATE_PASSIVE_AQUATIC,
+    STATE_PASSIVE_MECHANICAL
 };
 
 enum BattlePetEffectProperties
@@ -155,229 +187,110 @@ enum BattlePetEffectProperties
     ACCURACY   = 1
 };
 
-enum PetBattleEffectFlags
+enum PetBattleEffectFlags : uint16
 {
-    PETBATTLE_EFFECT_FLAG_INVALID_TARGET = 0x1,
-    PETBATTLE_EFFECT_FLAG_MISS = 0x2,
-    PETBATTLE_EFFECT_FLAG_CRIT = 0x4,
-    PETBATTLE_EFFECT_FLAG_BLOCKED = 0x8,
-    PETBATTLE_EFFECT_FLAG_DODGE = 0x10,
-    PETBATTLE_EFFECT_FLAG_HEAL = 0x20,
-    PETBATTLE_EFFECT_FLAG_UNKILLABLE = 0x40,
-    PETBATTLE_EFFECT_FLAG_REFLECT = 0x80,
-    PETBATTLE_EFFECT_FLAG_ABSORB = 0x100,
-    PETBATTLE_EFFECT_FLAG_IMMUNE = 0x200,
-    PETBATTLE_EFFECT_FLAG_STRONG = 0x400,
-    PETBATTLE_EFFECT_FLAG_WEAK = 0x800,
-    PETBATTLE_EFFECT_FLAG_BASE = 0x1000,
+    PETBATTLE_EFFECT_FLAG_INVALID_TARGET    = 0x0001,
+    PETBATTLE_EFFECT_FLAG_MISS              = 0x0002,
+    PETBATTLE_EFFECT_FLAG_CRIT              = 0x0004,
+    PETBATTLE_EFFECT_FLAG_BLOCKED           = 0x0008,
+    PETBATTLE_EFFECT_FLAG_DODGE             = 0x0010,
+    PETBATTLE_EFFECT_FLAG_HEAL              = 0x0020,
+    PETBATTLE_EFFECT_FLAG_UNKILLABLE        = 0x0040,
+    PETBATTLE_EFFECT_FLAG_REFLECT           = 0x0080,
+    PETBATTLE_EFFECT_FLAG_ABSORB            = 0x0100,
+    PETBATTLE_EFFECT_FLAG_IMMUNE            = 0x0200,
+    PETBATTLE_EFFECT_FLAG_STRONG            = 0x0400,
+    PETBATTLE_EFFECT_FLAG_WEAK              = 0x0800,
+    PETBATTLE_EFFECT_FLAG_BASE              = 0x1000
 };
 
-enum TrapStatus
+enum TrapStatus : int32
 {
-    PET_BATTLE_TRAP_ACTIVE = 1, // active trap button
-    PET_BATTLE_TRAP_ERR_2 = 2,  // "Traps become available when one of your pets reaches level 3."
-    PET_BATTLE_TRAP_ERR_3 = 3,  // "You cannot trap a dead pet."
-    PET_BATTLE_TRAP_ERR_4 = 4,  // "The enemy pet's health is not low enough."
-    PET_BATTLE_TRAP_ERR_5 = 5,  // "You already have 3 of this pet or your journal is full."
-    PET_BATTLE_TRAP_ERR_6 = 6,  // "Your enemy pet is not caputurable."
-    PET_BATTLE_TRAP_ERR_7 = 7,  // "Can't trap an NPC's pets"
-    PET_BATTLE_TRAP_ERR_8 = 8,  // "Can't trap twice in same battle"
+    PET_BATTLE_TRAP_ACTIVE                  = 1,  // active trap button
+    PET_BATTLE_TRAP_ERR_2                   = 2,  // "Traps become available when one of your pets reaches level 3."
+    PET_BATTLE_TRAP_ERR_3                   = 3,  // "You cannot trap a dead pet."
+    PET_BATTLE_TRAP_ERR_4                   = 4,  // "The enemy pet's health is not low enough."
+    PET_BATTLE_TRAP_ERR_5                   = 5,  // "You already have 3 of this pet or your journal is full."
+    PET_BATTLE_TRAP_ERR_6                   = 6,  // "Your enemy pet is not caputurable."
+    PET_BATTLE_TRAP_ERR_7                   = 7,  // "Can't trap an NPC's pets"
+    PET_BATTLE_TRAP_ERR_8                   = 8   // "Can't trap twice in same battle"
+};
+
+uint32 const TrapSpells[4] = { 427, 77, 135, 1368 };
+uint32 const MaxRoundTime[2] = {0, 30};
+
+enum PetPvpBattleCompatibility
+{
+    PET_PVP_BATTLE_PENDING,
+    PET_PVP_BATTLE_HAS_IGNORES,
+    PET_PVP_BATTLE_TOO_DIFFERENT_LEVELS,
+    PET_PVP_BATTLE_MATCH
 };
 
 // demo
 enum DeathPetResult
 {
-    HAVE_ALIVE_PETS_MORE_ONE_ALLY  = 0,
-    LAST_ALIVE_PET_ALLY            = 1,
-    HAVE_ALIVE_PETS_MORE_ONE_ENEMY = 2,
-    NO_ALIVE_PETS_ALLY             = 3,
-    NO_ALIVE_PETS_ENEMY            = 4
+    HAVE_ALIVE_PETS_MORE_ONE_ALLY           = 0,
+    LAST_ALIVE_PET_ALLY                     = 1,
+    HAVE_ALIVE_PETS_MORE_ONE_ENEMY          = 2,
+    NO_ALIVE_PETS_ALLY                      = 3,
+    NO_ALIVE_PETS_ENEMY                     = 4
 };
 
-class PetJournalInfo
+enum PetBattleQueueStatus : int32
 {
+    PET_BATTLE_QUEUE_STATUS_INIT,
+    PET_BATTLE_QUEUE_STATUS_JOINED,
 
-public:
-    PetJournalInfo(uint32 _speciesID, uint32 _creatureEntry, uint8 _level, uint32 _display, uint16 _power, uint16 _speed, int32 _health, uint32 _maxHealth, uint8 _quality, uint16 _xp, uint16 _flags, uint32 _spellID, std::string _customName, int16 _breedID, uint8 _state) :
-        displayID(_display), power(_power), speed(_speed), maxHealth(_maxHealth),
-        health(_health), quality(_quality), xp(_xp), level(_level), flags(_flags), speciesID(_speciesID), creatureEntry(_creatureEntry), summonSpellID(_spellID), customName(_customName), breedID(_breedID), state(_state) {}
-
-    // helpers
-    void SetCustomName(std::string name) { customName = name; }
-    std::string GetCustomName() { return customName; }
-    bool HasFlag(uint16 _flag) { return (flags & _flag) != 0; }
-    void SetFlag(uint16 _flag) { if (!HasFlag(_flag)) flags |= _flag; }
-    uint16 GetFlags() { return flags; }
-    void RemoveFlag(uint16 _flag) { flags &= ~_flag; }
-    void SetState(uint8 _state) { state = _state; }
-    BattlePetStates GetState() { return BattlePetStates(state); }
-    void SetXP(uint16 _xp) { xp = _xp; }
-    uint16 GetXP() { return xp; }
-    void SetLevel(uint8 _level) { level = _level; }
-    uint8 GetLevel() { return level; }
-    int32 GetHealth() { return health; }
-    float GetHealthPct() { return maxHealth ? 100.f * health / maxHealth : 0.0f; }
-    void SetHealth(int32 _health) { health = _health; }
-    int32 GetMaxHealth() { return maxHealth; }
-    void SetMaxHealth(int32 _maxHealth) { maxHealth = _maxHealth; }
-    void SetPower(uint16 _power) { power = _power; }
-    void SetSpeed(uint16 _speed) { speed = _speed; }
-    uint16 GetSpeed() { return speed; }
-    uint16 GetPower() { return power; }
-    uint16 GetBreedID() { return breedID; }
-    void SetBreedID(uint16 _breedID) { breedID = _breedID; }
-    uint8 GetQuality() { return quality; }
-    void SetQuality(uint8 _quality) { quality = _quality; }
-    uint32 GetSpeciesID() { return speciesID; }
-    uint32 GetDisplayID() { return displayID; }
-    uint32 GetSummonSpell() { return summonSpellID; }
-    uint32 GetCreatureEntry() { return creatureEntry; }
-    bool IsDead() { return health <= 0; }
-    bool IsHurt() { return !IsDead() && health < maxHealth; }
-    uint32 GetAbilityID(uint8 rank);
-
-private:
-    // game vars
-    uint32 speciesID;
-    uint32 creatureEntry;
-    uint32 displayID;
-    uint16 power;
-    uint16 speed;
-    int32 health;
-    int32 maxHealth;
-    uint8 quality;
-    uint16 xp;
-    uint8 level;
-    uint16 flags;
-    int16 breedID;
-    uint32 summonSpellID;
-    std::string customName;
-    // service vars
-    uint8 state;
+    PET_BATTLE_QUEUE_STATUS_LEAVE = 12,
 };
 
-class PetBattleSlot
+enum MoveType
 {
-public:
-    PetBattleSlot(ObjectGuid _guid): petGUID(_guid) {}
-
-    // helpers
-    bool IsEmpty() { return petGUID.IsEmpty(); }
-    void SetPet(ObjectGuid const& guid) { petGUID = guid; }
-    ObjectGuid GetPet() { return petGUID; }
-
-private:
-    ObjectGuid petGUID;
+    MOVE_TYPE_NONE                  = 0,
+    MOVE_TYPE_USE_ABILITY           = 1,
+    MOVE_TYPE_SWAP_FRONT_PET        = 2,
+    MOVE_TYPE_USE_TRAP              = 3,
+    MOVE_TYPE_REJECTION_FROM_BATTLE = 4,
 };
 
-class BattlePetStatAccumulator
+enum EffectType //@TODO: fixup enum names...
 {
-public:
-    BattlePetStatAccumulator(uint32 _speciesID, uint16 _breedID);
-
-    int32 CalculateHealth() {  return int32((5.0f * healthMod * qualityMultiplier) + 100.0f + /*(unkDword16 * qualityMultiplier)*/ 0.5f); }
-    int32 CalculateSpeed() { return int32((/*(speed * unkDword32 * 0.01f) +*/ speedMod * qualityMultiplier) + 0.5f); }
-    int32 CalculatePower() { return int32((powerMod * qualityMultiplier) + 0.5f); }
-
-    void CalcQualityMultiplier(uint8 quality, uint8 level)    
-    {
-        for (BattlePetBreedQualityEntry const* qEntry : sBattlePetBreedQualityStore)
-            if (qEntry->quality == quality)
-                qualityMultiplier = level * 0.01f * qEntry->qualityModifier;
-    }
-
-    void Accumulate(uint32 stateID, int32 value)
-    {
-        BattlePetStateEntry const* state = sBattlePetStateStore.LookupEntry(stateID);
-
-        if (!state)
-            return;
-
-        if (state->flags & 0x4)
-            speedMod += value;
-        /*else if (state->flags & 0x200)
-            unkDword32 += value;*/
-        /*else if (state->flags & 0x10)
-            unkDword16 += value;*/
-        else if (state->flags & 0x20)
-            healthMod += value;
-        else if (state->flags & 0x100)
-            powerMod += value;
-    }
-
-    int32 getHealthMod() { return healthMod; }
-    int32 getPowerMod() { return powerMod; }
-    int32 getSpeedMod() { return speedMod; }
-
-private:
-    int32 healthMod;
-    int32 powerMod;
-    int32 speedMod;
-    float qualityMultiplier;
+    EFFECT_TYPE_NONE,
+    EFFECT_TYPE_UNK_4 = 4,
+    EFFECT_TYPE_UNK_5 = 5,
+    EFFECT_TYPE_UNK_6 = 6,
+    EFFECT_TYPE_UNK_13 = 13,
+    EFFECT_TYPE_UNK_14 = 14,
 };
 
-class PetBattleInfo;
-class PetBattleAbilityInfo
+enum EffectTarget //@TODO: fixup enum names...
 {
-public:
-    PetBattleAbilityInfo(uint32 _ID, uint32 _speciesID);
-
-    uint32 GetID() { return ID; }
-    uint32 GetType() { return Type; }
-    int32 CalculateDamage(PetBattleInfo* attacker, PetBattleInfo* victim, bool crit);
-    int16 CalculateHitResult(PetBattleInfo* attacker, PetBattleInfo* victim);
-    int32 GetBaseDamage(PetBattleInfo* attacker, uint32 effectIdx = 0, uint32 turnIndex = 1);
-    uint32 GetEffectProperties(uint8 properties, uint32 effectIdx = 0, uint32 turnIndex = 1);
-    int8 GetRequiredLevel() { return requiredLevel; }
-    float GetAttackModifier(uint8 attackType, uint8 defenseType);
-
-private:
-    uint32 ID;
-    uint32 Type;
-    uint32 turnCooldown;
-    uint32 auraAbilityID;
-    uint32 auraDuration;
-    uint8 requiredLevel;
-    uint8 rank;
+    EFFECT_TARGET_NONE,
+    EFFECT_TARGET_1 = 1,
+    EFFECT_TARGET_3 = 3,
+    EFFECT_TARGET_4 = 4,
+    EFFECT_TARGET_6 = 6,
 };
 
-class PetBattleAura
-{
-    uint32 ID;
-    uint32 auraInstanceID; // slot
-};
-
-class PetBattleState
-{
-
-};
-
-class PetBattleEnviroment
-{
-
-};
 
 class PetBattleInfo
 {
-
 public:
-    PetBattleInfo() {}
+    PetBattleInfo() { }
     void SetGUID(ObjectGuid _guid) { guid = _guid; }
     ObjectGuid GetGUID() { return guid; }
     void SetPetID(uint8 petNumber) { petX = petNumber; }
     uint8 GetPetID() { return petX; }
-    void CopyPetInfo(PetJournalInfo* petInfo);
+    void CopyPetInfo(Player* player, ObjectGuid petGuid/*BattlePetMgr::BattlePet* petInfo*/);
     void SetTeam(uint8 _team) { team = _team; }
     uint8 GetTeam() { return team; }
     void SetFrontPet(bool apply) { frontPet = apply; }
     bool IsFrontPet() { return frontPet; }
     void SetAbilityID(uint32 abilityID, uint8 index) { abilities[index] = abilityID; }
+
     uint32 GetAbilityID(uint8 index) { return abilities[index]; }
-    void SetCaptured(bool apply)
-    {
-        captured = apply;
-        caged = apply;
-    }
+    void SetCaptured(bool apply) { captured = apply; caged = apply; }
 
     bool Captured() { return captured; }
     bool Caged() { return caged; }
@@ -415,16 +328,11 @@ public:
     uint32 GetCreatureEntry() { return creatureEntry; }
     bool IsDead() { return health <= 0; }
     bool IsHurt() { return !IsDead() && health < maxHealth; }
-    bool HasAbility(uint32 abilityID)
-    {
-        for (uint8 i = 0; i < MAX_ACTIVE_BATTLE_PET_ABILITIES; ++i)
-            if (abilities[i] == abilityID)
-                return true;
-
-        return false;
-    }
+    bool HasAbility(uint32 abilityID);
 
 private:
+    Player* _player;
+
     ObjectGuid guid;
     uint8 petX;
     uint8 team;
@@ -446,384 +354,254 @@ private:
     std::string customName;
     uint32 abilities[MAX_ACTIVE_BATTLE_PET_ABILITIES];
     std::map<uint32, uint8> abilityCooldowns;
-    std::map<uint32, PetBattleAura*> auras;
-    std::map<uint32, PetBattleState*> states;
     uint8 status;
     bool frontPet;
     bool captured;
     bool caged;
 };
 
-struct PetBattleEffectTarget
-{
-    PetBattleEffectTarget(int8 _petX, uint8 _type) : petX(_petX), type(_type), remainingHealth(0), status(0), stateID(0), stateValue(0),
-        auraAbilityID(0), auraInstanceID(0), roundsRemaining(0) {}
-
-    uint8 type;
-    int8 petX;
-    // type 6
-    int32 remainingHealth;
-    // type 1
-    uint8 status;
-    // type 4
-    uint8 stateID;
-    uint32 stateValue;
-    // type 0
-    uint32 auraAbilityID;
-    uint32 auraInstanceID;
-    uint32 roundsRemaining;
-};
-
-struct PetBattleEffect
-{
-    PetBattleEffect(int8 _casterPBOID, uint32 _abilityEffectID, uint8 _petBattleEffectType, uint16 _flags, uint16 _sourceAuraInstanceID, uint16 _turnInstanceID, uint8 _stackDepth) :
-        casterPBOID(_casterPBOID), abilityEffectID(_abilityEffectID), petBattleEffectType(_petBattleEffectType), flags(_flags), sourceAuraInstanceID(_sourceAuraInstanceID), turnInstanceID(_turnInstanceID), stackDepth(_stackDepth) {}
-
-    std::list<PetBattleEffectTarget*> targets;
-    uint32 abilityEffectID;
-    uint16 flags;
-    uint16 sourceAuraInstanceID;
-    uint16 turnInstanceID;
-    uint8 petBattleEffectType;
-    int8 casterPBOID;
-    uint8 stackDepth;
-
-    void AddTarget(PetBattleEffectTarget * target) { targets.push_back(target); }
-};
-
-struct PetBattleRoundResults
-{
-    PetBattleRoundResults(uint32 round) : roundID(round) {}
-    ~PetBattleRoundResults();
-
-    std::list<PetBattleEffect*> effects;
-    uint32 roundID;
-    std::vector<uint8> petXDiedNumbers;
-    uint8 trapStatus[2];
-    uint8 inputFlags[2];
-
-    void AddEffect(PetBattleEffect* effect) { effects.push_back(effect); }
-
-    void ProcessAbilityDamage(PetBattleInfo* caster, PetBattleInfo* target, uint32 abilityID, uint32 effectID, uint8 turnInstanceID);
-    void ProcessPetSwap(uint8 oldPetNumber, uint8 newPetNumber);
-    void ProcessSkipTurn(uint8 petNumber);
-    void ProcessSetState(PetBattleInfo* caster, PetBattleInfo* target, uint32 effectID, uint8 stateID, uint32 stateValue, uint8 turnInstanceID);
-    void AuraProcessingBegin();
-    void AuraProcessingEnd();
-
-    void AddDeadPet(uint8 petNumber);
-
-    void SetTrapStatus(uint8 team, uint8 status) { trapStatus[team] = status; }
-    uint8 GetTrapStatus(uint8 team) { return trapStatus[team]; }
-    void SetInputFlags(uint8 team, uint8 flags) { inputFlags[team] = flags; }
-    uint8 GetInputFlags(uint8 team) { return inputFlags[team]; }
-};
-
-typedef std::map<ObjectGuid, PetJournalInfo*> PetJournal;
-typedef std::map<uint8, PetBattleSlot*> PetBattleSlots;
 typedef std::list<PetBattleInfo*> BattleInfo;
 
-class PetBattleWild
+class PetBattle
 {
 public:
-    PetBattleWild(Player* owner);
+    struct RoundResults
+    {
+        struct Effect
+        {
+            struct Target
+            {
+                WorldPackets::BattlePet::EffectTarget PacketInfo;
+            };
+
+            WorldPackets::BattlePet::Effect PacketInfo;
+
+            BattlePetAbilityEntry const* abilityEntry;
+            int16 CalculateHitResult(PetBattleInfo* victim);
+            int32 GetBaseDamage(PetBattleInfo* attacker, uint32 turnIndex = 1);
+            int32 CalculateDamage(PetBattleInfo* attacker, PetBattleInfo* victim, bool crit);
+            float GetAttackModifier(uint8 attackType, uint8 defenseType);
+            uint32 GetProperties(uint8 properties, uint32 turnIndex = 1);
+        };
+        
+        struct AbilityData
+        {
+            WorldPackets::BattlePet::ActiveAbility PacketInfo;
+        };
+
+        WorldPackets::BattlePet::RoundResult PacketInfo;
+
+        void ProcessAbilityDamage(PetBattleInfo* caster, PetBattleInfo* target, uint32 abilityID, uint32 effectID, uint8 TurnInstanceID);
+        void ProcessPetSwap(uint8 oldPetNumber, uint8 newPetNumber);
+        void ProcessSkipTurn(uint8 petNumber);
+        void ProcessSetState(PetBattleInfo* caster, PetBattleInfo* target, uint32 effectID, uint8 stateID, uint32 stateValue, uint8 TurnInstanceID);
+        void AuraProcessingBegin();
+        void AuraProcessingEnd();
+    };
+
+    PetBattle(Player* owner);
 
     bool CreateBattleInfo();
     bool PrepareBattleInfo(ObjectGuid creatureGuid);
     void Init(ObjectGuid creatureGuid);
 
-    void SendFullUpdate(ObjectGuid creatureGuid);
+    void InitializePetBattle(ObjectGuid targetGuid);
 
     void ForceReplacePetHandler(uint32 roundID, uint8 newFrontPet, uint8 team);
 
     bool FirstRoundHandler(uint8 allyFrontPetID, uint8 enemyFrontPetID);
     bool UseAbilityHandler(uint32 abilityID, uint32 roundID);
-    bool SkipTurnHandler(uint32 _roundID);
-    bool UseTrapHandler(uint32 _roundID);
-    bool SwapPetHandler(uint8 newFrontPet, uint32 _roundID);
-    void SendFirstRound(PetBattleRoundResults* firstRound);
-    void SendRoundResults(PetBattleRoundResults* round);
-    void SendForceReplacePet(PetBattleRoundResults* round);
+    bool SkipTurnHandler(uint32 roundID);
+    bool UseTrapHandler(uint32 roundID);
+    bool SwapPetHandler(uint8 newFrontPet, uint32 roundID);
+    void SendFirstRound(RoundResults* firstRound);
+    void SendRoundResults(RoundResults* round);
+    void SendForceReplacePet(RoundResults* round);
     bool FinalRoundHandler(bool abandoned);
-    void SendFinalRound();
-    //void SetCurrentRound(PetBattleRoundResults* round) { curRound = round; }
-    //void SetFinalRound(PetBattleFinalRound* _finalRound) { finalRound = _finalRound; }
-    void CheckTrapStatuses(PetBattleRoundResults* round);
-    void CheckInputFlags(PetBattleRoundResults* round);
+    void SendFinalRound(bool pvpBattle = false);
+    void CheckTrapStatuses(RoundResults* round);
+    void CheckInputFlags(RoundResults* round);
     void UpdatePetsAfterBattle();
 
     void FinishPetBattle(bool error = false);
     void SendFinishPetBattle();
 
+    PetBattleInfo* GetPet(uint8 petNumber);
+
     PetBattleInfo* GetFrontPet(uint8 team);
+    PetBattleInfo* GetNotFrontPet(uint8 team);
     void SetFrontPet(uint8 team, uint8 petNumber);
 
     bool NextRoundFinal() { return nextRoundFinal; }
     void SetAbandoned(bool apply) { abandoned = apply; }
 
-    void SetWinner(uint8 team) 
-    {
-        for (uint8 i = 0; i < 2; ++i)
-        {
-            if (i == team)
-                winners[i] = 1;
-            else
-                winners[i] = 0;
-        }
-    }
-    uint8 GetWinner()
-    {
-        for (uint8 i = 0; i < 2; ++i)
-        {
-            if (winners[i] == 1)
-                return i;
-        }
-
-        return 0;
-    }
+    void SetWinner(uint8 team);
+    uint8 GetWinner();
 
     uint8 GetTotalPetCountInTeam(uint8 team, bool onlyActive = false);
 
     // only demo
     int8 GetLastAlivePetID(uint8 team);
 
-    uint8 GetTeamIndex(uint8 petNumber)
-    {
-        switch (petNumber)
-        {
-            case 0: return 0;
-            case 1: return 1;
-            case 2: return 2;
-            case 3: return 0;
-            case 4: return 1;
-            case 5: return 2;
-            default: return 0;
-        }
-    }
-
-    uint8 GetTeamByPetID(uint8 petNumber)
-    {
-        switch (petNumber)
-        {
-            case 0:
-            case 1:
-            case 2:
-                return 0;
-            case 3:
-            case 4:
-            case 5:
-                return 1;
-            default: return 0;
-        }
-    }
+    uint8 GetPetTeamIndex(uint8 petNumber);
+    uint8 GetTeamByPetID(uint8 petNumber);
 
     uint32 GetCurrentRoundID();
     void SetCurrentRoundID(uint32 roundID) { currentRoundID = roundID; }
     void SetBattleState(uint8 state) { petBattleState = state; }
     uint8 GetBattleState() { return petBattleState; }
 
-    uint32 GetVisualEffectIDByAbilityID(uint32 abilityID, uint8 turnIndex = 1);
-
 private:
-    Player* m_player;
+    Player* _player;
 
 protected:
     BattleInfo battleInfo;
-    //PetBattleRoundResults* curRound;
-    //PetBattleFinalRound* finalRound;
-    std::map<uint32, PetBattleEnviroment*> enviro;
     uint32 currentRoundID;
     ObjectGuid teamGuids[2];
     uint8 winners[2];
     uint8 petBattleState;
     bool nextRoundFinal;
     bool abandoned;
-
 };
 
 class BattlePetMgr
 {
 public:
-    explicit BattlePetMgr(Player* owner);
-    ~BattlePetMgr()
+    static BattlePetMgr* instance()
     {
-        for (PetJournal::const_iterator itr = m_PetJournal.begin(); itr != m_PetJournal.end(); ++itr)
-            delete itr->second;
-
-        for (PetBattleSlots::const_iterator itr = m_battleSlots.begin(); itr != m_battleSlots.end(); ++itr)
-            delete itr->second;
+        static BattlePetMgr instance;
+        return &instance;
     }
 
-    void AddPetToList(ObjectGuid guid, uint32 speciesID, uint32 creatureEntry, uint8 level, uint32 display, uint16 power, uint16 speed, uint32 health, uint32 maxHealth, uint8 quality, uint16 xp, uint16 flags, uint32 spellID, std::string customName = "", int16 breedID = 0, uint8 state = STATE_NORMAL);
-    void InitBattleSlot(ObjectGuid guid, uint8 slotID);
+    struct PetPvpBattleCompatibilityData
+    {
+        PetPvpBattleCompatibilityData(): compatibility(PET_PVP_BATTLE_PENDING) { }
+        PetPvpBattleCompatibilityData(PetPvpBattleCompatibility _compatibility): compatibility(_compatibility) { }
+        PetPvpBattleCompatibilityData(PetPvpBattleCompatibility _compatibility, int32 _avgLevels):
+            compatibility(_compatibility), avgLevels(_avgLevels) { }
 
-    void CloseWildPetBattle();
-    void SendUpdatePets(GuidList& updates, bool added = false);
+        PetPvpBattleCompatibility compatibility;
+        int32 avgLevels;
+    };
 
-    void CreateWildBattle(Player* initiator, ObjectGuid wildCreatureGuid);
+    struct BattlePet
+    {
+        WorldPackets::BattlePet::BattlePet PacketInfo;
 
+        int32 GetBaseStateValue(BattlePetState state);
+        BattlePetFamily GetFamily();
+
+        struct
+        {
+            uint32 CreatureID = 0;
+            uint32 SpellID = 0;
+        } nonPacketData;
+
+        BattlePetSaveInfo SaveInfo;
+
+        bool HasFlag(uint16 flag) { return (PacketInfo.BattlePetDBFlags & flag) != 0; }
+        void SetFlag(uint16 flag) { if (!HasFlag(flag)) PacketInfo.BattlePetDBFlags |= flag; }
+        void RemoveFlag(uint16 flag) { PacketInfo.BattlePetDBFlags &= ~flag; }
+        float GetHealthPct() { return PacketInfo.MaxHealth ? 100.f * PacketInfo.Health / PacketInfo.MaxHealth : 0.0f; }
+        bool IsDead() { return PacketInfo.Health <= 0; }
+        bool IsHurt() { return !IsDead() && PacketInfo.Health < PacketInfo.MaxHealth; }
+        uint32 GetAbilityID(uint8 rank);
+    };
+
+    struct QueueStatusData
+    {
+        QueueStatusData();
+        QueueStatusData(time_t _joinTime, _int32 avgLevel, PetBattleQueueStatus _status);
+
+        time_t joinTime;
+        int32 avgLevel;
+        PetBattleQueueStatus status;
+    };
+
+    explicit BattlePetMgr(Player* owner);
+
+    void Initialize();
+
+    BattlePetMgr() { }
+    ~BattlePetMgr();
+
+    bool LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slots);
+    void SaveToDB(SQLTransaction trans);
+    
+    void CalculateStats(uint32 speciesID, uint16 breedID, uint8 quality, uint8 lvl, uint32& maxHealth, uint32& power, uint32& speed);
+
+    void AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level = 1, BattlePetSaveInfo state = STATE_NORMAL);
+    BattlePet* GetPet(ObjectGuid guid);
+
+    void UnlockSlot(uint8 slot);
+
+    void SendJournal();
+    void ClosePetBattle();
+    void SendUpdatePets(std::vector<BattlePet> updates, bool added = false);
+    void HealBattlePetsPct(uint8 pct);
+
+    void CreatePetBattle(Player* initiator, ObjectGuid wildCreatureGuid);
+    void InitializePetBattle(WorldPackets::BattlePet::BattleRequest packet);
     void SendPetBattleRequestFailed(uint8 reason);
 
-    Player* GetPlayer() const { return m_player; }
+    uint32 GetPetCount(uint32 creatureEntry);
+    void DeletePetByPetGUID(ObjectGuid guid);
 
-    PetJournalInfo* GetPetInfoByPetGUID(ObjectGuid guid)
-    {
-        PetJournal::const_iterator pet = m_PetJournal.find(guid);
-        if (pet != m_PetJournal.end())
-            return pet->second;
+    ObjectGuid::LowType GetPetGUIDBySpell(uint32 spell);
+    std::unordered_map<ObjectGuid::LowType /*battlePetGuid*/, BattlePetMgr::BattlePet> const& GetPetJournal() { return _pets; }
 
-        return NULL;
-    }
+    WorldPackets::BattlePet::BattlePetSlot* GetPetBattleSlot(uint8 slot) { return &_slots[slot]; }
+    std::vector<WorldPackets::BattlePet::BattlePetSlot> GetPetBattleSlots() const { return _slots; }
 
-    uint32 GetPetCount(uint32 creatureEntry)
-    {
-        uint32 count = 0;
-
-        for (PetJournal::const_iterator pet = m_PetJournal.begin(); pet != m_PetJournal.end(); ++pet)
-        {
-            PetJournalInfo * pi = pet->second;
-
-            if (!pi || pi->GetState() == STATE_DELETED)
-                continue;
-
-            if (pi->GetCreatureEntry() == creatureEntry)
-                ++count;
-        }
-
-        return count;
-    }
-
-    void DeletePetByPetGUID(ObjectGuid guid)
-    {
-        PetJournal::const_iterator pet = m_PetJournal.find(guid);
-        if (pet == m_PetJournal.end())
-            return;
-
-        pet->second->SetState(STATE_DELETED);
-    }
-
-    ObjectGuid GetPetGUIDBySpell(uint32 spell)
-    {
-        for (PetJournal::const_iterator pet = m_PetJournal.begin(); pet != m_PetJournal.end(); ++pet)
-        {
-            PetJournalInfo * pi = pet->second;
-
-            if (!pi || pi->GetState() == STATE_DELETED)
-                continue;
-
-            if (pi->GetSummonSpell() == spell)
-                return pet->first;
-        }
-
-        return ObjectGuid::Empty;
-    }
-
-    bool HasPet(ObjectGuid guid)
-    {
-        PetJournal::const_iterator pet = m_PetJournal.find(guid);
-        if (pet != m_PetJournal.end())
-            return true;
-
-        return false;
-    }
-
-    PetJournal const& GetPetJournal() { return m_PetJournal; }
-
-    PetBattleSlot* GetPetBattleSlot(uint8 index) { return m_battleSlots[index]; }
-    PetBattleSlots GetPetBattleSlots() { return m_battleSlots; }
-
-    ObjectGuid GetPetGUIDBySlot(uint8 index)
-    {
-        PetBattleSlots::const_iterator itr = m_battleSlots.find(index);
-        if (itr != m_battleSlots.end())
-            return itr->second->GetPet();
-
-        return ObjectGuid::Empty;
-    }
+    ObjectGuid::LowType GetPetGUIDBySlot(uint8 index);
 
     bool SlotIsLocked(uint8 index);
 
-    bool AllSlotsEmpty()
-    {
-        for (PetBattleSlots::const_iterator s = m_battleSlots.begin(); s != m_battleSlots.end(); ++s)
-        {
-            PetBattleSlot * slot = s->second;
-
-            if (!slot)
-                return true;
-
-            if (!slot->IsEmpty())
-                return false;
-        }
-
-        return true;
-    }
-
-    bool AllSlotsDead()
-    {
-        for (PetBattleSlots::const_iterator s = m_battleSlots.begin(); s != m_battleSlots.end(); ++s)
-        {
-            PetBattleSlot * slot = s->second;
-
-            if (!slot)
-                return true;
-
-            if (!slot->IsEmpty())
-            {
-                if (PetJournalInfo * pet = GetPetInfoByPetGUID(slot->GetPet()))
-                {
-                    if (!pet->IsDead())
-                        return false;
-                }
-            }
-            else
-                return false;
-        }
-
-        return true;
-    }
-
-    PetBattleWild* GetPetBattleWild() { return m_petBattleWild; }
-
+    bool AllSlotsEmpty();
+    bool AllSlotsDead();
+    bool CanAwardXP();
+    uint32 CalcAvengerPetsLevelInSlots();
+    bool PetIsSlotted(ObjectGuid guid);
+    PetBattle* GetPetBattle() { return _petBattle; }
     uint32 GetXPForNextLevel(uint8 level);
-
     uint8 GetRandomQuailty();
     uint16 GetRandomBreedID(uint32 speciesID);
-    uint8 GetWeightForBreed(uint16 breedID)
-    {
-        uint8 weight = 0;
-        switch (breedID)
-        {
-        case 3:
-            weight = 60;
-            break;
-        case 4:
-        case 5:
-        case 6:
-            weight = 10;
-            break;
-        case 7:
-        case 8:
-        case 9:
-            weight = 20;
-            break;
-        case 10:
-        case 11:
-        case 12:
-            weight = 30;
-            break;
-        default:
-            break;
-        }
+    uint8 GetWeightForBreed(uint16 breedID);
 
-        return weight;
-    }
+    void SendError(BattlePetError error, uint32 creatureId = 0);
+
+    void UpdateWaitTimeAvg(int32 waitTime);
+    void Update(uint32 diff);
+    void SendPetBattleQueueStatus(QueueStatusData data);
+    void AddQueueData(ObjectGuid guid, time_t joinTime, int32 avgLevel, PetBattleQueueStatus _status);
+    void AddToQueue(ObjectGuid guid);
+    void RemoveQueueData(ObjectGuid guid);
+    QueueStatusData GetQueueData(ObjectGuid guid);
+    void UpdateQueueTimers(time_t currTime);
+    uint8 FindPvpBattle();
+    PetPvpBattleCompatibility FindNewBattles(GuidList& check, GuidList& all);
+    PetPvpBattleCompatibility GetCompatibles(std::string const& key);
+    PetPvpBattleCompatibility CheckCompatibility(GuidList check);
+    void SetCompatibles(std::string const& key, PetPvpBattleCompatibility compatibles);
+    void JoinPvpBattleQueue();
+    void LeavePvpBattleQueue();
+    void SendBattleQueueProposeMatch();
 
 private:
-    Player* m_player;
-    PetJournal m_PetJournal;
-    PetBattleSlots m_battleSlots;
-    PetBattleWild* m_petBattleWild;
+    Player* _player;
+    std::unordered_map<ObjectGuid::LowType /*battlePetGuid*/, BattlePetMgr::BattlePet> _pets;
+    std::vector<WorldPackets::BattlePet::BattlePetSlot> _slots;
+    PetBattle* _petBattle;
+
+    uint32 _queueTimer;
+    uint32 _waitTimesAvgStore;
+
+    GuidList _newToQueueStore;
+    GuidList _currentQueueStore;
+    std::map<ObjectGuid, QueueStatusData> _queueDataStore;
+    std::map<std::string, PetPvpBattleCompatibilityData> _compatibleMapStore;
 };
+
+#define sBattlePetMgr BattlePetMgr::instance()
 
 #endif

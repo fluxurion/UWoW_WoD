@@ -29,6 +29,7 @@
 #include "AuctionHouseMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
+#include "BattlePetMgr.h"
 #include "BlackMarketMgr.h"
 #include "BracketMgr.h"
 #include "CalendarMgr.h"
@@ -83,6 +84,7 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "Warden.h"
 #include "WardenCheckMgr.h"
 #include "WaypointMovementGenerator.h"
@@ -91,7 +93,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "VMapManager2.h"
 
 std::atomic<bool> World::m_stopEvent(false);
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1449,9 +1450,6 @@ void World::LoadConfigSettings(bool reload)
     // Blizzard Shop
     m_bool_configs[CONFIG_PURCHASE_SHOP_ENABLED] = sConfigMgr->GetBoolDefault("Purchase.Shop.Enabled", false);
 
-    // Battle Pets
-    m_bool_configs[CONFIG_PET_BATTLES_ENABLED] = sConfigMgr->GetBoolDefault("PetBattles.Enabled", true);
-
     m_bool_configs[CONFIG_CHECK_MT_SESSION] = sConfigMgr->GetBoolDefault("World.MT.Session", false);
 
     if (reload)
@@ -2163,6 +2161,7 @@ void World::SetInitialWorldSettings()
 
     // Battle Pets some data
     sObjectMgr->LoadBattlePetBreedsToSpecies();
+    sBattlePetMgr->Initialize();
 
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading realm name...");
 
@@ -2468,6 +2467,9 @@ void World::Update(uint32 diff)
 
     sLFGMgr->Update(diff);
     RecordTimeDiff("UpdateLFGMgr");
+    
+    sBattlePetMgr->Update(diff);
+    RecordTimeDiff("UpdateBattlePetMgr");
 
     // execute callbacks from sql queries that were queued recently
     ProcessQueryCallbacks();

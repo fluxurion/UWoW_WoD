@@ -1743,6 +1743,7 @@ class ObjectMgr
         ObjectGuidGenerator<HighGuid::AreaTrigger> _areaTriggerGuidGenerator;
         ObjectGuidGenerator<HighGuid::Transport> _moTransportGuidGenerator;
         ObjectGuidGenerator<HighGuid::BattlePet> _BattlePetGuidGenerator;
+        ObjectGuidGenerator<HighGuid::PetBattle> _PetBattleGuidGenerator;
         ObjectGuidGenerator<HighGuid::Conversation> _conversationGuidGenerator;
 
         QuestMap _questTemplates;

@@ -3972,17 +3972,14 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                 {
                     for (uint8 i = 0; i < MAX_ACTIVE_BATTLE_PETS; ++i)
                     {
-                        if (PetBattleSlot* _slot = referencePlayer->GetBattlePetMgr()->GetPetBattleSlot(i))
+                        if (auto const slot = referencePlayer->GetBattlePetMgr()->GetPetBattleSlot(i))
                         {
-                            if (!_slot->IsEmpty())
+                            if (auto const petInfo = referencePlayer->GetBattlePetMgr()->GetPet(slot->Pet.BattlePetGUID))
                             {
-                                if (PetJournalInfo* petInfo = referencePlayer->GetBattlePetMgr()->GetPetInfoByPetGUID(_slot->GetPet()))
+                                if (petInfo->PacketInfo.Level < reqValue)
                                 {
-                                    if(petInfo->GetLevel() < reqValue)
-                                    {
-                                        check = false;
-                                        break;
-                                    }
+                                    check = false;
+                                    break;
                                 }
                             }
                         }
@@ -4153,7 +4150,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                 }
                 case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_BATTLEPET_HP_LOW_THAT: // 79
                 {
-                    PetBattleWild* petBattle = referencePlayer->GetBattlePetMgr()->GetPetBattleWild();
+                    PetBattle* petBattle = referencePlayer->GetBattlePetMgr()->GetPetBattle();
                     if (!petBattle || petBattle->GetFrontPet(TEAM_ENEMY)->GetHealthPct() >= reqValue)
                         check = false;
                     break;

@@ -634,8 +634,9 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SAVE_ACCOUNT_BATTLE_PET_LIST, "REPLACE INTO account_battle_pet_journal (ownerAccID, guid, customName, creatureEntry, speciesID, spell, level, displayID, power, speed, health, maxHealth, quality, xp, flags, breedID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_ACCOUNT_BATTLE_PET_LIST, "SELECT guid, customName, creatureEntry, speciesID, spell, level, displayID, power, speed, health, maxHealth, quality, xp, flags, breedID FROM account_battle_pet_journal WHERE ownerAccID = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_ACCOUNT_BATTLE_PET_LIST, "DELETE FROM account_battle_pet_journal WHERE ownerAccID = ? AND guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_SAVE_ACCOUNT_BATTLE_PET_SLOTS, "REPLACE INTO account_battle_pet (ownerAccID, slot_0, slot_1, slot_2) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_SEL_ACCOUNT_BATTLE_PET_SLOTS, "SELECT slot_0, slot_1, slot_2 FROM account_battle_pet WHERE ownerAccID = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_ACCOUNT_BATTLE_PET_SLOTS, "SELECT id, battlePetGuid, locked FROM account_battle_pet_slots WHERE ownerAccID = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_ACCOUNT_BATTLE_PET_SLOTS, "INSERT INTO account_battle_pet_slots (id, ownerAccID, battlePetGuid, locked) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_ACCOUNT_BATTLE_PET_SLOTS, "DELETE FROM account_battle_pet_slots WHERE ownerAccID = ?", CONNECTION_ASYNC);
 
     // Scenario Criterias
     PrepareStatement(CHAR_SEL_SCENARIO_CRITERIAPROGRESS, "SELECT criteria, counter, date FROM achievement_scenario_criteria_progress WHERE instanceId = ?", CONNECTION_SYNCH);

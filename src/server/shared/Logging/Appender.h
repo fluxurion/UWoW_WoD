@@ -76,6 +76,8 @@ enum LogFilterType
     LOG_FILTER_PROC                = 48,
     LOG_FILTER_DUPE                = 49,
     LOG_FILTER_EFIR                = 50,
+    LOG_FILTER_BATTLEPET           = 51,
+
     LOG_FILTER_MAX
 };
 

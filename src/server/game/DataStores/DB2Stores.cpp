@@ -165,7 +165,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sAreaGroupStore);
     LOAD_DB2(sBattlePetAbilityEffectStore);
     LOAD_DB2(sBattlePetAbilityStateStore);
-    //LOAD_DB2(sBattlePetAbilityStore);
+    LOAD_DB2(sBattlePetAbilityStore);
     LOAD_DB2(sBattlePetAbilityTurnStore);
     LOAD_DB2(sBattlePetBreedQualityStore);
     LOAD_DB2(sBattlePetBreedStateStore);
@@ -254,13 +254,25 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 void DB2Manager::InitDB2CustomStores()
 {
     for (BattlePetSpeciesEntry const* entry : sBattlePetSpeciesStore)
-    {
-        // Ruby Droplet DBC fix
-        if (entry->CreatureEntry == 73356)
-            const_cast<BattlePetSpeciesEntry*>(entry)->spellId = 148050;
-
         _battlePetSpeciesBySpellId[entry->CreatureEntry] = entry;
-    }
+
+    for (BattlePetSpeciesStateEntry const* entry : sBattlePetSpeciesStateStore)
+        _battlePetSpeciesStateBySpecId.insert(BattlePetSpeciesStateBySpecMap::value_type(entry->SpeciesID, std::make_pair(entry->State, entry->Value)));
+
+    for (BattlePetBreedStateEntry const* entry : sBattlePetBreedStateStore)
+        _battlePetBreedStateByBreedId.insert(BattlePetBreedStateByBreedMap::value_type(entry->breedID, std::make_pair(entry->stateID, entry->stateModifier)));
+    
+    for (BattlePetBreedQualityEntry const* entry : sBattlePetBreedQualityStore)
+        _battlePetQualityMultiplierId[entry->quality] = entry->qualityModifier;
+
+    for (BattlePetAbilityTurnEntry const* entry : sBattlePetAbilityTurnStore)
+        _battlePetTurnByAbilityId.insert(BattlePetTurnByAbilityIdMap::value_type(entry->AbilityID, std::make_pair(entry->ID, entry->turnIndex)));
+
+    for (BattlePetAbilityEffectEntry const* entry : sBattlePetAbilityEffectStore)
+        _battlePetEffectEntryByTurnId[entry->TurnEntryID] = entry;
+
+    for (BattlePetSpeciesXAbilityEntry const* entry : sBattlePetSpeciesXAbilityStore)
+        _battlePetXAbilityEntryBySpecId.insert(BattlePetXAbilityEntryBySpecIdMap::value_type(entry->speciesID, entry));
 
     for (LanguageWordsEntry const* entry : sLanguageWordsStore)
         sLanguageWordsMapStore[entry->langId][strlen(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE])].push_back(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE]);
@@ -621,15 +633,6 @@ DB2Manager::LanguageWordsSize const* DB2Manager::GetLanguageWordsBySize(uint32 l
     return itr != wordMap->end() ? &itr->second : NULL;
 }
 
-BattlePetSpeciesEntry const* DB2Manager::GetBattlePetSpeciesEntry(uint32 creatureEntry)
-{
-    auto it = _battlePetSpeciesBySpellId.find(creatureEntry);
-    if (it != _battlePetSpeciesBySpellId.end())
-        return it->second;
-
-    return NULL;
-}
-
 std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItems(uint32 questPackageID) const
 {
     auto itr = _questPackages.find(questPackageID);
@@ -730,11 +733,66 @@ HeirloomEntry const* DB2Manager::GetHeirloomByOldItem(uint32 itemId) const
 //    return nullptr;
 //}
 
+BattlePetSpeciesEntry const* DB2Manager::GetBattlePetSpeciesEntry(uint32 creatureEntry)
+{
+    auto const it = _battlePetSpeciesBySpellId.find(creatureEntry);
+    if (it != _battlePetSpeciesBySpellId.end())
+        return it->second;
+
+    return nullptr;
+}
+
 uint8 DB2Manager::GetBattlePetSpeciesBySpellID(uint32 entry) const
 {
     auto const it = _battlePetSpeciesBySpellId.find(entry);
     if (it != _battlePetSpeciesBySpellId.end())
+    {
+        sLog->outError(LOG_FILTER_GENERAL, "Description %s , spellId %u , petType %u", it->second->Description, it->second->spellId, it->second->petType);
         return it->second->petType;
+    }
+
+    return 1;
+}
+
+float DB2Manager::CalcBattlePetQualityMuliplier(uint8 quality, uint8 level)
+{
+    auto itr = _battlePetQualityMultiplierId.find(quality);
+    if (itr != _battlePetQualityMultiplierId.end())
+        return level * 0.01f * itr->second;
+
+    return 0.0f;
+}
+
+uint32 DB2Manager::GetBattlePetTurnByAbility(uint32 abilityID, uint8 turnIndex /*= 1*/)
+{
+    auto bounds = _battlePetTurnByAbilityId.equal_range(abilityID);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+    {
+        uint8 _turnIndex = std::get<1>(itr->second);
+        if (_turnIndex == turnIndex)
+        {
+            uint32 turnID = std::get<0>(itr->second);
+            auto itr = _battlePetEffectEntryByTurnId.find(turnID);
+            if (itr != _battlePetEffectEntryByTurnId.end())
+                return itr->second->ID;
+        }
+    }
+
+    return 0;
+}
+
+uint32 DB2Manager::GetBattlePetXAbilityEntryBySpec(uint32 speciesID, uint32 customAbility, uint8 rank)
+{
+    auto bounds = _battlePetXAbilityEntryBySpecId.equal_range(speciesID);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+    {
+        BattlePetSpeciesXAbilityEntry const* entry = itr->second;
+        if (!entry)
+            continue;
+
+        if (entry->rank == rank && customAbility == entry->abilityID && entry->requiredLevel >= 10)
+            return entry->abilityID;
+    }
 
     return 0;
 }

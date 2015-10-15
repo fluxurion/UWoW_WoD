@@ -30,16 +30,16 @@ void WorldSession::HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetGuidR
     if (!player)
         return;
 
-    PetJournalInfo* petInfo = player->GetBattlePetMgr()->GetPetInfoByPetGUID(packet.BattlePetGUID);
-    if (!petInfo || petInfo->GetState() == STATE_DELETED)
+    auto* petInfo = player->GetBattlePetMgr()->GetPet(packet.BattlePetGUID);
+    if (petInfo->SaveInfo == STATE_DELETED)
         return;
 
-    uint32 spellId = petInfo->GetSummonSpell();
+    uint32 spellId = petInfo->nonPacketData.SpellID;
     if (spellId && !player->HasActiveSpell(spellId))
         return;
 
     if (!spellId)
-        spellId = BATTLE_PET_SUMMON_SPELL;
+        spellId = SPELL_SUMMON_BATTLE_PET;
 
     if (player->m_SummonSlot[SUMMON_SLOT_MINIPET])
     {
@@ -72,22 +72,22 @@ void WorldSession::HandleBattlePetNameQuery(WorldPackets::BattlePet::Query& pack
 
         if (Player* owner = summon->GetCharmerOrOwnerPlayerOrPlayerItself())
         {
-            if (PetJournalInfo* petInfo = owner->GetBattlePetMgr()->GetPetInfoByPetGUID(packet.BattlePetID))
+            if (auto petInfo = owner->GetBattlePetMgr()->GetPet(packet.BattlePetID))
             {
-                if (petInfo->GetState() == STATE_DELETED)
+                if (petInfo->SaveInfo == STATE_DELETED)
                     return;
 
-                bool hasCustomName = petInfo->GetCustomName() == "" ? false : true;
+                bool hasCustomName = petInfo->PacketInfo.CustomName == "" ? false : true;
 
                 WorldPackets::BattlePet::QueryResponse response;
                 response.BattlePetID = packet.BattlePetID;
-                response.CreatureID = petInfo->GetCreatureEntry();
+                response.CreatureID = petInfo->nonPacketData.CreatureID;
                 response.Timestamp = hasCustomName ? summon->GetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP) : 0;
                 response.Allow = hasCustomName;
                 //response.DeclinedNames[MAX_DECLINED_NAME_CASES] = { };
                 //response.HasDeclined = false;
                 if (hasCustomName)
-                    response.Name = petInfo->GetCustomName();
+                    response.Name = petInfo->PacketInfo.CustomName;
                 SendPacket(response.Write());
             }
         }
@@ -96,18 +96,17 @@ void WorldSession::HandleBattlePetNameQuery(WorldPackets::BattlePet::Query& pack
 
 void WorldSession::HandleModifyName(WorldPackets::BattlePet::ModifyName& packet)
 {
-    PetJournalInfo* petInfo = _player->GetBattlePetMgr()->GetPetInfoByPetGUID(packet.BattlePetGUID);
-    if (!petInfo || petInfo->GetState() == STATE_DELETED)
+    auto petInfo = _player->GetBattlePetMgr()->GetPet(packet.BattlePetGUID);
+    if (petInfo->SaveInfo == STATE_DELETED)
         return;
 
-    petInfo->SetCustomName(packet.Name);
+    petInfo->PacketInfo.CustomName = packet.Name;
 }
 
 void WorldSession::HandleBattlePetSetFlags(WorldPackets::BattlePet::SetFlags& packet)
 {
-    ObjectGuid guid;
-    PetJournalInfo* petInfo = _player->GetBattlePetMgr()->GetPetInfoByPetGUID(packet.BattlePetGUID);
-    if (!petInfo || petInfo->GetState() == STATE_DELETED)
+    auto petInfo = _player->GetBattlePetMgr()->GetPet(packet.BattlePetGUID);
+    if (petInfo->SaveInfo == STATE_DELETED)
         return;
 
     if (!packet.ControlType)
@@ -125,13 +124,13 @@ void WorldSession::HandleCageBattlePet(WorldPackets::BattlePet::BattlePetGuidRea
             oldSummon->ToTempSummon()->UnSummon();
     }
 
-    if (PetJournalInfo* petInfo = _player->GetBattlePetMgr()->GetPetInfoByPetGUID(packet.BattlePetGUID))
+    if (auto petInfo = _player->GetBattlePetMgr()->GetPet(packet.BattlePetGUID))
     {
-        BattlePetSpeciesEntry const* bp = sDB2Manager.GetBattlePetSpeciesEntry(petInfo->GetCreatureEntry());
+        BattlePetSpeciesEntry const* bp = sDB2Manager.GetBattlePetSpeciesEntry(petInfo->nonPacketData.CreatureID);
         if (!bp || bp->flags & SPECIES_FLAG_CANT_TRADE)
             return;
 
-        if (petInfo->GetState() == STATE_DELETED)
+        if (petInfo->SaveInfo == STATE_DELETED)
             return;
 
         uint32 itemId = ITEM_BATTLE_PET_CAGE_ID;
@@ -146,20 +145,20 @@ void WorldSession::HandleCageBattlePet(WorldPackets::BattlePet::BattlePetGuidRea
             return;
 
         uint32 dynData = 0;
-        dynData |= petInfo->GetBreedID();
-        dynData |= uint32(petInfo->GetQuality() << 24);
+        dynData |= petInfo->PacketInfo.BreedQuality;
+        dynData |= uint32(petInfo->PacketInfo.BreedQuality << 24);
 
         Item* item = _player->StoreNewItem(dest, itemId, true, 0);
         if (!item)                                               // prevent crash
             return;
 
-        item->SetBattlePet(petInfo->GetSpeciesID(), dynData, petInfo->GetLevel());
+        item->SetBattlePet(petInfo->PacketInfo.SpeciesID, dynData, petInfo->PacketInfo.Level);
         _player->SendNewItem(item, 1, false, true, petInfo);
 
         // at fourth - unlearn spell - TODO: fix it because more than one spell/battle pet of same type
-        _player->removeSpell(petInfo->GetSummonSpell());
+        _player->removeSpell(petInfo->nonPacketData.SpellID);
         _player->GetBattlePetMgr()->DeletePetByPetGUID(packet.BattlePetGUID);
-        SendPacket(WorldPackets::BattlePet::BattlePetGuidWrite(packet.BattlePetGUID).Write()); // send packet twice? (sniff data) - check this
+        SendPacket(WorldPackets::BattlePet::BattlePetDeleted(packet.BattlePetGUID).Write());
     }
 }
 
@@ -168,23 +167,8 @@ void WorldSession::HandleBattlePetSetSlot(WorldPackets::BattlePet::SetBattleSlot
     if (packet.SlotIndex >= MAX_ACTIVE_BATTLE_PETS)
         return;
 
-    PetBattleSlot* slot = _player->GetBattlePetMgr()->GetPetBattleSlot(packet.SlotIndex);
-    if (!slot)
-        return;
-
-    PetJournalInfo* petInfo = _player->GetBattlePetMgr()->GetPetInfoByPetGUID(packet.BattlePetGUID);
-    if (!petInfo || petInfo->GetState() == STATE_DELETED)
-        return;
-
-    if (!slot->IsEmpty())
-    {
-        for (uint8 i = 0; i < MAX_ACTIVE_BATTLE_PETS; ++i)
-            if (PetBattleSlot* sourceSlot = _player->GetBattlePetMgr()->GetPetBattleSlot(i))
-                if (sourceSlot->GetPet() == packet.BattlePetGUID)
-                    sourceSlot->SetPet(slot->GetPet());
-    }
-
-    slot->SetPet(packet.BattlePetGUID);
+    if (BattlePetMgr::BattlePet* pet = _player->GetBattlePetMgr()->GetPet(packet.BattlePetGUID))
+        _player->GetBattlePetMgr()->GetPetBattleSlot(packet.SlotIndex)->Pet = pet->PacketInfo;
 }
 
 void WorldSession::HandlePetBattleRequestWild(WorldPackets::BattlePet::RequestWild& packet)
@@ -193,108 +177,62 @@ void WorldSession::HandlePetBattleRequestWild(WorldPackets::BattlePet::RequestWi
     if (!player)
         return;
 
-    uint8 reason = 0;
-    if (player->GetBattlePetMgr()->AllSlotsEmpty())
-        reason = 16;
-    else if (player->GetBattlePetMgr()->AllSlotsDead())
-        reason = 15;
-
-    if (reason)
-    {
-        player->GetBattlePetMgr()->SendPetBattleRequestFailed(reason);
+    BattlePetMgr* battlePetMgr = player->GetBattlePetMgr();
+    if (!battlePetMgr)
         return;
-    }
 
-    WorldPackets::BattlePet::FinalizeLocation finalizeLocation;
-    finalizeLocation.Location.LocationResult = packet.Location.LocationResult;
-    finalizeLocation.Location.BattleOrigin = packet.Location.BattleOrigin;
-    finalizeLocation.Location.BattleFacing = packet.Location.BattleFacing;
-    for (int i = 0; i < 2; ++i)
-        finalizeLocation.Location.PlayerPositions[i] = packet.Location.PlayerPositions[i];
-    SendPacket(finalizeLocation.Write());
-
-    if (sWorld->getBoolConfig(CONFIG_PET_BATTLES_ENABLED))
-        player->GetBattlePetMgr()->CreateWildBattle(player, packet.TargetGUID);
+    battlePetMgr->InitializePetBattle(packet.Battle);
 }
 
-void WorldSession::HandlePetBattleInputFirstPet(WorldPacket& recvData)
+void WorldSession::HandleReplaceFrontPet(WorldPackets::BattlePet::ReplaceFrontPet& packet)
 {
     Player* player = GetPlayer();
     if (!player)
         return;
 
-    uint8 firstPetID;
-    recvData >> firstPetID;
-
-    PetBattleWild* petBattle = player->GetBattlePetMgr()->GetPetBattleWild();
+    PetBattle* petBattle = player->GetBattlePetMgr()->GetPetBattle();
     if (!petBattle)
         return;
 
-    if (!firstPetID)
+    if (!packet.FrontPet)
     {
-        if (!petBattle->FirstRoundHandler(firstPetID, 3))
+        if (!petBattle->FirstRoundHandler(packet.FrontPet, 3))
             petBattle->FinishPetBattle(true);
     }
     else
-        petBattle->ForceReplacePetHandler(petBattle->GetCurrentRoundID(), firstPetID, TEAM_ALLY);
+        petBattle->ForceReplacePetHandler(petBattle->GetCurrentRoundID(), packet.FrontPet, TEAM_ALLY);
 }
 
-void WorldSession::HandlePetBattleRequestUpdate(WorldPackets::BattlePet::RequestUpdate& /*packet*/) { }
+void WorldSession::HandlePetBattleRequestUpdate(WorldPackets::BattlePet::RequestUpdate& /*packet*/)
+{ }
 
-void WorldSession::HandlePetBattleInput(WorldPacket& recvData)
+void WorldSession::HandlePetBattleInput(WorldPackets::BattlePet::PetBattleInput& packet)
 {
     Player* player = GetPlayer();
     if (!player)
         return;
 
-    bool bit = recvData.ReadBit();
-    bool bit1 = recvData.ReadBit();
-    bool bit2 = recvData.ReadBit();
-    bool ignoreAbandonPenalty = recvData.ReadBit();
-    bool bit4 = recvData.ReadBit();
-    bool bit5 = recvData.ReadBit();
-    bool bit6 = recvData.ReadBit();
-
-    uint32 abilityID = 0;
-    uint32 roundID = 0;
-    uint8 moveType = 0;
-    int8 newFrontPet = -1;
-    uint8 battleInterrupted = 0;
-
-    if (!bit5)
-        recvData >> battleInterrupted;
-    if (!bit6)
-        recvData >> roundID;
-    if (!bit1)
-        recvData >> moveType;
-    if (!bit)
-        recvData >> abilityID;
-    if (!bit2)
-        recvData.read_skip<uint8>(); // debugFlags
-    if (!bit4)
-        recvData >> newFrontPet;
-
-    PetBattleWild* petBattle = player->GetBattlePetMgr()->GetPetBattleWild();
+    PetBattle* petBattle = player->GetBattlePetMgr()->GetPetBattle();
     if (!petBattle)
         return;
 
-    if (abilityID && moveType == 1)
+    if (packet.AbilityID && packet.MoveType == MOVE_TYPE_USE_ABILITY)
     {
-        if (!petBattle->UseAbilityHandler(abilityID, roundID))
+        if (!petBattle->UseAbilityHandler(packet.AbilityID, packet.Round))
             petBattle->FinishPetBattle(true);
     }
-    else if (moveType == 2 && newFrontPet != -1)
+    else if (packet.MoveType == MOVE_TYPE_SWAP_FRONT_PET && packet.NewFrontPet != -1)
     {
-        if (!petBattle->SwapPetHandler(newFrontPet, roundID))
+        if (!petBattle->SwapPetHandler(packet.NewFrontPet, packet.Round))
             petBattle->FinishPetBattle(true);
     }
-    else if (moveType == 3)
+    else if (packet.MoveType == MOVE_TYPE_USE_TRAP)
     {
-        if (!petBattle->UseTrapHandler(roundID))
+        if (!petBattle->UseTrapHandler(packet.Round))
             petBattle->FinishPetBattle(true);
     }
 
-    if (petBattle->NextRoundFinal() && moveType != 4)
+    if (petBattle->NextRoundFinal() && packet.MoveType != MOVE_TYPE_REJECTION_FROM_BATTLE)
     {
         if (!petBattle->FinalRoundHandler(false))
             petBattle->FinishPetBattle(true);
@@ -307,17 +245,17 @@ void WorldSession::HandlePetBattleFinalNotify(WorldPackets::BattlePet::NullCmsg&
     if (!player)
         return;
 
-    if (PetBattleWild* petBattle = player->GetBattlePetMgr()->GetPetBattleWild())
+    if (PetBattle* petBattle = player->GetBattlePetMgr()->GetPetBattle())
         petBattle->FinishPetBattle();
 }
 
-void WorldSession::HandlePetBattleQuitNotify(WorldPacket& recvData)
+void WorldSession::HandlePetBattleQuitNotify(WorldPackets::BattlePet::NullCmsg& /*packet*/)
 {
     Player* player = GetPlayer();
     if (!player)
         return;
 
-    if (PetBattleWild* petBattle = player->GetBattlePetMgr()->GetPetBattleWild())
+    if (PetBattle* petBattle = player->GetBattlePetMgr()->GetPetBattle())
     {
         petBattle->SetAbandoned(true);
         petBattle->SetWinner(TEAM_ENEMY);
@@ -329,30 +267,69 @@ void WorldSession::HandlePetBattleQuitNotify(WorldPacket& recvData)
 
 void WorldSession::HandleBattlePetDelete(WorldPackets::BattlePet::BattlePetGuidRead& packet)
 {
-    PetJournalInfo* petInfo = _player->GetBattlePetMgr()->GetPetInfoByPetGUID(packet.BattlePetGUID);
-    if (!petInfo || petInfo->GetState() == STATE_DELETED)
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    if (petInfo->GetFlags() & 0xC)
+    BattlePetMgr* battlePetMgr = player->GetBattlePetMgr();
+    if (!battlePetMgr)
         return;
 
-    _player->GetBattlePetMgr()->DeletePetByPetGUID(packet.BattlePetGUID);
+    auto petInfo = battlePetMgr->GetPet(packet.BattlePetGUID);
+    if (petInfo->SaveInfo == STATE_DELETED)
+        return;
+
+    if (petInfo->PacketInfo.BattlePetDBFlags & 0xC)
+        return;
+        
+    if (battlePetMgr->PetIsSlotted(packet.BattlePetGUID))
+        return;
+
+    battlePetMgr->DeletePetByPetGUID(packet.BattlePetGUID);
 }
 
-void WorldSession::HandleBattlePetRequestJournal(WorldPackets::BattlePet::NullCmsg& /*packet*/) { }
+void WorldSession::HandleBattlePetRequestJournal(WorldPackets::BattlePet::NullCmsg& /*packet*/)
+{
+    _player->GetBattlePetMgr()->SendJournal();
+}
 
-void WorldSession::HandleBattlePetJournalLock(WorldPackets::BattlePet::NullCmsg& /*packet*/) { }
+void WorldSession::HandleBattlePetJournalLock(WorldPackets::BattlePet::NullCmsg& /*packet*/)
+{
+    // seems unused in client - there's no answer for this
+}
 
-void WorldSession::HandleJoinPetBattleQueue(WorldPackets::BattlePet::NullCmsg& /*packet*/) { }
+void WorldSession::HandleJoinPetBattleQueue(WorldPackets::BattlePet::NullCmsg& /*packet*/)
+{
+    Player* player = GetPlayer();
+    if (player)
+        player->GetBattlePetMgr()->JoinPvpBattleQueue();
+}
 
-void WorldSession::HandlePetBattleScriptErrorNotify(WorldPackets::BattlePet::NullCmsg& /*packet*/) { }
+void WorldSession::HandlePetBattleScriptErrorNotify(WorldPackets::BattlePet::NullCmsg& /*packet*/)
+{ }
 
-void WorldSession::HandleBattlePetDeletePetCheat(WorldPackets::BattlePet::BattlePetGuidRead& /*packet*/) { }
+void WorldSession::HandleBattlePetDeletePetCheat(WorldPackets::BattlePet::BattlePetGuidRead& /*packet*/)
+{ }
 
-void WorldSession::HandlePetBattleRequestPVP(WorldPackets::BattlePet::RequestPVP& /*packet*/) { }
+void WorldSession::HandlePetBattleRequestPVP(WorldPackets::BattlePet::RequestPVP& packet)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-void WorldSession::HandleReplaceFrontPet(WorldPackets::BattlePet::ReplaceFrontPet& /*packet*/) { }
+    BattlePetMgr* battlePetMgr = player->GetBattlePetMgr();
+    if (!battlePetMgr)
+        return;
 
-void WorldSession::HanldeQueueProposeMatchResult(WorldPackets::BattlePet::QueueProposeMatchResult& /*packet*/) { }
+    battlePetMgr->InitializePetBattle(packet.Battle);
+}
 
-void WorldSession::HandleLeaveQueue(WorldPackets::BattlePet::LeaveQueue& /*packet*/) { }
+void WorldSession::HanldeQueueProposeMatchResult(WorldPackets::BattlePet::QueueProposeMatchResult& /*packet*/)
+{ }
+
+void WorldSession::HandleLeaveQueue(WorldPackets::BattlePet::LeaveQueue& /*packet*/)
+{
+    Player* player = GetPlayer();
+    if (player)
+        player->GetBattlePetMgr()->LeavePvpBattleQueue();
+}

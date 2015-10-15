@@ -601,6 +601,7 @@ namespace WorldPackets
         class QueueProposeMatchResult;
         class LeaveQueue;
         class RequestUpdate;
+        class PetBattleInput;
     }
 
     namespace Garrison
@@ -1543,10 +1544,9 @@ class WorldSession
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetGuidRead& packet);
         void HandlePetBattleRequestWild(WorldPackets::BattlePet::RequestWild& packet);
         void HandlePetBattleRequestUpdate(WorldPackets::BattlePet::RequestUpdate& packet);
-        void HandlePetBattleInputFirstPet(WorldPacket& recvData);
-        void HandlePetBattleInput(WorldPacket& recvData);
+        void HandlePetBattleInput(WorldPackets::BattlePet::PetBattleInput& packet);
         void HandlePetBattleFinalNotify(WorldPackets::BattlePet::NullCmsg& packet);
-        void HandlePetBattleQuitNotify(WorldPacket& recvData);
+        void HandlePetBattleQuitNotify(WorldPackets::BattlePet::NullCmsg& packet);
         void HandleBattlePetDelete(WorldPackets::BattlePet::BattlePetGuidRead& packet);
         void HandleBattlePetRequestJournal(WorldPackets::BattlePet::NullCmsg& packet);
         void HandleBattlePetJournalLock(WorldPackets::BattlePet::NullCmsg& packet);

@@ -30,9 +30,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::ActiveAbility 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleSlot const& petBattleSlot)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot const& petBattleSlot)
 {
-    data << petBattleSlot.BattlePetGUID;
+    data << petBattleSlot.Pet.BattlePetGUID;
     data << petBattleSlot.CollarID;
     data << petBattleSlot.SlotIndex;
     data.WriteBit(petBattleSlot.Locked);
@@ -56,16 +56,16 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet cons
     data << battlePet.MaxHealth;
     data << battlePet.Speed;
     data << battlePet.BreedQuality;
-    data.WriteBits(battlePet.CustomName.length(), 7);
-    data.WriteBit(battlePet.Owner.is_initialized());
+    data.WriteBits(battlePet.CustomName.size(), 7);
+    data.WriteBit(!battlePet.OwnerGuid.IsEmpty());
     data.WriteBit(battlePet.NoRename);
     data.FlushBits();
 
-    if (battlePet.Owner)
+    if (!battlePet.OwnerGuid.IsEmpty())
     {
-        data << battlePet.Owner.get().Guid;
-        data << battlePet.Owner.get().PlayerVirtualRealm;
-        data << battlePet.Owner.get().PlayerNativeRealm;
+        data << battlePet.OwnerGuid;
+        data << GetVirtualRealmAddress();
+        data << realm.Id.Realm;
     }
 
     data.WriteString(battlePet.CustomName);
@@ -73,62 +73,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet cons
     return data;
 }
 
-void WorldPackets::BattlePet::BattlePet::Initialize(::PetJournalInfo* petInfo, ObjectGuid guid, Player* player /*= nullptr*/)
-{
-    BattlePetGUID = guid;
-    SpeciesID = petInfo->GetSpeciesID();
-    DisplayID = petInfo->GetDisplayID();
-    CollarID = petInfo->GetCreatureEntry();
-    BreedID = petInfo->GetBreedID();
-    Level = petInfo->GetLevel();
-    Xp = petInfo->GetXP();
-    BattlePetDBFlags = petInfo->GetFlags();
-    Power = petInfo->GetPower();
-    Health = petInfo->GetHealth();
-    MaxHealth = petInfo->GetMaxHealth();
-    Speed = petInfo->GetSpeed();
-    BreedQuality = petInfo->GetQuality();
-    CustomName = petInfo->GetCustomName();
-    NoRename = true;
-    if (player)
-    {
-        //Owner = boost::in_place();
-        //Owner.emplace(player->GetGUID(), GetVirtualRealmAddress(), GetVirtualRealmAddress()); whats the fuck here? why i cant set this ?!
-    }
-}
-
-void WorldPackets::BattlePet::Journal::Initialize(::PetJournal journal, ::PetBattleSlots slot, ::BattlePetMgr* mgr, Player* player /*= nullptr*/)
-{
-    for (auto const& i : slot)
-    {
-        ::PetBattleSlot* slot = i.second;
-        if (slot)
-        {
-            WorldPackets::BattlePet::PetBattleSlot slotData;
-            slotData.BattlePetGUID = slot->GetPet();
-            slotData.CollarID = 0;
-            slotData.SlotIndex = i.first;
-            slotData.Locked = mgr->SlotIsLocked(i.first);
-            Slots.push_back(slotData);
-        }
-    }
-    
-    for (auto const& i : journal)
-    {
-        PetJournalInfo* petInfo = i.second;
-        if (!petInfo)
-            return;
-
-        if (petInfo->GetState() == STATE_DELETED)
-            continue;
-        
-        WorldPackets::BattlePet::BattlePet petData;
-        petData.Initialize(petInfo, i.first, player);
-        Pets.push_back(petData);
-    }
-}
-
-WorldPacket const* WorldPackets::BattlePet::Journal::Write()
+WorldPacket const* WorldPackets::BattlePet::BattlePetJournal::Write()
 {
     _worldPacket << TrapLevel;
     _worldPacket << static_cast<uint32>(Slots.size());
@@ -161,12 +106,12 @@ WorldPacket const* WorldPackets::BattlePet::QueryResponse::Write()
     if (!Allow)
         return &_worldPacket;
 
-    _worldPacket.WriteBits(Name.length(), 8);
+    _worldPacket.WriteBits(Name.size(), 8);
     _worldPacket.WriteBit(HasDeclined);
     _worldPacket.FlushBits();
 
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
-        _worldPacket.WriteBits(DeclinedNames[i].length(), 7);
+        _worldPacket.WriteBits(DeclinedNames[i].size(), 7);
 
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; i++)
         _worldPacket.WriteString(DeclinedNames[i]);
@@ -181,7 +126,7 @@ void WorldPackets::BattlePet::BattlePetGuidRead::Read()
     _worldPacket >> BattlePetGUID;
 }
 
-WorldPacket const* WorldPackets::BattlePet::BattlePetGuidWrite::Write()
+WorldPacket const* WorldPackets::BattlePet::BattlePetDeleted::Write()
 {
     _worldPacket << BattlePetGUID;
 
@@ -236,10 +181,10 @@ WorldPacket const* WorldPackets::BattlePet::Updates::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::EffectTarget const& effectTarget)
 {
-    data.WriteBits(effectTarget.type, 3);
+    data.WriteBits(effectTarget.Type, 3);
     data.FlushBits();
     data << effectTarget.Petx;
-    switch (effectTarget.type)
+    switch (effectTarget.Type)
     {
         case 5:
             data << effectTarget.AuraInstanceID;
@@ -291,75 +236,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::Effect const& 
     return data;
 }
 
-void WorldPackets::BattlePet::RoundResult::Initialize(::PetBattleRoundResults* result)
-{
-    NextPetBattleState = 2; //PetBattleWild::GetBattleState();
-    CurRound = result->roundID;
-
-    for (uint8 i = 0; i < 2; ++i)
-    {
-        NextInputFlags[i] = result->inputFlags[i];
-        NextTrapStatus[i] = result->trapStatus[i];
-        RoundTimeSecs[i] = 0;
-    }
-
-    for (auto const& i : result->effects)
-    {
-        PetBattleEffect* effect = i;
-        if (!effect)
-            return;
-
-        WorldPackets::BattlePet::Effect effectData;
-        effectData.AbilityEffectID = effect->abilityEffectID;
-        effectData.Flags = effect->flags;
-        effectData.SourceAuraInstanceID = effect->sourceAuraInstanceID;
-        effectData.TurnInstanceID = effect->turnInstanceID;
-        effectData.PetBattleEffectType = effect->petBattleEffectType;
-        effectData.CasterPBOID = effect->casterPBOID;
-        effectData.StackDepth = effect->stackDepth;
-
-        for (auto const& t : effect->targets)
-        {
-            PetBattleEffectTarget* target = t;
-            if (!target)
-                return;
-
-            WorldPackets::BattlePet::EffectTarget effTargetData;
-            effTargetData.type = target->type;
-            effTargetData.Petx = target->petX;
-            effTargetData.AuraInstanceID = target->auraInstanceID;
-            effTargetData.AuraAbilityID = target->auraAbilityID;
-            effTargetData.RoundsRemaining = target->roundsRemaining;
-            effTargetData.CurrentRound = 0;
-            effTargetData.StateID = target->stateID;
-            effTargetData.StateValue = target->stateValue;
-            effTargetData.Health = target->remainingHealth;
-            effTargetData.NewStatValue = target->status;
-            effTargetData.TriggerAbilityID = 0;
-            effTargetData.ChangedAbilityID = 0;
-            effTargetData.CooldownRemaining = 0;
-            effTargetData.LockdownRemaining = 0;
-            effTargetData.BroadcastTextID = 0;
-            effectData.EffectTargetData.push_back(effTargetData);
-        }
-
-        EffectData.push_back(effectData);
-    }
-
-    for (auto const& i : {0})
-    {
-        WorldPackets::BattlePet::ActiveAbility ability;
-        ability.AbilityID = 0;
-        ability.CooldownRemaining = 0;
-        ability.LockdownRemaining = 0;
-        ability.AbilityIndex = 0;
-        ability.Pboid = 0;
-        Ability.push_back(ability);
-    }
-
-    for (auto const& i : result->petXDiedNumbers)
-        PetXDied.push_back(i);
-}
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::RoundResult const& roundResult)
 {
@@ -443,13 +319,13 @@ WorldPacket const* WorldPackets::BattlePet::SceneObjectFinalRound::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::Locations const& locations)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::Locations& locations)
 {
-    //data << locations.LocationResult;
-    //data << locations.BattleOrigin.PositionXYZStream();
-    //data << locations.BattleFacing;
-    //for (uint8 i = 0; i < 2; ++i)
-    //    data << locations.PlayerPositions[i].PositionXYZStream();
+    data << locations.LocationResult;
+    data << locations.BattleOrigin.PositionXYZStream();
+    data << locations.BattleFacing;
+    for (uint8 i = 0; i < 2; ++i)
+        data << locations.PlayerPositions[i].PositionXYZStream();
 
     return data;
 }
@@ -482,14 +358,14 @@ WorldPacket const* WorldPackets::BattlePet::PVPChallenge::Write()
 
 void WorldPackets::BattlePet::RequestWild::Read()
 {
-    _worldPacket >> TargetGUID;
-    _worldPacket >> Location;
+    _worldPacket >> Battle.TargetGUID;
+    _worldPacket >> Battle.Location;
 }
 
 void WorldPackets::BattlePet::RequestPVP::Read()
 {
-    _worldPacket >> TargetGUID;
-    _worldPacket >> OpponentCharacterID;
+    _worldPacket >> Battle.TargetGUID;
+    _worldPacket >> Battle.Location;
 }
 
 WorldPacket const* WorldPackets::BattlePet::RequestFailed::Write()
@@ -530,23 +406,23 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::BattlePet::InputData& loc
     return data;
 }
 
-WorldPacket const* WorldPackets::BattlePet::QueueStatus::Write()
+WorldPacket const* WorldPackets::BattlePet::PetBattleQueueStatus::Write()
 {
-    _worldPacket << Status;
-    _worldPacket << static_cast<uint32>(SlotResult.size());
-    _worldPacket << Ticket;
-    for (auto const& map : SlotResult)
+    _worldPacket << Msg.Status;
+    _worldPacket << static_cast<uint32>(Msg.SlotResult.size());
+    _worldPacket << Msg.Ticket;
+    for (auto const& map : Msg.SlotResult)
         _worldPacket << map;
 
-    _worldPacket.WriteBit(ClientWaitTime.is_initialized());
-    _worldPacket.WriteBit(AverageWaitTime.is_initialized());
+    _worldPacket.WriteBit(Msg.ClientWaitTime.is_initialized());
+    _worldPacket.WriteBit(Msg.AverageWaitTime.is_initialized());
     _worldPacket.FlushBits();
 
-    if (ClientWaitTime)
-        _worldPacket << *ClientWaitTime;
+    if (Msg.ClientWaitTime)
+        _worldPacket << *Msg.ClientWaitTime;
 
-    if (AverageWaitTime)
-        _worldPacket << *AverageWaitTime;
+    if (Msg.AverageWaitTime)
+        _worldPacket << *Msg.AverageWaitTime;
 
     return &_worldPacket;
 }
@@ -599,12 +475,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattlePetUp
     data << static_cast<uint32>(update.Abilities.size());
     data << static_cast<uint32>(update.Auras.size());
     data << static_cast<uint32>(update.States.size());
+
     for (auto const& x : update.Abilities)
         data << x;
+
     for (auto const& v : update.Auras)
         data << v;
+
     for (auto const& c : update.States)
-        data << c;
+    {
+        data << c.first;
+        data << c.second;
+    }
 
     data.WriteBits(update.CustomName.size(), 7);
     data.WriteString(update.CustomName);
@@ -644,14 +526,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattlePlaye
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveState const& state)
-{
-    data << state.StateID;
-    data << state.StateValue;
-
-    return data;
-}
-
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveAura const& aura)
 {
     data << aura.AbilityID;
@@ -669,8 +543,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleEnvir
     data << static_cast<uint32>(update.States.size());
     for (auto const& x : update.Auras)
         data << x;
+
     for (auto const& v : update.States)
-        data << v;
+    {
+        data << v.first;
+        data << v.second;
+    }
 
     return data;
 }
@@ -717,4 +595,16 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetError::Write()
     _worldPacket << CreatureID;
 
     return &_worldPacket;
+}
+
+void WorldPackets::BattlePet::PetBattleInput::Read()
+{
+    _worldPacket >> MoveType;
+    _worldPacket >> NewFrontPet;
+    _worldPacket >> DebugFlags;
+    _worldPacket >> BattleInterrupted;
+
+    _worldPacket >> AbilityID;
+
+    IgnoreAbandonPenalty = _worldPacket.ReadBit();
 }

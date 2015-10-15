@@ -598,9 +598,9 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_ABANDON,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetAbandon                );
     DEFINE_OPCODE_HANDLER_OLD(CMSG_PET_ACTION,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePetAction                 );
     DEFINE_HANDLER(CMSG_PET_BATTLE_FINAL_NOTIFY,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BattlePet::NullCmsg, &WorldSession::HandlePetBattleFinalNotify);
-    DEFINE_HANDLER(CMSG_PET_BATTLE_INPUT,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL); // HandlePetBattleInput
+    DEFINE_HANDLER(CMSG_PET_BATTLE_INPUT,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BattlePet::PetBattleInput, &WorldSession::HandlePetBattleInput);
     DEFINE_HANDLER(CMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH_RESULT,              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BattlePet::QueueProposeMatchResult, &WorldSession::HanldeQueueProposeMatchResult);
-    DEFINE_HANDLER(CMSG_PET_BATTLE_QUIT_NOTIFY,                             STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL); // HandlePetBattleQuitNotify
+    DEFINE_HANDLER(CMSG_PET_BATTLE_QUIT_NOTIFY,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BattlePet::NullCmsg, &WorldSession::HandlePetBattleQuitNotify);
     DEFINE_HANDLER(CMSG_PET_BATTLE_REPLACE_FRONT_PET,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BattlePet::ReplaceFrontPet, &WorldSession::HandleReplaceFrontPet);
     DEFINE_HANDLER(CMSG_PET_BATTLE_REQUEST_PVP,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BattlePet::RequestPVP, &WorldSession::HandlePetBattleRequestPVP);
     DEFINE_HANDLER(CMSG_PET_BATTLE_REQUEST_UPDATE,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::BattlePet::RequestUpdate, &WorldSession::HandlePetBattleRequestUpdate);

@@ -204,6 +204,7 @@ GLOBAL_GUID_CREATE(HighGuid::PVPQueueGroup)
 GLOBAL_GUID_CREATE(HighGuid::UserClient)
 GLOBAL_GUID_CREATE(HighGuid::UniqueUserClient)
 GLOBAL_GUID_CREATE(HighGuid::BattlePet)
+GLOBAL_GUID_CREATE(HighGuid::PetBattle)
 REALM_GUID_CREATE(HighGuid::Player)
 REALM_GUID_CREATE(HighGuid::Item)   // This is not exactly correct, there are 2 more unknown parts in highguid: (high >> 10 & 0xFF), (high >> 18 & 0xFFFFFF)
 REALM_GUID_CREATE(HighGuid::Transport)
@@ -254,4 +255,5 @@ template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::LootObject>::Generate
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::AreaTrigger>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Transport>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::BattlePet>::Generate();
+template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::PetBattle>::Generate();
 template ObjectGuid::LowType ObjectGuidGenerator<HighGuid::Conversation>::Generate();
