@@ -12523,19 +12523,6 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
         {
             if (victim)
             {
-                // Ranged Spell (hunters)
-                switch (spellProto->Id)
-                {
-                    case 19434: // Aimed Shot
-                    case 82928: // Aimed Shot (Master Marksman)
-                    case 56641: // Steady Shot
-                        if (HasAura(34483)) // Careful Aim
-                            if (victim->GetHealthPct() > 80.0f)
-                                crit_chance += 75.0f;
-                        break;
-                    default:
-                        break;
-                }
                 crit_chance += GetUnitCriticalChance(attackType, victim);
                 crit_chance += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL, schoolMask);
             }
@@ -12582,7 +12569,7 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage
     int32 crit_bonus = damage;
     float crit_mod = 0.0f;
 
-    crit_bonus += damage; // 200% for all damage type
+    crit_bonus *= 1.5f; // 200% for all damage type
 
     crit_mod += (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, spellProto->GetSchoolMask()) - 1.0f) * 100;
 
@@ -12604,9 +12591,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*spellProto*/, uint32 d
 {
     // Calculate critical bonus
     int32 crit_bonus = damage;
-
     damage += crit_bonus;
-
     damage = int32(float(damage) * GetTotalAuraMultiplier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
 
     return damage;

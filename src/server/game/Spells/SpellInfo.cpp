@@ -3514,7 +3514,6 @@ bool SpellInfo::IsBreakingCamouflageAfterHit() const
     switch (Id)
     {
         case 19434: // Aimed Shot
-        case 82928: // Aimed Shot
         case 77767: // Cobra Shot
         case 56641: // Steady Shot
             return true;

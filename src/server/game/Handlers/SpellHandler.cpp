@@ -474,19 +474,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
             }
             break;
         }
-        case 19434:         // Aimed Shot - 19434 and Aimed Shot (for Master Marksman) - 82928
-        {
-            if (_player->HasAura(82926))
-            {
-                if (SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(82928))
-                {
-                    spellInfo = newSpellInfo;
-                    cast.Cast.SpellID = newSpellInfo->Id;
-                    replaced = true;
-                }
-            }
-            break;
-        }
         case 113860:        // Fix Dark Soul for Destruction warlocks
         {
             if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION)
