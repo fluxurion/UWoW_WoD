@@ -24337,7 +24337,7 @@ void Unit::RemoveMyAura(uint32 spellId)
         if (Aura* aura = (*itr))
             if (aura->GetId() == spellId)
             {
-                m_my_Auras.erase(itr++);
+                m_my_Auras.remove(*itr++);
                 aura->Remove();
                 continue;
             }
