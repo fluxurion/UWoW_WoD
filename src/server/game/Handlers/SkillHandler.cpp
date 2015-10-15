@@ -67,7 +67,7 @@ void WorldSession::HandleLearnTalent(WorldPackets::Talent::LearnTalent& packet)
     if (!player)
         return;
 
-    if (packet.Talents.size() > 6)
+    if (packet.Talents.size() > 7)
         return;
 
     if (packet.Talents.size() > player->GetFreeTalentPoints())
