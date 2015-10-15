@@ -4456,9 +4456,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].BasePoints = -100;
                     spellInfo->Effects[EFFECT_0].SpellClassMask[0] |= 0x20000;
                     break;
-                case 7384: // Overpower
-                    spellInfo->AttributesEx |= SPELL_ATTR1_ENABLE_AT_DODGE;
-                    break;
                 case 90259: // Glyph of Frost Pillar (Root Aura)
                     spellInfo->Effects[EFFECT_0].MiscValue = 0;
                     spellInfo->Effects[EFFECT_0].MiscValueB = 0;

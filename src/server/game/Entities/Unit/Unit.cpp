@@ -12354,9 +12354,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
             {
                 if (!spellProto->IsPositive())
                 {
-                    // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE
                     crit_chance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE, schoolMask);
-                    // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE
                     crit_chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
                 }
                 // scripted (increase crit chance ... against ... target by x%
@@ -12365,6 +12363,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                 {
                     if (!((*i)->IsAffectingSpell(spellProto)))
                         continue;
+
                     int32 modChance = 0;
                     switch ((*i)->GetMiscValue())
                     {
@@ -12478,22 +12477,14 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                         switch (spellProto->Id)
                         {
                             case 22568: // +25% crit chance for Ferocious Bite on bleeding targets
-                            {
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
-                                {
                                     crit_chance += 25.0f;
-                                }
                                 break;
-                            }
                             case 6785:   // Ravage
                             case 102545: // Ravage!
-                            {
                                 if (victim->GetHealthPct() > 80.0f)
-                                {
                                     crit_chance += 50.0f; // Ravage has a 50% increased chance to critically strike targets with over 80% health.
-                                }
                                 break;
-                            }
                             default:
                                 break;
                         }
@@ -12512,20 +12503,13 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                         switch (spellProto->Id)
                         {
                             case 118000: // Dragon Roar is always a critical hit
-                            {
                                 critChance = 100.0f;
                                 return true;
-                            }
+
                             case 23881: // Bloodthirst has double critical chance
-                            {
-                                crit_chance *= 2;
+                                if (AuraEffect const* aurEff = GetAuraEffect(23881, EFFECT_3))
+                                    crit_chance += aurEff->GetAmount();
                                 break;
-                            }
-                            case 7384: // Overpower
-                            {
-                                crit_chance += spellProto->Effects[2].BasePoints;
-                                break;
-                            }
                             default:
                                 break;
                         }
