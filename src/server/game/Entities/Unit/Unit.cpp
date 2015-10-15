@@ -7904,7 +7904,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                             if (rogue->HasSpellCooldown(51699) || !rogue->isInCombat())
                                 break;
 
-                            if (rogue->GetComboPoints() >= 5 && owner->HasAura(114015))
+                            if (rogue->GetComboPoints(procSpell ? procSpell->Id : 0) >= 5 && owner->HasAura(114015))
                             {
                                 owner->CastSpell(owner, 115189, true);
                                 rogue->AddSpellCooldown(51699, NULL, getPreciseTime() + cooldown);
@@ -7941,10 +7941,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     if(ToPlayer()->GetSelection() != target->GetGUID())
                         break;
 
-                    if (ToPlayer()->GetComboPoints() < 5 && procSpell->Id != 27576) //Mutilate add 2 KP
+                    if (ToPlayer()->GetComboPoints(procSpell->Id) < 5 && procSpell->Id != 27576) //Mutilate add 2 KP
                         return false;
 
-                    if (ToPlayer()->GetComboPoints() < 4 && procSpell->Id == 27576) //Mutilate add 2 KP
+                    if (ToPlayer()->GetComboPoints(procSpell->Id) < 4 && procSpell->Id == 27576) //Mutilate add 2 KP
                         return false;
 
                     CastSpell(this,115189,true);
@@ -10153,7 +10153,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
         {
             if (!victim || victim == this)
                 return false;
-            if (HasAura(114015) && ToPlayer()->GetComboPoints() >= 5)
+            if (HasAura(114015) && ToPlayer()->GetComboPoints(procSpell ? procSpell->Id : 0) >= 5)
             {
                 CastSpell(this,115189,true);
                 return false;
@@ -15375,7 +15375,7 @@ int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto
 
 int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
 {
-    uint8 comboPoints = m_movedPlayer ? m_movedPlayer->GetComboPoints() : 0;
+    uint8 comboPoints = m_movedPlayer ? m_movedPlayer->GetComboPoints(spellProto->Id) : 0;
     uint8 holyPower   = 0;
 
     int32 minduration = spellProto->GetDuration();
@@ -18530,7 +18530,7 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                         check = true;
                         continue;
                     }
-                    int32 chance = 20 * ToPlayer()->GetComboPoints();
+                    int32 chance = 20 * ToPlayer()->GetComboPoints(procSpell->Id);
                     if (roll_chance_i(chance))
                     {
                         triggered_spell_id = abs(itr->spell_trigger);
@@ -19006,8 +19006,8 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                         check = true;
                         continue;
                     }
-                    int32 basepoints0 = triggerAmount * ToPlayer()->GetComboPoints();
                     triggered_spell_id = abs(itr->spell_trigger);
+                    int32 basepoints0 = triggerAmount * ToPlayer()->GetComboPoints(procSpell->Id);
 
                     _caster->CastCustomSpell(target, triggered_spell_id, &basepoints0, &basepoints0, &basepoints0, true, castItem, triggeredByAura, originalCaster);
                     if(itr->target == 6)
@@ -24447,6 +24447,9 @@ Unit* Unit::GetUnitForLinkedSpell(Unit* caster, Unit* target, uint8 type)
             break;
         case LINK_UNIT_TYPE_TARGET:
             return target;
+            break;
+        case LINK_UNIT_TYPE_VICTIM:
+            return getVictim();
             break;
     }
     return NULL;

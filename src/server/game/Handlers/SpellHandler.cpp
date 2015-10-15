@@ -567,7 +567,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
         }
         case 127538:        // Savage Roar
         {
-            if (_player->GetComboPoints())
+            if (_player->GetComboPoints(127538))
             {
                 if (SpellInfo const* newSpellInfo = sSpellMgr->GetSpellInfo(52610))
                 {

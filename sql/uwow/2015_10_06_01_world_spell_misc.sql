@@ -18,10 +18,12 @@ insert into `spell_script_names` (`spell_id`, `ScriptName`) values('2818','spell
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('3409','spell_rog_crippling_poison_venom');
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('8680','spell_rog_wound_poison_venom');
 
-insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `removeMask`, `comment`) values
-('152150','163786','0','0','3','0','0','0','0','0','0','0','0','Смерть с небес'),
-('152150','178236','0','0','3','0','0','0','0','0','0','0','0','Смерть с небес'),
-('156327','32645','1','0','0','0','0','0','0','0','0','0','0','Смерть с небес'),
-('156327','178070','1','0','0','0','0','0','0','0','0','0','0','Смерть с небес');
+replace into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `actiontype`, `comment`) values
+('152150','163786','0','0','3','0','0','0','0','0','0','0','0','0','Смерть с небес'),
+('152150','178236','5','0','3','0','0','0','0','0','0','0','0','0','Смерть с небес'),
+('156327','2098','0','0','4','2','84617','0','0','0','0','0','0','0','Смерть с небес'),
+('156327','32645','0','0','4','2','1329','0','0','0','0','0','0','0','Смерть с небес'),
+('156327','178070','0','0','4','0','0','0','0','0','0','0','0','0','Смерть с небес');
+
 
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('178236','spell_rog_death_from_above_jump');

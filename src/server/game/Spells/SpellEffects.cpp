@@ -575,7 +575,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         // 25 energy = 100% more damage
                         AddPct(damage, energy * 4);
 
-                        damage += int32(0.400f * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * m_caster->ToPlayer()->GetComboPoints());
+                        damage += int32(0.400f * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * m_caster->ToPlayer()->GetComboPoints(m_spellInfo->Id));
 
                         // if target is under 25% of life, also reset rake duration
                         if (unitTarget->GetHealthPct() <= 25.0f)
@@ -599,7 +599,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     if (Player* player = m_caster->ToPlayer())
                     {
-                        uint8 combo = player->GetComboPoints();
+                        uint8 combo = player->GetComboPoints(m_spellInfo->Id);
 
                         float ap = player->GetTotalAttackPowerValue(BASE_ATTACK);
 
@@ -618,7 +618,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
-                        if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
+                        if (uint32 combo = ((Player*)m_caster)->GetComboPoints(m_spellInfo->Id))
                         {
                             float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
                             damage += int32(ap * combo * 0.577f); //!TODO 0.559f on 6.2.2a
@@ -637,7 +637,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
-                        if (uint32 combo = ((Player*)m_caster)->GetComboPoints())
+                        if (uint32 combo = ((Player*)m_caster)->GetComboPoints(m_spellInfo->Id))
                             damage += int32(float(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)) * combo * 0.09f);
                     }
                 }
@@ -646,7 +646,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 {
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
-                        if (uint32 combo = m_caster->ToPlayer()->GetComboPoints())
+                        if (uint32 combo = m_caster->ToPlayer()->GetComboPoints(m_spellInfo->Id))
                         {
                             damage += int32(float(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)) * combo * 0.178f);
                             if(combo >= 3)
@@ -1965,7 +1965,7 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     if (m_caster->isInFlight())
         return;
 
-    if (!unitTarget)
+    if (!unitTarget || m_caster == unitTarget)
         return;
 
     DelayCastEvent *delayCast = NULL;
@@ -1980,9 +1980,11 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     float x, y, z;
     unitTarget->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
 
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJump start xyz %f %f %f caster %u target %u damage %i", x, y, z, m_caster->GetGUIDLow(), unitTarget->GetGUIDLow(), damage);
+
     float speedXY, speedZ;
-    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
-    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, 0, 0.0f, delayCast);
+    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist(x, y, x), speedXY, speedZ);
+    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, 0, 0.0f, delayCast, unitTarget);
 }
 
 void Spell::EffectJumpDest(SpellEffIndex effIndex)
@@ -2009,8 +2011,8 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
         m_caster->GetMotionMaster()->Clear(false);
 
     // Init dest coordinates
-    float x, y, z, o;
-    destTarget->GetPosition(x, y, z, o);
+    float x, y, z, o = 0.0f;
+    destTarget->GetPosition(x, y, z);
 
     if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_DEST_TARGET_BACK)
     {
@@ -2028,8 +2030,10 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
     if (Player* plr = m_caster->ToPlayer())
         plr->SetFallInformation(0, z);
 
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJumpDest start xyz %f %f %f o %f", x, y, z, o);
+
     float speedXY, speedZ;
-    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
+    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist(x, y, z), speedXY, speedZ);
     // Death Grip and Wild Charge (no form)
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, m_spellInfo->Id, o, delayCast);
 }
@@ -2044,6 +2048,8 @@ void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & sp
         speedZ = 10.0f;
 
     speedXY = dist * 10.0f / speedZ;
+
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalculateJumpSpeeds speedZ %f dist %f speedXY %f", speedZ, dist, speedXY);
 
     if (m_spellInfo->Id == 49575)
         speedXY = 38;
@@ -5901,7 +5907,7 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
 
     if (m_spellInfo->Id == 1752 && unitTarget->HasAura(84617, m_caster->GetGUID()) && roll_chance_i(20)) //Debuff Revealing Strike add CP Sinister Strike
     {
-        if (m_caster->HasAura(114015) && m_caster->ToPlayer() && m_caster->ToPlayer()->GetComboPoints() >= 4)
+        if (m_caster->HasAura(114015) && m_caster->ToPlayer() && m_caster->ToPlayer()->GetComboPoints(m_spellInfo->Id) >= 4)
             m_caster->CastSpell(m_caster, 115189, true);
         else
             damage += 1;

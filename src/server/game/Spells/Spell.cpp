@@ -1036,6 +1036,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
         case TARGET_CHECK_PARTY:
         case TARGET_CHECK_RAID:
         case TARGET_CHECK_RAID_CLASS:
+        case TARGET_CHECK_SUMMON:
             range = m_spellInfo->GetMaxRange(true, m_caster, this);
             break;
         case TARGET_CHECK_ENTRY:
@@ -6540,7 +6541,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                         
                             if (Player * player = m_caster->ToPlayer())
                             {
-                                if (aura->GetDuration() > player->GetComboPoints() * 6000 + bonusDuration)
+                                if (aura->GetDuration() > player->GetComboPoints(m_spellInfo->Id) * 6000 + bonusDuration)
                                     return SPELL_FAILED_TRY_AGAIN;
                             }
                         }
@@ -7252,7 +7253,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     // check if caster has at least 1 combo point for spells that require combo points
     if (m_needComboPoints)
         if (Player* plrCaster = m_caster->ToPlayer())
-            if (!plrCaster->GetComboPoints())
+            if (!plrCaster->GetComboPoints(m_spellInfo->Id))
                 return SPELL_FAILED_NO_COMBO_POINTS;
 
     // all ok
@@ -9646,6 +9647,14 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
                 if (unitTarget->isTotem())
                     return false;
                 if (!_caster->_IsValidAttackTarget(unitTarget, _spellInfo))
+                    return false;
+                break;
+            case TARGET_CHECK_SUMMON:
+                if (unitTarget->isTotem())
+                    return false;
+                if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo))
+                    return false;
+                if (_caster->GetGUID() != unitTarget->GetSummonedByGUID() && _caster->GetGUID() != unitTarget->GetGUID())
                     return false;
                 break;
             case TARGET_CHECK_ALLY:

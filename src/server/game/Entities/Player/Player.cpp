@@ -25263,6 +25263,22 @@ void Player::GainSpellComboPoints(int8 count)
     SendComboPoints();
 }
 
+uint8 Player::GetComboPoints(uint32 spellId)
+{
+    uint8 add = m_comboPoints;
+    uint8 cost = 5;
+    uint8 mod = 0;
+    if(HasAura(138148))
+        add += 1;
+
+    if(spellId)
+        ApplySpellMod(spellId, SPELLMOD_COST, cost);
+
+    mod = 5 - cost;
+
+    return ((m_comboPoints + mod) > 5 ? 5 : (m_comboPoints + mod)) + add;
+}
+
 void Player::ClearComboPoints()
 {
     // without combopoints lost (duration checked in aura)

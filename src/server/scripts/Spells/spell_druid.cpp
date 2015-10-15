@@ -3347,11 +3347,14 @@ class spell_dru_genesis : public SpellScriptLoader
                         if(aura->GetDuration() < 4000)
                             return;
 
-                        int32 tick = (aura->GetEffect(0)->GetTotalTicks() - aura->GetEffect(0)->GetTickNumber()) + 1;
-                        int32 dur = tick * (aura->GetEffect(0)->GetPeriod() / 4);
-                        aura->SetDuration(dur);
-                        aura->GetEffect(0)->SetAmplitude(int32(aura->GetEffect(0)->GetPeriod() / 4));
-                        aura->GetEffect(0)->ResetPeriodic(true);
+                        if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
+                        {
+                            int32 tick = (eff->GetTotalTicks() - eff->GetTickNumber()) + 1;
+                            int32 dur = tick * (eff->GetPeriod() / 4);
+                            aura->SetDuration(dur);
+                            eff->SetAmplitude(int32(eff->GetPeriod() / 4));
+                            eff->ResetPeriodic(true);
+                        }
                     }
                 }
             }

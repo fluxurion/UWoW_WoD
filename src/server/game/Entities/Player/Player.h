@@ -2113,7 +2113,7 @@ class Player : public Unit, public GridObject<Player>
         Player* GetSelectedPlayer() const;
         void SetSelection(ObjectGuid const& guid) { if (m_curSelection) m_lastSelection = m_curSelection; m_curSelection = guid; SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
-        uint8 GetComboPoints() const { if(HasAura(138148)) return m_comboPoints + 1; else return m_comboPoints; }
+        uint8 GetComboPoints(uint32 spellId = 0);
         void SaveAddComboPoints(int8 count) { m_comboSavePoints += count; }
         uint8 GetSaveComboPoints() const { return m_comboSavePoints; }
 

@@ -1539,20 +1539,18 @@ class spell_rog_death_from_above_jump : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_death_from_above_jump_SpellScript);
 
-            void HandleOnCast()
+            void HandleOnHit(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {
-                    WorldLocation summonPos = *GetExplTargetDest();
                     Position offset = { 0.0f, 0.0f, 8.0f, 0.0f };
-                    summonPos.RelocateOffset(offset);
-                    SetExplTargetDest(summonPos);
+                    GetSpell()->destTarget->RelocateOffset(offset);
                 }
             }
 
             void Register()
             {
-                OnCast += SpellCastFn(spell_rog_death_from_above_jump_SpellScript::HandleOnCast);
+                OnEffectLaunch += SpellEffectFn(spell_rog_death_from_above_jump_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
             }
         };
 

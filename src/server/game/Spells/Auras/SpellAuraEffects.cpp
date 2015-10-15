@@ -1055,7 +1055,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                     if (caster->GetTypeId() != TYPEID_PLAYER)
                         break;
 
-                    uint8 cp = caster->ToPlayer()->GetComboPoints();
+                    uint8 cp = caster->ToPlayer()->GetComboPoints(1943);
                     float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
 
                     switch (cp)
@@ -1093,7 +1093,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                     // Basepoint hotfix
                     amount *= 10;
 
-                    uint8 cp = caster->ToPlayer()->GetComboPoints();
+                    uint8 cp = caster->ToPlayer()->GetComboPoints(1079);
                     int32 AP = caster->GetTotalAttackPowerValue(BASE_ATTACK);
 
                     // In feral spec : 0.484 * $AP * cp
@@ -7512,7 +7512,23 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
             }
         }
         else if(target)
-            caster->CastSpell(target, trigger_spell_id, true, NULL, this);
+        {
+            SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(trigger_spell_id);
+            if(!triggeredSpellInfo)
+                return;
+
+            SpellCastResult checkResult = triggeredSpellInfo->CheckExplicitTarget(caster, target);
+            if (checkResult == SPELL_CAST_OK)
+                caster->CastSpell(target, trigger_spell_id, true, NULL, this);
+            else if (Unit* _target = (caster->ToPlayer() ? caster->ToPlayer()->GetSelectedUnit() : caster->getVictim()))
+            {
+                SpellCastResult checkResult = triggeredSpellInfo->CheckExplicitTarget(caster, _target);
+                if (checkResult == SPELL_CAST_OK)
+                    caster->CastSpell(_target, trigger_spell_id, true, NULL, this);
+                else
+                    caster->CastSpell(caster, trigger_spell_id, true, NULL, this);
+            }
+        }
     }
 }
 
@@ -7934,7 +7950,19 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
                 }
             }
             else if (target)
-                triggerCaster->CastSpell(target, triggeredSpellInfo, true, NULL, this);
+            {
+                SpellCastResult checkResult = triggeredSpellInfo->CheckExplicitTarget(triggerCaster, target);
+                if (checkResult == SPELL_CAST_OK)
+                    triggerCaster->CastSpell(target, triggeredSpellInfo, true, NULL, this);
+                else if (Unit* _target = (triggerCaster->ToPlayer() ? triggerCaster->ToPlayer()->GetSelectedUnit() : triggerCaster->getVictim()))
+                {
+                    SpellCastResult checkResult = triggeredSpellInfo->CheckExplicitTarget(triggerCaster, _target);
+                    if (checkResult == SPELL_CAST_OK)
+                        triggerCaster->CastSpell(_target, triggeredSpellInfo, true, NULL, this);
+                    else
+                        triggerCaster->CastSpell(triggerCaster, triggeredSpellInfo, true, NULL, this);
+                }
+            }
         }
     }
     else
