@@ -449,11 +449,11 @@ class spell_rog_hemorrhage : public SpellScriptLoader
                     if (Player* _player = caster->ToPlayer())
                         if (Unit* target = GetHitUnit())
                         {
-                            if(_player->HasAura(56807) && !target->HasAuraWithMechanic((1 << MECHANIC_BLEED))) //Glyph of Hemorrhage
+                            if (_player->HasAura(56807) && target->HasAuraWithMechanic((1 << MECHANIC_BLEED))) //Glyph of Hemorrhage
                                 return;
 
                             int32 bp = CalculatePct(GetHitDamage() + GetHitAbsorb(), GetSpellInfo()->Effects[EFFECT_3].BasePoints) / 8;
-                            _player->CastCustomSpell(target, ROGUE_SPELL_HEMORRHAGE_DOT, &bp, NULL, NULL, true);
+                            _player->CastCustomSpell(target, ROGUE_SPELL_HEMORRHAGE_DOT, &bp, nullptr, nullptr, true);
                         }
             }
 

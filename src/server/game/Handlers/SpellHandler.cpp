@@ -240,16 +240,16 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
         // not have spell in spellbook or spell passive and not casted by client
         if ((mover->GetTypeId() == TYPEID_UNIT && !mover->ToCreature()->HasSpell(cast.Cast.SpellID)) || spellInfo->IsPassive())
             if (mover->GetTypeId() == TYPEID_UNIT && !mover->ToCreature()->HasSpell(cast.Cast.SpellID))
-        {
-            if (_player->HasActiveSpell(cast.Cast.SpellID))
-                mover = (Unit*)_player;
-            else
             {
-                //cheater? kick? ban?
-                sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: not have spell in spellbook id %u", cast.Cast.SpellID);
-                return;
+                if (_player->HasActiveSpell(cast.Cast.SpellID))
+                    mover = (Unit*)_player;
+                else
+                {
+                    //cheater? kick? ban?
+                    sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: not have spell in spellbook id %u", cast.Cast.SpellID);
+                    return;
+                }
             }
-        }
     }
 
     // process spells overriden by SpecializationSpells.dbc
@@ -282,7 +282,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
                 {
                     spellInfo = newInfo;
                     cast.Cast.SpellID = newInfo->Id;
-                replaced = true;
+                    replaced = true;
                 }
                 break;
             }
@@ -602,8 +602,8 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     }
 
     Spell* spell = new Spell(mover, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false, replaced);
-    spell->m_cast_count = cast.Cast.CastID;                         // set count of casts
-    spell->m_misc.Data = cast.Cast.Misc;                            // 6.x Misc is just a guess
+    spell->m_cast_count = cast.Cast.CastID;
+    spell->m_misc.Data = cast.Cast.Misc;
     spell->prepare(&targets);
 }
 
@@ -659,7 +659,7 @@ void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    Creature* pet=ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
 
     if (!pet)
     {
@@ -755,7 +755,7 @@ void WorldSession::HandleSpellClick(WorldPackets::Spells::SpellClick& packet)
     if (now - timeLastHandleSpellClick < 2)
         return;
     else
-       timeLastHandleSpellClick = now;
+        timeLastHandleSpellClick = now;
 
     // this will get something not in world. crash
     Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.SpellClickUnitGuid);
@@ -973,28 +973,28 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionBu
     {
         switch (type)
         {
-        case ACTION_BUTTON_MACRO:
-        case ACTION_BUTTON_CMACRO:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Macro %u into button %u", action, packet.Index);
-            break;
-        case ACTION_BUTTON_EQSET:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added EquipmentSetInfo %u into button %u", action, packet.Index);
-            break;
-        case ACTION_BUTTON_SPELL:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Spell %u into button %u", action, packet.Index);
-            break;
-        case ACTION_BUTTON_SUB_BUTTON:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added sub buttons %u into button %u", action, packet.Index);
-            break;
-        case ACTION_BUTTON_ITEM:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Item %u into button %u", action, packet.Index);
-            break;
-        case ACTION_BUTTON_PET:
-            sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Pet Spell %u into button %u", action, packet.Index);
-            break;
-        default:
-            sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, packet.Index, _player->GetName(), _player->GetGUID().GetCounter());
-            return;
+            case ACTION_BUTTON_MACRO:
+            case ACTION_BUTTON_CMACRO:
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Macro %u into button %u", action, packet.Index);
+                break;
+            case ACTION_BUTTON_EQSET:
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added EquipmentSetInfo %u into button %u", action, packet.Index);
+                break;
+            case ACTION_BUTTON_SPELL:
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Spell %u into button %u", action, packet.Index);
+                break;
+            case ACTION_BUTTON_SUB_BUTTON:
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added sub buttons %u into button %u", action, packet.Index);
+                break;
+            case ACTION_BUTTON_ITEM:
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Item %u into button %u", action, packet.Index);
+                break;
+            case ACTION_BUTTON_PET:
+                sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Pet Spell %u into button %u", action, packet.Index);
+                break;
+            default:
+                sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, packet.Index, _player->GetName(), _player->GetGUID().GetCounter());
+                return;
         }
 
         player->addActionButton(packet.Index, action, type);
