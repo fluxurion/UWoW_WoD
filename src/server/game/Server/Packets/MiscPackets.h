@@ -433,10 +433,10 @@ namespace WorldPackets
         {
         public:
             StandStateUpdate() : ServerPacket(SMSG_STAND_STATE_UPDATE, 1) { }
-            StandStateUpdate(UnitStandStateType state) : ServerPacket(SMSG_STAND_STATE_UPDATE, 1), State(state) { }
 
             WorldPacket const* Write() override;
 
+            uint32 AnimKitID = 0;
             UnitStandStateType State = UNIT_STAND_STATE_STAND;
         };
 

@@ -17669,7 +17669,12 @@ void Unit::SetStandState(uint8 state)
        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_SEATED);
 
     if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->GetSession()->SendPacket(WorldPackets::Misc::StandStateUpdate(UnitStandStateType(state)).Write());
+    {
+        WorldPackets::Misc::StandStateUpdate update;
+        update.AnimKitID = 0;
+        update.State = static_cast<UnitStandStateType>(state);
+        ToPlayer()->GetSession()->SendPacket(update.Write());
+    }
 }
 
 bool Unit::IsPolymorphed() const
