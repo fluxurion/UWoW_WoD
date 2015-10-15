@@ -24330,6 +24330,21 @@ bool Unit::HasMyAura(Aura const* hasAura, bool check)
     return false;
 }
 
+void Unit::RemoveMyAura(uint32 spellId)
+{
+    for (AuraList::const_iterator itr = m_my_Auras.begin(); itr != m_my_Auras.end();)
+    {
+        if (Aura* aura = (*itr))
+            if (aura->GetId() == spellId)
+            {
+                m_my_Auras.erase(itr++);
+                aura->Remove();
+                continue;
+            }
+        ++itr;
+    }
+}
+
 struct CombatLogSender
 {
     WorldObject const* i_source;
