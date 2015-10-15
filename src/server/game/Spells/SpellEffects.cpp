@@ -3079,16 +3079,6 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
-        case 138248: // Holy Power
-        {
-            damage += m_caster->HasAura(105809) ? 2: 0;
-            break;
-        }
-        case 105427: // Judgments of the Wise
-        {
-            damage += m_caster->HasAura(114232) ? 1: 0;
-            break;
-        }
         case 23922:  // Shield Slam
         {
             if (!m_caster->HasAura(71))
@@ -3263,8 +3253,6 @@ void Spell::EffectEnergizePct(SpellEffIndex effIndex)
         return;
 
     uint32 gain = CalculatePct(maxPower, damage);
-    if(m_spellInfo->Id == 123051) //Mana Leech for Mindbender
-        gain = CalculatePct(maxPower, 1.75f);
     m_addptype = power;
     m_addpower = gain;
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, gain, power);

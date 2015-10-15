@@ -1474,15 +1474,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                     power = POWER_HEALTH;
                 }
                 else if (m_spellInfo->Id == 64844) // Divine Hymn
-                {
-                    maxSize = 3;
                     power = POWER_HEALTH;
-                }
-                else if (m_spellInfo->Id == 64904) // Hymn of Hope
-                {
-                    maxSize = 3;
-                    power = POWER_MANA;
-                }
                 else
                     break;
 
@@ -3281,7 +3273,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         // Select rank for aura with level requirements only in specific cases
         // Unit has to be target only of aura effect, both caster and target have to be players, target has to be other than unit target
         SpellInfo const* aurSpellInfo = m_spellInfo;
-        int32 basePoints[32];
+        int32 basePoints[MAX_SPELL_EFFECTS];
         if (scaleAura)
         {
             aurSpellInfo = m_spellInfo->GetAuraRankForLevel(unitTarget->getLevel());
