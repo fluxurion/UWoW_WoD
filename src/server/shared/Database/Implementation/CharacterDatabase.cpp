@@ -661,7 +661,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_UPD_PLAYER_KILL, "UPDATE character_kill SET count=? WHERE guid = ? AND victim_guid = ?", CONNECTION_ASYNC);
 
     //Loot cooldown system
-    PrepareStatement(CHAR_SEL_PLAYER_LOOTCOOLDOWN,       "SELECT entry, type, respawnTime FROM character_loot_cooldown WHERE guid = ?",  CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_PLAYER_LOOTCOOLDOWN,       "SELECT entry, type, difficultyMask, respawnTime FROM character_loot_cooldown WHERE guid = ?",  CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_PLAYER_LOOTCOOLDOWN,       "INSERT IGNORE INTO character_loot_cooldown (`guid`, `entry`, `type`, `difficultyMask`, `respawnTime`) VALUES (?, ?, ?, ?, ?)",  CONNECTION_ASYNC);
 
     //
