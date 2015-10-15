@@ -1048,64 +1048,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                     amount = irand(6000, 9000);
                     break;
                 }
-                case 1943: // Rupture
-                {
-                    m_canBeRecalculated = false;
-
-                    if (caster->GetTypeId() != TYPEID_PLAYER)
-                        break;
-
-                    uint8 cp = caster->ToPlayer()->GetComboPoints(1943);
-                    float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
-
-                    switch (cp)
-                    {
-                    case 1:
-                        amount += int32(ap * 0.274f / 4);
-                        break;
-                    case 2:
-                        amount += int32(ap * 0.822f / 6);
-                        break;
-                    case 3:
-                        amount += int32(ap * 1.644f / 8);
-                        break;
-                    case 4:
-                        amount += int32(ap * 2.74f / 10);
-                        break;
-                    case 5:
-                        amount += int32(ap * 4.11f / 12);
-                        break;
-                    case 6:
-                        amount += int32(ap * 5.7548f / 14);
-                        break;
-                    default:
-                        break;
-                    }
-                    break;
-                }
-                case 1079: // Rip
-                {
-                    m_canBeRecalculated = false;
-
-                    if (caster->GetTypeId() != TYPEID_PLAYER)
-                        break;
-
-                    // Basepoint hotfix
-                    amount *= 10;
-
-                    uint8 cp = caster->ToPlayer()->GetComboPoints(1079);
-                    int32 AP = caster->GetTotalAttackPowerValue(BASE_ATTACK);
-
-                    // In feral spec : 0.484 * $AP * cp
-                    if (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_CAT)
-                        amount += int32(cp * AP * 0.484f);
-                    // In other spec : 0.387 * $AP * cp
-                    else
-                        amount += int32(cp * AP * 0.387f);
-
-                    amount /= int32(GetBase()->GetMaxDuration() / GetBase()->GetEffect(0)->GetPeriod());
-                    break;
-                }
                 case 50536: // Unholy Blight damage over time effect
                 {
                     m_canBeRecalculated = false;
@@ -1121,6 +1063,25 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
 
             switch (m_spellInfo->Id)
             {
+                case 1943: // Rupture
+                {
+                    if (caster->GetTypeId() != TYPEID_PLAYER)
+                        break;
+
+                    amount *= caster->ToPlayer()->GetComboPoints(1943);
+                    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AuraEffect::CalculateAmount amount %i m_send_baseAmount %i", amount, m_send_baseAmount, caster->ToPlayer()->GetComboPoints(1943));
+                    break;
+                }
+                case 1079: // Rip
+                {
+                    if (caster->GetTypeId() != TYPEID_PLAYER)
+                        break;
+
+                    amount *= caster->ToPlayer()->GetComboPoints(1079) * (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_CAT) ? 1.25 : 1.0f;
+
+                    amount /= int32(GetBase()->GetMaxDuration() / GetBase()->GetEffect(0)->GetPeriod());
+                    break;
+                }
                 case 53301: // Explosive Shot
                 {
                     amount = GetBase()->m_damage_amount;
