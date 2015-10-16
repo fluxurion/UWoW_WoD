@@ -37,7 +37,7 @@ uint32 GroupMgr::GenerateNewGroupDbStoreId()
 {
     uint32 newStorageId = NextGroupDbStoreId;
 
-    for (uint32 i = ++NextGroupDbStoreId; i < 0xFFFFFFFF; ++i)
+    for (uint32 i = ++NextGroupDbStoreId; i < std::numeric_limits<uint32>::max(); ++i)
     {
         if ((i < GroupDbStore.size() && GroupDbStore[i] == NULL) || i >= GroupDbStore.size())
         {
@@ -84,7 +84,7 @@ Group* GroupMgr::GetGroupByDbStoreId(uint32 storageId) const
 
 ObjectGuid::LowType GroupMgr::GenerateGroupId()
 {
-    if (NextGroupId >= 0xFFFFFFFE)
+    if (NextGroupId >= std::numeric_limits<ObjectGuid::LowType>::max())
     {
         sLog->outError(LOG_FILTER_GENERAL, "Group guid overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);

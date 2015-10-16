@@ -410,7 +410,7 @@ uint32 MapManager::GenerateInstanceId()
     uint32 newInstanceId = _nextInstanceId;
 
     // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
-    for (uint32 i = ++_nextInstanceId; i < 0xFFFFFFFF; ++i)
+    for (uint32 i = ++_nextInstanceId; i < std::numeric_limits<uint32>::max(); ++i)
     {
         if ((i < _instanceIds.size() && !_instanceIds[i]) || i >= _instanceIds.size())
         {

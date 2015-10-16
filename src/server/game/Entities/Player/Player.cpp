@@ -687,7 +687,8 @@ void KillRewarder::Reward()
 #pragma warning(disable:4355)
 #endif
 Player::Player(WorldSession* session): Unit(true),
-        m_achievementMgr(this), m_reputationMgr(this), phaseMgr(this), m_battlePetMgr(this), _collectionMgr(Trinity::make_unique<CollectionMgr>(this))
+        m_achievementMgr(this), m_reputationMgr(this), phaseMgr(this),
+        _battlePetMgr(Trinity::make_unique<BattlePetMgr>(this)), _collectionMgr(Trinity::make_unique<CollectionMgr>(this))
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
@@ -4257,7 +4258,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                     uint32 petCount = GetBattlePetMgr()->GetPetCount(spEntry->CreatureEntry);
                     if (petguid && petCount < 1)
                     {
-                        GetBattlePetMgr()->AddPet(spEntry->ID, petEntry, GetBattlePetMgr()->GetRandomBreedID(spEntry->ID), GetBattlePetMgr()->GetRandomQuailty());
+                        GetBattlePetMgr()->AddPet(spEntry->ID, petEntry, GetBattlePetMgr()->GetRandomBreedID(spEntry->ID), GetBattlePetMgr()->GetRandomQuailty(), STATE_NORMAL);
                         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, petEntry);
                         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OBTAIN_BATTLEPET, spEntry->ID);
                         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_BATTLEPET);
@@ -18830,8 +18831,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     }
 
     // load battle pets journal ans slots before spells and other
-    GetBattlePetMgr()->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PETS),
-                                  holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PET_SLOTS));
+    _battlePetMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PETS),
+                              holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BATTLE_PET_SLOTS));
 
     // load skills after InitStatsForLevel because it triggering aura apply also
     _LoadSkills(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSKILLS));
@@ -21150,7 +21151,8 @@ void Player::SaveToDB(bool create /*=false*/)
     if (_collectionMgr)
         _collectionMgr->SaveToDB(trans);
 
-    GetBattlePetMgr()->SaveToDB(trans);
+    if (_battlePetMgr)
+        _battlePetMgr->SaveToDB(trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction

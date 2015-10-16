@@ -58,6 +58,7 @@ extern DB2Storage<ItemAppearanceEntry>              sItemAppearanceStore;
 extern DB2Storage<ItemCurrencyCostEntry>            sItemCurrencyCostStore;
 extern DB2Storage<ItemEffectEntry>                  sItemEffectStore;
 extern DB2Storage<ItemEntry>                        sItemStore;
+extern DB2Storage<ItemToBattlePetSpeciesEntry>      sItemToBattlePetSpeciesStore;
 extern DB2Storage<ItemExtendedCostEntry>            sItemExtendedCostStore;
 extern DB2Storage<ItemSparseEntry>                  sItemSparseStore;
 extern DB2Storage<ItemUpgradeEntry>                 sItemUpgradeStore;

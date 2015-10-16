@@ -63,6 +63,7 @@ DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore("ItemExtended
 DB2Storage<ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore("ItemModifiedAppearance.db2", ItemModifiedAppearanceFormat, HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE);
 DB2Storage<ItemSparseEntry>                 sItemSparseStore("Item-sparse.db2", ItemSparseFormat, HOTFIX_SEL_ITEM_SPARSE);
 DB2Storage<ItemUpgradeEntry>                sItemUpgradeStore("ItemUpgrade.db2", ItemUpgradeFormat, HOTFIX_SEL_ITEM_UPGRADE);
+DB2Storage<ItemToBattlePetSpeciesEntry>     sItemToBattlePetSpeciesStore("ItemToBattlePetSpecies.db2", ItemToBattlePetSpeciesFormat, HOTFIX_SEL_ITEM_TO_BATTLE_PET_SPECIES);
 DB2Storage<ItemXBonusTreeEntry>             sItemXBonusTreeStore("ItemXBonusTree.db2", ItemXBonusTreeFormat, HOTFIX_SEL_ITEM_X_BONUS_TREE);
 DB2Storage<KeyChainEntry>                   sKeyChainStore("KeyChain.db2", KeyChainFormat, HOTFIX_SEL_KEY_CHAIN);
 DB2Storage<LanguageWordsEntry>              sLanguageWordsStore("LanguageWords.db2", LanguageWordsFormat, HOTFIX_SEL_LANGUAGE_WORDS);
@@ -200,6 +201,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemModifiedAppearanceStore);
     LOAD_DB2(sItemSparseStore);
     LOAD_DB2(sItemStore);
+    LOAD_DB2(sItemToBattlePetSpeciesStore);
     LOAD_DB2(sItemUpgradeStore);
     LOAD_DB2(sKeyChainStore);
     LOAD_DB2(sItemXBonusTreeStore);
@@ -261,7 +263,7 @@ void DB2Manager::InitDB2CustomStores()
 
     for (BattlePetBreedStateEntry const* entry : sBattlePetBreedStateStore)
         _battlePetBreedStateByBreedId.insert(BattlePetBreedStateByBreedMap::value_type(entry->breedID, std::make_pair(entry->stateID, entry->stateModifier)));
-    
+
     for (BattlePetBreedQualityEntry const* entry : sBattlePetBreedQualityStore)
         _battlePetQualityMultiplierId[entry->quality] = entry->qualityModifier;
 
@@ -684,9 +686,9 @@ std::set<uint32> DB2Manager::GetFindBonusTree(uint32 BonusTreeID, uint32 itemBon
     {
         if (bonusTreeNode->BonusTreeModID == itemBonusTreeMod)
         {
-            if(bonusTreeNode->BonusListID)
+            if (bonusTreeNode->BonusListID)
                 bonusListIDs.insert(bonusTreeNode->BonusListID);
-            else if(bonusTreeNode->SubTreeID)
+            else if (bonusTreeNode->SubTreeID)
             {
                 std::set<uint32> listBonus = GetFindBonusTree(bonusTreeNode->SubTreeID, itemBonusTreeMod);
                 bonusListIDs.insert(listBonus.begin(), listBonus.end());

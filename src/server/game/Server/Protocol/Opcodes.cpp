@@ -814,7 +814,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_UPDATE_WOW_TOKEN_COUNT,                             STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPGRADE_GARRISON,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Garrison::UpgradeGarrison, &WorldSession::HandleUpgradeGarrison);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_UPGRADE_ITEM,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUpgradeItem               );
-    DEFINE_HANDLER(CMSG_USE_CRITTER_ITEM,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_USE_CRITTER_ITEM,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Item::UseCritterItem, &WorldSession::HandleUseCritterItem);
     DEFINE_HANDLER(CMSG_USE_EQUIPMENT_SET,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::EquipmentSet::UseEquipmentSet, &WorldSession::HandleEquipmentSetUse);
     DEFINE_HANDLER(CMSG_USE_ITEM,                                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Spells::ItemUse, &WorldSession::HandleUseItemOpcode             );
     DEFINE_HANDLER(CMSG_USE_TOY,                                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Toy::UseToy, &WorldSession::HandleUseToy);

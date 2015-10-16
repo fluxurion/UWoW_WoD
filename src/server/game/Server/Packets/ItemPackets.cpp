@@ -397,3 +397,8 @@ WorldPacket const* WorldPackets::Item::EnchantmentLog::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Item::UseCritterItem::Read()
+{
+    _worldPacket >> ItemGuid;
+}

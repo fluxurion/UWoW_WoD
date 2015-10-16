@@ -6382,7 +6382,7 @@ void ObjectMgr::SetHighestGuids()
 
 uint32 ObjectMgr::GenerateAuctionID()
 {
-    if (_auctionId >= 0xFFFFFFFE)
+    if (_auctionId >= std::numeric_limits<uint32>::max())
     {
         sLog->outError(LOG_FILTER_GENERAL, "Auctions ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
@@ -6392,7 +6392,7 @@ uint32 ObjectMgr::GenerateAuctionID()
 
 uint64 ObjectMgr::GenerateEquipmentSetGuid()
 {
-    if (_equipmentSetGuid >= uint64(0xFFFFFFFFFFFFFFFELL))
+    if (_equipmentSetGuid >= std::numeric_limits<uint64>::max())
     {
         sLog->outError(LOG_FILTER_GENERAL, "EquipmentSetInfo guid overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
@@ -6402,7 +6402,7 @@ uint64 ObjectMgr::GenerateEquipmentSetGuid()
 
 uint32 ObjectMgr::GenerateMailID()
 {
-    if (_mailId >= 0xFFFFFFFE)
+    if (_mailId >= std::numeric_limits<uint32>::max())
     {
         sLog->outError(LOG_FILTER_GENERAL, "Mail ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);

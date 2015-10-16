@@ -184,6 +184,7 @@ namespace WorldPackets
 
     namespace Item
     {
+        struct ItemInstance;
         class BuyBackItem;
         class ItemRefundInfo;
         class RepairItem;
@@ -197,7 +198,7 @@ namespace WorldPackets
         class AutoStoreBagItem;
         class TransmogrigyItem;
         class VoidStorageContents;
-        struct ItemInstance;
+        class UseCritterItem;
     }
 
     namespace Loot
@@ -1279,6 +1280,7 @@ class WorldSession
         void HandleAutoBankItem(WorldPackets::Bank::AutoBankItem& packet);
         void HandleAutoStoreBankItem(WorldPackets::Bank::AutoStoreBankItem& packet);
         void HandleWrapItemOpcode(WorldPacket& recvPacket);
+        void HandleUseCritterItem(WorldPackets::Item::UseCritterItem& packet);
 
         void HandleAttackSwing(WorldPackets::Combat::AttackSwing& packet);
         void HandleAttackStop(WorldPackets::Combat::AttackStop& packet);

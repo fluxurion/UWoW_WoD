@@ -357,6 +357,16 @@ namespace WorldPackets
             int32 EnchantSlot = 0;
             int32 Enchantment = 0;
         };
+
+        class UseCritterItem final : public ClientPacket
+        {
+        public:
+            UseCritterItem(WorldPacket&& packet) : ClientPacket(CMSG_USE_CRITTER_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGuid;
+        };
     }
 }
 

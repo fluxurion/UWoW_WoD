@@ -334,6 +334,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "unk15, unk16, unk17, unk18, unk19, unk20, unk21, unk22, unk23, unk24, hostileId, unk25, unk26, unk27, unk28 FROM spell_visual"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // ItemToBattlePetSpecies.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_TO_BATTLE_PET_SPECIES, "SELECT ID, BattlePetSpeciesID FROM item_to_battle_pet_species ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // ItemXBonusTree.db2
     PrepareStatement(HOTFIX_SEL_ITEM_X_BONUS_TREE, "SELECT ID, ItemID, BonusTreeID FROM item_x_bonus_tree ORDER BY ID DESC", CONNECTION_SYNCH);
 }

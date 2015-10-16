@@ -944,6 +944,12 @@ struct ItemXBonusTreeEntry
     uint32 BonusTreeID;                                             // 2
 };
 
+struct ItemToBattlePetSpeciesEntry
+{
+    uint32      ID;                                                 // 0
+    uint32      BattlePetSpeciesID;                                 // 1
+};
+
 #pragma pack(pop)
    
 typedef std::map<uint32, uint32> ItemDisplayIDMap;

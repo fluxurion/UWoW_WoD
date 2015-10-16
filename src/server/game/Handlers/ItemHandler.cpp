@@ -31,6 +31,7 @@
 #include "ItemPackets.h"
 #include "BankPackets.h"
 #include "SpellPackets.h"
+#include "BattlePetMgr.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
 {
@@ -1469,4 +1470,30 @@ void WorldSession::HandleSortBagsOpcode(WorldPacket& /*recvPacket*/)
         return;
 
     player->SortBags();
+}
+
+void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useCritterItem)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    Item* item = player->GetItemByGuid(useCritterItem.ItemGuid);
+    if (!item)
+        return;
+
+    ItemToBattlePetSpeciesEntry const* itemToBattlePetSpecies = sItemToBattlePetSpeciesStore.LookupEntry(item->GetEntry());
+    if (!itemToBattlePetSpecies)
+        return;
+
+    BattlePetSpeciesEntry const* battlePetSpecies = sBattlePetSpeciesStore.LookupEntry(itemToBattlePetSpecies->BattlePetSpeciesID);
+    if (!battlePetSpecies)
+        return;
+
+    BattlePetMgr* mgr = player->GetBattlePetMgr();
+    if (mgr)
+    {
+        mgr->AddPet(battlePetSpecies->ID, battlePetSpecies->CreatureEntry, mgr->GetRandomBreedID(battlePetSpecies->ID), mgr->GetRandomQuailty());
+        player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+    }
 }

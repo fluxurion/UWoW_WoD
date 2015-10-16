@@ -47,7 +47,7 @@ void GuildMgr::SaveGuilds()
 
 ObjectGuid::LowType GuildMgr::GenerateGuildId()
 {
-    if (NextGuildId >= 0xFFFFFFFE)
+    if (NextGuildId >= std::numeric_limits<ObjectGuid::LowType>::max())
     {
         sLog->outError(LOG_FILTER_GUILD, "Guild ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);

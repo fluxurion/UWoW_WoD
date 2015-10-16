@@ -60,6 +60,7 @@ char const ItemExtendedCostFormat[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const ItemFormat[] = "niiiiiiii";
 char const ItemModifiedAppearanceFormat[] = "niiiii";
 char const ItemSparseFormat[] = "niiiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifisssssiiiiiiiiiiiiiiiiiiifiiifiii";
+char const ItemToBattlePetSpeciesFormat[] = "ni";
 char const ItemUpgradeFormat[] = "niiiii";
 char const ItemXBonusTreeFormat[] = "nii";
 char const KeyChainFormat[] = "nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";

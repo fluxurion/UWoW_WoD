@@ -3274,8 +3274,7 @@ class Player : public Unit, public GridObject<Player>
         /***              BATTLE PET SYSTEM                    ***/
         /*********************************************************/
 
-        BattlePetMgr* GetBattlePetMgr() { return &m_battlePetMgr; }
-        const BattlePetMgr* GetBattlePetMgr() const { return &m_battlePetMgr; }
+        BattlePetMgr* GetBattlePetMgr() const { return _battlePetMgr.get(); }
 
         Bracket* getBracket(BracketType slot) const;
         void SendPvpRatedStats();
@@ -3714,7 +3713,6 @@ class Player : public Unit, public GridObject<Player>
 
         AchievementMgr<Player> m_achievementMgr;
         ReputationMgr  m_reputationMgr;
-        BattlePetMgr   m_battlePetMgr;
 
         RPPMLastChanceToProc m_rppmLastChanceToProc;
         RPPMLastSuccessfulProc m_rppmLastSuccessfulProc;
@@ -3762,6 +3760,7 @@ class Player : public Unit, public GridObject<Player>
 
         std::unique_ptr<Garrison> _garrison;
         std::unique_ptr<CollectionMgr> _collectionMgr;
+        std::unique_ptr<BattlePetMgr> _battlePetMgr;
 };
 
 void AddItemsSetItem(Player*player, Item* item);

@@ -58,7 +58,8 @@ enum BattlePetSaveInfo
 {
     STATE_NORMAL  = 0,
     STATE_UPDATED = 1,
-    STATE_DELETED = 2
+    STATE_NEW     = 2,
+    STATE_DELETED = 3
 };
 
 enum BattlePetTeam
@@ -525,12 +526,12 @@ public:
     BattlePetMgr() { }
     ~BattlePetMgr();
 
-    bool LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slots);
-    void SaveToDB(SQLTransaction trans);
+    void LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slots);
+    void SaveToDB(SQLTransaction& trans);
     
     void CalculateStats(uint32 speciesID, uint16 breedID, uint8 quality, uint8 lvl, uint32& maxHealth, uint32& power, uint32& speed);
 
-    void AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level = 1, BattlePetSaveInfo state = STATE_NORMAL);
+    void AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level = 1, BattlePetSaveInfo state = STATE_NEW);
     BattlePet* GetPet(ObjectGuid guid);
 
     void UnlockSlot(uint8 slot);
@@ -552,8 +553,6 @@ public:
 
     WorldPackets::BattlePet::BattlePetSlot* GetPetBattleSlot(uint8 slot) { return &_slots[slot]; }
     std::vector<WorldPackets::BattlePet::BattlePetSlot> GetPetBattleSlots() const { return _slots; }
-
-    ObjectGuid::LowType GetPetGUIDBySlot(uint8 index);
 
     bool SlotIsLocked(uint8 index);
 
