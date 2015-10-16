@@ -213,11 +213,14 @@ void ScenarioProgress::Reward(bool bonus)
 void ScenarioProgress::SendStepUpdate(Player* player, bool full)
 {
     WorldPackets::Scene::ScenarioState state;
-    WorldPackets::Scene::ScenarioState::BonusObjective objective = state.Objectives[0];
-    {
-        objective.BonusObjectiveID = 0;
-        objective.ObjectiveComplete = 0;
-    }
+
+    //@TODO implent this
+    //WorldPackets::Scene::ScenarioState::BonusObjective objective;
+    //{
+    //    objective.BonusObjectiveID = 0;
+    //    objective.ObjectiveComplete = 0;
+    //    state.Objectives.push_back(objective);
+    //}
 
     CriteriaProgressMap* progressMap = GetAchievementMgr().GetCriteriaProgressMap(0);
     
