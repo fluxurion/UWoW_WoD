@@ -511,7 +511,7 @@ public:
     struct QueueStatusData
     {
         QueueStatusData();
-        QueueStatusData(time_t _joinTime, _int32 avgLevel, PetBattleQueueStatus _status);
+        QueueStatusData(time_t _joinTime, int32 avgLevel, PetBattleQueueStatus _status);
 
         time_t joinTime;
         int32 avgLevel;
