@@ -3580,7 +3580,7 @@ void WorldObject::SetZoneScript()
 {
     if (Map* map = FindMap())
     {
-        if (map->IsDungeon())
+        if (map->IsDungeon() || map->IsGarrison())
             m_zoneScript = (ZoneScript*)((InstanceMap*)map)->GetInstanceScript();
         else if (!map->IsBattlegroundOrArena())
         {

@@ -153,6 +153,9 @@ public:
 
     void ResetFollowerActivationLimit() { _followerActivationsRemainingToday = 1; }
 
+    // Map
+    int32 GetGarrisonMapID() const { return _siteLevel ? _siteLevel->MapID : -1; }
+
 private:
     Map* FindMap() const;
     void InitializePlots();

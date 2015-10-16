@@ -35,6 +35,7 @@
 #include "WorldSession.h"
 
 #include "MovementPackets.h"
+#include "InstancePackets.h"
 #include "WorldPacket.h"
 
 #define MOVEMENT_PACKET_TIME_DELAY 0
@@ -87,6 +88,19 @@ void WorldSession::HandleWorldPortAck()
 
     player->ResetMap();
     player->SetMap(newMap);
+
+    if (seamlessTeleport)
+    {
+        if (newMap->IsDungeon())
+            player->SendDirectMessage(WorldPackets::Instance::UpdateLastInstance(loc.GetMapId()).Write());
+
+        WorldPackets::Movement::NewWorld packet;
+        packet.MapID = loc.GetMapId();
+        packet.Pos = loc;
+        packet.Reason = seamlessTeleport ? NEW_WORLD_SEAMLESS : NEW_WORLD_NORMAL;
+        player->SendDirectMessage(packet.Write());
+        player->SendSavedInstances();
+    }
 
     if (!seamlessTeleport)
         player->SendInitialPacketsBeforeAddToMap();
@@ -188,6 +202,12 @@ void WorldSession::HandleWorldPortAck()
 void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet)
 {
     Player* plMover = _player->m_mover->ToPlayer();
+
+    if (plMover && plMover->IsBeingTeleportedSeamlessly())
+    {
+        HandleWorldPortAck();
+        return;
+    }
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
         return;
