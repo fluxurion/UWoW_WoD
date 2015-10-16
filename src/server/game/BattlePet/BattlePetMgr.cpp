@@ -956,7 +956,7 @@ bool PetBattle::PrepareBattleInfo(ObjectGuid creatureGuid)
         //battleInfo.push_back(pbInfo);
     }
 
-    SetBattleState(1);
+    SetBattleState(PETBATTLE_STATE_WAITING_PRE_BATTLE);
     SetCurrentRoundID(0);
 
     return true;
@@ -1240,14 +1240,14 @@ bool PetBattle::FirstRoundHandler(uint8 allyFrontPetID, uint8 enemyFrontPetID)
     SetFrontPet(TEAM_ENEMY, enemyFrontPetID);
 
     PetBattle::RoundResults::Effect effect;
-    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_4;
+    effect.PacketInfo.PetBattleEffectType = PETBATTLE_EFFECT_TYPE_PET_SWAP;
     PetBattle::RoundResults::Effect::Target target;
     target.PacketInfo.Petx = allyFrontPetID;
     effect.PacketInfo.EffectTargetData.emplace_back(target.PacketInfo);
     firstRound.PacketInfo.EffectData.emplace_back(effect.PacketInfo);
 
     PetBattle::RoundResults::Effect effect1;
-    effect1.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_4;
+    effect1.PacketInfo.PetBattleEffectType = PETBATTLE_EFFECT_TYPE_PET_SWAP;
     effect1.PacketInfo.CasterPBOID = 3;
     PetBattle::RoundResults::Effect::Target target1;
     target1.PacketInfo.Petx = enemyFrontPetID;
@@ -1327,7 +1327,7 @@ bool PetBattle::UseAbilityHandler(uint32 abilityID, uint32 roundID)
     round.PacketInfo.CurRound = roundID;
 
     // default state - need system for control it
-    SetBattleState(2);
+    SetBattleState(PETBATTLE_STATE_ROUND_IN_PROGRESS);
 
     // check front pets
     PetBattleInfo* allyPet = GetFrontPet(TEAM_ALLY);
@@ -1376,7 +1376,7 @@ bool PetBattle::UseAbilityHandler(uint32 abilityID, uint32 roundID)
             nextRoundFinal = true;
         }
         else if (allyPet->IsDead() && GetTotalPetCountInTeam(allyPet->GetTeam(), true) > 1)
-            SetBattleState(3);
+            SetBattleState(PETBATTLE_STATE_WAITING_FOR_FRONT_PETS);
     }
     else
         return false;
@@ -1400,7 +1400,7 @@ bool PetBattle::UseAbilityHandler(uint32 abilityID, uint32 roundID)
         ForceReplacePetHandler(round.PacketInfo.CurRound, GetLastAlivePetID(TEAM_ALLY), TEAM_ALLY);
 
     // return to default state - need system for control it
-    SetBattleState(2);
+    SetBattleState(PETBATTLE_STATE_ROUND_IN_PROGRESS);
 
     return true;
 }
@@ -1429,7 +1429,7 @@ bool PetBattle::SkipTurnHandler(uint32 roundID)
     RoundResults round;
     round.PacketInfo.CurRound = roundID;
 
-    SetBattleState(2);
+    SetBattleState(PETBATTLE_STATE_ROUND_IN_PROGRESS);
 
     PetBattleInfo* allyPet = GetFrontPet(TEAM_ALLY);
     PetBattleInfo* enemyPet = GetFrontPet(TEAM_ENEMY);
@@ -1452,7 +1452,7 @@ bool PetBattle::SkipTurnHandler(uint32 roundID)
         nextRoundFinal = true;
     }
     else if (allyPet->IsDead() && GetTotalPetCountInTeam(allyPet->GetTeam(), true) > 1)
-        SetBattleState(3);
+        SetBattleState(PETBATTLE_STATE_WAITING_FOR_FRONT_PETS);
 
     round.AuraProcessingBegin();
     round.AuraProcessingEnd();
@@ -1495,14 +1495,13 @@ bool PetBattle::UseTrapHandler(uint32 roundID)
     RoundResults round;
     round.PacketInfo.CurRound = roundID;
 
-    // default state - need system for control it
-    SetBattleState(2);
+    SetBattleState(PETBATTLE_STATE_ROUND_IN_PROGRESS);
 
     // demo
     PetBattle::RoundResults::Effect effect;
     effect.PacketInfo.CasterPBOID = allyPet->GetPetID();
     effect.PacketInfo.AbilityEffectID = 698;
-    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_5;
+    effect.PacketInfo.PetBattleEffectType = PETBATTLE_EFFECT_TYPE_STATUS_CHANGE;
     effect.PacketInfo.TurnInstanceID = 1;
     effect.PacketInfo.StackDepth = 1;
     PetBattle::RoundResults::Effect::Target target;
@@ -1552,7 +1551,7 @@ bool PetBattle::SwapPetHandler(uint8 newFrontPet, uint32 roundID)
     RoundResults round;
     round.PacketInfo.CurRound = roundID;
 
-    SetBattleState(2);
+    SetBattleState(PETBATTLE_STATE_ROUND_IN_PROGRESS);
 
     // check active pets
     PetBattleInfo* allyPet = GetFrontPet(TEAM_ALLY);
@@ -1596,7 +1595,7 @@ bool PetBattle::SwapPetHandler(uint8 newFrontPet, uint32 roundID)
         nextRoundFinal = true;
     }
     else if (allyPet->IsDead() && GetTotalPetCountInTeam(allyPet->GetTeam(), true) > 1)
-        SetBattleState(3);
+        SetBattleState(PETBATTLE_STATE_WAITING_FOR_FRONT_PETS);
 
     round.AuraProcessingBegin();
     round.AuraProcessingEnd();
@@ -2004,7 +2003,7 @@ void PetBattle::RoundResults::ProcessSetState(PetBattleInfo* caster, PetBattleIn
     PetBattle::RoundResults::Effect effect;
     effect.PacketInfo.CasterPBOID = caster->GetPetID();
     effect.PacketInfo.AbilityEffectID = effectID;
-    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_6;
+    effect.PacketInfo.PetBattleEffectType = PETBATTLE_EFFECT_TYPE_SET_STATE;
     effect.PacketInfo.SourceAuraInstanceID = TurnInstanceID;
     effect.PacketInfo.StackDepth = 1;
     PetBattle::RoundResults::Effect::Target t;
@@ -2021,7 +2020,7 @@ void PetBattle::RoundResults::ProcessPetSwap(uint8 oldPetNumber, uint8 newPetNum
     // simple combination of effect 4 and target type 3
     PetBattle::RoundResults::Effect effect;
     effect.PacketInfo.CasterPBOID = oldPetNumber;
-    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_4;
+    effect.PacketInfo.PetBattleEffectType = PETBATTLE_EFFECT_TYPE_PET_SWAP;
     PetBattle::RoundResults::Effect::Target target;
     target.PacketInfo.Petx = newPetNumber;
     target.PacketInfo.Type = EFFECT_TARGET_3;
@@ -2034,7 +2033,7 @@ void PetBattle::RoundResults::ProcessSkipTurn(uint8 petNumber)
     // simple combination of effect 4 and target type 3
     PetBattle::RoundResults::Effect effect;
     effect.PacketInfo.CasterPBOID = petNumber;
-    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_4;
+    effect.PacketInfo.PetBattleEffectType = PETBATTLE_EFFECT_TYPE_PET_SWAP;
     effect.PacketInfo.Flags = PETBATTLE_EFFECT_FLAG_INVALID_TARGET; //@TODO check flag...
     PetBattle::RoundResults::Effect::Target target;
     target.PacketInfo.Petx = petNumber;
@@ -2047,7 +2046,7 @@ void PetBattle::RoundResults::AuraProcessingBegin()
 {
     PetBattle::RoundResults::Effect effect;
     effect.PacketInfo.CasterPBOID = -1;
-    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_13;
+    effect.PacketInfo.PetBattleEffectType = PETBATTLE_EFFECT_TYPE_AURA_PROCESSING_BEGIN;
     PetBattle::RoundResults::Effect::Target target;
     target.PacketInfo.Petx = -1;
     target.PacketInfo.Type = EFFECT_TARGET_3;
@@ -2059,7 +2058,7 @@ void PetBattle::RoundResults::AuraProcessingEnd()
 {
     PetBattle::RoundResults::Effect effect;
     effect.PacketInfo.CasterPBOID = -1;
-    effect.PacketInfo.PetBattleEffectType = EFFECT_TYPE_UNK_14;
+    effect.PacketInfo.PetBattleEffectType = PETBATTLE_EFFECT_TYPE_AURA_PROCESSING_END;
     PetBattle::RoundResults::Effect::Target target;
     target.PacketInfo.Petx = -1;
     target.PacketInfo.Type = EFFECT_TARGET_3;
