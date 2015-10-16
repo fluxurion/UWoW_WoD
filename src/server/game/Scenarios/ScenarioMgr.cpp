@@ -224,7 +224,7 @@ void ScenarioProgress::SendStepUpdate(Player* player, bool full)
 
     CriteriaProgressMap* progressMap = GetAchievementMgr().GetCriteriaProgressMap(0);
     
-    WorldPackets::Achievement::CriteriaTreeProgress progress = state.Progress[progressMap ? progressMap->size() : 0];
+    WorldPackets::Achievement::CriteriaTreeProgress progress;
 
     state.ScenarioID = GetScenarioId();
     state.CurrentStep = currentStep;
@@ -252,6 +252,7 @@ void ScenarioProgress::SendStepUpdate(Player* player, bool full)
                 progress.Date = time(NULL) - treeProgress.date;
                 progress.TimeFromStart = time(NULL) - treeProgress.date;
                 progress.TimeFromCreate = time(NULL) - treeProgress.date;
+                state.Progress.push_back(progress);
             }
         }
     }

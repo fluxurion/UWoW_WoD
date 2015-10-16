@@ -1418,15 +1418,15 @@ void AchievementMgr<Guild>::SendCriteriaUpdate(CriteriaEntry const* entry, Crite
     WorldPackets::Achievement::GuildCriteriaUpdate guildCriteriaUpdate;
     guildCriteriaUpdate.Progress.resize(1);
 
-    WorldPackets::Achievement::GuildCriteriaProgress& guildCriteriaProgress = guildCriteriaUpdate.Progress[0];
-    guildCriteriaProgress.CriteriaID = entry->ID;
-    guildCriteriaProgress.DateCreated = progress->date;
-    guildCriteriaProgress.DateStarted = progress->date;
-    guildCriteriaProgress.DateUpdated = ::time(NULL) - progress->date;
-    guildCriteriaProgress.Quantity = progress->counter;
-    guildCriteriaProgress.PlayerGUID = progress->CompletedGUID;
-    guildCriteriaProgress.Flags = 0;
-
+    WorldPackets::Achievement::GuildCriteriaProgress guildCriteriaProgressdata;
+    guildCriteriaProgressdata.CriteriaID = entry->ID;
+    guildCriteriaProgressdata.DateCreated = progress->date;
+    guildCriteriaProgressdata.DateStarted = progress->date;
+    guildCriteriaProgressdata.DateUpdated = ::time(NULL) - progress->date;
+    guildCriteriaProgressdata.Quantity = progress->counter;
+    guildCriteriaProgressdata.PlayerGUID = progress->CompletedGUID;
+    guildCriteriaProgressdata.Flags = 0;
+    guildCriteriaUpdate.Progress.push_back(guildCriteriaProgressdata);
     SendPacket(guildCriteriaUpdate.Write());
 }
 

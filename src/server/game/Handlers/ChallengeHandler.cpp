@@ -64,11 +64,11 @@ void WorldSession::HandleRequestLeaders(WorldPackets::ChallengeMode::RequestLead
 
     if (Challenge* bestServer = sChallengeMgr->BestServerChallenge(packet.MapId))
     {
-        WorldPackets::ChallengeMode::ModeAttempt realmLeaders = result.RealmLeaders[bestServer ? bestServer->member.size() : 0];
+        WorldPackets::ChallengeMode::ModeAttempt realmLeaders;
 
         for(ChallengeMemberList::iterator itr = bestServer->member.begin(); itr != bestServer->member.end(); ++itr)
         {
-            WorldPackets::ChallengeMode::ModeAttempt::Member memberData = realmLeaders.Members[bestServer->member.size()];
+            WorldPackets::ChallengeMode::ModeAttempt::Member memberData;
             for(ChallengeMemberList::iterator itr = bestServer->member.begin(); itr != bestServer->member.end(); ++itr)
             {
                 ChallengeMember member = *itr;
@@ -77,6 +77,7 @@ void WorldSession::HandleRequestLeaders(WorldPackets::ChallengeMode::RequestLead
                 memberData.NativeRealmAddress = GetVirtualRealmAddress();
                 memberData.Guid = member.guid;
                 memberData.SpecializationID = member.specId;
+                realmLeaders.Members.push_back(memberData);
             }
 
             realmLeaders.InstanceRealmAddress = GetVirtualRealmAddress();
@@ -84,6 +85,7 @@ void WorldSession::HandleRequestLeaders(WorldPackets::ChallengeMode::RequestLead
             realmLeaders.CompletionTime = bestServer->recordTime;
             realmLeaders.CompletionDate = bestServer->date;
             realmLeaders.MedalEarned = bestServer->medal;
+            result.RealmLeaders.push_back(realmLeaders);
         }
     }
 
@@ -93,8 +95,8 @@ void WorldSession::HandleRequestLeaders(WorldPackets::ChallengeMode::RequestLead
 void WorldSession::HandleGetChallengeModeRewards(WorldPackets::ChallengeMode::Misc& /*packet*/)
 {
     WorldPackets::ChallengeMode::Rewards rewards;
-    WorldPackets::ChallengeMode::MapChallengeModeReward mapRewards = rewards.MapChallengeModeRewards[sMapChallengeModeStore.GetFieldCount() - 1]; // -1 really needed?
-    WorldPackets::ChallengeMode::ItemReward itemReward = rewards.ItemRewards[0];
+    WorldPackets::ChallengeMode::MapChallengeModeReward mapRewards;
+    //WorldPackets::ChallengeMode::ItemReward itemReward = rewards.ItemRewards[0];
     
     for (MapChallengeModeEntry const* challenge : sMapChallengeModeStore)
     {
@@ -108,6 +110,8 @@ void WorldSession::HandleGetChallengeModeRewards(WorldPackets::ChallengeMode::Mi
             //for (bla bla bla)
             //mapReward.CurrencyRewards.emplace_back(uint32(CURRENCY_TYPE_VALOR_POINTS), sChallengeMgr->GetValorPointsReward(i));
         }
+
+        rewards.MapChallengeModeRewards.push_back(mapRewards);
     }
 
     SendPacket(rewards.Write());
@@ -118,7 +122,7 @@ void WorldSession::HandleChallengeModeRequestMapStats(WorldPackets::ChallengeMod
     WorldPackets::ChallengeMode::AllMapStats stats;
     if (ChallengeByMap* best = sChallengeMgr->BestForMember(_player->GetGUID()))
     {
-        WorldPackets::ChallengeMode::ChallengeModeMap modeMap = stats.ChallengeModeMaps[best ? best->size() : 0];
+        WorldPackets::ChallengeMode::ChallengeModeMap modeMap;
         for(ChallengeByMap::iterator itr = best->begin(); itr != best->end(); ++itr)
         {
             for(ChallengeMemberList::iterator i = itr->second->member.begin(); i != itr->second->member.end(); ++i)
@@ -130,6 +134,7 @@ void WorldSession::HandleChallengeModeRequestMapStats(WorldPackets::ChallengeMod
             modeMap.BestCompletionMilliseconds = itr->second->recordTime;
             modeMap.LastCompletionMilliseconds = itr->second->recordTime; //ToDo: need create one more holder on challenge mgr with last record. Is it trully need?
             modeMap.BestMedal = itr->second->medal;
+            stats.ChallengeModeMaps.push_back(modeMap);
         }
     }
 
