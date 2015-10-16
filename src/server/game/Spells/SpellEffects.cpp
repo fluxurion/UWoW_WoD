@@ -1443,22 +1443,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             }
             break;
         }
-        case SPELLFAMILY_HUNTER:
-            switch (m_spellInfo->Id)
-            {
-                // Camouflage
-                case 51753:
-                    m_caster->CastSpell(m_caster, 51755, true);
-                    m_caster->CastSpell(m_caster, 80326, true);
-
-                    if (Unit* pet = m_caster->GetGuardianPet())
-                        pet->CastSpell(pet, 51753, true);
-
-                    break;
-                default:
-                    break;
-            }
-            break;
         case SPELLFAMILY_DEATHKNIGHT:
             // Death Coil
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_COIL)
@@ -1980,10 +1964,14 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     float x, y, z;
     unitTarget->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJump start xyz %f %f %f caster %u target %u damage %i", x, y, z, m_caster->GetGUIDLow(), unitTarget->GetGUIDLow(), damage);
 
     float speedXY, speedZ;
-    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist(x, y, x), speedXY, speedZ);
+    float distance = m_caster->GetExactDist(x, y, z);
+    CalculateJumpSpeeds(effIndex, distance, speedXY, speedZ);
+
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJump start xyz %f %f %f caster %u target %u damage %i distance %f distance2d %f",
+    //x, y, z, m_caster->GetGUIDLow(), unitTarget->GetGUIDLow(), damage, distance, distance2d);
+
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, 0, 0.0f, delayCast, unitTarget);
 }
 
@@ -2030,10 +2018,13 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
     if (Player* plr = m_caster->ToPlayer())
         plr->SetFallInformation(0, z);
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJumpDest start xyz %f %f %f o %f", x, y, z, o);
 
     float speedXY, speedZ;
-    CalculateJumpSpeeds(effIndex, m_caster->GetExactDist(x, y, z), speedXY, speedZ);
+    float distance = m_caster->GetExactDist(x, y, z);
+    CalculateJumpSpeeds(effIndex, distance, speedXY, speedZ);
+
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJumpDest start xyz %f %f %f o %f distance %f distance2d %f", x, y, z, o, distance, distance2d);
+
     // Death Grip and Wild Charge (no form)
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, m_spellInfo->Id, o, delayCast);
 }

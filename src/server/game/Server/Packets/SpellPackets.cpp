@@ -66,6 +66,7 @@ WorldPacket const* WorldPackets::Spells::UpdateActionButtons::Write()
 void WorldPackets::Spells::SetActionButton::Read()
 {
     _worldPacket >> Action;
+    _worldPacket >> Type;
     _worldPacket >> Index;
 }
 

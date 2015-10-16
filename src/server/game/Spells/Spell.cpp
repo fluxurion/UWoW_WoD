@@ -3662,9 +3662,9 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
             triggeredByAura->GetBase()->SetDuration(0);
         }
         #ifdef WIN32
-        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare::CheckCast fail. spell id %u res %u m_caster %s m_originalCaster %s customCastFlags %u mask %u",
-            m_spellInfo->Id, result, m_caster->GetGUID().ToString().c_str(), m_originalCaster ? m_originalCaster->GetGUID().ToString().c_str() : "<none>",
-            _triggeredCastFlags, m_targets.GetTargetMask());
+        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare::CheckCast fail. spell id %u res %u m_caster %u m_originalCaster %u customCastFlags %u mask %u TargetGUID %u",
+            m_spellInfo->Id, result, m_caster->GetGUIDLow(), m_originalCaster ? m_originalCaster->GetGUIDLow() : 0,
+            _triggeredCastFlags, m_targets.GetTargetMask(), m_targets.GetObjectTargetGUID().GetGUIDLow());
         #endif
         SendCastResult(result);
 
@@ -9646,7 +9646,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
                     return false;
                 if (!_caster->_IsValidAssistTarget(unitTarget, _spellInfo))
                     return false;
-                if (_caster->GetGUID() != unitTarget->GetDemonCreatorGUID() && _caster->GetGUID() != unitTarget->GetGUID())
+                if (!unitTarget->IsOwnerOrSelf(_caster))
                     return false;
                 break;
             case TARGET_CHECK_ALLY:

@@ -1641,6 +1641,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                     _lplayer->learnSpell(itr->effect, false);
                                 break;
                             }
+                            case LINK_ACTION_CASTINAURA:
+                                _caster->CastSpell(_target, itr->effect, true, NULL, NULL, GetCasterGUID());
+                                break;
                         }
 
                         if(itr->cooldown != 0 && _target->GetTypeId() == TYPEID_PLAYER)
@@ -1707,6 +1710,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                     _lplayer->learnSpell(itr->effect, false);
                                 break;
                             }
+                            case LINK_ACTION_CASTINAURA:
+                                _caster->CastSpell(_target, itr->effect, true, NULL, NULL, GetCasterGUID());
+                                break;
                         }
 
                         if(itr->cooldown != 0 && _target->GetTypeId() == TYPEID_PLAYER)
@@ -1789,6 +1795,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                         _lplayer->learnSpell(itr->effect, false);
                                     break;
                                 }
+                                case LINK_ACTION_CASTINAURA:
+                                    _caster->CastSpell(_target, itr->effect, true, NULL, NULL, GetCasterGUID());
+                                    break;
                             }
 
                             if(itr->cooldown != 0 && _target->GetTypeId() == TYPEID_PLAYER)
@@ -1804,6 +1813,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
 
                         if (itr->target)
                             _target = target->GetUnitForLinkedSpell(caster, target, itr->target);
+
+                        if(!_target)
+                            continue;
 
                         if (itr->effect < 0)
                         {

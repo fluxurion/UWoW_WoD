@@ -339,7 +339,6 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
     if (packet.GetOpcode() != SMSG_ON_MONSTER_MOVE)
     {
         if (sPacketLog->CanLogPacket())
-            //sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
             sPacketLog->LogPacket(packet, SERVER_TO_CLIENT, GetRemoteIpAddress(), GetRemotePort());
 
         sLog->outTrace(LOG_FILTER_NETWORKIO, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName().c_str() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());

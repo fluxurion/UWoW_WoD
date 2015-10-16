@@ -958,8 +958,10 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionBu
     if (!player)
         return;
 
-    uint32 action = uint32(packet.Action & 0xFFFFFFFF);
-    uint8  type = uint8(packet.Action >> 56);
+    uint32 action = packet.Action;
+    uint8 type = uint8(packet.Type >> 24);
+
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "BUTTON: %u ACTION: %u TYPE: %u", packet.Index, action, type);
 
     if (!packet.Action)
         player->removeActionButton(packet.Index);
@@ -988,7 +990,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionBu
                 break;
             default:
                 sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, packet.Index, _player->GetName(), _player->GetGUID().GetCounter());
-                return;
+                break;
         }
 
         player->addActionButton(packet.Index, action, type);

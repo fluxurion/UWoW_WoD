@@ -7926,9 +7926,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     if (procSpell->Id == 115190)
                         return false;
 
-                    if(ToPlayer()->GetSelection() != target->GetGUID())
-                        break;
-
                     if (ToPlayer()->GetComboPoints(procSpell->Id) < 5 && procSpell->Id != 27576) //Mutilate add 2 KP
                         return false;
 
@@ -11027,6 +11024,21 @@ void Unit::SetOwnerGUID(ObjectGuid owner)
     player->SendDirectMessage(&packet);
 
     RemoveFieldNotifyFlag(UF_FLAG_OWNER);
+}
+
+bool Unit::IsOwnerOrSelf(Unit* owner) const
+{
+    if(this == owner)
+        return true;
+    if(GetDemonCreatorGUID() == owner->GetGUID())
+        return true;
+    if(GetSummonedByGUID() == owner->GetGUID())
+        return true;
+    if(GetOwnerGUID() == owner->GetGUID())
+        return true;
+    if(GetCharmerGUID() == owner->GetGUID())
+        return true;
+    return false;
 }
 
 Unit* Unit::GetOwner() const
@@ -24297,10 +24309,10 @@ void Unit::RemoveMyAura(uint32 spellId)
     for (AuraList::const_iterator itr = m_my_Auras.begin(); itr != m_my_Auras.end();)
     {
         if (Aura* aura = (*itr))
-            if (aura->GetId() == spellId)
+            if (aura->GetId() == spellId && !aura->IsRemoved())
             {
                 m_my_Auras.remove(*itr++);
-                aura->Remove();
+                aura->SetDuration(50);
                 continue;
             }
         ++itr;

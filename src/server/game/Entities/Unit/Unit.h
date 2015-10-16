@@ -1870,6 +1870,7 @@ class Unit : public WorldObject
 
         Player* GetSpellModOwner() const;
 
+        bool IsOwnerOrSelf(Unit* owner) const;
         Unit* GetOwner() const;
         Unit* GetAnyOwner() const;
         Guardian *GetGuardianPet() const;

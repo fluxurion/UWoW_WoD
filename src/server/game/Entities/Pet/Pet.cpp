@@ -113,7 +113,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool s
 
     m_loading = true;
     m_Stampeded = stampeded;
-    ObjectGuid::LowType ownerid = owner->GetGUID().GetCounter();
+    uint32 ownerid = owner->GetGUIDLow();
 
     // find number
     if (!petnumber && !petentry)
@@ -128,13 +128,13 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool s
             petnumber = owner->getPetIdBySlot(owner->m_currentSummonedSlot);
     }
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "LoadPetFromDB petentry %i, petnumber %i, ownerid %i slot %i stampeded %i m_currentPet %i", petentry, petnumber, ownerid, owner->m_currentSummonedSlot, stampeded, owner->m_currentPetNumber);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "LoadPetFromDB petentry %i, petnumber %i, ownerid %i slot %i stampeded %i m_currentPet %i", petentry, petnumber, ownerid, owner->m_currentSummonedSlot, stampeded, owner->m_currentPetNumber);
 
     QueryResult result;
     if (petnumber)                          //     0    1       2       3       4   5       6           7   8           9       10         11       12          13          14          15
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization FROM character_pet WHERE owner = '%u' AND id = '%u' LIMIT 1", ownerid, petnumber);
+        result = CharacterDatabase.PQuery("SELECT `id`, `entry`, `owner`, `modelid`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `abdata`, `savetime`, `CreatedBySpell`, `PetType`, `specialization` FROM character_pet WHERE `owner` = '%u' AND `id` = '%u' LIMIT 1", ownerid, petnumber);
     else if (petentry)  //non hunter pets
-        result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, name, renamed, curhealth, curmana, abdata, savetime, CreatedBySpell, PetType, specialization FROM character_pet WHERE owner = '%u' AND id > 0 AND entry = '%u' LIMIT 1", ownerid, petentry);
+        result = CharacterDatabase.PQuery("SELECT `id`, `entry`, `owner`, `modelid`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `abdata`, `savetime`, `CreatedBySpell`, `PetType`, `specialization` FROM character_pet WHERE `owner` = '%u' AND `id` > 0 AND entry = '%u' LIMIT 1", ownerid, petentry);
 
     if (!result)
     {

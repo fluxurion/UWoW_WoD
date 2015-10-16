@@ -1105,13 +1105,13 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, ObjectGuid 
             if (petSlot >= PET_SLOT_HUNTER_FIRST &&  petSlot < PET_SLOT_STABLE_LAST)
             {
                 WorldPackets::PetPackets::StableInfo info;
-                int32 PetSlot = petSlot;
-                int32 PetNumber = petNumber;
-                int32 CreatureID = fields[1].GetUInt32();
-                int32 DisplayID = fields[4].GetUInt32();
-                int32 ExperienceLevel = fields[2].GetUInt16();
-                uint8 PetFlags = petSlot < PET_SLOT_STABLE_FIRST ? 1 : 3;
-                std::string PetName = fields[3].GetString();
+                info.PetSlot = petSlot;
+                info.PetNumber = petNumber;
+                info.CreatureID = fields[1].GetUInt32();
+                info.DisplayID = fields[4].GetUInt32();
+                info.ExperienceLevel = fields[2].GetUInt16();
+                info.PetFlags = petSlot < PET_SLOT_STABLE_FIRST ? 1 : 3;
+                info.PetName = fields[3].GetString();
                 list.Stables.push_back(info);
             }
         }

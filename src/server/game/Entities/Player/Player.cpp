@@ -7477,11 +7477,11 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
         return false;
     }
 
-    if (action >= MAX_ACTION_BUTTON_ACTION_VALUE)
+    /*if (action >= MAX_ACTION_BUTTON_ACTION_VALUE)
     {
         sLog->outError(LOG_FILTER_PLAYER_LOADING, "Action %u not added into button %u for player %s: action must be < %u", action, button, GetName(), MAX_ACTION_BUTTON_ACTION_VALUE);
         return false;
-    }
+    }*/
 
     switch (type)
     {
@@ -7522,7 +7522,7 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
         case ACTION_BUTTON_EQSET:
             break;
         default:
-            return false;                                          // other cases not checked at this moment
+            break;                                          // other cases not checked at this moment
     }
 
     return true;
