@@ -504,6 +504,7 @@ class Spell
         void EffectUpgradeHeirloom(SpellEffIndex effIndex);
         void EffectGieveExperience(SpellEffIndex effIndex);
         void EffectRemovePhase(SpellEffIndex effIndex);
+        void EffectIncreaseFollowerItemLevel(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 

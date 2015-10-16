@@ -50,12 +50,6 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::ItemUse& cast)
     // client provided targets
     SpellCastTargets targets(pUser, cast.Cast);
 
-    if (cast.Cast.Misc >= MAX_GLYPH_SLOT_INDEX)
-    {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
-        return;
-    }
-
     Item* pItem = pUser->GetUseableItemByPos(cast.bagIndex, cast.slot);
     if (!pItem)
     {

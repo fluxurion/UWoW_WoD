@@ -102,6 +102,7 @@ public:
     struct Follower
     {
         uint32 GetItemLevel() const;
+        void IncreaseFollowerItemLevel(SpellInfo const* spellInfo, Player* caster);
 
         WorldPackets::Garrison::GarrisonFollower PacketInfo;
     };

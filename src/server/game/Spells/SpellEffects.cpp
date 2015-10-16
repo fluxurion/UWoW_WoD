@@ -307,7 +307,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectTeleportUnits,                            //227 SPELL_EFFECT_TELEPORT
     &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228
     &Spell::EffectNULL,                                     //229 SPELL_EFFECT_SET_FOLLOWER_QUALITY
-    &Spell::EffectNULL,                                     //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL
+    &Spell::EffectIncreaseFollowerItemLevel,                //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL
     &Spell::EffectNULL,                                     //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
     &Spell::EffectRemovePhase,                              //232 SPELL_EFFECT_REMOVE_PHASE
     &Spell::EffectNULL,                                     //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
@@ -8673,4 +8673,9 @@ void Spell::EffectRemovePhase(SpellEffIndex effIndex)
         return;
 
     unitTarget->ToPlayer()->RemovePhase(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
+}
+
+void Spell::EffectIncreaseFollowerItemLevel(SpellEffIndex effIndex)
+{
+    //@TODO fixup target - find follower from player followers by spellCastData.Misc ( it's followerEntry ) and use IncreaseFollowerItemLevel on it
 }

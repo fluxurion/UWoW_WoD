@@ -869,3 +869,53 @@ uint32 Garrison::Follower::GetItemLevel() const
 {
     return (PacketInfo.ItemLevelWeapon + PacketInfo.ItemLevelArmor) / 2;
 }
+
+void Garrison::Follower::IncreaseFollowerItemLevel(SpellInfo const* spellInfo, Player* caster)
+{
+    bool updateInfo = false;
+    
+    uint32 bp = spellInfo->Effects->BasePoints;
+
+    if (spellInfo->Effects->MiscValue == 2 && spellInfo->Effects->MiscValueB == 1) // increment weapon ilvl
+    {
+        if (PacketInfo.ItemLevelWeapon < 675)
+        {
+            PacketInfo.ItemLevelWeapon += bp;
+            updateInfo = true;
+        }
+    }
+
+    if (spellInfo->Effects->MiscValue == 3 && spellInfo->Effects->MiscValueB == 1) // increment armor ilvl
+    {
+        if (PacketInfo.ItemLevelArmor < 675)
+        {
+            PacketInfo.ItemLevelArmor += bp;
+            updateInfo = true;
+        }
+    }
+
+    if (spellInfo->Effects->MiscValue == 1 && !spellInfo->Effects->MiscValueB) // set armor ilvl
+    {
+        if (PacketInfo.ItemLevelArmor < bp)
+        {
+            PacketInfo.ItemLevelArmor = bp;
+            updateInfo = true;
+        }
+    }
+
+    if (!spellInfo->Effects->MiscValue && !spellInfo->Effects->MiscValueB == 1) // set weapon ilvl
+    {
+        if (PacketInfo.ItemLevelWeapon < bp)
+        {
+            PacketInfo.ItemLevelWeapon = bp;
+            updateInfo = true;
+        }
+    }
+
+    if (updateInfo)
+    {
+        WorldPackets::Garrison::GarrisonFollowerChangedItemLevel update;
+        update.Follower = PacketInfo;
+        caster->SendDirectMessage(update.Write());
+    }
+}

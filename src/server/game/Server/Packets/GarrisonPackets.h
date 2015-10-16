@@ -306,6 +306,16 @@ namespace WorldPackets
             uint32 Result = 0;
         };
 
+        class GarrisonFollowerChangedItemLevel final : public ServerPacket
+        {
+        public:
+            GarrisonFollowerChangedItemLevel() : ServerPacket(SMSG_GARRISON_FOLLOWER_CHANGED_ITEM_LEVEL, 8 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 5 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            GarrisonFollower Follower;
+        };
+
         class GarrisonBuildingActivated final : public ServerPacket
         {
         public:

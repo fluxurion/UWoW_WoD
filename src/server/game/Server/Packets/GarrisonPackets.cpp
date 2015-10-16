@@ -274,6 +274,13 @@ WorldPacket const* WorldPackets::Garrison::GarrisonAddFollowerResult::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Garrison::GarrisonFollowerChangedItemLevel::Write()
+{
+    _worldPacket << Follower;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Garrison::GarrisonBuildingActivated::Write()
 {
     _worldPacket << uint32(GarrPlotInstanceID);

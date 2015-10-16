@@ -9902,7 +9902,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
     }
 }
 
-void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8 cast_count, uint32 glyphIndex)
+void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8 cast_count, uint32 misc)
 {
     ItemTemplate const* proto = item->GetTemplate();
     // special learning case
@@ -9966,8 +9966,8 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
 
         Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
         spell->m_CastItem = item;
-        spell->m_cast_count = cast_count;                   // set count of casts
-        spell->m_misc.GlyphSlot = glyphIndex;                   // glyph index
+        spell->m_cast_count = cast_count;
+        spell->m_misc.GlyphSlot = misc;
         spell->prepare(&targets);
 
         ++count;
@@ -9994,8 +9994,8 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
 
             Spell* spell = new Spell(this, spellInfo, (count > 0) ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
             spell->m_CastItem = item;
-            spell->m_cast_count = cast_count;               // set count of casts
-            spell->m_misc.GlyphSlot = glyphIndex;               // glyph index
+            spell->m_cast_count = cast_count;
+            spell->m_misc.GlyphSlot = misc;
             spell->prepare(&targets);
 
             ++count;
