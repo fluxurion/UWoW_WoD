@@ -157,7 +157,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (!entry)
        return false;
 
-    if (!entry->IsDungeon() || entry->IsGarrison())
+    if (!entry->IsDungeon())
         return true;
 
     InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapid);
@@ -258,7 +258,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     }
 
     // players are only allowed to enter 5 instances per hour
-    if (entry->IsDungeon() && !entry->IsGarrison() && (!player->GetGroup() || (player->GetGroup() && !player->GetGroup()->isLFGGroup())))
+    if (entry->IsDungeon() && (!player->GetGroup() || (player->GetGroup() && !player->GetGroup()->isLFGGroup())))
     {
         uint32 instaceIdToCheck = 0;
         if (InstanceSave* save = player->GetInstanceSave(mapid))
@@ -319,17 +319,13 @@ bool MapManager::ExistMapAndVMap(uint32 mapid, float x, float y)
 
 bool MapManager::IsValidMAP(uint32 mapid, bool startUp)
 {
-    if (MapEntry const* mEntry = sMapStore.LookupEntry(mapid))
-    {
-        if (startUp || mEntry->IsGarrison())
-            return true;
+    MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
 
-        if (mEntry->IsDungeon())
-            return sObjectMgr->GetInstanceTemplate(mapid);
+    if (startUp)
+        return mEntry ? true : false;
+    else
+        return mEntry && (!mEntry->IsDungeon() || sObjectMgr->GetInstanceTemplate(mapid));
 
-        return true;
-    }
-    return false;
     // TODO: add check for battleground template
 }
 

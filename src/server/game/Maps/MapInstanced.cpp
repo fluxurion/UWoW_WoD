@@ -240,7 +240,6 @@ GarrisonMap* MapInstanced::CreateGarrison(uint32 instanceId, Player* owner)
 
     GarrisonMap* map = new GarrisonMap(GetId(), GetGridExpiry(), instanceId, this, owner->GetGUID());
     ASSERT(map->IsGarrison());
-    map->CreateInstanceData(false);
 
     m_InstancedMaps[instanceId] = map;
     return map;
