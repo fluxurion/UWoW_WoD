@@ -329,7 +329,6 @@ namespace WorldPackets
 
         struct QuestPOIBlobPoint
         {
-            QuestPOIBlobPoint(int32 x, int32 y) : X(x), Y(y)  { }
             int32 X = 0;
             int32 Y = 0;
         };

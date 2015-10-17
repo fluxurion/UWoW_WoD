@@ -301,7 +301,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packe
     if (packet.MissingQuestCount > MAX_QUEST_LOG_SIZE)
         return;
 
-    std::set<int32> questIds;
+    std::unordered_set<int32> questIds;
     for (int32 i = 0; i < packet.MissingQuestCount; ++i)
         questIds.insert(packet.MissingQuestPOIs[i]);
 
@@ -345,7 +345,12 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& packe
                     questPOIBlobData.UnkWoD1 = data->UnkWoD1;
 
                     for (auto points = data->points.begin(); points != data->points.end(); ++points)
-                        questPOIBlobData.QuestPOIBlobPointStats.emplace_back(points->X, points->Y);
+                    {
+                        WorldPackets::Query::QuestPOIBlobPoint questPOIBlobPoint;
+                        questPOIBlobPoint.X = points->X;
+                        questPOIBlobPoint.Y = points->Y;
+                        questPOIBlobData.QuestPOIBlobPointStats.push_back(questPOIBlobPoint);
+                    }
 
                     questPOIData.QuestPOIBlobDataStats.push_back(questPOIBlobData);
                 }
