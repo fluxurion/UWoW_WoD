@@ -101,6 +101,9 @@ void AddItemsSetItem(Player* player, Item* item)
                 }
 
                 // spell casted only if fit form requirement, in other case will casted at form change
+                if (player->GetSpecializationId(player->GetActiveSpec()) != spells[x]->ChrSpecID)
+                    continue;
+
                 player->ApplyEquipSpell(spellInfo, NULL, true);
                 eff->spells[y] = spellInfo;
                 break;
@@ -149,6 +152,9 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
             if (eff->spells[z] && eff->spells[z]->Id == spells[x]->SpellID)
             {
                 // spell can be not active if not fit form requirement
+                if (player->GetSpecializationId(player->GetActiveSpec()) != spells[x]->ChrSpecID)
+                    continue;
+
                 player->ApplyEquipSpell(eff->spells[z], NULL, false);
                 eff->spells[z]=NULL;
                 break;
