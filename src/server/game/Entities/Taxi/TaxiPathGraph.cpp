@@ -23,7 +23,7 @@
 #include "Config.h"
 #include "Util.h"
 #include <boost/graph/dijkstra_shortest_paths.hpp>
-#include <boost/property_map/transform_value_property_map.hpp>
+//#include <boost/property_map/transform_value_property_map.hpp>
 
 void TaxiPathGraph::Initialize()
 {
@@ -143,11 +143,11 @@ std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* from, Taxi
         shortestPath.clear();
         std::vector<vertex_descriptor> p(boost::num_vertices(m_graph));
 
-        boost::dijkstra_shortest_paths(m_graph, GetVertexIDFromNodeID(from),
-            boost::predecessor_map(boost::make_iterator_property_map(p.begin(), boost::get(boost::vertex_index, m_graph)))
-            .weight_map(boost::make_transform_value_property_map(
-                [player](EdgeCost const& edgeCost) { return edgeCost.EvaluateDistance(player); },
-                boost::get(boost::edge_weight, m_graph))));
+        //boost::dijkstra_shortest_paths(m_graph, GetVertexIDFromNodeID(from),
+        //    boost::predecessor_map(boost::make_iterator_property_map(p.begin(), boost::get(boost::vertex_index, m_graph)))
+        //    .weight_map(boost::make_transform_value_property_map(
+        //        [player](EdgeCost const& edgeCost) { return edgeCost.EvaluateDistance(player); },
+        //        boost::get(boost::edge_weight, m_graph))));
 
         // found a path to the goal
         for (vertex_descriptor v = GetVertexIDFromNodeID(to); ; v = p[v])
