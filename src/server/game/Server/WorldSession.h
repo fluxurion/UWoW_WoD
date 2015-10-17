@@ -264,6 +264,7 @@ namespace WorldPackets
         class SummonResponse;
         class MoveTimeSkipped;
         class SetActiveMover;
+        class MoveSplineDone;
     }
 
     namespace NPC
@@ -627,6 +628,16 @@ namespace WorldPackets
         class GarrisonSetFollowerInactive;
         class GarrisonRemoveFollowerFromBuilding;
         class GarrisonAssignFollowerToBuilding;
+    }
+    
+    namespace Taxi
+    {
+        class ShowTaxiNodes;
+        class TaxiNodeStatusQuery;
+        class EnableTaxiNode;
+        class TaxiQueryAvailableNodes;
+        class ActivateTaxi;
+        class TaxiRequestEarlyLanding;
     }
 
     class Null final : public ClientPacket
@@ -1203,13 +1214,13 @@ class WorldSession
         void HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderSetGuildPost(WorldPacket& recvPacket);
 
-        void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
-        void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);
-        void HandleTaxiRequestEarlyLandingOpcode(WorldPacket& recvPacket);
-        void HandleActivateTaxiOpcode(WorldPacket& recvPacket);
-        void HandleActivateTaxiExpressOpcode(WorldPacket& recvPacket);
-        void HandleMoveSplineDoneOpcode(WorldPacket& recvPacket);
+        void HandleEnableTaxiNode(WorldPackets::Taxi::EnableTaxiNode& packet);
+        void HandleTaxiNodeStatusQuery(WorldPackets::Taxi::TaxiNodeStatusQuery& packet);
+        void HandleTaxiQueryAvailableNodes(WorldPackets::Taxi::TaxiQueryAvailableNodes& packet);
+        void HandleActivateTaxi(WorldPackets::Taxi::ActivateTaxi& packet);
+        void HandleMoveSplineDone(WorldPackets::Movement::MoveSplineDone& packet);
         void SendActivateTaxiReply(ActivateTaxiReply reply);
+        void HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& packet);
 
         void HandleTabardVendorActivateOpcode(WorldPacket& recvPacket);
         void HandleBankerActivate(WorldPackets::NPC::Hello& packet);

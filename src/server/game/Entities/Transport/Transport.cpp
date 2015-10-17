@@ -296,22 +296,18 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
     {
         if (mapChange == 0)
         {
-            TaxiPathNodeEntry const& node_i = path[i];
-            if (node_i.MapID == path[i + 1].MapID)
+            TaxiPathNodeEntry const* node_i = path[i];
+            if (node_i->MapID == path[i + 1]->MapID)
             {
-                keyFrame k(node_i);
+                keyFrame k(*node_i);
                 keyFrames.push_back(k);
                 mapids.insert(k.node->MapID);
             }
             else
-            {
                 mapChange = 1;
-            }
         }
         else
-        {
             --mapChange;
-        }
     }
 
     int lastStop = -1;

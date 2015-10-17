@@ -787,3 +787,44 @@ void WorldSession::HandleMoveTimeSkipped(WorldPackets::Movement::MoveTimeSkipped
             player->m_anti_MistiCount = 1;
 }
 
+void WorldSession::HandleMoveSplineDone(WorldPackets::Movement::MoveSplineDone& packet)
+{
+    MovementInfo movementInfo = packet.movementInfo;
+    _player->ValidateMovementInfo(&movementInfo);
+
+    // in taxi flight packet received in 2 case:
+    // 1) end taxi path in far (multi-node) flight
+    // 2) switch from one map to other in case multim-map taxi path
+    // we need process only (1)
+
+    uint32 curDest = GetPlayer()->m_taxi.GetTaxiDestination();
+    if (curDest)
+    {
+        TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
+
+        // far teleport case
+        if (curDestNode && curDestNode->MapID != GetPlayer()->GetMapId())
+        {
+            if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+            {
+                FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
+
+                flight->SetCurrentNodeAfterTeleport();
+                TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
+                flight->SkipCurrentNode();
+
+                GetPlayer()->TeleportTo(curDestNode->MapID, node->Loc.X, node->Loc.Y, node->Loc.Z, GetPlayer()->GetOrientation());
+            }
+        }
+
+        return;
+    }
+
+    if (GetPlayer()->m_taxi.GetPath().size() != 1)
+        return;
+
+    GetPlayer()->CleanupAfterTaxiFlight();
+    GetPlayer()->SetFallInformation(0, GetPlayer()->GetPositionZ());
+    if (GetPlayer()->pvpInfo.inHostileArea)
+        GetPlayer()->CastSpell(GetPlayer(), 2479, true);
+}

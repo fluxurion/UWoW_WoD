@@ -224,6 +224,7 @@ DBCStorage<VehicleEntry>                    sVehicleStore(VehicleEntryfmt);
 DBCStorage<VehicleSeatEntry>                sVehicleSeatStore(VehicleSeatEntryfmt);
 DBCStorage<WMOAreaTableEntry>               sWMOAreaTableStore(WMOAreaTableEntryfmt);
 DBCStorage<WorldMapAreaEntry>               sWorldMapAreaStore(WorldMapAreaEntryfmt);
+DBCStorage<WorldMapTransformsEntry>         sWorldMapTransformsStore(WorldMapTransformsfmt);
 DBCStorage<WorldMapOverlayEntry>            sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
 DBCStorage<WorldSafeLocsEntry>              sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
 DBCStorage<GtArmorMitigationByLvlEntry>     sGtArmorMitigationByLvlStore(GameTablefmt);
@@ -504,6 +505,7 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DBC(sVehicleStore,                     "Vehicle.dbc");
     LOAD_DBC(sWMOAreaTableStore,                "WMOAreaTable.dbc");
     LOAD_DBC(sWorldMapAreaStore,                "WorldMapArea.dbc");
+    LOAD_DBC(sWorldMapTransformsStore,          "WorldMapTransforms.dbc");
     LOAD_DBC(sWorldMapOverlayStore,             "WorldMapOverlay.dbc");
     LOAD_DBC(sWorldSafeLocsStore,               "WorldSafeLocs.dbc");
     LOAD_DBC(sGtArmorMitigationByLvlStore,      "gtArmorMitigationByLvl.dbc");
@@ -1277,4 +1279,53 @@ uint32 GetAvailableMinorTalent(uint32 specID, int32 orderIndex)
     }
     
     return 0;
+}
+
+void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId /*= nullptr*/, DBCPosition2D* newPos /*= nullptr*/)
+{
+    ASSERT(newMapId || newPos);
+    WorldMapTransformsEntry const* transformation = nullptr;
+    for (WorldMapTransformsEntry const* transform : sWorldMapTransformsStore)
+    {
+        if (transform->MapID != mapId)
+            continue;
+
+        if (transform->RegionMin.X > x || transform->RegionMax.X < x)
+            continue;
+        if (transform->RegionMin.Y > y || transform->RegionMax.Y < y)
+            continue;
+        if (transform->RegionMin.Z > z || transform->RegionMax.Z < z)
+            continue;
+
+        transformation = transform;
+        break;
+    }
+
+    if (!transformation)
+    {
+        if (newMapId)
+            *newMapId = mapId;
+
+        if (newPos)
+        {
+            newPos->X = x;
+            newPos->Y = y;
+        }
+        return;
+    }
+
+    if (newMapId)
+        *newMapId = transformation->NewMapID;
+
+    if (!newPos)
+        return;
+
+    if (transformation->RegionScale > 0.0f && transformation->RegionScale < 1.0f)
+    {
+        x = (x - transformation->RegionMin.X) * transformation->RegionScale + transformation->RegionMin.X;
+        y = (y - transformation->RegionMin.Y) * transformation->RegionScale + transformation->RegionMin.Y;
+    }
+
+    newPos->X = x + transformation->RegionOffset.X;
+    newPos->Y = y + transformation->RegionOffset.Y;
 }

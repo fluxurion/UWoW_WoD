@@ -91,14 +91,12 @@ DB2Storage<TaxiPathEntry>                   sTaxiPathStore("TaxiPath.db2", TaxiP
 DB2Storage<TaxiPathNodeEntry>               sTaxiPathNodeStore("TaxiPathNode.db2", TaxiPathNodeFormat, HOTFIX_SEL_TAXI_PATH_NODE);
 DB2Storage<ToyEntry>                        sToyStore("Toy.db2", ToyFormat, HOTFIX_SEL_TOY);
 
-TaxiMask                                    sAllianceTaxiNodesMask;
-TaxiMask                                    sDeathKnightTaxiNodesMask;
-TaxiMask                                    sHordeTaxiNodesMask;
-TaxiMask                                    sOldContinentsNodesMask;
 TaxiMask                                    sTaxiNodesMask;
-TaxiPathDestList                            sTaxiPathDestList;
-TaxiPathNodesByPath                         sTaxiPathNodesByPath;
+TaxiMask                                    sOldContinentsNodesMask;
+TaxiMask                                    sHordeTaxiNodesMask;
+TaxiMask                                    sAllianceTaxiNodesMask;
 TaxiPathSetBySource                         sTaxiPathSetBySource;
+TaxiPathNodesByPath                         sTaxiPathNodesByPath;
 
 uint32 DB2FilesCount = 0;
 typedef std::list<std::string> DB2StoreProblemList;
@@ -361,108 +359,60 @@ void DB2Manager::InitDB2CustomStores()
     }
 
 
-    //! taxi system under this - req full rework since 6.1.0
-    for (uint32 i = 1; i < sTaxiPathStore.GetNumRows(); ++i)
-        if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
-            sTaxiPathSetBySource[entry->From][entry->To] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
+    for (TaxiPathEntry const* entry : sTaxiPathStore)
+        sTaxiPathSetBySource[entry->From][entry->To] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
 
-    // Generate multy-path
-    for (TaxiPathSetBySource::iterator itr = sTaxiPathSetBySource.begin(); itr != sTaxiPathSetBySource.end(); ++itr)
-        FillPathDestList(itr->first, itr->first);
-
-    //for (TaxiPathDestList::iterator itr = sTaxiPathDestList.begin(); itr != sTaxiPathDestList.end(); ++itr)
-    //    for(TaxiDestList::iterator r = itr->second.begin(); r != itr->second.end(); ++r)
-    //    {
-    //        std::ostringstream ss;
-    //        ss << "from:" << itr->first << " to:" << r->first << " - ";
-    //        for(TaxiPatchList::iterator b = r->second.begin(); b != r->second.end();++b)
-    //            ss << (*b) << " ";
-    //        sLog->outU(">>> %s", ss.str().c_str());
-    //    }
     uint32 pathCount = sTaxiPathStore.GetNumRows();
 
     // Calculate path nodes count
     std::vector<uint32> pathLength;
     pathLength.resize(pathCount);                           // 0 and some other indexes not used
-    for (uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
-    {
-        if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
-        {
-            if (pathLength[entry->PathID] < entry->NodeIndex + 1)
-                pathLength[entry->PathID] = entry->NodeIndex + 1;
-        }
-    }
+    for (TaxiPathNodeEntry const* entry : sTaxiPathNodeStore)
+        if (pathLength[entry->PathID] < entry->NodeIndex + 1)
+            pathLength[entry->PathID] = entry->NodeIndex + 1;
 
     // Set path length
     sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
-    for (uint32 i = 1; i < sTaxiPathNodesByPath.size(); ++i)
+    for (uint32 i = 0; i < sTaxiPathNodesByPath.size(); ++i)
         sTaxiPathNodesByPath[i].resize(pathLength[i]);
 
     // fill data
-    for (uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
-        if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
-            sTaxiPathNodesByPath[entry->PathID].set(entry->NodeIndex, entry);
+    for (TaxiPathNodeEntry const* entry : sTaxiPathNodeStore)
+        sTaxiPathNodesByPath[entry->PathID][entry->NodeIndex] = entry;
 
     // Initialize global taxinodes mask
     // include existed nodes that have at least single not spell base (scripted) path
     {
-        std::set<uint32> spellPaths;
-        for (uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
-            if (SpellEffectEntry const* sInfo = sSpellEffectStore.LookupEntry(i))
-                if (sInfo->Effect == SPELL_EFFECT_SEND_TAXI)
-                    spellPaths.insert(sInfo->EffectMiscValue);
-
-        memset(sTaxiNodesMask, 0, sizeof(sTaxiNodesMask));
-        memset(sOldContinentsNodesMask, 0, sizeof(sOldContinentsNodesMask));
-        memset(sHordeTaxiNodesMask, 0, sizeof(sHordeTaxiNodesMask));
-        memset(sAllianceTaxiNodesMask, 0, sizeof(sAllianceTaxiNodesMask));
-        memset(sDeathKnightTaxiNodesMask, 0, sizeof(sDeathKnightTaxiNodesMask));
-        for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
+        if (sTaxiNodesStore.GetNumRows())
         {
-            TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
-            if (!node)
+            ASSERT(TaxiMaskSize >= ((sTaxiNodesStore.GetNumRows() - 1) / 8) + 1,
+                "TaxiMaskSize is not large enough to contain all taxi nodes! (current value %d, required %d)",
+                TaxiMaskSize, (((sTaxiNodesStore.GetNumRows() - 1) / 8) + 1));
+        }
+
+        sTaxiNodesMask.fill(0);
+        sOldContinentsNodesMask.fill(0);
+        sHordeTaxiNodesMask.fill(0);
+        sAllianceTaxiNodesMask.fill(0);
+        for (TaxiNodesEntry const* node : sTaxiNodesStore)
+        {
+            if (!(node->Flags & (TAXI_NODE_FLAG_ALLIANCE | TAXI_NODE_FLAG_HORDE)))
                 continue;
 
-            TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(i);
-            if (src_i != sTaxiPathSetBySource.end() && !src_i->second.empty())
-            {
-                bool ok = false;
-                for (TaxiPathSetForSource::const_iterator dest_i = src_i->second.begin(); dest_i != src_i->second.end(); ++dest_i)
-                {
-                    if (!dest_i->second.price)
-                        continue;
-
-                    // not spell path
-                    if (spellPaths.find(dest_i->second.ID) == spellPaths.end())
-                    {
-                        ok = true;
-                        break;
-                    }
-                }
-
-                if (!ok)
-                    continue;
-            }
-
             // valid taxi network node
-            uint8  field = (uint8)((i - 1) / 8);
-            uint32 submask = 1 << ((i - 1) % 8);
+            uint8  field = (uint8)((node->ID - 1) / 8);
+            uint32 submask = 1 << ((node->ID - 1) % 8);
 
             sTaxiNodesMask[field] |= submask;
-            if (node->MountCreatureID[0] && node->MountCreatureID[0] != 32981)
+            if (node->Flags & TAXI_NODE_FLAG_HORDE)
                 sHordeTaxiNodesMask[field] |= submask;
-            if (node->MountCreatureID[1] && node->MountCreatureID[1] != 32981)
+            if (node->Flags & TAXI_NODE_FLAG_ALLIANCE)
                 sAllianceTaxiNodesMask[field] |= submask;
-            if (node->MountCreatureID[0] == 32981 || node->MountCreatureID[1] == 32981)
-                sDeathKnightTaxiNodesMask[field] |= submask;
 
-            // old continent node (+ nodes virtually at old continents, check explicitly to avoid loading map files for zone info)
-            if (node->MapID < 2 || i == 82 || i == 83 || i == 93 || i == 94)
+            uint32 nodeMap;
+            DeterminaAlternateMapPosition(node->MapID, node->Pos.X, node->Pos.Y, node->Pos.Z, &nodeMap);
+            if (nodeMap < 2)
                 sOldContinentsNodesMask[field] |= submask;
-
-            // fix DK node at Ebon Hold and Shadow Vault flight master
-            if (i == 315 || i == 333)
-                ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
         }
     }
 }
@@ -522,30 +472,6 @@ time_t DB2Manager::GetHotfixDate(uint32 entry, uint32 type) const
                 ret = time_t(hotfix.Timestamp);
 
     return ret ? ret : time(NULL);
-}
-
-
-void DB2Manager::FillPathDestList(uint32 from, uint32 prev)
-{
-    for (TaxiPathSetForSource::iterator itr = sTaxiPathSetBySource[prev].begin(); itr != sTaxiPathSetBySource[prev].end(); ++itr)
-    {
-        TaxiDestList::iterator list = sTaxiPathDestList[from].find(prev);
-        if (list == sTaxiPathDestList[from].end())
-            sTaxiPathDestList[from][prev].push_back(prev);                      //start
-
-        // check if we already have it.
-        list = sTaxiPathDestList[from].find(itr->first);
-        if (list != sTaxiPathDestList[from].end())
-        {
-            //if current path smaller - skip 
-            if (sTaxiPathDestList[from][itr->first].size() <= (sTaxiPathDestList[from][prev].size() + 1))
-                continue;
-        }
-
-        sTaxiPathDestList[from][itr->first] = sTaxiPathDestList[from][prev];    //copy path from prev.
-        sTaxiPathDestList[from][itr->first].push_back(itr->first);              //and add this to end.
-        FillPathDestList(from, itr->first);
-    }
 }
 
 std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId)

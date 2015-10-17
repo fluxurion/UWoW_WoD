@@ -72,12 +72,12 @@
 #include "PoolMgr.h"
 #include "ScenarioMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptMgr.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
 #include "SpellMgr.h"
 #include "SystemConfig.h"
+#include "TaxiPathGraph.h"
 #include "TemporarySummon.h"
 #include "TicketMgr.h"
 #include "Transport.h"
@@ -1536,6 +1536,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading hotfix info...");
     sDB2Manager.LoadHotfixData();
     HotfixDatabase.Close();
+    
+    //Load weighted graph on taxi nodes path
+    sTaxiPathGraph.Initialize();
 
     std::unordered_map<uint32, std::vector<uint32>> mapData;
     for (MapEntry const* mapEntry : sMapStore)

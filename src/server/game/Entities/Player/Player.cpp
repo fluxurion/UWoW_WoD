@@ -23,17 +23,20 @@
 #include "AuctionHouseMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
-#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "BattlegroundAV.h"
 #include "BattlegroundMgr.h"
+#include "BattlegroundPackets.h"
 #include "Bracket.h"
 #include "BracketMgr.h"
 #include "CellImpl.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "CharacterDatabaseCleaner.h"
+#include "CharacterPackets.h"
 #include "Chat.h"
+#include "CombatLogPackets.h"
+#include "CombatPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
@@ -41,8 +44,11 @@
 #include "DB2Stores.h"
 #include "DBCStores.h"
 #include "DisableMgr.h"
+#include "DuelPackets.h"
+#include "EquipmentSetPackets.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
+#include "Garrison.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -50,33 +56,46 @@
 #include "GroupMgr.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "InstancePackets.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
 #include "Language.h"
 #include "LFGMgr.h"
 #include "Log.h"
+#include "LootPackets.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
+#include "MiscPackets.h"
+#include "MovementPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
 #include "Pet.h"
+#include "PetPackets.h"
 #include "Player.h"
 #include "QuestDef.h"
+#include "QuestPackets.h"
 #include "ScenarioMgr.h"
+#include "ScenePackets.h"
 #include "SkillDiscovery.h"
 #include "SocialMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
+#include "TalentPackets.h"
+#include "TaxiPackets.h"
 #include "TicketMgr.h"
+#include "ToyPackets.h"
+#include "TradePackets.h"
 #include "Transport.h"
 #include "UpdateData.h"
 #include "UpdateFieldFlags.h"
 #include "UpdateMask.h"
+#include "UpdatePackets.h"
 #include "Util.h"
 #include "Vehicle.h"
 #include "Weather.h"
@@ -85,26 +104,6 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-#include "BattlegroundPackets.h"
-#include "CharacterPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "DuelPackets.h"
-#include "EquipmentSetPackets.h"
-#include "Garrison.h"
-#include "InstancePackets.h"
-#include "UpdatePackets.h"
-#include "LootPackets.h"
-#include "MiscPackets.h"
-#include "MovementPackets.h"
-#include "PetPackets.h"
-#include "QuestPackets.h"
-#include "ScenePackets.h"
-#include "SpellPackets.h"
-#include "TalentPackets.h"
-#include "ToyPackets.h"
-#include "TradePackets.h"
-
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
 // corpse reclaim times
@@ -112,199 +111,6 @@
 #define MAX_DEATH_COUNT 3
 
 static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
-
-// == PlayerTaxi ================================================
-
-PlayerTaxi::PlayerTaxi()
-{
-    memset(m_taximask, 0, sizeof(m_taximask));
-}
-
-void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level)
-{
-    // class specific initial known nodes
-    switch (chrClass)
-    {
-        case CLASS_DEATH_KNIGHT:
-        {
-            for (uint8 i = 0; i < TaxiMaskSize; ++i)
-                m_taximask[i] |= sOldContinentsNodesMask[i];
-            break;
-        }
-    }
-
-    // race specific initial known nodes: capital and taxi hub masks
-    // TODO MISSING PANDAREN HORDE/ALLIANCE WORGEN and GOBLIN
-    switch (race)
-    {
-        case RACE_HUMAN:    SetTaximaskNode(2);  break;     // Human
-        case RACE_ORC:      SetTaximaskNode(23); break;     // Orc
-        case RACE_DWARF:    SetTaximaskNode(6);  break;     // Dwarf
-        case RACE_NIGHTELF: SetTaximaskNode(26);
-                            SetTaximaskNode(27); break;     // Night Elf
-        case RACE_UNDEAD_PLAYER: SetTaximaskNode(11); break;// Undead
-        case RACE_TAUREN:   SetTaximaskNode(22); break;     // Tauren
-        case RACE_GNOME:    SetTaximaskNode(6);  break;     // Gnome
-        case RACE_TROLL:    SetTaximaskNode(23); break;     // Troll
-        case RACE_BLOODELF: SetTaximaskNode(82); break;     // Blood Elf
-        case RACE_DRAENEI:  SetTaximaskNode(94); break;     // Draenei
-        //case RACE_WORGEN:  SetTaximaskNode(); break;        // Worgen
-        //case RACE_GOBLIN:  SetTaximaskNode(); break;        // Goblin
-        //case RACE_PANDAREN_HORDE:  SetTaximaskNode(); break;     // Pandaren Horde
-        //case RACE_PANDAREN_ALLIANCE:  SetTaximaskNode(); break;     // Pandaren Alliance
-    }
-
-    // new continent starting masks (It will be accessible only at new map)
-    switch (Player::TeamForRace(race))
-    {
-        case ALLIANCE: SetTaximaskNode(100); break;
-        case HORDE:    SetTaximaskNode(99);  break;
-    }
-    // level dependent taxi hubs
-    if (level >= 68)
-        SetTaximaskNode(213);                               //Shattered Sun Staging Area
-
-    // Add Taxi Nodes availables from player level
-    /*for (uint32 i = 0; i < sTaxiNodesStore.GetNumRows(); i++)
-    {
-        TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
-        if (!node)
-            continue;
-
-        // Bad map id
-        if (!sMapStore.LookupEntry(node->map_id))
-            continue;
-
-        int gx=(int)(32-node->x/SIZE_OF_GRIDS);                       //grid x
-        int gy=(int)(32-node->y/SIZE_OF_GRIDS);                       //grid y
-
-        // Bad positions
-        if (gx < 0 || gy < 0)
-            continue;
-
-        uint32 zone = sMapMgr->GetZoneId(node->map_id, node->x, node->y, node->z);
-        if (!zone)
-            continue;
-
-        WorldMapAreaEntry const* worldMapArea = sWorldMapAreaStore.LookupEntry(zone);
-        if (!worldMapArea)
-            continue;
-
-        uint32 team = Player::TeamForRace(race);
-
-        if (team == PANDAREN_NEUTRAL)
-            continue;
-
-        if (!node->MountCreatureID[team == ALLIANCE ? 1 : 0])
-            continue;
-
-        if (!worldMapArea->minRecommendedLevel)
-            continue;
-
-        uint32 minLevel = worldMapArea->minRecommendedLevel;
-
-        // Hackfix for TwilightHighlands map swapping
-        if (worldMapArea->area_id == 4922)
-            minLevel = 84;
-
-        if (minLevel <= level)
-            SetTaximaskNode(node->ID);
-    }*/
-}
-
-void PlayerTaxi::LoadTaxiMask(std::string const &data)
-{
-    Tokenizer tokens(data, ' ');
-
-    uint8 index = 0;
-    for (Tokenizer::const_iterator iter = tokens.begin(); index < TaxiMaskSize && iter != tokens.end(); ++iter, ++index)
-    {
-        // load and set bits only for existing taxi nodes
-        m_taximask[index] = sTaxiNodesMask[index] & uint32(atol(*iter));
-    }
-}
-
-void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, bool all)
-{
-    if (all)
-    {
-        for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            data << uint8(sTaxiNodesMask[i]);              // all existed nodes
-    }
-    else
-    {
-        for (uint8 i = 0; i < TaxiMaskSize; ++i)
-            data << uint8(m_taximask[i]);                  // known nodes
-    }
-}
-
-bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint32 team)
-{
-    ClearTaxiDestinations();
-
-    Tokenizer tokens(values, ' ');
-
-    for (Tokenizer::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
-    {
-        uint32 node = uint32(atol(*iter));
-        AddTaxiDestination(node);
-    }
-
-    if (m_TaxiDestinations.empty())
-        return true;
-
-    // Check integrity
-    if (m_TaxiDestinations.size() < 2)
-        return false;
-
-    for (size_t i = 1; i < m_TaxiDestinations.size(); ++i)
-    {
-        uint32 cost;
-        uint32 path;
-        sObjectMgr->GetTaxiPath(m_TaxiDestinations[i-1], m_TaxiDestinations[i], path, cost);
-        if (!path)
-            return false;
-    }
-
-    // can't load taxi path without mount set (quest taxi path?)
-    if (!sObjectMgr->GetTaxiMountDisplayId(GetTaxiSource(), team, true))
-        return false;
-
-    return true;
-}
-
-std::string PlayerTaxi::SaveTaxiDestinationsToString()
-{
-    if (m_TaxiDestinations.empty())
-        return "";
-
-    std::ostringstream ss;
-
-    for (size_t i=0; i < m_TaxiDestinations.size(); ++i)
-        ss << m_TaxiDestinations[i] << ' ';
-
-    return ss.str();
-}
-
-uint32 PlayerTaxi::GetCurrentTaxiPath() const
-{
-    if (m_TaxiDestinations.size() < 2)
-        return 0;
-
-    uint32 path;
-    uint32 cost;
-
-    sObjectMgr->GetTaxiPath(m_TaxiDestinations[0], m_TaxiDestinations[1], path, cost);
-
-    return path;
-}
-
-std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
-{
-    for (uint8 i = 0; i < TaxiMaskSize; ++i)
-        ss << uint32(taxi.m_taximask[i]) << ' ';
-    return ss;
-}
 
 //== TradeData =================================================
 
@@ -17053,7 +16859,7 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
         if (msg)
         {
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ, qInfo);
-            TC_LOG_DEBUG("misc", "SatisfyQuestReputation: Sent INVALIDREASON_DONT_HAVE_REQ (questId: %u) because player does not have required reputation (ReputationObjective2).", qInfo->GetQuestId());
+            sLog->outInfo(LOG_FILTER_GENERAL, "SatisfyQuestReputation: Sent INVALIDREASON_DONT_HAVE_REQ (questId: %u) because player does not have required reputation (ReputationObjective2).", qInfo->GetQuestId());
         }
         return false;
     }**/
@@ -23333,7 +23139,10 @@ void Player::SetRestBonus (float rest_bonus_new)
 bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= NULL*/, uint32 spellid /*= 0*/)
 {
     if (nodes.size() < 2)
+    {
+        GetSession()->SendActivateTaxiReply(ERR_TAXINOSUCHPATH);
         return false;
+    }
 
     // not let cheating with start flight in time of logout process || while in combat || has type state: stunned || has type state: root
     if (GetSession()->isLogingOut() || isInCombat() || HasUnitState(UNIT_STATE_STUNNED) || HasUnitState(UNIT_STATE_ROOT))
@@ -23416,7 +23225,6 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         GetSession()->SendActivateTaxiReply(ERR_TAXIUNSPECIFIEDSERVERERROR);
         return false;
     }
-
     // Prepare to flight start now
 
     // stop combat at start taxi flight if any
@@ -23438,6 +23246,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // fill destinations path tail
     uint32 sourcepath = 0;
     uint32 totalcost = 0;
+    uint32 firstcost = 0;
 
     uint32 prevnode = sourcenode;
     uint32 lastnode = 0;
@@ -23452,11 +23261,12 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         if (!path)
         {
             m_taxi.ClearTaxiDestinations();
-            GetSession()->SendActivateTaxiReply(ERR_TAXINOVENDORNEARBY);
             return false;
         }
 
         totalcost += cost;
+        if (i == 1)
+            firstcost = cost;
 
         if (prevnode == sourcenode)
             sourcepath = path;
@@ -23495,8 +23305,6 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     }
 
     //Checks and preparations done, DO FLIGHT
-    ModifyMoney(-int64(totalcost));
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, totalcost);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN, 1);
 
     // prevent stealth flight
@@ -23505,12 +23313,17 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     if (sWorld->getBoolConfig(CONFIG_INSTANT_TAXI))
     {
         TaxiNodesEntry const* lastPathNode = sTaxiNodesStore.LookupEntry(nodes[nodes.size()-1]);
+        ASSERT(lastPathNode);
         m_taxi.ClearTaxiDestinations();
+        ModifyMoney(-int64(totalcost));
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, totalcost);
         TeleportTo(lastPathNode->MapID, lastPathNode->Pos.X, lastPathNode->Pos.Y, lastPathNode->Pos.Z, GetOrientation());
         return false;
     }
     else
     {
+        ModifyMoney(-int64(firstcost));
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, firstcost);
         GetSession()->SendActivateTaxiReply(ERR_TAXIOK);
         GetSession()->SendDoFlight(mount_display_id, sourcepath);
     }
@@ -23549,6 +23362,9 @@ void Player::ContinueTaxiFlight()
     sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Restart character %u taxi flight", GetGUID().GetCounter());
 
     uint32 mountDisplayId = sObjectMgr->GetTaxiMountDisplayId(sourceNode, GetTeam(), true);
+    if (!mountDisplayId)
+        return;
+
     uint32 path = m_taxi.GetCurrentTaxiPath();
 
     // search appropriate start path node
@@ -23558,30 +23374,30 @@ void Player::ContinueTaxiFlight()
 
     float distPrev = MAP_SIZE*MAP_SIZE;
     float distNext =
-        (nodeList[0].Loc.X - GetPositionX())*(nodeList[0].Loc.X - GetPositionX()) +
-        (nodeList[0].Loc.Y - GetPositionY())*(nodeList[0].Loc.Y - GetPositionY()) +
-        (nodeList[0].Loc.Z - GetPositionZ())*(nodeList[0].Loc.Z - GetPositionZ());
+        (nodeList[0]->Loc.X - GetPositionX())*(nodeList[0]->Loc.X - GetPositionX()) +
+        (nodeList[0]->Loc.Y - GetPositionY())*(nodeList[0]->Loc.Y - GetPositionY()) +
+        (nodeList[0]->Loc.Z - GetPositionZ())*(nodeList[0]->Loc.Z - GetPositionZ());
 
     for (uint32 i = 1; i < nodeList.size(); ++i)
     {
-        TaxiPathNodeEntry const& node = nodeList[i];
-        TaxiPathNodeEntry const& prevNode = nodeList[i-1];
+        TaxiPathNodeEntry const* node = nodeList[i];
+        TaxiPathNodeEntry const* prevNode = nodeList[i-1];
 
         // skip nodes at another map
-        if (node.MapID != GetMapId())
+        if (node->MapID != GetMapId())
             continue;
 
         distPrev = distNext;
 
         distNext =
-            (node.Loc.X - GetPositionX())*(node.Loc.X - GetPositionX()) +
-            (node.Loc.Y - GetPositionY())*(node.Loc.Y - GetPositionY()) +
-            (node.Loc.Z - GetPositionZ())*(node.Loc.Z - GetPositionZ());
+            (node->Loc.X - GetPositionX()) * (node->Loc.X - GetPositionX()) +
+            (node->Loc.Y - GetPositionY()) * (node->Loc.Y - GetPositionY()) +
+            (node->Loc.Z - GetPositionZ()) * (node->Loc.Z - GetPositionZ());
 
         float distNodes =
-            (node.Loc.X - prevNode.Loc.X)*(node.Loc.X - prevNode.Loc.X) +
-            (node.Loc.Y - prevNode.Loc.Y)*(node.Loc.Y - prevNode.Loc.Y) +
-            (node.Loc.Z - prevNode.Loc.Z)*(node.Loc.Z - prevNode.Loc.Z);
+            (node->Loc.X - prevNode->Loc.X) * (node->Loc.X - prevNode->Loc.X) +
+            (node->Loc.Y - prevNode->Loc.Y) * (node->Loc.Y - prevNode->Loc.Y) +
+            (node->Loc.Z - prevNode->Loc.Z) * (node->Loc.Z - prevNode->Loc.Z);
 
         if (distNext + distPrev < distNodes)
         {

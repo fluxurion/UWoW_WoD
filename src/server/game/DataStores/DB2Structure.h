@@ -952,8 +952,6 @@ struct ItemToBattlePetSpeciesEntry
 
 #pragma pack(pop)
    
-typedef std::map<uint32, uint32> ItemDisplayIDMap;
-
 struct TaxiPathBySourceAndDestination
 {
     TaxiPathBySourceAndDestination() : ID(0), price(0) { }
@@ -962,26 +960,14 @@ struct TaxiPathBySourceAndDestination
     uint32    ID;
     uint32    price;
 };
+
 typedef std::map<uint32, TaxiPathBySourceAndDestination> TaxiPathSetForSource;
 typedef std::map<uint32, TaxiPathSetForSource> TaxiPathSetBySource;
 
-typedef std::vector<uint32> TaxiPatchList;
-typedef std::map<uint32/*DEST*/, TaxiPatchList> TaxiDestList;
-typedef std::map<uint32/*FROM*/, TaxiDestList> TaxiPathDestList;
-
-struct TaxiPathNodePtr
-{
-    TaxiPathNodePtr() : i_ptr(NULL) { }
-    TaxiPathNodePtr(TaxiPathNodeEntry const* ptr) : i_ptr(ptr) { }
-    TaxiPathNodeEntry const* i_ptr;
-    operator TaxiPathNodeEntry const& () const { return *i_ptr; }
-};
-
-typedef Path<TaxiPathNodePtr, TaxiPathNodeEntry const> TaxiPathNodeList;
+typedef std::vector<TaxiPathNodeEntry const*> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
-// TaxiMaskSize = (TaxiNodes max id / 8)+1  
-#define TaxiMaskSize 198    //6.0.2
-typedef uint8 TaxiMask[TaxiMaskSize];
+#define TaxiMaskSize 217
+typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 #endif

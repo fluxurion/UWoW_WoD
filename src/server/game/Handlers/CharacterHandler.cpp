@@ -2001,45 +2001,18 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         {
             // Update Taxi path
             // this doesn't seem to be 100% blizzlike... but it can't really be helped.
-            std::ostringstream taximaskstream;
-            uint32 numFullTaximasks = level / 7;
-            if (numFullTaximasks > 11)
-                numFullTaximasks = 11;
-            if (team == BG_TEAM_ALLIANCE)
-            {
-                if (playerClass != CLASS_DEATH_KNIGHT)
+                std::ostringstream taximaskstream;
+                TaxiMask const& factionMask = team == TEAM_HORDE ? sHordeTaxiNodesMask : sAllianceTaxiNodesMask;
+                for (uint8 i = 0; i < TaxiMaskSize; ++i)
                 {
-                    for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sAllianceTaxiNodesMask[i]) << ' ';
+                    // i = (315 - 1) / 8 = 39
+                    // m = 1 << ((315 - 1) % 8) = 4
+                    uint8 deathKnightExtraNode = playerClass != CLASS_DEATH_KNIGHT || i != 39 ? 0 : 4;
+                    taximaskstream << uint32(factionMask[i] | deathKnightExtraNode) << ' ';
                 }
-                else
-                {
-                    for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sAllianceTaxiNodesMask[i] | sDeathKnightTaxiNodesMask[i]) << ' ';
-                }
-            }
-            else
-            {
-                if (playerClass != CLASS_DEATH_KNIGHT)
-                {
-                    for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sHordeTaxiNodesMask[i]) << ' ';
-                }
-                else
-                {
-                    for (uint8 i = 0; i < numFullTaximasks; ++i)
-                        taximaskstream << uint32(sHordeTaxiNodesMask[i] | sDeathKnightTaxiNodesMask[i]) << ' ';
-                }
-            }
-
-            uint32 numEmptyTaximasks = 11 - numFullTaximasks;
-            for (uint8 i = 0; i < numEmptyTaximasks; ++i)
-                taximaskstream << "0 ";
-            taximaskstream << '0';
-            std::string taximask = taximaskstream.str();
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXIMASK);
-            stmt->setString(0, taximask);
+            stmt->setString(0, taximaskstream.str());
             stmt->setUInt64(1, lowGuid);
             trans->Append(stmt);
         }

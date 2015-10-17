@@ -74,6 +74,8 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId);
 
 bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
 
+void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId = nullptr, DBCPosition2D* newPos = nullptr);
+
 void Zone2MapCoordinates(float &x, float &y, uint32 zone);
 void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
 
@@ -290,6 +292,7 @@ extern DBCStorage<VehicleEntry>                 sVehicleStore;
 extern DBCStorage<VehicleSeatEntry>             sVehicleSeatStore;
 extern DBCStorage<WMOAreaTableEntry>            sWMOAreaTableStore;
 extern DBCStorage<WorldMapAreaEntry>            sWorldMapAreaStore; //-- use Zone2MapCoordinates and Map2ZoneCoordinates
+extern DBCStorage<WorldMapTransformsEntry>      sWorldMapTransformsStore;
 extern DBCStorage<WorldMapOverlayEntry>         sWorldMapOverlayStore;
 extern DBCStorage<WorldSafeLocsEntry>           sWorldSafeLocsStore;
 

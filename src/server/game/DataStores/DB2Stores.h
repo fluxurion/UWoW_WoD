@@ -82,16 +82,13 @@ extern DB2Storage<SpellTotemsEntry>                 sSpellTotemsStore;
 extern DB2Storage<SpellVisualEntry>                 sSpellVisualStore;
 extern DB2Storage<TaxiNodesEntry>                   sTaxiNodesStore;
 extern DB2Storage<TaxiPathEntry>                    sTaxiPathStore;
-extern DB2Storage<TaxiPathNodeEntry>                sTaxiPathNodeStore;
 
-extern TaxiMask                                 sAllianceTaxiNodesMask;
-extern TaxiMask                                 sDeathKnightTaxiNodesMask;
-extern TaxiMask                                 sHordeTaxiNodesMask;
-extern TaxiMask                                 sOldContinentsNodesMask;
-extern TaxiMask                                 sTaxiNodesMask;
-extern TaxiPathDestList                         sTaxiPathDestList;
-extern TaxiPathNodesByPath                      sTaxiPathNodesByPath;
-extern TaxiPathSetBySource                      sTaxiPathSetBySource;
+extern TaxiMask                                     sTaxiNodesMask;
+extern TaxiMask                                     sOldContinentsNodesMask;
+extern TaxiMask                                     sHordeTaxiNodesMask;
+extern TaxiMask                                     sAllianceTaxiNodesMask;
+extern TaxiPathSetBySource                          sTaxiPathSetBySource;
+extern TaxiPathNodesByPath                          sTaxiPathNodesByPath;
 
 void LoadDB2Stores(std::string const& dataPath);
 
@@ -167,7 +164,6 @@ public:
     ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
     LanguageWordsMap const* GetLanguageWordMap(uint32 landID);
     LanguageWordsSize const* GetLanguageWordsBySize(uint32 landID, uint32 size);
-    void FillPathDestList(uint32 from, uint32 prev);
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     MountEntry const* GetMount(uint32 spellId) const;
     MountEntry const* GetMountById(uint32 id) const;

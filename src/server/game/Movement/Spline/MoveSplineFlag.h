@@ -18,17 +18,14 @@
 
 #ifndef TRINITYSERVER_MOVESPLINEFLAG_H
 #define TRINITYSERVER_MOVESPLINEFLAG_H
+
 #include "MovementTypedefs.h"
 
 #include <string>
 
 namespace Movement
 {
-#if defined( __GNUC__ )
-#pragma pack(1)
-#else
-#pragma pack(push,1)
-#endif
+#pragma pack(push, 1)
 
     class MoveSplineFlag
     {
@@ -106,6 +103,7 @@ namespace Movement
         void EnableParabolic() { raw() = (raw() & ~(Mask_Animations | Falling | Animation | FallingSlow)) | Parabolic; }
         void EnableFalling() { raw() = (raw() & ~(Mask_Animations | Parabolic | Animation)) | Falling; }
         void EnableCatmullRom() { raw() = (raw() & ~SmoothGroundPath) | Catmullrom | UncompressedPath; }
+        void EnableFlying() { raw() = (raw() & ~(Falling)) | Flying; }
         void EnableFacingPoint() { raw() = (raw() & ~Mask_Final_Facing) | Final_Point; }
         void EnableFacingAngle() { raw() = (raw() & ~Mask_Final_Facing) | Final_Angle; }
         void EnableFacingTarget() { raw() = (raw() & ~Mask_Final_Facing) | Final_Target; }
@@ -143,11 +141,7 @@ namespace Movement
         bool unknown6            : 1;
         bool unknown7            : 1;
     };
-#if defined( __GNUC__ )
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 }
 
 #endif // TRINITYSERVER_MOVESPLINEFLAG_H
