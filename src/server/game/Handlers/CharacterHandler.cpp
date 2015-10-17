@@ -2491,17 +2491,17 @@ void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::Se
 
 void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial)
 {
-    boost::system::error_code ignored_error;
-    boost::asio::ip::tcp::endpoint instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
-    instanceAddress.port(8086);
+    //boost::system::error_code ignored_error;
+    //boost::asio::ip::tcp::endpoint instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
+    //instanceAddress.port(8086);
 
-    WorldPackets::Auth::ConnectTo connectTo;
-    connectTo.Key = MAKE_PAIR64(GetAccountId(), CONNECTION_TYPE_INSTANCE);
-    connectTo.Serial = serial;
-    connectTo.Payload.Where = instanceAddress;
-    connectTo.Con = CONNECTION_TYPE_INSTANCE;
+    //WorldPackets::Auth::ConnectTo connectTo;
+    //connectTo.Key = MAKE_PAIR64(GetAccountId(), CONNECTION_TYPE_INSTANCE);
+    //connectTo.Serial = serial;
+    //connectTo.Payload.Where = instanceAddress;
+    //connectTo.Con = CONNECTION_TYPE_INSTANCE;
 
-    SendPacket(connectTo.Write());
+    //SendPacket(connectTo.Write());
 }
 
 void WorldSession::HandleContinuePlayerLogin()
