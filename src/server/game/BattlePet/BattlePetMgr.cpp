@@ -281,15 +281,16 @@ void BattlePetMgr::CalculateStats(uint32 speciesID, uint16 breedID, uint8 qualit
     speed = (powerMod * multiplier) + 0.5f;
 }
 
-void BattlePetMgr::AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level /*= 1*/, BattlePetSaveInfo state /*= STATE_NEW*/)
+void BattlePetMgr::AddPet(uint32 species, uint16 breed, uint8 quality, uint16 level /*= 1*/, BattlePetSaveInfo state /*= STATE_NEW*/)
 {
-    if (!sBattlePetSpeciesStore.LookupEntry(species))
+    BattlePetSpeciesEntry const* speciesStore = sBattlePetSpeciesStore.LookupEntry(species);
+    if (!speciesStore)
         return;
 
     BattlePet pet;
     pet.PacketInfo.BattlePetGUID = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>()->Generate());
     pet.PacketInfo.SpeciesID = species;
-    pet.nonPacketData.CreatureID = creatureId;
+    pet.nonPacketData.CreatureID = speciesStore->CreatureEntry;
     pet.PacketInfo.Level = level;
     pet.PacketInfo.BreedID = breed;
     pet.PacketInfo.BreedQuality = quality;
@@ -392,8 +393,12 @@ void BattlePetMgr::SendUpdatePets(std::vector<BattlePet> updates, bool added /*=
     WorldPackets::BattlePet::Updates update;
     update.AddedPet = added;
     for (auto pet : updates)
-        if (pet.SaveInfo != STATE_DELETED)
-            update.Pets.push_back(pet.PacketInfo);
+    {
+        if (pet.SaveInfo == STATE_DELETED)
+            continue;
+       
+       update.Pets.push_back(pet.PacketInfo);
+    }
 
     _player->GetSession()->SendPacket(update.Write());
 }
@@ -1837,7 +1842,7 @@ void PetBattle::UpdatePetsAfterBattle()
             // update trapped pets and added in journal
             else
             {
-                _player->GetBattlePetMgr()->AddPet(v->GetSpeciesID(), v->GetCreatureEntry(), v->GetBreedID(), v->GetQuality(), v->GetLevel(), STATE_NORMAL);
+                _player->GetBattlePetMgr()->AddPet(v->GetSpeciesID(), v->GetBreedID(), v->GetQuality(), v->GetLevel(), STATE_NORMAL);
                 // hack, fix it!
                 if (v->GetSummonSpell())
                     _player->learnSpell(v->GetSummonSpell(), false);

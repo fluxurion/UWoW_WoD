@@ -553,7 +553,7 @@ public:
     
     void CalculateStats(uint32 speciesID, uint16 breedID, uint8 quality, uint8 lvl, uint32& maxHealth, uint32& power, uint32& speed);
 
-    void AddPet(uint32 species, uint32 creatureId, uint16 breed, uint8 quality, uint16 level = 1, BattlePetSaveInfo state = STATE_NEW);
+    void AddPet(uint32 species, uint16 breed, uint8 quality, uint16 level = 1, BattlePetSaveInfo state = STATE_NEW);
     BattlePet* GetPet(ObjectGuid guid);
 
     void UnlockSlot(uint8 slot);

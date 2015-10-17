@@ -1493,7 +1493,7 @@ void WorldSession::HandleUseCritterItem(WorldPackets::Item::UseCritterItem& useC
     BattlePetMgr* mgr = player->GetBattlePetMgr();
     if (mgr)
     {
-        mgr->AddPet(battlePetSpecies->ID, battlePetSpecies->CreatureEntry, mgr->GetRandomBreedID(battlePetSpecies->ID), mgr->GetRandomQuailty());
+        mgr->AddPet(battlePetSpecies->ID, mgr->GetRandomBreedID(battlePetSpecies->ID), mgr->GetRandomQuailty());
         player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
     }
 }

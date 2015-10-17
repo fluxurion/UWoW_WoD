@@ -4308,7 +4308,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                     uint32 petCount = GetBattlePetMgr()->GetPetCount(spEntry->CreatureEntry);
                     if (petguid && petCount < 1)
                     {
-                        GetBattlePetMgr()->AddPet(spEntry->ID, petEntry, GetBattlePetMgr()->GetRandomBreedID(spEntry->ID), GetBattlePetMgr()->GetRandomQuailty(), STATE_NORMAL);
+                        GetBattlePetMgr()->AddPet(spEntry->ID, GetBattlePetMgr()->GetRandomBreedID(spEntry->ID), GetBattlePetMgr()->GetRandomQuailty(), STATE_NORMAL);
                         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, petEntry);
                         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OBTAIN_BATTLEPET, spEntry->ID);
                         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_BATTLEPET);

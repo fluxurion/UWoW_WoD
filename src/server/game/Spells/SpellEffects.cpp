@@ -8335,7 +8335,7 @@ void Spell::EffectUncageBattlePet(SpellEffIndex effIndex)
     if (!player->HasSpell(speciesEntry->spellId))
         player->learnSpell(speciesEntry->spellId, false);
 
-    battlePetMgr->AddPet(speciesID, speciesEntry->CreatureEntry, tempData & 0xFF, tempData >> 24, m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_LEVEL));
+    battlePetMgr->AddPet(speciesID, tempData & 0xFF, tempData >> 24, m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_LEVEL));
     player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
     
     // prevent crash at access to deleted m_targets.GetItemTarget
