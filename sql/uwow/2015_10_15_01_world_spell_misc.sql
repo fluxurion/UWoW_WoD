@@ -27,3 +27,9 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 ('-51755','-160729','0','0','0','0','0','0','0','0','0','0','0','0','Camouflage');
 
 DELETE FROM spell_trigger WHERE spell_id IN (58423);
+
+DELETE FROM spell_trigger WHERE spell_id IN (14161);
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('14161','2983','0','23','1','0','0','0','0','0','4','0','0','0','0','0','0','-1','0','0','0','Жестокость'),
+('14161','13750','0','23','1','0','0','0','0','0','4','0','0','0','0','0','0','-1','0','0','0','Жестокость'),
+('14161','51690','0','23','1','0','0','0','0','0','4','0','0','0','0','0','0','-1','0','0','0','Жестокость');
