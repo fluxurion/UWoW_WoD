@@ -1114,7 +1114,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
     }
 
     #ifdef WIN32
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitNearbyTargets spell id %u caster %s target %s ", m_spellInfo->Id, m_caster->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str());
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitNearbyTargets spell id %u caster %u target %u", m_spellInfo->Id, m_caster->GetGUIDLow(), target->GetGUIDLow());
     #endif
 
     CallScriptObjectTargetSelectHandlers(target, effIndex);
@@ -3704,9 +3704,9 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     ReSetTimer();
 
     #ifdef WIN32
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare: spell id %u m_caster %s m_originalCaster %s customCastFlags %u mask %u target %s", 
-        m_spellInfo->Id, m_caster->GetGUID ( ).ToString ( ).c_str ( ), m_originalCaster ? m_originalCaster->GetGUID ( ).ToString ( ).c_str ( ) : "<none>",
-        _triggeredCastFlags, m_targets.GetTargetMask ( ), m_targets.GetUnitTarget ( ) ? m_targets.GetUnitTarget ( )->ToString ( ).c_str ( ) : "-" );
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare: spell id %u m_caster %u m_originalCaster %u customCastFlags %u mask %u target %s", 
+        m_spellInfo->Id, m_caster->GetGUIDLow(), m_originalCaster ? m_originalCaster->GetGUIDLow() : 0,
+        _triggeredCastFlags, m_targets.GetTargetMask(), m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->ToString().c_str() : "" );
     #endif
 
     //Containers for channeled spells have to be set
@@ -3993,7 +3993,7 @@ void Spell::cast(bool skipCheck)
         m_caster->ToPlayer()->RemoveSpellMods(this, true);
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if (((m_spellInfo->Speed > 0.0f || m_delayMoment) && !m_spellInfo->IsChanneled() && !m_spellInfo->IsNonNeedDelay() && m_spellInfo->Id != 114157)  || m_spellInfo->AttributesEx4 & SPELL_ATTR4_UNK4 || m_spellInfo->Id == 54957)
+    if (((m_spellInfo->Speed > 0.0f || m_delayMoment) && !m_spellInfo->IsChanneled() && !m_spellInfo->IsNonNeedDelay() && m_spellInfo->Id != 114157) || m_spellInfo->AttributesEx4 & SPELL_ATTR4_UNK4 || m_spellInfo->Id == 54957 || m_spellInfo->Id == 139569)
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -9617,7 +9617,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target)
     if (res != SPELL_CAST_OK)
     {
         #ifdef WIN32
-        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::WorldObjectSpellTargetCheck::checkcast fail. spell id %u res %u caster %s target %s ", _spellInfo->Id, res, _caster->GetGUID().ToString().c_str(), target->GetGUID().ToString().c_str());
+        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::WorldObjectSpellTargetCheck::checkcast fail. spell id %u res %u caster %u target %u", _spellInfo->Id, res, _caster->GetGUIDLow(), target->GetGUIDLow());
         #endif
         return false;
     }

@@ -16926,9 +16926,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
             if((procFlag & SPELL_PROC_FROM_CAST_MASK) && !(procExtra & PROC_EX_ON_CAST))
                 continue;
         }
-        else if ((procFlag & SPELL_PROC_FROM_CAST_MASK) && (procExtra & PROC_EX_ON_CAST))
-            continue;
-        else if ((procFlag & SPELL_PROC_FROM_CAST_MASK) && !(procExtra & PROC_EX_ON_CAST))
+        else if((procFlag & SPELL_PROC_FROM_CAST_MASK) && (procExtra & PROC_EX_ON_CAST))
             continue;
 
         // only auras that has triggered spell should proc from fully absorbed damage
@@ -18164,18 +18162,29 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                 if(SpellInfo const* dummySpellInfo = sSpellMgr->GetSpellInfo(abs(itr->dummyId)))
                     triggerAmount = dummySpellInfo->Effects[itr->dummyEffect].BasePoints;
             }
-
-            //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellTriggered target %u, caster %u, spell_trigger %i, chance %i, triggerAmount %i, damage %i, GetAbsorb %i, GetResist %i, GetBlock %i",
-            //itr->target, itr->caster, itr->spell_trigger, itr->chance, triggerAmount, damage, dmgInfoProc->GetAbsorb(), dmgInfoProc->GetResist(), dmgInfoProc->GetBlock());
-            //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, " group %i, effIndex %i, effectmask %i, option %i, (1<<effIndex) %i, procFlag %i addpowertype %i addptype %i procEx %i",
-            //itr->group, effIndex, itr->effectmask, itr->option, (1<<effIndex), procFlag, addpowertype, itr->addptype, procEx);
-
             if(itr->spell_cooldown)
                 cooldown_spell_id = abs(itr->spell_cooldown);
             else
                 cooldown_spell_id = abs(itr->spell_trigger);
-            if (G3D::fuzzyGt(cooldown, 0.0) && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(cooldown_spell_id))
-                return false;
+
+            //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellTriggered target %u, caster %u, spell_trigger %i, chance %i, triggerAmount %i, damage %i, GetAbsorb %i, GetResist %i, GetBlock %i",
+            //itr->target, itr->caster, itr->spell_trigger, itr->chance, triggerAmount, damage, dmgInfoProc->GetAbsorb(), dmgInfoProc->GetResist(), dmgInfoProc->GetBlock());
+            //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, " group %i, effIndex %i, effectmask %i, option %i, (1<<effIndex) %i, procFlag %i addpowertype %i addptype %i procEx %i cooldown %f cooldown_spell_id %i",
+            //itr->group, effIndex, itr->effectmask, itr->option, (1<<effIndex), procFlag, addpowertype, itr->addptype, procEx, cooldown, cooldown_spell_id);
+
+            if(G3D::fuzzyGt(cooldown, 0.0) && GetTypeId() == TYPEID_PLAYER)
+            {
+                if (itr->option == SPELL_TRIGGER_COOLDOWN || itr->option == SPELL_TRIGGER_MODIFY_COOLDOWN)
+                {
+                    if (!ToPlayer()->HasSpellCooldown(itr->spell_trigger))
+                        continue;
+                    cooldown_spell_id = dummySpell->Id;
+                    if (ToPlayer()->HasSpellCooldown(cooldown_spell_id))
+                        return false;
+                }
+                else if (ToPlayer()->HasSpellCooldown(cooldown_spell_id))
+                        return false;
+            }
 
             if (!(itr->effectmask & (1<<effIndex)))
                 continue;
@@ -18487,37 +18496,6 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                     check = true;
                 }
                 break;
-                case SPELL_TRIGGER_COMBOPOINTS_TO_CHANCE: //7
-                {
-                    if(!procSpell || !procSpell->NeedsComboPoints())
-                    {
-                        check = true;
-                        continue;
-                    }
-                    if(itr->aura > 0 && !_targetAura->HasAura(itr->aura))
-                    {
-                        check = true;
-                        continue;
-                    }
-                    if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
-                    {
-                        check = true;
-                        continue;
-                    }
-                    int32 chance = 20 * ToPlayer()->GetComboPoints(procSpell->Id);
-                    if (roll_chance_i(chance))
-                    {
-                        triggered_spell_id = abs(itr->spell_trigger);
-                        _caster->CastCustomSpell(target, triggered_spell_id, &bp0, &bp1, &bp2, true, castItem, triggeredByAura, originalCaster);
-                        if(itr->target == 6)
-                        {
-                            if (Guardian* pet = GetGuardianPet())
-                                _caster->CastCustomSpell(pet, triggered_spell_id, &basepoints0, &bp1, &bp2, true);
-                        }
-                    }
-                    check = true;
-                }
-                break;
                 case SPELL_TRIGGER_UPDATE_DUR_TO_MAX: //8
                 {
                     if(Aura* aura = target->GetAura(abs(itr->spell_trigger), GetGUID()))
@@ -18724,14 +18702,13 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                     if(Player* player = target->ToPlayer())
                     {
                         uint32 triggered_spell_id = abs(itr->spell_trigger);
-                        if(!triggered_spell_id)
-                            triggered_spell_id = procSpell->Id;
                         if(itr->aura && !procSpell)
                             continue;
                         if(itr->aura && procSpell && itr->aura != procSpell->Id)
                             continue;
 
-                        int32 ChangeCooldown = triggerAmount;
+                        int32 ChangeCooldown = triggerAmount * (player->GetComboPoints(procSpell->Id) ? player->GetComboPoints(procSpell->Id) : 1);
+
                         if(ChangeCooldown < 100)
                             ChangeCooldown *= IN_MILLISECONDS;
                         player->ModifySpellCooldown(triggered_spell_id, -ChangeCooldown);
@@ -20191,6 +20168,10 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, SpellInfo const* spellProto
     }
     // Get chance from spell
     float chance = float(spellProto->ProcChance);
+
+    if(spellProto->GetEffect(effect, GetSpawnMode())->PointsPerResource != 0.0f && ToPlayer())
+        chance = spellProto->GetEffect(effect, GetSpawnMode())->PointsPerResource * ToPlayer()->GetComboPoints(procSpell ? procSpell->Id : 0);
+
     // If in spellProcEvent exist custom chance, chance = spellProcEvent->customChance;
     if (spellProcEvent && spellProcEvent->customChance)
         chance = spellProcEvent->customChance;

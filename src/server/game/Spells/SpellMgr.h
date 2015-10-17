@@ -142,7 +142,6 @@ enum SpellTriggeredType
     SPELL_TRIGGER_COOLDOWN                      = 4,            // Set cooldown for trigger spell
     SPELL_TRIGGER_UPDATE_DUR                    = 5,            // Update duration for select spell
     SPELL_TRIGGER_GET_DUR_AURA                  = 6,            // Get duration from select aura to cast bp
-    SPELL_TRIGGER_COMBOPOINTS_TO_CHANCE         = 7,            // Proc from spell that need compopoiunts
     SPELL_TRIGGER_UPDATE_DUR_TO_MAX             = 8,            // Update duration for select spell to max duration
     SPELL_TRIGGER_PERC_FROM_DAMGE               = 9,            // Percent from damage
     SPELL_TRIGGER_PERC_MAX_MANA                 = 10,           // Percent from max mana
