@@ -41,6 +41,12 @@ set(scripts_STAT_SRCS
   Draenor/ShadowmoonBurialGrounds/boss_nhallish.cpp
   Draenor/ShadowmoonBurialGrounds/boss_bonemaw.cpp
   Draenor/ShadowmoonBurialGrounds/boss_nerzhul.cpp
+
+  Draenor/Skyreach/instance_skyreach.cpp
+  Draenor/Skyreach/boss_ranjit.cpp
+  Draenor/Skyreach/boss_araknath.cpp
+  Draenor/Skyreach/boss_rukhran.cpp
+  Draenor/Skyreach/boss_high_sage_viryx.cpp
 )
 
 message("  -> Prepared: Draenor")

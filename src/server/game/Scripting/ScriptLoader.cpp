@@ -126,6 +126,12 @@ void AddSC_boss_roltall();
 void AddSC_boss_gugrokk();
 void AddSC_bloodmaul_slag_mines();
 
+void AddSC_instance_skyreach(); // Skyreach
+void AddSC_boss_ranjit();
+void AddSC_boss_araknath();
+void AddSC_boss_rukhran();
+void AddSC_boss_high_sage_viryx();
+
 //world
 void AddSC_areatrigger_scripts();
 void AddSC_emerald_dragons();
@@ -1111,6 +1117,12 @@ void AddDraenorScripts()
     AddSC_boss_roltall();
     AddSC_boss_gugrokk();
     AddSC_bloodmaul_slag_mines();
+
+    AddSC_instance_skyreach(); // Skyreach
+    AddSC_boss_ranjit();
+    AddSC_boss_araknath();
+    AddSC_boss_rukhran();
+    AddSC_boss_high_sage_viryx();
 
 #endif
 }
