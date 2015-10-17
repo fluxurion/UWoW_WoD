@@ -26,6 +26,8 @@
 
 #include <list>
 
+uint32 GetAvailableMinorTalent(uint32 specID, uint32 orderIndex);
+
 typedef std::list<uint32> SimpleFactionsList;
 SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 std::list<uint32> GetItemSpecsList(uint32 ItemID);
@@ -224,6 +226,7 @@ extern DBCStorage<LiquidTypeEntry>              sLiquidTypeStore;
 extern DBCStorage<LockEntry>                    sLockStore;
 extern DBCStorage<MailTemplateEntry>            sMailTemplateStore;
 extern DBCStorage<MapEntry>                     sMapStore;
+extern DBCStorage<MinorTalentEntry>             sMinorTalentStore;
 extern DBCStorage<MountCapabilityEntry>         sMountCapabilityStore;
 extern DBCStorage<MountTypeEntry>               sMountTypeStore;
 extern DBCStorage<NameGenEntry>                 sNameGenStore;

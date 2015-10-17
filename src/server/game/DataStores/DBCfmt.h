@@ -113,6 +113,7 @@ const char LockEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const MailTemplateEntryfmt[] = "nxs";
 char const MapDifficultyEntryfmt[] = "diisiiii";
 char const MapEntryfmt[] = "nxiixxsixxixiffxiiiixx";
+char const MinorTalentEntryfmt[] = "niii";
 char const ModifierTreefmt[]= "niiiixi";
 char const MountCapabilityfmt[] = "niiiiiii";
 char const MountTypefmt[] = "niiiiiiiiiiiiiiiiiiiiiiii";

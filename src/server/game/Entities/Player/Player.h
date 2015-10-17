@@ -2231,6 +2231,7 @@ class Player : public Unit, public GridObject<Player>
         bool ResetTalents(bool no_cost = false);
         uint32 GetNextResetTalentsCost() const;
         uint32 GetNextResetSpecializationCost() const;
+        void LearnMinorTalents();
         void InitTalentForLevel();
         void InitSpellForLevel();
         void RemoveSpecializationSpells();

@@ -164,6 +164,7 @@ DBCStorage<LockEntry>                       sLockStore(LockEntryfmt);
 DBCStorage<MailTemplateEntry>               sMailTemplateStore(MailTemplateEntryfmt);
 DBCStorage<MapDifficultyEntry>              sMapDifficultyStore(MapDifficultyEntryfmt); // only for loading
 DBCStorage<MapEntry>                        sMapStore(MapEntryfmt);
+DBCStorage<MinorTalentEntry>                sMinorTalentStore(MinorTalentEntryfmt);
 DBCStorage<ModifierTreeEntry>               sModifierTreeStore(ModifierTreefmt);
 DBCStorage<MountCapabilityEntry>            sMountCapabilityStore(MountCapabilityfmt);
 DBCStorage<MountTypeEntry>                  sMountTypeStore(MountTypefmt);
@@ -446,6 +447,7 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore, dbcPath, "MapDifficulty.dbc", defaultLocale, &CustomMapDifficultyEntryfmt, &CustomMapDifficultyEntryIndex);
     LOAD_DBC(sMapStore,                         "Map.dbc");
     LOAD_DBC(sModifierTreeStore,                "ModifierTree.dbc");
+    LOAD_DBC(sMinorTalentStore,                 "MinorTalent.dbc");
     LOAD_DBC(sMountCapabilityStore,             "MountCapability.dbc");
     LOAD_DBC(sMountTypeStore,                   "MountType.dbc");
     LOAD_DBC(sMovieStore,                       "Movie.dbc");
@@ -1259,4 +1261,14 @@ DungeonEncounterEntry const* GetDungeonEncounterByDisplayID(uint32 displayID)
     if (data == sDungeonEncounterByDisplayID.end())
         return NULL;
     return data->second;
+}
+
+uint32 GetAvailableMinorTalent(uint32 specID, uint32 orderIndex)
+{
+    for (MinorTalentEntry const* entry : sMinorTalentStore)
+        if (entry->SpecID == specID)
+            if (entry->OrderIndex == orderIndex)
+                return entry->SpellID;
+    
+    return 0;
 }

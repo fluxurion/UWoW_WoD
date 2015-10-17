@@ -1696,6 +1696,14 @@ struct MapEntry
     bool IsDifficultyModeSupported(uint32 difficulty) const;
 };
 
+struct MinorTalentEntry
+{
+    uint32      ID;                                         // 0
+    uint32      SpecID;                                     // 1
+    uint32      SpellID;                                    // 2
+    uint32      OrderIndex;                                 // 3
+};
+
 struct MapDifficultyEntry
 {
     //uint32    ID;                                         // 0
