@@ -26,7 +26,7 @@
 
 #include <list>
 
-uint32 GetAvailableMinorTalent(uint32 specID, uint32 orderIndex);
+uint32 GetAvailableMinorTalent(uint32 specID, int32 orderIndex);
 
 typedef std::list<uint32> SimpleFactionsList;
 SimpleFactionsList const* GetFactionTeamList(uint32 faction);

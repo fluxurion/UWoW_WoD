@@ -1263,12 +1263,18 @@ DungeonEncounterEntry const* GetDungeonEncounterByDisplayID(uint32 displayID)
     return data->second;
 }
 
-uint32 GetAvailableMinorTalent(uint32 specID, uint32 orderIndex)
+uint32 GetAvailableMinorTalent(uint32 specID, int32 orderIndex)
 {
     for (MinorTalentEntry const* entry : sMinorTalentStore)
-        if (entry->SpecID == specID)
-            if (entry->OrderIndex == orderIndex)
-                return entry->SpellID;
+    {
+        if (entry->SpecID != specID)
+            continue;
+
+        if (entry->OrderIndex != orderIndex)
+            continue;
+
+        return entry->SpellID;
+    }
     
     return 0;
 }

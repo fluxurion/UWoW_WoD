@@ -3567,53 +3567,7 @@ void Player::GiveLevel(uint8 level)
                     SetByteFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_RAF_GRANTABLE_LEVEL, 0x01);
             }
 
-    LearnMinorTalents();
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
-}
-
-void Player::LearnMinorTalents()
-{
-    uint32 const orderIndex[4] = {0, 1, 2, 3};
-    uint32 currentIndex = 0;
-
-    switch (getLevel())
-    {
-        case 91:
-        case 92:
-            currentIndex = 0;
-            break;
-        case 93:
-        case 94:
-            currentIndex = 1;
-            break;
-        case 95:
-        case 96:
-            currentIndex = 2;
-            break;
-        case 97:
-        case 98:
-        case 99:
-            currentIndex = 3;
-            break;
-        case 100:
-            currentIndex = 4;
-            break;
-        default:
-            break;
-    }
-
-    if (currentIndex < 4)
-    {
-        if (uint32 spellID = GetAvailableMinorTalent(orderIndex[currentIndex], GetSpecializationId(GetActiveSpec())))
-            if (urand(0, 1))
-                if (!HasSpell(spellID))
-                    learnSpell(spellID, false);
-    }
-    else
-        for (uint8 i = 0; i < 3; i++)
-            if (uint32 spellID = GetAvailableMinorTalent(orderIndex[i], GetSpecializationId(GetActiveSpec())))
-                if (!HasSpell(spellID))
-                    learnSpell(spellID, false);
 }
 
 void Player::InitTalentForLevel()
@@ -3688,6 +3642,46 @@ void Player::InitSpellForLevel()
         if (spell->SpellLevel <= level)
             learnSpell(*spellId, false);
     }
+
+    uint32 const orderIndex[4] = {0, 1, 2, 3};
+    int32 currentIndex = -1;
+
+    switch (level)
+    {
+        case 91:
+        case 92:
+            currentIndex = 0;
+            break;
+        case 93:
+        case 94:
+            currentIndex = 1;
+            break;
+        case 95:
+        case 96:
+            currentIndex = 2;
+            break;
+        case 97:
+        case 98:
+        case 99:
+            currentIndex = 3;
+            break;
+        case 100:
+            currentIndex = 4;
+            break;
+    }
+
+    if (currentIndex < 4)
+    {
+        if (uint32 spellID = GetAvailableMinorTalent(specializationId, orderIndex[currentIndex]))
+            if (urand(0, 1))
+                if (!HasSpell(spellID))
+                    learnSpell(spellID, false);
+    }
+    else if (currentIndex == 4)
+        for (uint8 i = 0; i < 3; i++)
+            if (uint32 spellID = GetAvailableMinorTalent(specializationId, orderIndex[i]))
+                if (!HasSpell(spellID))
+                    learnSpell(spellID, false);
 }
 
 void Player::RemoveSpecializationSpells()
@@ -28517,7 +28511,6 @@ void Player::ActivateSpec(uint8 spec)
     }
 
     RemoveSpecializationSpells();
-    LearnMinorTalents();
 
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
