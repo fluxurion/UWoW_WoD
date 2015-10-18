@@ -36,8 +36,7 @@
 #define PET_XP_FACTOR 0.05f
 
 Pet::Pet(Player* owner, PetType type) : Guardian(NULL, owner, true),
-m_removed(false), m_duration(0), m_specialization(0),
-m_auraRaidUpdateMask(0), m_declinedname(NULL), m_groupUpdateMask(0)
+m_removed(false), m_duration(0), m_specialization(0), m_declinedname(NULL), m_groupUpdateMask(0)
 {
     m_slot = PET_SLOT_UNK_SLOT;
     m_owner = (Unit*)owner;

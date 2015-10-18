@@ -566,7 +566,6 @@ Player::Player(WorldSession* session): Unit(true),
     // group is initialized in the reference constructor
     SetGroupInvite(NULL);
     m_groupUpdateMask = 0;
-    m_auraRaidUpdateMask = 0;
     m_bPassOnGroupLoot = false;
 
     duel = NULL;
@@ -25220,9 +25219,8 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
         group->UpdatePlayerOutOfRange(this);
 
     m_groupUpdateMask = GROUP_UPDATE_FLAG_NONE;
-    m_auraRaidUpdateMask = 0;
     if (Pet* pet = GetPet())
-        pet->ResetAuraUpdateMaskForRaid();
+        pet->ResetGroupUpdateFlag();
 }
 
 void Player::SendTransferAborted(uint32 mapID, TransferAbortReason reason, uint8 arg)

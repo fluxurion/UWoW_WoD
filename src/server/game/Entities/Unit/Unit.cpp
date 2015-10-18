@@ -17976,10 +17976,7 @@ void Unit::UpdateAuraForGroup(uint8 slot)
     if (Player* player = ToPlayer())
     {
         if (player->GetGroup())
-        {
             player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_AURAS);
-            player->SetAuraUpdateMaskForRaid(slot);
-        }
     }
     else if (GetTypeId() == TYPEID_UNIT && ToCreature()->isPet())
     {
@@ -17988,10 +17985,7 @@ void Unit::UpdateAuraForGroup(uint8 slot)
         {
             Unit* owner = GetOwner();
             if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
-            {
                 owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_AURAS);
-                pet->SetAuraUpdateMaskForRaid(slot);
-            }
         }
     }
 }
