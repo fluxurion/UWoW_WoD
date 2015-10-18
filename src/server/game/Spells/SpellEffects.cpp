@@ -5941,8 +5941,8 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     Map* map = m_caster->GetMap();
     if (!pGameObj->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), gameobject_id,
         map, m_caster->GetPhaseMask(),
-        m_caster->GetPositionX()+(unitTarget->GetPositionX()-m_caster->GetPositionX())/2,
-        m_caster->GetPositionY()+(unitTarget->GetPositionY()-m_caster->GetPositionY())/2,
+        m_caster->GetPositionX() + (unitTarget->GetPositionX() - m_caster->GetPositionX()) / 2,
+        m_caster->GetPositionY() + (unitTarget->GetPositionY() - m_caster->GetPositionY()) / 2,
         m_caster->GetPositionZ(),
         m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
     {
@@ -5951,9 +5951,9 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     }
 
     pGameObj->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, m_caster->getFaction());
-    pGameObj->SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, m_caster->getLevel()+1);
+    pGameObj->SetUInt32Value(GAMEOBJECT_FIELD_LEVEL, m_caster->getLevel() + 1);
     int32 duration = m_spellInfo->GetDuration();
-    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
+    pGameObj->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
 
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
@@ -5965,25 +5965,27 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     duelRequested.ArbiterGUID = pGameObj->GetGUID();
     duelRequested.RequestedByGUID = caster->GetGUID();
     duelRequested.RequestedByWowAccount = caster->GetSession()->GetBattlenetAccountGUID();
-    caster->GetSession()->SendPacket(duelRequested.Write());
-    target->GetSession()->SendPacket(duelRequested.Write());
+
+    WorldPacket const* worldPacket = duelRequested.Write();
+    caster->GetSession()->SendPacket(worldPacket);
+    target->GetSession()->SendPacket(worldPacket);
 
     // create duel-info
-    DuelInfo* duel   = new DuelInfo;
-    duel->initiator  = caster;
-    duel->opponent   = target;
-    duel->startTime  = 0;
+    DuelInfo* duel = new DuelInfo;
+    duel->initiator = caster;
+    duel->opponent = target;
+    duel->startTime = 0;
     duel->startTimer = 0;
-    duel->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
-    caster->duel     = duel;
+    duel->isMounted = (GetSpellInfo()->Id == 62875); // Mounted Duel
+    caster->duel = duel;
 
-    DuelInfo* duel2   = new DuelInfo;
-    duel2->initiator  = caster;
-    duel2->opponent   = caster;
-    duel2->startTime  = 0;
+    DuelInfo* duel2 = new DuelInfo;
+    duel2->initiator = caster;
+    duel2->opponent = caster;
+    duel2->startTime = 0;
     duel2->startTimer = 0;
-    duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
-    target->duel      = duel2;
+    duel2->isMounted = (GetSpellInfo()->Id == 62875); // Mounted Duel
+    target->duel = duel2;
 
     caster->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
     target->SetGuidValue(PLAYER_FIELD_DUEL_ARBITER, pGameObj->GetGUID());
