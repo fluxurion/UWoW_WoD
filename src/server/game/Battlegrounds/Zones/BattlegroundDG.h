@@ -24,7 +24,7 @@
 #define CAPTURE_TIME 40000
 #define GOLD_UPDATE 5000
 
-#define BG_DG_MAX_TEAM_SCORE 1600
+#define BG_DG_MAX_TEAM_SCORE 1500
 
 enum BG_DG_ObjectTypes
 {
