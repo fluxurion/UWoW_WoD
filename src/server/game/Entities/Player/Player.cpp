@@ -17891,7 +17891,7 @@ void Player::SetQuestObjectiveData(Quest const* quest, QuestObjective const* obj
     // Update quest fields
     // Negative index  - hiden
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
-    if (log_slot < MAX_QUEST_LOG_SIZE && obj->StorageIndex >= 0 && (obj->Flags & QUEST_OBJECTIVE_FLAG_HIDEN) == 0)
+    if (log_slot < MAX_QUEST_LOG_SIZE && obj->StorageIndex >= 0 /*&& (obj->Flags & QUEST_OBJECTIVE_FLAG_HIDEN) == 0*/)
         SetQuestSlotCounter(log_slot, obj->StorageIndex, status.ObjectiveData[obj->StorageIndex]);
 }
 
