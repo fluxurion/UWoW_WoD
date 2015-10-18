@@ -320,8 +320,8 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     LfgGroupsMap proposalGroups;
     LfgRolesMap proposalRoles;
 
-    uint8 minGroupSize = MAXGROUPSIZE;
-    uint8 maxGroupSize = MAXGROUPSIZE;
+    uint8 minGroupSize = MAX_GROUP_SIZE;
+    uint8 maxGroupSize = MAX_GROUP_SIZE;
     LfgDungeonSet::const_iterator itr = QueueDataStore[check.front()].dungeons.begin();
     if (itr != QueueDataStore[check.front()].dungeons.end())
         if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(*itr))
@@ -390,7 +390,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     ObjectGuid gguid = *check.begin();
     proposal.isNew = numLfgGroups != 1 || sLFGMgr->GetOldState(gguid) != LFG_STATE_DUNGEON;
 
-    // Group with less that MAXGROUPSIZE members always compatible
+    // Group with less that MAX_GROUP_SIZE members always compatible
     if (check.size() == 1 && numPlayers < (proposal.isNew && !forceMinPlayers ? maxGroupSize : minGroupSize))
     {
         sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::CheckCompatibility: (%s) sigle group. Compatibles", strGuids.c_str());

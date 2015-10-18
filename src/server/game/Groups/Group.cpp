@@ -245,7 +245,7 @@ void Group::ConvertToLFG(lfg::LFGDungeonData const* dungeon)
     if (dungeon->dbc->subType == LFG_SUBTYPE_FLEX || dungeon->dbc->subType == LFG_SUBTYPE_RAID)
         ConvertToRaid(false);
 
-    m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_UNK1);
+    m_groupType = GroupType(m_groupType | GROUPTYPE_LFG | GROUPTYPE_LFG_RESTRICTED);
     m_lootMethod = NEED_BEFORE_GREED;
     if (!isBGGroup() && !isBFGroup())
     {
@@ -394,7 +394,7 @@ bool Group::AddCreatureMember(Creature* creature)
         bool groupFound = false;
         for (; subGroup < MAX_RAID_SUBGROUPS; ++subGroup)
         {
-            if (m_subGroupsCounts[subGroup] < MAXGROUPSIZE)
+            if (m_subGroupsCounts[subGroup] < MAX_GROUP_SIZE)
             {
                 groupFound = true;
                 break;
@@ -426,7 +426,7 @@ bool Group::AddMember(Player* player)
         bool groupFound = false;
         for (; subGroup < MAX_RAID_SUBGROUPS; ++subGroup)
         {
-            if (m_subGroupsCounts[subGroup] < MAXGROUPSIZE)
+            if (m_subGroupsCounts[subGroup] < MAX_GROUP_SIZE)
             {
                 groupFound = true;
                 break;
@@ -520,7 +520,11 @@ bool Group::AddMember(Player* player)
                 }
             }
         }
+
         player->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
+        if (Pet* pet = player->GetPet())
+            pet->SetGroupUpdateFlag(GROUP_UPDATE_PET_FULL);
+
         UpdatePlayerOutOfRange(player);
 
         // quest related GO state dependent from raid membership
@@ -2413,7 +2417,7 @@ uint8 Group::GetLfgRoles(ObjectGuid guid)
 
 bool Group::IsFull() const
 {
-    return isRaidGroup() ? (m_memberSlots.size() >= MAXRAIDSIZE) : (m_memberSlots.size() >= MAXGROUPSIZE);
+    return isRaidGroup() ? (m_memberSlots.size() >= MAX_RAID_SIZE) : (m_memberSlots.size() >= MAX_GROUP_SIZE);
 }
 
 bool Group::isLFGGroup() const
@@ -2520,7 +2524,7 @@ bool Group::SameSubGroup(ObjectGuid guid1, MemberSlot const* slot2) const
 
 bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
 {
-    return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
+    return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAX_GROUP_SIZE);
 }
 
 

@@ -3079,6 +3079,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetSubGroup() const { return m_group.getSubGroup(); }
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }
         void SetGroupUpdateFlag(uint32 flag) { m_groupUpdateMask |= flag; }
+        void RemoveGroupUpdateFlag(uint32 flag) { m_groupUpdateMask &= ~flag; }
         uint64 GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
         void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         Player* GetNextRandomRaidMember(float radius);

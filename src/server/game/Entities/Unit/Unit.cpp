@@ -10442,9 +10442,9 @@ void Unit::setPowerType(Powers fieldPower)
     {
         if (pet->isControlled())
         {
-            Unit* owner = GetOwner();
-            if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
-                owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_POWER_TYPE);
+            //Unit* owner = GetOwner(); @TODO
+            //if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
+            //    owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_POWER_TYPE);
         }
     }
     Powers new_powertype = fieldPower;
@@ -16140,9 +16140,9 @@ void Unit::SetPower(Powers power, int32 val, bool send)
     {
         if (pet->isControlled())
         {
-            Unit* owner = GetOwner();
+            /*Unit* owner = GetOwner(); @TODO
             if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
-                owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_POWER);
+                owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_POWER);*/
         }
     }
 }
@@ -16167,9 +16167,9 @@ void Unit::SetMaxPower(Powers power, int32 val)
     {
         if (pet->isControlled())
         {
-            Unit* owner = GetOwner();
+            /*Unit* owner = GetOwner(); @TODO
             if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
-                owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MAX_POWER);
+                owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MAX_POWER);*/
         }
     }
 

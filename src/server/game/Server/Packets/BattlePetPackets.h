@@ -482,7 +482,7 @@ namespace WorldPackets
             uint8 Slot = 0;
             std::vector<BattlePetAbility> Abilities;
             std::vector<BattlePetAura> Auras;
-            std::unordered_map<uint32 /*StateID*/, int32 /*StateValue*/> States = { };
+            std::unordered_map<uint32 /*StateID*/, int32 /*StateValue*/> States;
         };
 
         struct PetBattlePlayerUpdate
@@ -499,7 +499,7 @@ namespace WorldPackets
         struct PetBattleEnviroUpdate
         {
             std::vector<BattlePetAura> Auras;
-            std::unordered_map<uint32 /*StateID*/, int32 /*StateValue*/> States = { };
+            std::unordered_map<uint32 /*StateID*/, int32 /*StateValue*/> States;
         };
 
         struct PetBattleFullUpdate

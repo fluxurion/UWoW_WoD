@@ -37,7 +37,7 @@
 
 Pet::Pet(Player* owner, PetType type) : Guardian(NULL, owner, true),
 m_removed(false), m_duration(0), m_specialization(0),
-m_auraRaidUpdateMask(0), m_declinedname(NULL)
+m_auraRaidUpdateMask(0), m_declinedname(NULL), m_groupUpdateMask(0)
 {
     m_slot = PET_SLOT_UNK_SLOT;
     m_owner = (Unit*)owner;
@@ -328,8 +328,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool s
 
     sLog->outDebug(LOG_FILTER_PETS, "New Pet has guid %u", GetGUID().GetCounter());
 
-    if (owner->GetGroup())
-        owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
+    SetGroupUpdateFlag(GROUP_UPDATE_PET_FULL);
 
     owner->SendTalentsInfoData(true);
 
@@ -2020,4 +2019,29 @@ void Pet::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 
     if (GetOwner())
         ((Player*)GetOwner())->GetSession()->SendPacket(cooldowns.Write());
+}
+
+void Pet::SetGroupUpdateFlag(uint32 flag)
+{
+    Player* player = GetOwner()->ToPlayer();
+    if (!player)
+        return;
+
+    if (player->GetGroup())
+    {
+        m_groupUpdateMask |= flag;
+        player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
+    }
+}
+
+void Pet::ResetGroupUpdateFlag()
+{
+    m_groupUpdateMask = GROUP_UPDATE_FLAG_PET_NONE;
+
+    Player* player = GetOwner()->ToPlayer();
+    if (!player)
+        return;
+    
+    if (player->GetGroup())
+        player->RemoveGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
 }
