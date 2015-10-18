@@ -348,10 +348,8 @@ void BattlePayMgr::ConfirmPurchaseResponse(uint32 ServerToken, bool ConfirmPurch
             }
 
         }else
-        {
             SendResult(purchase.PurchaseID, purchase.ProductID, 0, PURCHASE_RESULT_COULNOT_BUY);
-            _store.erase(data);
-        }
+        _store.erase(data);
         break;
     }
 }
