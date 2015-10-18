@@ -544,7 +544,7 @@ public:
     ObjectGuid::LowType GetPetGUIDBySpell(uint32 spell);
     std::unordered_map<ObjectGuid::LowType /*battlePetGuid*/, BattlePetMgr::BattlePet> const& GetPetJournal() { return _pets; }
 
-    std::vector<BattlePetMgr::BattlePet> BattlePetMgr::GetLearnedPets() const;
+    std::vector<BattlePetMgr::BattlePet> GetLearnedPets() const;
     WorldPackets::BattlePet::BattlePetSlot* GetPetBattleSlot(uint8 slot) { return &_slots[slot]; }
     std::vector<WorldPackets::BattlePet::BattlePetSlot> GetPetBattleSlots() const { return _slots; }
 
