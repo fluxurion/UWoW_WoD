@@ -60,7 +60,7 @@ namespace WorldPackets
             uint16 Specialization = 0;
             uint32 TimeLimit = 0;
             uint32 PetModeAndOrders = 0;
-            ActionButtons Buttons[10];
+            ActionButtons Buttons[MAX_UNIT_ACTION_BAR_INDEX];
             std::vector<uint32> Actions;
             std::vector<Cooldown> Cooldowns;
             std::vector<History> Historys;

@@ -334,13 +334,12 @@ namespace WorldPackets
         class ItemCooldown final : public ServerPacket
         {
         public:
-            ItemCooldown() : ServerPacket(SMSG_ITEM_COOLDOWN, 24) { }
+            ItemCooldown() : ServerPacket(SMSG_ITEM_COOLDOWN, 20) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid ItemGuid;
             uint32 SpellID = 0;
-            uint32 Cooldown = 0;
         };
 
         class EnchantmentLog final : public ServerPacket
