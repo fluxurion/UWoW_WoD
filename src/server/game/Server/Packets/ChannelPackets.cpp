@@ -87,7 +87,7 @@ WorldPacket const* WorldPackets::Channel::UserlistAdd::Write()
 {
     _worldPacket << AddedUserGUID;
     _worldPacket << uint8(UserFlags);
-    _worldPacket << uint32(_ChannelFlags);
+    _worldPacket << uint8(_ChannelFlags);
     _worldPacket << uint32(ChannelID);
     _worldPacket.WriteBits(ChannelName.length(), 7);
     _worldPacket.FlushBits();
@@ -98,7 +98,7 @@ WorldPacket const* WorldPackets::Channel::UserlistAdd::Write()
 WorldPacket const* WorldPackets::Channel::UserlistRemove::Write()
 {
     _worldPacket << RemovedUserGUID;
-    _worldPacket << uint32(_ChannelFlags);
+    _worldPacket << uint8(_ChannelFlags);
     _worldPacket << uint32(ChannelID);
     _worldPacket.WriteBits(ChannelName.length(), 7);
     _worldPacket.FlushBits();
@@ -110,7 +110,7 @@ WorldPacket const* WorldPackets::Channel::UserlistUpdate::Write()
 {
     _worldPacket << UpdatedUserGUID;
     _worldPacket << uint8(UserFlags);
-    _worldPacket << uint32(_ChannelFlags);
+    _worldPacket << uint8(_ChannelFlags);
     _worldPacket << uint32(ChannelID);
     _worldPacket.WriteBits(ChannelName.length(), 7);
     _worldPacket.FlushBits();
