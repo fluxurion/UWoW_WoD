@@ -2,6 +2,12 @@
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
+-- Garrison spells
+-- 175090
+-- 171474
+-- 155075
+
+
 -- Phase's
 -- 4086 global world.
 -- 3194 В самом начале группа после высадки. 70859 76411 78288
