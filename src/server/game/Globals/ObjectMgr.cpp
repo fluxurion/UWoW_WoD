@@ -845,6 +845,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if ((cInfo->npcflag & UNIT_NPC_FLAG_TRAINER) && cInfo->trainer_type >= MAX_TRAINER_TYPE)
         sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has wrong trainer type %u.", cInfo->Entry, cInfo->trainer_type);
 
+    if (cInfo->dynamicflags & UNIT_DYNFLAG_DISABLE_INTERACTION)
+    {
+        const_cast<CreatureTemplate*>(cInfo)->dynamicflags = cInfo->dynamicflags &~UNIT_DYNFLAG_DISABLE_INTERACTION;
+        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has  UNIT_DYNFLAG_DISABLE_INTERACTION (dynamicflags: %u) remove it.", cInfo->Entry, cInfo->dynamicflags);
+    }
+
     if (cInfo->speed_walk == 0.0f)
     {
         sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has wrong value (%f) in speed_walk, set to 1.", cInfo->Entry, cInfo->speed_walk);

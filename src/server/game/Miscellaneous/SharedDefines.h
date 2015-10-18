@@ -4308,7 +4308,8 @@ enum UnitDynFlags
     UNIT_DYNFLAG_SPECIALINFO                = 0x0020,
     UNIT_DYNFLAG_DEAD                       = 0x0040,
     UNIT_DYNFLAG_REFER_A_FRIEND             = 0x0080,
-    UNIT_DYNFLAG_TAPPED_BY_ALL_THREAT_LIST  = 0x0100        // Lua_UnitIsTappedByAllThreatList
+    UNIT_DYNFLAG_TAPPED_BY_ALL_THREAT_LIST  = 0x0100,       // Lua_UnitIsTappedByAllThreatList
+    UNIT_DYNFLAG_DISABLE_INTERACTION        = 0x0200,       //
 };
 
 enum CorpseDynFlags
