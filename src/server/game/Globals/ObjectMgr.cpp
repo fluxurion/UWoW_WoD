@@ -7492,6 +7492,10 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         info.userType = SpellClickUserTypes(userType);
         _spellClickInfoStore.insert(SpellClickInfoContainer::value_type(npc_entry, info));
 
+        auto data = _creatureTemplateStore.find(npc_entry);
+        if (data != _creatureTemplateStore.end())
+            data->second.npcflag |= UNIT_NPC_FLAG_SPELLCLICK;
+
         ++count;
     }
     while (result->NextRow());
