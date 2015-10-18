@@ -156,6 +156,7 @@ public:
 
     // Map
     int32 GetGarrisonMapID() const { return _siteLevel ? _siteLevel->MapID : -1; }
+    static uint32 GetAreaIdForTeam(uint32 team);
 
 private:
     Map* FindMap() const;

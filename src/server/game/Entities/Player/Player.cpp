@@ -8651,7 +8651,7 @@ void Player::UpdateArea(uint32 newArea)
     AreaTableEntry const* oldArea = GetAreaEntryByAreaID(m_areaUpdateId);
     AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
 
-    if (oldArea && newArea != m_areaUpdateId && oldArea->ParentAreaID == 7004 && GetMap()->IsGarrison()) //Horde
+    if (oldArea && newArea != m_areaUpdateId && oldArea->ParentAreaID == Garrison::GetAreaIdForTeam(GetTeam()) && GetMap()->IsGarrison()) //Horde
     {
         //remove from garrison
         TeleportTo(1116, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_SEAMLESS);
@@ -8704,7 +8704,7 @@ void Player::UpdateArea(uint32 newArea)
     }
 
     // Add to garrison.
-    if (newArea == 7004 && !GetMap()->IsGarrison()) //Horde
+    if (newArea == Garrison::GetAreaIdForTeam(GetTeam()) && !GetMap()->IsGarrison()) //Horde
     {
         if (Garrison *garr = GetGarrison())
         {

@@ -921,3 +921,15 @@ void Garrison::Follower::IncreaseFollowerItemLevel(SpellInfo const* spellInfo, P
         caster->SendDirectMessage(update.Write());
     }
 }
+
+uint32 Garrison::GetAreaIdForTeam(uint32 team)
+{
+    switch (team)
+    {
+        case ALLIANCE:
+            return 7078;
+        case HORDE:
+            return 7004;
+    }
+    return 0;
+}
