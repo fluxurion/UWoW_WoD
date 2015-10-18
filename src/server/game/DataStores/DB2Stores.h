@@ -141,6 +141,9 @@ public:
     typedef std::multimap<uint32, BattlePetSpeciesXAbilityEntry const*> BattlePetXAbilityEntryBySpecIdMap;
     typedef std::map<uint32, uint8> BattlePetQualityMultiplierMap;
     typedef std::map<uint32, BattlePetAbilityEffectEntry const*> BattlePetEffectEntryByTurnIdMap;
+    typedef std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> > BattlePetStateMap;
+    typedef std::unordered_map<uint16 /*BreedID*/, BattlePetStateMap> BattlePetBreedStates;
+    typedef std::unordered_map<uint32 /*SpeciesID*/, BattlePetStateMap> BattlePetSpeciesStates;
 
     static DB2Manager& Instance()
     {
@@ -179,8 +182,9 @@ public:
     BattlePetSpeciesEntry const* GetBattlePetSpeciesEntry(uint32 creatureEntry);
 
     MapChallengeModeEntryMap _mapChallengeModeEntrybyMap; // @TODO: move this to private and make special getters
-    BattlePetBreedStateByBreedMap _battlePetBreedStateByBreedId;
-    BattlePetSpeciesStateBySpecMap _battlePetSpeciesStateBySpecId;
+
+    BattlePetBreedStates _battlePetBreedStates;
+    BattlePetSpeciesStates _battlePetSpeciesStates;
 private:
     StorageMap _stores;
     HotfixData _hotfixData;

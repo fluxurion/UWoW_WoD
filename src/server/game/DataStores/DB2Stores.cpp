@@ -257,10 +257,10 @@ void DB2Manager::InitDB2CustomStores()
         _battlePetSpeciesBySpellId[entry->CreatureEntry] = entry;
 
     for (BattlePetSpeciesStateEntry const* entry : sBattlePetSpeciesStateStore)
-        _battlePetSpeciesStateBySpecId.insert(BattlePetSpeciesStateBySpecMap::value_type(entry->SpeciesID, std::make_pair(entry->State, entry->Value)));
+        _battlePetSpeciesStates[entry->SpeciesID][BattlePetState(entry->State)] = entry->Value;
 
     for (BattlePetBreedStateEntry const* entry : sBattlePetBreedStateStore)
-        _battlePetBreedStateByBreedId.insert(BattlePetBreedStateByBreedMap::value_type(entry->breedID, std::make_pair(entry->stateID, entry->stateModifier)));
+        _battlePetBreedStates[entry->breedID][BattlePetState(entry->stateID)] = entry->stateModifier;
 
     for (BattlePetBreedQualityEntry const* entry : sBattlePetBreedQualityStore)
         _battlePetQualityMultiplierId[entry->quality] = entry->qualityModifier;
@@ -674,10 +674,7 @@ uint8 DB2Manager::GetBattlePetSpeciesBySpellID(uint32 entry) const
 {
     auto const it = _battlePetSpeciesBySpellId.find(entry);
     if (it != _battlePetSpeciesBySpellId.end())
-    {
-        sLog->outError(LOG_FILTER_GENERAL, "Description %s , spellId %u , petType %u", it->second->Description, it->second->spellId, it->second->petType);
         return it->second->petType;
-    }
 
     return 1;
 }
@@ -686,7 +683,7 @@ float DB2Manager::CalcBattlePetQualityMuliplier(uint8 quality, uint8 level)
 {
     auto itr = _battlePetQualityMultiplierId.find(quality);
     if (itr != _battlePetQualityMultiplierId.end())
-        return level * 0.01f * itr->second;
+        return level * itr->second;
 
     return 0.0f;
 }

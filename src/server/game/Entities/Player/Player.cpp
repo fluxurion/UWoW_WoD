@@ -4101,7 +4101,7 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 if (BattlePetSpeciesEntry const* spEntry = sDB2Manager.GetBattlePetSpeciesEntry(petEntry))
                 {
                     ObjectGuid::LowType petguid = GetBattlePetMgr()->GetPetGUIDBySpell(spellInfo->Id);
-                    uint32 petCount = GetBattlePetMgr()->GetPetCount(spEntry->CreatureEntry);
+                    uint32 petCount = GetBattlePetMgr()->GetPetCount(spEntry->ID);
                     if (petguid && petCount < 1)
                     {
                         GetBattlePetMgr()->AddPet(spEntry->ID, GetBattlePetMgr()->GetRandomBreedID(spEntry->ID), GetBattlePetMgr()->GetRandomQuailty(), STATE_NORMAL);
@@ -15426,10 +15426,10 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     packet.QuantityInInventory = GetItemCount(item->GetEntry());
     if (petInfo)
     {
-        packet.BattlePetBreedID = petInfo->PacketInfo.BreedID;
-        packet.BattlePetBreedQuality = petInfo->PacketInfo.BreedQuality;
-        packet.BattlePetSpeciesID = petInfo->PacketInfo.SpeciesID;
-        packet.BattlePetLevel = petInfo->PacketInfo.Level;
+        packet.BattlePetBreedID = petInfo->JournalInfo.BreedID;
+        packet.BattlePetBreedQuality = petInfo->JournalInfo.BreedQuality;
+        packet.BattlePetSpeciesID = petInfo->JournalInfo.SpeciesID;
+        packet.BattlePetLevel = petInfo->JournalInfo.Level;
     }
     packet.Pushed = received;
     packet.IsEncounterLoot = false;

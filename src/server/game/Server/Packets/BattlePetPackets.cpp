@@ -41,11 +41,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet const& battlePet)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetJournalInfo const& battlePet)
 {
     data << battlePet.BattlePetGUID;
     data << battlePet.SpeciesID;
-    data << battlePet.DisplayID;
+    data << battlePet.CreatureID;
     data << battlePet.CollarID;
     data << battlePet.BreedID;
     data << battlePet.Level;
@@ -452,22 +452,22 @@ WorldPacket const* WorldPackets::BattlePet::GuidData::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattlePetUpdate const& update)
 {
-    data << update.BattlePetGUID;
+    data << update.JournalInfo->BattlePetGUID;
 
-    data << update.SpeciesID;
-    data << update.DisplayID;
-    data << update.CollarID;
+    data << update.JournalInfo->SpeciesID;
+    data << update.JournalInfo->CreatureID;
+    data << update.JournalInfo->CollarID;
 
-    data << update.Level;
-    data << update.Xp;
+    data << update.JournalInfo->Level;
+    data << update.JournalInfo->Xp;
 
-    data << update.CurHealth;
-    data << update.MaxHealth;
-    data << update.Power;
-    data << update.Speed;
+    data << update.JournalInfo->Health;
+    data << update.JournalInfo->MaxHealth;
+    data << update.JournalInfo->Power;
+    data << update.JournalInfo->Speed;
     data << update.NpcTeamMemberID;
 
-    data << update.BreedQuality;
+    data << static_cast<uint16>(update.JournalInfo->BreedQuality);
     data << update.StatusFlags;
 
     data << update.Slot;
@@ -488,13 +488,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattlePetUp
         data << c.second;
     }
 
-    data.WriteBits(update.CustomName.size(), 7);
-    data.WriteString(update.CustomName);
+    data.WriteBits(update.JournalInfo->CustomName.size(), 7);
+    data.WriteString(update.JournalInfo->CustomName);
 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveAbility const& ability)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetAbility const& ability)
 {
     data << ability.AbilityID;
     data << ability.CooldownRemaining;
@@ -526,7 +526,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattlePlaye
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveAura const& aura)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetAura const& aura)
 {
     data << aura.AbilityID;
     data << aura.InstanceID;

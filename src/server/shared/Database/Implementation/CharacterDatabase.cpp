@@ -632,7 +632,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     // Battle Pets
     PrepareStatement(CHAR_SEL_ACCOUNT_BATTLE_PET_LIST, "SELECT guid, species, breed, level, exp, health, maxHealth, speed, power, collar, quality, flags, name, creatureID, spellID FROM account_battle_pet_journal WHERE ownerAccID = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_ACCOUNT_BATTLE_PET_LIST, "INSERT INTO account_battle_pet_journal (guid, ownerAccID, species, breed, level, exp, health, maxHealth, speed, power, quality, flags, name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_ACCOUNT_BATTLE_PET_LIST, "INSERT INTO account_battle_pet_journal (guid, ownerAccID, species, breed, level, exp, health, maxHealth, speed, power, quality, flags, name, spellID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_ACCOUNT_BATTLE_PET_LIST, "DELETE FROM account_battle_pet_journal WHERE ownerAccID = ? AND guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_UPD_ACCOUNT_BATTLE_PET_LIST, "UPDATE account_battle_pet_journal SET level = ?, exp = ?, health = ?, maxHealth = ?, speed = ?, power = ?, collar = ?, quality = ?, flags = ?, name = ? WHERE ownerAccID = ? AND guid = ? ", CONNECTION_ASYNC);   
     PrepareStatement(CHAR_SEL_ACCOUNT_BATTLE_PET_SLOTS, "SELECT id, battlePetGuid, locked FROM account_battle_pet_slots WHERE ownerAccID = ?", CONNECTION_ASYNC);

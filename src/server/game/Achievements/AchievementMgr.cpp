@@ -3976,7 +3976,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(uint32 ModifyTree, uint6
                         {
                             if (auto const petInfo = referencePlayer->GetBattlePetMgr()->GetPet(slot->Pet.BattlePetGUID))
                             {
-                                if (petInfo->PacketInfo.Level < reqValue)
+                                if (petInfo->JournalInfo.Level < reqValue)
                                 {
                                     check = false;
                                     break;

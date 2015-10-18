@@ -3709,12 +3709,13 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             {
                                 m_caster->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, ObjectGuid::Create<HighGuid::BattlePet>(battlePetGUIDlow));
                                 summon->SetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID, ObjectGuid::Create<HighGuid::BattlePet>(battlePetGUIDlow));
-                                if (petInfo->PacketInfo.CustomName != "")
+                                summon->SetUInt64Value(UNIT_FIELD_BATTLE_PET_DBID, battlePetGUIDlow);
+                                if (petInfo->JournalInfo.CustomName != "")
                                     summon->SetUInt32Value(UNIT_FIELD_BATTLE_PET_COMPANION_NAME_TIMESTAMP, time(nullptr));
-                                m_caster->SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, petInfo->PacketInfo.BreedQuality);
-                                summon->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, petInfo->PacketInfo.Level);
-                                summon->SetHealth(petInfo->PacketInfo.Health);
-                                summon->SetMaxHealth(petInfo->PacketInfo.MaxHealth);
+                                m_caster->SetUInt32Value(PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY, petInfo->JournalInfo.BreedQuality);
+                                summon->SetUInt32Value(UNIT_FIELD_WILD_BATTLE_PET_LEVEL, petInfo->JournalInfo.Level);
+                                summon->SetHealth(petInfo->JournalInfo.Health);
+                                summon->SetMaxHealth(petInfo->JournalInfo.MaxHealth);
                             }
                         }
                     }

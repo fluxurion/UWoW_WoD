@@ -56,11 +56,11 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        struct BattlePet
+        struct BattlePetJournalInfo
         {
             ObjectGuid BattlePetGUID;
             uint32 SpeciesID = 0;
-            uint32 DisplayID = 0;
+            uint32 CreatureID = 0;
             uint32 CollarID = 0;
             uint16 BreedID = 0;
             uint16 Level = 0;
@@ -78,7 +78,7 @@ namespace WorldPackets
 
         struct BattlePetSlot
         {
-            BattlePet Pet;
+            BattlePetJournalInfo Pet;
             uint32 CollarID = 0;
             uint8 SlotIndex = 0;
             bool Locked = false;
@@ -93,7 +93,7 @@ namespace WorldPackets
 
             uint16 TrapLevel = 0;
             std::vector<BattlePetSlot> Slots;
-            std::vector<BattlePet> Pets;
+            std::vector<BattlePetJournalInfo> Pets;
             bool HasJournalLock = false;
         };
 
@@ -120,7 +120,7 @@ namespace WorldPackets
             time_t Timestamp = time(nullptr);
             bool Allow = false;
             std::string Name;
-            std::string DeclinedNames[MAX_DECLINED_NAME_CASES];
+            std::string DeclinedNames[MAX_DECLINED_NAME_CASES] = { };
             bool HasDeclined = false;
         };
 
@@ -158,7 +158,7 @@ namespace WorldPackets
 
             ObjectGuid BattlePetGUID;
             ObjectGuid UnitGUID;
-            std::string DeclinedNames[MAX_DECLINED_NAME_CASES];
+            std::string DeclinedNames[MAX_DECLINED_NAME_CASES] = { };
             std::string Name;
         };
 
@@ -193,7 +193,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             bool AddedPet = false;
-            std::vector<BattlePet> Pets;
+            std::vector<BattlePetJournalInfo> Pets;
         };
 
         struct ActiveAbility
@@ -456,7 +456,7 @@ namespace WorldPackets
             ObjectGuid BattlePetGUID;
         };
 
-        struct PetBattleActiveAura
+        struct BattlePetAura
         {
             int32 AbilityID = 0;
             uint32 InstanceID = 0;
@@ -465,7 +465,7 @@ namespace WorldPackets
             uint8 CasterPBOID = 0;
         };
 
-        struct PetBattleActiveAbility
+        struct BattlePetAbility
         {
             int32 AbilityID = 0;
             int16 CooldownRemaining = 0;
@@ -476,24 +476,13 @@ namespace WorldPackets
 
         struct PetBattlePetUpdate
         {
-            ObjectGuid BattlePetGUID;
-            int32 SpeciesID = 0;
-            int32 DisplayID = 0;
-            int32 CollarID = 0;
-            int16 Level = 0;
-            int16 Xp = 0;
-            int32 CurHealth = 0;
-            int32 MaxHealth = 0;
-            int32 Power = 0;
-            int32 Speed = 0;
-            int32 NpcTeamMemberID = 0;
-            uint16 BreedQuality = 0;
-            uint16 StatusFlags = 0;
-            int8 Slot = 0;
-            std::string CustomName;
-            std::vector<PetBattleActiveAbility> Abilities;
-            std::vector<PetBattleActiveAura> Auras;
-            std::unordered_map<uint32 /*StateID*/, int32 /*StateValue*/> States;
+            BattlePetJournalInfo* JournalInfo = nullptr;
+            uint32 NpcTeamMemberID = 0;
+            uint16 StatusFlags = 0; // same as Pet.Flags?
+            uint8 Slot = 0;
+            std::vector<BattlePetAbility> Abilities;
+            std::vector<BattlePetAura> Auras;
+            std::unordered_map<uint32 /*StateID*/, int32 /*StateValue*/> States = { };
         };
 
         struct PetBattlePlayerUpdate
@@ -509,8 +498,8 @@ namespace WorldPackets
 
         struct PetBattleEnviroUpdate
         {
-            std::vector<PetBattleActiveAura> Auras;
-            std::unordered_map<uint32 /*StateID*/, int32 /*StateValue*/> States;
+            std::vector<BattlePetAura> Auras;
+            std::unordered_map<uint32 /*StateID*/, int32 /*StateValue*/> States = { };
         };
 
         struct PetBattleFullUpdate
@@ -570,7 +559,7 @@ namespace WorldPackets
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::ActiveAbility const& activeAbility);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot const& petBattleSlot);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet const& battlePet);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetJournalInfo const& battlePet);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::EffectTarget const& effectTarget);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::Effect const& effect);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::RoundResult const& roundResult);
@@ -582,7 +571,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::BattlePet::InputData& loc
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattlePlayerUpdate const& update);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleEnviroUpdate const& update);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleFullUpdate const& update);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveAbility const& ability);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleActiveAura const& aura);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetAbility const& ability);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetAura const& aura);
 
 #endif // BattlePetPacketsWorld_h__

@@ -4965,4 +4965,35 @@ enum CharacterUndeleteResult
     CHARACTER_UNDELETE_RESULT_ERROR_NAME_TAKEN_THIS_ACCOUNT = 4,
     CHARACTER_UNDELETE_RESULT_ERROR_UNKNOWN = 5
 };
+
+enum BattlePetState
+{
+    STATE_MAX_HEALTH_BONUS          = 2,
+    STATE_INTERNAL_INITIAL_LEVEL    = 17,
+    STATE_STAT_POWER                = 18,
+    STATE_STAT_STAMINA              = 19,
+    STATE_STAT_SPEED                = 20,
+    STATE_MOD_DAMAGE_DEALT_PERCENT  = 23,
+    STATE_STAT_CRIT_CHANCE          = 40,
+
+    STATE_PASSIVE_CRITTER           = 42,
+    STATE_PASSIVE_BEAST             = 43,
+    STATE_PASSIVE_HUMANOID          = 44,
+    STATE_PASSIVE_FLYING            = 45,
+    STATE_PASSIVE_DRAGON            = 46,
+    STATE_PASSIVE_ELEMENTAL         = 47,
+    STATE_PASSIVE_MECHANICAL        = 48,
+    STATE_PASSIVE_MAGIC             = 49,
+    STATE_PASSIVE_UNDEAD            = 50,
+    STATE_PASSIVE_AQUATIC           = 51,
+    STATE_GENDER                    = 78,
+    STATE_COSMETIC_WATER_BUBBLED    = 85,
+    STATE_SPECIAL_IS_COCKROACH      = 93,
+    STATE_COSMETIC_FLY_TIER         = 128,
+    STATE_COSMETIC_BIGGLESWORTH     = 144,
+    STATE_PASSIVE_ELITE             = 153,
+    STATE_PASSIVE_BOSS              = 162,
+    STATE_COSMETIC_TREASURE_GOBLIN  = 176
+};
+
 #endif

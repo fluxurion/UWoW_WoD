@@ -122,36 +122,6 @@ enum BattlePetSpeciesSource
     SOURCE_NOT_AVALIABLE                = 0xFFFFFFFF,
 };
 
-enum BattlePetState
-{
-    STATE_MAX_HEALTH_BONUS          = 2,
-    STATE_INTERNAL_INITIAL_LEVEL    = 17,
-    STATE_STAT_POWER                = 18,
-    STATE_STAT_STAMINA              = 19,
-    STATE_STAT_SPEED                = 20,
-    STATE_MOD_DAMAGE_DEALT_PERCENT  = 23,
-    STATE_STAT_CRIT_CHANCE          = 40,
-
-    STATE_PASSIVE_CRITTER           = 42,
-    STATE_PASSIVE_BEAST             = 43,
-    STATE_PASSIVE_HUMANOID          = 44,
-    STATE_PASSIVE_FLYING            = 45,
-    STATE_PASSIVE_DRAGON            = 46,
-    STATE_PASSIVE_ELEMENTAL         = 47,
-    STATE_PASSIVE_MECHANICAL        = 48,
-    STATE_PASSIVE_MAGIC             = 49,
-    STATE_PASSIVE_UNDEAD            = 50,
-    STATE_PASSIVE_AQUATIC           = 51,
-    STATE_GENDER                    = 78,
-    STATE_COSMETIC_WATER_BUBBLED    = 85,
-    STATE_SPECIAL_IS_COCKROACH      = 93,
-    STATE_COSMETIC_FLY_TIER         = 128,
-    STATE_COSMETIC_BIGGLESWORTH     = 144,
-    STATE_PASSIVE_ELITE             = 153,
-    STATE_PASSIVE_BOSS              = 162,
-    STATE_COSMETIC_TREASURE_GOBLIN  = 176
-};
-
 enum BattlePetFamily
 {
     BATTLE_PET_FAMILY_HUMANOID      = 0,
@@ -217,7 +187,7 @@ enum TrapStatus : int32
     PET_BATTLE_TRAP_ERR_8                   = 8   // "Can't trap twice in same battle"
 };
 
-uint32 const TrapSpells[4] = { 427, 77, 135, 1368 };
+uint32 const TrapSpells[4] = {427, 77, 135, 1368};
 uint32 const MaxRoundTime[2] = {0, 30};
 
 enum PetPvpBattleCompatibility
@@ -318,13 +288,7 @@ public:
     bool Captured() { return captured; }
     bool Caged() { return caged; }
 
-    void SetCustomName(std::string name) { customName = name; }
     std::string GetCustomName() { return customName; }
-    bool HasFlag(uint16 _flag) { return (flags & _flag) != 0; }
-    void SetFlag(uint16 _flag) { if (!HasFlag(_flag)) flags |= _flag; }
-    uint16 GetFlags() { return flags; }
-    void RemoveFlag(uint16 _flag) { flags &= ~_flag; }
-    void SetXP(uint16 _xp) { xp = _xp; }
     uint16 GetXP() { return xp; }
     void SetTotalXP(uint16 _xp) { totalXP = _xp; }
     uint16 GetTotalXP() { return totalXP; }
@@ -342,15 +306,11 @@ public:
     uint16 GetSpeed() { return speed; }
     uint16 GetPower() { return power; }
     uint16 GetBreedID() { return breedID; }
-    void SetBreedID(uint16 _breedID) { breedID = _breedID; }
     uint8 GetQuality() { return quality; }
-    void SetQuality(uint8 _quality) { quality = _quality; }
     uint32 GetSpeciesID() { return speciesID; }
-    uint32 GetDisplayID() { return displayID; }
     uint32 GetSummonSpell() { return summonSpellID; }
     uint32 GetCreatureEntry() { return creatureEntry; }
     bool IsDead() { return health <= 0; }
-    bool IsHurt() { return !IsDead() && health < maxHealth; }
     bool HasAbility(uint32 abilityID);
 
 private:
@@ -361,7 +321,6 @@ private:
     uint8 team;
     uint32 speciesID;
     uint32 creatureEntry;
-    uint32 displayID;
     uint16 power;
     uint16 speed;
     int32 health;
@@ -388,6 +347,12 @@ typedef std::list<PetBattleInfo*> BattleInfo;
 class PetBattle
 {
 public:
+    struct RoundInfo
+    {
+        WorldPackets::BattlePet::PetBattleFullUpdate InitialUpdate;
+        WorldPackets::BattlePet::FinalRound FinalRound;
+    };
+
     struct RoundResults
     {
         struct Effect
@@ -406,7 +371,7 @@ public:
             float GetAttackModifier(uint8 attackType, uint8 defenseType);
             uint32 GetProperties(uint8 properties, uint32 turnIndex = 1);
         };
-        
+
         struct AbilityData
         {
             WorldPackets::BattlePet::ActiveAbility PacketInfo;
@@ -426,11 +391,15 @@ public:
 
     bool CreateBattleInfo();
     bool PrepareBattleInfo(ObjectGuid creatureGuid);
+    bool InitiPvEBattle(ObjectGuid creatureGuid);
+    bool InitiPvPBattle(ObjectGuid creatureGuid);
+
     void Init(ObjectGuid creatureGuid);
 
-    void InitializePetBattle(ObjectGuid targetGuid);
+    void InitializePetBattle(ObjectGuid opponentGuid);
 
     void ForceReplacePetHandler(uint32 roundID, uint8 newFrontPet, uint8 team);
+    void ReplaceFrontPet(uint8 frontPet = 0);
 
     bool FirstRoundHandler(uint8 allyFrontPetID, uint8 enemyFrontPetID);
     bool UseAbilityHandler(uint32 abilityID, uint32 roundID);
@@ -479,12 +448,14 @@ private:
 
 protected:
     BattleInfo battleInfo;
-    uint32 currentRoundID;
-    ObjectGuid teamGuids[2];
-    uint8 winners[2];
-    uint8 petBattleState;
-    bool nextRoundFinal;
-    bool abandoned;
+
+    uint32 currentRoundID;      // CurRound             _initialInfo
+    ObjectGuid teamGuids[2];    // Players              _initialInfo
+    uint8 petBattleState;       // CurPetBattleState    _initialInfo
+    bool nextRoundFinal;        // CurRound is next final check ? _initialInfo
+
+    uint8 winners[2];           // Winner               _finalRoundInfo
+    bool abandoned;             // Abandoned            _finalRoundInfo
 };
 
 class BattlePetMgr
@@ -509,25 +480,26 @@ public:
 
     struct BattlePet
     {
-        WorldPackets::BattlePet::BattlePet PacketInfo;
+        WorldPackets::BattlePet::BattlePetJournalInfo JournalInfo;
+
+        BattlePetFamily GetFamily();
 
         int32 GetBaseStateValue(BattlePetState state);
-        BattlePetFamily GetFamily();
+        void CalculateStats();
 
         struct
         {
-            uint32 CreatureID = 0;
             uint32 SpellID = 0;
-        } nonPacketData;
+        } serverSideData;
 
         BattlePetSaveInfo SaveInfo;
 
-        bool HasFlag(uint16 flag) { return (PacketInfo.BattlePetDBFlags & flag) != 0; }
-        void SetFlag(uint16 flag) { if (!HasFlag(flag)) PacketInfo.BattlePetDBFlags |= flag; }
-        void RemoveFlag(uint16 flag) { PacketInfo.BattlePetDBFlags &= ~flag; }
-        float GetHealthPct() { return PacketInfo.MaxHealth ? 100.f * PacketInfo.Health / PacketInfo.MaxHealth : 0.0f; }
-        bool IsDead() { return PacketInfo.Health <= 0; }
-        bool IsHurt() { return !IsDead() && PacketInfo.Health < PacketInfo.MaxHealth; }
+        bool HasFlag(uint16 flag) { return (JournalInfo.BattlePetDBFlags & flag) != 0; }
+        void SetFlag(uint16 flag) { if (!HasFlag(flag)) JournalInfo.BattlePetDBFlags |= flag; }
+        void RemoveFlag(uint16 flag) { JournalInfo.BattlePetDBFlags &= ~flag; }
+        float GetHealthPct() { return JournalInfo.MaxHealth ? 100.f * JournalInfo.Health / JournalInfo.MaxHealth : 0.0f; }
+        bool IsDead() { return JournalInfo.Health <= 0; }
+        bool IsHurt() { return !IsDead() && JournalInfo.Health < JournalInfo.MaxHealth; }
         uint32 GetAbilityID(uint8 rank);
     };
 
@@ -550,11 +522,10 @@ public:
 
     void LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slots);
     void SaveToDB(SQLTransaction& trans);
-    
-    void CalculateStats(uint32 speciesID, uint16 breedID, uint8 quality, uint8 lvl, uint32& maxHealth, uint32& power, uint32& speed);
 
     void AddPet(uint32 species, uint16 breed, uint8 quality, uint16 level = 1, BattlePetSaveInfo state = STATE_NEW);
     BattlePet* GetPet(ObjectGuid guid);
+    WorldPackets::BattlePet::BattlePetJournalInfo* GetPetInfo(ObjectGuid guid);
 
     void UnlockSlot(uint8 slot);
 
@@ -564,15 +535,16 @@ public:
     void HealBattlePetsPct(uint8 pct);
 
     void CreatePetBattle(Player* initiator, ObjectGuid wildCreatureGuid);
-    void InitializePetBattle(WorldPackets::BattlePet::BattleRequest packet);
+    void InitializePetBattle(Player* player, WorldPackets::BattlePet::BattleRequest packet);
     void SendPetBattleRequestFailed(uint8 reason);
 
-    uint32 GetPetCount(uint32 creatureEntry);
+    uint32 GetPetCount(uint32 speciesID);
     void DeletePetByPetGUID(ObjectGuid guid);
 
     ObjectGuid::LowType GetPetGUIDBySpell(uint32 spell);
     std::unordered_map<ObjectGuid::LowType /*battlePetGuid*/, BattlePetMgr::BattlePet> const& GetPetJournal() { return _pets; }
 
+    std::vector<BattlePetMgr::BattlePet> BattlePetMgr::GetLearnedPets() const;
     WorldPackets::BattlePet::BattlePetSlot* GetPetBattleSlot(uint8 slot) { return &_slots[slot]; }
     std::vector<WorldPackets::BattlePet::BattlePetSlot> GetPetBattleSlots() const { return _slots; }
 
