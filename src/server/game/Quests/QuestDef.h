@@ -243,6 +243,11 @@ struct QuestObjectivesLocale
     StringVector Description;
 };
 
+enum QuestObjectiveFlags
+{
+    QUEST_OBJECTIVE_FLAG_HIDEN = 0x2,
+};
+
 struct QuestObjective
 {
     uint32 ID           = 0;

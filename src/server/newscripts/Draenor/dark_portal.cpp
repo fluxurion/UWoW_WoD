@@ -856,7 +856,7 @@ public:
                 {
                     if (obj.ObjectID != 82142)
                         continue;
-                    player->SetQuestObjectiveData(qInfo, obj.StorageIndex, 99);
+                    player->SetQuestObjectiveData(qInfo, &obj, 99);
                     if (player->CanCompleteQuest(34429))
                         player->CompleteQuest(34429);
                     break;

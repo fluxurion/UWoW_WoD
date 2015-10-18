@@ -17246,7 +17246,7 @@ void Player::AdjustQuestReqItemCount(Quest const* quest)
 
             uint32 reqItemCount = obj.Amount;
             uint32 curItemCount = GetItemCount(obj.ObjectID, true);
-            SetQuestObjectiveData(quest, obj.StorageIndex, std::min(curItemCount, reqItemCount));
+            SetQuestObjectiveData(quest, &obj, std::min(curItemCount, reqItemCount));
         }
     }
 }
@@ -17409,7 +17409,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
                 if (curitemcount < reqitemcount)
                 {
                     uint32 newItemCount = std::min<uint32>(curitemcount + count, reqitemcount);
-                    SetQuestObjectiveData(qInfo, obj.StorageIndex, newItemCount);
+                    SetQuestObjectiveData(qInfo, &obj, newItemCount);
 
                     //SendQuestUpdateAddItem(qInfo, j, additemcount);
                     // FIXME: verify if there's any packet sent updating item
@@ -17452,7 +17452,7 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
 
                 if (newItemCount < reqItemCount)
                 {
-                    SetQuestObjectiveData(qInfo, obj.StorageIndex, newItemCount);
+                    SetQuestObjectiveData(qInfo, &obj, newItemCount);
                     IncompleteQuest(questid);
                 }
                 return;
@@ -17522,7 +17522,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid)
                         uint16 curKillCount = GetQuestObjectiveData(qInfo, obj.StorageIndex);
                         if (curKillCount < reqKillCount)
                         {
-                            SetQuestObjectiveData(qInfo, obj.StorageIndex, curKillCount + addKillCount);
+                            SetQuestObjectiveData(qInfo, &obj, curKillCount + addKillCount);
                             SendQuestUpdateAddCredit(qInfo, guid, obj, curKillCount + addKillCount);
                         }
 
@@ -17572,7 +17572,7 @@ void Player::KilledPlayerCredit()
                 uint32 curKillCount = GetQuestObjectiveData(qInfo, obj.StorageIndex);
                 if (curKillCount < uint32(obj.Amount))
                 {
-                    SetQuestObjectiveData(qInfo, obj.StorageIndex, curKillCount + addKillCount);
+                    SetQuestObjectiveData(qInfo, &obj, curKillCount + addKillCount);
                     SendQuestUpdateAddPlayer(qInfo, curKillCount + addKillCount, obj.Amount);
                 }
 
@@ -17620,7 +17620,7 @@ void Player::KillCreditGO(uint32 entry, ObjectGuid const& guid)
                     uint32 curCastCount = GetQuestObjectiveData(qInfo, obj.StorageIndex);
                     if (curCastCount < reqCastCount)
                     {
-                        SetQuestObjectiveData(qInfo, obj.StorageIndex, curCastCount + addCastCount);
+                        SetQuestObjectiveData(qInfo, &obj, curCastCount + addCastCount);
                         SendQuestUpdateAddCredit(qInfo, guid, obj, curCastCount + addCastCount);
                     }
 
@@ -17667,7 +17667,7 @@ void Player::TalkedToCreature(uint32 entry, ObjectGuid guid)
                         uint32 curTalkCount = GetQuestObjectiveData(qInfo, obj.StorageIndex);
                         if (curTalkCount < reqTalkCount)
                         {
-                            SetQuestObjectiveData(qInfo, obj.StorageIndex, curTalkCount + addTalkCount);
+                            SetQuestObjectiveData(qInfo, &obj, curTalkCount + addTalkCount);
                             SendQuestUpdateAddCredit(qInfo, guid, obj, curTalkCount + addTalkCount);
                         }
 
@@ -17860,7 +17860,7 @@ int32 Player::GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const
     return sItr->second;
 }
 
-void Player::SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data)
+void Player::SetQuestObjectiveData(Quest const* quest, QuestObjective const* obj, int32 data)
 {
     auto itr = m_QuestStatus.find(quest->GetQuestId());
 
@@ -17879,11 +17879,11 @@ void Player::SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 
     //}
 
     // No change
-    if (status.ObjectiveData[storageIndex] == data)
+    if (status.ObjectiveData[obj->StorageIndex] == data)
         return;
 
     // Set data
-    status.ObjectiveData[storageIndex] = data;
+    status.ObjectiveData[obj->StorageIndex] = data;
 
     // Add to save
     m_QuestStatusSave[quest->GetQuestId()] = QUEST_DEFAULT_SAVE_TYPE;
@@ -17891,8 +17891,8 @@ void Player::SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 
     // Update quest fields
     // Negative index  - hiden
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
-    if (log_slot < MAX_QUEST_LOG_SIZE && storageIndex >= 0)
-        SetQuestSlotCounter(log_slot, storageIndex, status.ObjectiveData[storageIndex]);
+    if (log_slot < MAX_QUEST_LOG_SIZE && obj->StorageIndex >= 0 && (obj->Flags & QUEST_OBJECTIVE_FLAG_HIDEN) == 0)
+        SetQuestSlotCounter(log_slot, obj->StorageIndex, status.ObjectiveData[obj->StorageIndex]);
 }
 
 void Player::SendQuestComplete(Quest const* quest)
@@ -19773,7 +19773,14 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
                 int8 objectiveIndex = fields[1].GetInt8();
                 int32 data = fields[2].GetInt32();
 
-                SetQuestObjectiveData(qInfo, objectiveIndex, data);
+                for (QuestObjective const& obj : qInfo->GetObjectives())
+                {
+                    if (objectiveIndex == obj.StorageIndex)
+                    {
+                        SetQuestObjectiveData(qInfo, &obj, data);
+                        break;
+                    }
+                }
             }
             else
                 sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player %s (%s) does not have quest %d but has objective data for it.", GetName(), GetGUID().ToString().c_str(), questID);

@@ -1954,7 +1954,7 @@ class Player : public Unit, public GridObject<Player>
 
         int32 GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const;
         int32 GetQuestObjectiveData(uint32 QuestID, uint32 ObjectiveID) const;
-        void SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data);
+        void SetQuestObjectiveData(Quest const* quest, QuestObjective const* obj, int32 data);
         void SendQuestComplete(Quest const* quest);
         void SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver);
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
