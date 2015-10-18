@@ -2090,8 +2090,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (duel && GetMapId() != mapid && GetMap()->GetGameObject(GetGuidValue(PLAYER_FIELD_DUEL_ARBITER)))
         DuelComplete(DUEL_FLED);
 
-    if (GetMapId() == mapid)
+    if (GetMapId() == mapid/* || mEntry->ParentMapID == GetMapId()*/)
     {
+        //options |= TELE_TO_SEAMLESS;
         m_anti_JumpBaseZ = 0;
         //lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
@@ -2234,6 +2235,14 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
                 GetSession()->SendPacket(transferPending.Write());
             }
+            else if (options & TELE_TO_SEAMLESS)
+            {
+                Position newPos;
+                if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+                    z += GetFloatValue(UNIT_FIELD_HOVER_HEIGHT);
+                newPos.Relocate(x, y, z, orientation);
+                SendTeleportPacket(newPos);
+            }
 
             // remove from old map now
             if (oldmap)
@@ -2265,9 +2274,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             }
 
             m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
+            m_teleport_options = options;
             SetFallInformation(0, final_z);
 
-            if (!GetSession()->PlayerLogout())
+            if (!GetSession()->PlayerLogout() && !(options & TELE_TO_SEAMLESS))
             {
                 if (mEntry->IsDungeon())
                     SendDirectMessage(WorldPackets::Instance::UpdateLastInstance(mapid).Write());
@@ -8638,13 +8648,22 @@ uint32 Player::GetLevelFromDB(ObjectGuid guid)
 
 void Player::UpdateArea(uint32 newArea)
 {
+    AreaTableEntry const* oldArea = GetAreaEntryByAreaID(m_areaUpdateId);
+    AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
+
+    if (oldArea && newArea != m_areaUpdateId && oldArea->ParentAreaID == 7004 && GetMap()->IsGarrison()) //Horde
+    {
+        //remove from garrison
+        TeleportTo(1116, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_SEAMLESS);
+        return;
+    }
+
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
     m_areaUpdateId    = newArea;
 
     phaseMgr.AddUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
 
-    AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
     pvpInfo.inFFAPvPArea = area && (area->Flags[0] & AREA_FLAG_ARENA);
     UpdatePvPState(true);
 
@@ -8681,6 +8700,16 @@ void Player::UpdateArea(uint32 newArea)
             SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
             pvpInfo.inNoPvPArea = true;
             CombatStopWithPets();
+        }
+    }
+
+    // Add to garrison.
+    if (newArea == 7004 && !GetMap()->IsGarrison()) //Horde
+    {
+        if (Garrison *garr = GetGarrison())
+        {
+            if (garr->GetGarrisonMapID() != -1)
+                TeleportTo(garr->GetGarrisonMapID(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_SEAMLESS);
         }
     }
 
@@ -18317,6 +18346,15 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetRaidDifficultyID(CheckLoadedRaidDifficultyID(Difficulty(fields[68].GetUInt8())));
     SetLegacyRaidDifficultyID(CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[69].GetUInt8())));
 
+    std::unique_ptr<Garrison> garrison = Trinity::make_unique<Garrison>(this);
+    if (garrison->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_MISSIONS)))
+        _garrison = std::move(garrison);
+
     std::string taxi_nodes = fields[38].GetString();
 
 #define RelocateToHomebind(){ mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ); }
@@ -18866,15 +18904,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     if(PreparedQueryResult PersonnalRateResult = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_PERSONAL_RATE))
         m_PersonnalXpRate = (PersonnalRateResult->Fetch())[0].GetFloat();
 
-    std::unique_ptr<Garrison> garrison = Trinity::make_unique<Garrison>(this);
-    if (garrison->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON),
-                             holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BLUEPRINTS),
-                             holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS),
-                             holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS),
-                             holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES),
-                             holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_MISSIONS)))
-        _garrison = std::move(garrison);
-    
+   
     std::unique_ptr<CollectionMgr> collection = Trinity::make_unique<CollectionMgr>(this);
     if (_collectionMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_TOYS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HEIRLOOMS)))
         _collectionMgr = std::move(collection);

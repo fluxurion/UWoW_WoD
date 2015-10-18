@@ -20,6 +20,8 @@
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
 #include "GameObject.h"
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 
 class GarrisonGridLoader
 {
@@ -97,7 +99,7 @@ void GarrisonGridLoader::Visit(CreatureMapType& /*m*/)
 }
 
 GarrisonMap::GarrisonMap(uint32 id, time_t expiry, uint32 instanceId, Map* parent, ObjectGuid const& owner)
-    : Map(id, expiry, instanceId, DIFFICULTY_NORMAL, parent), _owner(owner), _loadingPlayer(nullptr)
+    : InstanceMap(id, expiry, instanceId, DIFFICULTY_NORMAL, parent), _owner(owner), _loadingPlayer(nullptr)
 {
     GarrisonMap::InitVisibilityDistance();
 }
