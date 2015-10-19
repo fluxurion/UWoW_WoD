@@ -3752,7 +3752,7 @@ void SpellMgr::LoadSpellClassInfo()
 
             // See CGSpellBook::InitFutureSpells in client
             if (spellEntry->Attributes & SPELL_ATTR0_TRADESPELL || ((spellEntry->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE) && !(spellEntry->Attributes & SPELL_ATTR0_PASSIVE))
-                || spellEntry->AttributesEx8 & SPELL_ATTR8_UNK13 || spellEntry->AttributesEx4 & SPELL_ATTR4_UNK15)
+                /*|| spellEntry->AttributesEx8 & SPELL_ATTR8_UNK13*/ || spellEntry->AttributesEx4 & SPELL_ATTR4_UNK15)
                 continue;
 
             if (sSpellMgr->IsTalent(spellEntry->Id))
