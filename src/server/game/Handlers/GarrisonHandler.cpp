@@ -67,8 +67,26 @@ void WorldSession::HandleGarrisonCheckUpgradeable(WorldPackets::Garrison::Garris
         garrison->SendGarrisonUpgradebleResult(_player);
 }
 
-void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonStartMission& /*packet*/)
-{ }
+void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonStartMission& packet)
+{
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))
+        return;
+
+    if (!sGarrMissionStore.LookupEntry(packet.MissionRecID))
+        return;
+
+    if (Garrison* garrison = _player->GetGarrison())
+    {
+        // check followers
+        for (auto f : packet.FollowerDBIDs)
+            if (!garrison->GetFollower(f))
+                return;
+
+        // start mission
+        if (Garrison::Mission* mission = garrison->GetMissionByRecID(packet.MissionRecID))
+            mission->Start(_player, packet.FollowerDBIDs);
+    }
+}
 
 void WorldSession::HandleGarrisonCompleteMission(WorldPackets::Garrison::GarrisonCompleteMission& /*packet*/)
 { }
@@ -76,8 +94,14 @@ void WorldSession::HandleGarrisonCompleteMission(WorldPackets::Garrison::Garriso
 void WorldSession::HandleCreateShipment(WorldPackets::Garrison::CreateShipment& /*packet*/)
 { }
 
-void WorldSession::HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::GarrisonOpenMissionNpc& /*packet*/)
-{ }
+void WorldSession::HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::GarrisonOpenMissionNpc& packet)
+{
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))
+        return;
+
+    if (!_player->GetGarrison())
+        return;
+}
 
 void WorldSession::HandleCompleteAllReadyShipments(WorldPackets::Garrison::CompleteAllReadyShipments& /*packet*/)
 { }

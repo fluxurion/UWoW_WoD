@@ -110,6 +110,8 @@ public:
 
     struct Mission
     {
+        void Start(Player* owner, std::vector<uint64> followers);
+
         WorldPackets::Garrison::GarrisonMission PacketInfo;
     };
 
@@ -147,6 +149,9 @@ public:
 
     // Missions
     Mission const* GetMission(uint64 dbId) const;
+    Mission const* GetMissionByRecID(uint32 missionRecID) const;
+    Mission* GetMissionByRecID(uint32 missionRecID);
+    void SendStartMission(Player * owner, uint32 missionRecID, std::vector<uint64> followers);
 
     void SendInfo();
     void SendRemoteInfo() const;

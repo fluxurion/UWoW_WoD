@@ -44,6 +44,7 @@ char const GarrBuildingPlotInstFormat[] = "niiiff";
 char const GarrClassSpecFormat[] = "nsssii";
 char const GarrFollowerFormat[] = "niiiiiiiiiiiiiissiiii";
 char const GarrFollowerXAbilityFormat[] = "niii";
+char const GarrMissionFormat[] = "niiiixiixixxxxiixii";
 char const GarrPlotBuildingFormat[] = "nii";
 char const GarrPlotFormat[] = "niiisiiii";
 char const GarrPlotInstanceFormat[] = "nis";

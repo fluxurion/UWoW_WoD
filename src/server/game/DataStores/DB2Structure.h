@@ -379,7 +379,7 @@ struct GarrAbilityEntry
     uint32 GarrAbilityCategoryID;                                   // 6
 };
 
-struct GarrisonAbilityEffectEntry
+struct GarrAbilityEffectEntry
 {
     uint32 ID;                  // 0
     //uint32 unk (flags?);      // 1
@@ -474,37 +474,37 @@ struct GarrFollowerXAbilityEntry
     uint32 FactionIndex;                                            // 3
 };
 
-struct GarrisonMechanicEntry
+struct GarrMechanicEntry
 {
     uint32 ID;                  // 0
     uint32 mechanicType;        // 1
     float mod;                  // 2
 };
 
-struct GarrisonMissionEntry
+struct GarrMissionEntry
 {
     uint32 ID;                  // 0
     uint32 requiredLevel;       // 1
     uint32 requiredItemLevel;   // 2
-    //uint32                    // 3
+    uint32 mechanicID;          // 3
     uint32 reqFollowersCount;   // 4
     //uint32                    // 5
     uint32 missionTime;         // 6
     uint32 vaildTime;           // 7
     //uint32                    // 8
-    uint32 type;                // 9
+    uint32 category;            // 9
     //string name               // 10
     //string description        // 11
     //string location           // 12
     //uint32                    // 13
-    //uint32                    // 14
+    uint32 missionType;         // 14
     uint32 reqResourcesCount;   // 15
     //uint32                    // 16
     uint32 bonusXP;             // 17
     uint32 baseChance;          // 18
 };
 
-struct GarrisonMissionRewardEntry
+struct GarrMissionRewardEntry
 {
     uint32 ID;                  // 0
     uint32 missionID;           // 1
@@ -518,7 +518,7 @@ struct GarrisonMissionRewardEntry
     //uint32                    // 9
 };
 
-struct GarrisonMissionXEncounterEntry
+struct GarrMissionXEncounterEntry
 {
     uint32 ID;                  // 0
     uint32 missionID;           // 1

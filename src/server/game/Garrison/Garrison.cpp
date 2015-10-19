@@ -611,6 +611,24 @@ Garrison::Mission const* Garrison::GetMission(uint64 dbId) const
     return nullptr;
 }
 
+Garrison::Mission* Garrison::GetMissionByRecID(uint32 missionRecID)
+{
+    for (auto m : _missions)
+        if (m.second.PacketInfo.MissionRecID == missionRecID)
+            return &m.second;
+
+    return nullptr;
+}
+
+Garrison::Mission const* Garrison::GetMissionByRecID(uint32 missionRecID) const
+{
+    for (auto const m : _missions)
+        if (m.second.PacketInfo.MissionRecID == missionRecID)
+            return &m.second;
+
+    return nullptr;
+}
+
 void Garrison::SendInfo()
 {
     WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfo;
@@ -997,6 +1015,19 @@ uint32 Garrison::GetAreaIdForTeam(uint32 team)
     return 0;
 }
 
+void Garrison::Mission::Start(Player* owner, std::vector<uint64> followers)
+{
+    WorldPackets::Garrison::GarrisonStartMissionResult missionRes;
+
+    PacketInfo.MissionState = 1;
+    PacketInfo.StartTime = time(nullptr);
+
+    missionRes.MissionData = PacketInfo;
+    missionRes.FollowerDBIDs = followers;
+
+    owner->SendDirectMessage(missionRes.Write());
+}
+
 /*
 The Garrison Cache next to your Town Hall accumulates  Garrison Resources (GR) 
 at a rate of 1 GR every 10 minutes of real time (6 per hour),
@@ -1017,7 +1048,7 @@ uint32 Garrison::GetResNumber() const
 void Garrison::UpdateResTakenTime()
 {
     _lastResTaken = time(NULL);
-    
+
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     SaveToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
