@@ -348,6 +348,7 @@ class AuraEffect
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const;
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const;
         void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const;
+        bool AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effIndex) const;
 
         // aura effect proc handlers
         void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo, SpellEffIndex effIndex);

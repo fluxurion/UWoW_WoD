@@ -187,6 +187,15 @@ enum DummyTriggerType
     DUMMY_TRIGGER_DAM_MAXHEALTH                 = 7,            // set basepoint to spell damage or max heal percent
 };
 
+enum AuraTriggerType
+{
+    AURA_TRIGGER                                = 0,            // cast spell
+    AURA_TRIGGER_BP                             = 1,            // set basepoint to spell custom from amount
+    AURA_TRIGGER_BP_CUSTOM                      = 2,            // set basepoint to spell custom from BD
+    AURA_TRIGGER_CHECK_COMBAT                   = 3,            // cast spell in check combat
+    AURA_TRIGGER_DEST                           = 4,            // cast spell on dest
+};
+
 enum SpellAuraDummyOption
 {
     SPELL_DUMMY_ENABLE                          = 0,            // enable or disable aura(set amount to 0)
@@ -862,6 +871,7 @@ struct SpellScene
 
 typedef std::unordered_map<int32, std::vector<SpellTriggered> > SpellTriggeredMap;
 typedef std::unordered_map<int32, std::vector<SpellDummyTrigger> > SpellDummyTriggerMap;
+typedef std::unordered_map<int32, std::vector<SpellDummyTrigger> > SpellAuraTriggerMap;
 typedef std::unordered_map<int32, std::vector<SpellAuraDummy> > SpellAuraDummyMap;
 typedef std::unordered_map<int32, std::vector<SpellTargetFilter> > SpellTargetFilterMap;
 typedef std::unordered_map<int32, std::vector<SpellLinked> > SpellLinkedMap;
@@ -992,6 +1002,7 @@ class SpellMgr
         const std::vector<SpellPrcoCheck> *GetSpellPrcoCheck(int32 spell_id) const;
         const std::vector<SpellTriggered> *GetSpellTriggered(int32 spell_id) const;
         const std::vector<SpellDummyTrigger> *GetSpellDummyTrigger(int32 spell_id) const;
+        const std::vector<SpellDummyTrigger> *GetSpellAuraTrigger(int32 spell_id) const;
         const std::vector<SpellAuraDummy> *GetSpellAuraDummy(int32 spell_id) const;
         const std::vector<SpellTargetFilter> *GetSpellTargetFilter(int32 spell_id) const;
         const std::vector<SpellVisual> *GetSpellVisual(int32 spell_id) const;
@@ -1080,6 +1091,7 @@ class SpellMgr
         SpellPrcoCheckMap          mSpellPrcoCheckMap;
         SpellTriggeredMap          mSpellTriggeredMap;
         SpellDummyTriggerMap       mSpellDummyTriggerMap;
+        SpellAuraTriggerMap        mSpellAuraTriggerMap;
         SpellAuraDummyMap          mSpellAuraDummyMap;
         SpellTargetFilterMap       mSpellTargetFilterMap;
         SpellEnchantProcEventMap   mSpellEnchantProcEventMap;

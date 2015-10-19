@@ -7003,8 +7003,123 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
         aurApp->GetTarget()->SetFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_FIELD_BYTE_RELEASE_TIMER);
 }
 
-void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEffIndex /*effIndex*/) const
+bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effIndex) const
 {
+    if (std::vector<SpellDummyTrigger> const* spellTrigger = sSpellMgr->GetSpellAuraTrigger(m_spellInfo->Id))
+    {
+        bool check = false;
+        Unit* triggerTarget = target;
+        Unit* triggerCaster = caster;
+        int32 basepoints0 = m_amount;
+
+        for (std::vector<SpellDummyTrigger>::const_iterator itr = spellTrigger->begin(); itr != spellTrigger->end(); ++itr)
+        {
+            if (!(itr->effectmask & (1 << effIndex)))
+                continue;
+
+            if(target)
+            {
+                if (itr->target)
+                    triggerTarget = target->GetUnitForLinkedSpell(caster, target, itr->target);
+                if(itr->targetaura > 0 && !target->HasAura(itr->targetaura))
+                {
+                    check = true;
+                    continue;
+                }
+                else if(itr->targetaura < 0 && target->HasAura(abs(itr->targetaura)))
+                {
+                    check = true;
+                    continue;
+                }
+            }
+
+            if(caster)
+            {
+                if (itr->caster)
+                    triggerCaster = caster->GetUnitForLinkedSpell(caster, target, itr->caster);
+                if(itr->aura > 0 && !caster->HasAura(itr->aura))
+                {
+                    check = true;
+                    continue;
+                }
+                else if(itr->aura < 0 && caster->HasAura(abs(itr->aura)))
+                {
+                    check = true;
+                    continue;
+                }
+            }
+
+            if(!triggerCaster || !triggerTarget)
+            {
+                check = true;
+                continue;
+            }
+
+            if(itr->chance != 0)
+            {
+                if(!roll_chance_i(itr->chance))
+                    continue;
+            }
+
+            int32 bp0 = int32(itr->bp0);
+            int32 bp1 = int32(itr->bp1);
+            int32 bp2 = int32(itr->bp2);
+            int32 spell_trigger = m_amount;
+
+            if (itr->spell_trigger != 0)
+                spell_trigger = abs(itr->spell_trigger);
+
+            switch (itr->option)
+            {
+                case AURA_TRIGGER: //0
+                {
+                    triggerCaster->CastSpell(triggerTarget, spell_trigger, true);
+                    check = true;
+                }
+                break;
+                case AURA_TRIGGER_BP: //1
+                {
+                    if (itr->spell_trigger < 0)
+                        basepoints0 *= -1;
+
+                    triggerCaster->CastCustomSpell(triggerTarget, spell_trigger, &basepoints0, &basepoints0, &basepoints0, true, NULL, this);
+                    check = true;
+                }
+                break;
+                case AURA_TRIGGER_BP_CUSTOM: //2
+                {
+                    triggerCaster->CastCustomSpell(triggerTarget, spell_trigger, &bp0, &bp1, &bp2, true, NULL, this);
+                    check = true;
+                }
+                break;
+                case AURA_TRIGGER_CHECK_COMBAT: //3
+                {
+                    if (itr->spell_trigger < 0 && !caster->isInCombat())
+                        triggerCaster->CastSpell(triggerTarget, spell_trigger, true);
+                    else if (itr->spell_trigger > 0 && caster->isInCombat())
+                        triggerCaster->CastSpell(triggerTarget, spell_trigger, true);
+                    check = true;
+                }
+                break;
+                case DUMMY_TRIGGER_CAST_DEST: //5
+                {
+                    triggerCaster->CastSpell(triggerTarget->GetPositionX(), triggerTarget->GetPositionY(), triggerTarget->GetPositionZ(), spell_trigger, true, NULL, this);
+                    check = true;
+                }
+                break;
+            }
+        }
+        if (check)
+            return true;
+    }
+    return false;
+}
+
+void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const
+{
+    if (AuraSpellTrigger(target, caster, effIndex))
+        return;
+
 	if (GetId() == 102522)
     {
         switch(rand()%4)
@@ -7028,56 +7143,12 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
         case SPELLFAMILY_GENERIC:
             switch (GetId())
             {
-                case 145715: // Gusting Bomb
-                    if(caster && target)
-                        caster->CastSpell(target, 145716, true);
-                    break;
-                case 146198: // Essence of Yu'lon
-                {
-                    if(caster && target)
-                        caster->CastCustomSpell(target, 148008, &m_amount, 0, 0, true, 0, this);
-                    break;
-                }
-                case 146199: // Spirit of Chi-Ji
-                {
-                    if (!caster->isInCombat())
-                        if (roll_chance_i(50))
-                            caster->CastSpell(caster, 148956, true);
-                    break;
-                }
-                case 146195: // Flurry of Xuen
-                {
-                    if (!caster->isInCombat())
-                        if (roll_chance_i(50))
-                            caster->CastSpell(caster, 148957, true);
-                    break;
-                }
-                case 146193: // Endurance of Niuzao
-                {
-                    if (!caster->isInCombat())
-                        if (roll_chance_i(50))
-                            caster->CastSpell(caster, 148958, true);
-                    break;
-                }
-                case 146197: // Essence of Yu'lon
-                {
-                    if (!caster->isInCombat())
-                        if (roll_chance_i(50))
-                            caster->CastSpell(caster, 148954, true);
-                    break;
-                }
                 case 145108: // Ysera's Gift
                 {
                     uint32 triggerSpell = caster->IsFullHealth() ? 145110: 145109;
                     int32 heal = CalculatePct(caster->GetMaxHealth(), m_amount);
 
                     caster->CastCustomSpell(target, triggerSpell, &heal, 0, 0, true);
-                    break;
-                }
-                case 146285: // Cruelty
-                {
-                    if(caster && target)
-                        caster->CastCustomSpell(target, 146293, &m_amount, 0, 0, true, 0, this);
                     break;
                 }
                 case 146310: // Restless Agility
@@ -7102,20 +7173,12 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
                     }
                     break;
                 }
-                case 146184: // Wrath
-                {
-                    caster->CastCustomSpell(target, 146202, &m_amount, 0, 0, true, 0, this);
-                    break;
-                }
                 case 118694: // Spirit Bond
                 {
                     if (caster->GetOwner() && caster == target && (!caster->IsFullHealth() || !caster->GetOwner()->IsFullHealth()))
                         trigger_spell_id = 149254;
                     break;
                 }
-                case 113957: // Cooking
-                    target->CastSpell(caster, 113950, true);
-                    break;
                 case 66149: // Bullet Controller Periodic - 10 Man
                 {
                     if (!caster)
@@ -7200,11 +7263,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
                     if (Creature* crt = caster->ToCreature())
                         if (CreatureAI* ai = crt->AI())
                             ai->RecalcStats();
-                    break;
-                }
-                case 125950: // Soothing Mist
-                {
-                    trigger_spell_id = 125953;
                     break;
                 }
                 default:
@@ -7297,6 +7355,9 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
 
 void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const
 {
+    if (AuraSpellTrigger(target, caster, effIndex))
+        return;
+
     // generic casting code with custom spells and target/caster customs
     uint32 triggerSpellId = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->TriggerSpell;
 
