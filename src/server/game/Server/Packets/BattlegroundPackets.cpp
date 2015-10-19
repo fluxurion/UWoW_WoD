@@ -249,7 +249,7 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldList::Write()
 
     _worldPacket << static_cast<uint32>(Battlefields.size());
     for (uint32 const& map : Battlefields)
-        _worldPacket << Battlefields[map];
+        _worldPacket << map;
 
     _worldPacket.WriteBit(PvpAnywhere);
     _worldPacket.WriteBit(HasHolidayWinToday);
