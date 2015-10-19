@@ -6130,13 +6130,14 @@ SpellCastResult Spell::CheckCast(bool strict)
         return SPELL_FAILED_CUSTOM_ERROR;
     }
 
-    if (m_caster->HasUnitState(UNIT_STATE_ROOT) && !(AttributesCustomEx5 & SPELL_ATTR5_USABLE_WHILE_STUNNED))
-    {
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            return SPELL_FAILED_ROOTED;
-        else
-            return SPELL_FAILED_DONT_REPORT;
-    }
+    //! ToDo: find atr. with require it.
+    //if (m_caster->HasUnitState(UNIT_STATE_ROOT))
+    //{
+    //    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    //        return SPELL_FAILED_ROOTED;
+    //    else
+    //        return SPELL_FAILED_DONT_REPORT;
+    //}
 
     // Check global cooldown
     if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && HasGlobalCooldown())
