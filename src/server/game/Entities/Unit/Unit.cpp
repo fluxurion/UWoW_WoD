@@ -4075,19 +4075,6 @@ void Unit::RemoveAura(uint32 spellId, ObjectGuid caster, uint32 reqEffMask, Aura
 
 void Unit::RemoveSomeAuras()
 {
-    // SymbiosisAuras
-    RemoveAura(110309);// Caster
-    RemoveAura(110478);// Death Knight
-    RemoveAura(110479);// Hunter
-    RemoveAura(110482);// Mage
-    RemoveAura(110483);// Monk
-    RemoveAura(110484);// Paladin
-    RemoveAura(110485);// Priest
-    RemoveAura(110486);// Rogue
-    RemoveAura(110488);// Shaman
-    RemoveAura(110490);// Warlock
-    RemoveAura(110491);// Warrior
-
     RemoveAura(104756);
     RemoveAura(104759);
     RemoveAura(123171);
@@ -21403,6 +21390,8 @@ float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, u
 
     if (!spellId && haveOffhandWeapon())
         missChance += 19;
+
+    missChance -= GetTotalAuraModifier(SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY);
 
     // Calculate hit chance
     float hitChance = 100.0f;

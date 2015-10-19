@@ -201,7 +201,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModRangedHaste,                        //140 SPELL_AURA_MOD_RANGED_HASTE
     &AuraEffect::HandleUnused,                                    //141 SPELL_AURA_141
     &AuraEffect::HandleAuraModBaseResistancePCT,                  //142 SPELL_AURA_MOD_BASE_RESISTANCE_PCT
-    &AuraEffect::HandleAuraModResistanceExclusive,                //143 SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE
+    &AuraEffect::HandleAuraModResistanceExclusive,                //143 6.1.2 - 6.2.3 UNUSED        SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE
     &AuraEffect::HandleNoImmediateEffect,                         //144 SPELL_AURA_SAFE_FALL                         implemented in WorldSession::HandleMovementOpcodes
     &AuraEffect::HandleAuraModPetTalentsPoints,                   //145 SPELL_AURA_MOD_PET_TALENT_POINTS
     &AuraEffect::HandleNoImmediateEffect,                         //146 SPELL_AURA_ALLOW_TAME_PET_TYPE
@@ -516,7 +516,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOTED
     &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE
     &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN
-    &AuraEffect::HandleNULL,                                      //458 SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY
+    &AuraEffect::HandleNoImmediateEffect,                         //458 SPELL_AURA_IGNORE_DUAL_WIELD_HIT_PENALTY
     &AuraEffect::HandleDisableMovementForce,                      //459 SPELL_AURA_DISABLE_MOVEMENT_FORCE
     &AuraEffect::HandleNULL,                                      //460 SPELL_AURA_RESET_COOLDOWNS_AT_DUEL_START
     &AuraEffect::HandleNULL,                                      //461
@@ -989,26 +989,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
             }
             break;
         }
-        case SPELL_AURA_BYPASS_ARMOR_FOR_CASTER:
-        {
-            if (!caster)
-                break;
-
-            switch (m_spellInfo->Id)
-            {
-                case 91021: // Find Weakness
-                {
-                    if (target)
-                    {
-                        if (target->GetTypeId() == TYPEID_PLAYER)
-                            amount = 50;
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
         case SPELL_AURA_MOD_SPELL_GDC_BY_MELEE_HASTE:
         case SPELL_AURA_MOD_SPELL_COOLDOWN_BY_MELEE_HASTE:
         {
@@ -1141,12 +1121,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
             case 57669: // Replenishment (0.2% from max)
                 amount = CalculatePct(target->GetMaxPower(POWER_MANA), amount);
                 break;
-            case 61782: // Infinite Replenishment
-                amount = target->GetMaxPower(POWER_MANA) * 0.0025f;
-                break;
-            case 48391: // Owlkin Frenzy
-                ApplyPct(amount, target->GetCreatePowers(POWER_MANA));
-                break;
             default:
                 break;
             }
@@ -1193,12 +1167,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
             {
                 // Spirit Mend
                 case 90361:
-                {
-                    uint32 ap = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 2.7;
-                    uint32 spd = caster->SpellDamageBonusDone(caster, m_spellInfo, amount, DOT, (SpellEffIndex) GetEffIndex());
-                    amount += int32((ap * 0.35f) * 0.335) + spd;
+                    amount += int32((caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.6f) * 1.0504f);
                     break;
-                }
                 case 114163: // Eternal Flame
                 {
                     if (target == caster)
@@ -1281,13 +1251,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
         {
             switch (m_spellInfo->Id)
             {
-                case 104993: // Jade Spirit
-                {
-                    if (caster->GetManaPct() > 25 && m_effIndex == EFFECT_1)
-                        amount = 0;
-
-                    break;
-                }
                 case 142530: // Bloody Dancing Steel
                 case 120032: // Dancing Steel
                 {
@@ -1322,7 +1285,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                 case 132413: // Shadow Bulwark
                 case 12975:  // Last Stand
                 case 106922: // Might of Ursoc
-                case 113072: // Might of Ursoc (Symbiosis)
                 {
                     amount = CalculatePct(caster->GetMaxHealth(), amount);
                     break;
@@ -1439,38 +1401,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                 if (aura->GetStackAmount() < 2)
                     aura->SetStackAmount(aura->GetStackAmount() + 1);
             break;
-        }
-        case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
-        {
-            if (caster)
-            {
-                // if Level <= 70 resist = player level
-                int32 resist = caster->getLevel();
-
-                if (resist > 70 && resist < 81)
-                    resist += (resist - 70) * 5;
-                else if (resist > 80)
-                    resist += ((resist-70) * 5 + (resist - 80) * 7);
-
-                switch (GetId())
-                {
-                    case 20043: // Aspect of the Wild
-                    case 8185:  // Elemental Resistance
-                    case 19891: // Resistance Aura
-                    case 79106: // Shadow Protection
-                    case 79107: // Shadow Protection
-                        amount = resist;
-                        break;
-                    case 79060: // Mark of the Wild
-                    case 79061: // Mark of the Wild
-                    case 79062: // Blessing of Kings
-                    case 79063: // Blessing of Kings
-                    case 90363: // Embrace of the Shale Spider
-                        amount = resist / 2;
-                        break;
-                    }
-                break;
-            }
         }
         case SPELL_AURA_LOOT_BONUS:
         {
@@ -1927,33 +1857,6 @@ void AuraEffect::CalculateSpellMod()
 {
     switch (GetAuraType())
     {
-        case SPELL_AURA_DUMMY:
-            switch (GetSpellInfo()->SpellFamilyName)
-            {
-                case SPELLFAMILY_DRUID:
-                    switch (GetId())
-                    {
-                        case 34246:                                 // Idol of the Emerald Queen
-                        case 60779:                                 // Idol of Lush Moss
-                        {
-                            if (!m_spellmod)
-                            {
-                                m_spellmod = new SpellModifier(GetBase());
-                                m_spellmod->op = SPELLMOD_DOT;
-                                m_spellmod->type = SPELLMOD_FLAT;
-                                m_spellmod->spellId = GetId();
-                                m_spellmod->mask[1] = 0x0010;
-                            }
-                            m_spellmod->value = GetAmount() / 7;
-                        }
-                        break;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            break;
-
         case SPELL_AURA_ADD_FLAT_MODIFIER:
         case SPELL_AURA_ADD_PCT_MODIFIER:
         {
@@ -2420,8 +2323,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             if (target->HasAura(108299)) // Killer Instinct
                 spellId.push_back(108300);
             break;
-        case FORM_TREE:
-            break;
         case FORM_TRAVEL:
             spellId.push_back(5419);
             break;
@@ -2436,15 +2337,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 
             if (target->HasAura(108299)) // Killer Instinct
                 spellId.push_back(108300);
-            break;
-        case FORM_BATTLESTANCE:
-            spellId.push_back(21156);
-            break;
-        case FORM_DEFENSIVESTANCE:
-            spellId.push_back(7376);
-            break;
-        case FORM_BERSERKERSTANCE:
-            spellId.push_back(7381);
             break;
         case FORM_MOONKIN:
             spellId.push_back(24905);
@@ -2463,7 +2355,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_METAMORPHOSIS:
             spellId.push_back(103965);
-            spellId.push_back(54817);
             break;
         case FORM_SPIRITOFREDEMPTION:
             spellId.push_back(27792);
@@ -2471,16 +2362,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             break;
         case FORM_SHADOW:
             spellId.push_back(49868);
-            spellId.push_back(71167);
-            break;
-        case FORM_GHOSTWOLF:
-            spellId.push_back(67116);
-            break;
-        case FORM_GHOUL:
-        case FORM_AMBIENT:
-        case FORM_STEALTH:
-        case FORM_CREATURECAT:
-        case FORM_CREATUREBEAR:
             break;
         default:
             break;
@@ -2562,36 +2443,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                     // Savage Roar
                     if (target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 0, 0x10000000, 0))
                         target->CastSpell(target, 62071, true);
-                    // Master Shapeshifter - Cat
-                    if (AuraEffect const* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
-                    {
-                        int32 bp = aurEff->GetAmount();
-                        target->CastCustomSpell(target, 48420, &bp, NULL, NULL, true);
-                    }
-
-                break;
-                case FORM_BEAR:
-                    // Master Shapeshifter - Bear
-                    if (AuraEffect const* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
-                    {
-                        int32 bp = aurEff->GetAmount();
-                        target->CastCustomSpell(target, 48418, &bp, NULL, NULL, true);
-                    }
-                    // Survival of the Fittest
-                    if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DRUID, 961, 0))
-                    {
-                        int32 bp = aurEff->GetSpellInfo()->Effects[EFFECT_2].CalcValue(GetCaster());
-                        target->CastCustomSpell(target, 62069, &bp, NULL, NULL, true, 0, this);
-                    }
-                break;
-                case FORM_MOONKIN:
-                    // Master Shapeshifter - Moonkin
-                    if (AuraEffect const* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
-                    {
-                        int32 bp = aurEff->GetAmount();
-                        target->CastCustomSpell(target, 48421, &bp, NULL, NULL, true);
-                    }
-                break;
+                    break;
             }
         }
     }
@@ -2599,16 +2451,6 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
     {
         for (std::vector<uint32>::iterator itr = spellId.begin(); itr != spellId.end(); ++itr)
             target->RemoveAurasDueToSpell(*itr);
-
-        // Improved Barkskin - apply/remove armor bonus due to shapeshift
-        if (Player* player=target->ToPlayer())
-        {
-            if (player->HasSpell(63410) || player->HasSpell(63411))
-            {
-                target->RemoveAurasDueToSpell(66530);
-                target->CastSpell(target, 66530, true);
-            }
-        }
 
         const Unit::AuraEffectList& shapeshifts = target->GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
         AuraEffect* newAura = NULL;
@@ -6748,32 +6590,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         {
             if (!(mode & AURA_EFFECT_HANDLE_REAL))
                 break;
-            // Sentry Totem
-            if (GetId() == 6495 && caster && caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                if (apply)
-                {
-                    ObjectGuid guid = caster->m_SummonSlot[4];
-                    if (!guid.IsEmpty())
-                    {
-                        if (Creature* totem = caster->GetMap()->GetCreature(guid))
-                            if (totem->isTotem())
-                                caster->ToPlayer()->CastSpell(totem, 6277, true);
-                    }
-                }
-                else
-                    caster->ToPlayer()->StopCastingBindSight();
-                return;
-            }
-            if (GetSpellInfo()->SpellIconID == 4777) // Lava Surge
-            {
-                if (apply)
-                {
-                    if (caster && caster->ToPlayer()->HasSpellCooldown(51505)) // Lava Burst
-                        caster->ToPlayer()->RemoveSpellCooldown(51505, true);
-                }
-            }
-            break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
@@ -7330,11 +7146,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
         {
             switch (GetSpellInfo()->Id)
             {
-                case 142423:
-                {
-                    trigger_spell_id = 142424;
-                    break;
-                }
                 case 81262: // Efflorescence
                 {
                     trigger_spell_id = 81269;
@@ -7376,15 +7187,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
             }
             break;
         }
-        case SPELLFAMILY_SHAMAN:
-            if (GetId() == 52179) // Astral Shift
-            {
-                // Periodic need for remove visual on stun/fear/silence lost
-                if (!(target->GetUInt32Value(UNIT_FIELD_FLAGS)&(UNIT_FLAG_STUNNED|UNIT_FLAG_FLEEING|UNIT_FLAG_SILENCED)))
-                    target->RemoveAurasDueToSpell(52179);
-                break;
-            }
-            break;
         // Custom MoP Script
         case SPELLFAMILY_MONK:
         {
@@ -8071,58 +7873,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
                 }
                 break;
             }
-            case 1120: // Soul Drain
-            {
-                // Energize one soul shard every 2 ticks
-                if (m_tickNumber == 2 || m_tickNumber == 4 || m_tickNumber == 6)
-                    caster->ModifyPower(POWER_SOUL_SHARDS, 100);
-
-                // if target is below 20% of life ...
-                if (target->GetHealthPct() <= 20)
-                {
-                    if (Aura* Soul_Drain = GetBase())
-                    {
-                        // ... drain soul deal 100% more damage ...
-                        if (AuraEffect* eff5 = Soul_Drain->GetEffect(EFFECT_5))
-                            AddPct(damage, eff5->GetAmount());
-
-                        int32 afflictionDamage = 0;
-
-                        // ... and deals instantly 100% of tick-damage for each affliction effects on the target
-                        // Corruption ...
-                        if (Aura* corruption = target->GetAura(146739, caster->GetGUID()))
-                        {
-                            afflictionDamage = corruption->GetEffect(0)->GetAmount();
-
-                            if (AuraEffect* Eff4 = Soul_Drain->GetEffect(EFFECT_4))
-                                afflictionDamage = CalculatePct(afflictionDamage, Eff4->GetAmount());
-
-                            caster->CastCustomSpell(target, 131740, &afflictionDamage, NULL, NULL, true);
-                        }
-                        // Unstable Affliction ...
-                        if (Aura* unstableAffliction = target->GetAura(30108, caster->GetGUID()))
-                        {
-                            afflictionDamage = unstableAffliction->GetEffect(0)->GetAmount();
-
-                            if (AuraEffect* Eff4 = Soul_Drain->GetEffect(EFFECT_4))
-                                afflictionDamage = CalculatePct(afflictionDamage, Eff4->GetAmount());
-
-                            caster->CastCustomSpell(target, 131736, &afflictionDamage, NULL, NULL, true);
-                        }
-                        // Agony ...
-                        if (Aura* agony = target->GetAura(980, caster->GetGUID()))
-                        {
-                            afflictionDamage = agony->GetEffect(0)->GetAmount();
-
-                            if (AuraEffect* Eff4 = Soul_Drain->GetEffect(EFFECT_4))
-                                afflictionDamage = CalculatePct(afflictionDamage, Eff4->GetAmount());
-
-                            caster->CastCustomSpell(target, 131737, &afflictionDamage, NULL, NULL, true);
-                        }
-                    }
-                }
-                break;
-            }
             default:
                 break;
         }
@@ -8132,9 +7882,6 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
             switch (GetId())
             {
                 case 70911: // Unbound Plague
-                case 72854: // Unbound Plague
-                case 72855: // Unbound Plague
-                case 72856: // Unbound Plague
                     damage *= uint32(pow(1.25f, int32(m_tickNumber)));
                     break;
                 default:
@@ -8864,19 +8611,11 @@ void AuraEffect::HandleProgressBar(AuraApplication const* aurApp, uint8 mode, bo
     }
 
     UnitPowerBarEntry const * entry = sUnitPowerBarStore.LookupEntry(GetMiscValue());
-
     if (!entry)
         return;
 
-    uint32 startPower = entry->startPower;
-    uint32 maxPower = entry->MaxPower;
-
-    // unique strange behavoir - with value 100 bar is lost
-    if (GetMiscValue() == 258)
-        maxPower = 101;
-
-    target->SetMaxPower(POWER_ALTERNATE_POWER, maxPower);
-    target->SetPower(POWER_ALTERNATE_POWER, startPower);
+    target->SetMaxPower(POWER_ALTERNATE_POWER, entry->MaxPower);
+    target->SetPower(POWER_ALTERNATE_POWER, entry->startPower);
 }
 
 void AuraEffect::HandleAuraStrangulate(AuraApplication const* aurApp, uint8 mode, bool apply) const

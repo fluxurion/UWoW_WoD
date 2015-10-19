@@ -22346,7 +22346,7 @@ void Player::RemovePet(Pet* pet, bool isDelete)
     {
         SendRemoveControlBar();
         if (GetGroup())
-            SetGroupUpdateFlag(GROUP_UPDATE_PET);
+            SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
     }
 }
 

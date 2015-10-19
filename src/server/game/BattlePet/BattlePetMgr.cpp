@@ -362,8 +362,12 @@ void BattlePetMgr::HealBattlePetsPct(uint8 pct)
             if (pet.second.IsDead() || pet.second.IsHurt())
             {
                 pet.second.JournalInfo.Health += CalculatePct(pet.second.JournalInfo.MaxHealth, pct);
+                if (pet.second.JournalInfo.Health > pet.second.JournalInfo.MaxHealth)
+                    pet.second.JournalInfo.Health = pet.second.JournalInfo.MaxHealth;
+
                 if (pet.second.SaveInfo != STATE_NEW)
                     pet.second.SaveInfo = STATE_UPDATED;
+
                 updates.push_back(pet.second);
             }
         }

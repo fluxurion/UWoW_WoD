@@ -4478,17 +4478,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->ProcFlags = PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
                     spellInfo->Effects[EFFECT_1].SpellClassMask = spellInfo->Effects[EFFECT_0].SpellClassMask;
                     break;
-                case 110600:// Ice Trap (Symbiosis)
-                    spellInfo->Effects[EFFECT_0].MiscValue = 164639;
-                    break;
-                case 110588:// Misdirection (Symbiosis)
-                    spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
-                    spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_MOD_SCALE;
-                    spellInfo->Effects[EFFECT_2].BasePoints = 30;
-                    break;
-                case 122292:// Intervene (Symbiosis)
-                    spellInfo->Effects[EFFECT_1].BasePoints = 100;
-                    break;
                 case 6358:  // Seduce (succubus)
                 case 115268: // Mesmerize (succubus)
                     spellInfo->SpellFamilyName = SPELLFAMILY_WARLOCK;

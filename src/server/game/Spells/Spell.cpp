@@ -6552,17 +6552,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_DUMMY:
             {
-                // Death Coil and Death Coil (Symbiosis)
-                if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] == 0x2000 ||
-                    m_spellInfo->Id == 122282)
-                {
-                    Unit* target = m_targets.GetUnitTarget();
-                    if (!target || (target == m_caster && !m_caster->HasAura(49039)) || (target->IsFriendlyTo(m_caster) && target->GetCreatureType() != CREATURE_TYPE_UNDEAD && !m_caster->HasAura(63333)))
-                        return SPELL_FAILED_BAD_TARGETS;
-                    if (!target->IsFriendlyTo(m_caster) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
-                        return SPELL_FAILED_UNIT_NOT_INFRONT;
-                }
-                else if (m_spellInfo->Id == 19938)          // Awaken Peon
+                if (m_spellInfo->Id == 19938)          // Awaken Peon
                 {
                     Unit* unit = m_targets.GetUnitTarget();
                     if (!unit || !unit->HasAura(17743))
