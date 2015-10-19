@@ -13989,6 +13989,16 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
         if (!(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT))
             Dismount();
     }
+    else if (Player* player = ToPlayer())
+    {
+        if (PvP)
+        {
+            player->SetPvPTimer(15 * IN_MILLISECONDS);
+
+            if (!player->IsInPvPCombat())
+                player->SetInPvPCombat(true);
+        }
+    }
 
     for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
     {

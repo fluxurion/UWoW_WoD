@@ -259,6 +259,8 @@ mb_in_trade(false), m_paidMoney(0), m_paidExtendedCost(0)
     m_refundRecipient.Clear();
 
     memset(_modifiers, 0, sizeof(_modifiers));
+
+    m_scaleLvl = 0;
 }
 
 bool Item::Create(ObjectGuid::LowType const& guidlow, uint32 itemid, Player const* owner)
@@ -1682,7 +1684,7 @@ uint32 Item::GetItemLevel() const
             if (uint32 heirloomIlvl = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
                 itemLevel = heirloomIlvl;
 
-    return std::min(std::max(itemLevel + _bonusData.ItemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
+    return std::min(std::max(itemLevel + _bonusData.ItemLevel + GetScaleIlvl(), uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
 }
 
 int32 Item::GetItemStatValue(uint32 index) const

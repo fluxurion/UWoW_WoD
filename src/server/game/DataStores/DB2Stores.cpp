@@ -62,8 +62,8 @@ DB2Storage<ItemEntry>                       sItemStore("Item.db2", ItemFormat, H
 DB2Storage<ItemExtendedCostEntry>           sItemExtendedCostStore("ItemExtendedCost.db2", ItemExtendedCostFormat, HOTFIX_SEL_ITEM_EXTENDED_COST);
 DB2Storage<ItemModifiedAppearanceEntry>     sItemModifiedAppearanceStore("ItemModifiedAppearance.db2", ItemModifiedAppearanceFormat, HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE);
 DB2Storage<ItemSparseEntry>                 sItemSparseStore("Item-sparse.db2", ItemSparseFormat, HOTFIX_SEL_ITEM_SPARSE);
-DB2Storage<ItemUpgradeEntry>                sItemUpgradeStore("ItemUpgrade.db2", ItemUpgradeFormat, HOTFIX_SEL_ITEM_UPGRADE);
 DB2Storage<ItemToBattlePetSpeciesEntry>     sItemToBattlePetSpeciesStore("ItemToBattlePetSpecies.db2", ItemToBattlePetSpeciesFormat, HOTFIX_SEL_ITEM_TO_BATTLE_PET_SPECIES);
+DB2Storage<ItemUpgradeEntry>                sItemUpgradeStore("ItemUpgrade.db2", ItemUpgradeFormat, HOTFIX_SEL_ITEM_UPGRADE);
 DB2Storage<ItemXBonusTreeEntry>             sItemXBonusTreeStore("ItemXBonusTree.db2", ItemXBonusTreeFormat, HOTFIX_SEL_ITEM_X_BONUS_TREE);
 DB2Storage<KeyChainEntry>                   sKeyChainStore("KeyChain.db2", KeyChainFormat, HOTFIX_SEL_KEY_CHAIN);
 DB2Storage<LanguageWordsEntry>              sLanguageWordsStore("LanguageWords.db2", LanguageWordsFormat, HOTFIX_SEL_LANGUAGE_WORDS);
@@ -73,6 +73,7 @@ DB2Storage<MountEntry>                      sMountStore("Mount.db2", MountFormat
 //DB2Storage<MountTypeXCapabilityEntry>       sMountTypeXCapabilityStore("MountTypeXCapability.db2", MountTypeXCapabilityFormat, HOTFIX_SEL_MOUNT_TYPE_X_CAPABILITY);
 DB2Storage<OverrideSpellDataEntry>          sOverrideSpellDataStore("OverrideSpellData.db2", OverrideSpellDataFormat, HOTFIX_SEL_OVERRIDE_SPELL_DATA);
 DB2Storage<PhaseGroupEntry>                 sPhaseGroupStore("PhaseXPhaseGroup.db2", PhaseGroupFormat, HOTFIX_SEL_PHASE_GROUP);
+DB2Storage<PvpItemEntry>                    sPvpItemStore("PvpItem.db2", PvpItemFormat, HOTFIX_SEL_PVP_ITEM);
 DB2Storage<QuestPackageItemEntry>           sQuestPackageItemStore("QuestPackageItem.db2", QuestPackageItemFormat, HOTFIX_SEL_QUEST_PACKAGE_ITEM);
 DB2Storage<RuleSetItemUpgradeEntry>         sRuleSetItemUpgradeEntryStore("RulesetItemUpgrade.db2", RuleSetItemUpgradeFormat, HOTFIX_SEL_RULE_SET_ITEM_UPGRADE);
 DB2Storage<SoundEntriesEntry>               sSoundEntriesStore("SoundEntries.db2", SoundEntriesFormat, HOTFIX_SEL_SOUND_ENTRIES);
@@ -178,8 +179,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sCurvePointStore);
     LOAD_DB2(sGameObjectsStore);
     LOAD_DB2(sGarrAbilityStore);
-    LOAD_DB2(sGarrBuildingStore);
     LOAD_DB2(sGarrBuildingPlotInstStore);
+    LOAD_DB2(sGarrBuildingStore);
     LOAD_DB2(sGarrClassSpecStore);
     LOAD_DB2(sGarrFollowerStore);
     LOAD_DB2(sGarrFollowerXAbilityStore);
@@ -201,8 +202,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemStore);
     LOAD_DB2(sItemToBattlePetSpeciesStore);
     LOAD_DB2(sItemUpgradeStore);
-    LOAD_DB2(sKeyChainStore);
     LOAD_DB2(sItemXBonusTreeStore);
+    LOAD_DB2(sKeyChainStore);
     //LOAD_DB2(sLanguageWordsStore);
     LOAD_DB2(sMapChallengeModeStore);
     //LOAD_DB2(sMountCapabilityStore); // for 622
@@ -210,6 +211,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     //LOAD_DB2(sMountTypeXCapabilityStore); // for 622
     LOAD_DB2(sOverrideSpellDataStore);
     LOAD_DB2(sPhaseGroupStore);
+    LOAD_DB2(sPvpItemStore);
     LOAD_DB2(sQuestPackageItemStore);
     LOAD_DB2(sRuleSetItemUpgradeEntryStore);
     LOAD_DB2(sSoundEntriesStore);

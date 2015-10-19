@@ -719,6 +719,8 @@ Player::Player(WorldSession* session): Unit(true),
     m_seer = this;
 
     m_contestedPvPTimer = 0;
+    m_PvPCombatTimer = 0;
+    m_PvPCombat = false;
 
     m_declinedname = NULL;
 
@@ -1566,6 +1568,7 @@ void Player::Update(uint32 p_time)
     UpdatePvPFlag(now);
 
     UpdateContestedPvP(p_time);
+    UpdatePvP(p_time);
 
     UpdateDuelFlag(now);
 
@@ -3331,8 +3334,8 @@ void Player::GiveLevel(uint8 level)
     InitTaxiNodesForLevel();
     InitGlyphsForLevel();
 
-    UpdateAllStats();
     _ApplyAllLevelScaleItemMods(true); // Moved to above SetFullHealth so player will have full health from Heirlooms
+    UpdateAllStats();
 
     // set current level health and mana/energy to maximum after applying all mods.
     SetFullHealth();
@@ -9939,13 +9942,13 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
 {
     for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
     {
-        if (m_items[i])
+        if (Item* item = m_items[i])
         {
-            if (m_items[i]->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
+            if (item->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
                 continue;
 
-            _ApplyItemBonuses(m_items[i], i, apply);
-            ApplyItemEquipSpell(m_items[i], apply);
+            _ApplyItemBonuses(item, i, apply);
+            ApplyItemEquipSpell(item, apply);
         }
     }
 }
@@ -29954,4 +29957,50 @@ void Player::DeleteGarrison()
         _garrison->Delete();
         _garrison.reset();
     }
+}
+
+void Player::SetInPvPCombat(bool set)
+{
+    if (m_PvPCombat == set)
+        return;
+
+    m_PvPCombat = set;
+
+    if (m_PvPCombat)
+        OnEnterPvPCombat();
+}
+
+void Player::OnEnterPvPCombat()
+{    
+    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+        if (Item* item = m_items[i])
+            if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
+                item->SetScaleIlvl(pvpItem->BonusIlvl);
+
+    _ApplyAllStatBonuses();
+}
+
+void Player::UpdatePvP(uint32 diff)
+{
+    if (!m_PvPCombatTimer || !IsInPvPCombat() || InArena() || InRBG())
+        return;
+
+    if (m_PvPCombatTimer <= diff)
+    {
+        OnLeavePvPCombat();
+        m_PvPCombatTimer = 0;
+    }
+    else
+        m_PvPCombatTimer -= diff;
+}
+
+void Player::OnLeavePvPCombat()
+{
+    SetInPvPCombat(false);
+
+    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+        if (Item* item = m_items[i])
+            item->SetScaleIlvl(0);
+
+    _RemoveAllStatBonuses();
 }

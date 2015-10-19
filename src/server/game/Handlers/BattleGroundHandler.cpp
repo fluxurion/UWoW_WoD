@@ -388,6 +388,7 @@ void WorldSession::HandleBattleFieldPort(WorldPackets::Battleground::Port& packe
         sBattlegroundMgr->SendToBattleground(player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
         // add only in HandleMoveWorldPortAck()
         // bg->AddPlayer(player, team);
+        player->OnEnterPvPCombat();
 
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", _player->GetName(), _player->GetGUID().GetCounter(), bg->GetInstanceID(), bg->GetTypeID(), bgQueueTypeId);
     } else // leave queue

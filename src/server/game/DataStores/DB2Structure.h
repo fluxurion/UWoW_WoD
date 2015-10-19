@@ -801,6 +801,13 @@ struct ToyEntry
     uint32 CategoryFilter;                                          // 4
 };
 
+struct PvpItemEntry
+{
+    uint32 ID;
+    uint32 ItemID;
+    uint32 BonusIlvl;
+};
+
 struct SpellTotemsEntry
 {
     uint32      ID;                                         // 0

@@ -3565,7 +3565,17 @@ class Player : public Unit, public GridObject<Player>
          // end movement anticheat
 
         uint32 GetTimeSync() const { return m_timeSyncServer; }
+
+        void SetInPvPCombat(bool set);
+        bool IsInPvPCombat() const { return m_PvPCombat; }
+        void UpdatePvP(uint32 diff);
+        void SetPvPTimer(uint32 duration) { m_PvPCombatTimer = duration; }
+        void OnEnterPvPCombat();
+        void OnLeavePvPCombat();
     protected:
+        uint32 m_PvPCombatTimer;
+        bool m_PvPCombat;
+
         //kill honor sistem
         KillInfoMap m_killsPerPlayer;
         bool m_flushKills;

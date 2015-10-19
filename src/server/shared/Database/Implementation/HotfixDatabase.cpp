@@ -42,8 +42,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_CURVE_POINT, "SELECT ID, CurveID, `Index`, X, Y FROM curve_point ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // Heirloom.db2
-    PrepareStatement(HOTFIX_SEL_HEIRLOOM, "SELECT ID, ItemID, Flags, SourceText, Source, OldItem1, OldItem2, NextDifficultyItemID, UpgradeItemID1, UpgradeItemID2, "
-        "ItemBonusListID1, ItemBonusListID2 FROM heirloom ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_HEIRLOOM, "SELECT ID, ItemID, Flags, SourceText, Source, OldItem1, OldItem2, NextDifficultyItemID, UpgradeItemID1, "
+        "UpgradeItemID2, ItemBonusListID1, ItemBonusListID2 FROM heirloom ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_HEIRLOOM, "SELECT ID, SourceText_lang FROM heirloom_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // Holidays.db2
@@ -167,12 +167,6 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_CLASS_SPEC, "SELECT ID, NameMale_lang, NameFemale_lang, NameGenderless_lang FROM garr_class_spec_locale"
         " WHERE locale = ?", CONNECTION_SYNCH);
 
-    // GarrisonEncounter.db2
-    PrepareStatement(HOTFIX_SEL_GARRISON_ENCOUNTER, "SELECT ID, creatureID, name, modifier, modifier1 FROM garrison_encounter ORDER BY ID DESC", CONNECTION_SYNCH);
-
-    // GarrisonEncounterXMechanic.db2
-    PrepareStatement(HOTFIX_SEL_GARRISON_ENCOUNTER_X_MECHANIC, "SELECT ID, encounterID, mechaincID FROM garrison_encounter_x_mechanic ORDER BY ID DESC", CONNECTION_SYNCH);
-
     // GarrFollower.db2
     PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER, "SELECT ID, HordeCreatureID, AllianceCreatureID, HordeUiAnimRaceInfoID, AllianceUiAnimRaceInfoID, "
         "Quality, HordeGarrClassSpecID, AllianceGarrClassSpecID, HordeGarrFollItemSetID, AllianceGarrFollItemSetID, Level, ItemLevelWeapon, "
@@ -228,7 +222,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_QUEST_PACKAGE_ITEM, "SELECT ID, QuestPackageID, ItemID, ItemCount, FilterType FROM quest_package_item ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // Mount.db2
-    PrepareStatement(HOTFIX_SEL_MOUNT, "SELECT Id, SpellId, MountTypeId, DisplayId, Flags, Name, Description, SourceDescription, Source, "
+    PrepareStatement(HOTFIX_SEL_MOUNT, "SELECT Id, MountTypeId, DisplayId, Flags, Name, Description, SourceDescription, Source, SpellId, "
         "PlayerConditionId FROM mount ORDER BY Id DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_MOUNT, "SELECT Id, Name_lang, Description_lang, SourceDescription_lang FROM mount_locale WHERE locale = ?", CONNECTION_SYNCH);
 
@@ -297,6 +291,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_TOY, "SELECT ID, ItemID, Flags, Description, CategoryFilter FROM toy ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_TOY, "SELECT ID, Description_lang FROM toy_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // PvpItem.db2
+    PrepareStatement(HOTFIX_SEL_PVP_ITEM, "SELECT ID, ItemID, BonusIlvl FROM pvp_item ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // SpellTotems.db2
     PrepareStatement(HOTFIX_SEL_SPELL_TOTEMS, "SELECT ID, TotemCategory1, TotemCategory2, Totem1, Totem2 FROM spell_totems ORDER BY ID DESC", CONNECTION_SYNCH);
 
@@ -334,9 +331,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "unk15, unk16, unk17, unk18, unk19, unk20, unk21, unk22, unk23, unk24, hostileId, unk25, unk26, unk27, unk28 FROM spell_visual"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
-    // ItemToBattlePetSpecies.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_TO_BATTLE_PET_SPECIES, "SELECT ID, BattlePetSpeciesID FROM item_to_battle_pet_species ORDER BY ID DESC", CONNECTION_SYNCH);
-
     // ItemXBonusTree.db2
     PrepareStatement(HOTFIX_SEL_ITEM_X_BONUS_TREE, "SELECT ID, ItemID, BonusTreeID FROM item_x_bonus_tree ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ItemToBattlePetSpecies.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_TO_BATTLE_PET_SPECIES, "SELECT ID, BattlePetSpeciesID FROM item_to_battle_pet_species ORDER BY ID DESC", CONNECTION_SYNCH);
 }

@@ -56,27 +56,30 @@ void WorldSession::HandleDuelAccepted()
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;
 
-        if(sWorld->getBoolConfig(CONFIG_FUN_OPTION_ENABLED))
+    if (sWorld->getBoolConfig(CONFIG_FUN_OPTION_ENABLED))
+    {
+        // reset cooldowns and HP/Mana
+        player->SetHealth(player->GetMaxHealth());
+        plTarget->SetHealth(plTarget->GetMaxHealth());
+
+        if (player->getPowerType() == POWER_MANA)
+            player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
+        if (plTarget->getPowerType() == POWER_MANA)
+            plTarget->SetPower(POWER_MANA, plTarget->GetMaxPower(POWER_MANA));
+
+        //only for cooldowns which < 15 min
+        if (!player->GetMap()->IsDungeon())
         {
-            // reset cooldowns and HP/Mana
-            player->SetHealth(player->GetMaxHealth());
-            plTarget->SetHealth(plTarget->GetMaxHealth());
-
-            if (player->getPowerType() == POWER_MANA)
-                player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
-            if (plTarget->getPowerType() == POWER_MANA)
-                plTarget->SetPower(POWER_MANA, plTarget->GetMaxPower(POWER_MANA));
-
-            //only for cooldowns which < 15 min
-            if (!player->GetMap()->IsDungeon())
-            {
-                player->RemoveArenaSpellCooldowns();
-                plTarget->RemoveArenaSpellCooldowns();
-            }
+            player->RemoveArenaSpellCooldowns();
+            plTarget->RemoveArenaSpellCooldowns();
         }
+    }
 
     player->SendDuelCountdown(3000);
+    player->OnEnterPvPCombat();
+
     plTarget->SendDuelCountdown(3000);
+    plTarget->OnEnterPvPCombat();
 }
 
 void WorldSession::HandleDuelCancelled()
@@ -122,5 +125,4 @@ void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
         else
             _player->CastSpell(player, 7266);
     }
-
 }

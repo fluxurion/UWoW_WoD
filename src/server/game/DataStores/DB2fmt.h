@@ -71,6 +71,7 @@ char const MountFormat[] = "niiiisssii";
 char const MountTypeXCapabilityFormat[] = "niii";
 char const OverrideSpellDataFormat[] = "niiiiiiiiiiii";
 char const PhaseGroupFormat[] = "nii";
+char const PvpItemFormat[] = "ini";
 char const QuestPackageItemFormat[] = "niiii";
 char const RuleSetItemUpgradeFormat[] = "niii";
 char const SoundEntriesFormat[] = "nisiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiififfiifffffii";

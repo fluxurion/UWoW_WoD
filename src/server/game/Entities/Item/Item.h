@@ -443,6 +443,9 @@ class Item : public Object
 
         void SetLevelCap(uint32 cup, bool pvp);
 
+        void SetScaleIlvl(uint32 ilvl) { m_scaleLvl = ilvl; }
+        uint32 GetScaleIlvl() const { return m_scaleLvl; }
+
     protected:
         BonusData _bonusData;
 
@@ -461,6 +464,7 @@ class Item : public Object
         GuidSet allowedGUIDs;
         uint32 _modifiers[MAX_ITEM_MODIFIERS];
         uint32 ItemLevelBeforeCap;
+        uint32 m_scaleLvl;
 };
 
 #endif
