@@ -1289,10 +1289,10 @@ struct CharmInfo
         void SaveStayPosition();
         void GetStayPosition(float &x, float &y, float &z);
 
+        UnitActionBarEntry PetActionBar[MAX_UNIT_ACTION_BAR_INDEX];
     private:
 
         Unit* m_unit;
-        UnitActionBarEntry PetActionBar[MAX_UNIT_ACTION_BAR_INDEX];
         CharmSpellInfo m_charmspells[4];
         CommandStates   m_CommandState;
         uint32          m_petnumber;

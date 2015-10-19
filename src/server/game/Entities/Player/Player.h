@@ -2752,7 +2752,15 @@ class Player : public Unit, public GridObject<Player>
         BattlegroundTypeId GetBattlegroundTypeId() const { return m_bgData.bgTypeID; }
         Battleground* GetBattleground() const;
 
-        uint32 GetBattlegroundQueueJoinTime(uint32 bgTypeId) const { return m_bgData.bgQueuesJoinedTime.find(bgTypeId)->second; }
+        uint32 GetBattlegroundQueueJoinTime(uint32 bgTypeId) const
+        {
+            auto x = m_bgData.bgQueuesJoinedTime.find(bgTypeId);
+            if (x == m_bgData.bgQueuesJoinedTime.end())
+                return 0;
+
+            return x->second;
+        }
+
         void AddBattlegroundQueueJoinTime(uint32 bgTypeId, uint32 joinTime)
         {
             m_bgData.bgQueuesJoinedTime[bgTypeId] = joinTime;
