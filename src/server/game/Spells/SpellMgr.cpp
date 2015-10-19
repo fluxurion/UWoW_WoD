@@ -5706,6 +5706,9 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].MiscValue = 604;
                     spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_ACTIVATE_SCENE;
                     break;
+                case 163452:
+                    spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
+                    break;
                 default:
                     break;
             }
