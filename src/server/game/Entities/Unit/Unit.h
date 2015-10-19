@@ -2559,6 +2559,7 @@ class Unit : public WorldObject
         bool HasMyAura(uint32 spellId);
         bool HasMyAura(Aura const* hasAura, bool check = false);
         void RemoveMyAura(uint32 spellId);
+        uint32 GetCountMyAura(uint32 spellId);
 
         Unit* GetUnitForLinkedSpell(Unit* caster, Unit* target, uint8 type);
         bool HasAuraLinkedSpell(Unit* caster, Unit* target, uint8 type, int32 hastalent);

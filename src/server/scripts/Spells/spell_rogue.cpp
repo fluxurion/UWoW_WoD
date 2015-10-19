@@ -1393,10 +1393,13 @@ class spell_rog_deadly_poison_venom : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
+                    if (caster->HasAura(152152))
                     {
                         if (Aura* aura = caster->GetAura(156719))
-                            aura->ModStackAmount(1);
+                        {
+                            if(aura->GetStackAmount() < 3)
+                                aura->ModStackAmount(1);
+                        }
                         else
                             caster->CastSpell(caster, 156719, true);
                     }
@@ -1407,10 +1410,14 @@ class spell_rog_deadly_poison_venom : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
+                    if (caster->HasAura(152152))
                     {
-                        if (Aura* aura = caster->GetAura(156719))
-                            aura->ModStackAmount(-1);
+                        uint32 count = caster->GetCountMyAura(2818);
+                        count += caster->GetCountMyAura(3409);
+                        count += caster->GetCountMyAura(8680);
+                        if(count <= 3)
+                            if (Aura* aura = caster->GetAura(156719))
+                                aura->ModStackAmount(-1);
                     }
                 }
             }
@@ -1442,10 +1449,13 @@ class spell_rog_crippling_poison_venom : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
+                    if (caster->HasAura(152152))
                     {
                         if (Aura* aura = caster->GetAura(156719))
-                            aura->ModStackAmount(1);
+                        {
+                            if(aura->GetStackAmount() < 3)
+                                aura->ModStackAmount(1);
+                        }
                         else
                             caster->CastSpell(caster, 156719, true);
                     }
@@ -1456,10 +1466,14 @@ class spell_rog_crippling_poison_venom : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
+                    if (caster->HasAura(152152))
                     {
-                        if (Aura* aura = caster->GetAura(156719))
-                            aura->ModStackAmount(-1);
+                        uint32 count = caster->GetCountMyAura(2818);
+                        count += caster->GetCountMyAura(3409);
+                        count += caster->GetCountMyAura(8680);
+                        if(count <= 3)
+                            if (Aura* aura = caster->GetAura(156719))
+                                aura->ModStackAmount(-1);
                     }
                 }
             }
@@ -1491,10 +1505,13 @@ class spell_rog_wound_poison_venom : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
+                    if (caster->HasAura(152152))
                     {
                         if (Aura* aura = caster->GetAura(156719))
-                            aura->ModStackAmount(1);
+                        {
+                            if(aura->GetStackAmount() < 3)
+                                aura->ModStackAmount(1);
+                        }
                         else
                             caster->CastSpell(caster, 156719, true);
                     }
@@ -1507,8 +1524,12 @@ class spell_rog_wound_poison_venom : public SpellScriptLoader
                 {
                     if (caster->HasAura(152152) && !caster->HasMyAura(GetAura()))
                     {
-                        if (Aura* aura = caster->GetAura(156719))
-                            aura->ModStackAmount(-1);
+                        uint32 count = caster->GetCountMyAura(2818);
+                        count += caster->GetCountMyAura(3409);
+                        count += caster->GetCountMyAura(8680);
+                        if(count <= 3)
+                            if (Aura* aura = caster->GetAura(156719))
+                                aura->ModStackAmount(-1);
                     }
                 }
             }

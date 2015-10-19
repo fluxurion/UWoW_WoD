@@ -17129,6 +17129,23 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_PERIODIC_DUMMY:
                     {
                         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SPELL_AURA_DUMMY: casting spell id %u (triggered by %s dummy aura of spell %u), procSpell %u", spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId(), (procSpell ? procSpell->Id : 0));
+                        // chargeable mods are breaking on hit
+                        if (spellInfo->Id == 115191)
+                        {
+                            if (procSpell)
+                            {
+                                if (!procSpell->IsBreakingStealth() && !isVictim || isVictim && procSpell->Id == 6770)
+                                {
+                                    takeCharges = isVictim ? true: false;
+                                    break;
+                                }
+                            }
+
+                            if (!HasAura(115192))
+                                CastSpell(this, 115192, true);
+                            takeCharges = false;
+                            break;
+                        }
                         if(SpellProcTriggered(target, dmgInfoProc, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                             takeCharges = true;
                         else if (HandleDummyAuraProc(target, dmgInfoProc, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
@@ -17340,23 +17357,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_MOD_STEALTH:
                     {
                         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "ProcDamageAndSpell: SPELL_AURA_MOD_STEALTH casting spell id %u (triggered by %s spell spell %u), procSpell %u", spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId(), (procSpell ? procSpell->Id : 0));
-                        // chargeable mods are breaking on hit
-                        if (spellInfo->Id == 115191)
-                        {
-                            if (procSpell)
-                            {
-                                if (!procSpell->IsBreakingStealth() && !isVictim || isVictim && procSpell->Id == 6770)
-                                {
-                                    takeCharges = isVictim ? true: false;
-                                    break;
-                                }
-                            }
-
-                            if (!HasAura(115192))
-                                CastSpell(this, 115192, true);
-                            takeCharges = false;
-                            break;
-                        }
                         takeCharges = true;
                         break;
                     }
@@ -24282,6 +24282,18 @@ void Unit::RemoveMyAura(uint32 spellId)
             }
         ++itr;
     }
+}
+
+uint32 Unit::GetCountMyAura(uint32 spellId)
+{
+    uint32 count = 0;
+    for (AuraList::const_iterator itr = m_my_Auras.begin(); itr != m_my_Auras.end(); ++itr)
+    {
+        if (Aura const* aura = (*itr))
+            if (aura->GetId() == spellId)
+                count++;
+    }
+    return count;
 }
 
 struct CombatLogSender
