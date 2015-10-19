@@ -26,11 +26,7 @@ WorldPacket const* WorldPackets::PetPackets::Spells::Write()
     _worldPacket << PetModeAndOrders;
 
     for (uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; i++)
-    {
-        _worldPacket << Buttons[i].spell16;
-        _worldPacket << Buttons[i].spell8;
-        _worldPacket << Buttons[i].slot;
-    }
+        _worldPacket << Buttons[i];
 
     _worldPacket << static_cast<uint32>(Actions.size());
     _worldPacket << static_cast<uint32>(Cooldowns.size());

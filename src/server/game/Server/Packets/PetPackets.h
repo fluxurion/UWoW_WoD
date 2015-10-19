@@ -33,13 +33,6 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            struct ActionButtons
-            {
-                uint16 spell16 = 0;
-                uint8 spell8 = 0;
-                uint8 slot = 0;
-            };
-
             struct Cooldown
             {
                 uint32 SpellID = 0;
@@ -60,7 +53,7 @@ namespace WorldPackets
             uint16 Specialization = 0;
             uint32 TimeLimit = 0;
             uint32 PetModeAndOrders = 0;
-            ActionButtons Buttons[MAX_UNIT_ACTION_BAR_INDEX];
+            uint32 Buttons[MAX_UNIT_ACTION_BAR_INDEX];
             std::vector<uint32> Actions;
             std::vector<Cooldown> Cooldowns;
             std::vector<History> Historys;

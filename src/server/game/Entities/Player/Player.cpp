@@ -22496,8 +22496,8 @@ void Player::PetSpellInitialize()
     spellsMessage.PetModeAndOrders = 257;
     spellsMessage.TimeLimit = pet->GetDuration();
     
-    //for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
-    //    spellsMessage.Buttons[i] = PetActionBar[i].packedData;
+    for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+        spellsMessage.Buttons[i] = pet->GetCharmInfo()->PetActionBar[i].packedData;
 
     if (pet->IsPermanentPetFor(this))
     {
@@ -22564,8 +22564,9 @@ void Player::PossessSpellInitialize()
     spellsMessage.PetGUID = charm->GetGUID();
     spellsMessage.PetModeAndOrders = 257;
 
-    //for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
-    //    spellsMessage.Buttons[i] = PetActionBar[i].packedData;
+    for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+        spellsMessage.Buttons[i] = charmInfo->PetActionBar[i].packedData;
+
     GetSession()->SendPacket(spellsMessage.Write());
 
     WorldPackets::PetPackets::Mode mode;
@@ -22675,8 +22676,8 @@ void Player::CharmSpellInitialize()
     spellsMessage.PetGUID = charm->GetGUID();
     spellsMessage.PetModeAndOrders = 257;
     
-    //for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
-    //    spellsMessage.Buttons[i] = PetActionBar[i].packedData;
+    for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
+        spellsMessage.Buttons[i] = charmInfo->PetActionBar[i].packedData;
 
     if (addlist)
     {
