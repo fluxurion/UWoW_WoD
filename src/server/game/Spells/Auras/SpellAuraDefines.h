@@ -381,11 +381,11 @@ enum AuraType
     SPELL_AURA_MOD_RANGED_HASTE_3                           = 320,
     SPELL_AURA_321                                          = 321, // controlled aura?
     SPELL_AURA_INTERFERE_TARGETTING                         = 322,
-    SPELL_AURA_323                                          = 323,  // Not used in 4.3.4
+    SPELL_AURA_MOD_CRITICAL_DAMAGE_FROM_MEELE_SPELLS        = 323,
     SPELL_AURA_324                                          = 324,  // spell critical chance (probably by school mask)
     SPELL_AURA_325                                          = 325,  // Not used in 4.3.4
     SPELL_AURA_PHASE_2                                      = 326,  // phase related
-    SPELL_AURA_327                                          = 327,  // Not used in 4.3.4
+    SPELL_AURA_FORCE_TO_SEE_ALL_PHASES                      = 327,
     SPELL_AURA_PROC_ON_POWER_AMOUNT                         = 328,
     SPELL_AURA_MOD_RUNE_REGEN_SPEED                         = 329,  // NYI
     SPELL_AURA_CAST_WHILE_WALKING                           = 330,
@@ -468,7 +468,7 @@ enum AuraType
     SPELL_AURA_MOD_FEAR_2                                   = 407,
     SPELL_AURA_PROC_SPELL_CHARGE                            = 408,
     SPELL_AURA_GLIDE                                        = 409,
-    SPELL_AURA_410                                          = 410,  // Glyph of Stampede
+    SPELL_AURA_MOD_EXTRA_PET_DAMAGE                         = 410,  // Glyph of Stampede
     SPELL_AURA_MOD_CHARGES                                  = 411,  // SPELL_AURA_MOD_CHARGES
     SPELL_AURA_HASTE_AFFECTS_BASE_MANA_REGEN                = 412,
     SPELL_AURA_MOD_PARRY_PERCENT2                           = 413,  // 3 auras
@@ -490,7 +490,7 @@ enum AuraType
     SPELL_AURA_PET_DAMAGE_DONE_PCT                          = 429,
     SPELL_AURA_ACTIVATE_SCENE                               = 430,
     SPELL_AURA_CONTESTED_PVP                                = 431,
-    SPELL_AURA_432                                          = 432,  // Entering Battleground
+    SPELL_AURA_ENTER_BATTLEGROUND                           = 432,  // Entering Battleground
     SPELL_AURA_433                                          = 433,  // 0 spells
     SPELL_AURA_434                                          = 434,
     SPELL_AURA_435                                          = 435,  // 0 spells
@@ -505,9 +505,9 @@ enum AuraType
     SPELL_AURA_445                                          = 445,
     SPELL_AURA_446                                          = 446,
     SPELL_AURA_MOD_EXP_GAIN_FROM_BEAST_KILLINGS             = 447,
-    SPELL_AURA_448                                          = 448,
+    SPELL_AURA_MOD_CRITICAL_HEAl_GAIN                       = 448,
     SPELL_AURA_449                                          = 449,
-    SPELL_AURA_450                                          = 450,
+    SPELL_AURA_UPGRADE_CHARACTER_SPELL_TIER                 = 450,
     SPELL_AURA_OVERRIDE_PET_SPECS                           = 451, // NYI
     SPELL_AURA_452                                          = 452,
     SPELL_AURA_CHARGE_RECOVERY_MOD                          = 453,
@@ -528,18 +528,18 @@ enum AuraType
     SPELL_AURA_PROC_ON_HP_BELOW                             = 468,
     SPELL_AURA_LOOT_BONUS_NEW                               = 469,
     SPELL_AURA_MOD_VERSALITY_PCT                            = 471,
-    SPELL_AURA_472                                          = 472,
+    SPELL_AURA_FIXATE                                       = 472,
     SPELL_AURA_PREVENT_ITEMS_DURABILITY_LOSS                = 473,
-    SPELL_AURA_474                                          = 474,
+    SPELL_AURA_MOD_DROP_ITEM_BONUSES_CHANCE                 = 474,
     SPELL_AURA_475                                          = 475,
     SPELL_AURA_MOD_CURRENCY_LOOT_FROM_CREATURES_BY_PCT      = 476,
-    SPELL_AURA_477                                          = 477,
+    SPELL_AURA_DRAENOR_SPELLS_AND_ITEMS_SCALING             = 477,
     SPELL_AURA_478                                          = 478,
     SPELL_AURA_479                                          = 479,
     SPELL_AURA_480                                          = 480,
     SPELL_AURA_ACTIVETED_DEATH_RUNE                         = 481,
-    SPELL_AURA_482                                          = 482,
-    SPELL_AURA_483                                          = 483,
+    SPELL_AURA_CAMERA_SELFIE                                = 482,
+    SPELL_AURA_TRANSFORM_SUPRESSION_IN_PVP                  = 483,
     TOTAL_AURAS                                             = 484   //6.1.2
 };
 

@@ -334,6 +334,7 @@ class AuraEffect
         void HandleSummonController(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModNextSpell(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleDisableMovementForce(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAnimReplacementSet(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const;
