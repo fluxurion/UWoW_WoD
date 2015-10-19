@@ -45,7 +45,7 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
     if (!unit)
         return;
 
-    uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), GetPlayer()->GetTeam());
+    uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), GetPlayer()->GetMap()->GetParentMap(), GetPlayer()->GetTeam());
 
     WorldPackets::Taxi::TaxiNodeStatus data;
     data.Unit = guid;
@@ -77,7 +77,7 @@ void WorldSession::HandleTaxiQueryAvailableNodes(WorldPackets::Taxi::TaxiQueryAv
 
 void WorldSession::SendTaxiMenu(Creature* unit)
 {
-    uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), GetPlayer()->GetTeam());
+    uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMap()->GetParentMap(), GetPlayer()->GetTeam());
     if (!curloc)
         return;
 
@@ -113,7 +113,7 @@ void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathN
 
 bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 {
-    uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), GetPlayer()->GetTeam());
+    uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMap()->GetParentMap(), GetPlayer()->GetTeam());
     if (curloc == 0)
         return true; // `true` send to avoid WorldSession::SendTaxiMenu call with one more curlock seartch with same false result.
 
@@ -144,7 +144,7 @@ void WorldSession::HandleActivateTaxi(WorldPackets::Taxi::ActivateTaxi& activate
     if (!unit)
         return;
 
-    uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), GetPlayer()->GetTeam());
+    uint32 curloc = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMap()->GetParentMap(), GetPlayer()->GetTeam());
     if (!curloc)
         return;
 
