@@ -13993,10 +13993,11 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
     {
         if (PvP)
         {
-            player->SetPvPTimer(15 * IN_MILLISECONDS);
-
             if (!player->IsInPvPCombat())
+            {
                 player->SetInPvPCombat(true);
+                player->SetPvPTimer(15 * IN_MILLISECONDS);
+            }
         }
     }
 
