@@ -820,6 +820,23 @@ namespace WorldPackets
             uint32 Duration = 0;
             int32 KitRecID = 0;
         };
+
+        class PlayOrphanSpellVisual final : public ServerPacket
+        {
+        public:
+            PlayOrphanSpellVisual() : ServerPacket(SMSG_PLAY_ORPHAN_SPELL_VISUAL, 16 + 12 * 3 + 4 + 4 + 4 + 1) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target;
+            Position SourceLocation;
+            Position SourceOrientation;
+            Position TargetLocation;
+            int32 SpellVisualID = 0;
+            float TravelSpeed = 0.0f;
+            float UnkFloat = 0.0f;
+            bool SpeedAsTime = false;
+        };
     }
 }
 

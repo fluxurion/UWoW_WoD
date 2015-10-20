@@ -842,3 +842,18 @@ WorldPacket const* WorldPackets::Spells::PlaySpellVisualKit::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::PlayOrphanSpellVisual::Write()
+{
+    _worldPacket << SourceLocation.PositionXYZStream();
+    _worldPacket << SourceOrientation.PositionXYZStream();
+    _worldPacket << TargetLocation.PositionXYZStream();
+    _worldPacket << Target;
+    _worldPacket << SpellVisualID;
+    _worldPacket << TravelSpeed;
+    _worldPacket << UnkFloat;
+    _worldPacket.WriteBit(SpeedAsTime);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

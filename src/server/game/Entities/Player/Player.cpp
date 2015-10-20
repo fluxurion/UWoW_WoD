@@ -29978,6 +29978,7 @@ void Player::OnEnterPvPCombat()
             if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
                 item->SetScaleIlvl(pvpItem->BonusIlvl);
 
+    _RemoveAllStatBonuses();
     _ApplyAllStatBonuses();
 }
 
@@ -30004,4 +30005,5 @@ void Player::OnLeavePvPCombat()
             item->SetScaleIlvl(0);
 
     _RemoveAllStatBonuses();
+    _ApplyAllStatBonuses();
 }
