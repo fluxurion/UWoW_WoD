@@ -28909,7 +28909,7 @@ void Player::SetMover(Unit* target)
 
     if (m_mover)
     {
-        WorldPackets::Movement::MoveSetActiveMover packet;
+        WorldPackets::Movement::MoveSplineSetFlag packet(SMSG_MOVE_SET_ACTIVE_MOVER);
         packet.MoverGUID = m_mover->GetGUID();
         SendDirectMessage(packet.Write());
     }

@@ -152,20 +152,54 @@ namespace WorldPackets
             float Speed = 1.0f;
         };
 
+        // SMSG_MOVE_SET_ACTIVE_MOVER
+        // SMSG_MOVE_SPLINE_ROOT
+        // SMSG_MOVE_SPLINE_UNROOT
+        // SMSG_MOVE_SPLINE_DISABLE_GRAVITY
+        // SMSG_MOVE_SPLINE_ENABLE_GRAVITY
+        // SMSG_MOVE_SPLINE_DISABLE_COLLISION
+        // SMSG_MOVE_SPLINE_ENABLE_COLLISION
+        // SMSG_MOVE_SPLINE_SET_FEATHER_FALL
+        // SMSG_MOVE_SPLINE_SET_NORMAL_FALL
+        // SMSG_MOVE_SPLINE_SET_HOVER
+        // SMSG_MOVE_SPLINE_UNSET_HOVER
+        // SMSG_MOVE_SPLINE_SET_WATER_WALK
+        // SMSG_MOVE_SPLINE_START_SWIM
+        // SMSG_MOVE_SPLINE_STOP_SWIM
+        // SMSG_MOVE_SPLINE_SET_RUN_MODE
+        // SMSG_MOVE_SPLINE_SET_WALK_MODE
+        // SMSG_MOVE_SPLINE_SET_FLYING
+        // SMSG_MOVE_SPLINE_UNSET_FLYING
+        // SMSG_MOVE_SPLINE_SET_LAND_WALK
         class MoveSplineSetFlag final : public ServerPacket
         {
         public:
-            MoveSplineSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 8) { }
+            MoveSplineSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 16) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid MoverGUID;
         };
 
+        // SMSG_MOVE_DISABLE_GRAVITY
+        // SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY
+        // SMSG_MOVE_ENABLE_GRAVITY
+        // SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY
+        // SMSG_MOVE_ROOT
+        // SMSG_MOVE_SET_CAN_FLY
+        // SMSG_MOVE_SET_FEATHER_FALL
+        // SMSG_MOVE_SET_HOVERING
+        // SMSG_MOVE_SET_IGNORE_MOVEMENT_FORCES
+        // SMSG_MOVE_SET_LAND_WALK
+        // SMSG_MOVE_SET_NORMAL_FALL
+        // SMSG_MOVE_SET_WATER_WALK
+        // SMSG_MOVE_UNROOT
+        // SMSG_MOVE_UNSET_CAN_FLY
+        // SMSG_MOVE_UNSET_IGNORE_MOVEMENT_FORCES
         class MoveSetFlag final : public ServerPacket
         {
         public:
-            MoveSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 12) { }
+            MoveSetFlag(OpcodeServer opcode) : ServerPacket(opcode, 16 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -248,7 +282,7 @@ namespace WorldPackets
         struct MovementForce
         {
             ObjectGuid ID;
-            G3D::Vector3 Direction;
+            Position Direction;
             uint32 TransportID = 0;
             float Magnitude = 0;
             uint8 Type = 0;
@@ -321,16 +355,6 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid ActiveMover;
-        };
-
-        class MoveSetActiveMover final : public ServerPacket
-        {
-        public:
-            MoveSetActiveMover() : ServerPacket(SMSG_MOVE_SET_ACTIVE_MOVER, 16) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid MoverGUID;
         };
 
         class MoveUpdateKnockBack final : public ServerPacket
@@ -432,6 +456,28 @@ namespace WorldPackets
             
             MovementInfo movementInfo;
             int32 SplineID;
+        };
+
+        class MoveUpdateRemoveMovementForce final : public ServerPacket
+        {
+        public:
+            MoveUpdateRemoveMovementForce() : ServerPacket(SMSG_MOVE_UPDATE_REMOVE_MOVEMENT_FORCE) { }
+
+            WorldPacket const* Write() override;
+            
+            MovementInfo* movementInfo = nullptr;
+            ObjectGuid TriggerGUID;
+        };
+
+        class MoveUpdateApplyMovementForce final : public ServerPacket
+        {
+        public:
+            MoveUpdateApplyMovementForce() : ServerPacket(SMSG_MOVE_UPDATE_APPLY_MOVEMENT_FORCE) { }
+
+            WorldPacket const* Write() override;
+            
+            MovementInfo* movementInfo = nullptr;
+            MovementForce MovementForce;
         };
     }
 }

@@ -204,6 +204,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFi
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce& MovementForce)
+{
+    data << MovementForce.ID;
+    data << MovementForce.Direction.PositionXYZStream();
+    data << MovementForce.TransportID;
+    data << MovementForce.Magnitude;
+    data.WriteBits(MovementForce.Type, 2);
+    data.FlushBits();
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline const& movementSpline)
 {
     data << movementSpline.Flags;
@@ -549,15 +561,8 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
     _worldPacket << *movementInfo;
 
     _worldPacket << static_cast<int32>(MovementForces.size());
-    for (WorldPackets::Movement::MovementForce const& force : MovementForces)
-    {
-        _worldPacket << force.ID;
-        _worldPacket << force.Direction;
-        _worldPacket << force.TransportID;
-        _worldPacket << force.Magnitude;
-        _worldPacket.WriteBits(force.Type, 2);
-        _worldPacket.FlushBits();
-    }
+    for (WorldPackets::Movement::MovementForce& force : MovementForces)
+        _worldPacket << force;
 
     _worldPacket.WriteBit(WalkSpeed.is_initialized());
     _worldPacket.WriteBit(RunSpeed.is_initialized());
@@ -632,13 +637,6 @@ void WorldPackets::Movement::SetActiveMover::Read()
     _worldPacket >> ActiveMover;
 }
 
-WorldPacket const* WorldPackets::Movement::MoveSetActiveMover::Write()
-{
-    _worldPacket << MoverGUID;
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::Movement::MoveUpdateKnockBack::Write()
 {
     _worldPacket << *movementInfo;
@@ -701,4 +699,20 @@ void WorldPackets::Movement::MoveSplineDone::Read()
 {
     _worldPacket >> movementInfo;
     _worldPacket >> SplineID;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write()
+{
+    _worldPacket << *movementInfo;
+    _worldPacket << TriggerGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateApplyMovementForce::Write()
+{
+    _worldPacket << *movementInfo;
+    _worldPacket << MovementForce;
+
+    return &_worldPacket;
 }
