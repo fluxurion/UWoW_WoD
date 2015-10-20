@@ -837,6 +837,22 @@ namespace WorldPackets
             float UnkFloat = 0.0f;
             bool SpeedAsTime = false;
         };
+
+        struct WeeklySpellUsageData
+        {
+            int32 Category = 0;
+            uint8 Uses = 0;
+        };
+
+        class WeeklySpellUsage final : public ServerPacket
+        {
+        public:
+            WeeklySpellUsage() : ServerPacket(SMSG_WEEKLY_SPELL_USAGE, 4) { }
+            
+            WorldPacket const* Write() override;
+
+            std::vector<WeeklySpellUsageData> SpellUsage;
+        };
     }
 }
 

@@ -857,3 +857,15 @@ WorldPacket const* WorldPackets::Spells::PlayOrphanSpellVisual::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::WeeklySpellUsage::Write()
+{
+    _worldPacket << static_cast<uint32>(SpellUsage.size());
+    for (auto const& x : SpellUsage)
+    {
+        _worldPacket << x.Category;
+        _worldPacket << x.Uses;
+    }
+
+    return &_worldPacket;
+}

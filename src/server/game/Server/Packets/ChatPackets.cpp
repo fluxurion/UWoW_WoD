@@ -225,3 +225,14 @@ WorldPacket const* WorldPackets::Chat::DefenseMessage::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Chat::WorldText::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << Arg1;
+    _worldPacket << Arg2;
+    _worldPacket.WriteBits(Text.length(), 12);
+    _worldPacket.WriteString(Text);
+
+    return &_worldPacket;
+}

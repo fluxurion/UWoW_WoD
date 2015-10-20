@@ -535,6 +535,7 @@ WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
     _worldPacket << uint32(Serial);
     _worldPacket.append(m.AsByteArray(256).get(), 256);
     _worldPacket << uint8(Con);
+
     return &_worldPacket;
 }
 
@@ -549,4 +550,13 @@ void WorldPackets::Auth::ConnectToFailed::Read()
 {
     Serial = _worldPacket.read<ConnectToSerial>();
     _worldPacket >> Con;
+}
+
+WorldPacket const* WorldPackets::Auth::WaitQueueUpdate::Write()
+{
+    _worldPacket << WaitCount;
+    _worldPacket.WriteBit(HasFCM);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
 }

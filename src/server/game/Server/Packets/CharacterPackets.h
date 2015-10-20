@@ -631,6 +631,18 @@ namespace WorldPackets
             uint32 FactionIndex = 0;
         };
 
+        class XPGainAborted final : public ServerPacket
+        {
+        public:
+            XPGainAborted() : ServerPacket(SMSG_XP_GAIN_ABORTED, 16 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Victim;
+            int32 XpToAdd = 0;
+            int32 XpGainReason = 0;
+            int32 XpAbortReason = 0;
+        };
     }
 }
 

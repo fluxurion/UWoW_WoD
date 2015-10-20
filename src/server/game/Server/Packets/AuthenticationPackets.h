@@ -214,6 +214,25 @@ namespace WorldPackets
             ConnectToSerial Serial = ConnectToSerial::None;
             uint8 Con = 0;
         };
+
+        class WaitQueueUpdate final : public ServerPacket
+        {
+        public:
+            WaitQueueUpdate(ConnectionType connection) : ServerPacket(SMSG_WAIT_QUEUE_UPDATE, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            int32 WaitCount = 0;
+            bool HasFCM = false;
+        };
+
+        class WaitQueueFinish final : public ServerPacket
+        {
+        public:
+            WaitQueueFinish() : ServerPacket(SMSG_WAIT_QUEUE_FINISH, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 

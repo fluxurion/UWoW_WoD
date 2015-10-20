@@ -238,6 +238,19 @@ namespace WorldPackets
             int32 ZoneID = 0;
             std::string MessageText;
         };
+
+        class WorldText final : public ServerPacket
+        {
+        public:
+            WorldText() : ServerPacket(SMSG_WORLD_TEXT, 16 + 4 + 4 + 2) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            int32 Arg1 = 0;
+            int32 Arg2 = 0;
+            std::string Text;
+        };
     }
 }
 

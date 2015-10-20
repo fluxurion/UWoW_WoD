@@ -240,7 +240,8 @@ void PlayerMenu::SendPointOfInterest(uint32 poiId) const
 
     WorldPackets::NPC::GossipPOI packet;
     packet.Flags = poi->flags;
-    packet.Pos = {poi->x, poi->y};
+    packet.Pos.m_positionX = poi->x;
+    packet.Pos.m_positionX = poi->y;
     packet.Icon = poi->icon;
     packet.Importance = poi->data;
     packet.Name = name;

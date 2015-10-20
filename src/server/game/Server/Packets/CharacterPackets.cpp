@@ -510,3 +510,13 @@ WorldPacket const* WorldPackets::Character::SetFactionVisible::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Character::XPGainAborted::Write()
+{
+    _worldPacket << Victim;
+    _worldPacket << XpToAdd;
+    _worldPacket << XpGainReason;
+    _worldPacket << XpAbortReason;
+
+    return &_worldPacket;
+}
