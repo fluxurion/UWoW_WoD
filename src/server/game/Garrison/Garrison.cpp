@@ -624,6 +624,15 @@ void Garrison::SendBuildingLandmarks(Player* receiver) const
     receiver->SendDirectMessage(buildingLandmarks.Write());
 }
 
+void Garrison::SendGarrisonUpgradebleResult(Player* receiver) const
+{
+    //@TODO worn on checks... exmaple: at first lvl u cant upgrade if u hadnt complete quest line
+    WorldPackets::Garrison::GarrisonIsUpgradeableResult result;
+    if (_siteLevel->Level >= 3)
+        result.Result = GARRISON_ERROR_MAX_LEVEL;
+    receiver->SendDirectMessage(result.Write());
+}
+
 Map* Garrison::FindMap() const
 {
     return sMapMgr->FindMap(_siteLevel->MapID, _owner->GetGUID().GetCounter());

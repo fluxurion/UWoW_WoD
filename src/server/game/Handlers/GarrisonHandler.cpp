@@ -27,7 +27,7 @@ void WorldSession::HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo
 
 void WorldSession::HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::GarrisonPurchaseBuilding& packet)
 {
-    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT))
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_GARRISON_ARCHITECT))
         return;
 
     if (Garrison* garrison = _player->GetGarrison())
@@ -36,7 +36,7 @@ void WorldSession::HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::Garris
 
 void WorldSession::HandleGarrisonCancelConstruction(WorldPackets::Garrison::GarrisonCancelConstruction& packet)
 {
-    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG2_GARRISON_ARCHITECT))
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_GARRISON_ARCHITECT))
         return;
 
     if (Garrison* garrison = _player->GetGarrison())
@@ -62,7 +62,10 @@ void WorldSession::HandleGarrisonRequestLandingPageShipmentInfo(WorldPackets::Ga
 { }
 
 void WorldSession::HandleGarrisonCheckUpgradeable(WorldPackets::Garrison::GarrisonCheckUpgradeable& /*packet*/)
-{ }
+{
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->SendGarrisonUpgradebleResult(_player);
+}
 
 void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonStartMission& /*packet*/)
 { }

@@ -54,6 +54,7 @@ enum GarrisonError
     GARRISON_ERROR_INVALID_BUILDINGID       = 2,
     GARRISON_ERROR_INVALID_PLOT_BUILDING    = 7,
     GARRISON_ERROR_NO_BUILDING              = 8,
+    GARRISON_ERROR_MAX_LEVEL                = 12,
     GARRISON_ERROR_SPECIALIZATION_KNOWN     = 19,
     GARRISON_ERROR_BLUEPRINT_KNOWN          = 21,
     GARRISON_ERROR_BLUEPRINT_NOT_KNOWN      = 22,
@@ -151,6 +152,7 @@ public:
     void SendRemoteInfo() const;
     void SendBlueprintAndSpecializationData();
     void SendBuildingLandmarks(Player* receiver) const;
+    void SendGarrisonUpgradebleResult(Player* receiver) const;
 
     void ResetFollowerActivationLimit() { _followerActivationsRemainingToday = 1; }
 
