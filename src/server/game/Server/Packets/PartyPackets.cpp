@@ -450,7 +450,7 @@ void WorldPackets::Party::PartyMemberStats::Initialize(Player* player)
     MemberStats.Unk704[1] = 0;          // Always 0
     MemberStats.Unk200000 = 0;          // Always 0
 
-    MemberStats.Unk2000000 = 0;
+    MemberStats.SpecializationID = player->GetSpecializationId(player->GetActiveSpec());
     MemberStats.Unk4000000 = 0;
 
     // Vehicle
@@ -628,7 +628,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::GroupMemberStats c
 
     data << memberStats.ZoneID;
 
-    data << memberStats.Unk2000000;
+    data << memberStats.SpecializationID;
     data << memberStats.Unk4000000;
 
     data << memberStats.PositionX;

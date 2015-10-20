@@ -939,3 +939,17 @@ WorldPacket const* WorldPackets::Spells::NotifyDestLocSpellCast::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::LossOfControlAuraUpdate::Write()
+{
+    _worldPacket << static_cast<uint32>(Infos.size());
+    for (auto const& x : Infos)
+    {
+        _worldPacket << x.AuraSlot;
+        _worldPacket << x.EffectIndex;
+        _worldPacket.WriteBits(x.Type, 8);
+        _worldPacket.WriteBits(x.Mechanic, 8);
+    }
+
+    return &_worldPacket;
+}

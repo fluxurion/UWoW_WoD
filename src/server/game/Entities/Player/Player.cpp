@@ -28888,10 +28888,10 @@ void Player::SendMovementSetCollisionHeight(float height)
     WorldPackets::Movement::MoveSetCollisionHeight setCollisionHeight;
     setCollisionHeight.MoverGUID = GetGUID();
     setCollisionHeight.SequenceIndex = m_movementCounter++;
-    setCollisionHeight.Height = height;
-    setCollisionHeight.Scale = GetFloatValue(OBJECT_FIELD_SCALE);
+    setCollisionHeight.MsgData.Height = height;
+    setCollisionHeight.MsgData.Scale = GetFloatValue(OBJECT_FIELD_SCALE);
     setCollisionHeight.MountDisplayID = GetUInt32Value(UNIT_FIELD_MOUNT_DISPLAY_ID);
-    setCollisionHeight.Reason = WorldPackets::Movement::UPDATE_COLLISION_HEIGHT_MOUNT;
+    setCollisionHeight.MsgData.Reason = WorldPackets::Movement::UPDATE_COLLISION_HEIGHT_MOUNT;
     SendDirectMessage(setCollisionHeight.Write());
 
     WorldPackets::Movement::MoveUpdateCollisionHeight updateCollisionHeight;

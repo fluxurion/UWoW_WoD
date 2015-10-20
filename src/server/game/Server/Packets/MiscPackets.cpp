@@ -631,3 +631,10 @@ WorldPacket const* WorldPackets::Misc::PlaySpeakerbotSound::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::MountResult::Write()
+{
+    _worldPacket << uint32(Result);
+
+    return &_worldPacket;
+}

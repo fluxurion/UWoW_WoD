@@ -186,7 +186,7 @@ namespace WorldPackets
 
             int16 Unk322 = 0;
             int16 Unk200000 = 0;
-            int16 Unk2000000 = 0;
+            int16 SpecializationID = 0;
             int32 Unk4000000 = 0;
             int8 Unk704[2];
         };

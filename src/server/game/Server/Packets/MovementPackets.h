@@ -381,12 +381,10 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            float Scale = 1.0f;
             ObjectGuid MoverGUID;
             uint32 MountDisplayID = 0;
-            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
             uint32 SequenceIndex = 0;
-            float Height = 1.0f;
+            CollisionHeightData MsgData;
         };
 
         class MoveUpdateCollisionHeight final : public ServerPacket
@@ -409,9 +407,8 @@ namespace WorldPackets
             void Read() override;
 
             MovementAck Data;
-            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
+            CollisionHeightData MsgData;
             uint32 MountDisplayID = 0;
-            float Height = 1.0f;
         };
 
         class MoveTimeSkipped final : public ClientPacket
@@ -478,6 +475,43 @@ namespace WorldPackets
             
             MovementInfo* movementInfo = nullptr;
             MovementForce MovementForce;
+        };
+
+        struct KnockBackData
+        {
+            float HorzSpeed = 0.0f;
+            Position Direction;
+            float InitVertSpeed = 0.0f;
+        };
+
+        struct CollisionHeightData
+        {
+            float Height = 0.0f;
+            float Scale = 0.0f;
+            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
+        };
+
+        struct MoveStateChange
+        {
+            int16 MessageID = 0;
+            uint32 SequenceIndex = 0;
+            Optional<float> Speed;
+            Optional<uint32> VehicleRecID;
+            Optional<MovementForce> MovementForce;
+            Optional<ObjectGuid> MoverGUID;
+            Optional<KnockBackData> KnockBack;
+            Optional<CollisionHeightData> ColiisionHeight;
+        };
+
+        class MoveSetCompoundState final : public ServerPacket
+        {
+        public:
+            MoveSetCompoundState() : ServerPacket(SMSG_MOVE_SET_COMPOUND_STATE, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+            
+            ObjectGuid MoverGUID;
+            std::vector<MoveStateChange> Changes;
         };
     }
 }

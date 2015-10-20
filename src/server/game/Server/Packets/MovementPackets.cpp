@@ -648,10 +648,10 @@ WorldPacket const* WorldPackets::Movement::MoveSetCollisionHeight::Write()
 {
     _worldPacket << MoverGUID;
     _worldPacket << uint32(SequenceIndex);
-    _worldPacket << float(Height);
-    _worldPacket << float(Scale);
+    _worldPacket << MsgData.Height;
+    _worldPacket << MsgData.Scale;
     _worldPacket << uint32(MountDisplayID);
-    _worldPacket.WriteBits(Reason, 2);
+    _worldPacket.WriteBits(MsgData.Reason, 2);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -669,9 +669,9 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
 void WorldPackets::Movement::MoveSetCollisionHeightAck::Read()
 {
     _worldPacket >> Data;
-    _worldPacket >> Height;
+    _worldPacket >> MsgData.Height;
     _worldPacket >> MountDisplayID;
-    Reason = UpdateCollisionHeightReason(_worldPacket.ReadBits(2));
+    MsgData.Reason = UpdateCollisionHeightReason(_worldPacket.ReadBits(2));
 }
 
 void WorldPackets::Movement::MoveTimeSkipped::Read()
@@ -713,6 +713,54 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateApplyMovementForce::Write()
 {
     _worldPacket << *movementInfo;
     _worldPacket << MovementForce;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveSetCompoundState::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << static_cast<int32>(Changes.size());
+    for (auto& v : Changes)
+    {
+        _worldPacket << v.MessageID;
+        _worldPacket << v.SequenceIndex;
+
+        _worldPacket.WriteBit(v.Speed.is_initialized());
+        _worldPacket.WriteBit(v.KnockBack.is_initialized());
+        _worldPacket.WriteBit(v.VehicleRecID.is_initialized());
+        _worldPacket.WriteBit(v.ColiisionHeight.is_initialized());
+        _worldPacket.WriteBit(v.MovementForce.is_initialized());
+        _worldPacket.WriteBit(v.MoverGUID.is_initialized());
+
+        if (v.Speed)
+            _worldPacket << *v.Speed;
+
+        if (v.KnockBack)
+        {
+            _worldPacket << v.KnockBack->HorzSpeed;
+            _worldPacket << v.KnockBack->Direction.PositionXYStream();
+            _worldPacket << v.KnockBack->InitVertSpeed;
+        }
+
+        if (v.VehicleRecID)
+            _worldPacket << *v.VehicleRecID;
+
+        if (v.ColiisionHeight)
+        {
+            _worldPacket << v.ColiisionHeight->Height;
+            _worldPacket << v.ColiisionHeight->Scale;
+            _worldPacket.WriteBits(v.ColiisionHeight->Reason, 2);
+            _worldPacket.FlushBits();
+        }
+
+        if (v.MovementForce)
+            _worldPacket << *v.MovementForce;
+
+        if (v.MoverGUID)
+            _worldPacket << *v.MoverGUID;
+
+    }
 
     return &_worldPacket;
 }

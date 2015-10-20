@@ -868,6 +868,16 @@ namespace WorldPackets
             ObjectGuid SourceObjectGUID;
             uint32 SoundID = 0;
         };
+
+        class MountResult final : public ServerPacket
+        {
+        public:
+            MountResult() : ServerPacket(SMSG_MOUNT_RESULT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            MountResultEnum Result = MOUNT_RESULT_INVALID_MOUNT_TREE;
+        };
     }
 }
 
