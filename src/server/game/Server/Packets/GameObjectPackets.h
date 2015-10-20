@@ -90,6 +90,28 @@ namespace WorldPackets
             int32 CustomAnim = 0;
             bool PlayAsDespawn = false;
         };
+
+        class GameObjectResetState final : public ServerPacket
+        {
+        public:
+            GameObjectResetState() : ServerPacket(SMSG_GAME_OBJECT_RESET_STATE, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+        };
+
+        class GameObjectPlaySpellVisual final : public ServerPacket
+        {
+        public:
+            GameObjectPlaySpellVisual() : ServerPacket(SMSG_GAME_OBJECT_PLAY_SPELL_VISUAL, 16 + 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            ObjectGuid ActivatorGUID;
+            int32 SpellVisualID = 0;
+        };
     }
 }
 #endif // GOPackets_h__

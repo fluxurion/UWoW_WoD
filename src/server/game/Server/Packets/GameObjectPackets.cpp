@@ -30,12 +30,14 @@ void WorldPackets::GameObject::GameObjectReportUse::Read()
 WorldPacket const* WorldPackets::GameObject::GameObjectDespawn::Write()
 {
     _worldPacket << ObjectGUID;
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::GameObject::PageText::Write()
 {
     _worldPacket << GameObjectGUID;
+
     return &_worldPacket;
 }
 
@@ -55,6 +57,22 @@ WorldPacket const* WorldPackets::GameObject::GoCustomAnim::Write()
     _worldPacket << CustomAnim;
     _worldPacket.WriteBit(PlayAsDespawn);
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::GameObject::GameObjectResetState::Write()
+{
+    _worldPacket << ObjectGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::GameObject::GameObjectPlaySpellVisual::Write()
+{
+    _worldPacket << ObjectGUID;
+    _worldPacket << ActivatorGUID;
+    _worldPacket << SpellVisualID;
 
     return &_worldPacket;
 }

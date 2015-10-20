@@ -878,6 +878,18 @@ namespace WorldPackets
 
             MountResultEnum Result = MOUNT_RESULT_INVALID_MOUNT_TREE;
         };
+
+        class DisplayGameError final : public ServerPacket
+        {
+        public:
+            DisplayGameError() : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 6) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Error = 0;
+            Optional<uint32> Arg;
+            Optional<uint32> Arg2;
+        };
     }
 }
 

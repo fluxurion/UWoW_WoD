@@ -638,3 +638,18 @@ WorldPacket const* WorldPackets::Misc::MountResult::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::DisplayGameError::Write()
+{
+    _worldPacket << Error;
+    _worldPacket.WriteBit(Arg.is_initialized());
+    _worldPacket.WriteBit(Arg2.is_initialized());
+
+    if (Arg)
+        _worldPacket << *Arg;
+
+    if (Arg2)
+        _worldPacket << *Arg2;
+
+    return &_worldPacket;
+}

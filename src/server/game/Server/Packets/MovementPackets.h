@@ -513,6 +513,17 @@ namespace WorldPackets
             ObjectGuid MoverGUID;
             std::vector<MoveStateChange> Changes;
         };
+
+        class FlightSplineSync final : public ServerPacket
+        {
+        public:
+            FlightSplineSync() : ServerPacket(SMSG_FLIGHT_SPLINE_SYNC, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+            
+            ObjectGuid Guid;
+            float SplineDist = 0.0f;
+        };
     }
 }
 

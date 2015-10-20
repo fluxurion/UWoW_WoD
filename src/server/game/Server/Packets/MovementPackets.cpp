@@ -764,3 +764,11 @@ WorldPacket const* WorldPackets::Movement::MoveSetCompoundState::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Movement::FlightSplineSync::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << SplineDist;
+
+    return &_worldPacket;
+}
