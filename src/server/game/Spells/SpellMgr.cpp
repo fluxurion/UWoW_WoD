@@ -4892,6 +4892,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 134916: //Decapitate tr ef
                 case 146325: //Cutter Laser Visual Target
                 case 144918: //Cutter Laser Dmg
+                case 159226: //Solar Storm
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                     break;
                 case 144396: //Vengeful Strikes. WTF. SPELL_AURA_MOD_POSSESS_PET

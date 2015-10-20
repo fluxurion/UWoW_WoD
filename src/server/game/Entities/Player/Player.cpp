@@ -29567,6 +29567,10 @@ bool Player::IsForbiddenMapForLevel(uint32 mapid, uint32 zone)
             if (getLevel() < 85)
                 return true;
             break;
+        case 1265: //Dark Portal
+            if (getLevel() < 90)
+                return true;
+            break;
     }
 
     return false;
@@ -29576,10 +29580,11 @@ bool Player::IsLoXpMap(uint32 map)
 {
     switch (map)
     {
-        case 609: // start DK
-        case 648: // start goblin
-        case 654: // start worgen
-        case 860: // start pandaren
+        case 609:  // start DK
+        case 648:  // start goblin
+        case 654:  // start worgen
+        case 860:  // start pandaren
+        case 1265: // Dark Portal
             return true;
         default:
             break;

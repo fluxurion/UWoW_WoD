@@ -9,8 +9,8 @@
 
 DoorData const doorData[] =
 {
-    //{GO_,       DATA_,         DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
-    {0,                   0,                  DOOR_TYPE_ROOM,       BOUNDARY_NONE}, // END
+    {GO_RANJIT_ENTER_DOOR,      DATA_RANJIT,         DOOR_TYPE_ROOM,       BOUNDARY_NONE},
+    {GO_RANJIT_EXIT_DOOR,       DATA_RANJIT,         DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
 };
 
 class instance_skyreach : public InstanceMapScript
@@ -30,12 +30,9 @@ public:
             SetBossNumber(MAX_ENCOUNTER);
         }
 
-        //ObjectGuid BraunGUID;
-
         void Initialize()
         {
             LoadDoorData(doorData);
-            //BraunGUID.Clear();
         }
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -46,46 +43,52 @@ public:
             return true;
         }
 
-        void OnGameObjectCreate(GameObject* go)
-        {
-            /* switch (go->GetEntry())
-            {
-                case GO_HARLAN_DOOR:
-                    AddDoor(go, true);
-                    break;
-                default:
-                    break;
-            } */
-        }
-
         void OnCreatureCreate(Creature* creature)
         {
             /* switch (creature->GetEntry())
             {
-                case NPC_HOUNDMASTER_BRAUN:    
-                    BraunGUID = creature->GetGUID(); 
+                case :
                     break;
             } */
         }
 
-        void SetData(uint32 type, uint32 data)
+        void OnGameObjectCreate(GameObject* go)
         {
-            /*switch (type)
+            switch (go->GetEntry())
             {
+                case GO_RANJIT_ENTER_DOOR:
+                case GO_RANJIT_EXIT_DOOR:
+                case GO_ARAKNATH_ENTER_DOOR_1:
+                case GO_ARAKNATH_ENTER_DOOR_2:
+                case GO_ARAKNATH_EXIT_DOOR_1:
+                case GO_ARAKNATH_EXIT_DOOR_2:
+                    AddDoor(go, true);
+                    break;
                 default:
                     break;
-            }*/
+            }
         }
 
-        /* ObjectGuid GetGuidData(uint32 type) const
+        ObjectGuid GetGuidData(uint32 type) const
         {
-            switch (type)
+            /* switch (type)
             {
-                case NPC_HOUNDMASTER_BRAUN:   
-                    return BraunGUID;
-            }
+                case :   
+                    return ;
+            } */
             return ObjectGuid::Empty;
-        } */
+        }
+
+        void SetData(uint32 type, uint32 data)
+        {
+            /* switch (type)
+            {
+                case :
+                    break;
+                default:
+                    break;
+            } */
+        }
 
         uint32 GetData(uint32 type) const
         {
