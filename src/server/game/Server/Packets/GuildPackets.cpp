@@ -135,3 +135,55 @@ WorldPacket const* WorldPackets::Guild::LFGuildRecruits::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Guild::LFGuildPost::Write()
+{
+    _worldPacket.WriteBit(Post.is_initialized());
+    _worldPacket.FlushBits();
+    if (Post)
+    {
+        _worldPacket.WriteBit(Post->Active);
+        _worldPacket.WriteBits(Post->Comment.length(), 10);
+        _worldPacket.FlushBits();
+
+        _worldPacket << Post->PlayStyle;
+        _worldPacket << Post->Availability;
+        _worldPacket << Post->ClassRoles;
+        _worldPacket << Post->LevelRange;
+        _worldPacket << Post->SecondsRemaining;
+        _worldPacket.WriteString(Post->Comment);
+    }
+
+    return &_worldPacket;
+}
+
+
+WorldPacket const* WorldPackets::Guild::LFGuildBrowse::Write()
+{
+    _worldPacket << static_cast<uint32>(Browses.size());
+    for (auto const& v : Browses)
+    {
+        _worldPacket.WriteBits(v.GuildName.length(), 7);
+        _worldPacket.WriteBits(v.Comment.length(), 10);
+        _worldPacket.FlushBits();
+        _worldPacket << v.GuildGUID;
+        _worldPacket << v.GuildVirtualRealm;
+        _worldPacket << v.GuildMembers;
+        _worldPacket << v.GuildAchievementPoints;
+        _worldPacket << v.PlayStyle;
+        _worldPacket << v.Availability;
+        _worldPacket << v.ClassRoles;
+        _worldPacket << v.LevelRange;
+        _worldPacket << v.EmblemStyle;
+        _worldPacket << v.EmblemColor;
+        _worldPacket << v.BorderStyle;
+        _worldPacket << v.BorderColor;
+        _worldPacket << v.Background;
+        _worldPacket << v.Cached;
+        _worldPacket << v.MembershipRequested;
+        _worldPacket.WriteString(v.GuildName);
+        _worldPacket.WriteString(v.Comment);
+    }
+
+    return &_worldPacket;
+}

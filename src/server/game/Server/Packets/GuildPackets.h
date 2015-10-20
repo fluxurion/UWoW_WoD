@@ -146,6 +146,58 @@ namespace WorldPackets
 
             std::vector<LFGuildRecruitData> Recruits;
         };
+
+        struct GuildPostData
+        {
+            int32 PlayStyle = 0;
+            int32 Availability = 0;
+            int32 ClassRoles = 0;
+            int32 LevelRange = 0;
+            int32 SecondsRemaining = 0;
+            std::string Comment;
+            bool Active = false;
+        };
+
+        class LFGuildPost final : public ServerPacket
+        {
+        public:
+            LFGuildPost() : ServerPacket(SMSG_LF_GUILD_POST, 4) { }
+
+            WorldPacket const* Write() override;
+
+            Optional<GuildPostData> Post;
+        };
+
+        struct LFGuildBrowseData
+        {
+            ObjectGuid GuildGUID;
+            uint32 GuildVirtualRealm = 0;
+            int32 GuildMembers = 0;
+            int32 GuildAchievementPoints = 0;
+            int32 PlayStyle = 0;
+            int32 Availability = 0;
+            int32 ClassRoles = 0;
+            int32 LevelRange = 0;
+            int32 EmblemStyle = 0;
+            int32 EmblemColor = 0;
+            int32 BorderStyle = 0;
+            int32 BorderColor = 0;
+            int32 Background = 0;
+            std::string GuildName;
+            std::string Comment;
+            int8 Cached = 0;
+            int8 MembershipRequested = 0;
+        };
+
+        class LFGuildBrowse final : public ServerPacket
+        {
+        public:
+            LFGuildBrowse() : ServerPacket(SMSG_LF_GUILD_BROWSE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<LFGuildBrowseData> Browses;
+        };
     }
 }
 

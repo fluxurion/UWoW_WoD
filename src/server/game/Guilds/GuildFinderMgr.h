@@ -63,24 +63,24 @@ struct MembershipRequest
         {
             _availability = settings.GetAvailability();
             _classRoles = settings.GetClassRoles();
-            _interests = settings.GetInterests();
+            _playStyle = settings.GetPlayStyle();
             _guildId = settings.GetGuildGuid();
             _playerGUID = settings.GetPlayerGUID();
             _time = settings.GetSubmitTime();
         }
 
-        MembershipRequest(ObjectGuid const& playerGUID, ObjectGuid const& guildId, uint32 availability, uint32 classRoles, uint32 interests, std::string& comment, time_t submitTime) :
+        MembershipRequest(ObjectGuid const& playerGUID, ObjectGuid const& guildId, uint32 availability, uint32 classRoles, uint32 playStyle, std::string& comment, time_t submitTime) :
             _playerGUID(playerGUID), _guildId(guildId), _availability(availability), _classRoles(classRoles),
-            _interests(interests), _time(submitTime), _comment(comment) {}
+            _playStyle(playStyle), _time(submitTime), _comment(comment) {}
         
         MembershipRequest() : _playerGUID(), _guildId(), _availability(0), _classRoles(0),
-            _interests(0), _time(time(NULL)) {}
+            _playStyle(0), _time(time(NULL)) {}
 
         ObjectGuid GetGuildGuid() const      { return _guildId; }
         ObjectGuid GetPlayerGUID() const   { return _playerGUID; }
         uint8 GetAvailability() const  { return _availability; }
         uint8 GetClassRoles() const    { return _classRoles; }
-        uint8 GetInterests() const     { return _interests; }
+        uint8 GetPlayStyle() const     { return _playStyle; }
 
         uint8 GetClass() const
         {
@@ -112,7 +112,7 @@ struct MembershipRequest
 
         uint8 _availability;
         uint8 _classRoles;
-        uint8 _interests;
+        uint8 _playStyle;
 
         time_t _time;
 };
@@ -126,25 +126,25 @@ struct LFGuildPlayer
             _guid.Clear();
             _roles = 0;
             _availability = 0;
-            _interests = 0;
+            _playStyle = 0;
             _level = 0;
         }
 
-        LFGuildPlayer(ObjectGuid const& guid, uint8 role, uint8 availability, uint8 interests, uint8 level)
+        LFGuildPlayer(ObjectGuid const& guid, uint8 role, uint8 availability, uint8 playStyle, uint8 level)
         {
             _guid = guid;
             _roles = role;
             _availability = availability;
-            _interests = interests;
+            _playStyle = playStyle;
             _level = level;
         }
 
-        LFGuildPlayer(ObjectGuid const& guid, uint8 role, uint8 availability, uint8 interests, uint8 level, std::string& comment) : _comment(comment)
+        LFGuildPlayer(ObjectGuid const& guid, uint8 role, uint8 availability, uint8 playStyle, uint8 level, std::string& comment) : _comment(comment)
         {
             _guid = guid;
             _roles = role;
             _availability = availability;
-            _interests = interests;
+            _playStyle = playStyle;
             _level = level;
         }
 
@@ -153,14 +153,14 @@ struct LFGuildPlayer
             _guid = settings.GetGUID();
             _roles = settings.GetClassRoles();
             _availability = settings.GetAvailability();
-            _interests = settings.GetInterests();
+            _playStyle = settings.GetPlayStyle();
             _level = settings.GetLevel();
         }
 
         ObjectGuid const& GetGUID() const         { return _guid; }
         uint8 GetClassRoles() const    { return _roles; }
         uint8 GetAvailability() const  { return _availability; }
-        uint8 GetInterests() const     { return _interests; }
+        uint8 GetPlayStyle() const     { return _playStyle; }
         uint8 GetLevel() const         { return _level; }
         std::string const& GetComment() const { return _comment; }
 
@@ -169,7 +169,7 @@ struct LFGuildPlayer
         ObjectGuid _guid;
         uint8 _roles;
         uint8 _availability;
-        uint8 _interests;
+        uint8 _playStyle;
         uint8 _level;
 };
 
@@ -181,11 +181,11 @@ struct LFGuildSettings : public LFGuildPlayer
 
         LFGuildSettings(bool listed, TeamId team) : LFGuildPlayer(), _listed(listed), _team(team) {}
 
-        LFGuildSettings(bool listed, TeamId team, ObjectGuid const& guid, uint8 role, uint8 availability, uint8 interests, uint8 level) : _listed(listed),
-            LFGuildPlayer(guid, role, availability, interests, level), _team(team) {}
+        LFGuildSettings(bool listed, TeamId team, ObjectGuid const& guid, uint8 role, uint8 availability, uint8 playStyle, uint8 level) : _listed(listed),
+            LFGuildPlayer(guid, role, availability, playStyle, level), _team(team) {}
 
-        LFGuildSettings(bool listed, TeamId team, ObjectGuid const& guid, uint8 role, uint8 availability, uint8 interests, uint8 level, std::string& comment) : _listed(listed),
-            LFGuildPlayer(guid, role, availability, interests, level, comment), _team(team) {}
+        LFGuildSettings(bool listed, TeamId team, ObjectGuid const& guid, uint8 role, uint8 availability, uint8 playStyle, uint8 level, std::string& comment) : _listed(listed),
+            LFGuildPlayer(guid, role, availability, playStyle, level, comment), _team(team) {}
 
         LFGuildSettings(LFGuildSettings const& settings) : _listed(settings.IsListed()), _team(settings.GetTeam()),
             LFGuildPlayer(settings) {}

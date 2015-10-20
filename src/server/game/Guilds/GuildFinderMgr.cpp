@@ -58,7 +58,7 @@ void GuildFinderMgr::LoadGuildSettings()
         ObjectGuid guildId = ObjectGuid::Create<HighGuid::Guild>(fields[0].GetUInt64());
         uint8  availability = fields[1].GetUInt8();
         uint8  classRoles   = fields[2].GetUInt8();
-        uint8  interests    = fields[3].GetUInt8();
+        uint8  playStyle    = fields[3].GetUInt8();
         uint8  level        = fields[4].GetUInt8();
         bool   listed       = (fields[5].GetUInt8() != 0);
         std::string comment = fields[6].GetString();
@@ -67,7 +67,7 @@ void GuildFinderMgr::LoadGuildSettings()
         if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(fields[7].GetUInt8()))
             guildTeam = (TeamId)raceEntry->TeamID;
 
-        LFGuildSettings settings(listed, guildTeam, guildId, classRoles, availability, interests, level, comment);
+        LFGuildSettings settings(listed, guildTeam, guildId, classRoles, availability, playStyle, level, comment);
         _guildSettings[guildId] = settings;
         
         ++count;
@@ -98,11 +98,11 @@ void GuildFinderMgr::LoadMembershipRequests()
         ObjectGuid playerId = ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt64());
         uint8  availability = fields[2].GetUInt8();
         uint8  classRoles   = fields[3].GetUInt8();
-        uint8  interests    = fields[4].GetUInt8();
+        uint8  playStyle    = fields[4].GetUInt8();
         std::string comment = fields[5].GetString();
         uint32 submitTime   = fields[6].GetUInt32();
         
-        MembershipRequest request(playerId, guildId, availability, classRoles, interests, comment, time_t(submitTime));
+        MembershipRequest request(playerId, guildId, availability, classRoles, playStyle, comment, time_t(submitTime));
 
         _membershipRequests[guildId].push_back(request);
         
@@ -122,7 +122,7 @@ void GuildFinderMgr::AddMembershipRequest(ObjectGuid const& guildGuid, Membershi
     stmt->setUInt64(1, request.GetPlayerGUID().GetCounter());
     stmt->setUInt8(2, request.GetAvailability());
     stmt->setUInt8(3, request.GetClassRoles());
-    stmt->setUInt8(4, request.GetInterests());
+    stmt->setUInt8(4, request.GetPlayStyle());
     stmt->setString(5, request.GetComment());
     stmt->setUInt32(6, request.GetSubmitTime());
     trans->Append(stmt);
@@ -245,7 +245,7 @@ LFGuildStore GuildFinderMgr::GetGuildsMatchingSetting(LFGuildPlayer& settings, T
         if (!(guildSettings.GetClassRoles() & settings.GetClassRoles()))
             continue;
 
-        if (!(guildSettings.GetInterests() & settings.GetInterests()))
+        if (!(guildSettings.GetPlayStyle() & settings.GetPlayStyle()))
             continue;
 
         if (!(guildSettings.GetLevel() & settings.GetLevel()))
@@ -275,7 +275,7 @@ void GuildFinderMgr::SetGuildSettings(ObjectGuid const& guildGuid, LFGuildSettin
     stmt->setUInt64(0, settings.GetGUID().GetCounter());
     stmt->setUInt8(1, settings.GetAvailability());
     stmt->setUInt8(2, settings.GetClassRoles());
-    stmt->setUInt8(3, settings.GetInterests());
+    stmt->setUInt8(3, settings.GetPlayStyle());
     stmt->setUInt8(4, settings.GetLevel());
     stmt->setUInt8(5, settings.IsListed());
     stmt->setString(6, settings.GetComment());
@@ -333,7 +333,7 @@ void GuildFinderMgr::SendApplicantListUpdate(Guild& guild)
         data.CharacterGender = 0;
         data.CharacterLevel = x.GetLevel();
         data.ClassRoles = x.GetClassRoles();
-        data.PlayStyle = x.GetInterests();
+        data.PlayStyle = x.GetPlayStyle();
         data.Availability = x.GetAvailability();
         data.SecondsSinceCreated = time(nullptr) - x.GetSubmitTime();
         data.SecondsUntilExpiration = x.GetExpiryTime() - time(nullptr);
@@ -363,7 +363,7 @@ void GuildFinderMgr::SendMembershipRequestListUpdate(Player& player)
         data.CharacterGender = 0;
         data.CharacterLevel = x.GetLevel();
         data.ClassRoles = x.GetClassRoles();
-        data.PlayStyle = x.GetInterests();
+        data.PlayStyle = x.GetPlayStyle();
         data.Availability = x.GetAvailability();
         data.SecondsSinceCreated = time(nullptr) - x.GetSubmitTime();
         data.SecondsUntilExpiration = x.GetExpiryTime() - time(nullptr);
