@@ -261,3 +261,5 @@ replace into `areatrigger_polygon` (`entry`, `spellId`, `type`, `id`, `x`, `y`) 
 ('6385','156636','2','57','31.5','2.26977'),
 ('6385','156636','2','58','36.5','-0.0511475'),
 ('6385','156636','2','59','36.5','2.94885');
+
+insert into `spell_dummy_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `comment`) values('156793','156634','5','0','0','0','0','0','0','1','0','0','Четыре ветра');

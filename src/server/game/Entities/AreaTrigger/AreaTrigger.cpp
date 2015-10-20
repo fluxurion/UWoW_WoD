@@ -248,6 +248,8 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
 
         if(!m_movePath.empty())
             _nextMoveTime = (m_movePath[0] - m_movePath[1]).length() * _moveSpeed;
+        else
+            _nextMoveTime = 1000;
     }
 
     FillCustomData(caster);
@@ -771,6 +773,9 @@ void AreaTrigger::Remove(bool duration)
 
     if (IsInWorld())
     {
+        if(_caster)
+            _caster->SendSpellPlayOrphanVisual(m_spellInfo, false);
+
         UpdateAffectedList(0, AT_ACTION_MOMENT_REMOVE);//any remove from world
 
         if(duration)
@@ -933,6 +938,8 @@ void AreaTrigger::UpdateRotation(uint32 diff)
 {
     if (!isMoving() || !m_movePath.empty())
         return;
+
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::UpdateRotation _waitTime %i _moveTime %i _nextMoveTime %i diff %i speed %f o %f", _waitTime, _moveTime, _nextMoveTime, diff, getMoveSpeed(), GetOrientation());
 
     if (_waitTime > 0)
     {

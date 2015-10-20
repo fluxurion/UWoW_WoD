@@ -1047,7 +1047,10 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
                     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_trigger))
                     {
                         SpellCastTargets targets;
-                        targets.SetDst(m_targets);
+                        if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
+                            targets.SetUnitTarget(unitTarget);
+                        else
+                            targets.SetDst(m_targets);
                         CustomSpellValues values;
                         triggerCaster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULL, m_originalCasterGUID);
                     }
@@ -1726,7 +1729,8 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(triggered_spell_id);
     if (!spellInfo)
     {
-        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectTriggerMissileSpell spell %u tried to trigger unknown spell %u", m_spellInfo->Id, triggered_spell_id);
+        SpellDummyTriggered(effIndex);
+        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectTriggerMissileSpell spell %u tried to trigger unknown spell %u effectHandleMode %u", m_spellInfo->Id, triggered_spell_id, effectHandleMode);
         return;
     }
 

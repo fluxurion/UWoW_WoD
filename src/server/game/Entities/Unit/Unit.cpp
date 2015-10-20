@@ -23851,7 +23851,7 @@ void Unit::SendSpellPlayOrphanVisual(SpellInfo const* spellInfo, bool apply, Pos
         else
         {
             SendMessageToSet(WorldPackets::Spells::CancelOrphanSpellVisual(playOrphan->SpellVisualID).Write(), true);
-            
+
             WorldPackets::Spells::CancelSpellVisual calcelVisual;
             calcelVisual.Source = GetGUID();
             calcelVisual.SpellVisualID = playOrphan->SpellVisualID;

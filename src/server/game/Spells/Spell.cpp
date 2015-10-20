@@ -3987,7 +3987,8 @@ void Spell::cast(bool skipCheck)
         TakePower();
 
     m_caster->SendSpellCreateVisual(m_spellInfo, &visualPos, m_targets.GetUnitTarget());
-    m_caster->SendSpellPlayOrphanVisual(m_spellInfo, true, &visualPos, m_targets.GetUnitTarget());
+
+    m_caster->SendSpellPlayOrphanVisual(m_spellInfo, true, m_targets.GetDstPos(), m_targets.GetUnitTarget());
     // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
     SendSpellGo();
 
