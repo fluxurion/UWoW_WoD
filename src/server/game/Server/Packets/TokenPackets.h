@@ -24,6 +24,26 @@ namespace WorldPackets
 {
     namespace Token
     {
+        struct AuctionableListResponse
+        {
+            uint64 DistributionID = 0;
+            uint64 BuyoutPrice = 0;
+            time_t DateCreated = time_t(0);
+            uint32 Owner = 0;
+            uint32 EndTime = 0;
+        };
+
+        class UpdateWowTokenAuctionableListResponse final : public ServerPacket
+        {
+        public:
+            UpdateWowTokenAuctionableListResponse() : ServerPacket(SMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST_RESPONSE, 12) { }
+
+            WorldPacket const* Write() override;
+            
+            std::vector<AuctionableListResponse> List;
+            int32 UnkInt = 0;
+            uint32 Result = 0;
+        };
     }
 }
 

@@ -133,3 +133,9 @@ void WorldPackets::ClientConfig::SetAdvancedCombatLogging::Read()
     Enable = _worldPacket.ReadBit();
 }
 
+WorldPacket const* WorldPackets::ClientConfig::TwitterStatus::Write()
+{
+    _worldPacket << StatusInt;
+
+    return &_worldPacket;
+}

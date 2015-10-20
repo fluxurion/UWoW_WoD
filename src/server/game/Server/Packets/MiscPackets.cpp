@@ -529,3 +529,41 @@ WorldPacket const* WorldPackets::Misc::SpecialMountAnim::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Misc::TaskProgress const& progress)
+{
+    data << progress.TaskID;
+    data << uint32(progress.FailureTime);
+    data << progress.Flags;
+    for (uint16 const& x : progress.Counts)
+        data << x;
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Misc::UpdateTaskProgress::Write()
+{
+    _worldPacket << static_cast<uint32>(Progress.size());
+    for (auto const& x : Progress)
+        _worldPacket << x;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StreamingMovie::Write()
+{
+    _worldPacket << static_cast<uint32>(MovieIDs.size());
+    for (auto const& v : MovieIDs)
+        _worldPacket << v;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StopElapsedTimer::Write()
+{
+    _worldPacket << TimerID;
+    _worldPacket.WriteBit(KeepTimer);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

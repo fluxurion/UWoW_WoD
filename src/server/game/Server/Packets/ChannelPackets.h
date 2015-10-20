@@ -202,6 +202,17 @@ namespace WorldPackets
             int32 ZoneChannelID = 0;
             std::string ChannelName;
         };
+
+        class VoiceSessionLeave final : public ServerPacket
+        {
+        public:
+            VoiceSessionLeave() : ServerPacket(SMSG_VOICE_SESSION_LEAVE, 16 + 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid LocalGUID;
+            ObjectGuid SessionGUID;
+        };
     }
 }
 

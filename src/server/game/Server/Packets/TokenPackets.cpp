@@ -16,3 +16,22 @@
  */
 
 #include "TokenPackets.h"
+
+WorldPacket const* WorldPackets::Token::UpdateWowTokenAuctionableListResponse::Write()
+{
+    _worldPacket << UnkInt;
+    _worldPacket << Result;
+    _worldPacket << static_cast<uint32>(List.size());
+
+    for (auto const& v : List)
+    {
+        _worldPacket << v.DistributionID;
+        _worldPacket << uint32(v.DateCreated);
+        _worldPacket << v.Owner;
+        _worldPacket << v.BuyoutPrice;
+        _worldPacket << v.EndTime;
+    }
+
+    return &_worldPacket;
+}
+

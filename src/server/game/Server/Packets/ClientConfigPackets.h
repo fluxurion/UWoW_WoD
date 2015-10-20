@@ -109,6 +109,16 @@ namespace WorldPackets
 
             bool Enable = false;
         };
+
+        class TwitterStatus final : public ServerPacket
+        {
+        public:
+            TwitterStatus() : ServerPacket(SMSG_TWITTER_STATUS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 StatusInt = 0;
+        };
     }
 }
 

@@ -183,3 +183,11 @@ void WorldPackets::Channel::LeaveChannel::Read()
     _worldPacket >> ZoneChannelID;
     ChannelName = _worldPacket.ReadString(_worldPacket.ReadBits(7));
 }
+
+WorldPacket const* WorldPackets::Channel::VoiceSessionLeave::Write()
+{
+    _worldPacket << LocalGUID;
+    _worldPacket << SessionGUID;
+
+    return &_worldPacket;
+}

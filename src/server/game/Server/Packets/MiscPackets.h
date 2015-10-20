@@ -762,6 +762,45 @@ namespace WorldPackets
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
+
+        struct TaskProgress
+        {
+            uint32 TaskID = 0;
+            time_t FailureTime = time(0);
+            uint32 Flags = 0;
+            std::vector<uint16> Counts;
+        };
+
+        class UpdateTaskProgress final : public ServerPacket
+        {
+        public:
+            UpdateTaskProgress() : ServerPacket(SMSG_UPDATE_TASK_PROGRESS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<TaskProgress> Progress;
+        };
+
+        class StreamingMovie final : public ServerPacket
+        {
+        public:
+            StreamingMovie() : ServerPacket(SMSG_STREAMING_MOVIES, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<int16> MovieIDs;
+        };
+
+        class StopElapsedTimer final : public ServerPacket
+        {
+        public:
+            StopElapsedTimer() : ServerPacket(SMSG_STOP_ELAPSED_TIMER, 5) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TimerID = 0;
+            bool KeepTimer = false;
+        };
     }
 }
 
