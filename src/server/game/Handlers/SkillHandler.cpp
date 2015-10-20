@@ -18,14 +18,15 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "Opcodes.h"
 #include "Log.h"
+#include "MiscPackets.h"
+#include "ObjectAccessor.h"
+#include "Opcodes.h"
 #include "Player.h"
+#include "TalentPackets.h"
+#include "UpdateMask.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectAccessor.h"
-#include "UpdateMask.h"
-#include "TalentPackets.h"
 
 void WorldSession::HandleSetSpecialization(WorldPackets::Talent::SetSpecialization& packet)
 {
@@ -169,23 +170,19 @@ void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
     if (profSpells.empty())
         return;
 
-    WorldPacket data(SMSG_PLAYER_RECIPES, 4 + 3 * 4 + relatedSkills.size() * 4 * 3 + profSpells.size() * 4);
-    data.WriteBits(relatedSkills.size(), 22);
-    //data.WriteGuidMask<3, 7>(guid);
-    data.WriteBits(relatedSkills.size(), 22);
-    data.WriteBits(profSpells.size(), 22);
-    data.WriteBits(relatedSkills.size(), 22);
-    //data.WriteGuidMask<0, 4, 6, 2, 5, 1>(guid);
+    WorldPackets::Misc::ShowTradeSkillResponse response;
+    response.PlayerGUID = guid;
+    response.SpellId = spellId;
 
-    data << uint32(spellId);
-    for (std::set<uint32>::const_iterator itr = profSpells.begin(); itr != profSpells.end(); ++itr)
-        data << uint32(*itr);
-    for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)
-        data << uint32(player->GetMaxSkillValue(*itr));
-    for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)
-        data << uint32(player->GetSkillValue(*itr));
-    for (std::set<uint32>::const_iterator itr = relatedSkills.begin(); itr != relatedSkills.end(); ++itr)
-        data << uint32(*itr);
+    for (uint32 const& x : profSpells)
+        response.KnownAbilitySpellIDs.push_back(x);
 
-    _player->SendDirectMessage(&data);
+    for (uint32 const& v : relatedSkills)
+    {
+        response.SkillLineIDs.push_back(v);
+        response.SkillRanks.push_back(player->GetSkillValue(v));
+        response.SkillMaxRanks.push_back(player->GetMaxSkillValue(v));
+    }
+
+    _player->SendDirectMessage(response.Write());
 }

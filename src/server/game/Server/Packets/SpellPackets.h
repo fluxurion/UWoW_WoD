@@ -853,6 +853,32 @@ namespace WorldPackets
 
             std::vector<WeeklySpellUsageData> SpellUsage;
         };
+
+        class UpdateChainTargets final : public ServerPacket
+        {
+        public:
+            UpdateChainTargets() : ServerPacket(SMSG_SPELL_UPDATE_CHAIN_TARGETS, 16 + 4 + 4) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterGUID;
+            GuidVector Targets;
+            uint32 SpellID = 0;
+        };
+
+        class SpellMultistrikeEffect final : public ServerPacket
+        {
+        public:
+            SpellMultistrikeEffect() : ServerPacket(SMSG_SPELL_MULTISTRIKE_EFFECT, 16 + 16 + 4 + 2 + 2) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Caster;
+            ObjectGuid Target;
+            uint32 SpellID = 0;
+            uint16 ProcCount = 0;
+            uint16 ProcNum = 0;
+        };
     }
 }
 

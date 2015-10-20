@@ -801,6 +801,42 @@ namespace WorldPackets
             int32 TimerID = 0;
             bool KeepTimer = false;
         };
+         
+        class StartElapsedTimer final : public ServerPacket
+        {
+        public:
+            StartElapsedTimer() : ServerPacket(SMSG_START_ELAPSED_TIMER, 8) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TimerID = 0;
+            int32 CurrentDuration = 0;
+        };
+
+        class ShowTradeSkillResponse final : public ServerPacket
+        {
+        public:
+            ShowTradeSkillResponse() : ServerPacket(SMSG_SHOW_TRADE_SKILL_RESPONSE, 16 + 4 + 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PlayerGUID;
+            uint32 SpellId = 0;
+            std::vector<int32> SkillLineIDs;
+            std::vector<int32> SkillRanks;
+            std::vector<int32> SkillMaxRanks;
+            std::vector<int32> KnownAbilitySpellIDs;
+        };
+
+        class SetTaskComplete final : public ServerPacket
+        {
+        public:
+            SetTaskComplete() : ServerPacket(SMSG_SET_TASK_COMPLETE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TaskID = 0;
+        };
     }
 }
 

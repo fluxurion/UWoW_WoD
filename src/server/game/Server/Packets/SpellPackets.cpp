@@ -869,3 +869,25 @@ WorldPacket const* WorldPackets::Spells::WeeklySpellUsage::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::UpdateChainTargets::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << SpellID;
+    _worldPacket << static_cast<uint32>(Targets.size());
+    for (auto const& x : Targets)
+        _worldPacket << x;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::SpellMultistrikeEffect::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << Target;
+    _worldPacket << SpellID;
+    _worldPacket << ProcCount;
+    _worldPacket << ProcNum;
+
+    return &_worldPacket;
+}

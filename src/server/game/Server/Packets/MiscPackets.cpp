@@ -567,3 +567,42 @@ WorldPacket const* WorldPackets::Misc::StopElapsedTimer::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::StartElapsedTimer::Write()
+{
+    _worldPacket << TimerID;
+    _worldPacket << CurrentDuration;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::ShowTradeSkillResponse::Write()
+{
+    _worldPacket << PlayerGUID;
+    _worldPacket << SpellId;
+    _worldPacket << static_cast<uint32>(SkillLineIDs.size());
+    _worldPacket << static_cast<uint32>(SkillRanks.size());
+    _worldPacket << static_cast<uint32>(SkillMaxRanks.size());
+    _worldPacket << static_cast<uint32>(KnownAbilitySpellIDs.size());
+
+    for (auto const& v : SkillLineIDs)
+        _worldPacket << v;
+
+    for (auto const& c : SkillRanks)
+        _worldPacket << c;
+
+    for (auto const& z : SkillMaxRanks)
+        _worldPacket << z;
+
+    for (auto const& t : KnownAbilitySpellIDs)
+        _worldPacket << t;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetTaskComplete::Write()
+{
+    _worldPacket << TaskID;
+
+    return &_worldPacket;
+}
