@@ -23836,29 +23836,26 @@ void Unit::SendSpellPlayOrphanVisual(SpellInfo const* spellInfo, bool apply, Pos
     {
         if(apply)
         {
-            WorldPacket data(SMSG_PLAY_ORPHAN_SPELL_VISUAL, 50);
-            data << position->GetPositionX() << position->GetPositionY() << position->GetPositionZ();
-            data << 0.0f << 0.0f << 0.0f;
-            data << position->GetPositionX() << position->GetPositionY() << position->GetPositionZ();
-            data << (target ? target->GetGUID() : ObjectGuid::Empty);
-            data << uint32(playOrphan->SpellVisualID);
-            data << playOrphan->TravelSpeed;
-            data << playOrphan->UnkFloat;
-            data.WriteBit(playOrphan->SpeedAsTime);
-            SendMessageToSet(&data, true);
+            WorldPackets::Spells::PlayOrphanSpellVisual orphanVisual;
+            if (target)
+                orphanVisual.Target = target->GetGUID();
+            orphanVisual.SourceLocation = *position;
+            //orphanVisual.SourceOrientation;
+            orphanVisual.TargetLocation = *position;
+            orphanVisual.SpellVisualID = playOrphan->SpellVisualID;
+            orphanVisual.TravelSpeed = playOrphan->TravelSpeed;
+            orphanVisual.UnkFloat = playOrphan->UnkFloat;
+            orphanVisual.SpeedAsTime = playOrphan->SpeedAsTime;
+            SendMessageToSet(orphanVisual.Write(), true);
         }
         else
         {
-            {
-                WorldPacket data(SMSG_CANCEL_ORPHAN_SPELL_VISUAL, 4);
-                data << uint32(playOrphan->SpellVisualID);
-                SendMessageToSet(&data, true);
-            }
-            {
-                WorldPacket data(SMSG_CANCEL_SPELL_VISUAL, 4);
-                data << uint32(playOrphan->SpellVisualID);
-                SendMessageToSet(&data, true);
-            }
+            SendMessageToSet(WorldPackets::Spells::CancelOrphanSpellVisual(playOrphan->SpellVisualID).Write(), true);
+            
+            WorldPackets::Spells::CancelSpellVisual calcelVisual;
+            calcelVisual.Source;
+            calcelVisual.SpellVisualID = playOrphan->SpellVisualID;
+            SendMessageToSet(calcelVisual.Write(), true);
         }
     }
 }

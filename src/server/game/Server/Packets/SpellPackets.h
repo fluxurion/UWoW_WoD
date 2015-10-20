@@ -588,7 +588,7 @@ namespace WorldPackets
         class CancelOrphanSpellVisual final : public ServerPacket
         {
         public:
-            CancelOrphanSpellVisual() : ServerPacket(SMSG_CANCEL_ORPHAN_SPELL_VISUAL, 4) { }
+            CancelOrphanSpellVisual(int32 id) : ServerPacket(SMSG_CANCEL_ORPHAN_SPELL_VISUAL, 4), SpellVisualID(id) { }
 
             WorldPacket const* Write() override;
 
