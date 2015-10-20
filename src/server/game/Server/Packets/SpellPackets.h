@@ -964,6 +964,47 @@ namespace WorldPackets
             ObjectGuid Source;
             int32 SpellVisualKitID = 0;
         };
+
+        class AuraPointsDepleted final : public ServerPacket
+        {
+        public:
+            AuraPointsDepleted() : ServerPacket(SMSG_AURA_POINTS_DEPLETED, 16 + 4) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint8 Slot = 0;
+            uint8 EffectIndex = 0;
+        };
+
+        struct AreaTriggerSpline
+        {
+            int32 TimeToTarget = 0;
+            int32 ElapsedTimeForMovement = 0;
+            std::vector<Position> VerticesPoints;
+        };
+
+        class AreaTriggerRePath final : public ServerPacket
+        {
+        public:
+            AreaTriggerRePath() : ServerPacket(SMSG_AREA_TRIGGER_RE_PATH, 12 + 16) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid TriggerGUID;
+            AreaTriggerSpline Spline;
+        };
+
+        class AreaTriggerDenied final : public ServerPacket
+        {
+        public:
+            AreaTriggerDenied() : ServerPacket(SMSG_AREA_TRIGGER_DENIED, 4 + 1) { }
+            
+            WorldPacket const* Write() override;
+
+            int32 AreaTriggerID = 0;
+            bool Entered = false;
+        };
     }
 }
 

@@ -961,3 +961,40 @@ WorldPacket const* WorldPackets::Spells::CancelSpellVisualKit::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::AuraPointsDepleted::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << Slot;
+    _worldPacket << EffectIndex;
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AreaTriggerSpline& spline)
+{
+    data << spline.TimeToTarget;
+    data << spline.ElapsedTimeForMovement;
+    data << static_cast<uint32>(spline.VerticesPoints.size());
+    for (auto& x : spline.VerticesPoints)
+        data << x.PositionXYZStream();
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Spells::AreaTriggerRePath::Write()
+{
+    _worldPacket << TriggerGUID;
+    _worldPacket << Spline;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::AreaTriggerDenied::Write()
+{
+    _worldPacket << AreaTriggerID;
+    _worldPacket.WriteBit(Entered);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

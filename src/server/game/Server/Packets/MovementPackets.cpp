@@ -772,3 +772,11 @@ WorldPacket const* WorldPackets::Movement::FlightSplineSync::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Movement::AdjustSplineDuration::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << Scale;
+
+    return &_worldPacket;
+}

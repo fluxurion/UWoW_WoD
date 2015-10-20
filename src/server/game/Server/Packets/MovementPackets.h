@@ -524,6 +524,17 @@ namespace WorldPackets
             ObjectGuid Guid;
             float SplineDist = 0.0f;
         };
+
+        class AdjustSplineDuration final : public ServerPacket
+        {
+        public:
+            AdjustSplineDuration() : ServerPacket(SMSG_ADJUST_SPLINE_DURATION, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+            
+            ObjectGuid Unit;
+            float Scale = 0.0f;
+        };
     }
 }
 

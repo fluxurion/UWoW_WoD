@@ -191,3 +191,14 @@ WorldPacket const* WorldPackets::Channel::VoiceSessionLeave::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Channel::AvailableVoiceChannel::Write()
+{
+    _worldPacket << SessionGUID;
+    _worldPacket << LocalGUID;
+    _worldPacket << ChannelType;
+    _worldPacket.WriteBits(ChannelName.length(), 7);
+    _worldPacket.WriteString(ChannelName);
+
+    return &_worldPacket;
+}

@@ -213,6 +213,19 @@ namespace WorldPackets
             ObjectGuid LocalGUID;
             ObjectGuid SessionGUID;
         };
+
+        class AvailableVoiceChannel final : public ServerPacket
+        {
+        public:
+            AvailableVoiceChannel() : ServerPacket(SMSG_AVAILABLE_VOICE_CHANNEL, 16 + 16 + 3) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SessionGUID;
+            ObjectGuid LocalGUID;
+            uint8 ChannelType = 0;
+            std::string ChannelName;
+        };
     }
 }
 
