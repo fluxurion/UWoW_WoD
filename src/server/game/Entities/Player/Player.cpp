@@ -5272,6 +5272,9 @@ void Player::SetSpecializationId(uint8 spec, uint32 id)
 {
     _talentMgr->SpecInfo[spec].SpecializationId = id;
 
+    if (GetGroup())
+        SetGroupUpdateFlag(GROUP_UPDATE_FLAG_SPECIALIZATION_ID);
+
     if (spec == GetActiveSpec())
         SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, id);
 

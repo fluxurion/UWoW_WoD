@@ -269,7 +269,7 @@ WorldPacket const* WorldPackets::Query::DBReply::Write()
 WorldPacket const* WorldPackets::Query::HotfixNotifyBlob::Write()
 {
     _worldPacket << static_cast<uint32>(Hotfixes->size());
-    for (HotfixNotify const& hotfix : *Hotfixes)
+    for (auto const& hotfix : *Hotfixes)
     {
         _worldPacket << uint32(hotfix.TableHash);
         _worldPacket << int32(hotfix.Entry);

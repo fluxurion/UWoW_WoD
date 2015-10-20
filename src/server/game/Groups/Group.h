@@ -114,7 +114,7 @@ enum GroupUpdateFlags
     GROUP_UPDATE_FLAG_LEVEL             = 0x00000100,       // uint16 (level value)
     GROUP_UPDATE_FLAG_UNK200000         = 0x00000200,       // int16 (unk)
     GROUP_UPDATE_FLAG_ZONE              = 0x00000400,       // uint16 (zone id)
-    GROUP_UPDATE_FLAG_UNK2000000        = 0x00000800,       // int16 (unk)
+    GROUP_UPDATE_FLAG_SPECIALIZATION_ID = 0x00000800,       // int16 (specID)
     GROUP_UPDATE_FLAG_UNK4000000        = 0x00001000,       // int32 (unk)
     GROUP_UPDATE_FLAG_POSITION          = 0x00002000,       // uint16 (x), uint16 (y), uint16 (z)
     GROUP_UPDATE_FLAG_VEHICLE_SEAT      = 0x00104000,       // int32 (vehicle seat id)
@@ -125,7 +125,7 @@ enum GroupUpdateFlags
     GROUP_UPDATE_FULL = GROUP_UPDATE_FLAG_OTHER_PARTY   | GROUP_UPDATE_FLAG_STATUS      | GROUP_UPDATE_FLAG_POWER_TYPE |
                         GROUP_UPDATE_FLAG_UNK322        | GROUP_UPDATE_FLAG_CUR_HP      | GROUP_UPDATE_FLAG_MAX_HP |
                         GROUP_UPDATE_FLAG_CUR_POWER     | GROUP_UPDATE_FLAG_MAX_POWER   | GROUP_UPDATE_FLAG_LEVEL |
-                        GROUP_UPDATE_FLAG_UNK200000     | GROUP_UPDATE_FLAG_ZONE        | GROUP_UPDATE_FLAG_UNK2000000 |
+                        GROUP_UPDATE_FLAG_UNK200000     | GROUP_UPDATE_FLAG_ZONE        | GROUP_UPDATE_FLAG_SPECIALIZATION_ID |
                         GROUP_UPDATE_FLAG_UNK4000000    | GROUP_UPDATE_FLAG_POSITION    | GROUP_UPDATE_FLAG_VEHICLE_SEAT |
                         GROUP_UPDATE_FLAG_AURAS         | GROUP_UPDATE_FLAG_PET         | GROUP_UPDATE_FLAG_PHASE
 };
