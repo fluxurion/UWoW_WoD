@@ -506,3 +506,32 @@ WorldPacket const* WorldPackets::Garrison::GarrisonOpenMissionNpcResponse::Write
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Garrison::GarrisonRemoveFollowerResult::Write()
+{
+    _worldPacket << FollowerDBID;
+    _worldPacket << Result;
+    _worldPacket << Destroyed;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonFollowerChangedXP::Write()
+{
+    _worldPacket << Result;
+    _worldPacket << Follower;
+    _worldPacket << Follower2;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonCompleteMissionResult::Write()
+{
+    _worldPacket << Result;
+    _worldPacket << MissionData;
+    _worldPacket << MissionRecID;
+    _worldPacket.WriteBit(Succeeded);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

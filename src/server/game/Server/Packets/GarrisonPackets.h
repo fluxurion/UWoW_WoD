@@ -661,6 +661,43 @@ namespace WorldPackets
 
             ObjectGuid NpcGUID;
         };
+
+        class GarrisonRemoveFollowerResult final : public ServerPacket
+        {
+        public:
+            GarrisonRemoveFollowerResult() : ServerPacket(SMSG_GARRISON_REMOVE_FOLLOWER_RESULT, 8 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 FollowerDBID = 0;
+            int32 Result = 0;
+            int32 Destroyed = 0;
+        };
+
+        class GarrisonFollowerChangedXP final : public ServerPacket
+        {
+        public:
+            GarrisonFollowerChangedXP() : ServerPacket(SMSG_GARRISON_FOLLOWER_CHANGED_XP) { }
+
+            WorldPacket const* Write() override;
+            
+            GarrisonFollower Follower;
+            GarrisonFollower Follower2;
+            int32 Result = 0;
+        };
+
+        class GarrisonCompleteMissionResult final : public ServerPacket
+        {
+        public:
+            GarrisonCompleteMissionResult() : ServerPacket(SMSG_GARRISON_COMPLETE_MISSION_RESULT) { }
+
+            WorldPacket const* Write() override;
+
+            GarrisonMission MissionData;
+            int32 Result = 0;
+            int32 MissionRecID = 0;
+            bool Succeeded = false;
+        };
     }
 }
 
