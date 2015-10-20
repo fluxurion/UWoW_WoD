@@ -366,6 +366,16 @@ namespace WorldPackets
 
             ObjectGuid ItemGuid;
         };
+
+        class ItemExpirePurchaseRefund final : public ServerPacket
+        {
+        public:
+            ItemExpirePurchaseRefund() : ServerPacket(SMSG_ITEM_EXPIRE_PURCHASE_REFUND, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ItemGUID;
+        };
     }
 }
 

@@ -1271,6 +1271,10 @@ void Item::SetNotRefundable(Player* owner, bool changestate /*=true*/, SQLTransa
     if (!HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
         return;
 
+    WorldPackets::Item::ItemExpirePurchaseRefund itemExpirePurchaseRefund;
+    itemExpirePurchaseRefund.ItemGUID = GetGUID();
+    owner->SendDirectMessage(itemExpirePurchaseRefund.Write());
+
     RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE);
     // Following is not applicable in the trading procedure
     if (changestate)

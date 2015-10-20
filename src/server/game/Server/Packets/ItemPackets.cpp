@@ -401,3 +401,10 @@ void WorldPackets::Item::UseCritterItem::Read()
 {
     _worldPacket >> ItemGuid;
 }
+
+WorldPacket const* WorldPackets::Item::ItemExpirePurchaseRefund::Write()
+{
+    _worldPacket << ItemGUID;
+
+    return &_worldPacket;
+}
