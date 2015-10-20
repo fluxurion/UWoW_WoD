@@ -279,6 +279,15 @@ WorldPacket const* WorldPackets::Query::HotfixNotifyBlob::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Query::HotfixNotify::Write()
+{
+    _worldPacket << TableHash;
+    _worldPacket << RecordID;
+    _worldPacket << Timestamp;
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Query::QueryGameObject::Read()
 {
     _worldPacket >> GameObjectID;

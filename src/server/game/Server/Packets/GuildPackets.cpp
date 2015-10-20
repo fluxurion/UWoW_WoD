@@ -207,3 +207,46 @@ WorldPacket const* WorldPackets::Guild::LFGuildApplication::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Guild::GuildReputationReactionChanged::Write()
+{
+    _worldPacket << MemberGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildNameChanged::Write()
+{
+    _worldPacket << GuildGUID;
+    _worldPacket.WriteBits(GuildName.length(), 7);
+    _worldPacket.WriteString(GuildName);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildChallengeUpdated::Write()
+{
+    for (int8 i = 0; i < 6; i++)
+        _worldPacket << CurrentCount[i];
+
+    for (int8 i = 0; i < 6; i++)
+        _worldPacket << MaxCount[i];
+
+    for (int8 i = 0; i < 6; i++)
+        _worldPacket << Gold[i];
+
+    for (int8 i = 0; i < 6; i++)
+        _worldPacket << MaxLevelGold[i];
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildChallengeCompleted::Write()
+{
+    _worldPacket << ChallengeType;
+    _worldPacket << CurrentCount;
+    _worldPacket << MaxCount;
+    _worldPacket << GoldAwarded;
+
+    return &_worldPacket;
+}

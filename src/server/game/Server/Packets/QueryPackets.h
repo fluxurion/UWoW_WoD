@@ -211,6 +211,18 @@ namespace WorldPackets
             HotfixData const* Hotfixes = nullptr;
         };
 
+        class HotfixNotify final : public ServerPacket
+        {
+        public:
+            HotfixNotify() : ServerPacket(SMSG_HOTFIX_NOTIFY, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 TableHash = 0;
+            uint32 Timestamp = 0;
+            int32 RecordID = 0;
+        };
+
         class QueryGameObject final : public ClientPacket
         {
         public:

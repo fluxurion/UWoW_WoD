@@ -221,6 +221,53 @@ namespace WorldPackets
             int32 NumRemaining = 0;
             std::vector<LFGuildApplicationData> Applications;
         };
+
+        class GuildReputationReactionChanged final : public ServerPacket
+        {
+        public:
+            GuildReputationReactionChanged() : ServerPacket(SMSG_GUILD_REPUTATION_REACTION_CHANGED, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MemberGUID;
+        };
+
+        class GuildNameChanged final : public ServerPacket
+        {
+        public:
+            GuildNameChanged() : ServerPacket(SMSG_GUILD_NAME_CHANGED, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GuildGUID;
+            std::string GuildName;
+        };
+
+        class GuildChallengeUpdated final : public ServerPacket
+        {
+        public:
+            GuildChallengeUpdated() : ServerPacket(SMSG_GUILD_CHALLENGE_UPDATE, 4 * 4 * 6) { }
+
+            WorldPacket const* Write() override;
+
+            int32 CurrentCount[6] = { };
+            int32 MaxCount[6] = { };
+            int32 Gold[6] = { };
+            int32 MaxLevelGold[6] = { };
+        };
+
+        class GuildChallengeCompleted final : public ServerPacket
+        {
+        public:
+            GuildChallengeCompleted() : ServerPacket(SMSG_GUILD_CHALLENGE_COMPLETED, 4 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 ChallengeType = 0;
+            int32 CurrentCount = 0;
+            int32 MaxCount = 0;
+            int32 GoldAwarded = 0;
+        };
     }
 }
 
