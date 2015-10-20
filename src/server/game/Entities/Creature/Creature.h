@@ -325,6 +325,7 @@ typedef std::unordered_map<uint32, EquipmentInfoContainerInternal> EquipmentInfo
 struct CreatureData
 {
     explicit CreatureData() : dbData(true) {}
+    ObjectGuid::LowType guid;
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
     uint16 zoneId;

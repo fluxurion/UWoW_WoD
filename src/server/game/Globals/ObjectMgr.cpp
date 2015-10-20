@@ -1639,7 +1639,8 @@ void ObjectMgr::LoadCreatures()
         "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.npcflag2, creature.unit_flags, creature.dynamicflags, creature.isActive, creature.PhaseId "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
-        "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
+        "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid "
+        "ORDER BY `map` ASC");
 
     if (!result)
     {
@@ -1654,6 +1655,8 @@ void ObjectMgr::LoadCreatures()
             spawnMasks[mapDifficultyPair.first] |= (1 << difficultyPair.first);
 
     _creatureDataStore.rehash(result->GetRowCount());
+    std::map<uint32, CreatureData*> lastEntryCreature;
+
     uint32 count = 0;
     do
     {
@@ -1672,6 +1675,7 @@ void ObjectMgr::LoadCreatures()
         }
 
         CreatureData& data = _creatureDataStore[guid];
+        data.guid           = guid;
         data.id             = entry;
         data.mapid          = fields[index++].GetUInt16();
         data.zoneId         = fields[index++].GetUInt16();
@@ -1704,6 +1708,44 @@ void ObjectMgr::LoadCreatures()
             if (PhaseEntry const* phase = sPhaseStores.LookupEntry(uint32(strtoull(*itr, nullptr, 10))))
                 data.PhaseID.insert(phase->ID);
         }
+
+        // check near npc with same entry.
+        auto lastCreature = lastEntryCreature.find(entry);
+        if (lastCreature != lastEntryCreature.end())
+        {
+            if (data.mapid == lastCreature->second->mapid)
+            {
+                float dx1 = lastCreature->second->posX - data.posX;
+                float dy1 = lastCreature->second->posY - data.posY;
+                float dz1 = lastCreature->second->posZ - data.posZ;
+
+                float distsq1 = dx1*dx1 + dy1*dy1 + dz1*dz1;
+                if (distsq1 < 0.5f)
+                {
+                    // split phaseID
+                    for (auto phaseID : data.PhaseID)
+                        lastCreature->second->PhaseID.insert(phaseID);
+
+                    std::ostringstream ss;
+                    if (lastCreature->second->PhaseID.size())
+                    {
+                        std::set<uint32>::const_iterator itr = lastCreature->second->PhaseID.begin();
+                        ss << *itr;
+                        for (++itr; itr != lastCreature->second->PhaseID.end(); ++itr)
+                            ss << ' ' << *itr;
+                    }
+                    lastCreature->second->phaseMask |= data.phaseMask;
+                    lastCreature->second->spawnMask |= data.spawnMask;
+                    WorldDatabase.PExecute("UPDATE creature SET PhaseId = '%s', phaseMask = %u, spawnMask = %u WHERE guid = %u", ss.str().c_str(), lastCreature->second->phaseMask, lastCreature->second->spawnMask, lastCreature->second->guid);
+                    WorldDatabase.PExecute("DELETE FROM creature WHERE guid = %u", guid);
+                    sLog->outError(LOG_FILTER_SQL, "Table `creature` have clone npc %u witch stay too close (dist: %f). original npc guid %u. npc with guid %u will be deleted.", entry, distsq1, lastCreature->second->guid, guid);
+                    continue;
+                }
+            }else
+                lastEntryCreature[entry] = &data;
+
+        }else
+            lastEntryCreature[entry] = &data;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
