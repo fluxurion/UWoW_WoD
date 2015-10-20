@@ -157,7 +157,6 @@ WorldPacket const* WorldPackets::Guild::LFGuildPost::Write()
     return &_worldPacket;
 }
 
-
 WorldPacket const* WorldPackets::Guild::LFGuildBrowse::Write()
 {
     _worldPacket << static_cast<uint32>(Browses.size());
@@ -181,6 +180,27 @@ WorldPacket const* WorldPackets::Guild::LFGuildBrowse::Write()
         _worldPacket << v.Background;
         _worldPacket << v.Cached;
         _worldPacket << v.MembershipRequested;
+        _worldPacket.WriteString(v.GuildName);
+        _worldPacket.WriteString(v.Comment);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::LFGuildApplication::Write()
+{
+    _worldPacket << NumRemaining;
+    _worldPacket << static_cast<uint32>(Applications.size());
+    for (auto const& v : Applications)
+    {
+        _worldPacket << v.GuildGUID;
+        _worldPacket << v.GuildVirtualRealm;
+        _worldPacket << v.ClassRoles;
+        _worldPacket << v.PlayStyle;
+        _worldPacket << v.Availability;
+        _worldPacket << v.SecondsSinceCreated;
+        _worldPacket.WriteBits(v.GuildName.length(), 7);
+        _worldPacket.WriteBits(v.Comment.length(), 10);
         _worldPacket.WriteString(v.GuildName);
         _worldPacket.WriteString(v.Comment);
     }

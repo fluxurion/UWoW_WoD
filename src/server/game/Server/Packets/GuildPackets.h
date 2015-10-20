@@ -198,6 +198,29 @@ namespace WorldPackets
 
             std::vector<LFGuildBrowseData> Browses;
         };
+
+        struct LFGuildApplicationData
+        {
+            ObjectGuid GuildGUID;
+            int32 GuildVirtualRealm = 0;
+            int32 ClassRoles = 0;
+            int32 PlayStyle = 0;
+            int32 Availability = 0;
+            int32 SecondsSinceCreated = 0;
+            std::string GuildName;
+            std::string Comment;
+        };
+
+        class LFGuildApplication final : public ServerPacket
+        {
+        public:
+            LFGuildApplication() : ServerPacket(SMSG_LF_GUILD_APPLICATIONS, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 NumRemaining = 0;
+            std::vector<LFGuildApplicationData> Applications;
+        };
     }
 }
 
