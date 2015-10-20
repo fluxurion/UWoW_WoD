@@ -844,6 +844,7 @@ enum GOState
 struct GameObjectData
 {
     explicit GameObjectData() : dbData(true) {}
+    ObjectGuid::LowType guid;
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
     uint16 zoneId;

@@ -2149,7 +2149,7 @@ void ObjectMgr::LoadGameobjects()
     //      9          10         11          12         13          14             15      16         17         18        19          20          21      22
         "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, isActive, spawnMask, phaseMask, eventEntry, pool_entry, PhaseId, AiID "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
-        "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
+        "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid ORDER BY `map` ASC");
 
     if (!result)
     {
@@ -2164,6 +2164,7 @@ void ObjectMgr::LoadGameobjects()
         for (auto& difficultyPair : mapDifficultyPair.second)
             spawnMasks[mapDifficultyPair.first] |= (1 << difficultyPair.first);
 
+    std::map<uint32, GameObjectData*> lastEntryGo;
     _gameObjectDataStore.rehash(result->GetRowCount());
     do
     {
@@ -2201,6 +2202,7 @@ void ObjectMgr::LoadGameobjects()
         GameObjectData& data = _gameObjectDataStore[guid];
 
         data.id             = entry;
+        data.guid           = guid;
         data.mapid          = fields[2].GetUInt16();
         data.zoneId         = fields[3].GetUInt16();
         data.areaId         = fields[4].GetUInt16();
@@ -2285,6 +2287,46 @@ void ObjectMgr::LoadGameobjects()
             sLog->outError(LOG_FILTER_SQL, "Table `gameobject` has gameobject (GUID: " UI64FMTD " Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.", guid, data.id);
             data.phaseMask = 1;
         }
+
+        // check near go with same entry.
+        auto lastGo = lastEntryGo.find(entry);
+        if (lastGo != lastEntryGo.end())
+        {
+            if (data.mapid == lastGo->second->mapid)
+            {
+                float dx1 = lastGo->second->posX - data.posX;
+                float dy1 = lastGo->second->posY - data.posY;
+                float dz1 = lastGo->second->posZ - data.posZ;
+
+                float distsq1 = dx1*dx1 + dy1*dy1 + dz1*dz1;
+                if (distsq1 < 0.5f)
+                {
+                    // split phaseID
+                    for (auto phaseID : data.PhaseID)
+                        lastGo->second->PhaseID.insert(phaseID);
+
+                    std::ostringstream ss;
+                    if (lastGo->second->PhaseID.size())
+                    {
+                        std::set<uint32>::const_iterator itr = lastGo->second->PhaseID.begin();
+                        ss << *itr;
+                        for (++itr; itr != lastGo->second->PhaseID.end(); ++itr)
+                            ss << ' ' << *itr;
+                    }
+                    lastGo->second->phaseMask |= data.phaseMask;
+                    lastGo->second->spawnMask |= data.spawnMask;
+                    WorldDatabase.PExecute("UPDATE gameobject SET PhaseId = '%s', phaseMask = %u, spawnMask = %u WHERE guid = %u", ss.str().c_str(), lastGo->second->phaseMask, lastGo->second->spawnMask, lastGo->second->guid);
+                    WorldDatabase.PExecute("DELETE FROM gameobject WHERE guid = %u", guid);
+                    sLog->outError(LOG_FILTER_SQL, "Table `gameobject` have clone go %u witch stay too close (dist: %f). original go guid %u. go with guid %u will be deleted.", entry, distsq1, lastGo->second->guid, guid);
+                    continue;
+                }
+            }
+            else
+                lastEntryGo[entry] = &data;
+
+        }
+        else
+            lastEntryGo[entry] = &data;
 
         if (gameEvent == 0 && PoolId == 0)                      // if not this is to be managed by GameEvent System or Pool system
             AddGameobjectToGrid(guid, &data);
