@@ -207,6 +207,17 @@ namespace WorldPackets
             std::string Event;
             uint32 SceneInstanceID = 0;
         };
+
+        class SceneObjectPetBattleInitialUpdate final : public ServerPacket
+        {
+        public:
+            SceneObjectPetBattleInitialUpdate() : ServerPacket(SMSG_SCENE_OBJECT_PET_BATTLE_INITIAL_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SceneObjectGUID;
+            WorldPackets::BattlePet::PetBattleFullUpdate MsgData;
+        };
     }
 }
 

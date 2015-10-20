@@ -524,6 +524,16 @@ namespace WorldPackets
             std::vector<SpellHistoryEntry> Entries;
         };
 
+        class RefreshSpellHistory final : public ServerPacket
+        {
+        public:
+            RefreshSpellHistory() : ServerPacket(SMSG_REFRESH_SPELL_HISTORY, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<SpellHistoryEntry> Entries;
+        };
+
         class ClearAllSpellCharges final : public ServerPacket
         {
         public:
@@ -878,6 +888,21 @@ namespace WorldPackets
             uint32 SpellID = 0;
             uint16 ProcCount = 0;
             uint16 ProcNum = 0;
+        };
+
+        class ResumeCastBar final : public ServerPacket
+        {
+        public:
+            ResumeCastBar() : ServerPacket(SMSG_RESUME_CAST_BAR, 16 + 16 + 4 + 4 + 4 + 1) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            ObjectGuid Target;
+            uint32 SpellID = 0;
+            uint32 TimeRemaining = 0;
+            uint32 TotalTime = 0;
+            Optional<SpellChannelStartInterruptImmunities> Immunities;
         };
     }
 }

@@ -526,3 +526,12 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestFailed::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Quest::QuestUpdateAddCreditSimple::Write()
+{
+    _worldPacket << QuestID;
+    _worldPacket << ObjectID;
+    _worldPacket << ObjectiveType;
+
+    return &_worldPacket;
+}

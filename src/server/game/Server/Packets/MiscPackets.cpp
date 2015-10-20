@@ -550,6 +550,15 @@ WorldPacket const* WorldPackets::Misc::UpdateTaskProgress::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::SetAllTaskProgress::Write()
+{
+    _worldPacket << static_cast<uint32>(Progress.size());
+    for (auto const& x : Progress)
+        _worldPacket << x;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::StreamingMovie::Write()
 {
     _worldPacket << static_cast<uint32>(MovieIDs.size());
@@ -603,6 +612,14 @@ WorldPacket const* WorldPackets::Misc::ShowTradeSkillResponse::Write()
 WorldPacket const* WorldPackets::Misc::SetTaskComplete::Write()
 {
     _worldPacket << TaskID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlayerSkinned::Write()
+{
+    _worldPacket.WriteBit(FreeRepop);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

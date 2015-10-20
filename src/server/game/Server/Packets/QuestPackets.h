@@ -48,9 +48,7 @@ namespace WorldPackets
         struct QuestGiverInfo
         {
             QuestGiverInfo() { }
-            QuestGiverInfo(ObjectGuid const& guid, uint32 status)
-                : Guid(guid), Status(status)
-            { }
+            QuestGiverInfo(ObjectGuid const& guid, uint32 status) : Guid(guid), Status(status) { }
 
             ObjectGuid Guid;
             uint32 Status = DIALOG_STATUS_NONE;
@@ -346,16 +344,16 @@ namespace WorldPackets
 
         struct QuestObjectiveCollect
         {
-            QuestObjectiveCollect(int32 objectID = 0, int32 amount = 0) : ObjectID(objectID), Amount(amount) { }
-            int32 ObjectID;
-            int32 Amount;
+            QuestObjectiveCollect(int32 objectID, int32 amount) : ObjectID(objectID), Amount(amount) { }
+            int32 ObjectID = 0;
+            int32 Amount = 0;
         };
 
         struct QuestCurrency
         {
-            QuestCurrency(int32 currencyID = 0, int32 amount = 0) : CurrencyID(currencyID), Amount(amount) { }
-            int32 CurrencyID;
-            int32 Amount;
+            QuestCurrency(int32 currencyID, int32 amount) : CurrencyID(currencyID), Amount(amount) { }
+            int32 CurrencyID = 0;
+            int32 Amount = 0;
         };
 
         class QuestGiverRequestItems final : public ServerPacket
@@ -547,6 +545,18 @@ namespace WorldPackets
 
             uint32 QuestID = 0;
             uint32 Reason  = 0;
+        };
+
+        class QuestUpdateAddCreditSimple final : public ServerPacket
+        {
+        public:
+            QuestUpdateAddCreditSimple() : ServerPacket(SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE, 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+            int32 ObjectID = 0;
+            uint8 ObjectiveType = 0;
         };
     }
 }

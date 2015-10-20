@@ -65,6 +65,16 @@ namespace WorldPackets
             std::string Str;
             int32 Reason = 0;
         };
+
+        class RecruitAFriendResponse final : public ServerPacket
+        {
+        public:
+            RecruitAFriendResponse() : ServerPacket(SMSG_RECRUIT_A_FRIEND_RESPONSE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Result = 0;
+        };
     }
 }
 

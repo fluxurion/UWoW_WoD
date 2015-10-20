@@ -781,6 +781,16 @@ namespace WorldPackets
             std::vector<TaskProgress> Progress;
         };
 
+        class SetAllTaskProgress final : public ServerPacket
+        {
+        public:
+            SetAllTaskProgress() : ServerPacket(SMSG_SET_ALL_TASK_PROGRESS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<TaskProgress> Progress;
+        };
+        
         class StreamingMovie final : public ServerPacket
         {
         public:
@@ -836,6 +846,16 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 TaskID = 0;
+        };
+
+        class PlayerSkinned final : public ServerPacket
+        {
+        public:
+            PlayerSkinned() : ServerPacket(SMSG_PLAYER_SKINNED, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool FreeRepop = false;
         };
     }
 }

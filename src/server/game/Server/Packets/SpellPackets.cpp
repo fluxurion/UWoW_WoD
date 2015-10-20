@@ -578,7 +578,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHistoryEntry
 {
     data << uint32(historyEntry.SpellID);
     data << uint32(historyEntry.ItemID);
-    if(historyEntry.OnHold)
+    if (historyEntry.OnHold)
     {
         data << uint32(historyEntry.Category);
         data << int32(historyEntry.RecoveryTime);
@@ -597,6 +597,15 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHistoryEntry
 }
 
 WorldPacket const* WorldPackets::Spells::SendSpellHistory::Write()
+{
+    _worldPacket << static_cast<uint32>(Entries.size());
+    for (SpellHistoryEntry const& historyEntry : Entries)
+        _worldPacket << historyEntry;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::RefreshSpellHistory::Write()
 {
     _worldPacket << static_cast<uint32>(Entries.size());
     for (SpellHistoryEntry const& historyEntry : Entries)
@@ -888,6 +897,20 @@ WorldPacket const* WorldPackets::Spells::SpellMultistrikeEffect::Write()
     _worldPacket << SpellID;
     _worldPacket << ProcCount;
     _worldPacket << ProcNum;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::ResumeCastBar::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << Target;
+    _worldPacket << SpellID;
+    _worldPacket << TimeRemaining;
+    _worldPacket << TotalTime;
+    _worldPacket.WriteBit(Immunities.is_initialized());
+    if (Immunities)
+        _worldPacket << *Immunities;
 
     return &_worldPacket;
 }

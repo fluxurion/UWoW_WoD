@@ -42,3 +42,11 @@ WorldPacket const* WorldPackets::ReferAFriend::ReferAFriendFailure::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::ReferAFriend::RecruitAFriendResponse::Write()
+{
+    _worldPacket.WriteBits(Result, 3);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

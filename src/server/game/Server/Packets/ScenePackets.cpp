@@ -147,3 +147,11 @@ void WorldPackets::Scene::SceneTriggerEvent::Read()
     _worldPacket >> SceneInstanceID;
     Event = _worldPacket.ReadString(len);
 }
+
+WorldPacket const* WorldPackets::Scene::SceneObjectPetBattleInitialUpdate::Write()
+{
+    _worldPacket << SceneObjectGUID;
+    _worldPacket << MsgData;
+
+    return &_worldPacket;
+}
