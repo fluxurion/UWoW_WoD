@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
+#include "GuildPackets.h"
 
 void WorldSession::HandleGuildFinderAddRecruit(WorldPacket& recvPacket)
 {
@@ -226,65 +227,35 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
     GetPlayer()->SendDirectMessage(&data);
 }
 
-// Lists all recruits for a guild - Misses times
-void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
+void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& /*recvPacket*/)
 {
-    uint32 unkTime = 0;
-    //recvPacket >> unkTime;
-
     Player* player = GetPlayer();
     if (!player->GetGuildId())
         return;
 
     std::vector<MembershipRequest> recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(ObjectGuid::Create<HighGuid::Guild>(player->GetGuildId()));
-    uint32 recruitCount = recruitsList.size();
-
-    ByteBuffer dataBuffer(53 * recruitCount);
-    WorldPacket data(SMSG_LF_GUILD_RECRUITS, 7 + 26 * recruitCount + 53 * recruitCount);
-    data.WriteBits(recruitCount, 20);
-
-    for (std::vector<MembershipRequest>::const_iterator itr = recruitsList.begin(); itr != recruitsList.end(); ++itr)
+    
+    WorldPackets::Guild::LFGuildRecruits recruits;
+    recruits.Recruits.reserve(recruitsList.size());
+    for (auto const& x : recruitsList)
     {
-        MembershipRequest request = *itr;
-        ObjectGuid playerGuid = request.GetPlayerGUID();
-        
-        data.WriteBit(playerGuid[1]);
-        data.WriteBit(playerGuid[4]);
-        data.WriteBit(playerGuid[2]);
-        data.WriteBit(playerGuid[6]);
-        data.WriteBits(request.GetName().size(), 7);
-        data.WriteBit(playerGuid[3]);
-        data.WriteBit(playerGuid[7]);
-        data.WriteBit(playerGuid[5]);
-        data.WriteBits(request.GetComment().size(), 11);
-        data.WriteBit(playerGuid[0]);
-        
-        dataBuffer << int32(request.GetAvailability());
-        dataBuffer.WriteByteSeq(playerGuid[1]);
-        dataBuffer << int32(time(NULL) <= request.GetExpiryTime());
-        dataBuffer << int32(request.GetInterests());
-        dataBuffer << int32(request.GetClassRoles());
-        dataBuffer << int32(time(NULL) - request.GetSubmitTime()); // Time in seconds since application submitted.
-        dataBuffer.WriteString(request.GetName());
-        dataBuffer.WriteByteSeq(playerGuid[4]);
-        dataBuffer.WriteByteSeq(playerGuid[6]);
-        dataBuffer.WriteByteSeq(playerGuid[3]);
-        dataBuffer.WriteByteSeq(playerGuid[7]);
-        dataBuffer.WriteString(request.GetComment());
-        dataBuffer << int32(request.GetLevel());
-        dataBuffer << int32(request.GetExpiryTime() - time(NULL)); // TIme in seconds until application expires.
-        dataBuffer.WriteByteSeq(playerGuid[2]);
-        dataBuffer.WriteByteSeq(playerGuid[0]);
-        dataBuffer << int32(request.GetClass());
-        dataBuffer.WriteByteSeq(playerGuid[5]);
+        WorldPackets::Guild::LFGuildRecruitData data;
+        data.RecruitGUID = x.GetPlayerGUID();
+        data.RecruitVirtualRealm = GetVirtualRealmAddress();
+        data.CharacterClass = x.GetClass();
+        data.CharacterGender = 0;
+        data.CharacterLevel = x.GetLevel();
+        data.ClassRoles = x.GetClassRoles();
+        data.PlayStyle = x.GetInterests();
+        data.Availability = x.GetAvailability();
+        data.SecondsSinceCreated = time(nullptr) - x.GetSubmitTime();
+        data.SecondsUntilExpiration = x.GetExpiryTime() - time(nullptr);
+        data.Name = x.GetName();
+        data.Comment = x.GetComment();
+        recruits.Recruits.push_back(data);
     }
 
-    data.FlushBits();
-    if (!dataBuffer.empty())
-        data.append(dataBuffer);
-    data << uint32(time(NULL)); // Unk time
-
-    player->SendDirectMessage(&data);
+    player->SendDirectMessage(recruits.Write());
 }
 
 void WorldSession::HandleGuildFinderPostRequest(WorldPacket& recvPacket)

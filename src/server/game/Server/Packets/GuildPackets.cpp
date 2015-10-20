@@ -105,3 +105,33 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::LFGuildRecruitData const& recruit)
+{
+    data << recruit.RecruitGUID;
+    data << recruit.RecruitVirtualRealm;
+    data << recruit.CharacterClass;
+    data << recruit.CharacterGender;
+    data << recruit.CharacterLevel;
+    data << recruit.ClassRoles;
+    data << recruit.PlayStyle;
+    data << recruit.Availability;
+    data << recruit.SecondsSinceCreated;
+    data << recruit.SecondsUntilExpiration;
+    data.WriteBits(recruit.Name.length(), 6);
+    data.WriteBits(recruit.Comment.length(), 10);
+    data.WriteString(recruit.Name);
+    data.WriteString(recruit.Comment);
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Guild::LFGuildRecruits::Write()
+{
+    _worldPacket << static_cast<uint32>(Recruits.size());
+
+    for (auto const& v : Recruits)
+        _worldPacket << v;
+
+    return &_worldPacket;
+}

@@ -120,6 +120,32 @@ namespace WorldPackets
             uint64 Money = 0;
             bool FullUpdate = false;
         };
+
+        struct LFGuildRecruitData
+        {
+            ObjectGuid RecruitGUID;
+            int32 RecruitVirtualRealm = 0;
+            int32 CharacterClass = 0;
+            int32 CharacterGender = 0;
+            int32 CharacterLevel = 0;
+            int32 ClassRoles = 0;
+            int32 PlayStyle = 0;
+            int32 Availability = 0;
+            int32 SecondsSinceCreated = 0;
+            int32 SecondsUntilExpiration = 0;
+            std::string Name;
+            std::string Comment;
+        };
+
+        class LFGuildRecruits final : public ServerPacket
+        {
+        public:
+            LFGuildRecruits() : ServerPacket(SMSG_LF_GUILD_RECRUITS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<LFGuildRecruitData> Recruits;
+        };
     }
 }
 

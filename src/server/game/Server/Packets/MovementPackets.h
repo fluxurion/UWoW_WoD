@@ -374,6 +374,13 @@ namespace WorldPackets
             UPDATE_COLLISION_HEIGHT_FORCE = 2
         };
 
+        struct CollisionHeightData
+        {
+            float Height = 0.0f;
+            float Scale = 0.0f;
+            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
+        };
+
         class MoveSetCollisionHeight final : public ServerPacket
         {
         public:
@@ -482,13 +489,6 @@ namespace WorldPackets
             float HorzSpeed = 0.0f;
             Position Direction;
             float InitVertSpeed = 0.0f;
-        };
-
-        struct CollisionHeightData
-        {
-            float Height = 0.0f;
-            float Scale = 0.0f;
-            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
         };
 
         struct MoveStateChange
