@@ -850,15 +850,13 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
 {
     ObjectGuid casterGuid;
     uint32 spellId;
-    uint8 castCount;
-    float x, y, z;    // Position of missile hit
+    uint8 castID;
+    Position CollisionPos;
 
     recvPacket >> casterGuid;
     recvPacket >> spellId;
-    recvPacket >> castCount;
-    recvPacket >> x;
-    recvPacket >> y;
-    recvPacket >> z;
+    recvPacket >> castID;
+    recvPacket >> CollisionPos.PositionXYZStream();
 
     Unit* caster = ObjectAccessor::GetUnit(*_player, casterGuid);
     if (!caster)
@@ -869,16 +867,15 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
         return;
 
     Position pos = *spell->m_targets.GetDstPos();
-    pos.Relocate(x, y, z);
+    pos.Relocate(CollisionPos);
     spell->m_targets.ModDst(pos);
 
-    WorldPacket data(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 21);
-    data << casterGuid;
-    data << uint8(castCount);
-    data << float(x);
-    data << float(y);
-    data << float(z);
-    caster->SendMessageToSet(&data, true);
+
+    WorldPackets::Spells::NotifyMissileTrajectoryCollision response;
+    response.Caster = casterGuid;
+    response.CastID = castID;
+    response.CollisionPos = CollisionPos;
+    caster->SendMessageToSet(response.Write(), true);
 }
 
 void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)

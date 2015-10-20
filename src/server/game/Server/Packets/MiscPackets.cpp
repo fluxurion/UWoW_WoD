@@ -623,3 +623,11 @@ WorldPacket const* WorldPackets::Misc::PlayerSkinned::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::PlaySpeakerbotSound::Write()
+{
+    _worldPacket << SourceObjectGUID;
+    _worldPacket << SoundID;
+
+    return &_worldPacket;
+}

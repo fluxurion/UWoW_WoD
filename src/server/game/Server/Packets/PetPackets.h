@@ -240,6 +240,14 @@ namespace WorldPackets
 
             uint8 Result = 0;
         };
+
+        class PetClearSpells final : public ServerPacket
+        {
+        public:
+            PetClearSpells() : ServerPacket(SMSG_PET_CLEAR_SPELLS, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 

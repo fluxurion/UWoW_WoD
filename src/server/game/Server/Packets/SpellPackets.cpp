@@ -914,3 +914,28 @@ WorldPacket const* WorldPackets::Spells::ResumeCastBar::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::NotifyMissileTrajectoryCollision::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << CastID;
+    _worldPacket << CollisionPos.PositionXYZStream();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::NotifyDestLocSpellCast::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << DestTransport;
+    _worldPacket << SpellID;
+    _worldPacket << SourceLoc.PositionXYZStream();
+    _worldPacket << DestLoc.PositionXYZStream();
+    _worldPacket << MissileTrajectoryPitch;
+    _worldPacket << MissileTrajectorySpeed;
+    _worldPacket << TravelTime;
+    _worldPacket << DestLocSpellCastIndex;
+    _worldPacket << CastID;
+
+    return &_worldPacket;
+}

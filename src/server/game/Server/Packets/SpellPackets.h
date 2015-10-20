@@ -904,6 +904,37 @@ namespace WorldPackets
             uint32 TotalTime = 0;
             Optional<SpellChannelStartInterruptImmunities> Immunities;
         };
+
+        class NotifyMissileTrajectoryCollision final : public ServerPacket
+        {
+        public:
+            NotifyMissileTrajectoryCollision() : ServerPacket(SMSG_NOTIFY_MISSILE_TRAJECTORY_COLLISION, 16 + 1 + 12) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Caster;
+            uint8 CastID = 0;
+            Position CollisionPos;
+        };
+
+        class NotifyDestLocSpellCast final : public ServerPacket
+        {
+        public:
+            NotifyDestLocSpellCast() : ServerPacket(SMSG_NOTIFY_DEST_LOC_SPELL_CAST, 16 + 16 + 4 + 12 + 12 + 4 + 4 + 4 + 1 + 1) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Caster;
+            ObjectGuid DestTransport;
+            uint32 SpellID = 0;
+            Position SourceLoc;
+            Position DestLoc;
+            float MissileTrajectoryPitch = 0.0f;
+            float MissileTrajectorySpeed = 0.0f;
+            int32 TravelTime = 0;
+            uint8 DestLocSpellCastIndex = 0;
+            uint8 CastID = 0;
+        };
     }
 }
 

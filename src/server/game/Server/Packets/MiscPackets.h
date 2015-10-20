@@ -857,6 +857,17 @@ namespace WorldPackets
 
             bool FreeRepop = false;
         };
+
+        class PlaySpeakerbotSound final : public ServerPacket
+        {
+        public:
+            PlaySpeakerbotSound() : ServerPacket(SMSG_PLAY_SPEAKERBOT_SOUND, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceObjectGUID;
+            uint32 SoundID = 0;
+        };
     }
 }
 

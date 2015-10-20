@@ -520,3 +520,12 @@ WorldPacket const* WorldPackets::Character::XPGainAborted::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Character::NeutralPlayerFactionSelectResult::Write()
+{
+    _worldPacket << NewRaceID;
+    _worldPacket.WriteBit(Success);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
