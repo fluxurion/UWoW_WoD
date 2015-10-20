@@ -722,7 +722,7 @@ void WorldSession::HandleDoReadyCheck(WorldPackets::Party::DoReadyCheck& packet)
     readyCheckStarted.PartyGUID = group->GetGUID();
     readyCheckStarted.PartyIndex = packet.PartyIndex;
     readyCheckStarted.InitiatorGUID = GetPlayer()->GetGUID();
-    readyCheckStarted.Duration = READYCHECK_DURATION;
+    readyCheckStarted.Duration = READY_CHECK_DURATION;
     group->BroadcastPacket(readyCheckStarted.Write(), false, -1);
 
     group->OfflineReadyCheck();

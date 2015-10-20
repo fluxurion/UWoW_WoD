@@ -136,13 +136,13 @@ namespace WorldPackets
         class StartLootRoll final : public ServerPacket
         {
         public:
-            StartLootRoll() : ServerPacket(SMSG_START_LOOT_ROLL, 13 + 32) { }
+            StartLootRoll() : ServerPacket(SMSG_START_LOOT_ROLL, 16 + 33) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid LootObj;
-            uint32 MapID = 0;
             LootItem LootItems;
+            uint32 MapID = 0;
             uint32 RollTime = 0;
             uint8 ValidRolls = 0;
             uint8 Method = 0;

@@ -885,8 +885,11 @@ void Group::SendLootStartRoll(uint32 mapID, Roll const& roll)
     lootRoll.LootItems.Quantity = roll.itemCount;
     lootRoll.LootItems.LootItemType = 0; // always 0... wtf?
     lootRoll.LootItems.LootListID = roll.totalPlayersRolling; // not sure... get 1-2-3-4-5 values at sniffs
-    lootRoll.LootItems.Loot.Initialize(&roll);
-    lootRoll.RollTime = ROLL_TIMER;
+    //lootRoll.LootItems.Loot.Initialize(&roll);
+    lootRoll.LootItems.Loot.ItemID = roll.item.ItemID;  
+    lootRoll.LootItems.Loot.RandomPropertiesSeed = roll.item.RandomPropertiesSeed;
+    lootRoll.LootItems.Loot.RandomPropertiesID = roll.item.RandomPropertiesID;
+    lootRoll.RollTime = NORMAL_ROLL_TIMER;
     lootRoll.ValidRolls = roll.TotalEmited();
     lootRoll.Method = roll.rollVoteMask; // not sure
     // roll.aoeSlot ???
@@ -916,8 +919,10 @@ void Group::SendLootStartRollToPlayer(uint32 mapID, Player* player, bool canNeed
     lootRoll.LootItems.Quantity = roll.itemCount;
     lootRoll.LootItems.LootItemType = 0; // always 0... wtf?
     lootRoll.LootItems.LootListID = roll.totalPlayersRolling; // not sure... get 1-2-3-4-5 values at sniffs
-    lootRoll.LootItems.Loot.Initialize(&roll);
-    lootRoll.RollTime = ROLL_TIMER;
+    lootRoll.LootItems.Loot.ItemID = roll.item.ItemID;
+    lootRoll.LootItems.Loot.RandomPropertiesSeed = roll.item.RandomPropertiesSeed;
+    lootRoll.LootItems.Loot.RandomPropertiesID = roll.item.RandomPropertiesID;
+    lootRoll.RollTime = NORMAL_ROLL_TIMER;
     lootRoll.ValidRolls = roll.TotalEmited();
     lootRoll.Method = roll.rollVoteMask; // not sure
     // roll.aoeSlot ???
@@ -933,9 +938,11 @@ void Group::SendLootRoll(ObjectGuid targetGuid, uint8 rollNumber, uint8 rollType
     response.LootItems.Quantity = roll.itemCount;
     response.LootItems.LootItemType = 0; // always 0... wtf?
     response.LootItems.LootListID = roll.totalPlayersRolling; // not sure... get 1-2-3-4-5 values at sniffs
-    response.LootItems.Loot.Initialize(&roll);
     // roll.aoeSlot ???
     // roll.TotalEmited()
+    response.LootItems.Loot.ItemID = roll.item.ItemID;
+    response.LootItems.Loot.RandomPropertiesSeed = roll.item.RandomPropertiesSeed;
+    response.LootItems.Loot.RandomPropertiesID = roll.item.RandomPropertiesID;
     response.LootObj = roll.lootedGUID;
     response.Player = targetGuid;
     response.Roll = rollNumber;
@@ -966,7 +973,11 @@ void Group::SendLootRollWon(ObjectGuid targetGuid, uint8 rollNumber, uint8 rollT
     won.LootItems.Quantity = roll.itemCount;
     won.LootItems.LootItemType = 0; // always 0... wtf?
     won.LootItems.LootListID = roll.totalPlayersRolling; // not sure... get 1-2-3-4-5 values at sniffs
-    won.LootItems.Loot.Initialize(&roll);
+    //won.LootItems.Loot.Initialize(&roll);
+    won.LootItems.Loot.ItemID = roll.item.ItemID;  
+    won.LootItems.Loot.RandomPropertiesSeed = roll.item.RandomPropertiesSeed;
+    won.LootItems.Loot.RandomPropertiesID = roll.item.RandomPropertiesID;
+
     // roll.aoeSlot ???
     // roll.TotalEmited()
 
@@ -998,7 +1009,10 @@ void Group::SendLootAllPassed(Roll const& roll)
     passed.LootItems.Quantity = roll.itemCount;
     passed.LootItems.LootItemType = 0; // always 0... wtf?
     passed.LootItems.LootListID = roll.totalPlayersRolling; // not sure... get 1-2-3-4-5 values at sniffs
-    passed.LootItems.Loot.Initialize(&roll);
+    //passed.LootItems.Loot.Initialize(&roll);
+    passed.LootItems.Loot.ItemID = roll.item.ItemID;  
+    passed.LootItems.Loot.RandomPropertiesSeed = roll.item.RandomPropertiesSeed;
+    passed.LootItems.Loot.RandomPropertiesID = roll.item.RandomPropertiesID;
     // roll.aoeSlot ???
     // roll.TotalEmited() ???
 
@@ -1103,12 +1117,12 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
 
                 if (Creature* creature = pLootedObject->ToCreature())
                 {
-                    creature->m_groupLootTimer = ROLL_TIMER;
+                    creature->m_groupLootTimer = NORMAL_ROLL_TIMER;
                     creature->lootingGroupLowGUID = GetGUID();
                 }
                 else if (GameObject* go = pLootedObject->ToGameObject())
                 {
-                    go->m_groupLootTimer = ROLL_TIMER;
+                    go->m_groupLootTimer = NORMAL_ROLL_TIMER;
                     go->lootingGroupLowGUID = GetGUID();
                 }
             }
@@ -1163,12 +1177,12 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
 
             if (Creature* creature = pLootedObject->ToCreature())
             {
-                creature->m_groupLootTimer = ROLL_TIMER;
+                creature->m_groupLootTimer = NORMAL_ROLL_TIMER;
                 creature->lootingGroupLowGUID = GetGUID();
             }
             else if (GameObject* go = pLootedObject->ToGameObject())
             {
-                go->m_groupLootTimer = ROLL_TIMER;
+                go->m_groupLootTimer = NORMAL_ROLL_TIMER;
                 go->lootingGroupLowGUID = GetGUID();
             }
         }
@@ -1247,12 +1261,12 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 
                 if (Creature* creature = lootedObject->ToCreature())
                 {
-                    creature->m_groupLootTimer = ROLL_TIMER;
+                    creature->m_groupLootTimer = NORMAL_ROLL_TIMER;
                     creature->lootingGroupLowGUID = GetGUID();
                 }
                 else if (GameObject* go = lootedObject->ToGameObject())
                 {
-                    go->m_groupLootTimer = ROLL_TIMER;
+                    go->m_groupLootTimer = NORMAL_ROLL_TIMER;
                     go->lootingGroupLowGUID = GetGUID();
                 }
             }
@@ -1312,12 +1326,12 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 
             if (Creature* creature = lootedObject->ToCreature())
             {
-                creature->m_groupLootTimer = ROLL_TIMER;
+                creature->m_groupLootTimer = NORMAL_ROLL_TIMER;
                 creature->lootingGroupLowGUID = GetGUID();
             }
             else if (GameObject* go = lootedObject->ToGameObject())
             {
-                go->m_groupLootTimer = ROLL_TIMER;
+                go->m_groupLootTimer = NORMAL_ROLL_TIMER;
                 go->lootingGroupLowGUID = GetGUID();
             }
         }
