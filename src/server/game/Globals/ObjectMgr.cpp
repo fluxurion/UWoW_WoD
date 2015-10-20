@@ -9836,7 +9836,7 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
             info.TargetRollPitchYawZ = fields[i++].GetFloat();
             if(info.polygon && info.customEntry)
             {
-                QueryResult resultPolygon = WorldDatabase.PQuery("SELECT `id`, `x`, `y` FROM areatrigger_polygon WHERE `entry` = '%u' AND `spellId` = '%u'", info.customEntry, info.spellId);
+                QueryResult resultPolygon = WorldDatabase.PQuery("SELECT `id`, `x`, `y` FROM areatrigger_polygon WHERE `entry` = '%u' AND `spellId` = '%u' AND `type` = 1", info.customEntry, info.spellId);
                 if (resultPolygon)
                 {
                     do
@@ -9846,9 +9846,23 @@ void ObjectMgr::LoadAreaTriggerActionsAndData()
                         polygonPOI.id = fieldP[0].GetUInt32();
                         polygonPOI.x = fieldP[1].GetFloat();
                         polygonPOI.y = fieldP[2].GetFloat();
-                        info.polygonPoints[polygonPOI.id] = polygonPOI;
+                        info.verticesPoints[polygonPOI.id] = polygonPOI;
                     }
                     while (resultPolygon->NextRow());
+                }
+                QueryResult resultPolygonTarget = WorldDatabase.PQuery("SELECT `id`, `x`, `y` FROM areatrigger_polygon WHERE `entry` = '%u' AND `spellId` = '%u' AND `type` = 2", info.customEntry, info.spellId);
+                if (resultPolygonTarget)
+                {
+                    do
+                    {
+                        Field* fieldP = resultPolygonTarget->Fetch();
+                        PolygonPOI polygonPOI;
+                        polygonPOI.id = fieldP[0].GetUInt32();
+                        polygonPOI.x = fieldP[1].GetFloat();
+                        polygonPOI.y = fieldP[2].GetFloat();
+                        info.verticesTargetPoints[polygonPOI.id] = polygonPOI;
+                    }
+                    while (resultPolygonTarget->NextRow());
                 }
             }
             if(info.windSpeed)

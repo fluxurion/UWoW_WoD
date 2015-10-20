@@ -489,6 +489,8 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
             data.DstLocation->Location = m_dst._position;
         else
             data.DstLocation->Location = m_dst._transportOffset;
+
+        data.Orientation = m_dst._position.GetOrientation();
     }
 
     if (m_targetMask & TARGET_FLAG_STRING)
@@ -3985,6 +3987,7 @@ void Spell::cast(bool skipCheck)
         TakePower();
 
     m_caster->SendSpellCreateVisual(m_spellInfo, &visualPos, m_targets.GetUnitTarget());
+    m_caster->SendSpellPlayOrphanVisual(m_spellInfo, true, &visualPos, m_targets.GetUnitTarget());
     // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
     SendSpellGo();
 

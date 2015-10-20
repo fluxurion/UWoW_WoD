@@ -223,7 +223,6 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     m_extraAttacks = 0;
     countCrit = 0;
-    insightCount = 0;
     m_canDualWield = false;
 
     m_movementCounter = 0;
@@ -7855,19 +7854,21 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
             {
                 case 84654: // Bandit's Guile
                 {
-                    insightCount++;
+                    if(HasAura(84747))
+                        break;
 
-                    if (insightCount > 3)
+                    if (Aura* aura = GetAura(84745))
                     {
-                        if       (HasAura(84745)) AddAura(84746, this);
-                        else if  (HasAura(84746)) AddAura(84747, this);
-                        else if (!HasAura(84747)) AddAura(84745, this);
+                        aura->Remove();
+                        AddAura(84746, this);
+                    }
+                    else if (Aura* aura = GetAura(84746))
+                    {
+                        aura->Remove();
+                        AddAura(84747, this);
                     }
                     else
-                    {
-                        if      (Aura *  GreenBuff = GetAura(84745))  GreenBuff->RefreshDuration();
-                        else if (Aura * YellowBuff = GetAura(84746)) YellowBuff->RefreshDuration();
-                    }
+                        AddAura(84745, this);
                     break;
                 }
                 case 51701: // Honor Among Thieves
@@ -23827,6 +23828,39 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position const* pos
     }
     
     SendMessageToSet(visual.Write(), true);
+}
+
+void Unit::SendSpellPlayOrphanVisual(SpellInfo const* spellInfo, bool apply, Position const* position, Unit* target)
+{
+    if (auto const* playOrphan = sSpellMgr->GetSpellVisualPlayOrphan(spellInfo->Id))
+    {
+        if(apply)
+        {
+            WorldPacket data(SMSG_PLAY_ORPHAN_SPELL_VISUAL, 50);
+            data << position->GetPositionX() << position->GetPositionY() << position->GetPositionZ();
+            data << 0.0f << 0.0f << 0.0f;
+            data << position->GetPositionX() << position->GetPositionY() << position->GetPositionZ();
+            data << (target ? target->GetGUID() : ObjectGuid::Empty);
+            data << uint32(playOrphan->SpellVisualID);
+            data << playOrphan->TravelSpeed;
+            data << playOrphan->UnkFloat;
+            data.WriteBit(playOrphan->SpeedAsTime);
+            SendMessageToSet(&data, true);
+        }
+        else
+        {
+            {
+                WorldPacket data(SMSG_CANCEL_ORPHAN_SPELL_VISUAL, 4);
+                data << uint32(playOrphan->SpellVisualID);
+                SendMessageToSet(&data, true);
+            }
+            {
+                WorldPacket data(SMSG_CANCEL_SPELL_VISUAL, 4);
+                data << uint32(playOrphan->SpellVisualID);
+                SendMessageToSet(&data, true);
+            }
+        }
+    }
 }
 
 //! 6.0.3 ToDo: Check IT

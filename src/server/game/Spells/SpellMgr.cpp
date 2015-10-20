@@ -1197,6 +1197,12 @@ const std::vector<SpellVisual>* SpellMgr::GetSpellVisual(int32 spell_id) const
     return itr != mSpellVisualMap.end() ? &(itr->second) : NULL;
 }
 
+const SpellVisualPlayOrphan* SpellMgr::GetSpellVisualPlayOrphan(int32 spell_id) const
+{
+    SpellVisualPlayOrphanMap::const_iterator itr = mSpellVisualPlayOrphanMap.find(spell_id);
+    return itr != mSpellVisualPlayOrphanMap.end() ? &(itr->second) : NULL;
+}
+
 const SpellScene* SpellMgr::GetSpellScene(int32 miscValue) const
 {
     SpellSceneMap::const_iterator itr = mSpellSceneMap.find(miscValue);
@@ -2651,12 +2657,13 @@ void SpellMgr::LoadSpellVisual()
     uint32 oldMSTime = getMSTime();
 
     mSpellVisualMap.clear();    // need for reload case
+    mSpellVisualPlayOrphanMap.clear();    // need for reload case
 
     //                                                  0            1            2            3             4            5        6
-    QueryResult result = WorldDatabase.Query("SELECT spellId, SpellVisualID, MissReason, ReflectStatus, TravelSpeed, SpeedAsTime, type FROM spell_visual_send");
+    QueryResult result = WorldDatabase.Query("SELECT spellId, SpellVisualID, MissReason, ReflectStatus, TravelSpeed, SpeedAsTime, type FROM spell_visual");
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 visual spells. DB table `spell_visual_send` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 visual spells. DB table `spell_visual` is empty.");
         return;
     }
 
@@ -2676,7 +2683,7 @@ void SpellMgr::LoadSpellVisual()
         SpellInfo const* spellInfo = GetSpellInfo(abs(spellId));
         if (!spellInfo)
         {
-            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_visual_send` does not exist", abs(spellId));
+            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_visual` does not exist", abs(spellId));
             continue;
         }
 
@@ -2689,6 +2696,42 @@ void SpellMgr::LoadSpellVisual()
         templink.SpeedAsTime = SpeedAsTime;
         templink.type = type;
         mSpellVisualMap[spellId].push_back(templink);
+
+        ++count;
+    } while (result->NextRow());
+
+    //                                      0            1            2            3          4
+    result = WorldDatabase.Query("SELECT spellId, SpellVisualID, TravelSpeed, SpeedAsTime, UnkFloat FROM spell_visual_play_orphan");
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 visual spells. DB table `spell_visual_play_orphan` is empty.");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        int32 spellId = fields[0].GetInt32();
+        int32 SpellVisualID = fields[1].GetInt32();
+        float TravelSpeed = fields[2].GetFloat();
+        bool SpeedAsTime = bool(fields[3].GetUInt8());
+        float UnkFloat = fields[4].GetFloat();
+
+        SpellInfo const* spellInfo = GetSpellInfo(abs(spellId));
+        if (!spellInfo)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_visual_play_orphan` does not exist", abs(spellId));
+            continue;
+        }
+
+        SpellVisualPlayOrphan templink;
+        templink.spellId = spellId;
+        templink.SpellVisualID = SpellVisualID;
+        templink.TravelSpeed = TravelSpeed;
+        templink.SpeedAsTime = SpeedAsTime;
+        templink.UnkFloat = UnkFloat;
+        mSpellVisualPlayOrphanMap[spellId] = templink;
 
         ++count;
     } while (result->NextRow());
@@ -2706,7 +2749,7 @@ void SpellMgr::LoadSpellScene()
     QueryResult result = WorldDatabase.Query("SELECT SceneScriptPackageID, MiscValue, trigerSpell, MonsterCredit, PlaybackFlags, ScriptName FROM spell_scene");
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 visual spells. DB table `spell_visual_send` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 visual spells. DB table `spell_scene` is empty.");
         return;
     }
 

@@ -77,9 +77,11 @@ enum AreaTriggerTargetFlags
 
 enum AreaTriggerMoveType
 {
-    AT_MOVE_TYPE_DEFAULT = 0,
-    AT_MOVE_TYPE_LIMIT   = 1,
-    AT_MOVE_TYPE_SPIRAL  = 2,
+    AT_MOVE_TYPE_DEFAULT             = 0,
+    AT_MOVE_TYPE_LIMIT               = 1,
+    AT_MOVE_TYPE_SPIRAL              = 2,
+    AT_MOVE_TYPE_BOOMERANG           = 3,
+    AT_MOVE_TYPE_CHAGE_ROTATION      = 4,
 };
 
 struct PolygonPOI
@@ -160,7 +162,8 @@ struct AreaTriggerInfo
     float TargetRollPitchYawY;
     float TargetRollPitchYawZ;
     uint32 polygon;
-    PolygonPOIMap polygonPoints;
+    PolygonPOIMap verticesPoints;
+    PolygonPOIMap verticesTargetPoints;
 };
 
 class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
@@ -216,7 +219,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         void UpdateActionCharges(uint32 p_time);
         bool GetAreaTriggerCylinder() const { return _areaTriggerCylinder; }
         bool HasTargetRollPitchYaw() const { return atInfo.TargetRollPitchYawX != 0.0f || atInfo.TargetRollPitchYawY != 0.0f; }
-        bool isPolygon() const { return atInfo.polygon && !atInfo.polygonPoints.empty(); }
+        bool isPolygon() const { return atInfo.polygon && !atInfo.verticesPoints.empty(); }
         AreaTriggerInfo GetAreaTriggerInfo() const { return atInfo; }
 
         void BindToCaster();
@@ -226,6 +229,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
 
         //movement
         void UpdateMovement(uint32 diff);
+        void UpdateRotation(uint32 diff);
         bool isMoving() const { return atInfo.isMoving; }
         float getMoveSpeed() const { return _moveSpeed; }
         uint32 GetObjectMovementParts() const;

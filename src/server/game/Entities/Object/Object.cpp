@@ -600,25 +600,22 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
         if (t->isPolygon())
         {
-            *data << uint32(t->GetAreaTriggerInfo().polygonPoints.size()); // VerticesCount
-            *data << uint32(t->GetAreaTriggerInfo().polygon > 1 ? t->GetAreaTriggerInfo().polygon : 0); // VerticesTargetCount
+            *data << uint32(t->GetAreaTriggerInfo().verticesPoints.size()); // VerticesCount
+            *data << uint32(t->GetAreaTriggerInfo().verticesTargetPoints.size()); // VerticesTargetCount
 
             *data << t->GetAreaTriggerInfo().Height;                    // Height
             *data << t->GetAreaTriggerInfo().HeightTarget;              // HeightTarget
 
-            for (uint16 i = 0; i < t->GetAreaTriggerInfo().polygonPoints.size(); ++i) // Vertices
+            for (uint16 i = 0; i < t->GetAreaTriggerInfo().verticesPoints.size(); ++i) // Vertices
             {
-                *data << t->GetAreaTriggerInfo().polygonPoints[i].x;    // X
-                *data << t->GetAreaTriggerInfo().polygonPoints[i].y;    // Y
+                *data << t->GetAreaTriggerInfo().verticesPoints[i].x;    // X
+                *data << t->GetAreaTriggerInfo().verticesPoints[i].y;    // Y
             }
 
-            if (t->GetAreaTriggerInfo().polygon > 1)                    // VerticesTarget
+            for (uint16 i = 0; i < t->GetAreaTriggerInfo().verticesTargetPoints.size(); ++i) // VerticesTarget
             {
-                for (uint16 i = 0; i < t->GetAreaTriggerInfo().polygonPoints.size(); ++i)
-                {
-                    *data << t->GetAreaTriggerInfo().polygonPoints[i].x; // X
-                    *data << t->GetAreaTriggerInfo().polygonPoints[i].y; // Y
-                }
+                *data << t->GetAreaTriggerInfo().verticesTargetPoints[i].x; // X
+                *data << t->GetAreaTriggerInfo().verticesTargetPoints[i].y; // Y
             }
         }
 

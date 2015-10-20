@@ -116,6 +116,8 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     SetDuration(duration);
     SetObjectScale(1);
 
+    //if(atInfo.HasAbsoluteOrientation)
+        //SetOrientation(0.0f);
     // on some spells radius set on dummy aura, not on create effect.
     // overwrite by radius from spell if exist.
     bool find = false;
@@ -217,9 +219,35 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
                 }
                 break;
             }
+            case AT_MOVE_TYPE_BOOMERANG:
+            {
+                Vector3 curPos;
+                pos.PositionToVector(curPos);
+                m_movePath.push_back(curPos);
+                m_movePath.push_back(curPos);
+                float maxDist = duration / 1000.0f * _moveSpeed / 2.0f;
+                uint8 countStep = uint8(maxDist / 5) * 2;
+
+                for (uint8 i = 1; i <= countStep; i++)
+                {
+                    uint8 step = i >= (countStep / 2) ? countStep - i : i;
+                    float x = curPos.x + (step * 5) * std::cos(pos.GetOrientation());
+                    float y = curPos.y + (step * 5) * std::sin(pos.GetOrientation());
+                    Trinity::NormalizeMapCoord(x);
+                    Trinity::NormalizeMapCoord(y);
+                    Vector3 nextPos {x, y, curPos.z};
+                    m_movePath.push_back(nextPos);
+                }
+                m_movePath.push_back(curPos);
+                m_movePath.push_back(curPos);
+                break;
+            }
+            case AT_MOVE_TYPE_CHAGE_ROTATION: //No WP
+                break;
         }
 
-        _nextMoveTime = (m_movePath[0] - m_movePath[1]).length() * _moveSpeed;
+        if(!m_movePath.empty())
+            _nextMoveTime = (m_movePath[0] - m_movePath[1]).length() * _moveSpeed;
     }
 
     FillCustomData(caster);
@@ -324,7 +352,7 @@ void AreaTrigger::UpdateAffectedList(uint32 p_time, AreaTriggerActionMoment acti
             else
             {
                 if (!unit->IsWithinDistInMap(searcher, GetRadius()) ||
-                    (isMoving() && _HasActionsWithCharges(AT_ACTION_MOMENT_ON_THE_WAY) && !unit->IsInBetween(this, m_movePath[m_currentNode + 1].x, m_movePath[m_currentNode + 1].y)))
+                    (isMoving() && !m_movePath.empty() && _HasActionsWithCharges(AT_ACTION_MOMENT_ON_THE_WAY) && !unit->IsInBetween(this, m_movePath[m_currentNode + 1].x, m_movePath[m_currentNode + 1].y)))
                 {
                     affectedPlayers.erase(itr);
                     AffectUnit(unit, AT_ACTION_MOMENT_LEAVE);
@@ -345,7 +373,7 @@ void AreaTrigger::UpdateAffectedList(uint32 p_time, AreaTriggerActionMoment acti
                     continue;
 
                 //No 
-                if (isMoving() && _HasActionsWithCharges(AT_ACTION_MOMENT_ON_THE_WAY) && !(*itr)->IsInBetween(this, m_movePath[m_currentNode + 1].x, m_movePath[m_currentNode + 1].y))
+                if (isMoving() && !m_movePath.empty() && _HasActionsWithCharges(AT_ACTION_MOMENT_ON_THE_WAY) && !(*itr)->IsInBetween(this, m_movePath[m_currentNode + 1].x, m_movePath[m_currentNode + 1].y))
                     continue;
                 affectedPlayers.push_back((*itr)->GetGUID());
                 AffectUnit(*itr, actionM);
@@ -418,6 +446,7 @@ void AreaTrigger::Update(uint32 p_time)
 
     UpdateActionCharges(p_time);
     UpdateMovement(p_time);
+    UpdateRotation(p_time);
 
     if (!_activationDelay)
         UpdateAffectedList(p_time, AT_ACTION_MOMENT_ENTER);
@@ -900,14 +929,49 @@ void AreaTrigger::UpdateMovement(uint32 diff)
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::UpdateMovement %f %f %f %f %i angle %f _nextMoveTime %i m_currentNode %i speed %f", GetPositionX(), GetPositionY(), GetPositionZ(), getMoveSpeed(), _moveTime, angle, _nextMoveTime, m_currentNode, speed);
 }
 
+void AreaTrigger::UpdateRotation(uint32 diff)
+{
+    if (!isMoving() || !m_movePath.empty())
+        return;
+
+    if (_waitTime > 0)
+    {
+        if (diff >= _waitTime)
+            _waitTime = 0;
+        else
+            _waitTime -= diff;
+        return;
+    }
+
+    _moveTime += diff;
+
+    if(_moveTime >= _nextMoveTime)
+    {
+        float speed = getMoveSpeed();
+        float o = GetOrientation() + (speed * (_moveTime / 1000));
+        _moveTime = 0;
+        _nextMoveTime = 1000;
+        SetOrientation(o);
+        //float x = GetPositionX() + 12 * std::cos(o);
+        //float y = GetPositionY() + 12 * std::sin(o);
+        //_caster->SummonCreature(44548, x, y, GetPositionZ(), o,TEMPSUMMON_TIMED_DESPAWN, 20000); // For visual point test
+    }
+}
+
 bool AreaTrigger::IsInPolygon(Unit* unit, WorldObject const* obj)
 {
-    if (atInfo.polygonPoints.size() < 3)
+    if (atInfo.verticesPoints.size() < 3)
         return false;
 
     float z_source = unit->GetPositionZ() - obj->GetPositionZ(); //Point Z on polygon
     if(atInfo.Height && z_source > atInfo.Height)
         return false;
+
+    PolygonPOIMap* _points;
+    if(!atInfo.verticesTargetPoints.empty())
+        _points = &atInfo.verticesTargetPoints;
+    else
+        _points = &atInfo.verticesPoints;
 
     static const int q_patt[2][2]= { {0,1}, {3,2} };
     float x_source = unit->GetPositionX() - obj->GetPositionX(); //Point X on polygon
@@ -920,22 +984,22 @@ bool AreaTrigger::IsInPolygon(Unit* unit, WorldObject const* obj)
 
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::IsInPolygon x_source %f y_source %f angle %f dist %f x %f y %f", x_source, y_source, angle, dist, x, y);
 
-    PolygonPOI pred_pt = atInfo.polygonPoints[0];
-    pred_pt.x -= x;
-    pred_pt.y -= y;
+    PolygonPOI* pred_pt = &(*_points)[0];
+    pred_pt->x -= x;
+    pred_pt->y -= y;
 
-    int pred_q = q_patt[pred_pt.y < 0][pred_pt.x < 0];
+    int pred_q = q_patt[pred_pt->y < 0][pred_pt->x < 0];
 
     int w = 0;
 
-    for (uint16 i = 0; i < atInfo.polygonPoints.size(); ++i)
+    for (uint16 i = 0; i < _points->size(); ++i)
     {
-        PolygonPOI cur_pt = atInfo.polygonPoints[i];
+        PolygonPOI* cur_pt = &(*_points)[i];
 
-        cur_pt.x -= x;
-        cur_pt.y -= y;
+        cur_pt->x -= x;
+        cur_pt->y -= y;
 
-        int q = q_patt[cur_pt.y < 0][cur_pt.x < 0];
+        int q = q_patt[cur_pt->y < 0][cur_pt->x < 0];
 
         switch (q - pred_q)
         {
@@ -946,11 +1010,11 @@ bool AreaTrigger::IsInPolygon(Unit* unit, WorldObject const* obj)
                 --w;
                 break;
             case -2:
-                if (pred_pt.x * cur_pt.y >= pred_pt.y * cur_pt.x)
+                if (pred_pt->x * cur_pt->y >= pred_pt->y * cur_pt->x)
                     ++w;
                 break;
             case 2:
-                if (!(pred_pt.x * cur_pt.y >= pred_pt.y * cur_pt.x))
+                if (!(pred_pt->x * cur_pt->y >= pred_pt->y * cur_pt->x))
                     --w;
                 break;
         }
@@ -965,10 +1029,17 @@ float AreaTrigger::CalculateRadius()
 {
     //calc maxDist for search zone
     float distance = 0.0f;
-    for (uint16 i = 0; i < atInfo.polygonPoints.size(); ++i)
+    for (uint16 i = 0; i < atInfo.verticesPoints.size(); ++i)
     {
-        PolygonPOI cur_pt = atInfo.polygonPoints[i];
-        float distsq = fabs(cur_pt.x) > fabs(cur_pt.y) ? fabs(cur_pt.x) : fabs(cur_pt.y);
+        PolygonPOI* cur_pt = &atInfo.verticesPoints[i];
+        float distsq = fabs(cur_pt->x) > fabs(cur_pt->y) ? fabs(cur_pt->x) : fabs(cur_pt->y);
+        if(distsq > distance)
+            distance = distsq;
+    }
+    for (uint16 i = 0; i < atInfo.verticesTargetPoints.size(); ++i)
+    {
+        PolygonPOI* cur_pt = &atInfo.verticesTargetPoints[i];
+        float distsq = fabs(cur_pt->x) > fabs(cur_pt->y) ? fabs(cur_pt->x) : fabs(cur_pt->y);
         if(distsq > distance)
             distance = distsq;
     }

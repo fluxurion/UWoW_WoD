@@ -810,6 +810,15 @@ struct SpellVisual
     int16 type;
 };
 
+struct SpellVisualPlayOrphan
+{
+    int32 spellId;
+    int32 SpellVisualID;
+    float TravelSpeed;
+    bool SpeedAsTime;
+    float UnkFloat;
+};
+
 struct SpellPendingCast
 {
     int32 spell_id;
@@ -878,6 +887,7 @@ typedef std::unordered_map<int32, std::vector<SpellLinked> > SpellLinkedMap;
 typedef std::unordered_map<int32, std::vector<SpellTalentLinked> > SpellTalentLinkedMap;
 typedef std::unordered_map<int32, std::vector<SpellPrcoCheck> > SpellPrcoCheckMap;
 typedef std::unordered_map<int32, std::vector<SpellVisual> > SpellVisualMap;
+typedef std::unordered_map<int32, SpellVisualPlayOrphan > SpellVisualPlayOrphanMap;
 typedef std::unordered_map<int32, std::vector<SpellPendingCast> > SpellPendingCastMap;
 typedef std::unordered_map<int32, SpellMountList* > SpellMountListMap;
 typedef std::map<int32, SpellScene > SpellSceneMap;
@@ -1006,6 +1016,7 @@ class SpellMgr
         const std::vector<SpellAuraDummy> *GetSpellAuraDummy(int32 spell_id) const;
         const std::vector<SpellTargetFilter> *GetSpellTargetFilter(int32 spell_id) const;
         const std::vector<SpellVisual> *GetSpellVisual(int32 spell_id) const;
+        const SpellVisualPlayOrphan* GetSpellVisualPlayOrphan(int32 spell_id) const;
         const std::vector<SpellPendingCast> *GetSpellPendingCast(int32 spell_id) const;
         const SpellScene *GetSpellScene(int32 miscValue) const;
 
@@ -1112,6 +1123,7 @@ class SpellMgr
         SpellPowerVector           mSpellPowerInfo;
         SpellMountListMap          mSpellMountListMap;
         SpellVisualMap             mSpellVisualMap;
+        SpellVisualPlayOrphanMap   mSpellVisualPlayOrphanMap;
         SpellPendingCastMap        mSpellPendingCastMap;
         std::list<uint32>          mForbiddenSpells;
         SpellSceneMap              mSpellSceneMap;
