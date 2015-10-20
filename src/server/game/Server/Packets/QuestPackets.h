@@ -558,6 +558,16 @@ namespace WorldPackets
             int32 ObjectID = 0;
             uint8 ObjectiveType = 0;
         };
+
+        class DailyQuestsReset final : public ServerPacket
+        {
+        public:
+            DailyQuestsReset() : ServerPacket(SMSG_DAILY_QUESTS_RESET, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Count = 0;
+        };
     }
 }
 

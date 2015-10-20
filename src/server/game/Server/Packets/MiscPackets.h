@@ -890,6 +890,37 @@ namespace WorldPackets
             Optional<uint32> Arg;
             Optional<uint32> Arg2;
         };
+
+        class DismountResult final : public ServerPacket
+        {
+        public:
+            DismountResult() : ServerPacket(SMSG_DISMOUNT_RESULT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
+        };
+
+        class DisenchantCredit final : public ServerPacket
+        {
+        public:
+            DisenchantCredit() : ServerPacket(SMSG_DISENCHANT_CREDIT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            Item::ItemInstance Item;
+            ObjectGuid Disenchanter;
+        };
+
+        class CustomLoadScreen final : public ServerPacket
+        {
+        public:
+            CustomLoadScreen() : ServerPacket(SMSG_CUSTOM_LOAD_SCREEN, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TeleportSpellID = 0;
+        };
     }
 }
 

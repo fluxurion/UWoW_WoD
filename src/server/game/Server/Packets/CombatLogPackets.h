@@ -341,6 +341,17 @@ namespace WorldPackets
             UnkAttackerState UnkState;
             float Unk = 0.0f;
         };
+
+        class AttackEventFailed final : public CombatLogServerPacket
+        {
+        public:
+            AttackEventFailed() : CombatLogServerPacket(SMSG_COMBAT_EVENT_FAILED, 32) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Attacker;
+            ObjectGuid Victim;
+        };
     }
 }
 

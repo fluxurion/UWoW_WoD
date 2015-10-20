@@ -535,3 +535,10 @@ WorldPacket const* WorldPackets::Quest::QuestUpdateAddCreditSimple::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Quest::DailyQuestsReset::Write()
+{
+    _worldPacket << Count;
+
+    return &_worldPacket;
+}

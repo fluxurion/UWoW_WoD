@@ -953,3 +953,11 @@ WorldPacket const* WorldPackets::Spells::LossOfControlAuraUpdate::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::CancelSpellVisualKit::Write()
+{
+    _worldPacket << Source;
+    _worldPacket << SpellVisualKitID;
+
+    return &_worldPacket;
+}

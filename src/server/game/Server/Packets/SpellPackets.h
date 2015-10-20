@@ -953,6 +953,17 @@ namespace WorldPackets
 
             std::vector<LossOfControlInfo> Infos;
         };
+
+        class CancelSpellVisualKit final : public ServerPacket
+        {
+        public:
+            CancelSpellVisualKit() : ServerPacket(SMSG_CANCEL_SPELL_VISUAL_KIT, 16 + 4) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Source;
+            int32 SpellVisualKitID = 0;
+        };
     }
 }
 

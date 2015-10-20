@@ -653,3 +653,25 @@ WorldPacket const* WorldPackets::Misc::DisplayGameError::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::DismountResult::Write()
+{
+    _worldPacket << Result;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::DisenchantCredit::Write()
+{
+    _worldPacket << Disenchanter;
+    _worldPacket << Item;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::CustomLoadScreen::Write()
+{
+    _worldPacket << TeleportSpellID;
+
+    return &_worldPacket;
+}

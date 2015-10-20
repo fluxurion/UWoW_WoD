@@ -334,3 +334,11 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::AttackEventFailed::Write()
+{
+    _worldPacket << Attacker;
+    _worldPacket << Victim;
+
+    return &_worldPacket;
+}
