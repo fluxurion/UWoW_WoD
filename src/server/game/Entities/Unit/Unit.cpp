@@ -23853,7 +23853,7 @@ void Unit::SendSpellPlayOrphanVisual(SpellInfo const* spellInfo, bool apply, Pos
             SendMessageToSet(WorldPackets::Spells::CancelOrphanSpellVisual(playOrphan->SpellVisualID).Write(), true);
             
             WorldPackets::Spells::CancelSpellVisual calcelVisual;
-            calcelVisual.Source;
+            calcelVisual.Source = GetGUID();
             calcelVisual.SpellVisualID = playOrphan->SpellVisualID;
             SendMessageToSet(calcelVisual.Write(), true);
         }
