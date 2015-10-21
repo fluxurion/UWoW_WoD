@@ -79,6 +79,25 @@ namespace WorldPackets
 
             bool FactionHasBonus[FactionCount] = { };
         };
+        
+        struct FactionStandingData
+        {
+            int32 Index = 0;
+            int32 Standing = 0;
+        };
+
+        class SetFactionStanding final : public ServerPacket
+        {
+        public:
+            SetFactionStanding() : ServerPacket(SMSG_SET_FACTION_STANDING, 13) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<FactionStandingData> Faction;
+            float BonusFromAchievementSystem = 0.0f;
+            float ReferAFriendBonus = 0.0f;
+            bool ShowVisual = false;
+        };
     }
 }
 

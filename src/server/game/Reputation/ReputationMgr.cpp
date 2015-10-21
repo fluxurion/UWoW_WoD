@@ -165,40 +165,36 @@ void ReputationMgr::SendForceReactions()
     _player->SendDirectMessage(reactions.Write());
 }
 
-//! 6.1.2
 void ReputationMgr::SendState(FactionState const* faction)
 {
-    uint32 count = 1;
+    WorldPackets::Reputation::SetFactionStanding standing;
+    standing.BonusFromAchievementSystem = 0.0f;
+    standing.ReferAFriendBonus = 0.0f;
+    standing.ShowVisual = _sendFactionIncreased;
 
-    WorldPacket data(SMSG_SET_FACTION_STANDING, 17);
-    data << float(0);
-    data << float(0);
+    WorldPackets::Reputation::FactionStandingData s1;
+    s1.Index = faction->ReputationListID;
+    s1.Standing = faction->Standing;
+    standing.Faction.push_back(s1);
 
-    size_t count_pos = data.wpos();
-    data << uint32(0);
-
-    data << uint32(faction->ReputationListID);
-    data << uint32(faction->Standing);
-
-    for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
+    for (auto& x : _factions)
     {
-        if (itr->second.needSend)
+        if (x.second.needSend)
         {
-            itr->second.needSend = false;
-            if (itr->second.ReputationListID != faction->ReputationListID)
+            x.second.needSend = false;
+            if (x.second.ReputationListID != faction->ReputationListID)
             {
-                data << uint32(itr->second.ReputationListID);
-                data << uint32(itr->second.Standing);
-                ++count;
+                WorldPackets::Reputation::FactionStandingData s;
+                s.Index = x.second.ReputationListID;
+                s.Standing = x.second.Standing;
+                standing.Faction.push_back(s);
             }
         }
     }
+    
+    _player->SendDirectMessage(standing.Write());
 
-    data.put<uint32>(count_pos, count);
-
-    data.WriteBit(_sendFactionIncreased);
     _sendFactionIncreased = false; // Reset
-    _player->SendDirectMessage(&data);
 }
 
 void ReputationMgr::SendInitialReputations()

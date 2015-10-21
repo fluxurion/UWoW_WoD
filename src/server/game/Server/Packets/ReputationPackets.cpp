@@ -61,3 +61,20 @@ WorldPacket const* WorldPackets::Reputation::FactionBonusInfo::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Reputation::SetFactionStanding::Write()
+{
+    _worldPacket << BonusFromAchievementSystem;
+    _worldPacket << ReferAFriendBonus;
+    _worldPacket << static_cast<uint32>(Faction.size());
+    for (auto const& v : Faction)
+    {
+        _worldPacket << v.Index;
+        _worldPacket << v.Standing;
+    }
+
+    _worldPacket.WriteBit(ShowVisual);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}

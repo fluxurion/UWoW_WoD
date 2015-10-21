@@ -28409,33 +28409,31 @@ void Player::SendRefundInfo(Item* item)
         return;
     }
 
-    //! 6.0.3
-    WorldPacket data(SMSG_SET_ITEM_PURCHASE_DATA, 8 + 1 + 5 * 4 + 5 * 4 + 3 * 4);
-    data << item->GetGUID();
+    WorldPackets::Item::SetItemPurchaseData purchaseData;
+    purchaseData.ItemGUID = item->GetGUID();
+    purchaseData.PurchaseTime = GetTotalPlayedTime() - item->GetPlayedTime();
+    purchaseData.Contents.Money = item->GetPaidMoney();
 
-    data << uint32(item->GetPaidMoney());               // money cost
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)                             // item cost data
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
     {
-        data << uint32(iece->RequiredItem[i]);
         if (iece->RequiredItem[i] == 38186)
-            data << uint32(iece->RequiredItemCount[i] * sWorld->getRate(RATE_DONATE));
+            purchaseData.Contents.Items[i].ItemCount = iece->RequiredItemCount[i] * sWorld->getRate(RATE_DONATE);
         else
-            data << uint32(iece->RequiredItemCount[i]);
+            purchaseData.Contents.Items[i].ItemCount = iece->RequiredItemCount[i];
+
+        purchaseData.Contents.Items[i].ItemID = iece->RequiredItem[i];
     }
 
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)                       // currency cost data
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
     {
-        if (CurrencyTypesEntry const * entry = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]))
-            data << uint32(iece->RequiredCurrencyCount[i] / entry->GetPrecision());
-        else
-            data << uint32(iece->RequiredCurrencyCount[i]);
-        data << uint32(iece->RequiredCurrency[i]);
-    }
-    
-    data << uint32(0);                                              //Flags
-    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());   //PurchaseTime
+        if (iece->IsSeasonCurrencyRequirement(i))
+            continue;
 
-    GetSession()->SendPacket(&data);
+        purchaseData.Contents.Currencies[i].CurrencyCount = iece->RequiredCurrencyCount[i];
+        purchaseData.Contents.Currencies[i].CurrencyID = iece->RequiredCurrency[i];
+    }
+
+    GetSession()->SendPacket(purchaseData.Write());
 }
 
 bool Player::AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount)
@@ -28472,37 +28470,30 @@ bool Player::AddItem(uint32 itemId, uint32 count, uint32* noSpaceForCount)
 
 void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece, uint8 error)
 {
-    //! 6.0.3
-    WorldPacket data(SMSG_ITEM_PURCHASE_REFUND_RESULT, 8 + 1 + 1 + 1 + 4 * 5 + 4 * 5 + 4);
-    data << item->GetGUID() << uint8(error);
-    data.WriteBit(!error);
-
+    WorldPackets::Item::ItemPurchaseRefundResult refundResult;
+    refundResult.ItemGUID = item->GetGUID();
+    refundResult.Result = error;
     if (!error)
     {
-        data << uint32(item->GetPaidMoney());               // money cost
+        refundResult.Contents = boost::in_place();
+        refundResult.Contents->Money = item->GetPaidMoney();
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
+        {
+            refundResult.Contents->Items[i].ItemCount = iece->RequiredItemCount[i];
+            refundResult.Contents->Items[i].ItemID = iece->RequiredItem[i];
+        }
 
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
             if (iece->IsSeasonCurrencyRequirement(i))
-            {
-                data << uint32(0) << uint32(0);
                 continue;
-            }
 
-            data << uint32(iece->RequiredCurrency[i]);
-            if (CurrencyTypesEntry const * entry = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]))
-                data << uint32(iece->RequiredCurrencyCount[i] / entry->GetPrecision());
-            else
-                data << uint32(iece->RequiredCurrencyCount[i]);
-        }
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i) // item cost data
-        {
-            data << uint32(iece->RequiredItem[i]);
-            data << uint32(iece->RequiredItemCount[i]);
+            refundResult.Contents->Currencies[i].CurrencyCount = iece->RequiredCurrencyCount[i];
+            refundResult.Contents->Currencies[i].CurrencyID = iece->RequiredCurrency[i];
         }
     }
 
-    GetSession()->SendPacket(&data);
+    GetSession()->SendPacket(refundResult.Write());
 }
 
 void Player::RefundItem(Item* item)

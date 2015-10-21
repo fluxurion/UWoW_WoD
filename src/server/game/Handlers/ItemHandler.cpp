@@ -327,24 +327,18 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
 
     if (item && item->GetTemplate()->PageText)
     {
-        WorldPacket data;
-
         InventoryResult msg = _player->CanUseItem(item);
         if (msg == EQUIP_ERR_OK)
-        {
-            data.Initialize(SMSG_READ_ITEM_RESULT_OK, 8);
-            data << item->GetGUID();
-        }
+            SendPacket(WorldPackets::Item::ReadItemResultOk(item->GetGUID()).Write());
         else
         {
-            data.Initialize(SMSG_READ_ITEM_RESULT_FAILED, 8 + 1);
-            data << item->GetGUID();
-            data << uint32(2);
-
+            WorldPackets::Item::ReadItemResultFailed failed;
+            failed.Item = item->GetGUID();
+            failed.Delay = 2;
+            failed.Subcode = WorldPackets::Item::ITEM_FAILURE_UNK_1;
+            SendPacket(failed.Write());
             _player->SendEquipError(msg, item, nullptr);
         }
-
-        SendPacket(&data);
     }
     else
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);

@@ -8188,11 +8188,10 @@ void Spell::Delayed() // only called in DealDamage()
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "Spell %u partially interrupted for (%d) ms at damage", m_spellInfo->Id, delaytime);
 
-    //! 6.0.3
-    WorldPacket data(SMSG_SPELL_DELAYED, 8+4);
-    data << m_caster->GetGUID();
-    data << uint32(delaytime);
-    m_caster->SendMessageToSet(&data, true);
+    WorldPackets::Spells::SpellDelayed delayed;
+    delayed.Caster = m_caster->GetGUID();
+    delayed.ActualDelay = delaytime;
+    m_caster->SendMessageToSet(delayed.Write(), true);
 }
 
 void Spell::DelayedChannel()

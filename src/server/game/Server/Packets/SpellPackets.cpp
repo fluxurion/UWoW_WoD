@@ -998,3 +998,11 @@ WorldPacket const* WorldPackets::Spells::AreaTriggerDenied::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::SpellDelayed::Write()
+{
+    _worldPacket << Caster;
+    _worldPacket << ActualDelay;
+
+    return &_worldPacket;
+}

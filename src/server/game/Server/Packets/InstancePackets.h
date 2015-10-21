@@ -279,6 +279,19 @@ namespace WorldPackets
             uint32 GroupSize = 0;
             bool Success = false;
         };
+
+        class PendingRaidLock final : public ServerPacket
+        {
+        public:
+            PendingRaidLock() : ServerPacket(SMSG_PENDING_RAID_LOCK, 10) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TimeUntilLock = 0;
+            uint32 CompletedMask = 0;
+            bool Extending = false;
+            bool WarningOnly = false;
+        };
     }
 }
 

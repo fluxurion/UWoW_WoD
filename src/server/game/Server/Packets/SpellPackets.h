@@ -1005,6 +1005,17 @@ namespace WorldPackets
             int32 AreaTriggerID = 0;
             bool Entered = false;
         };
+
+        class SpellDelayed final : public ServerPacket
+        {
+        public:
+            SpellDelayed() : ServerPacket(SMSG_SPELL_DELAYED, 16 + 4) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Caster;
+            int32 ActualDelay = 0;
+        };
     }
 }
 

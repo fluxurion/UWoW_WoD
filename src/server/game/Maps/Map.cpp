@@ -2532,12 +2532,12 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
                         // players also become permanently bound when they enter
                         if (groupBind->perm)
                         {
-                            WorldPacket data(SMSG_PENDING_RAID_LOCK, 10);
-                            data << uint32(i_data ? i_data->GetCompletedEncounterMask() : 0);
-                            data << uint32(60000);
-                            data.WriteBit(0);
-                            data.WriteBit(0); // events it throws:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
-                            player->GetSession()->SendPacket(&data);
+                            WorldPackets::Instance::PendingRaidLock lock;
+                            lock.TimeUntilLock = i_data ? i_data->GetCompletedEncounterMask() : 0;
+                            lock.CompletedMask = 60000;
+                            lock.Extending = false;
+                            lock.WarningOnly = false; // events it throws:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
+                            player->GetSession()->SendPacket(lock.Write());
                             player->SetPendingBind(mapSave->GetInstanceId(), 60000);
                         }
                     }

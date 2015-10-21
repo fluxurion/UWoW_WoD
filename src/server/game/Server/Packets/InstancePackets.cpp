@@ -211,3 +211,15 @@ WorldPacket const* WorldPackets::Instance::EncounterEnd::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Instance::PendingRaidLock::Write()
+{
+    _worldPacket << TimeUntilLock;
+    _worldPacket << CompletedMask;
+    _worldPacket.WriteBit(Extending);
+    _worldPacket.WriteBit(WarningOnly);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+

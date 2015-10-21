@@ -408,3 +408,69 @@ WorldPacket const* WorldPackets::Item::ItemExpirePurchaseRefund::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Item::ReadItemResultOk::Write()
+{
+    _worldPacket << Item;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::ReadItemResultFailed::Write()
+{
+    _worldPacket << Item;
+    _worldPacket << Delay;
+    _worldPacket.WriteBits(Subcode, 2);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseRefundItem& refundItem)
+{
+    data << refundItem.ItemID;
+    data << refundItem.ItemCount;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseRefundCurrency& refundCurrency)
+{
+    data << refundCurrency.CurrencyID;
+    data << refundCurrency.CurrencyCount;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemPurchaseContents& purchaseContents)
+{
+    data << purchaseContents.Money;
+    for (uint32 i = 0; i < 5; ++i)
+        data << purchaseContents.Items[i];
+
+    for (uint32 i = 0; i < 5; ++i)
+        data << purchaseContents.Currencies[i];
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Item::SetItemPurchaseData::Write()
+{
+    _worldPacket << ItemGUID;
+    _worldPacket << Contents;
+    _worldPacket << Flags;
+    _worldPacket << PurchaseTime;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Item::ItemPurchaseRefundResult::Write()
+{
+    _worldPacket << ItemGUID;
+    _worldPacket << uint8(Result);
+    _worldPacket.WriteBit(Contents.is_initialized());
+    _worldPacket.FlushBits();
+    if (Contents)
+        _worldPacket << *Contents;
+
+    return &_worldPacket;
+}
