@@ -22,6 +22,7 @@
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "VehicleDefines.h"
+#include "MiscPackets.h"
 
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
 { }
@@ -302,7 +303,56 @@ void Garrison::InitializePlots()
 }
 
 void Garrison::Upgrade()
-{ }
+{
+    uint32 garrLvl = _siteLevel->Level;
+
+    // check for cheting / modification in client
+    if (garrLvl == 3)
+        return;
+
+    for (GarrSiteLevelEntry const* v : sGarrSiteLevelStore)
+        if (v->SiteID == _siteLevel->SiteID && v->Level == garrLvl + 1)
+            _siteLevel = v;
+
+    WorldPackets::Garrison::GarrisonUpgradeResult result;
+    if (_siteLevel->Level == garrLvl)
+    {
+        result.Result = GARRISON_ERROR_NO_BUILDING;
+        _owner->SendDirectMessage(result.Write());
+        return;
+    }
+
+    switch (_siteLevel->ID)
+    {
+        //< alliance
+        case 444:   // 2 lvl
+            //_owner->TeleportTo(_siteLevel->MapID, 1733.25f, 156.995f, 75.40f, 0.79f, TELE_TO_SEAMLESS);
+            break;
+        case 6:     // 3 lvl
+            //_owner->TeleportTo(_siteLevel->MapID, 1733.25f, 156.995f, 75.40f, 0.79f, TELE_TO_SEAMLESS);
+            break;
+        //< horde
+        case 445:   // 2 lvl
+            //_owner->TeleportTo(_siteLevel->MapID, 1733.25f, 156.995f, 75.40f, 0.79f, TELE_TO_SEAMLESS);
+            break;
+        case 259:   // 3 lvl
+            //_owner->TeleportTo(_siteLevel->MapID, 1733.25f, 156.995f, 75.40f, 0.79f, TELE_TO_SEAMLESS);
+            break;
+        default:
+            return;
+    }
+
+    WorldPackets::Misc::StreamingMovie movie;
+    movie.MovieIDs.push_back(_siteLevel->MovieID);
+    _owner->SendDirectMessage(movie.Write());
+
+    result.Result = GARRISON_SUCCESS;
+    result.GarrSiteLevelID = _siteLevel->ID;
+    _owner->SendDirectMessage(result.Write());
+
+    _owner->ModifyCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, -_siteLevel->UpgradeResourceCost, false, true);
+    _owner->ModifyMoney(-_siteLevel->UpgradeMoneyCost * GOLD, false);
+}
 
 void Garrison::Enter() const
 {

@@ -562,8 +562,8 @@ struct GarrSiteLevelEntry
     DBCPosition2D TownHall;                                         // 5-6
     uint32 MovieID;                                                 // 7
     uint32 Level2;                                                  // 8
-    uint32 UpgradeResourceCost;                                     // 9
-    uint32 UpgradeMoneyCost;                                        // 10
+    int32 UpgradeResourceCost;                                      // 9
+    int32 UpgradeMoneyCost;                                         // 10
 };
 
 struct GarrSiteLevelPlotInstEntry

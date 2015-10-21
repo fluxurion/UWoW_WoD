@@ -34,6 +34,7 @@ EndScriptData */
 #include "MapManager.h"
 #include "Vehicle.h"
 #include "Packets/ChatPackets.h"
+#include "Packets/MiscPackets.h"
 
 #include <fstream>
 
@@ -114,6 +115,7 @@ public:
             { "update",         SEC_ADMINISTRATOR,  false, &HandleDebugUpdateCommand,          "", NULL },
             { "updatecriteria", SEC_ADMINISTRATOR,  false, &HandleDebugUpdateCriteriaCommand,  "", NULL },
             { "uws",            SEC_ADMINISTRATOR,  false, &HandleDebugUpdateWorldStateCommand, "", NULL },
+            { "streamingmovies",SEC_ADMINISTRATOR,  false, &HandleDebugStreamingMoviesCommand, "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -526,6 +528,18 @@ public:
         uint32 world = (uint32)atoi(w);
         uint32 state = (uint32)atoi(s);
         handler->GetSession()->GetPlayer()->SendUpdateWorldState(world, state);
+        return true;
+    }
+
+    static bool HandleDebugStreamingMoviesCommand(ChatHandler* handler, char const* args)
+    {
+        char* w = strtok((char*)args, " ");
+        if (!w)
+            return false;
+
+        WorldPackets::Misc::StreamingMovie movie;
+        movie.MovieIDs.push_back((uint32)atoi(w));
+        handler->GetSession()->GetPlayer()->SendDirectMessage(movie.Write());
         return true;
     }
 

@@ -82,8 +82,14 @@ void WorldSession::HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::Garrison
 void WorldSession::HandleCompleteAllReadyShipments(WorldPackets::Garrison::CompleteAllReadyShipments& /*packet*/)
 { }
 
-void WorldSession::HandleUpgradeGarrison(WorldPackets::Garrison::UpgradeGarrison& /*packet*/)
-{ }
+void WorldSession::HandleUpgradeGarrison(WorldPackets::Garrison::UpgradeGarrison& packet)
+{
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_GARRISON_ARCHITECT))
+        return;
+
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->Upgrade();
+}
 
 void WorldSession::HandleTrophyData(WorldPackets::Garrison::TrophyData& packet)
 {
