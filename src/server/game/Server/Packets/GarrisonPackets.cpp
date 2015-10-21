@@ -535,3 +535,63 @@ WorldPacket const* WorldPackets::Garrison::GarrisonCompleteMissionResult::Write(
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Garrison::GarrisonNumFollowerActivationsRemaining::Write()
+{
+    _worldPacket << Amount;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonOpenTradeskillNpcResponse::Write()
+{
+    _worldPacket << GUID;
+    _worldPacket << SpellID;
+
+    _worldPacket << static_cast<uint32>(SkillLineIDs.size());
+    _worldPacket << static_cast<uint32>(SkillRanks.size());
+    _worldPacket << static_cast<uint32>(SkillMaxRanks.size());
+    _worldPacket << static_cast<uint32>(KnownAbilitySpellIDs.size());
+
+    for (int32 const& n : SkillLineIDs)
+        _worldPacket << n;
+
+    for (int32 const& b : SkillRanks)
+        _worldPacket << b;
+
+    for (int32 const& z : SkillMaxRanks)
+        _worldPacket << z;
+
+    for (int32 const& x : KnownAbilitySpellIDs)
+        _worldPacket << x;
+
+    _worldPacket << static_cast<uint32>(PlayerConditionIDs.size());
+    for (int32 const& v : PlayerConditionIDs)
+        _worldPacket << v;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonRemoveFollowerFromBuildingResult::Write()
+{
+    _worldPacket << FollowerDBID;
+    _worldPacket << Result;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::QueryGarrisonCreatureNameResponse::Write()
+{
+    _worldPacket << InqueKey;
+    _worldPacket << NpcGUID;
+    _worldPacket.WriteBit(Name.is_initialized());
+    _worldPacket.FlushBits();
+
+    if (Name)
+    {
+        _worldPacket.WriteBits(Name->size(), 8);
+        _worldPacket.WriteString(*Name);
+    }
+
+    return &_worldPacket;
+}

@@ -698,6 +698,55 @@ namespace WorldPackets
             int32 MissionRecID = 0;
             bool Succeeded = false;
         };
+
+        class GarrisonNumFollowerActivationsRemaining final : public ServerPacket
+        {
+        public:
+            GarrisonNumFollowerActivationsRemaining() : ServerPacket(SMSG_GARRISON_NUM_FOLLOWER_ACTIVATIONS_REMAINING, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Amount = 0;
+        };
+
+        class GarrisonOpenTradeskillNpcResponse final : public ServerPacket
+        {
+        public:
+            GarrisonOpenTradeskillNpcResponse() : ServerPacket(SMSG_GARRISON_OPEN_TRADESKILL_NPC_RESPONSE, 16 + 24) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GUID;
+            int32 SpellID = 0;
+            std::vector<int32> SkillLineIDs;
+            std::vector<int32> SkillRanks;
+            std::vector<int32> SkillMaxRanks;
+            std::vector<int32> KnownAbilitySpellIDs;
+            std::vector<int32> PlayerConditionIDs;
+        };
+
+        class GarrisonRemoveFollowerFromBuildingResult final : public ServerPacket
+        {
+        public:
+            GarrisonRemoveFollowerFromBuildingResult() : ServerPacket(SMSG_GARRISON_REMOVE_FOLLOWER_FROM_BUILDING_RESULT, 12) { }
+
+            WorldPacket const* Write() override;
+
+            uint64 FollowerDBID = 0;
+            int32 Result = 0;
+        };
+
+        class QueryGarrisonCreatureNameResponse final : public ServerPacket
+        {
+        public:
+            QueryGarrisonCreatureNameResponse() : ServerPacket(SMSG_QUERY_GARRISON_CREATURE_NAME_RESPONSE, 16 + 8 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid NpcGUID;
+            uint64 InqueKey = 0;
+            Optional<std::string> Name;
+        };
     }
 }
 
