@@ -1263,6 +1263,10 @@ class spell_dru_ferocious_bite : public SpellScriptLoader
                         player->CastCustomSpell(player, info->Id, &bp, NULL, NULL, true);
                     }
                 }
+                // if target is under 25% of life, also reset rake duration
+                if (target && target->GetHealthPct() <= 25.0f)
+                    if (Aura* aura = target->GetAura(1822))
+                        aura->RefreshDuration();
             }
 
             void Register()

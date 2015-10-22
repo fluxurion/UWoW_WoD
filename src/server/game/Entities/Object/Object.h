@@ -553,6 +553,8 @@ struct Position
     bool HasInLine(WorldObject const* target, float width) const;
     std::string ToString() const;
 
+    bool IsLinesCross(Position const &pos11, Position const &pos12, Position const &pos21, Position const &pos22) const;
+
     // modulos a radian orientation to the range of 0..2PI
     static float NormalizeOrientation(float o)
     {

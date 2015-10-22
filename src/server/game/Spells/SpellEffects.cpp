@@ -542,21 +542,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             return;
                         break;
                     }
-                    case 22568: // Ferocious Bite
-                    {
-                        // converts each extra point of energy ( up to 25 energy ) into additional damage
-                        int32 energy = -(m_caster->ModifyPower(POWER_ENERGY, -25));
-                        // 25 energy = 100% more damage
-                        AddPct(damage, energy * 4);
-
-                        damage += int32(0.400f * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * m_caster->ToPlayer()->GetComboPoints(m_spellInfo->Id));
-
-                        // if target is under 25% of life, also reset rake duration
-                        if (unitTarget->GetHealthPct() <= 25.0f)
-                            if (Aura* aura = unitTarget->GetAura(1822))
-                                aura->RefreshDuration();
-                        break;
-                    }
                     case 6807:
                         if (unitTarget->HasAuraState(AURA_STATE_BLEEDING))
                             AddPct(damage, 20);
