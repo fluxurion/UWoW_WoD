@@ -12005,7 +12005,6 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 		bool calcSPDBonus = (SPDCoeffMod > 0) && getClass() != CLASS_MONK;
 
         if (ApCoeffMod > 0)
-            if (spellProto->GetEffect(effIndex, m_diffMode)->SpellAPBonusMultiplier)
         {
             //code for bonus AP from dbc
 
@@ -12655,20 +12654,45 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         DoneAdvertisedBenefit = bonusDone;
 
     // Check for table values
+    SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
     float ApCoeffMod = spellProto->GetEffect(effIndex, m_diffMode)->SpellAPBonusMultiplier;
-    float coeff = spellProto->GetEffect(effIndex, m_diffMode)->BonusCoefficient;
+    float dbccoeff = spellProto->GetEffect(effIndex, m_diffMode)->BonusCoefficient;
+    float coeff = 0;
     float factorMod = 1.0f;
 
-    if (ApCoeffMod)
+    if (getClass() == CLASS_DRUID && spellProto->Id == 5185)
+        if (HasAura(145162))
+        {
+            ApCoeffMod = dbccoeff;
+            dbccoeff = 0;
+        }
+
+    if (bonus)
     {
-        DoneTotal += int32(ApCoeffMod * stack * GetTotalAttackPowerValue(
-            (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+        if (damagetype == DOT)
+        {
+            coeff = bonus->dot_damage;
+            if (bonus->ap_dot_bonus > 0)
+                DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
+                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+        }
+        else
+        {
+            coeff = bonus->direct_damage;
+            if (bonus->ap_bonus > 0)
+                DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(BASE_ATTACK));
+        }
     }
-    else if (coeff <= 0.0f)
+    else
     {
-        // No bonus healing for SPELL_DAMAGE_CLASS_NONE class spells by default
-        if (spellProto->DmgClass == SPELL_DAMAGE_CLASS_NONE)
-            return healamount;
+        if (dbccoeff/* && spellProto->SchoolMask & SPELL_SCHOOL_MASK_MAGIC*/)
+            coeff = dbccoeff; // 77478 use in SCHOOL_MASK_PHYSICAL
+
+        if (ApCoeffMod)
+        {
+            DoneTotal += int32(ApCoeffMod * stack * GetTotalAttackPowerValue(
+                (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+        }
     }
 
     // Default calculation

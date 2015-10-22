@@ -3939,7 +3939,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->AttributesEx3 &= ~SPELL_ATTR3_DEATH_PERSISTENT;
                     break;
                 case 5487:  // Bear Form
-                    spellInfo->Effects[2].BasePoints = 120;
+                    spellInfo->Effects[3].BasePoints = 0;
+                    spellInfo->Effects[4].BasePoints = 0;
                     break;
                 case 53503: // Sword of Light
                     spellInfo->Effects[2].SpellClassMask[2] |= 2097152;
@@ -4911,7 +4912,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE;
                     break;
                 case 144396: //Vengeful Strikes. WTF. SPELL_AURA_MOD_POSSESS_PET
-                case 774:    // Rejuvenation
                     spellInfo->Effects[0].Effect = 0;
                     spellInfo->Effects[0].ApplyAuraName = 0;
                     break;

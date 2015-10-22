@@ -542,12 +542,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             return;
                         break;
                     }
-                    case 106830: // Thrash (Cat)
-                    case 77758:  // Thrash
-                    {
-                        damage += m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * m_spellInfo->Effects[EFFECT_2].BasePoints / 1000;
-                        break;
-                    }
                     case 22568: // Ferocious Bite
                     {
                         // converts each extra point of energy ( up to 25 energy ) into additional damage
