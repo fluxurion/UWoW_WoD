@@ -6650,20 +6650,12 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.faction        = 0;
             got.flags          = 0;
             got.size           = goe->Size;
-            got.raw.data[0]    = goe->Data[0];
-            got.raw.data[1]    = goe->Data[1];
-            got.raw.data[2]    = goe->Data[2];
-            got.raw.data[3]    = goe->Data[3];
-            //ToDo: more research 4-7
-            got.raw.data[4]    = goe->Data[4];
-            got.raw.data[5]    = goe->Data[5];
-            got.raw.data[6]    = goe->Data[6];
-            got.raw.data[7]    = goe->Data[7];
+
             for (uint8 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
                 got.questItems[i] = 0;
 
-            for (uint8 i = 4; i < MAX_GAMEOBJECT_DATA; ++i)
-                got.raw.data[i] = 0;
+            for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
+                got.raw.data[i] = goe->Data[i];
 
             got.unkInt32 = 0;
             got.AIName = "";
