@@ -714,7 +714,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write(
 WorldPacket const* WorldPackets::Movement::MoveUpdateApplyMovementForce::Write()
 {
     _worldPacket << *movementInfo;
-    _worldPacket << MovementForce;
+    _worldPacket << MovementForceData;
 
     return &_worldPacket;
 }
@@ -732,7 +732,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetCompoundState::Write()
         _worldPacket.WriteBit(v.KnockBack.is_initialized());
         _worldPacket.WriteBit(v.VehicleRecID.is_initialized());
         _worldPacket.WriteBit(v.ColiisionHeight.is_initialized());
-        _worldPacket.WriteBit(v.MovementForce.is_initialized());
+        _worldPacket.WriteBit(v.MovementForceData.is_initialized());
         _worldPacket.WriteBit(v.MoverGUID.is_initialized());
 
         if (v.Speed)
@@ -756,8 +756,8 @@ WorldPacket const* WorldPackets::Movement::MoveSetCompoundState::Write()
             _worldPacket.FlushBits();
         }
 
-        if (v.MovementForce)
-            _worldPacket << *v.MovementForce;
+        if (v.MovementForceData)
+            _worldPacket << *v.MovementForceData;
 
         if (v.MoverGUID)
             _worldPacket << *v.MoverGUID;

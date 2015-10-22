@@ -481,7 +481,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
             
             MovementInfo* movementInfo = nullptr;
-            MovementForce MovementForce;
+            MovementForce MovementForceData;
         };
 
         struct KnockBackData
@@ -497,7 +497,7 @@ namespace WorldPackets
             uint32 SequenceIndex = 0;
             Optional<float> Speed;
             Optional<uint32> VehicleRecID;
-            Optional<MovementForce> MovementForce;
+            Optional<MovementForce> MovementForceData;
             Optional<ObjectGuid> MoverGUID;
             Optional<KnockBackData> KnockBack;
             Optional<CollisionHeightData> ColiisionHeight;
