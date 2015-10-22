@@ -518,7 +518,7 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_PET_TRAINER_DEFEAT      = 11,
     QUEST_OBJECTIVE_DEFEATBATTLEPET         = 12,
     QUEST_OBJECTIVE_PET_BATTLE_VICTORIES    = 13,
-    QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE                  = 14, // CriteriaTree.dbc
+    QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE  = 14, // CriteriaTree.dbc
     QUEST_OBJECTIVE_EXCELLENCE_IN_ZONE                      = 15, // kill some npc, use some gobjects etc... and make dynamic quest UI completed
     QUEST_OBJECTIVE_OBTAIN_CURRENCY_AND_UPGRADE_GARRISON    = 16,
     QUEST_OBJECTIVE_OBTAIN_CURRENCY                         = 17,

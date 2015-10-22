@@ -30,7 +30,7 @@
 struct CriteriaTreeInfo
 {
     uint32 criteriaTreeID = 0;
-    uint32 parentID = 0;
+    CriteriaTreeEntry const* parentTree = NULL;
     AchievementEntry const* achievement = NULL;
     CriteriaTreeEntry const* criteriaTree = NULL;
     CriteriaEntry const* criteria = NULL;
@@ -429,6 +429,7 @@ class AchievementGlobalMgr
         }
 
         void LoadAchievementCriteriaList();
+        void AddCriteriaTreeEntry(uint32 criteriaTreeID, uint32& criterias, uint32& guildCriterias, uint32& scenarioCriterias, AchievementEntry const* achievement = NULL, bool isScenario = false);
         void LoadAchievementCriteriaData();
         void LoadAchievementReferenceList();
         void LoadCompletedAchievements();

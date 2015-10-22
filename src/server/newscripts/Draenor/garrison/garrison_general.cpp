@@ -64,7 +64,50 @@ public:
         return new spell_garrison_hearthstone_SpellScript();
     }
 };
+
+//http://www.wowhead.com/spell=173847/loot
+//! HORDE Q: 34824 ALLIANCE Q: 35176
+class spell_garrison_cache_loot : public SpellScriptLoader
+{
+public:
+    spell_garrison_cache_loot() : SpellScriptLoader("spell_garrison_cache_loot") { }
+
+    class spell_garrison_cache_loot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_garrison_cache_loot_SpellScript);
+
+        void HandleScriptEffect(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            if (Unit* caster = GetCaster())
+            {
+                Player* plr = caster->ToPlayer();
+                if (!plr)
+                    return;
+
+                Garrison *garr = plr->GetGarrison();
+                if (!garr || !garr->GetResNumber())
+                    return;
+                
+                plr->ModifyCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, garr->GetResNumber(), false, false, true, true, true);
+                garr->UpdateResTakenTime();   
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_garrison_cache_loot_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_garrison_cache_loot_SpellScript();
+    }
+};
+
 void AddSC_garrison_general()
 {
     new spell_garrison_hearthstone();
+    new spell_garrison_cache_loot();
 }

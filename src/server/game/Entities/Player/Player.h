@@ -1738,7 +1738,7 @@ class Player : public Unit, public GridObject<Player>
         * @param ignore gain multipliers
         */
 
-        void ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool modifyWeek = true, bool modifySeason = true);
+        void ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false, bool modifyWeek = true, bool modifySeason = true, bool sendToast = false);
 
         /*********************************************************/
         /***                 ARCHAEOLOGY SYSTEM                ***/
@@ -1946,6 +1946,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveQuestSlotState(uint16 slot, uint32 state);
         void SetQuestSlotTimer(uint16 slot, uint32 timer);
         void SwapQuestSlot(uint16 slot1, uint16 slot2);
+        void SetSpecialCriteriaComplete(uint16 slot, uint8 StorageIndex);
 
         void SetQuestCompletedBit(uint32 questBit, bool completed);
         uint16 GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry);
@@ -1957,6 +1958,7 @@ class Player : public Unit, public GridObject<Player>
         void KilledMonsterCredit(uint32 entry, ObjectGuid guid = ObjectGuid::Empty);
         void KilledPlayerCredit();
         void KillCreditGO(uint32 entry, ObjectGuid const& guid);
+        void AchieveCriteriaCredit(uint32 criteriaID);
         void TalkedToCreature(uint32 entry, ObjectGuid guid);
         void MoneyChanged(uint32 value);
         void ReputationChanged(FactionEntry const* factionEntry);

@@ -8321,7 +8321,7 @@ bool Player::HasCurrency(uint32 id, uint32 count) const
     return itr != _currencyStorage.end() && itr->second.totalCount >= count;
 }
 
-void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool modifyWeek/* = true*/, bool modifySeason/* = true*/)
+void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool modifyWeek/* = true*/, bool modifySeason/* = true*/, bool toast_Send/* = false*/)
 {
     if (!count)
         return;
@@ -8432,6 +8432,9 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
                 packet << uint32(newWeekCount / precision);
 
             GetSession()->SendPacket(&packet);
+
+            if (toast_Send)
+                SendDisplayToast(id, 10, 0, count, 1);
         }
 
         if (currency->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
@@ -17315,6 +17318,12 @@ void Player::SetQuestSlotCounter(uint16 slot, uint8 counter, uint16 count)
     SetUInt16Value(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_COUNTS_OFFSET + uint8(counter / 2), counter % 2, count);
 }
 
+void Player::SetSpecialCriteriaComplete(uint16 slot, uint8 StorageIndex)
+{
+    //! yes. QUEST_STATE_OFFSET used. second part of uint16.
+    SetByteFlag(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, 1, 1 << StorageIndex);
+}
+
 void Player::SetQuestSlotState(uint16 slot, uint32 state)
 {
     SetFlag(PLAYER_FIELD_QUEST_LOG + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, state);
@@ -17912,8 +17921,18 @@ void Player::SetQuestObjectiveData(Quest const* quest, QuestObjective const* obj
     // Update quest fields
     // Negative index  - hiden
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
-    if (log_slot < MAX_QUEST_LOG_SIZE && obj->StorageIndex >= 0 /*&& (obj->Flags & QUEST_OBJECTIVE_FLAG_HIDEN) == 0*/)
+    if (log_slot < MAX_QUEST_LOG_SIZE && obj->StorageIndex >= 0 /*&& (obj->Flags & QUEST_OBJECTIVE_FLAG_HIDEN) == 0*/ && obj->Type != QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE)
         SetQuestSlotCounter(log_slot, obj->StorageIndex, status.ObjectiveData[obj->StorageIndex]);
+
+    if (obj->Type == QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE)
+    {
+        SetSpecialCriteriaComplete(log_slot, obj->StorageIndex);
+        WorldPackets::Quest::QuestUpdateAddCreditSimple packet;
+        packet.QuestID = quest->GetQuestId();
+        packet.ObjectID = obj->ObjectID;
+        packet.ObjectiveType = obj->Type;
+        GetSession()->SendPacket(packet.Write());
+    }
 }
 
 void Player::SendQuestComplete(Quest const* quest)
@@ -30179,4 +30198,38 @@ void Player::OnLeavePvPCombat()
 
     _RemoveAllStatBonuses();
     _ApplyAllStatBonuses();
+}
+
+void Player::AchieveCriteriaCredit(uint32 criteriaID)
+{
+    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+    {
+        uint32 questid = GetQuestSlotQuestId(i);
+        if (questid == 0)
+            continue;
+
+        QuestStatusData& q_status = m_QuestStatus[questid];
+
+        if (q_status.Status != QUEST_STATUS_INCOMPLETE)
+            continue;
+
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
+        if (!qInfo)
+            continue;
+
+        for (QuestObjective const& obj : qInfo->GetObjectives())
+        {
+            if (obj.Type != QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE)
+                continue;
+
+            if (obj.ObjectID == criteriaID)
+            {
+                SetQuestObjectiveData(qInfo, &obj, obj.Amount);
+                //SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE
+                if (CanCompleteQuest(questid))
+                    CompleteQuest(questid);
+                return;
+            }
+        }
+    }
 }

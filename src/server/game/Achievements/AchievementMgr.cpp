@@ -1495,7 +1495,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         if(!criteriaTree || !criteria)
             continue;
 
-        if (GetCriteriaSort() != SCENARIO_CRITERIA && !achievement)
+        if (GetCriteriaSort() != SCENARIO_CRITERIA && !(i->parentTree && i->parentTree->flags2 & 0x1000) && !achievement)
         {
             sLog->outError(LOG_FILTER_ACHIEVEMENTSYS, "UpdateAchievementCriteria: Achievement for criteriaTree->ID %u not found!", criteriaTree->ID);
             continue;
@@ -2671,9 +2671,9 @@ bool AchievementMgr<T>::SetCriteriaProgress(AchievementEntry const* achievement,
         // we will need to send 0 progress to client to start the timer
         if (changeValue == 0 && !criteria->timeLimit)
             return false;
-
-        //sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "SetCriteriaProgress(%u, %u) new CriteriaSort %u achievement %u progressMap %i treeEntry %u", criteria->ID, changeValue, GetCriteriaSort(), achievement ? achievement->ID : 0, bool(progressMap), treeEntry->ID);
-
+#ifdef _MSC_VER
+        sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "SetCriteriaProgress(%u, %u) new CriteriaSort %u achievement %u progressMap %i treeEntry %u", criteria->ID, changeValue, GetCriteriaSort(), achievement ? achievement->ID : 0, bool(progressMap), treeEntry->ID);
+#endif
         progress = &(*progressMap)[treeEntry->ID];
         progress->counter = changeValue;
         progress->changed = true;
@@ -2692,7 +2692,9 @@ bool AchievementMgr<T>::SetCriteriaProgress(AchievementEntry const* achievement,
     }
     else
     {
-        //sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "SetCriteriaProgress(%u, %u) old CriteriaSort %u achievement %u", criteria->ID, changeValue, GetCriteriaSort(), achievement ? achievement->ID : 0);
+#ifdef _MSC_VER
+        sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "SetCriteriaProgress(%u, %u) old CriteriaSort %u achievement %u", criteria->ID, changeValue, GetCriteriaSort(), achievement ? achievement->ID : 0);
+#endif
         uint32 newValue = 0;
         switch (ptype)
         {
@@ -2725,6 +2727,9 @@ bool AchievementMgr<T>::SetCriteriaProgress(AchievementEntry const* achievement,
     //if (!achievement)
         //return;
 
+    if (progress->parent && progress->parent->flags2 & 0x1000)
+        referencePlayer->AchieveCriteriaCredit(progress->parent->ID);
+
     uint32 timeElapsed = 0;
     IsCompletedCriteria(treeEntry, achievement, criteria, progressMap, progress);
 
@@ -2737,10 +2742,10 @@ bool AchievementMgr<T>::SetCriteriaProgress(AchievementEntry const* achievement,
         if (progress->completed)
             m_timedAchievements.erase(timedIter);
     }
-
-    //sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "SetCriteriaProgress criteria %u achievement %u progressMap %i treeEntry %u completed %i timeElapsed %i timeLimit %i",
-    //criteria->ID, achievement ? achievement->ID : 0, bool(progressMap), treeEntry->ID, progress->completed, timeElapsed, criteria->timeLimit);
-
+#ifdef _MSC_VER
+    sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "SetCriteriaProgress criteria %u achievement %u progressMap %i treeEntry %u completed %i timeElapsed %i timeLimit %i",
+    criteria->ID, achievement ? achievement->ID : 0, bool(progressMap), treeEntry->ID, progress->completed, timeElapsed, criteria->timeLimit);
+#endif
     if (progress->completed && achievement && achievement->flags & ACHIEVEMENT_FLAG_SHOW_CRITERIA_MEMBERS && !progress->CompletedGUID)
         progress->CompletedGUID = referencePlayer->GetGUID();
 
@@ -3267,8 +3272,9 @@ uint64 AchievementMgr<T>::GetFirstAchievedCharacterOnAccount(uint32 achievementI
 template<class T>
 bool AchievementMgr<T>::CanUpdateCriteria(CriteriaTreeEntry const* treeEntry, CriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer, CriteriaProgressMap* progressMap, CriteriaTreeProgress* progress)
 {
-    if(!achievement && GetCriteriaSort() != SCENARIO_CRITERIA)
-        return false;
+    //! no need. it's already checked. and this need be commented for QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE criterias.
+    //if(!achievement && GetCriteriaSort() != SCENARIO_CRITERIA)
+    //    return false;
 
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, NULL))
     {
@@ -4563,6 +4569,74 @@ template class AchievementMgr<Guild>;
 template class AchievementMgr<Player>;
 
 //==========================================================
+void AchievementGlobalMgr::AddCriteriaTreeEntry(uint32 __criteriaTree, uint32& criterias, uint32& guildCriterias, uint32& scenarioCriterias, AchievementEntry const* achievement/* = NULL*/, bool isScenario /*= false*/)
+{
+    std::vector<CriteriaTreeEntry const*> const* criteriaTreeList = GetCriteriaTreeList(__criteriaTree);
+    if (!criteriaTreeList)
+        return;
+
+    for (std::vector<CriteriaTreeEntry const*>::const_iterator itr = criteriaTreeList->begin(); itr != criteriaTreeList->end(); ++itr)
+    {
+        CriteriaTreeEntry const* criteriaTree = *itr;
+        CriteriaTreeInfo cTreeInfo;
+
+        CriteriaEntry const* criteria = sAchievementMgr->GetAchievementCriteria(criteriaTree->criteria);
+        if (!criteria)
+        {
+            if (criteriaTree->criteria != 0 || criteriaTree->parent == 0)
+                continue;
+
+            if (std::vector<CriteriaTreeEntry const*> const* cTreeList = GetCriteriaTreeList(criteriaTree->ID))
+                for (std::vector<CriteriaTreeEntry const*>::const_iterator itr = cTreeList->begin(); itr != cTreeList->end(); ++itr)
+                {
+                    CriteriaTreeEntry const* cTree = *itr;
+                    if (!cTree)
+                        continue;
+                    CriteriaEntry const* crite = sAchievementMgr->GetAchievementCriteria(cTree->criteria);
+                    if (!crite)
+                        continue;
+
+                    cTreeInfo.criteriaTreeID = cTree->ID;
+                    cTreeInfo.parentTree = sAchievementMgr->GetAchievementCriteriaTree(sAchievementMgr->GetParantTreeId(cTree->parent));
+                    cTreeInfo.criteriaTree = cTree;
+                    cTreeInfo.criteria = crite;
+                    cTreeInfo.achievement = achievement;
+
+                    m_CriteriaTreeInfoById[cTree->ID] = cTreeInfo;
+
+                    if (isScenario)
+                        ++scenarioCriterias, m_ScenarioCriteriaTreesByType[crite->type].push_back(cTreeInfo);
+                    else if (achievement && achievement->flags & ACHIEVEMENT_FLAG_GUILD)
+                        ++guildCriterias, m_GuildCriteriaTreesByType[crite->type].push_back(cTreeInfo);
+                    else
+                        ++criterias, m_CriteriaTreesByType[crite->type].push_back(cTreeInfo);
+
+                    if (crite->timeLimit)
+                        m_CriteriaTreesByTimedType[crite->timedCriteriaStartType].push_back(cTreeInfo);
+                }
+            continue;
+        }
+
+        cTreeInfo.criteriaTreeID = criteriaTree->ID;
+        cTreeInfo.parentTree = sAchievementMgr->GetAchievementCriteriaTree(sAchievementMgr->GetParantTreeId(criteriaTree->parent));
+        cTreeInfo.criteriaTree = criteriaTree;
+        cTreeInfo.criteria = criteria;
+        cTreeInfo.achievement = achievement;
+
+        m_CriteriaTreeInfoById[criteriaTree->ID] = cTreeInfo;
+
+        if (isScenario)
+            ++scenarioCriterias, m_ScenarioCriteriaTreesByType[criteria->type].push_back(cTreeInfo);
+        else if (achievement && achievement->flags & ACHIEVEMENT_FLAG_GUILD)
+            ++guildCriterias, m_GuildCriteriaTreesByType[criteria->type].push_back(cTreeInfo);
+        else
+            ++criterias, m_CriteriaTreesByType[criteria->type].push_back(cTreeInfo);
+
+        if (criteria->timeLimit)
+            m_CriteriaTreesByTimedType[criteria->timedCriteriaStartType].push_back(cTreeInfo);
+    }
+}
+
 void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {
     uint32 oldMSTime = getMSTime();
@@ -4573,126 +4647,29 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         return;
     }
 
-    volatile uint32 criterias = 0;
-    volatile uint32 guildCriterias = 0;
-    volatile uint32 scenarioCriterias = 0;
+    uint32 criterias = 0;
+    uint32 guildCriterias = 0;
+    uint32 scenarioCriterias = 0;
+
     for (AchievementEntry const* achievement : sAchievementStore)
-    {
-        if(std::vector<CriteriaTreeEntry const*> const* criteriaTreeList = GetCriteriaTreeList(achievement->criteriaTree))
-        for (std::vector<CriteriaTreeEntry const*>::const_iterator itr = criteriaTreeList->begin(); itr != criteriaTreeList->end(); ++itr)
-        {
-            CriteriaTreeEntry const* criteriaTree = *itr;
-            CriteriaTreeInfo cTreeInfo;
-
-            CriteriaEntry const* criteria = sAchievementMgr->GetAchievementCriteria(criteriaTree->criteria);
-            if (!criteria)
-            {
-                if(criteriaTree->criteria != 0 || criteriaTree->parent == 0)
-                    continue;
-
-                if(std::vector<CriteriaTreeEntry const*> const* cTreeList = GetCriteriaTreeList(criteriaTree->ID))
-                for (std::vector<CriteriaTreeEntry const*>::const_iterator itr = cTreeList->begin(); itr != cTreeList->end(); ++itr)
-                {
-                    CriteriaTreeEntry const* cTree = *itr;
-                    if(!cTree)
-                        continue;
-                    CriteriaEntry const* crite = sAchievementMgr->GetAchievementCriteria(cTree->criteria);
-                    if (!crite)
-                        continue;
-
-                    cTreeInfo.criteriaTreeID = cTree->ID;
-                    cTreeInfo.parentID = sAchievementMgr->GetParantTreeId(cTree->parent);
-                    cTreeInfo.criteriaTree = cTree;
-                    cTreeInfo.criteria = crite;
-                    cTreeInfo.achievement = achievement;
-
-                    m_CriteriaTreeInfoById[cTree->ID] = cTreeInfo;
-
-                    if (achievement->flags & ACHIEVEMENT_FLAG_GUILD)
-                        ++guildCriterias, m_GuildCriteriaTreesByType[crite->type].push_back(cTreeInfo);
-                    else
-                        ++criterias, m_CriteriaTreesByType[crite->type].push_back(cTreeInfo);
-
-                    if (crite->timeLimit)
-                        m_CriteriaTreesByTimedType[crite->timedCriteriaStartType].push_back(cTreeInfo);
-                }
-                continue;
-            }
-
-            cTreeInfo.criteriaTreeID = criteriaTree->ID;
-            cTreeInfo.parentID = sAchievementMgr->GetParantTreeId(criteriaTree->parent);
-            cTreeInfo.criteriaTree = criteriaTree;
-            cTreeInfo.criteria = criteria;
-            cTreeInfo.achievement = achievement;
-
-            m_CriteriaTreeInfoById[criteriaTree->ID] = cTreeInfo;
-
-            if (achievement->flags & ACHIEVEMENT_FLAG_GUILD)
-                ++guildCriterias, m_GuildCriteriaTreesByType[criteria->type].push_back(cTreeInfo);
-            else
-                ++criterias, m_CriteriaTreesByType[criteria->type].push_back(cTreeInfo);
-
-            if (criteria->timeLimit)
-                m_CriteriaTreesByTimedType[criteria->timedCriteriaStartType].push_back(cTreeInfo);
-        }
-    }
+        AddCriteriaTreeEntry(achievement->criteriaTree, criterias, guildCriterias, scenarioCriterias, achievement);
 
     for (std::set<uint32>::const_iterator itr = sScenarioCriteriaTreeStore.begin(); itr != sScenarioCriteriaTreeStore.end(); ++itr)
+        AddCriteriaTreeEntry(*itr, criterias, guildCriterias, scenarioCriterias, NULL, true);
+
+    //support for QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE
+    if (QueryResult result = WorldDatabase.PQuery("SELECT ObjectID FROM `quest_objectives` WHERE `Type` = %u", QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE))
     {
-        uint32 criteriaTree = *itr;
-        std::vector<CriteriaTreeEntry const*> const* criteriaTreeList = GetCriteriaTreeList(criteriaTree);
-        if (!criteriaTreeList)
-            continue;
-
-        for (std::vector<CriteriaTreeEntry const*>::const_iterator itr = criteriaTreeList->begin(); itr != criteriaTreeList->end(); ++itr)
+        do
         {
-            CriteriaTreeEntry const* criteriaTree = *itr;
-            if(!criteriaTree)
-                continue;
+            Field* fields = result->Fetch();
+            uint32 treeID = fields[0].GetUInt32();
+            //! if no achieve - add to list
+            auto itr = m_CriteriaTreeInfoById.find(treeID);
+            if (itr == m_CriteriaTreeInfoById.end())
+                AddCriteriaTreeEntry(treeID, criterias, guildCriterias, scenarioCriterias, NULL, false);
 
-            CriteriaTreeInfo cTreeInfo;
-            CriteriaEntry const* criteria = sAchievementMgr->GetAchievementCriteria(criteriaTree->criteria);
-            if (!criteria)
-            {
-                if(criteriaTree->criteria != 0 || criteriaTree->parent == 0)
-                    continue;
-
-                if(std::vector<CriteriaTreeEntry const*> const* cTreeList = GetCriteriaTreeList(criteriaTree->ID))
-                for (std::vector<CriteriaTreeEntry const*>::const_iterator itr = cTreeList->begin(); itr != cTreeList->end(); ++itr)
-                {
-                    CriteriaTreeEntry const* cTree = *itr;
-                    if(!cTree)
-                        continue;
-                    CriteriaEntry const* crite = sAchievementMgr->GetAchievementCriteria(cTree->criteria);
-                    if (!crite)
-                        continue;
-
-                    cTreeInfo.criteriaTreeID = cTree->ID;
-                    cTreeInfo.parentID = sAchievementMgr->GetParantTreeId(cTree->parent);
-                    cTreeInfo.criteriaTree = cTree;
-                    cTreeInfo.criteria = crite;
-                    cTreeInfo.achievement = NULL;
-
-                    m_CriteriaTreeInfoById[cTree->ID] = cTreeInfo;
-
-                    ++scenarioCriterias, m_ScenarioCriteriaTreesByType[crite->type].push_back(cTreeInfo);
-
-                    if (crite->timeLimit)
-                        m_CriteriaTreesByTimedType[crite->timedCriteriaStartType].push_back(cTreeInfo);
-                }
-                continue;
-            }
-
-            cTreeInfo.criteriaTreeID = criteriaTree->ID;
-            cTreeInfo.parentID = sAchievementMgr->GetParantTreeId(criteriaTree->parent);
-            cTreeInfo.criteriaTree = criteriaTree;
-            cTreeInfo.criteria = criteria;
-            cTreeInfo.achievement = NULL;
-
-            m_CriteriaTreeInfoById[criteriaTree->ID] = cTreeInfo;
-
-            ++scenarioCriterias, m_ScenarioCriteriaTreesByType[criteria->type].push_back(cTreeInfo);
-        }
+        } while (result->NextRow());
     }
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u achievement criteria, %u guild and %u scenario criterias in %u ms", criterias, guildCriterias, scenarioCriterias, GetMSTimeDiffToNow(oldMSTime));

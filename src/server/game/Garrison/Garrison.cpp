@@ -1017,4 +1017,8 @@ uint32 Garrison::GetResNumber() const
 void Garrison::UpdateResTakenTime()
 {
     _lastResTaken = time(NULL);
+    
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    SaveToDB(trans);
+    CharacterDatabase.CommitTransaction(trans);
 }
