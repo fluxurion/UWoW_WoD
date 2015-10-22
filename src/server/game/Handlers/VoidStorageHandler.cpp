@@ -145,7 +145,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
     voidStorageTransferChanges.RemovedItems.reserve(VOID_STORAGE_MAX_DEPOSIT);
 
     uint8 depositCount = 0;
-    for (uint32 i = 0; i < packet.Deposits.size(); ++i)
+    for (size_t i = 0; i < packet.Deposits.size(); ++i)
     {
         Item* item = player->GetItemByGuid(packet.Deposits[i]);
         if (!item)
@@ -168,7 +168,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
 
     player->ModifyMoney(-(depositCount * cost));
 
-    for (uint32 i = 0; i < packet.Withdrawals.size(); ++i)
+    for (size_t i = 0; i < packet.Withdrawals.size(); ++i)
     {
         uint32 slot = 0;
         VoidStorageItem* itemVS = player->GetVoidStorageItem(packet.Withdrawals[i].GetCounter(), slot);

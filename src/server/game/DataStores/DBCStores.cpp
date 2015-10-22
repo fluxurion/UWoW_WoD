@@ -714,19 +714,15 @@ void InitDBCCustomStores()
         {
             if (spellMisc->Attributes & SPELL_ATTR0_PASSIVE)
             {
-                for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
+                for (CreatureFamilyEntry const* cFamily : sCreatureFamilyStore)
                 {
-                    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(i);
-                    if (!cFamily)
-                        continue;
-
                     if (skillLine->SkillLine != cFamily->skillLine[0] && skillLine->SkillLine != cFamily->skillLine[1])
                         continue;
 
                     if (skillLine->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                         continue;
 
-                    sPetFamilySpellsStore[i].insert(spellInfo->ID);
+                    sPetFamilySpellsStore[cFamily->ID].insert(spellInfo->ID);
                 }
             }
         }
@@ -796,9 +792,8 @@ void InitDBCCustomStores()
         _specializationSpellsBySpec[specSpells->SpecializationEntry].push_back(specSpells);
 
     memset(sChrSpecializationByIndexStore, 0, sizeof(sChrSpecializationByIndexStore));
-    for (uint32 i = 0; i < sChrSpecializationsStore.GetNumRows(); ++i)
-        if (ChrSpecializationsEntry const* chrSpec = sChrSpecializationsStore.LookupEntry(i))
-            sChrSpecializationByIndexStore[chrSpec->ClassID][chrSpec->OrderIndex] = chrSpec;
+    for (ChrSpecializationsEntry const* chrSpec : sChrSpecializationsStore)
+        sChrSpecializationByIndexStore[chrSpec->ClassID][chrSpec->OrderIndex] = chrSpec;
 }
 
 std::string GetRandomCharacterName(uint8 race, uint8 gender)

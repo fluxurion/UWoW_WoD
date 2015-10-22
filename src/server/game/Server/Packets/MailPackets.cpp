@@ -91,7 +91,7 @@ WorldPackets::Mail::MailListEntry::MailListEntry(::Mail const* mail, ::Player* p
     Subject = mail->subject;
     Body = mail->body;
 
-    for (uint8 i = 0; i < mail->items.size(); i++)
+    for (size_t i = 0; i < mail->items.size(); i++)
     {
         if (::Item* item = player->GetMItem(mail->items[i].item_guid))
             Attachments.emplace_back(item, i);

@@ -547,7 +547,7 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
         data << uint32(time(NULL));         // counter?
         data << uint32(rewards.size());
 
-        for (uint32 i = 0; i < rewards.size(); ++i)
+        for (size_t i = 0; i < rewards.size(); ++i)
         {
             data << uint32(rewards[i].Entry);
             data << uint32(0);                          //UNK V6_1_0_19678

@@ -280,7 +280,7 @@ void Garrison::InitializePlots()
 {
     if (std::vector<GarrSiteLevelPlotInstEntry const*> const* plots = sGarrisonMgr.GetGarrPlotInstForSiteLevel(_siteLevel->ID))
     {
-        for (std::size_t i = 0; i < plots->size(); ++i)
+        for (size_t i = 0; i < plots->size(); ++i)
         {
             uint32 garrPlotInstanceId = plots->at(i)->GarrPlotInstanceID;
             GarrPlotInstanceEntry const* plotInstance = sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId);

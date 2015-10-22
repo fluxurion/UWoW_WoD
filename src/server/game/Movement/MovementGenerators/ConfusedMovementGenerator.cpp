@@ -72,7 +72,7 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T &unit, const uint32 &diff)
         if (path.CalculatePath(i_x, i_y, i_z))
         {
             float len = 0;
-            for (uint32 i = 1; i < path.GetPath().size(); ++i)
+            for (size_t i = 1; i < path.GetPath().size(); ++i)
             {
                 Vector3 node = path.GetPath()[i];
                 Vector3 prev = path.GetPath()[i-1];

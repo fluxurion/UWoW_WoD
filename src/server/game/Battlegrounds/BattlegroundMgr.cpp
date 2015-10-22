@@ -139,7 +139,7 @@ void BattlegroundMgr::Update(uint32 diff)
             //release lock
         }
 
-        for (uint8 i = 0; i < scheduled.size(); i++)
+        for (size_t i = 0; i < scheduled.size(); i++)
         {
             uint32 MMRating = scheduled[i]->_MMRating;
             uint8 joinType = scheduled[i]->_joinType;
@@ -1110,7 +1110,7 @@ void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 ar
     //we will use only 1 number created of bgTypeId and bracket_id
     QueueSchedulerItem* schedule_id = new QueueSchedulerItem(arenaMatchmakerRating, arenaType, bgQueueTypeId, bgTypeId, bracket_id);
     bool found = false;
-    for (uint8 i = 0; i < m_QueueUpdateScheduler.size(); i++)
+    for (size_t i = 0; i < m_QueueUpdateScheduler.size(); i++)
     {
         if (m_QueueUpdateScheduler[i]->_MMRating == arenaMatchmakerRating
             && m_QueueUpdateScheduler[i]->_joinType == arenaType

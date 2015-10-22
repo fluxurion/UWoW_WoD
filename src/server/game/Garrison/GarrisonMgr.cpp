@@ -276,7 +276,7 @@ std::list<GarrAbilityEntry const*> GarrisonMgr::RollFollowerAbilities(GarrFollow
         });
         genericTraits.unique();
 
-        std::size_t firstExclusive = 0, total = genericTraits.size();
+        size_t firstExclusive = 0, total = genericTraits.size();
         for (auto itr = genericTraits.begin(); itr != genericTraits.end(); ++itr, ++firstExclusive)
             if ((*itr)->Flags & GARRISON_ABILITY_FLAG_EXCLUSIVE)
                 break;

@@ -1861,7 +1861,7 @@ void Guild::HandleSwapRanks(WorldSession* session, uint32 id, bool up)
     RankInfo* rankinfo = NULL;
     RankInfo* rankinfo2 = NULL;
     uint32 id2 = id - (-1 + 2*uint8(up));
-    for (uint32 i = 0; i < m_ranks.size(); ++i)
+    for (size_t i = 0; i < m_ranks.size(); ++i)
     {
         if (m_ranks[i].GetId() == id)
             rankinfo = &m_ranks[i];
@@ -1925,7 +1925,7 @@ void Guild::HandleRemoveRank(WorldSession* session, uint32 rankId)
         m_ranks.erase(m_ranks.begin() + rankId);
 
         // Restruct m_ranks
-        for (uint8 i = 0; i < m_ranks.size(); ++i)
+        for (size_t i = 0; i < m_ranks.size(); ++i)
             if (m_ranks[i].GetId() != i)
                 m_ranks[i].UpdateId(i);
 
@@ -3657,7 +3657,7 @@ void Guild::KnownRecipes::LoadFromString(std::string const& str)
     Clear();
 
     Tokenizer tok(str, ' ');
-    for (uint32 i = 0; i < tok.size(); ++i)
+    for (size_t i = 0; i < tok.size(); ++i)
         recipesMask[i] = atoi(tok[i]);
 }
 

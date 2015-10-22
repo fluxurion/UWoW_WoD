@@ -1988,7 +1988,7 @@ void Battleground::SetHoliday(bool is_holiday)
 
 int32 Battleground::GetObjectType(ObjectGuid guid)
 {
-    for (uint32 i = 0; i < BgObjects.size(); ++i)
+    for (size_t i = 0; i < BgObjects.size(); ++i)
         if (BgObjects[i] == guid)
             return i;
     sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::GetObjectType: player used gameobject (GUID: %u) which is not in internal data for BG (map: %u, instance id: %u), cheating?",

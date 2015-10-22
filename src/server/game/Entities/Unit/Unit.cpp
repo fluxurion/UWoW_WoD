@@ -566,7 +566,7 @@ void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, 
     if (combat_reach < 0.1f) // sometimes bugged for players
         combat_reach = DEFAULT_COMBAT_REACH;
 
-    uint32 attacker_number = getAttackers().size();
+    size_t attacker_number = getAttackers().size();
     if (attacker_number > 0)
         --attacker_number;
     GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin) * (float)rand_norm()
@@ -15976,12 +15976,8 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
         return 0;
 
     uint32 index = 0;
-    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
+    for (ChrPowerTypesEntry const* powerEntry : sChrPowerTypesStore)
     {
-        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
-        if (!powerEntry)
-            continue;
-
         if (powerEntry->classId != classId)
             continue;
 
@@ -23547,7 +23543,7 @@ void Trinity::BuildChatPacket(WorldPacket& data, ChatData& c, bool coded, bool e
 uint32 GetWordWeight(std::string const& word)
 {
     uint32 weight = 0;
-    for (uint32 i = 0; i < word.size(); ++i)
+    for (size_t i = 0; i < word.size(); ++i)
         weight += (uint8)word[i];
     return weight;
 }
@@ -23558,7 +23554,7 @@ bool isCaps(std::wstring wstr)
         return false;
 
     uint32 upperCount = 0;
-    for (uint32 i = 0; i < wstr.size(); ++i)
+    for (size_t i = 0; i < wstr.size(); ++i)
         if (std::iswupper(wstr[i]))
             ++upperCount;
 
@@ -23574,7 +23570,7 @@ std::string Trinity::CodeChatMessage(std::string text, uint32 lang_id)
     std::string convertedMessage;
 
     Tokenizer t(text, ' ');
-    for (uint32 i = 0; i < t.size(); ++i)
+    for (size_t i = 0; i < t.size(); ++i)
     {
         std::string word = t[i];
         std::wstring wword;
@@ -23667,7 +23663,7 @@ uint32 Unit::GetDamageCounterInPastSecs(uint32 secs, int type)
 
     uint32 damage = 0;
 
-    for (uint32 i = 0; i < secs && i < m_damage_counters[type].size(); ++i)
+    for (size_t i = 0; i < secs && i < m_damage_counters[type].size(); ++i)
         damage += m_damage_counters[type][i];
 
     return damage;

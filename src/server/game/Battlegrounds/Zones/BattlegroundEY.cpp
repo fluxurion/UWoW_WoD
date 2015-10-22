@@ -243,7 +243,7 @@ void BattlegroundEY::UpdatePointStatuses()
         else
             pointOwnerTeamId = EY_POINT_NO_OWNER;
 
-        for (uint8 i = 0; i < m_PlayersNearPoint[point].size(); ++i)
+        for (size_t i = 0; i < m_PlayersNearPoint[point].size(); ++i)
         {
             Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[point][i]);
             if (player)

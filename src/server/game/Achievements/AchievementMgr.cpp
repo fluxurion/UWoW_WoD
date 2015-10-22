@@ -1060,7 +1060,7 @@ void AchievementMgr<Guild>::LoadFromDB(PreparedQueryResult achievementResult, Pr
             CompletedAchievementData& ca = m_completedAchievements[achievementid];
             ca.date = time_t(fields[1].GetUInt32());
             Tokenizer guids(fields[2].GetString(), ' ');
-            for (uint32 i = 0; i < guids.size(); ++i)
+            for (size_t i = 0; i < guids.size(); ++i)
                 ca.guids.insert(ObjectGuid::Create<HighGuid::Player>(atol(guids[i])));
 
             ca.changed = false;
@@ -4576,12 +4576,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
     volatile uint32 criterias = 0;
     volatile uint32 guildCriterias = 0;
     volatile uint32 scenarioCriterias = 0;
-    for (uint32 entryId = 0; entryId < sAchievementStore.GetNumRows(); ++entryId)
+    for (AchievementEntry const* achievement : sAchievementStore)
     {
-        AchievementEntry const* achievement = sAchievementMgr->GetAchievement(entryId);
-        if (!achievement)
-            continue;
-
         if(std::vector<CriteriaTreeEntry const*> const* criteriaTreeList = GetCriteriaTreeList(achievement->criteriaTree))
         for (std::vector<CriteriaTreeEntry const*>::const_iterator itr = criteriaTreeList->begin(); itr != criteriaTreeList->end(); ++itr)
         {

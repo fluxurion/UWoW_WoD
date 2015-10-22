@@ -101,14 +101,14 @@ void LoadDisables()
                 if (flags & SPELL_DISABLE_MAP)
                 {
                     Tokenizer tokens(params_0, ',');
-                    for (uint8 i = 0; i < tokens.size(); )
+                    for (size_t i = 0; i < tokens.size(); )
                         data.params[0].insert(atoi(tokens[i++]));
                 }
 
                 if (flags & SPELL_DISABLE_AREA)
                 {
                     Tokenizer tokens(params_1, ',');
-                    for (uint8 i = 0; i < tokens.size(); )
+                    for (size_t i = 0; i < tokens.size(); )
                         data.params[1].insert(atoi(tokens[i++]));
                 }
 

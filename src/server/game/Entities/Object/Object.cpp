@@ -606,7 +606,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             *data << t->GetAreaTriggerInfo().Height;                    // Height
             *data << t->GetAreaTriggerInfo().HeightTarget;              // HeightTarget
 
-            for (uint16 i = 0; i < t->GetAreaTriggerInfo().verticesPoints.size(); ++i) // Vertices
+            for (size_t i = 0; i < t->GetAreaTriggerInfo().verticesPoints.size(); ++i) // Vertices
             {
                 *data << t->GetAreaTriggerInfo().verticesPoints[i].x;    // X
                 *data << t->GetAreaTriggerInfo().verticesPoints[i].y;    // Y
@@ -780,7 +780,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     //        packet.ReadInt32("SceneInstanceIDs", index, i);
     //}
 
-    for (uint32 i = 0; i < transportFrames.size(); ++i)
+    for (size_t i = 0; i < transportFrames.size(); ++i)
         *data << uint32(transportFrames[i]);
 
     data->FlushBits();
@@ -1527,7 +1527,7 @@ void Object::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer *data, Player
 
             UpdateMask arrayMask;
             arrayMask.SetCount(values.size());
-            for (std::size_t v = 0; v < values.size(); ++v)
+            for (size_t v = 0; v < values.size(); ++v)
             {
                 if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index].GetBit(v))
                 {

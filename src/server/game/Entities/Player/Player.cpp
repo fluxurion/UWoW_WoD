@@ -6433,70 +6433,67 @@ void Player::UpdateLocalChannels(uint32 newZone)
 
     std::string current_zone_name = current_zone->ZoneName;
 
-    for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
+    for (ChatChannelsEntry const* channel : sChatChannelsStore)
     {
-        if (ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(i))
+        Channel* usedChannel = NULL;
+
+        for (JoinedChannelsList::iterator itr = m_channels.begin(); itr != m_channels.end(); ++itr)
         {
-            Channel* usedChannel = NULL;
-
-            for (JoinedChannelsList::iterator itr = m_channels.begin(); itr != m_channels.end(); ++itr)
+            if ((*itr) && (*itr)->GetChannelId() == i)
             {
-                if ((*itr) && (*itr)->GetChannelId() == i)
-                {
-                    usedChannel = *itr;
-                    break;
-                }
+                usedChannel = *itr;
+                break;
             }
+        }
 
-            Channel* removeChannel = NULL;
-            Channel* joinChannel = NULL;
-            bool sendRemove = true;
+        Channel* removeChannel = NULL;
+        Channel* joinChannel = NULL;
+        bool sendRemove = true;
 
-            if (CanJoinConstantChannelInZone(channel, current_zone))
+        if (CanJoinConstantChannelInZone(channel, current_zone))
+        {
+            if (!(channel->Flags & CHANNEL_DBC_FLAG_GLOBAL))
             {
-                if (!(channel->Flags & CHANNEL_DBC_FLAG_GLOBAL))
-                {
-                    if (channel->Flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
-                        continue;                            // Already on the channel, as city channel names are not changing
+                if (channel->Flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
+                    continue;                            // Already on the channel, as city channel names are not changing
 
-                    char new_channel_name_buf[100];
-                    char const* currentNameExt;
+                char new_channel_name_buf[100];
+                char const* currentNameExt;
 
-                    if (channel->Flags & CHANNEL_DBC_FLAG_CITY_ONLY)
-                        currentNameExt = sObjectMgr->GetTrinityStringForDBCLocale(LANG_CHANNEL_CITY);
-                    else
-                        currentNameExt = current_zone_name.c_str();
-
-                    snprintf(new_channel_name_buf, 100, channel->Name_lang, currentNameExt);
-
-                    joinChannel = cMgr->GetJoinChannel(new_channel_name_buf, channel->ID);
-                    if (usedChannel)
-                    {
-                        if (joinChannel != usedChannel)
-                        {
-                            removeChannel = usedChannel;
-                            sendRemove = false;              // Do not send leave channel, it already replaced at client
-                        }
-                        else
-                            joinChannel = NULL;
-                    }
-                }
+                if (channel->Flags & CHANNEL_DBC_FLAG_CITY_ONLY)
+                    currentNameExt = sObjectMgr->GetTrinityStringForDBCLocale(LANG_CHANNEL_CITY);
                 else
-                    joinChannel = cMgr->GetJoinChannel(channel->Name_lang, channel->ID);
+                    currentNameExt = current_zone_name.c_str();
+
+                snprintf(new_channel_name_buf, 100, channel->Name_lang, currentNameExt);
+
+                joinChannel = cMgr->GetJoinChannel(new_channel_name_buf, channel->ID);
+                if (usedChannel)
+                {
+                    if (joinChannel != usedChannel)
+                    {
+                        removeChannel = usedChannel;
+                        sendRemove = false;              // Do not send leave channel, it already replaced at client
+                    }
+                    else
+                        joinChannel = NULL;
+                }
             }
             else
-                removeChannel = usedChannel;
+                joinChannel = cMgr->GetJoinChannel(channel->Name_lang, channel->ID);
+        }
+        else
+            removeChannel = usedChannel;
 
-            if (joinChannel)
-                joinChannel->JoinChannel(this, "");            // Changed Channel: ... or Joined Channel: ...
+        if (joinChannel)
+            joinChannel->JoinChannel(this, "");            // Changed Channel: ... or Joined Channel: ...
 
-            if (removeChannel)
-            {
-                removeChannel->LeaveChannel(this, sendRemove); // Leave old channel
-                std::string name = removeChannel->GetName(); // Store name, (*i)erase in LeftChannel
-                LeftChannel(removeChannel);                  // Remove from player's channel list
-                cMgr->LeftChannel(name);                     // Delete if empty
-            }
+        if (removeChannel)
+        {
+            removeChannel->LeaveChannel(this, sendRemove); // Leave old channel
+            std::string name = removeChannel->GetName(); // Store name, (*i)erase in LeftChannel
+            LeftChannel(removeChannel);                  // Remove from player's channel list
+            cMgr->LeftChannel(name);                     // Delete if empty
         }
     }
 }
@@ -23208,7 +23205,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     uint32 prevnode = sourcenode;
     uint32 lastnode = 0;
 
-    for (uint32 i = 1; i < nodes.size(); ++i)
+    for (size_t i = 1; i < nodes.size(); ++i)
     {
         uint32 path, cost;
 
@@ -23335,7 +23332,7 @@ void Player::ContinueTaxiFlight()
         (nodeList[0]->Loc.Y - GetPositionY())*(nodeList[0]->Loc.Y - GetPositionY()) +
         (nodeList[0]->Loc.Z - GetPositionZ())*(nodeList[0]->Loc.Z - GetPositionZ());
 
-    for (uint32 i = 1; i < nodeList.size(); ++i)
+    for (size_t i = 1; i < nodeList.size(); ++i)
     {
         TaxiPathNodeEntry const* node = nodeList[i];
         TaxiPathNodeEntry const* prevNode = nodeList[i-1];
@@ -25549,10 +25546,9 @@ void Player::learnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 {
     uint32 raceMask  = getRaceMask();
     uint32 classMask = getClassMask();
-    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
+    for (SkillLineAbilityEntry const* ability : sSkillLineAbilityStore)
     {
-        SkillLineAbilityEntry const* ability = sSkillLineAbilityStore.LookupEntry(j);
-        if (!ability || ability->SkillLine != skillId)
+        if (ability->SkillLine != skillId)
             continue;
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ability->SpellID);
@@ -27749,19 +27745,10 @@ bool Player::LearnTalent(uint32 talentId)
         return false;
 
     // Fix bug WPE talent
-    for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)              // Loop through all talents.
-    {
-        if (TalentEntry const* tmpTalent = sTalentStore.LookupEntry(i)) // Someday, someone needs to revamp the way talents are tracked
-        {
-            if (talentInfo->classId == tmpTalent->classId &&
-                talentInfo->column != tmpTalent->column &&
-                talentInfo->row == tmpTalent->row)
-            {
-                if (HasSpell(tmpTalent->spellId))
-                    return false;
-            }
-        }
-    }
+    for (TalentEntry const* tal : sTalentStore)              // Loop through all talents.
+        if (talentInfo->classId == tal->classId && talentInfo->column != tal->column && talentInfo->row == tal->row)
+            if (HasSpell(tal->spellId))
+                return false;
 
     // learn! (other talent ranks will unlearned at learning)
     AddTalent(talentInfo, GetActiveSpec(), true);
@@ -28474,12 +28461,8 @@ void Player::ActivateSpec(uint8 spec)
         SetGlyph(slot, glyph);
     }
 
-    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
+    for (TalentEntry const* talentInfo : sTalentStore)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-        if (!talentInfo)
-            continue;
-
         if (talentInfo->classId != getClass())
             continue;
 

@@ -45,7 +45,7 @@ void TaxiPathGraph::Initialize()
     m_graph = Graph(GetVertexCount());
     WeightMap weightmap = boost::get(boost::edge_weight, m_graph);
 
-    for (std::size_t j = 0; j < edges.size(); ++j)
+    for (size_t j = 0; j < edges.size(); ++j)
     {
         edge_descriptor e = boost::add_edge(edges[j].first.first, edges[j].first.second, m_graph).first;
         weightmap[e] = edges[j].second;
@@ -86,15 +86,15 @@ void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, Ta
             return;
         }
 
-        std::size_t last = nodes.size();
-        std::size_t first = 0;
+        size_t last = nodes.size();
+        size_t first = 0;
         if (nodes.size() > 2)
         {
             --last;
             ++first;
         }
 
-        for (std::size_t i = first + 1; i < last; ++i)
+        for (size_t i = first + 1; i < last; ++i)
         {
             if (nodes[i - 1]->Flags & TAXI_PATH_NODE_FLAG_TELEPORT)
                 continue;

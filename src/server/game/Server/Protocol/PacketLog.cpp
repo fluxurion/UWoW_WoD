@@ -106,7 +106,7 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
     data << uint32(time(NULL));
     data << uint8(direction);
 
-    for (uint32 i = 0; i < packet.size(); i++)
+    for (size_t i = 0; i < packet.size(); i++)
         data << const_cast<WorldPacket&>(packet)[i];
 
     fwrite(data.contents(), 1, data.size(), _file);

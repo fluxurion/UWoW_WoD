@@ -94,7 +94,7 @@ void WorldSocket::ReadHandler()
         if (_headerBuffer.GetRemainingSpace() > 0)
         {
             // need to receive the header
-            std::size_t readHeaderSize = std::min(packet.GetActiveSize(), _headerBuffer.GetRemainingSpace());
+            size_t readHeaderSize = std::min(packet.GetActiveSize(), _headerBuffer.GetRemainingSpace());
             _headerBuffer.Write(packet.GetReadPointer(), readHeaderSize);
             packet.ReadCompleted(readHeaderSize);
 
@@ -114,7 +114,7 @@ void WorldSocket::ReadHandler()
         if (_packetBuffer.GetRemainingSpace() > 0)
         {
             // need more data in the payload
-            std::size_t readDataSize = std::min(packet.GetActiveSize(), _packetBuffer.GetRemainingSpace());
+            size_t readDataSize = std::min(packet.GetActiveSize(), _packetBuffer.GetRemainingSpace());
             _packetBuffer.Write(packet.GetReadPointer(), readDataSize);
             packet.ReadCompleted(readDataSize);
 

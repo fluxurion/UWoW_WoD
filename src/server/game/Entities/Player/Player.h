@@ -2534,10 +2534,9 @@ class Player : public Unit, public GridObject<Player>
         }
         uint32 GetDefaultLootSpecID() const
         {
-            for (uint32 i = 0; i < sChrSpecializationsStore.GetNumRows(); i++)
+            for (ChrSpecializationsEntry const* specialization : sChrSpecializationsStore)
             {
-                if(ChrSpecializationsEntry const* specialization = sChrSpecializationsStore.LookupEntry(i))
-                    if (specialization->ClassID == getClass() && specialization->OrderIndex == 0)
+                if (specialization->ClassID == getClass() && specialization->OrderIndex == 0)
                         return specialization->ID;
             }
             return 0;

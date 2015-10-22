@@ -2173,7 +2173,7 @@ void World::SetInitialWorldSettings()
     if (realmResult)
         m_realmName = (*realmResult)[0].GetString();
 
-    for (uint8 i = 0; i < m_realmName.size(); ++i)
+    for (size_t i = 0; i < m_realmName.size(); ++i)
         if (m_realmName[i] != ' ')
             m_trimmedRealmName += m_realmName[i];
 

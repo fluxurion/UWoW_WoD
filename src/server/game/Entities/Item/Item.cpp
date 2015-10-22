@@ -74,7 +74,7 @@ void AddItemsSetItem(Player* player, Item* item)
     ++eff->item_count;
 
     ItemSetSpells& spells = sItemSetSpellsStore[setid];
-    for (uint32 x = 0; x < spells.size(); ++x)
+    for (size_t x = 0; x < spells.size(); ++x)
     {
         //not enough for  spell
         if (spells[x]->Threshold > eff->item_count)
@@ -141,7 +141,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 
     --eff->item_count;
     ItemSetSpells& spells = sItemSetSpellsStore[setid];
-    for (uint32 x = 0; x < spells.size(); x++)
+    for (size_t x = 0; x < spells.size(); x++)
     {
         // enough for spell
         if (spells[x]->Threshold <= eff->item_count)
@@ -1202,7 +1202,7 @@ void Item::BuildDynamicValuesUpdate(uint8 updateType, ByteBuffer* data, Player* 
             if (index != ITEM_DYNAMIC_FIELD_MODIFIERS)
             {
                 arrayMask.SetCount(values.size());
-                for (std::size_t v = 0; v < values.size(); ++v)
+                for (size_t v = 0; v < values.size(); ++v)
                 {
                     if (updateType != UPDATETYPE_VALUES || _dynamicChangesArrayMask[index].GetBit(v))
                     {

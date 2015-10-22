@@ -278,7 +278,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     }
 
     targets.m_weights.resize(cast.Cast.Weight.size());
-    for (uint8 i = 0; i < cast.Cast.Weight.size(); ++i)
+    for (size_t i = 0; i < cast.Cast.Weight.size(); ++i)
     {
         targets.m_weights[i].type = cast.Cast.Weight[i].Type;
         switch (targets.m_weights[i].type)

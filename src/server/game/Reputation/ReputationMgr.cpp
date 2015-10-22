@@ -239,10 +239,8 @@ void ReputationMgr::Initialize()
     _exaltedFactionCount = 0;
     _sendFactionIncreased = false;
 
-    for (unsigned int i = 1; i < sFactionStore.GetNumRows(); i++)
+    for (FactionEntry const* factionEntry : sFactionStore)
     {
-        FactionEntry const* factionEntry = sFactionStore.LookupEntry(i);
-
         if (factionEntry && (factionEntry->reputationListID >= 0))
         {
             FactionState newFaction;

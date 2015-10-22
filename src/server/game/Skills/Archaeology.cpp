@@ -738,7 +738,7 @@ void Player::_LoadArchaeology(PreparedQueryResult result)
     {
         _researchSites.clear();
 
-        for (uint8 i = 0; i < tokens.size(); ++i)
+        for (size_t i = 0; i < tokens.size(); ++i)
             _researchSites.insert(uint32(atoi(tokens[i])));
     }
     else

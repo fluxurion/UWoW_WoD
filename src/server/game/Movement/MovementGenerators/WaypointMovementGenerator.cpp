@@ -254,7 +254,7 @@ uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
         return i_path.size();
 
     uint32 curMapId = i_path[i_currentNode]->MapID;
-    for (uint32 i = i_currentNode; i < i_path.size(); ++i)
+    for (size_t i = i_currentNode; i < i_path.size(); ++i)
         if (i_path[i]->MapID != curMapId)
             return i;
 
@@ -274,7 +274,7 @@ void FlightPathMovementGenerator::LoadPath(Player& player, uint32 startNode /*= 
     i_currentNode = startNode;
     _pointsForPathSwitch.clear();
     std::deque<uint32> const& taxi = player.m_taxi.GetPath();
-    for (uint32 src = 0, dst = 1; dst < taxi.size(); src = dst++)
+    for (size_t src = 0, dst = 1; dst < taxi.size(); src = dst++)
     {
         uint32 path, cost;
         sObjectMgr->GetTaxiPath(taxi[src], taxi[dst], path, cost);
@@ -287,7 +287,7 @@ void FlightPathMovementGenerator::LoadPath(Player& player, uint32 startNode /*= 
             TaxiPathNodeEntry const* start = nodes[0];
             TaxiPathNodeEntry const* end = nodes[nodes.size() - 1];
             bool passedPreviousSegmentProximityCheck = false;
-            for (uint32 i = 0; i < nodes.size(); ++i)
+            for (size_t i = 0; i < nodes.size(); ++i)
             {
                 if (passedPreviousSegmentProximityCheck || !src || i_path.empty() || IsNodeIncludedInShortenedPath(i_path.back(), nodes[i]))
                 {

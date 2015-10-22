@@ -375,7 +375,7 @@ void DB2Manager::InitDB2CustomStores()
 
     // Set path length
     sTaxiPathNodesByPath.resize(pathCount);                 // 0 and some other indexes not used
-    for (uint32 i = 0; i < sTaxiPathNodesByPath.size(); ++i)
+    for (size_t i = 0; i < sTaxiPathNodesByPath.size(); ++i)
         sTaxiPathNodesByPath[i].resize(pathLength[i]);
 
     // fill data

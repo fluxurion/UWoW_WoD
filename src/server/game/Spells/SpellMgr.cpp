@@ -585,62 +585,6 @@ bool SpellMgr::IsSpellForbidden(uint32 spellid)
     return false;
 }
 
-
-uint32 SpellMgr::GetSpellDifficultyId(uint32 spellId) const
-{
-    SpellDifficultySearcherMap::const_iterator i = mSpellDifficultySearcherMap.find(spellId);
-    return i == mSpellDifficultySearcherMap.end() ? 0 : (*i).second;
-}
-
-void SpellMgr::SetSpellDifficultyId(uint32 spellId, uint32 id)
-{
-    mSpellDifficultySearcherMap[spellId] = id;
-}
-
-uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const
-{
-    // Dbc supprimée au passage a MoP
-    return spellId;
-    /*if (!GetSpellInfo(spellId))
-    return spellId;
-
-    if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
-    return spellId;
-
-    uint32 mode = uint32(caster->GetMap()->GetSpawnMode());
-    if (mode >= MAX_DIFFICULTY)
-    {
-    sLog->outError(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: Incorrect Difficulty for spell %u.", spellId);
-    return spellId; //return source spell
-    }
-
-    uint32 difficultyId = GetSpellDifficultyId(spellId);
-    if (!difficultyId)
-    return spellId; //return source spell, it has only DIFFICULTY_NORMAL
-
-    SpellDifficultyEntry const* difficultyEntry = sSpellDifficultyStore.LookupEntry(difficultyId);
-    if (!difficultyEntry)
-    {
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: SpellDifficultyEntry not found for spell %u. This should never happen.", spellId);
-    return spellId; //return source spell
-    }
-
-    if (difficultyEntry->SpellID[mode] <= 0 && mode > DIFFICULTY_HEROIC)
-    {
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is NULL, using mode %u", spellId, mode, mode - 2);
-    mode -= 2;
-    }
-
-    if (difficultyEntry->SpellID[mode] <= 0)
-    {
-    sLog->outError(LOG_FILTER_SQL, "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spellId, mode);
-    return spellId;
-    }
-
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: spellid for spell %u in mode %u is %d", spellId, mode, difficultyEntry->SpellID[mode]);
-    return uint32(difficultyEntry->SpellID[mode]);*/
-}
-
 SpellChainNode const* SpellMgr::GetSpellChainNode(uint32 spell_id) const
 {
     SpellChainMap::const_iterator itr = mSpellChains.find(spell_id);
@@ -3293,12 +3237,8 @@ void SpellMgr::LoadPetLevelupSpellMap()
             if (!creatureFamily->skillLine[j])
                 continue;
 
-            for (uint32 k = 0; k < sSkillLineAbilityStore.GetNumRows(); ++k)
+            for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
             {
-                SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(k);
-                if (!skillLine)
-                    continue;
-
                 //if (skillLine->skillId != creatureFamily->SkillLine[0] &&
                 //    (!creatureFamily->SkillLine[1] || skillLine->skillId != creatureFamily->SkillLine[1]))
                 //    continue;
@@ -3685,14 +3625,6 @@ void SpellMgr::LoadSpellAreas()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell area requirements in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-static const uint32 SkillClass[MAX_CLASSES] = {0, 840, 800, 795, 921, 804, 796, 924, 904, 849, 829, 798};
-
-struct spellDifficultyLoadInfo
-{
-    uint32 id;
-    std::list<uint32> difficultyList;
-};
-
 void SpellMgr::LoadSpellInfoStore()
 {
     uint32 oldMSTime = getMSTime();
@@ -3721,14 +3653,10 @@ void SpellMgr::LoadSpellInfoStore()
             sLog->outInfo(LOG_FILTER_WORLDSERVER, "Spell - %u has more powers > 4.", spell->Id);
     }
 
-    for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)
+    for (TalentEntry const* talentInfo : sTalentStore)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
-        if (!talentInfo)
-            continue;
-
-        SpellInfo * spellEntry = mSpellInfoMap[talentInfo->spellId];
-        if(spellEntry)
+        SpellInfo* spellEntry = mSpellInfoMap[talentInfo->spellId];
+        if (spellEntry)
             spellEntry->talentId = talentInfo->Id;
     }
 
@@ -3737,21 +3665,18 @@ void SpellMgr::LoadSpellInfoStore()
 
 void SpellMgr::UnloadSpellInfoStore()
 {
-    for (uint32 i = 0; i < mSpellInfoMap.size(); ++i)
-    {
+    for (size_t i = 0; i < mSpellInfoMap.size(); ++i)
         if (mSpellInfoMap[i])
             delete mSpellInfoMap[i];
-    }
+
     mSpellInfoMap.clear();
 }
 
 void SpellMgr::UnloadSpellInfoImplicitTargetConditionLists()
 {
-    for (uint32 i = 0; i < mSpellInfoMap.size(); ++i)
-    {
+    for (size_t i = 0; i < mSpellInfoMap.size(); ++i)
         if (mSpellInfoMap[i])
             mSpellInfoMap[i]->_UnloadImplicitTargetConditionLists();
-    }
 }
 
 void SpellMgr::LoadSpellCustomAttr()
@@ -5736,27 +5661,15 @@ void SpellMgr::LoadSpellCustomAttr()
 
 void SpellMgr::LoadTalentSpellInfo()
 {
-    for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)
-    {
-        TalentEntry const* talent = sTalentStore.LookupEntry(i);
-        if (!talent)
-            continue;
-
+    for (TalentEntry const* talent : sTalentStore)
         mTalentSpellInfo.insert(talent->spellId);
-    }
 }
 
 void SpellMgr::LoadSpellPowerInfo()
 {
     mSpellPowerInfo.resize(sSpellStore.GetNumRows());
-    for (uint32 i = 0; i < sSpellPowerStore.GetNumRows(); i++)
-    {
-        SpellPowerEntry const* spellPower = sSpellPowerStore.LookupEntry(i);
-        if (!spellPower)
-            continue;
-
+    for (SpellPowerEntry const* spellPower : sSpellPowerStore)
         mSpellPowerInfo[spellPower->SpellID].push_back(spellPower->ID);
-    }
 }
 
 SpellPowerEntry const* SpellMgr::GetSpellPowerEntryByIdAndPower(uint32 id, Powers power) const

@@ -865,7 +865,7 @@ void AreaTrigger::PutObjectUpdateMovement(ByteBuffer* data) const
     *data << uint32(0);                             //ElapsedTimeForMovement
     *data << uint32(GetObjectMovementParts());      //VerticesCount
 
-    for (uint32 i = 0; i < m_movePath.size(); ++i)
+    for (size_t i = 0; i < m_movePath.size(); ++i)
     {
         *data << float(m_movePath[i].x);
         *data << float(m_movePath[i].y);
@@ -1036,14 +1036,14 @@ float AreaTrigger::CalculateRadius()
 {
     //calc maxDist for search zone
     float distance = 0.0f;
-    for (uint16 i = 0; i < atInfo.verticesPoints.size(); ++i)
+    for (size_t i = 0; i < atInfo.verticesPoints.size(); ++i)
     {
         PolygonPOI* cur_pt = &atInfo.verticesPoints[i];
         float distsq = fabs(cur_pt->x) > fabs(cur_pt->y) ? fabs(cur_pt->x) : fabs(cur_pt->y);
         if(distsq > distance)
             distance = distsq;
     }
-    for (uint16 i = 0; i < atInfo.verticesTargetPoints.size(); ++i)
+    for (size_t i = 0; i < atInfo.verticesTargetPoints.size(); ++i)
     {
         PolygonPOI* cur_pt = &atInfo.verticesTargetPoints[i];
         float distsq = fabs(cur_pt->x) > fabs(cur_pt->y) ? fabs(cur_pt->x) : fabs(cur_pt->y);

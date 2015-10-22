@@ -144,7 +144,7 @@ bool PoolGroup<T>::CheckPool() const
     if (EqualChanced.empty())
     {
         float chance = 0;
-        for (uint32 i = 0; i < ExplicitlyChanced.size(); ++i)
+        for (size_t i = 0; i < ExplicitlyChanced.size(); ++i)
             chance += ExplicitlyChanced[i].chance;
         if (chance != 100 && chance != 0)
             return false;
@@ -159,7 +159,7 @@ PoolObject* PoolGroup<T>::RollOne(ActivePoolData& spawns, uint64 const& triggerF
     {
         float roll = (float)rand_chance();
 
-        for (uint32 i = 0; i < ExplicitlyChanced.size(); ++i)
+        for (size_t i = 0; i < ExplicitlyChanced.size(); ++i)
         {
             roll -= ExplicitlyChanced[i].chance;
             // Triggering object is marked as spawned at this time and can be also rolled (respawn case)

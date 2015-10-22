@@ -330,7 +330,7 @@ void BattlegroundSSM::UpdatePoints()
 
         uint8 hordeCount = 0;
         uint8 allianceCount = 0;
-        for (uint8 i = 0; i < m_PlayersNearPoint[point].size(); ++i)
+        for (size_t i = 0; i < m_PlayersNearPoint[point].size(); ++i)
         {
             Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[point][i]);
             if (player)
@@ -354,7 +354,7 @@ void BattlegroundSSM::UpdatePoints()
         {
             if (m_cartsState[point] != SSM_CONTROL_ALLIANCE)
             {
-                for (uint8 i = 0; i < m_PlayersNearPoint[point].size(); ++i)
+                for (size_t i = 0; i < m_PlayersNearPoint[point].size(); ++i)
                 {
                     Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[point][i]);
                     if (player && player->GetBGTeam() == ALLIANCE)
@@ -369,7 +369,7 @@ void BattlegroundSSM::UpdatePoints()
         {
             if (m_cartsState[point] != SSM_CONTROL_HORDE)
             {
-                for (uint8 i = 0; i < m_PlayersNearPoint[point].size(); ++i)
+                for (size_t i = 0; i < m_PlayersNearPoint[point].size(); ++i)
                 {
                     Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[point][i]);
                     if (player && player->GetBGTeam() == HORDE)
@@ -389,7 +389,7 @@ void BattlegroundSSM::UpdatePoints()
             }
         }
 
-        for (uint8 i = 0; i < m_PlayersNearPoint[point].size(); ++i)
+        for (size_t i = 0; i < m_PlayersNearPoint[point].size(); ++i)
         {
             Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[point][i]);
             if (player)

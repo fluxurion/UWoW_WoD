@@ -202,9 +202,9 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
         return;
     }
 
-    for (uint32 i = 0; i < packet.Items.size() - 1; ++i)
+    for (size_t i = 0; i < packet.Items.size() - 1; ++i)
     {
-        for (uint32 j = i + 1; j < packet.Items.size(); ++j)
+        for (size_t j = i + 1; j < packet.Items.size(); ++j)
         {
             if (packet.Items[i].Guid == packet.Items[j].Guid)
             {

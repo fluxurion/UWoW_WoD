@@ -581,7 +581,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
             if (Player* player = itr->getSource())   // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
                 FillNotNormalLootFor(player, player->IsAtGroupRewardDistance(lootOwner));
 
-        for (uint8 i = 0; i < items.size(); ++i)
+        for (size_t i = 0; i < items.size(); ++i)
         {
             if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(items[i].item.ItemID))
                 if (proto->Quality < uint32(group->GetLootThreshold()))
@@ -712,7 +712,7 @@ QuestItemList* Loot::FillCurrencyLoot(Player* player)
 {
     QuestItemList* ql = new QuestItemList();
 
-    for (uint8 i = 0; i < items.size(); ++i)
+    for (size_t i = 0; i < items.size(); ++i)
     {
         LootItem& item = items[i];
         if (!item.is_looted && item.currency && item.AllowedForPlayer(player))
@@ -735,7 +735,7 @@ QuestItemList* Loot::FillFFALoot(Player* player)
 {
     QuestItemList* ql = new QuestItemList();
 
-    for (uint8 i = 0; i < items.size(); ++i)
+    for (size_t i = 0; i < items.size(); ++i)
     {
         LootItem &item = items[i];
         if (!item.is_looted && item.freeforall && item.AllowedForPlayer(player))
@@ -761,7 +761,7 @@ QuestItemList* Loot::FillQuestLoot(Player* player)
 
     QuestItemList* ql = new QuestItemList();
 
-    for (uint8 i = 0; i < quest_items.size(); ++i)
+    for (size_t i = 0; i < quest_items.size(); ++i)
     {
         LootItem &item = quest_items[i];
 
@@ -796,7 +796,7 @@ QuestItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool pres
 {
     QuestItemList* ql = new QuestItemList();
 
-    for (uint8 i = 0; i < items.size(); ++i)
+    for (size_t i = 0; i < items.size(); ++i)
     {
         LootItem &item = items[i];
         if (!item.is_looted && !item.freeforall && !item.currency && (item.AllowedForPlayer(player) || (item.follow_loot_rules && player->GetGroup() && ((player->GetGroup()->GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetLooterGuid() == player->GetGUID()) || player->GetGroup()->GetLootMethod() != MASTER_LOOT ))))
@@ -877,7 +877,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
                 // find where/if the player has the given item in it's vector
                 QuestItemList& pql = *pq->second;
 
-                uint8 j;
+                size_t j;
                 for (j = 0; j < pql.size(); ++j)
                     if (pql[j].index == questIndex)
                         break;
@@ -1041,7 +1041,7 @@ bool Loot::hasItemFor(Player* player) const
 // return true if there is any item over the group threshold (i.e. not underthreshold).
 bool Loot::hasOverThresholdItem() const
 {
-    for (uint8 i = 0; i < items.size(); ++i)
+    for (size_t i = 0; i < items.size(); ++i)
     {
         if (!items[i].is_looted && !items[i].is_underthreshold && !items[i].freeforall)
             return true;
@@ -1063,7 +1063,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
         {
             // if you are not the round-robin group looter, you can only see
             // blocked rolled items and quest items, and !ffa items
-            for (uint8 i = 0; i < items.size(); ++i)
+            for (size_t i = 0; i < items.size(); ++i)
             {
                 if (!items[i].is_looted && !items[i].freeforall && !items[i].currency && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer))
                 {
@@ -1094,7 +1094,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
         }
         case ROUND_ROBIN_PERMISSION:
         {
-            for (uint8 i = 0; i < items.size(); ++i)
+            for (size_t i = 0; i < items.size(); ++i)
             {
                 if (!items[i].is_looted && !items[i].freeforall && !items[i].currency && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer))
                 {
@@ -1129,7 +1129,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                     break;
             }
 
-            for (uint8 i = 0; i < items.size(); ++i)
+            for (size_t i = 0; i < items.size(); ++i)
             {
                 if (!items[i].is_looted && !items[i].freeforall && !items[i].currency && items[i].conditions.empty() && items[i].AllowedForPlayer(viewer))
                 {
@@ -1970,7 +1970,7 @@ bool LootTemplate::HasQuestDropForPlayer(LootTemplateMap const& store, Player co
 void LootTemplate::Verify(LootStore const& lootstore, uint32 id) const
 {
     // Checking group chances
-    for (uint32 i=0; i < Groups.size(); ++i)
+    for (size_t i=0; i < Groups.size(); ++i)
         Groups[i].Verify(lootstore, id, i+1);
 
     // TODO: References validity checks
