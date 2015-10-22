@@ -148,6 +148,7 @@ public:
     Follower const* GetFollower(uint64 dbId) const;
 
     // Missions
+    void OpenMissionNPC(Player* owner, ObjectGuid npcGUID);
     Mission const* GetMission(uint64 dbId) const;
     Mission const* GetMissionByRecID(uint32 missionRecID) const;
     Mission* GetMissionByRecID(uint32 missionRecID);

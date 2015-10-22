@@ -69,7 +69,7 @@ void WorldSession::HandleGarrisonCheckUpgradeable(WorldPackets::Garrison::Garris
 
 void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonStartMission& packet)
 {
-    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))
         return;
 
     if (!sGarrMissionStore.LookupEntry(packet.MissionRecID))
@@ -88,19 +88,36 @@ void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonSt
     }
 }
 
-void WorldSession::HandleGarrisonCompleteMission(WorldPackets::Garrison::GarrisonCompleteMission& /*packet*/)
-{ }
+void WorldSession::HandleGarrisonCompleteMission(WorldPackets::Garrison::GarrisonCompleteMission& packet)
+{
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))
+        return;
+
+    if (!sGarrMissionStore.LookupEntry(packet.MissionRecID))
+        return;
+
+    /*if (Garrison* garrison = _player->GetGarrison())
+    {
+        if (Garrison::Mission* mission = garrison->GetMissionByRecID(packet.MissionRecID))
+        {
+            if (!mission->IsCompleted())
+                return;
+
+            mission->Complete();
+        }
+    }*/
+}
 
 void WorldSession::HandleCreateShipment(WorldPackets::Garrison::CreateShipment& /*packet*/)
 { }
 
 void WorldSession::HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::GarrisonOpenMissionNpc& packet)
 {
-    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))
         return;
 
-    if (!_player->GetGarrison())
-        return;
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->OpenMissionNPC(_player, packet.NpcGUID);
 }
 
 void WorldSession::HandleCompleteAllReadyShipments(WorldPackets::Garrison::CompleteAllReadyShipments& /*packet*/)
