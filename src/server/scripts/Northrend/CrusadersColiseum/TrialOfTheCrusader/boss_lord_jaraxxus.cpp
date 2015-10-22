@@ -505,10 +505,10 @@ class spell_mistress_kiss : public SpellScriptLoader
 
             bool Load()
             {
-                if (GetCaster())
-                    if (sSpellMgr->GetSpellIdForDifficulty(SPELL_MISTRESS_KISS_DAMAGE_SILENCE, GetCaster()))
+                //if (GetCaster())
+                //    if (sSpellMgr->GetSpellIdForDifficulty(SPELL_MISTRESS_KISS_DAMAGE_SILENCE, GetCaster()))
                         return true;
-                return false;
+                //return false;
             }
 
             void HandleDummyTick(AuraEffect const* /*aurEff*/)

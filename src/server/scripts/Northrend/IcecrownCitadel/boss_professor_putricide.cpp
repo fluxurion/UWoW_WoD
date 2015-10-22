@@ -1143,11 +1143,10 @@ class spell_putricide_ooze_eruption_searcher : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                uint32 adhesiveId = sSpellMgr->GetSpellIdForDifficulty(SPELL_VOLATILE_OOZE_ADHESIVE, GetCaster());
-                if (GetHitUnit()->HasAura(adhesiveId))
+                if (GetHitUnit()->HasAura(SPELL_VOLATILE_OOZE_ADHESIVE))
                 {
                     GetCaster()->CastSpell(GetHitUnit(), SPELL_OOZE_ERUPTION, true);
-                    GetHitUnit()->RemoveAurasDueToSpell(adhesiveId, GetCaster()->GetGUID(), 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                    GetHitUnit()->RemoveAurasDueToSpell(SPELL_VOLATILE_OOZE_ADHESIVE, GetCaster()->GetGUID(), 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 }
             }
 
@@ -1224,15 +1223,13 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
                 if (!instance)
                     return;
 
-                uint32 plagueId = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster());
-
-                if (!GetHitUnit()->HasAura(plagueId))
+                if (!GetHitUnit()->HasAura(SPELL_UNBOUND_PLAGUE))
                 {
                     if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                     {
-                        if (Aura* oldPlague = GetCaster()->GetAura(plagueId, professor->GetGUID()))
+                        if (Aura* oldPlague = GetCaster()->GetAura(SPELL_UNBOUND_PLAGUE, professor->GetGUID()))
                         {
-                            if (Aura* newPlague = professor->AddAura(plagueId, GetHitUnit()))
+                            if (Aura* newPlague = professor->AddAura(SPELL_UNBOUND_PLAGUE, GetHitUnit()))
                             {
                                 newPlague->SetMaxDuration(oldPlague->GetMaxDuration());
                                 newPlague->SetDuration(oldPlague->GetDuration());
@@ -1606,8 +1603,7 @@ class spell_putricide_clear_aura_effect_value : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                uint32 auraId = sSpellMgr->GetSpellIdForDifficulty(uint32(GetEffectValue()), GetCaster());
-                GetHitUnit()->RemoveAurasDueToSpell(auraId);
+                GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
             }
 
             void Register()

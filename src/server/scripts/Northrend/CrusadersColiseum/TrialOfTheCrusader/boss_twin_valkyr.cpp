@@ -708,11 +708,11 @@ class spell_powering_up : public SpellScriptLoader
 
             bool Load()
             {
-                spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SURGE_OF_SPEED, GetCaster());
+                spellId = SPELL_SURGE_OF_SPEED;
                 if (!sSpellMgr->GetSpellInfo(spellId))
                     return false;
 
-                poweringUp = sSpellMgr->GetSpellIdForDifficulty(SPELL_POWERING_UP, GetCaster());
+                poweringUp = SPELL_POWERING_UP;
                 if (!sSpellMgr->GetSpellInfo(poweringUp))
                     return false;
 
@@ -764,7 +764,7 @@ class spell_valkyr_essences : public SpellScriptLoader
 
             bool Load()
             {
-                spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SURGE_OF_SPEED, GetCaster());
+                spellId = SPELL_SURGE_OF_SPEED;
                 if (!sSpellMgr->GetSpellInfo(spellId))
                     return false;
                 return true;
@@ -776,19 +776,17 @@ class spell_valkyr_essences : public SpellScriptLoader
                 {
                     if (dmgInfo.GetSpellInfo())
                     {
-                        if (uint32 poweringUp = sSpellMgr->GetSpellIdForDifficulty(SPELL_POWERING_UP, owner))
+                        if (uint32 poweringUp = SPELL_POWERING_UP)
                         {
                             if (urand(0, 99) < 5)
                                 GetTarget()->CastSpell(GetTarget(), spellId, true);
 
                             // Twin Vortex part
-                            uint32 lightVortex = sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHT_VORTEX_DAMAGE, owner);
-                            uint32 darkVortex = sSpellMgr->GetSpellIdForDifficulty(SPELL_DARK_VORTEX_DAMAGE, owner);
                             int32 stacksCount = dmgInfo.GetSpellInfo()->Effects[EFFECT_0].CalcValue() / 1000 - 1;
 
-                            if (lightVortex && darkVortex && stacksCount)
+                            if (stacksCount)
                             {
-                                if (dmgInfo.GetSpellInfo()->Id == darkVortex || dmgInfo.GetSpellInfo()->Id == lightVortex)
+                                if (dmgInfo.GetSpellInfo()->Id == SPELL_DARK_VORTEX_DAMAGE || dmgInfo.GetSpellInfo()->Id == SPELL_LIGHT_VORTEX_DAMAGE)
                                 {
                                     Aura* pAura = owner->GetAura(poweringUp);
                                     if (pAura)
@@ -806,12 +804,9 @@ class spell_valkyr_essences : public SpellScriptLoader
                             }
 
                             // Picking floating balls
-                            uint32 unleashedDark = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNLEASHED_DARK, owner);
-                            uint32 unleashedLight = sSpellMgr->GetSpellIdForDifficulty(SPELL_UNLEASHED_LIGHT, owner);
-
-                            if (unleashedDark && unleashedLight)
+                            //if (unleashedDark && unleashedLight)
                             {
-                                if (dmgInfo.GetSpellInfo()->Id == unleashedDark || dmgInfo.GetSpellInfo()->Id == unleashedLight)
+                                if (dmgInfo.GetSpellInfo()->Id == SPELL_UNLEASHED_DARK || dmgInfo.GetSpellInfo()->Id == SPELL_UNLEASHED_LIGHT)
                                 {
                                     // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
                                     Aura* pAura = owner->GetAura(poweringUp);

@@ -6439,7 +6439,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
 
         for (JoinedChannelsList::iterator itr = m_channels.begin(); itr != m_channels.end(); ++itr)
         {
-            if ((*itr) && (*itr)->GetChannelId() == i)
+            if ((*itr) && (*itr)->GetChannelId() == channel->ID)
             {
                 usedChannel = *itr;
                 break;

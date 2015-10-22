@@ -391,7 +391,7 @@ class boss_sindragosa : public CreatureScript
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
-                if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
+                if (uint32 spellId = 70127)
                 {
                     if (spellId == spell->Id)
                     {
@@ -405,7 +405,7 @@ class boss_sindragosa : public CreatureScript
                 // Frost Infusion
                 if (Player* player = target->ToPlayer())
                 {
-                    if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1, me))
+                    if (uint32 spellId = _isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1)
                     {
                         if (spellId == spell->Id)
                         {
