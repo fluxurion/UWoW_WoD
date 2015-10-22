@@ -1,0 +1,1 @@
+ALTER TABLE `character_garrison` ADD `lastResTaken` INT(11) NOT NULL DEFAULT '0' AFTER `followerActivationsRemainingToday`;

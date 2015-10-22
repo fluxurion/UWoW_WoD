@@ -24,7 +24,7 @@
 #include "VehicleDefines.h"
 #include "MiscPackets.h"
 
-Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
+Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1), _lastResTaken(0)
 { }
 
 bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
@@ -36,6 +36,8 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
     Field* fields = garrison->Fetch();
     _siteLevel = sGarrSiteLevelStore.LookupEntry(fields[0].GetUInt32());
     _followerActivationsRemainingToday = fields[1].GetUInt32();
+    _lastResTaken = fields[2].GetUInt32();
+
     if (!_siteLevel)
         return false;
 
@@ -172,6 +174,8 @@ void Garrison::SaveToDB(SQLTransaction trans)
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
     stmt->setUInt32(1, _siteLevel->ID);
     stmt->setUInt32(2, _followerActivationsRemainingToday);
+    stmt->setUInt32(3, _lastResTaken);
+    
     trans->Append(stmt);
 
     for (uint32 building : _knownBuildings)
@@ -991,4 +995,26 @@ uint32 Garrison::GetAreaIdForTeam(uint32 team)
             return 7004;
     }
     return 0;
+}
+
+/*
+The Garrison Cache next to your Town Hall accumulates  Garrison Resources (GR) 
+at a rate of 1 GR every 10 minutes of real time (6 per hour),
+which works out to 144 GR every full day (6 x 24hrs = 144 GR).
+*/
+uint32 Garrison::GetResNumber() const
+{
+    // ToDo: set get congig
+    #define default_resource_num 50
+    #define min_counter 10
+
+    if (!_lastResTaken)
+        return default_resource_num;
+
+    return (time(NULL) - _lastResTaken) / (min_counter * MINUTE);
+}
+
+void Garrison::UpdateResTakenTime()
+{
+    _lastResTaken = time(NULL);
 }

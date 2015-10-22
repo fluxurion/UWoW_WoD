@@ -1,0 +1,70 @@
+/*
+* Copyright (C) 2008-2015 Uwow.Biz <http://uwow.biz/>
+* Copyright (C) 2014-2015 Epicwow.com <http://epicwow.com/>
+*/
+
+#include "NewScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
+#include "CreatureTextMgr.h"
+#include "GameObjectAI.h"
+#include "Garrison.h"
+
+Position const hearhstoneHorde[3] = {
+    {5560.4f, 4507.7f, 132.67f, 206.1f},         // Horde lvl1 map 1152
+    {5565.86f, 4593.5f, 140.893f, 2.332632f},    // Horde lvl2 spell 171325 map 1330
+    {5563.7f, 4599.9f, 141.71f, 131.75f},        // Horde lvl3 spell 171325 map 1153
+};
+Position const hearhstoneAlliance[3] = {
+    {1850.71f, 254.43f, 78.083f, 1.886526f},     // ALLiance lvl1 spell 158825
+    {1936.9f, 341.35f, 90.28f, 123.479f},        // Alliance lvl2 
+    {1947.0f, 324.88f, 90.28f, 118.664f},        // Alliance lvl3
+};
+
+//http://www.wowhead.com/spell=171253/garrison-hearthstone
+class spell_garrison_hearthstone : public SpellScriptLoader
+{
+public:
+    spell_garrison_hearthstone() : SpellScriptLoader("spell_garrison_hearthstone") { }
+
+    class spell_garrison_hearthstone_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_garrison_hearthstone_SpellScript);
+
+        void HandleScriptEffect(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            if (Unit* caster = GetCaster())
+            {
+                Player* plr = caster->ToPlayer();
+                if (!plr)
+                    return;
+
+                Garrison *garr = plr->GetGarrison();
+                if (!garr || garr->GetGarrisonMapID() == -1)
+                    return;
+                uint8 idx = garr->GetGarrisonLevel() - 1;
+
+                if (plr->GetTeam() == ALLIANCE)
+                    plr->TeleportTo(garr->GetGarrisonMapID(), hearhstoneAlliance[idx].m_positionX, hearhstoneAlliance[idx].m_positionY, hearhstoneAlliance[idx].m_positionZ, hearhstoneAlliance[idx].m_orientation, TELE_TO_SPELL, 171253);
+                else
+                    plr->TeleportTo(garr->GetGarrisonMapID(), hearhstoneHorde[idx].m_positionX, hearhstoneHorde[idx].m_positionY, hearhstoneHorde[idx].m_positionZ, hearhstoneHorde[idx].m_orientation, TELE_TO_SPELL, 171253);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_garrison_hearthstone_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_TELEPORT_UNITS);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_garrison_hearthstone_SpellScript();
+    }
+};
+void AddSC_garrison_general()
+{
+    new spell_garrison_hearthstone();
+}

@@ -2017,7 +2017,7 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     if (mapid == unitTarget->GetMapId())
         unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
     else if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-        unitTarget->ToPlayer()->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL : 0);
+        unitTarget->ToPlayer()->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL : 0, m_spellInfo->Id);
 
     // post effects for TARGET_DEST_DB
     switch (m_spellInfo->Id)

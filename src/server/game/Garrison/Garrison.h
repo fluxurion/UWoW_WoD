@@ -158,7 +158,12 @@ public:
 
     // Map
     int32 GetGarrisonMapID() const { return _siteLevel ? _siteLevel->MapID : -1; }
+    uint8 GetGarrisonLevel() const { return _siteLevel ? _siteLevel->Level : 0; }
     static uint32 GetAreaIdForTeam(uint32 team);
+
+    //  Ressource
+    uint32 GetResNumber() const;
+    void UpdateResTakenTime();
 
 private:
     Map* FindMap() const;
@@ -168,6 +173,7 @@ private:
     Player* _owner;
     GarrSiteLevelEntry const* _siteLevel;
     uint32 _followerActivationsRemainingToday;
+    uint32 _lastResTaken;
 
     std::unordered_map<uint32 /*garrPlotInstanceId*/, Plot> _plots;
     std::unordered_set<uint32 /*garrBuildingId*/> _knownBuildings;

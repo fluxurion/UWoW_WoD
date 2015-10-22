@@ -66,6 +66,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 6720, 12, 0, 1, 8, 0, 34378, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. rew 34378'),
 (23, 6720, 13, 0, 0, 28, 0, 34378, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. compl 34378'),
 (23, 6720, 13, 0, 1, 8, 0, 34378, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. rew 34378');
+
 -- Сцены
 REPLACE INTO `spell_scene` (`SceneScriptPackageID`, `MiscValue`, `PlaybackFlags`, `trigerSpell`, MonsterCredit, ScriptName, `comment`) VALUES
 ('771', '578', '16', '0', '0', 'sceneTrigger_q33815', 'Draenor. FrostFireRidge. q33815'),
@@ -90,7 +91,9 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34592', '34364', '34765', '-34364'),
 ('34765', '34592', '0', '0'),
 ('34378', '34765', '0', '0'),
-('34822', '34378', '0', '0'),
+('34822', '34378', '34461', '-34822'),
+('34824', '34378', '34461', '-34822'),
+('34823', '34378', '0', '0'),
 
 ('34379', '33816', '0', '0');
 

@@ -13,6 +13,8 @@ set(scripts_STAT_SRCS
   Draenor/dark_portal.cpp
   Draenor/frostfire_ridge.cpp
   
+  Draenor/garrison/garrison_general.cpp
+  
   Draenor/IronDocks/instance_iron_docks.cpp
   Draenor/IronDocks/boss_fleshrender_nokgar.cpp
   Draenor/IronDocks/boss_grimrail_enforcers.cpp

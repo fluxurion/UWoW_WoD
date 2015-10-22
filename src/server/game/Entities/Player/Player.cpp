@@ -2017,7 +2017,7 @@ uint8 Player::GetChatTag() const
     return tag;
 }
 
-bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
+bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options, uint32 spellID/*=false*/)
 {
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
@@ -2232,6 +2232,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                     transferPending.Ship = boost::in_place();
                     transferPending.Ship->ID = transport->GetEntry();
                     transferPending.Ship->OriginMapID = GetMapId();
+                }
+                if (spellID)
+                {
+                    transferPending.TransferSpellID = boost::in_place();
+                    transferPending.TransferSpellID = spellID;
                 }
 
                 GetSession()->SendPacket(transferPending.Write());
