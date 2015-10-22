@@ -229,6 +229,23 @@ void Garrison::SaveToDB(SQLTransaction trans)
             trans->Append(stmt);
         }
     }
+
+    for (auto const& m : _missions)
+    {
+        Mission const& mission = m.second;
+        uint8 index = 0;
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_MISSIONS);
+        stmt->setUInt64(index++, mission.PacketInfo.DbID);
+        stmt->setUInt64(index++, _owner->GetGUID().GetCounter());
+        stmt->setUInt32(index++, mission.PacketInfo.MissionRecID);
+        stmt->setUInt32(index++, mission.PacketInfo.OfferTime);
+        stmt->setUInt32(index++, mission.PacketInfo.OfferDuration);
+        stmt->setUInt32(index++, mission.PacketInfo.StartTime);
+        stmt->setUInt32(index++, mission.PacketInfo.TravelDuration);
+        stmt->setUInt32(index++, mission.PacketInfo.MissionDuration);
+        stmt->setUInt32(index++, mission.PacketInfo.MissionState);
+        trans->Append(stmt);
+    }
 }
 
 void Garrison::DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans)
@@ -246,6 +263,10 @@ void Garrison::DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans)
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_FOLLOWERS);
+    stmt->setUInt64(0, ownerGuid);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON_MISSIONS);
     stmt->setUInt64(0, ownerGuid);
     trans->Append(stmt);
 }
@@ -594,6 +615,15 @@ void Garrison::AddFollower(uint32 garrFollowerId)
 }
 
 Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const
+{
+    auto itr = _followers.find(dbId);
+    if (itr != _followers.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+Garrison::Follower* Garrison::GetFollower(uint64 dbId)
 {
     auto itr = _followers.find(dbId);
     if (itr != _followers.end())
@@ -1024,10 +1054,10 @@ uint32 Garrison::GetAreaIdForTeam(uint32 team)
 
 void Garrison::Mission::Start(Player* owner, std::vector<uint64> followers)
 {
-    WorldPackets::Garrison::GarrisonStartMissionResult missionRes;
-
     PacketInfo.MissionState = 1;
     PacketInfo.StartTime = time(nullptr);
+
+    WorldPackets::Garrison::GarrisonStartMissionResult missionRes;
 
     missionRes.MissionData = PacketInfo;
     missionRes.FollowerDBIDs = followers;
@@ -1035,6 +1065,10 @@ void Garrison::Mission::Start(Player* owner, std::vector<uint64> followers)
     owner->SendDirectMessage(missionRes.Write());
 }
 
+void Garrison::Follower::SetCurrentMission(uint32 missionRecID)
+{
+    PacketInfo.CurrentMissionID = missionRecID;
+}
 /*
 The Garrison Cache next to your Town Hall accumulates  Garrison Resources (GR) 
 at a rate of 1 GR every 10 minutes of real time (6 per hour),

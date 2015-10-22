@@ -104,6 +104,7 @@ public:
     {
         uint32 GetItemLevel() const;
         void IncreaseFollowerItemLevel(SpellInfo const* spellInfo, Player* caster);
+        void SetCurrentMission(uint32 missionRecID);
 
         WorldPackets::Garrison::GarrisonFollower PacketInfo;
     };
@@ -146,6 +147,7 @@ public:
     // Followers
     void AddFollower(uint32 garrFollowerId);
     Follower const* GetFollower(uint64 dbId) const;
+    Follower* GetFollower(uint64 dbId);
 
     // Missions
     void OpenMissionNPC(Player* owner);
