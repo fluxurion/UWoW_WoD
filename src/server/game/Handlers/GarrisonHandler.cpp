@@ -117,7 +117,7 @@ void WorldSession::HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::Garrison
         return;
 
     if (Garrison* garrison = _player->GetGarrison())
-        garrison->OpenMissionNPC(_player, packet.NpcGUID);
+        garrison->OpenMissionNPC(_player);
 }
 
 void WorldSession::HandleCompleteAllReadyShipments(WorldPackets::Garrison::CompleteAllReadyShipments& /*packet*/)

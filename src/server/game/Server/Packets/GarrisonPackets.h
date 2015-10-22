@@ -751,14 +751,14 @@ namespace WorldPackets
         class GarrisonUnk988Response final : public ServerPacket
         {
         public:
-            GarrisonUnk988Response() : ServerPacket(SMSG_GARRISON_UNK_988, 4 + 4 + 4 * processMissionRecIDs.size() + 1) { }
+            GarrisonUnk988Response() : ServerPacket(SMSG_GARRISON_UNK_988, 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
             uint32 unkCount = 0;
-            uint32 processMissionCount;
+            uint32 processMissionCount = 0;
             std::vector<uint32> processMissionRecIDs;
-            bool notOpen = false;
+            bool notOpen;
         };
     }
 }
