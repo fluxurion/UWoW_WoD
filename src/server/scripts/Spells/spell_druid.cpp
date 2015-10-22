@@ -2722,8 +2722,8 @@ class spell_druid_rejuvenation : public SpellScriptLoader
             void Register()
             {
                 DoEffectChangeTickDamage += AuraEffectChangeTickDamageFn(spell_druid_rejuvenation_AuraScript::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                AfterEffectApply += AuraEffectApplyFn(spell_druid_rejuvenation_AuraScript::HandleEffectApply, EFFECT_2, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_druid_rejuvenation_AuraScript::HandleEffectRemove, EFFECT_2, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_druid_rejuvenation_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_druid_rejuvenation_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

@@ -4266,6 +4266,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(36);
                     break;
                 case 53:    // Backstab
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_NOT_FRONT_TARGET;
+                    break;
                 case 21987: // Lash of Pain
                 case 58563: // Assassinate Restless Lookout
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;

@@ -6347,6 +6347,10 @@ SpellCastResult Spell::CheckCast(bool strict)
             if ((AttributesCustomCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET) && target->HasInArc(static_cast<float>(M_PI), m_caster))
                 return SPELL_FAILED_NOT_BEHIND;
 
+            // Must be behind the target
+            if ((AttributesCustomCu & SPELL_ATTR0_CU_REQ_CASTER_NOT_FRONT_TARGET) && target->HasInArc(static_cast<float>(M_PI/2), m_caster))
+                return SPELL_FAILED_NOT_BEHIND;
+
             // Target must be facing you
             if ((AttributesCustomCu & SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER) && !target->HasInArc(static_cast<float>(M_PI), m_caster) && !m_spellInfo->CanNonFacing(m_caster))
                 return SPELL_FAILED_NOT_INFRONT;
