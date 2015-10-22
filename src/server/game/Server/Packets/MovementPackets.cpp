@@ -204,10 +204,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFi
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce& MovementForce)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce const& MovementForce)
 {
     data << MovementForce.ID;
-    data << MovementForce.Direction.PositionXYZStream();
+    data << MovementForce.Direction.GetPositionX();
+    data << MovementForce.Direction.GetPositionY();
+    data << MovementForce.Direction.GetPositionZ();
     data << MovementForce.TransportID;
     data << MovementForce.Magnitude;
     data.WriteBits(MovementForce.Type, 2);
@@ -561,7 +563,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
     _worldPacket << *movementInfo;
 
     _worldPacket << static_cast<int32>(MovementForces.size());
-    for (WorldPackets::Movement::MovementForce& force : MovementForces)
+    for (auto const& force : MovementForces)
         _worldPacket << force;
 
     _worldPacket.WriteBit(WalkSpeed.is_initialized());

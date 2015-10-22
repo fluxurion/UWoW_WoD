@@ -549,6 +549,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFi
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementSpline const& movementSpline);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementMonsterSpline const& movementMonsterSpline);
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Movement::MovementAck& movementAck);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce& MovementForce);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce const& MovementForce);
 
 #endif // MovementPackets_h__
