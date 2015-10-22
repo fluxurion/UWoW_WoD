@@ -668,7 +668,15 @@ enum SkillRangeType
     SKILL_RANGE_NONE,                                       // 0..0 always
 };
 
-SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial);
+#define MAX_SKILL_STEP 16
+
+struct SkillTiersEntry
+{
+    uint32      ID;                                         // 0
+    uint32      Value[MAX_SKILL_STEP];                      // 1-16
+};
+
+SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry);
 
 #define MAX_PLAYER_NAME          12                         // max allowed by client name length
 #define MAX_INTERNAL_PLAYER_NAME 15                         // max server internal player name length (> MAX_PLAYER_NAME for support declined names)
@@ -1006,12 +1014,15 @@ class ObjectMgr
         PlayerInfo const* GetPlayerInfo(uint32 race, uint32 class_) const
         {
             if (race >= MAX_RACES)
-                return NULL;
+                return nullptr;
+
             if (class_ >= MAX_CLASSES)
-                return NULL;
-            PlayerInfo const* info = &_playerInfo[race][class_];
+                return nullptr;
+
+            PlayerInfo const* info = _playerInfo[race][class_];
             if (info->displayId_m == 0 || info->displayId_f == 0)
-                return NULL;
+                return nullptr;
+
             return info;
         }
 
@@ -1292,6 +1303,7 @@ class ObjectMgr
         void LoadCorpses();
         void LoadFishingBaseSkillLevel();
 
+        void LoadSkillTiers();
         void LoadReputationRewardRate();
         void LoadReputationOnKill();
         void LoadReputationSpilloverTemplate();
@@ -1342,6 +1354,12 @@ class ObjectMgr
         {
             FishingBaseSkillContainer::const_iterator itr = _fishingBaseForAreaStore.find(entry);
             return itr != _fishingBaseForAreaStore.end() ? itr->second : 0;
+        }
+
+        SkillTiersEntry const* GetSkillTier(uint32 skillTierId) const
+        {
+            auto itr = _skillTiers.find(skillTierId);
+            return itr != _skillTiers.end() ? &itr->second : nullptr;
         }
 
         void ReturnOrDeleteOldMails(bool serverUp);
@@ -1835,7 +1853,7 @@ class ObjectMgr
 
         void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
 
-        PlayerInfo _playerInfo[MAX_RACES][MAX_CLASSES];
+        PlayerInfo* _playerInfo[MAX_RACES][MAX_CLASSES];
 
         typedef std::vector<uint32> PlayerXPperLevel;       // [level]
         PlayerXPperLevel _playerXPperLevel;
@@ -1845,6 +1863,7 @@ class ObjectMgr
 
         typedef std::map<uint32, int32> FishingBaseSkillContainer; // [areaId][base skill level]
         FishingBaseSkillContainer _fishingBaseForAreaStore;
+        std::unordered_map<uint32, SkillTiersEntry> _skillTiers;
 
         typedef std::map<uint32, StringVector> HalfNameContainer;
         HalfNameContainer _petHalfName0;

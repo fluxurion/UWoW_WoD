@@ -44,11 +44,23 @@ bool IsPrimaryProfessionSkill(uint32 skill)
     return true;
 }
 
+bool IsWeaponSkill(uint32 skill)
+{
+    SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
+    if (!pSkill)
+        return false;
+
+    if (pSkill->categoryId != SKILL_CATEGORY_WEAPON)
+        return false;
+
+    return true;
+}
+
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
 {
     SkillLineAbilityMapBounds skillBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
     for (SkillLineAbilityMap::const_iterator itr = skillBounds.first; itr != skillBounds.second; ++itr)
-        if (itr->second->skillId == skillId)
+        if (itr->second->SkillLine == skillId)
             return true;
 
     return false;
@@ -2367,7 +2379,7 @@ void SpellMgr::LoadSkillLineAbilityMap()
 
     for (SkillLineAbilityEntry const* SkillInfo : sSkillLineAbilityStore)
     {
-        mSkillLineAbilityMap.insert(SkillLineAbilityMap::value_type(SkillInfo->spellId, SkillInfo));
+        mSkillLineAbilityMap.insert(SkillLineAbilityMap::value_type(SkillInfo->SpellID, SkillInfo));
         ++count;
     }
 
@@ -3267,7 +3279,7 @@ void SpellMgr::LoadSpellTriggered()
 
 void SpellMgr::LoadPetLevelupSpellMap()
 {
-    uint32 oldMSTime = getMSTime();
+     uint32 oldMSTime = getMSTime();
 
     mPetLevelupSpellMap.clear();                                   // need for reload case
 
@@ -3281,19 +3293,23 @@ void SpellMgr::LoadPetLevelupSpellMap()
             if (!creatureFamily->skillLine[j])
                 continue;
 
-            for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
+            for (uint32 k = 0; k < sSkillLineAbilityStore.GetNumRows(); ++k)
             {
-                //if (skillLine->skillId != creatureFamily->skillLine[0] &&
-                //    (!creatureFamily->skillLine[1] || skillLine->skillId != creatureFamily->skillLine[1]))
+                SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(k);
+                if (!skillLine)
+                    continue;
+
+                //if (skillLine->skillId != creatureFamily->SkillLine[0] &&
+                //    (!creatureFamily->SkillLine[1] || skillLine->skillId != creatureFamily->SkillLine[1]))
                 //    continue;
 
-                if (skillLine->skillId != creatureFamily->skillLine[j])
+                if (skillLine->SkillLine != creatureFamily->skillLine[j])
                     continue;
 
-                if (skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
+                if (skillLine->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
                     continue;
 
-                SpellInfo const* spell = GetSpellInfo(skillLine->spellId);
+                SpellInfo const* spell = GetSpellInfo(skillLine->SpellID);
                 if (!spell) // not exist or triggered or talent
                     continue;
 
@@ -3670,150 +3686,6 @@ void SpellMgr::LoadSpellAreas()
 }
 
 static const uint32 SkillClass[MAX_CLASSES] = {0, 840, 800, 795, 921, 804, 796, 924, 904, 849, 829, 798};
-
-void SpellMgr::LoadSpellClassInfo()
-{
-    mSpellClassInfo.resize(MAX_CLASSES);
-    for (int ClassID = 0; ClassID < MAX_CLASSES; ClassID++)
-    {
-        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(ClassID);
-        if(!classEntry)
-            continue;
-
-        // Player damage reduction (40% base resilience)
-        mSpellClassInfo[ClassID].insert(115043);
-        // Player damage reduction (37% base resilience)
-        mSpellClassInfo[ClassID].insert(142689);
-        // Player heal reduction (Battle Fatigue)
-        mSpellClassInfo[ClassID].insert(134732);
-        // Player mastery activation
-        mSpellClassInfo[ClassID].insert(114585);
-
-        // All Rune for DK
-        if (ClassID == CLASS_DEATH_KNIGHT)
-        {
-            mSpellClassInfo[ClassID].insert(53323);
-            mSpellClassInfo[ClassID].insert(54447);
-            mSpellClassInfo[ClassID].insert(53342);
-            mSpellClassInfo[ClassID].insert(53331);
-            mSpellClassInfo[ClassID].insert(54446);
-            mSpellClassInfo[ClassID].insert(53323);
-            mSpellClassInfo[ClassID].insert(53344);
-            mSpellClassInfo[ClassID].insert(70164);
-            mSpellClassInfo[ClassID].insert(62158);
-        }
-
-        // Dark Soul
-        if (ClassID == CLASS_WARLOCK)
-            mSpellClassInfo[ClassID].insert(77801);
-
-        // All portals and teleports for mages
-        if (ClassID == CLASS_MAGE)
-        {
-            mSpellClassInfo[ClassID].insert(3561);
-            mSpellClassInfo[ClassID].insert(3562);
-            mSpellClassInfo[ClassID].insert(3563);
-            mSpellClassInfo[ClassID].insert(3565);
-            mSpellClassInfo[ClassID].insert(3566);
-            mSpellClassInfo[ClassID].insert(3567);
-            mSpellClassInfo[ClassID].insert(32271);
-            mSpellClassInfo[ClassID].insert(32272);
-            mSpellClassInfo[ClassID].insert(49359);
-            mSpellClassInfo[ClassID].insert(49360);
-            mSpellClassInfo[ClassID].insert(32266);
-            mSpellClassInfo[ClassID].insert(32267);
-            mSpellClassInfo[ClassID].insert(10059);
-            mSpellClassInfo[ClassID].insert(11416);
-            mSpellClassInfo[ClassID].insert(11417);
-            mSpellClassInfo[ClassID].insert(11418);
-            mSpellClassInfo[ClassID].insert(11419);
-            mSpellClassInfo[ClassID].insert(11420);
-            mSpellClassInfo[ClassID].insert(49358);
-            mSpellClassInfo[ClassID].insert(49361);
-            mSpellClassInfo[ClassID].insert(35715);
-            mSpellClassInfo[ClassID].insert(33690);
-            mSpellClassInfo[ClassID].insert(33691);
-            mSpellClassInfo[ClassID].insert(35717);
-            mSpellClassInfo[ClassID].insert(53140);
-            mSpellClassInfo[ClassID].insert(53142);
-            mSpellClassInfo[ClassID].insert(88342);
-            mSpellClassInfo[ClassID].insert(88344);
-            mSpellClassInfo[ClassID].insert(88345);
-            mSpellClassInfo[ClassID].insert(88346);
-        }
-
-        // Ancestral Focus
-        if (ClassID == CLASS_SHAMAN)
-            mSpellClassInfo[ClassID].insert(89920);
-
-        // Plate Mail skill
-        if (ClassID == CLASS_PALADIN || ClassID == CLASS_WARRIOR)
-            mSpellClassInfo[ClassID].insert(750);
-
-        // Mail skill
-        if (ClassID == CLASS_SHAMAN || ClassID == CLASS_HUNTER)
-            mSpellClassInfo[ClassID].insert(8737);
-
-        // Dual Wield
-        if (ClassID == CLASS_HUNTER || ClassID == CLASS_ROGUE || ClassID == CLASS_DEATH_KNIGHT)
-            mSpellClassInfo[ClassID].insert(674);
-
-        // Natural Insight druid
-        if (ClassID == CLASS_DRUID)
-            mSpellClassInfo[ClassID].insert(112857);
-        
-        // Sinister Strike Enabler
-        if (ClassID == CLASS_ROGUE)
-            mSpellClassInfo[ClassID].insert(79327);
-
-        // Opening gameobject
-        if (ClassID == CLASS_MONK)
-        {
-            mSpellClassInfo[ClassID].insert(3365);
-            mSpellClassInfo[ClassID].insert(6247);
-            mSpellClassInfo[ClassID].insert(6477);
-            mSpellClassInfo[ClassID].insert(6478);
-            mSpellClassInfo[ClassID].insert(21651);
-            mSpellClassInfo[ClassID].insert(22810);
-            mSpellClassInfo[ClassID].insert(61437);
-            mSpellClassInfo[ClassID].insert(68398);
-            mSpellClassInfo[ClassID].insert(96220);
-        }
-
-        for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
-        {
-            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(skillLine->spellId);
-            if (!spellEntry)
-                continue;
-
-            if (skillLine->skillId != SkillClass[ClassID] || (spellEntry->SpellLevel == 0 && skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL))
-                continue;
-
-            // This is something else and it's should not be learn by player.
-            if (skillLine->learnOnGetSkill == ABILITY_LEARNED_ON_GET_UNK || skillLine->learnOnGetSkill == ABILITY_LEARNED_ON_GET_UNK2)
-                continue;
-
-            // See CGSpellBook::InitFutureSpells in client
-            if (spellEntry->Attributes & SPELL_ATTR0_TRADESPELL || ((spellEntry->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE) && !(spellEntry->Attributes & SPELL_ATTR0_PASSIVE))
-                /*|| spellEntry->AttributesEx8 & SPELL_ATTR8_UNK13*/ || spellEntry->AttributesEx4 & SPELL_ATTR4_UNK15)
-                continue;
-
-            if (sSpellMgr->IsTalent(spellEntry->Id))
-                continue;
-
-            mSpellClassInfo[ClassID].insert(spellEntry->Id);
-        }
-    }
-
-    for (SpecializationSpellEntry const* specializationInfo : sSpecializationSpellStore)
-    {
-        ChrSpecializationsEntry const* chrSpec = sChrSpecializationsStore.LookupEntry(specializationInfo->SpecializationEntry);
-        if (!chrSpec)
-            continue;
-
-        mSpellClassInfo[chrSpec->ClassID].insert(specializationInfo->LearnSpell);
-    }
-}
 
 struct spellDifficultyLoadInfo
 {

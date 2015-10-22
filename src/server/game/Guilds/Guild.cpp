@@ -3629,11 +3629,11 @@ void Guild::KnownRecipes::GenerateMask(uint32 skillId, std::set<uint32> const& s
     uint32 index = 0;
     for (SkillLineAbilityEntry const* entry : sSkillLineAbilityStore)
     {
-        if (entry->skillId != skillId)
+        if (entry->SkillLine != skillId)
             continue;
 
         ++index;
-        if (spells.find(entry->spellId) == spells.end())
+        if (spells.find(entry->SpellID) == spells.end())
             continue;
 
         if (index / 8 > KNOW_RECIPES_MASK_SIZE)
@@ -3696,11 +3696,11 @@ void Guild::SendGuildMembersForRecipeResponse(WorldSession* session, uint32 skil
     bool found = false;
     for (SkillLineAbilityEntry const* entry : sSkillLineAbilityStore)
     {
-        if (entry->skillId != skillId)
+        if (entry->SkillLine != skillId)
             continue;
 
         ++index;
-        if (entry->spellId == spellId)
+        if (entry->SpellID == spellId)
         {
             found = true;
             break;

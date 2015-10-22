@@ -2130,6 +2130,7 @@ class Unit : public WorldObject
         Spell* GetCurrentSpell(uint32 spellType) const { return m_currentSpells[spellType]; }
         Spell* FindCurrentSpellBySpellId(uint32 spell_id) const;
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
+        virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const;
         void SendSpellCreateVisual(SpellInfo const* spellInfo, Position const* position = NULL, Unit* target = NULL, uint32 type = 0, uint32 visualId = 0);
         void SendSpellPlayOrphanVisual(SpellInfo const* spellInfo, bool apply, Position const* position = NULL, Unit* target = NULL);
         void SendFakeAuraUpdate(uint32 auraId, uint32 flags, uint32 diration, uint32 _slot, bool remove);

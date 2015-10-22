@@ -1775,11 +1775,6 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         if (victim->getLevel() < 30)
             Probability = 0.65f * victim->getLevel() + 0.5f;
 
-        uint32 VictimDefense = victim->GetMaxSkillValueForLevel(this);
-        uint32 AttackerMeleeSkill = GetMaxSkillValueForLevel();
-
-        Probability *= AttackerMeleeSkill/(float)VictimDefense;
-
         if (Probability > 40.0f)
             Probability = 40.0f;
 
@@ -2460,15 +2455,9 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
     if (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode())
         return MELEE_HIT_EVADE;
 
-    int32 attackerMaxSkillValueForLevel = GetMaxSkillValueForLevel(victim);
-    int32 victimMaxSkillValueForLevel = victim->GetMaxSkillValueForLevel(this);
-
-    // bonus from skills is 0.04%
-    int32    skillBonus  = 4 * (attackerMaxSkillValueForLevel - victimMaxSkillValueForLevel);
     int32    sum = 0, tmp = 0;
     int32    roll = urand (0, 10000);
 
-    sLog->outDebug(LOG_FILTER_UNITS, "RollMeleeOutcomeAgainst: skill bonus of %d for attacker", skillBonus);
     sLog->outDebug(LOG_FILTER_UNITS, "RollMeleeOutcomeAgainst: rolled %d, miss %d, dodge %d, parry %d, block %d, crit %d",
         roll, miss_chance, dodge_chance, parry_chance, block_chance, crit_chance);
 
@@ -2510,9 +2499,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
         dodge_chance = int32 (float (dodge_chance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
 
         tmp = dodge_chance;
-        if ((tmp > 0)                                        // check if unit _can_ dodge
-            && ((tmp -= skillBonus) > 0)
-            && roll < (sum += tmp))
+        if ((tmp > 0) && roll < (sum += tmp))
         {
             sLog->outDebug(LOG_FILTER_UNITS, "RollMeleeOutcomeAgainst: DODGE <%d, %d)", sum-tmp, sum);
             return MELEE_HIT_DODGE;
@@ -2538,9 +2525,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
         if (victim->GetTypeId() == TYPEID_PLAYER || !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
         {
             int32 tmp2 = int32(parry_chance);
-            if (tmp2 > 0                                         // check if unit _can_ parry
-                && (tmp2 -= skillBonus) > 0
-                && roll < (sum += tmp2))
+            if ((tmp2 > 0) && roll < (sum += tmp2))
             {
                 sLog->outDebug(LOG_FILTER_UNITS, "RollMeleeOutcomeAgainst: PARRY <%d, %d)", sum-tmp2, sum);
                 return MELEE_HIT_PARRY;
@@ -2550,9 +2535,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
         if (victim->GetTypeId() == TYPEID_PLAYER || !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK))
         {
             tmp = block_chance;
-            if (tmp > 0                                          // check if unit _can_ block
-                && (tmp -= skillBonus) > 0
-                && roll < (sum += tmp))
+            if ((tmp > 0) && roll < (sum += tmp))
             {
                 sLog->outDebug(LOG_FILTER_UNITS, "RollMeleeOutcomeAgainst: BLOCK <%d, %d)", sum-tmp, sum);
                 return MELEE_HIT_BLOCK;
@@ -2578,10 +2561,6 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
         victim->GetTypeId() != TYPEID_PLAYER && !victim->ToCreature()->isPet() &&
         getLevel() < victim->getLevelForTarget(this))
     {
-        // cap possible value (with bonuses > max skill)
-        int32 skill = attackerMaxSkillValueForLevel;
-
-        tmp = (10 + (victimMaxSkillValueForLevel - skill)) * 100;
         tmp = tmp > 4000 ? 4000 : tmp;
         if (roll < (sum += tmp))
         {
@@ -2596,10 +2575,6 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
         !IsControlledByPlayer() &&
         !(GetTypeId() == TYPEID_UNIT && ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRUSH))
     {
-        // when their weapon skill is 15 or more above victim's defense skill
-        tmp = victimMaxSkillValueForLevel;
-        // tmp = mob's level * 5 - player's current defense skill
-        tmp = attackerMaxSkillValueForLevel - tmp;
         if (tmp >= 15)
         {
             // add 2% chance per lacking skill point, min. is 15%
@@ -24505,4 +24480,22 @@ bool Unit::HasAuraLinkedSpell(Unit* caster, Unit* target, uint8 type, int32 hast
             return target ? !target->HasAuraTypeWithCaster(AuraType(hastalent), caster ? caster->GetGUID() : ObjectGuid::Empty) : true;
     }
     return true;
+}
+
+SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
+{
+    Unit::AuraEffectList swaps = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+    Unit::AuraEffectList const& swaps2 = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2);
+    if (!swaps2.empty())
+        swaps.insert(swaps.end(), swaps2.begin(), swaps2.end());
+
+    for (AuraEffect const* auraEffect : swaps)
+    {
+        if ((!auraEffect->GetSpellClassMask() && uint32(auraEffect->GetMiscValue()) == spellInfo->Id) ||
+            (auraEffect->GetSpellClassMask() && auraEffect->IsAffectingSpell(spellInfo)))
+                if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount()))
+                    return newInfo;
+    }
+
+    return spellInfo;
 }

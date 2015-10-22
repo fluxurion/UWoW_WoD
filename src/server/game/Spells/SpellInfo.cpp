@@ -1187,33 +1187,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     for (uint8 i = 0; i < 2; ++i)
         Totem[i] = _totem ? _totem->Totem[i] : 0;
 
-    if (Id != 674  &&   //Dual Wield
-        Effects[EFFECT_0].Effect != SPELL_EFFECT_LANGUAGE &&
-        Effects[EFFECT_0].Effect != SPELL_EFFECT_DEFENSE &&
-        Effects[EFFECT_0].Effect != SPELL_EFFECT_WEAPON &&
-        Effects[EFFECT_0].Effect != SPELL_EFFECT_BLOCK &&
-        Effects[EFFECT_0].Effect != SPELL_EFFECT_PARRY &&
-        Effects[EFFECT_0].Effect != SPELL_EFFECT_EVADE &&
-        Effects[EFFECT_0].Effect != SPELL_EFFECT_DODGE &&
-        Effects[EFFECT_0].Effect != SPELL_EFFECT_BLOCK &&
-        Effects[EFFECT_0].Effect != SPELL_EFFECT_SPELL_DEFENSE)
-    {
-        // SpecializationSpellsEntry
-        SpecializationSpellEntry const* specializationInfo = NULL;
-        for (uint32 i = 0; i < sSpecializationSpellStore.GetNumRows(); i++)
-        {
-            specializationInfo = sSpecializationSpellStore.LookupEntry(i);
-            if (!specializationInfo)
-                continue;
-
-            if (specializationInfo->LearnSpell == Id)
-                SpecializationIdList.insert(specializationInfo->SpecializationEntry);
-
-            if (specializationInfo->OverrideSpell == Id)
-                SpecializationOverrideSpellList.insert(specializationInfo);
-        }
-    }
-
     talentId = 0;
 
     ExplicitTargetMask = _GetExplicitTargetMask();
@@ -1552,10 +1525,10 @@ bool SpellInfo::IsAbilityLearnedWithProfession() const
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
         SkillLineAbilityEntry const* pAbility = _spell_idx->second;
-        if (!pAbility || pAbility->learnOnGetSkill != ABILITY_LEARNED_ON_GET_PROFESSION_SKILL)
+        if (!pAbility || pAbility->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE)
             continue;
 
-        if (pAbility->req_skill_value > 0)
+        if (pAbility->MinSkillLineRank > 0)
             return true;
     }
 

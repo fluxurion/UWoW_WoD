@@ -892,6 +892,8 @@ typedef std::unordered_map<int32, std::vector<SpellPendingCast> > SpellPendingCa
 typedef std::unordered_map<int32, SpellMountList* > SpellMountListMap;
 typedef std::map<int32, SpellScene > SpellSceneMap;
 
+bool IsWeaponSkill(uint32 skill);
+
 bool IsPrimaryProfessionSkill(uint32 skill);
 
 inline bool IsProfessionSkill(uint32 skill)
@@ -917,7 +919,6 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 
 bool IsCCSpell(SpellInfo const *spellInfo, uint8 EffMask= 0, bool nodamage = false);
 
-typedef std::vector<std::set<uint32> > SpellClassList;
 typedef std::unordered_map<uint32, std::list<uint32> > SpellOverrideInfo;
 typedef std::set<uint32> TalentSpellSet;
 typedef std::vector<std::list<uint32> > SpellPowerVector;
@@ -1034,7 +1035,6 @@ class SpellMgr
         // SpellInfo object management
         SpellInfo const* GetSpellInfo(uint32 spellId) const { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
         uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
-        std::set<uint32> GetSpellClassList(uint8 ClassID) const { return mSpellClassInfo[ClassID]; }
         std::list<uint32> GetSpellPowerList(uint32 spellId) const { return mSpellPowerInfo[spellId]; }
         std::list<uint32> const* GetSpellOverrideInfo(uint32 spellId) { return mSpellOverrideInfo.find(spellId) == mSpellOverrideInfo.end() ? NULL : &mSpellOverrideInfo[spellId]; }
 
@@ -1068,7 +1068,6 @@ class SpellMgr
         void LoadPetDefaultSpells();
         void LoadSpellAreas();
         void LoadSpellInfoStore();
-        void LoadSpellClassInfo();
         void UnloadSpellInfoStore();
         void UnloadSpellInfoImplicitTargetConditionLists();
         void LoadSpellCustomAttr();
@@ -1117,7 +1116,6 @@ class SpellMgr
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellInfoMap               mSpellInfoMap;
-        SpellClassList             mSpellClassInfo;
         SpellOverrideInfo          mSpellOverrideInfo;
         TalentSpellSet             mTalentSpellInfo;
         SpellPowerVector           mSpellPowerInfo;

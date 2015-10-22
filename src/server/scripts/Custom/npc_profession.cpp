@@ -96,29 +96,29 @@ class npc_profession : public CreatureScript
         {
             SkillLineAbilityEntry const *skillLine = sSkillLineAbilityStore.LookupEntry(j);
             if (!skillLine)
-                    continue;
+                continue;
 
             // wrong skill
-            if (skillLine->skillId != skill_id)
-                    continue;
+            if (skillLine->SkillLine != skill_id)
+                continue;
 
             // not high rank
-            if (skillLine->forward_spellid)
-                    continue;
+            if (skillLine->SupercedesSpell)
+                continue;
 
             // skip racial skills
-            if (skillLine->racemask != 0)
-                    continue;
+            if (skillLine->RaceMask != 0)
+                continue;
 
             // skip wrong class skills
-            if (skillLine->classmask && (skillLine->classmask & classmask) == 0)
-                    continue;
+            if (skillLine->ClassMask && (skillLine->ClassMask & classmask) == 0)
+                continue;
 
-            SpellInfo const * spellInfo = sSpellMgr->GetSpellInfo(skillLine->spellId);
+            SpellInfo const * spellInfo = sSpellMgr->GetSpellInfo(skillLine->SpellID);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, player, false))
-                    continue;
-                                
-            player->learnSpell(skillLine->spellId, false);
+                continue;
+
+            player->learnSpell(skillLine->SpellID, false);
         }
     }
 

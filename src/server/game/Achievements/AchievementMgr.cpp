@@ -1703,21 +1703,16 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
                 canComplete = SetCriteriaProgress(achievement, criteriaTree, criteria, referencePlayer->GetReputationMgr().GetExaltedFactionCount(), referencePlayer, PROGRESS_SET, progressMap, progress);
                   break;
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
+            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
             {
-                    uint32 spellCount = 0;
-                    for (PlayerSpellMap::const_iterator spellIter = referencePlayer->GetSpellMap().begin();
-                        spellIter != referencePlayer->GetSpellMap().end();
-                        ++spellIter)
-
-                    {
-                        SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
-                        for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
-                        {
-                            if (skillIter->second->skillId == criteria->learn_skillline_spell.skillLine)
-                                spellCount++;
-                        }
-                    }
-                   
+                uint32 spellCount = 0;
+                for (PlayerSpellMap::const_iterator spellIter = referencePlayer->GetSpellMap().begin(); spellIter != referencePlayer->GetSpellMap().end(); ++spellIter)
+                {
+                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
+                    for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
+                        if (skillIter->second->SkillLine == criteria->learn_skillline_spell.skillLine)
+                            spellCount++;
+                }
                 canComplete = SetCriteriaProgress(achievement, criteriaTree, criteria, spellCount, referencePlayer, PROGRESS_SET, progressMap, progress);
                 break;
             }
@@ -1730,22 +1725,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_KNOWN_FACTIONS:
                 canComplete = SetCriteriaProgress(achievement, criteriaTree, criteria, referencePlayer->GetReputationMgr().GetVisibleFactionCount(), referencePlayer, PROGRESS_SET, progressMap, progress);
                 break;
-            case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
-            {
-                    uint32 spellCount = 0;
-                    for (PlayerSpellMap::const_iterator spellIter = referencePlayer->GetSpellMap().begin();
-                        spellIter != referencePlayer->GetSpellMap().end();
-                        ++spellIter)
-                    {
-                        SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
-                        for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
-                            if (skillIter->second->skillId == criteria->learn_skill_line.skillLine)
-                                spellCount++;   
-                    }
-
-                canComplete = SetCriteriaProgress(achievement, criteriaTree, criteria, spellCount, referencePlayer, PROGRESS_SET, progressMap, progress);
-                break;
-            }
             case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
                 if (!miscValue1)
                     canComplete = SetCriteriaProgress(achievement, criteriaTree, criteria, referencePlayer->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS), referencePlayer, PROGRESS_HIGHEST, progressMap, progress);

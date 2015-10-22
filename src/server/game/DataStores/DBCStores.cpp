@@ -50,7 +50,6 @@ struct WMOAreaTableTripple
 };
 
 
-//DBCStorage<AchievementCriteriaEntry> sAchievementCriteriaStore(AchievementCriteriafmt);
 //DBCStorage<GtOCTRegenMPEntry>            sGtOCTRegenMPStore(GtOCTRegenMPfmt);  -- not used currently
 //DBCStorage<ItemDisplayInfoEntry>       sItemDisplayInfoStore(ItemDisplayTemplateEntryfmt); -- not used currently
 //std::map<uint32,
@@ -71,7 +70,7 @@ static AreaFlagByMapID sAreaFlagByMapID;
 static FactionTeamMap sFactionTeamMap;
 static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
 static DungeonEncounterByDisplayID sDungeonEncounterByDisplayID;
-
+static std::unordered_map<uint32, std::vector<SpecializationSpellEntry const*>> _specializationSpellsBySpec;
 
 CharacterLoadoutItemMap                     sCharacterLoadoutItemMap;
 ItemSetSpellsStore                          sItemSetSpellsStore;
@@ -86,8 +85,10 @@ SpellRestrictionDiffMap                     sSpellRestrictionDiffMap;
 SpellSkillingList                           sSpellSkillingList;
 std::set<ResearchProjectEntry const*>       sResearchProjectSet;
 std::set<uint32>                            sScenarioCriteriaTreeStore;
-TalentSpellList                             sTalentSpellList;
 TransportAnimationsByEntry                  sTransportAnimationsByEntry;
+SkillRaceClassInfoMap                       SkillRaceClassInfoBySkill;
+ChrSpecializationByIndexArray               sChrSpecializationByIndexStore;
+TalentsByPosition                           sTalentByPos;
 
 DBCStorage<AchievementEntry>                sAchievementStore(Achievementfmt);
 DBCStorage<AreaPOIEntry>                    sAreaPOIStore(AreaPOIEntryfmt);
@@ -130,6 +131,7 @@ DBCStorage<GameTablesEntry>                 sGameTablesStore(GameTablesFmt);
 DBCStorage<GemPropertiesEntry>              sGemPropertiesStore(GemPropertiesEntryfmt);
 DBCStorage<GlyphPropertiesEntry>            sGlyphPropertiesStore(GlyphPropertiesfmt);
 DBCStorage<GlyphSlotEntry>                  sGlyphSlotStore(GlyphSlotfmt);
+DBCStorage<GtArmorMitigationByLvlEntry>     sGtArmorMitigationByLvlStore(GameTablefmt);
 DBCStorage<GuildPerkSpellsEntry>            sGuildPerkSpellsStore(GuildPerkSpellsfmt);
 DBCStorage<ImportPriceArmorEntry>           sImportPriceArmorStore(ImportPriceArmorfmt);
 DBCStorage<ImportPriceQualityEntry>         sImportPriceQualityStore(ImportPriceQualityfmt);
@@ -188,6 +190,7 @@ DBCStorage<ScenarioEntry>                   sScenarioStore(Scenariofmt);
 DBCStorage<ScenarioStepEntry>               sScenarioStepStore(ScenarioStepfmt);
 DBCStorage<SkillLineAbilityEntry>           sSkillLineAbilityStore(SkillLineAbilityfmt);
 DBCStorage<SkillLineEntry>                  sSkillLineStore(SkillLinefmt);
+DBCStorage<SkillRaceClassInfoEntry>         sSkillRaceClassInfoStore(SkillRaceClassInfofmt);
 DBCStorage<SpecializationSpellEntry>        sSpecializationSpellStore(SpecializationSpellsfmt);
 DBCStorage<SpellAuraOptionsEntry>           sSpellAuraOptionsStore(SpellAuraOptionsEntryfmt);
 DBCStorage<SpellCastTimesEntry>             sSpellCastTimesStore(SpellCastTimefmt);
@@ -224,19 +227,10 @@ DBCStorage<VehicleEntry>                    sVehicleStore(VehicleEntryfmt);
 DBCStorage<VehicleSeatEntry>                sVehicleSeatStore(VehicleSeatEntryfmt);
 DBCStorage<WMOAreaTableEntry>               sWMOAreaTableStore(WMOAreaTableEntryfmt);
 DBCStorage<WorldMapAreaEntry>               sWorldMapAreaStore(WorldMapAreaEntryfmt);
-DBCStorage<WorldMapTransformsEntry>         sWorldMapTransformsStore(WorldMapTransformsfmt);
 DBCStorage<WorldMapOverlayEntry>            sWorldMapOverlayStore(WorldMapOverlayEntryfmt);
+DBCStorage<WorldMapTransformsEntry>         sWorldMapTransformsStore(WorldMapTransformsfmt);
 DBCStorage<WorldSafeLocsEntry>              sWorldSafeLocsStore(WorldSafeLocsEntryfmt);
-DBCStorage<GtArmorMitigationByLvlEntry>     sGtArmorMitigationByLvlStore(GameTablefmt);
 
-GameTable<GtNPCManaCostScalerEntry>         sGtNPCManaCostScalerStore(GameTablefmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp1Store(GameTablefmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp2Store(GameTablefmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp3Store(GameTablefmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp4Store(GameTablefmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp5Store(GameTablefmt);
-GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpStore(GameTablefmt);
-GameTable<GtOCTLevelExperienceEntry>        sGtOCTLevelExperienceStore(GtOCTLevelExperiencefmt);
 GameTable<GtBarberShopCostBaseEntry>        sGtBarberShopCostBaseStore(GtBarberShopCostBasefmt);
 GameTable<GtBattlePetTypeDamageModEntry>    sGtBattlePetTypeDamageModStore(GtBattlePetTypeDamageModfmt);
 GameTable<GtChanceToMeleeCritBaseEntry>     sGtChanceToMeleeCritBaseStore(GtChanceToMeleeCritBasefmt);
@@ -245,9 +239,17 @@ GameTable<GtChanceToSpellCritBaseEntry>     sGtChanceToSpellCritBaseStore(GtChan
 GameTable<GtChanceToSpellCritEntry>         sGtChanceToSpellCritStore(GtChanceToSpellCritfmt);
 GameTable<GtCombatRatingsEntry>             sGtCombatRatingsStore(GtCombatRatingsfmt);
 GameTable<GtItemSocketCostPerLevelEntry>    sGtItemSocketCostPerLevelStore(GtItemSocketCostPerLevelfmt);
+GameTable<GtNPCManaCostScalerEntry>         sGtNPCManaCostScalerStore(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp1Store(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp2Store(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp3Store(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp4Store(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpExp5Store(GameTablefmt);
+GameTable<GtNpcTotalHpEntry>                sGtNpcTotalHpStore(GameTablefmt);
 GameTable<GtOCTBaseHPByClassEntry>          sGtOCTBaseHPByClassStore(GtOCTBaseHPByClassfmt);
 GameTable<GtOCTBaseMPByClassEntry>          sGtOCTBaseMPByClassStore(GtOCTBaseMPByClassfmt);
-GameTable<gtOCTHpPerStaminaEntry>           sGtOCTHpPerStaminaStore(GtOCTHpPerStaminafmt);
+GameTable<GtOCTHpPerStaminaEntry>           sGtOCTHpPerStaminaStore(GtOCTHpPerStaminafmt);
+GameTable<GtOCTLevelExperienceEntry>        sGtOCTLevelExperienceStore(GtOCTLevelExperiencefmt);
 GameTable<GtOCTRegenHPEntry>                sGtOCTRegenHPStore(GtOCTRegenHPfmt);
 GameTable<GtRegenMPPerSptEntry>             sGtRegenMPPerSptStore(GtRegenMPPerSptfmt);
 GameTable<GtSpellScalingEntry>              sGtSpellScalingStore(GtSpellScalingfmt);
@@ -361,18 +363,23 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     StoreProblemList bad_dbc_files;
     uint32 availableDbcLocales = 0xFFFFFFFF;
 
-#define LOAD_DBC(store, file) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale)
-
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementCriteriaStore, "Achievement_Criteria.dbc", &CustomAchievementCriteriafmt, &CustomAchievementCriteriaIndex);
+    //LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore, dbcPath, "Achievement.dbc", defaultLocale, &CustomAchievementfmt, &CustomAchievementIndex);
     //LoadDBC(availableDbcLocales, bad_dbc_files, sAreaPOIStore,             "AreaPOI.dbc");
     //LoadDBC(availableDbcLocales, bad_dbc_files, sCinematicSequencesStore,  "CinematicSequences.dbc");
+    //LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaStore, dbcPath, "Criteria.dbc", defaultLocale, &CustomCriteriafmt, &CustomCriteriaIndex);
+    //LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaTreeStore, dbcPath, "CriteriaTree.dbc", defaultLocale, &CustomCriteriaTreefmt, &CustomCriteriaTreeIndex);
     //LoadDBC(availableDbcLocales, bad_dbc_files, sItemReforgeStore,         "ItemReforge.dbc");
+    //LoadDBC(availableDbcLocales, bad_dbc_files, sItemSpecOverrideStore, dbcPath, "ItemSpecOverride.dbc", defaultLocale, &CustomItemSpecOverrideEntryfmt, &CustomItemSpecOverrideEntryIndex);
     //LoadDBC(availableDbcLocales, bad_dbc_files, sQuestPOIBlobStore,        "QuestPOIBlob.dbc");
+    //LoadDBC(availableDbcLocales, bad_dbc_files, sSpellAuraOptionsStore, dbcPath, "SpellAuraOptions.dbc", defaultLocale, &CustomSpellAuraOptionsEntryfmt, &CustomSpellAuraOptionsEntryIndex);
     //LoadDBC(availableDbcLocales, bad_dbc_files, sStableSlotPricesStore,    "StableSlotPrices.dbc");
     //LoadDBC(availableDbcLocales, bad_dbc_files, sTeamContributionPointsStore, "TeamContributionPoints.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore, dbcPath, "MapDifficulty.dbc", defaultLocale, &CustomMapDifficultyEntryfmt, &CustomMapDifficultyEntryIndex);
     //LoadDBC(dbcCount, availableDbcLocales, bad_dbc_files, sItemDisplayInfoStore,     "ItemDisplayInfo.dbc");     -- not used currently
+
+#define LOAD_DBC(store, file) LoadDBC(availableDbcLocales, bad_dbc_files, store, dbcPath, file, defaultLocale)
+
     LOAD_DBC(sAchievementStore,                 "Achievement.dbc"/*, &CustomAchievementfmt, &CustomAchievementIndex*/);
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sAchievementStore, dbcPath, "Achievement.dbc", defaultLocale, &CustomAchievementfmt, &CustomAchievementIndex);
     LOAD_DBC(sAreaStore,                        "AreaTable.dbc");
     LOAD_DBC(sAreaTriggerStore,                 "AreaTrigger.dbc");
     LOAD_DBC(sArmorLocationStore,               "ArmorLocation.dbc");
@@ -397,8 +404,6 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DBC(sCreatureTypeStore,                "CreatureType.dbc");
     LOAD_DBC(sCriteriaStore,                    "Criteria.dbc"/*, &CustomCriteriafmt, &CustomCriteriaIndex*/);
     LOAD_DBC(sCriteriaTreeStore,                "CriteriaTree.dbc"); // &CustomCriteriaTreefmt, &CustomCriteriaTreeIndex
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaStore, dbcPath, "Criteria.dbc", defaultLocale, &CustomCriteriafmt, &CustomCriteriaIndex);
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sCriteriaTreeStore, dbcPath, "CriteriaTree.dbc", defaultLocale, &CustomCriteriaTreefmt, &CustomCriteriaTreeIndex);
     LOAD_DBC(sDestructibleModelDataStore,       "DestructibleModelData.dbc");
     LOAD_DBC(sDifficultyStore,                  "Difficulty.dbc");
     LOAD_DBC(sDungeonEncounterStore,            "DungeonEncounter.dbc");
@@ -413,6 +418,7 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DBC(sGemPropertiesStore,               "GemProperties.dbc");
     LOAD_DBC(sGlyphPropertiesStore,             "GlyphProperties.dbc");
     LOAD_DBC(sGlyphSlotStore,                   "GlyphSlot.dbc");
+    LOAD_DBC(sGtArmorMitigationByLvlStore,      "gtArmorMitigationByLvl.dbc");
     LOAD_DBC(sGuildPerkSpellsStore,             "GuildPerkSpells.dbc");
     LOAD_DBC(sImportPriceArmorStore,            "ImportPriceArmor.dbc");
     LOAD_DBC(sImportPriceQualityStore,          "ImportPriceQuality.dbc");
@@ -439,16 +445,14 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DBC(sItemSetSpellStore,                "ItemSetSpell.dbc");
     LOAD_DBC(sItemSetStore,                     "ItemSet.dbc");
     LOAD_DBC(sItemSpecOverrideStore,            "ItemSpecOverride.dbc"); // &CustomItemSpecOverrideEntryfmt, &CustomItemSpecOverrideEntryIndex
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sItemSpecOverrideStore, dbcPath, "ItemSpecOverride.dbc", defaultLocale, &CustomItemSpecOverrideEntryfmt, &CustomItemSpecOverrideEntryIndex);
     LOAD_DBC(sItemSpecStore,                    "ItemSpec.dbc");
     LOAD_DBC(sLFGDungeonStore,                  "LfgDungeons.dbc");
     LOAD_DBC(sLiquidTypeStore,                  "LiquidType.dbc");
     LOAD_DBC(sLockStore,                        "Lock.dbc");
     LOAD_DBC(sMailTemplateStore,                "MailTemplate.dbc");
-    LoadDBC(availableDbcLocales, bad_dbc_files, sMapDifficultyStore, dbcPath, "MapDifficulty.dbc", defaultLocale, &CustomMapDifficultyEntryfmt, &CustomMapDifficultyEntryIndex);
     LOAD_DBC(sMapStore,                         "Map.dbc");
-    LOAD_DBC(sModifierTreeStore,                "ModifierTree.dbc");
     LOAD_DBC(sMinorTalentStore,                 "MinorTalent.dbc");
+    LOAD_DBC(sModifierTreeStore,                "ModifierTree.dbc");
     LOAD_DBC(sMountCapabilityStore,             "MountCapability.dbc");
     LOAD_DBC(sMountTypeStore,                   "MountType.dbc");
     LOAD_DBC(sMovieStore,                       "Movie.dbc");
@@ -470,9 +474,9 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DBC(sScenarioStore,                    "Scenario.dbc");
     LOAD_DBC(sSkillLineAbilityStore,            "SkillLineAbility.dbc");
     LOAD_DBC(sSkillLineStore,                   "SkillLine.dbc");
+    LOAD_DBC(sSkillRaceClassInfoStore,          "SkillRaceClassInfo.dbc");
     LOAD_DBC(sSpecializationSpellStore,         "SpecializationSpells.dbc");
     LOAD_DBC(sSpellAuraOptionsStore,            "SpellAuraOptions.dbc"/*, &CustomSpellAuraOptionsEntryfmt, &CustomSpellAuraOptionsEntryIndex*/);
-    //LoadDBC(availableDbcLocales, bad_dbc_files, sSpellAuraOptionsStore, dbcPath, "SpellAuraOptions.dbc", defaultLocale, &CustomSpellAuraOptionsEntryfmt, &CustomSpellAuraOptionsEntryIndex);
     LOAD_DBC(sSpellCastTimesStore,              "SpellCastTimes.dbc");
     LOAD_DBC(sSpellCategoriesStore,             "SpellCategories.dbc");
     LOAD_DBC(sSpellCategoryStores,              "SpellCategory.dbc");
@@ -505,10 +509,9 @@ void LoadDBCStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DBC(sVehicleStore,                     "Vehicle.dbc");
     LOAD_DBC(sWMOAreaTableStore,                "WMOAreaTable.dbc");
     LOAD_DBC(sWorldMapAreaStore,                "WorldMapArea.dbc");
-    LOAD_DBC(sWorldMapTransformsStore,          "WorldMapTransforms.dbc");
     LOAD_DBC(sWorldMapOverlayStore,             "WorldMapOverlay.dbc");
+    LOAD_DBC(sWorldMapTransformsStore,          "WorldMapTransforms.dbc");
     LOAD_DBC(sWorldSafeLocsStore,               "WorldSafeLocs.dbc");
-    LOAD_DBC(sGtArmorMitigationByLvlStore,      "gtArmorMitigationByLvl.dbc");
 
 #undef LOAD_DBC
 
@@ -699,29 +702,32 @@ void InitDBCCustomStores()
 
     for (SkillLineAbilityEntry const* skillLine : sSkillLineAbilityStore)
     {
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->SpellID);
         if (!spellInfo)
             continue;
 
-        SpellMiscEntry const* spellMisc = sSpellMiscStore.LookupEntry(spellInfo->MiscID);
-        if (!spellMisc)
-            continue;
-
         SpellLevelsEntry const* levels = sSpellLevelsStore.LookupEntry(spellInfo->LevelsID);
-        if (levels && levels->spellLevel)
+        if (spellInfo->LevelsID && (!levels || levels->spellLevel))
             continue;
 
-        if (spellMisc->Attributes & SPELL_ATTR0_PASSIVE)
+        if (SpellMiscEntry const* spellMisc = sSpellMiscStore.LookupEntry(spellInfo->MiscID))
         {
-            for (CreatureFamilyEntry const* cFamily : sCreatureFamilyStore)
+            if (spellMisc->Attributes & SPELL_ATTR0_PASSIVE)
             {
-                if (skillLine->skillId != cFamily->skillLine[0] && skillLine->skillId != cFamily->skillLine[1])
-                    continue;
+                for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
+                {
+                    CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(i);
+                    if (!cFamily)
+                        continue;
 
-                if (skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
-                    continue;
+                    if (skillLine->SkillLine != cFamily->skillLine[0] && skillLine->SkillLine != cFamily->skillLine[1])
+                        continue;
 
-                sPetFamilySpellsStore[cFamily->ID].insert(spellInfo->ID);
+                    if (skillLine->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
+                        continue;
+
+                    sPetFamilySpellsStore[i].insert(spellInfo->ID);
+                }
             }
         }
     }
@@ -756,8 +762,9 @@ void InitDBCCustomStores()
                 sSpellSkillingList.push_back(spell);
     }
 
-    for (TalentEntry const* entry : sTalentStore)
-        sTalentSpellList.insert(entry->spellId);
+    for (TalentEntry const* talentInfo : sTalentStore)
+        if (talentInfo->classId < MAX_CLASSES && talentInfo->row < 7 && talentInfo->column < 3)
+            sTalentByPos[talentInfo->classId][talentInfo->row][talentInfo->column].push_back(talentInfo);
 
     for (TransportAnimationEntry const* entry : sTransportAnimationStore)
         sTransportAnimationsByEntry[entry->TransportID][entry->TimeIndex] = entry;
@@ -778,8 +785,20 @@ void InitDBCCustomStores()
         sCharacterLoadoutItemMap[LoadOutItem->LoadOutID].push_back(LoadOutItem->ItemID);
 
     for (DungeonEncounterEntry const* store : sDungeonEncounterStore)
-        if(store->creatureDisplayID)
+        if (store->creatureDisplayID)
             sDungeonEncounterByDisplayID[store->creatureDisplayID] = store;
+
+    for (SkillRaceClassInfoEntry const* entry : sSkillRaceClassInfoStore)
+        if (sSkillLineStore.LookupEntry(entry->SkillID))
+            SkillRaceClassInfoBySkill.emplace(entry->SkillID, entry);
+
+    for (SpecializationSpellEntry const* specSpells : sSpecializationSpellStore)
+        _specializationSpellsBySpec[specSpells->SpecializationEntry].push_back(specSpells);
+
+    memset(sChrSpecializationByIndexStore, 0, sizeof(sChrSpecializationByIndexStore));
+    for (uint32 i = 0; i < sChrSpecializationsStore.GetNumRows(); ++i)
+        if (ChrSpecializationsEntry const* chrSpec = sChrSpecializationsStore.LookupEntry(i))
+            sChrSpecializationByIndexStore[chrSpec->ClassID][chrSpec->OrderIndex] = chrSpec;
 }
 
 std::string GetRandomCharacterName(uint8 race, uint8 gender)
@@ -1328,4 +1347,29 @@ void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint
 
     newPos->X = x + transformation->RegionOffset.X;
     newPos->Y = y + transformation->RegionOffset.Y;
+}
+
+SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_)
+{
+    SkillRaceClassInfoBounds bounds = SkillRaceClassInfoBySkill.equal_range(skill);
+    for (SkillRaceClassInfoMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
+    {
+        if (itr->second->RaceMask && !(itr->second->RaceMask & (1 << (race - 1))))
+            continue;
+        if (itr->second->ClassMask && !(itr->second->ClassMask & (1 << (class_ - 1))))
+            continue;
+
+        return itr->second;
+    }
+
+    return nullptr;
+}
+
+std::vector<SpecializationSpellEntry const*> const* GetSpecializationSpells(uint32 specId)
+{
+    auto itr = _specializationSpellsBySpec.find(specId);
+    if (itr != _specializationSpellsBySpec.end())
+        return &itr->second;
+
+    return nullptr;
 }

@@ -282,8 +282,14 @@ ObjectMgr::~ObjectMgr()
         delete i->second;
 
     for (int race = 0; race < MAX_RACES; ++race)
+    {
         for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
-            delete[] _playerInfo[race][class_].levelInfo;
+        {
+            if (_playerInfo[race][class_])
+                delete[] _playerInfo[race][class_]->levelInfo;
+            delete _playerInfo[race][class_];
+        }
+    }
 
     for (CacheVendorItemContainer::iterator itr = _cacheVendorItemStore.begin(); itr != _cacheVendorItemStore.end(); ++itr)
         itr->second.Clear();
@@ -3210,7 +3216,7 @@ PetStats const* ObjectMgr::GetPetStats(uint32 creature_id) const
 void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count)
 {
     if (count > 0)
-        _playerInfo[race_][class_].item.push_back(PlayerCreateInfoItem(itemId, count));
+        _playerInfo[race_][class_]->item.push_back(PlayerCreateInfoItem(itemId, count));
     else
     {
         if (count < -1)
@@ -3313,17 +3319,16 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                PlayerInfo* pInfo = &_playerInfo[current_race][current_class];
-
-                pInfo->mapId       = mapId;
-                pInfo->areaId      = areaId;
-                pInfo->positionX   = positionX;
-                pInfo->positionY   = positionY;
-                pInfo->positionZ   = positionZ;
-                pInfo->orientation = orientation;
-
-                pInfo->displayId_m = rEntry->MaleDisplayID;
-                pInfo->displayId_f = rEntry->FemaleDisplayID;
+                PlayerInfo* info = new PlayerInfo();
+                info->mapId = mapId;
+                info->areaId = areaId;
+                info->positionX = positionX;
+                info->positionY = positionY;
+                info->positionZ = positionZ;
+                info->orientation = orientation;
+                info->displayId_m = rEntry->MaleDisplayID;
+                info->displayId_f = rEntry->FemaleDisplayID;
+                _playerInfo[current_race][current_class] = info;
 
                 ++count;
             }
@@ -3403,8 +3408,25 @@ void ObjectMgr::LoadPlayerInfo()
         }
     }
 
+    // Load playercreate skills
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Skill Data...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        for (SkillRaceClassInfoEntry const* rcInfo : sSkillRaceClassInfoStore)
+            if (rcInfo->Availability == 1)
+                for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
+                    if (rcInfo->RaceMask == -1 || ((1 << (raceIndex - 1)) & rcInfo->RaceMask))
+                        for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
+                            if (rcInfo->ClassMask == -1 || ((1 << (classIndex - 1)) & rcInfo->ClassMask))
+                                if (PlayerInfo* info = _playerInfo[raceIndex][classIndex])
+                                    info->skills.push_back(rcInfo);
+
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded player create skills in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    }
+
     // Load playercreate spells
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Spell Data...");
+   /* sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Spell Data...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -3457,7 +3479,7 @@ void ObjectMgr::LoadPlayerInfo()
 
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u player create spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
-    }
+    }*/
 
     // Load playercreate actions
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Action Data...");
@@ -3494,8 +3516,8 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                PlayerInfo* pInfo = &_playerInfo[current_race][current_class];
-                pInfo->action.push_back(PlayerCreateInfoAction(fields[2].GetUInt16(), fields[3].GetUInt32(), fields[4].GetUInt16()));
+                if (PlayerInfo* info = _playerInfo[current_race][current_class])
+                    info->action.push_back(PlayerCreateInfoAction(fields[2].GetUInt16(), fields[3].GetUInt32(), fields[4].GetUInt16()));
 
                 ++count;
             }
@@ -3553,15 +3575,15 @@ void ObjectMgr::LoadPlayerInfo()
                 continue;
             }
 
-            PlayerInfo* pInfo = &_playerInfo[current_race][current_class];
+            if (PlayerInfo* info = _playerInfo[current_race][current_class])
+            {
+                if (!info->levelInfo)
+                    info->levelInfo = new PlayerLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
 
-            if (!pInfo->levelInfo)
-                pInfo->levelInfo = new PlayerLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
-
-            PlayerLevelInfo* pLevelInfo = &pInfo->levelInfo[current_level - 1];
-
-            for (int i = 0; i < MAX_STATS; i++)
-                pLevelInfo->stats[i] = fields[i + 3].GetUInt16();
+                PlayerLevelInfo& levelInfo = info->levelInfo[current_level - 1];
+                for (int i = 0; i < MAX_STATS; i++)
+                    levelInfo.stats[i] = fields[i + 3].GetUInt16();
+            }
 
             ++count;
         }
@@ -3580,10 +3602,8 @@ void ObjectMgr::LoadPlayerInfo()
                 if (!sChrClassesStore.LookupEntry(class_))
                     continue;
 
-                PlayerInfo* pInfo = &_playerInfo[race][class_];
-
-                // skip non loaded combinations
-                if (!pInfo->displayId_m || !pInfo->displayId_f)
+                PlayerInfo* info = _playerInfo[race][class_];
+                if (!info)
                     continue;
 
                 // skip expansion races if not playing with expansion
@@ -3595,7 +3615,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
 
                 // fatal error if no level 1 data
-                if (!pInfo->levelInfo || pInfo->levelInfo[0].stats[0] == 0)
+                if (!info->levelInfo || info->levelInfo[0].stats[0] == 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Race %i Class %i Level 1 does not have stats data!", race, class_);
                     exit(1);
@@ -3604,10 +3624,10 @@ void ObjectMgr::LoadPlayerInfo()
                 // fill level gaps
                 for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
                 {
-                    if (pInfo->levelInfo[level].stats[0] == 0)
+                    if (info->levelInfo[level].stats[0] == 0)
                     {
                         sLog->outError(LOG_FILTER_SQL, "Race %i Class %i Level %i does not have stats data. Using stats data of level %i.", race, class_, level + 1, level);
-                        pInfo->levelInfo[level] = pInfo->levelInfo[level - 1];
+                        info->levelInfo[level] = info->levelInfo[level - 1];
                     }
                 }
             }
@@ -3703,7 +3723,7 @@ void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, Play
     if (level < 1 || race >= MAX_RACES || class_ >= MAX_CLASSES)
         return;
 
-    PlayerInfo const* pInfo = &_playerInfo[race][class_];
+    PlayerInfo const* pInfo = _playerInfo[race][class_];
     if (pInfo->displayId_m == 0 || pInfo->displayId_f == 0)
         return;
 
@@ -3716,7 +3736,7 @@ void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, Play
 void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, PlayerLevelInfo* info) const
 {
     // base data (last known level)
-    *info = _playerInfo[race][_class].levelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)-1];
+    *info = _playerInfo[race][_class]->levelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)-1];
 
     // if conversion from uint32 to uint8 causes unexpected behaviour, change lvl to uint32
     for (uint8 lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)-1; lvl < level; ++lvl)
@@ -8193,34 +8213,27 @@ SpellScriptsBounds ObjectMgr::GetSpellScriptsBounds(uint32 spell_id)
     return SpellScriptsBounds(_spellScriptsStore.lower_bound(spell_id), _spellScriptsStore.upper_bound(spell_id));
 }
 
-SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial)
+SkillRangeType GetSkillRangeType(SkillRaceClassInfoEntry const* rcEntry)
 {
-    switch (pSkill->categoryId)
+    SkillLineEntry const* skill = sSkillLineStore.LookupEntry(rcEntry->SkillID);
+    if (!skill)
+        return SKILL_RANGE_NONE;
+
+    if (sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
+        return SKILL_RANGE_RANK;
+
+    if (rcEntry->SkillID == SKILL_RUNEFORGING || rcEntry->SkillID == SKILL_RUNEFORGING_2)
+        return SKILL_RANGE_MONO;
+
+    switch (skill->categoryId)
     {
+        case SKILL_CATEGORY_ARMOR:
+            return SKILL_RANGE_MONO;
         case SKILL_CATEGORY_LANGUAGES:
             return SKILL_RANGE_LANGUAGE;
-        case SKILL_CATEGORY_WEAPON:
-            return SKILL_RANGE_LEVEL;
-        case SKILL_CATEGORY_ARMOR:
-        case SKILL_CATEGORY_CLASS:
-            if (pSkill->id != SKILL_LOCKPICKING)
-                return SKILL_RANGE_MONO;
-            else
-                return SKILL_RANGE_LEVEL;
-        case SKILL_CATEGORY_SECONDARY:
-        case SKILL_CATEGORY_PROFESSION:
-            // not set skills for professions and racial abilities
-            if (IsProfessionSkill(pSkill->id))
-                return SKILL_RANGE_RANK;
-            else if (racial)
-                return SKILL_RANGE_NONE;
-            else
-                return SKILL_RANGE_MONO;
-        default:
-        case SKILL_CATEGORY_ATTRIBUTES:                     //not found in dbc
-        case SKILL_CATEGORY_GENERIC:                        //only GENERIC(DND)
-            return SKILL_RANGE_NONE;
     }
+
+    return SKILL_RANGE_LEVEL;
 }
 
 void ObjectMgr::LoadGameTele()
@@ -10439,4 +10452,27 @@ void ObjectMgr::DumpDupeConstant(Player *player)
 {
     sLog->outDebug(LOG_FILTER_DUPE, "Name: %s. Items: %u; Pos: map - %u; %f; %f; %f;", player->GetName(), player->GetItemCount(38186, true),
                   player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+}
+
+void ObjectMgr::LoadSkillTiers()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT ID, Value1, Value2, Value3, Value4, Value5, Value6, Value7, Value8, Value9, Value10, "
+                                             " Value11, Value12, Value13, Value14, Value15, Value16 FROM skill_tiers");
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        SkillTiersEntry& tier = _skillTiers[fields[0].GetUInt32()];
+        for (uint32 i = 0; i < MAX_SKILL_STEP; ++i)
+            tier.Value[i] = fields[1 + i].GetUInt32();
+
+    }
+    while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u skill max values in %u ms", uint32(_skillTiers.size()), GetMSTimeDiffToNow(oldMSTime));
 }

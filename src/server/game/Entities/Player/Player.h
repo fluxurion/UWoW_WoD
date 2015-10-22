@@ -71,6 +71,17 @@ typedef std::deque<Mail*> PlayerMails;
 #define PLAYER_MAX_DAILY_QUESTS     25
 #define PLAYER_EXPLORED_ZONES_SIZE  200
 
+enum SkillFieldOffset
+{
+    SKILL_ID_OFFSET                 = 0,
+    SKILL_STEP_OFFSET               = 64,
+    SKILL_RANK_OFFSET               = SKILL_STEP_OFFSET + 64,
+    SUBSKILL_START_RANK_OFFSET      = SKILL_RANK_OFFSET + 64,
+    SKILL_MAX_RANK_OFFSET           = SUBSKILL_START_RANK_OFFSET + 64,
+    SKILL_TEMP_BONUS_OFFSET         = SKILL_MAX_RANK_OFFSET + 64,
+    SKILL_PERM_BONUS_OFFSET         = SKILL_TEMP_BONUS_OFFSET + 64
+};
+
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType
 {
@@ -320,6 +331,7 @@ struct PlayerCreateInfoAction
 };
 
 typedef std::list<PlayerCreateInfoAction> PlayerCreateInfoActions;
+typedef std::list<SkillRaceClassInfoEntry const*> PlayerCreateInfoSkills;
 
 struct PlayerInfo
 {
@@ -338,6 +350,7 @@ struct PlayerInfo
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells spell;
     PlayerCreateInfoActions action;
+    PlayerCreateInfoSkills skills;
 
     PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
 };
@@ -1743,7 +1756,7 @@ class Player : public Unit, public GridObject<Player>
         bool HasResearchProject(uint32 id) const;
         void ReplaceResearchProject(uint32 oldId, uint32 newId);
 
-        static float GetRareArtifactChance(uint32 skill_value);
+        static float GetRareArtifactChance(uint32 skillValue);
 
         void ShowResearchSites();
         void GenerateResearchSites();
@@ -2128,11 +2141,18 @@ class Player : public Unit, public GridObject<Player>
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
-        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool charload = false);
-        void learnSpell(uint32 spell_id, bool dependent);
+        bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool charload = false, uint32 fromSkill = 0);
+        void learnSpell(uint32 spell_id, bool dependent, uint32 fromSkill = 0);
         void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
         void resetSpells(bool myClassOnly = false);
-        void learnDefaultSpells();
+        SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const override;
+        void AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
+        void RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
+        void LearnSpecializationSpells();
+        void RemoveSpecializationSpells();
+        void UpdateSkillsForLevel();
+        void LearnDefaultSkills();
+        void LearnDefaultSkill(SkillRaceClassInfoEntry const* rcInfo);
         void learnQuestRewardedSpells();
         void learnQuestRewardedSpells(Quest const* quest);
         void learnSpellHighRank(uint32 spellid);
@@ -2178,14 +2198,14 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetNextResetTalentsCost() const;
         uint32 GetNextResetSpecializationCost() const;
         void InitTalentForLevel();
-        void InitSpellForLevel();
-        void RemoveSpecializationSpells();
-        void RemoveNotActiveSpecializationSpells();
         void SendTalentsInfoData(bool pet);
         bool LearnTalent(uint32 talentId);
         bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
+        void RemoveTalent(TalentEntry const* talent);
         uint32 CalculateTalentsPoints() const;
+        void LearnTalentSpecialization(uint32 talentSpec);
+        void ResetTalentSpecialization();
 
         void ResetSpec(bool takeMoney = true);
 
@@ -3469,6 +3489,7 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
+        std::unordered_map<uint32 /*overridenSpellId*/, std::unordered_set<uint32> /*newSpellId*/> m_overrideSpells;
         ItemSpellList m_itemSpellList;
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
         std::map<uint32, uint32> spellMountReplacelist;

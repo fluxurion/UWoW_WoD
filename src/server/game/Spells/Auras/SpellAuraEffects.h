@@ -101,6 +101,7 @@ class AuraEffect
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
         bool IsAffectingSpell(SpellInfo const* spell) const;
         bool HasSpellClassMask() const { return m_spellInfo->GetEffect(m_effIndex, m_diffMode)->SpellClassMask; }
+        flag128 GetSpellClassMask() const { return m_spellInfo->GetEffect(m_effIndex, m_diffMode)->SpellClassMask; }
 
         void SendTickImmune(Unit* target, Unit* caster) const;
         void PeriodicTick(AuraApplication * aurApp, Unit* caster, SpellEffIndex effIndex) const;

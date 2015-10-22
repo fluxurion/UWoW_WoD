@@ -297,10 +297,10 @@ bool SpellChatLink::ValidateName(char* buffer, const char* context)
             sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): skill line ability not found for spell %u", context, _spell->Id);
             return false;
         }
-        SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skillInfo->skillId);
+        SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skillInfo->SkillLine);
         if (!skillLine)
         {
-            sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): skill line not found for skill %u", context, skillInfo->skillId);
+            sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): skill line not found for skill %u", context, skillInfo->SkillLine);
             return false;
         }
 

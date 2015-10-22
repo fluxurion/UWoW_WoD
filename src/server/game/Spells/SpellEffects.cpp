@@ -4009,8 +4009,16 @@ void Spell::EffectLearnSkill(SpellEffIndex effIndex)
         return;
 
     uint32 skillid = m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue;
+    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillid, unitTarget->getRace(), unitTarget->getClass());
+    if (!rcEntry)
+        return;
+
+    SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID);
+    if (!tier)
+        return;
+
     uint16 skillval = unitTarget->ToPlayer()->GetPureSkillValue(skillid);
-    unitTarget->ToPlayer()->SetSkill(skillid, m_spellInfo->GetEffect(effIndex, m_diffMode)->CalcValue(), skillval ? skillval : 1, damage * 75);
+    unitTarget->ToPlayer()->SetSkill(skillid, m_spellInfo->GetEffect(effIndex, m_diffMode)->CalcValue(), std::max<uint16>(skillval, 1), tier->Value[damage - 1]);
 
     // Archaeology
     if (skillid == SKILL_ARCHAEOLOGY && !skillval && sWorld->getBoolConfig(CONFIG_ARCHAEOLOGY_ENABLED))
@@ -7862,38 +7870,16 @@ void Spell::EffectUnlearnTalent(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+    TalentEntry const* talent = sTalentStore.LookupEntry(m_misc.TalentId);
+    if (!talent)
         return;
 
-    Player* plr = m_caster->ToPlayer();
+    Player* player = unitTarget ? unitTarget->ToPlayer() : nullptr;
+    if (!player)
+        return;
 
-    PlayerTalentMap* Talents = plr->GetTalentMap(plr->GetActiveSpec());
-    for (PlayerTalentMap::iterator itr = Talents->begin(); itr != Talents->end(); ++itr)
-    {
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr->first);
-        if (!spell)
-            continue;
-
-        TalentEntry const* talent = itr->second->talentEntry;
-
-        if (spell->talentId != m_misc.TalentId)
-            continue;
-
-        plr->removeSpell(itr->first, true);
-        // search for spells that the talent teaches and unlearn them
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->GetEffect(i, m_diffMode)->TriggerSpell > 0 && spell->GetEffect(i, m_diffMode)->Effect == SPELL_EFFECT_LEARN_SPELL)
-                plr->removeSpell(spell->GetEffect(i, m_diffMode)->TriggerSpell, true);
-
-        itr->second->state = PLAYERSPELL_REMOVED;
-
-        plr->SetUsedTalentCount(plr->GetUsedTalentCount() - 1);
-        plr->SetFreeTalentPoints(plr->GetFreeTalentPoints() + 1);
-        break;
-    }
-
-    plr->SaveToDB();
-    plr->SendTalentsInfoData(false);
+    player->RemoveTalent(talent);
+    player->SendTalentsInfoData(false);
 }
 
 void Spell::EffectDespawnAreatrigger(SpellEffIndex effIndex)

@@ -31,35 +31,21 @@
 void WorldSession::HandleSetSpecialization(WorldPackets::Talent::SetSpecialization& packet)
 {
     Player* player = GetPlayer();
-    if (!player)
+
+    if (packet.SpecGroupIndex >= 4)
         return;
 
-    uint8 classId = player->getClass();
-
-    if (player->GetSpecializationId(player->GetActiveSpec()))
+    ChrSpecializationsEntry const* chrSpec = sChrSpecializationByIndexStore[player->getClass()][packet.SpecGroupIndex];
+    if (!chrSpec)
         return;
 
-    uint32 specializationId = 0;
-    uint32 specializationSpell = 0;
+    if (chrSpec->ClassID != player->getClass())
+        return;
 
-    for (ChrSpecializationsEntry const* specialization : sChrSpecializationsStore)
-    {
-        if (specialization->ClassID == classId && specialization->OrderIndex == packet.SpecGroupIndex)
-        {
-            specializationId = specialization->ID;
-            specializationSpell = specialization->MasterySpellID[0];
-            break;
-        }
-    }
+    if (player->getLevel() < 10)
+        return;
 
-    if (specializationId)
-    {
-        player->SetSpecializationId(player->GetActiveSpec(), specializationId);
-        player->SendTalentsInfoData(false);
-        player->InitSpellForLevel();
-        player->InitialPowers();
-        player->_ApplyOrRemoveItemEquipDependentAuras(ObjectGuid::Empty, false);
-    }
+    player->LearnTalentSpecialization(chrSpec->ID);
 }
 
 void WorldSession::HandleLearnTalent(WorldPackets::Talent::LearnTalent& packet)

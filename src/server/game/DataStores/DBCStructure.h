@@ -1256,7 +1256,7 @@ struct GtOCTRegenMPEntry
     float    ratio;
 };
 
-struct gtOCTHpPerStaminaEntry
+struct GtOCTHpPerStaminaEntry
 {
     float    ratio;
 };
@@ -1907,16 +1907,17 @@ struct ScenarioStepEntry
 //    uint32    displayOrder;                               // 19     m_sortIndex
 //};
 
-//struct SkillRaceClassInfoEntry{
-//    uint32    id;                                         // 0      m_ID
-//    uint32    skillId;                                    // 1      m_skillID
-//    uint32    raceMask;                                   // 2      m_raceMask
-//    uint32    classMask;                                  // 3      m_classMask
-//    uint32    flags;                                      // 4      m_flags
-//    uint32    reqLevel;                                   // 5      m_minLevel
-//    uint32    skillTierId;                                // 6      m_skillTierID
-//    uint32    skillCostID;                                // 7      m_skillCostIndex
-//};
+struct SkillRaceClassInfoEntry
+{
+    //uint32    ID;                                         // 0
+    uint32      SkillID;                                    // 1
+    int32       RaceMask;                                   // 2
+    int32       ClassMask;                                  // 3
+    uint32      Flags;                                      // 4
+    uint32      Availability;                               // 5
+    uint32      MinLevel;                                   // 6
+    uint32      SkillTierID;                                // 7
+};
 
 //struct SkillTiersEntry{
 //    uint32    id;                                         // 0      m_ID
@@ -1939,19 +1940,19 @@ struct SkillLineEntry
 
 struct SkillLineAbilityEntry
 {
-    uint32    id;                                           // 0        m_ID
-    uint32    skillId;                                      // 1        m_skillLine
-    uint32    spellId;                                      // 2        m_spell
-    uint32    racemask;                                     // 3        m_raceMask
-    uint32    classmask;                                    // 4        m_classMask
-    uint32    req_skill_value;                              // 5        m_minSkillLineRank
-    uint32    forward_spellid;                              // 6        m_supercededBySpell
-    uint32    learnOnGetSkill;                              // 7        m_acquireMethod
-    uint32    max_value;                                    // 8        m_trivialSkillLineRankHigh
-    uint32    min_value;                                    // 9        m_trivialSkillLineRankLow
-    uint32    skill_gain;                                   // 10       m_skillgain 1-5
-    //uint32                                                // 11       4.0.0 unk (increment id)
-    //uint32                                                // 12       5.0.5
+    uint32      ID;                                         // 0
+    uint32      SkillLine;                                  // 1
+    uint32      SpellID;                                    // 2
+    uint32      RaceMask;                                   // 3
+    uint32      ClassMask;                                  // 4
+    uint32      MinSkillLineRank;                           // 7
+    uint32      SupercedesSpell;                            // 8
+    uint32      AquireMethod;                               // 9
+    uint32      TrivialSkillLineRankHigh;                   // 10
+    uint32      TrivialSkillLineRankLow;                    // 11
+    uint32      NumSkillUps;                                // 12
+    uint32      UniqueBit;                                  // 13
+    uint32      TradeSkillCategoryID;                       // 14
 };
 
 // SpecializationSpells.dbc
@@ -2302,7 +2303,7 @@ struct SummonPropertiesEntry
 struct TalentEntry
 {
     uint32  Id;                                     // 0
-    //uint32  m_specID;                             // 1
+    uint32  SpecID;                                 // 1
     uint32  row;                                    // 2
     uint32  column;                                 // 3
     uint32  spellId;                                // 4
@@ -2314,7 +2315,6 @@ struct TalentEntry
     char*   description;                            // 10
 
 };
-typedef std::set<uint32> TalentSpellList;
 
 struct TeamContributionPointsEntry
 {

@@ -1766,9 +1766,6 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SpellArea Data...");                // must be after quest load
     sSpellMgr->LoadSpellAreas();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Classes Info...");
-    sSpellMgr->LoadSpellClassInfo();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger definitions...");
     sObjectMgr->LoadAreaTriggerTeleports();
 
@@ -1855,6 +1852,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Skill Fishing base level requirements...");
     sObjectMgr->LoadFishingBaseSkillLevel();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading skill tier info...");
+    sObjectMgr->LoadSkillTiers();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Achievements...");
     sAchievementMgr->LoadAchievementReferenceList();
