@@ -204,15 +204,15 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineFi
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce const& MovementForce)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce const& movementForce)
 {
-    data << MovementForce.ID;
-    data << MovementForce.Direction.GetPositionX();
-    data << MovementForce.Direction.GetPositionY();
-    data << MovementForce.Direction.GetPositionZ();
-    data << MovementForce.TransportID;
-    data << MovementForce.Magnitude;
-    data.WriteBits(MovementForce.Type, 2);
+    data << movementForce.ID;
+    data << movementForce.Direction.GetPositionX();
+    data << movementForce.Direction.GetPositionY();
+    data << movementForce.Direction.GetPositionZ();
+    data << movementForce.TransportID;
+    data << movementForce.Magnitude;
+    data.WriteBits(movementForce.Type, 2);
     data.FlushBits();
 
     return data;
