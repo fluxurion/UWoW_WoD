@@ -3441,10 +3441,9 @@ void Player::RemoveTalent(TalentEntry const* talent)
     if (talent->OverridesSpellID)
         RemoveOverrideSpell(talent->OverridesSpellID, talent->spellId);
 
-    // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
-    //auto plrTalent = GetTalentMap(GetActiveSpec())->find(talent->Id);
-    //if (plrTalent != GetTalentMap(GetActiveSpec())->end())
-    //    plrTalent->second = PLAYERSPELL_REMOVED;
+    auto plrTalent = GetTalentMap(GetActiveSpec())->find(talent->Id);
+    if (plrTalent != GetTalentMap(GetActiveSpec())->end())
+        plrTalent->second->state = PLAYERSPELL_REMOVED;
 }
 
 SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo) const
