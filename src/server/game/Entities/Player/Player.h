@@ -128,13 +128,6 @@ struct PlayerSpell
     uint32 mountReplace;                                    // if mount for horde replace if exist aliace
 };
 
-struct PlayerTalent
-{
-    PlayerSpellState state : 8;
-    uint8 spec             : 8;
-    TalentEntry const* talentEntry;
-};
-
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
@@ -199,7 +192,7 @@ enum SceneEventStatus
     SCENE_COMPLETE      = 3,
 };
 
-typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
+typedef std::unordered_map<uint32, PlayerSpellState> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
 typedef std::list<uint32> ItemSpellList;
@@ -1351,6 +1344,9 @@ private:
     bool _isPvP;
 };
 
+static uint32 const DefaultTalentRowLevels[7] = { 15, 30, 45, 60, 75, 90, 100 };
+static uint32 const DKTalentRowLevels[7] = { 57, 58, 59, 60, 75, 90, 100 };
+
 struct PlayerTalentInfo
 {
     PlayerTalentInfo() :
@@ -1369,11 +1365,7 @@ struct PlayerTalentInfo
     ~PlayerTalentInfo()
     {
         for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
-        {
-            for (PlayerTalentMap::const_iterator itr = SpecInfo[i].Talents->begin(); itr != SpecInfo[i].Talents->end(); ++itr)
-                delete itr->second;
             delete SpecInfo[i].Talents;
-        }
     }
 
     struct TalentSpecInfo

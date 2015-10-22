@@ -3388,6 +3388,8 @@ void Player::GiveLevel(uint8 level)
 void Player::InitTalentForLevel()
 {
     uint8 level = getLevel();
+    uint32 talentPointsForLevel = CalculateTalentsPoints();
+
     // talents base at level diff (talents = level - 9 but some can be used already)
     if (level < 15)
     {
@@ -3400,18 +3402,16 @@ void Player::InitTalentForLevel()
     }
     else
     {
-        uint32 talentPointsForLevel = CalculateTalentsPoints();
-
         if (level < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL) || GetSpecsCount() == 0)
         {
             SetSpecsCount(1);
             SetActiveSpec(0);
-
-            for (uint32 t = talentPointsForLevel; t < 7; ++t)
-                for (uint32 c = 0; c < 3; ++c)
-                    for (TalentEntry const* talent : sTalentByPos[getClass()][t][c])
-                        RemoveTalent(talent);
         }
+
+        for (uint32 t = talentPointsForLevel; t < 7; ++t)
+            for (uint32 c = 0; c < 3; ++c)
+                for (TalentEntry const* talent : sTalentByPos[getClass()][t][c])
+                    RemoveTalent(talent);
 
         // if used more that have then reset
         if (GetUsedTalentCount() > talentPointsForLevel)
@@ -3425,6 +3425,8 @@ void Player::InitTalentForLevel()
         else
             SetFreeTalentPoints(talentPointsForLevel - GetUsedTalentCount());
     }
+
+    SetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS, talentPointsForLevel);
 
     if (!GetSession()->PlayerLoading())
         SendTalentsInfoData(false);                         // update at client
@@ -3446,9 +3448,12 @@ void Player::RemoveTalent(TalentEntry const* talent)
     if (talent->OverridesSpellID)
         RemoveOverrideSpell(talent->OverridesSpellID, talent->spellId);
 
-    auto plrTalent = GetTalentMap(GetActiveSpec())->find(talent->Id);
+    SetUsedTalentCount(GetUsedTalentCount() - 1);
+    SetFreeTalentPoints(GetFreeTalentPoints() + 1);
+
+    PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveSpec())->find(talent->Id);
     if (plrTalent != GetTalentMap(GetActiveSpec())->end())
-        plrTalent->second->state = PLAYERSPELL_REMOVED;
+        plrTalent->second = PLAYERSPELL_REMOVED;
 }
 
 SpellInfo const* Player::GetCastSpellInfo(SpellInfo const* spellInfo) const
@@ -3894,23 +3899,13 @@ bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
     if (talent->OverridesSpellID)
         AddOverrideSpell(talent->OverridesSpellID, talent->spellId);
 
-    PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(talent->spellId);
+    PlayerTalentMap::iterator itr = GetTalentMap(spec)->find(talent->Id);
     if (itr != GetTalentMap(spec)->end())
-        itr->second->state = PLAYERSPELL_UNCHANGED;
-    else 
-    {
+        itr->second = PLAYERSPELL_UNCHANGED;
+    else
+        (*GetTalentMap(spec))[talent->Id] = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
 
-        PlayerSpellState state = learning ? PLAYERSPELL_NEW : PLAYERSPELL_UNCHANGED;
-        PlayerTalent* newtalent = new PlayerTalent();
-
-        newtalent->state = state;
-        newtalent->spec = spec;
-        newtalent->talentEntry = talent;
-
-        (*GetTalentMap(spec))[talent->spellId] = newtalent;
-        return true;
-    }
-    return false;
+    return true;
 }
 
 bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, bool charload /*= false*/, uint32 fromSkill /*= 0*/)
@@ -5224,14 +5219,6 @@ void Player::ResetSpec(bool takeMoney)
         }
     }
 
-    for (TalentEntry const* talentInfo : sTalentStore)
-    {
-        if (talentInfo->classId != getClass() || talentInfo->spellId == 0)
-            continue;
-
-        RemoveTalent(talentInfo);
-    }
-
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     _SaveTalents(trans);
     _SaveSpells(trans);
@@ -5390,7 +5377,7 @@ bool Player::HasSpell(uint32 spell) const
 bool Player::HasTalent(uint32 spell, uint8 spec) const
 {
     PlayerTalentMap::const_iterator itr = GetTalentMap(spec)->find(spell);
-    return (itr != GetTalentMap(spec)->end() && itr->second->state != PLAYERSPELL_REMOVED);
+    return (itr != GetTalentMap(spec)->end() && itr->second != PLAYERSPELL_REMOVED);
 }
 
 bool Player::HasActiveSpell(uint32 spell)
@@ -27370,11 +27357,12 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
 uint32 Player::CalculateTalentsPoints() const
 {
-    if (getLevel() == 100)
-        return 7;
+    uint32 const* rowLevels = (getClass() != CLASS_DEATH_KNIGHT) ? DefaultTalentRowLevels : DKTalentRowLevels;
+    for (uint32 i = 7; i; --i)
+        if (getLevel() >= rowLevels[i - 1])
+            return i;
 
-    // Un talent par tranche de 15 levels
-    return getLevel() / 15;
+    return 0;
 }
 
 bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
@@ -27724,17 +27712,18 @@ uint32 Player::GetAchievementPoints() const
 // TODO : Check cheat-hack issue with packet-editing
 bool Player::LearnTalent(uint32 talentId)
 {
-    uint32 CurTalentPoints = GetFreeTalentPoints();
-
-    if (CurTalentPoints == 0)
-        return false;
-
     TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
-
     if (!talentInfo)
         return false;
 
+    if (talentInfo->SpecID && talentInfo->SpecID != GetSpecializationId(GetActiveSpec()))
+        return false;
+
     if (talentInfo->classId != getClass())
+        return false;
+
+    // check if we have enough talent points
+    if (talentInfo->row >= GetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS))
         return false;
 
     TalentEntry const* bestSlotMatch = nullptr;
@@ -27757,15 +27746,14 @@ bool Player::LearnTalent(uint32 talentId)
             if (HasTalent(talent->Id, GetActiveSpec()))
                 return false;
 
-    uint32 spellid = talentInfo->spellId;
-    if (spellid == 0)
+    if (!talentInfo->spellId)
     {
         sLog->outError(LOG_FILTER_PLAYER, "Talent.dbc have for talent: %uspell id = 0", talentId);
         return false;
     }
 
     // already known
-    if (HasSpell(spellid))
+    if (HasTalent(talentId, GetActiveSpec()) || HasSpell(talentInfo->spellId))
         return false;
 
     // Fix bug WPE talent
@@ -27774,11 +27762,12 @@ bool Player::LearnTalent(uint32 talentId)
             if (HasSpell(tal->spellId))
                 return false;
 
-    // learn! (other talent ranks will unlearned at learning)
-    AddTalent(talentInfo, GetActiveSpec(), true);
-    learnSpell(spellid, false);
+    if (!AddTalent(talentInfo, GetActiveSpec(), true))
+        return false;
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "TalentID: %u Spell: %u Spec: %u\n", talentId, spellid, GetActiveSpec());
+    learnSpell(talentInfo->spellId, false);
+
+    sLog->outInfo(LOG_FILTER_GENERAL, "TalentID: %u Spell: %u Spec: %u\n", talentId, talentInfo->spellId, GetActiveSpec());
     return true;
 }
 
@@ -27914,55 +27903,45 @@ void Player::SendTalentsInfoData(bool pet)
         return;
     }
 
-    // Update free talents points client-side
-    SetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS, CalculateTalentsPoints());
-
-    if (GetSpecsCount() > MAX_TALENT_SPECS)
-        SetSpecsCount(MAX_TALENT_SPECS);
-
-    uint32 specsCount = GetSpecsCount();
-
     WorldPackets::Talent::UpdateTalentData packet;
 
     packet.Info.ActiveGroup = GetActiveSpec();
 
-    for (uint8 specIdx = 0; specIdx < specsCount; ++specIdx)
+    uint8 groupsCount = GetSpecsCount();
+
+    for (uint8 i = 0; i < groupsCount; ++i)
     {
         WorldPackets::Talent::TalentGroupInfo groupInfoPkt;
 
-        PlayerTalentMap* Talents = GetTalentMap(specIdx);
+        groupInfoPkt.SpecID = GetSpecializationId(i);
+        groupInfoPkt.TalentIDs.reserve(GetTalentMap(i)->size());
 
-        groupInfoPkt.SpecID = GetSpecializationId(specIdx);
-        groupInfoPkt.TalentIDs.reserve(Talents->size());
-
-
-        for (PlayerTalentMap::iterator itr = Talents->begin(); itr != Talents->end(); ++itr)
+        for (PlayerTalentMap::const_iterator itr = GetTalentMap(i)->begin(); itr != GetTalentMap(i)->end(); ++itr)
         {
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(itr->first);
-            if (spell && spell->talentId)
-            {
+            if (itr->second == PLAYERSPELL_REMOVED)
+                continue;
 
-                TalentEntry const* talentInfo = sTalentStore.LookupEntry(spell->talentId);
-                if (!talentInfo)
-                {
-                    sLog->outError(LOG_FILTER_PLAYER, "Player %s has unknown talent id: %u", GetName(), spell->talentId);
-                    continue;
-                }
+            TalentEntry const* talentInfo = sTalentStore.LookupEntry(itr->first);
+            if (!talentInfo)
+                continue;
 
-                if (talentInfo->classId != getClass())
-                    continue;
+            if (talentInfo->classId != getClass())
+                continue;
 
-                groupInfoPkt.TalentIDs.push_back(uint16(spell->talentId));
-            }
+            SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(talentInfo->spellId);
+            if (!spellEntry)
+                continue;
+
+            groupInfoPkt.TalentIDs.push_back(uint16(itr->first));
         }
 
         for (uint32 x = 0; x < MAX_GLYPH_SLOT_INDEX; ++x)
-            groupInfoPkt.GlyphIDs[x] = uint16(GetGlyph(specIdx, x));
+            groupInfoPkt.GlyphIDs[x] = uint16(GetGlyph(i, x));
 
         packet.Info.TalentGroups.push_back(groupInfoPkt);
     }
 
-    GetSession()->SendPacket(packet.Write());
+    SendDirectMessage(packet.Write());
 }
 
 void Player::BuildEnchantmentsInfoData(WorldPacket* data)
@@ -28222,80 +28201,39 @@ void Player::_SaveGlyphs(SQLTransaction& trans)
 
 void Player::_LoadTalents(PreparedQueryResult result)
 {
-    // SetPQuery(PLAYER_LOGIN_QUERY_LOADTALENTS, "SELECT spell, spec FROM character_talent WHERE guid = '%u'", GUID_LOPART(m_guid));
     if (result)
     {
         do
-        {
-            uint32 spellId = (*result)[0].GetUInt32();
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellId);
-            if (!spell)
-            {
-                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Player::_LoadTalents: Non-existed in SpellStore spell #%u request, deleting for all characters in `character_talent`.", spellId);
-
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-                stmt->setUInt32(0, spellId);
-
-                CharacterDatabase.Execute(stmt);
-                continue;
-            }
-
-            TalentEntry const* talent = sTalentStore.LookupEntry(spell->talentId);
-            if (!talent)
-            {
-                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Player::_LoadTalents: Zero or non-existed talent #%u (spell #%u) in character_talent, deleting for all characters in `character_talent`.", spell->talentId, spellId);
-
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_SPELL);
-
-                stmt->setUInt32(0, spellId);
-
-                CharacterDatabase.Execute(stmt);
-                continue;
-            }
-
-            AddTalent(talent, (*result)[1].GetUInt8(), false);
-        }
+            if (TalentEntry const* talent = sTalentStore.LookupEntry((*result)[0].GetUInt32()))
+                AddTalent(talent, (*result)[1].GetUInt8(), false);
         while (result->NextRow());
     }
 }
 
 void Player::_SaveTalents(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = NULL;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TALENT);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    trans->Append(stmt);
 
-    for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
+    PlayerTalentMap* talents = nullptr;
+    for (uint8 group = 0; group < MAX_TALENT_SPECS; ++group)
     {
-        for (PlayerTalentMap::iterator itr = GetTalentMap(i)->begin(); itr != GetTalentMap(i)->end();)
+        talents = GetTalentMap(group);
+        for (PlayerTalentMap::iterator itr = talents->begin(); itr != talents->end();)
         {
-            if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->state == PLAYERSPELL_CHANGED)
+            if (itr->second == PLAYERSPELL_REMOVED)
             {
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TALENT_BY_SPELL_SPEC);
-                stmt->setUInt64(0, GetGUID().GetCounter());
-                stmt->setUInt32(1, itr->first);
-                stmt->setUInt8(2, itr->second->spec);
-                trans->Append(stmt);
+                itr = talents->erase(itr);
+                continue;
             }
 
-            if (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED)
-            {
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TALENT);
-                stmt->setUInt64(0, GetGUID().GetCounter());
-                stmt->setUInt32(1, itr->first);
-                stmt->setUInt8(2, itr->second->spec);
-                trans->Append(stmt);
-            }
-
-            if (itr->second->state == PLAYERSPELL_REMOVED)
-            {
-                delete itr->second;
-                GetTalentMap(i)->erase(itr++);
-            }
-            else
-            {
-                itr->second->state = PLAYERSPELL_UNCHANGED;
-                ++itr;
-            }
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TALENT);
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt32(1, itr->first);
+            stmt->setUInt8(2, group);
+            trans->Append(stmt);
+            ++itr;
         }
     }
 }
@@ -28392,22 +28330,13 @@ void Player::ActivateSpec(uint8 spec)
         if (!spellInfo)
             continue;
 
+        removeSpell(talentInfo->spellId, true); // removes the talent, and all dependant, learned, and chained spells..
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellInfo for valid trigger spells
+            if (spellInfo->Effects[i].TriggerSpell > 0 && spellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
+                removeSpell(spellInfo->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
+
         if (talentInfo->OverridesSpellID)
             RemoveOverrideSpell(talentInfo->OverridesSpellID, talentInfo->spellId);
-    }
-
-    PlayerTalentMap* Talents = GetTalentMap(GetActiveSpec());
-    for (PlayerTalentMap::iterator itr = Talents->begin(); itr != Talents->end(); ++itr)
-    {
-        removeSpell(itr->first, true); // removes the talent, and all dependant, learned, and chained spells..
-        if (SpellInfo const* _spellEntry = sSpellMgr->GetSpellInfo(itr->first))
-        {
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellInfo for valid trigger spells
-            {
-                if (_spellEntry->Effects[i].TriggerSpell > 0 && _spellEntry->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                    removeSpell(_spellEntry->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
-            }
-        }
     }
 
     if (const std::vector<SpellTalentLinked> *spell_triggered = sSpellMgr->GetSpelltalentLinked(0))
@@ -28462,14 +28391,33 @@ void Player::ActivateSpec(uint8 spec)
                 //RemoveAurasDueToSpell(old_gp->SpellId);
 
     SetActiveSpec(spec);
+    SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, GetSpecializationId(spec));
 
     uint32 usedTalentPoint = 0;
-    Talents = GetTalentMap(GetActiveSpec());
-    for (PlayerTalentMap::iterator itr = Talents->begin(); itr != Talents->end(); ++itr)
+    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
-        learnSpell(itr->first, false);
-        usedTalentPoint++;
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
+        if (!talentInfo)
+            continue;
+
+        // learn only talents for character class
+        if (talentInfo->classId != getClass())
+            continue;
+
+        if (!talentInfo->spellId)
+            continue;
+
+        // if the talent can be found in the newly activated PlayerTalentMap
+        if (HasTalent(talentInfo->Id, GetActiveSpec()))
+        {
+            usedTalentPoint++;
+            learnSpell(talentInfo->spellId, false);      // add the talent to the PlayerSpellMap
+            if (talentInfo->OverridesSpellID)
+                AddOverrideSpell(talentInfo->OverridesSpellID, talentInfo->spellId);
+        }
     }
+
+    LearnSpecializationSpells();
 
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
@@ -28485,22 +28433,8 @@ void Player::ActivateSpec(uint8 spec)
         SetGlyph(slot, glyph);
     }
 
-    for (TalentEntry const* talentInfo : sTalentStore)
-    {
-        if (talentInfo->classId != getClass())
-            continue;
-
-        if (!talentInfo->spellId)
-            continue;
-
-        if (HasTalent(talentInfo->Id, GetActiveSpec()))
-            if (talentInfo->OverridesSpellID)
-                AddOverrideSpell(talentInfo->OverridesSpellID, talentInfo->spellId);
-    }
-
     SetUsedTalentCount(usedTalentPoint);
     InitTalentForLevel();
-    LearnSpecializationSpells();
     _ApplyOrRemoveItemEquipDependentAuras(ObjectGuid::Empty, false);
 
     {
@@ -28518,6 +28452,9 @@ void Player::ActivateSpec(uint8 spec)
     if (Battleground* bg = GetBattleground())
         if (bg->isArena())
             bg->SendOpponentSpecialization(GetTeam());
+
+    if (!sChrSpecializationsStore.LookupEntry(GetSpecializationId(GetActiveSpec())))
+        ResetTalents(true);
 }
 
 void Player::ResetTimeSync()

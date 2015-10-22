@@ -179,6 +179,7 @@ public:
         if (target)
         {
             target->ResetTalents(true);
+            target->ResetTalentSpecialization();
             target->SendTalentsInfoData(false);
             ChatHandler(target).SendSysMessage(LANG_RESET_TALENTS);
             if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)

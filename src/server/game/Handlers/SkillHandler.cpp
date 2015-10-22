@@ -64,10 +64,13 @@ void WorldSession::HandleLearnTalent(WorldPackets::Talent::LearnTalent& packet)
     if (bg && bg->GetStatus() != STATUS_WAIT_JOIN)
         return;
 
-    for (uint32 const& talentID : packet.Talents)
-        player->LearnTalent(talentID);
+    bool anythingLearned = false;
+    for (uint32 const& talentId : packet.Talents)
+        if (_player->LearnTalent(talentId))
+            anythingLearned = true;
 
-    player->SendTalentsInfoData(false);
+    if (anythingLearned)
+        _player->SendTalentsInfoData(false);
 }
 
 //! 6.0.3
@@ -85,7 +88,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if(!specializationReset)
+    if (!specializationReset)
     {
         if (!_player->ResetTalents())
         {
@@ -98,9 +101,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         }
     }
     else
-    {
         _player->ResetSpec();
-    }
 
     _player->SendTalentsInfoData(false);
 
