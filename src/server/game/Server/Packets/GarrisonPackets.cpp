@@ -502,7 +502,19 @@ WorldPacket const* WorldPackets::Garrison::GarrisonOpenArchitect::Write()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonOpenMissionNpcResponse::Write()
 {
-    _worldPacket << NpcGUID;
+    _worldPacket << NpcGUID.WriteAsPacked();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Garrison::GarrisonUnk988Response::Write()
+{
+    _worldPacket << unkCount;
+    processMissionRecIDs.resize(_worldPacket.read<uint32>());
+    for (auto const& map : processMissionRecIDs)
+        processMissionRecIDs.push_back(_worldPacket.read<uint32>());
+    _worldPacket.WriteBit(notOpen);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

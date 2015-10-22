@@ -747,6 +747,19 @@ namespace WorldPackets
             uint64 InqueKey = 0;
             Optional<std::string> Name;
         };
+
+        class GarrisonUnk988Response final : public ServerPacket
+        {
+        public:
+            GarrisonUnk988Response() : ServerPacket(SMSG_GARRISON_UNK_988, 4 + 4 + 4 * processMissionRecIDs.size() + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 unkCount = 0;
+            uint32 processMissionCount;
+            std::vector<uint32> processMissionRecIDs;
+            bool notOpen = false;
+        };
     }
 }
 

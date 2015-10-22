@@ -657,9 +657,14 @@ void Garrison::SendInfo()
 
 void Garrison::OpenMissionNPC(Player* owner, ObjectGuid npcGUID)
 {
-    WorldPackets::Garrison::GarrisonOpenMissionNpcResponse data;
-    data.NpcGUID = npcGUID;
-    _owner->SendDirectMessage(data.Write());
+    //WorldPackets::Garrison::GarrisonOpenMissionNpcResponse data;
+    //data.NpcGUID = npcGUID;
+    //_owner->SendDirectMessage(data.Write());
+
+    WorldPackets::Garrison::GarrisonUnk988Response data;
+    data.processMissionCount = 0;
+
+    owner->SendDirectMessage(data.Write());
 }
 
 void Garrison::SendRemoteInfo() const
