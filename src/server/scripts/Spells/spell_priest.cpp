@@ -594,49 +594,6 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
         }
 };
 
-// Called by Heal - 2050, Greater Heal - 2060 and Flash Heal - 2061
-// Strength of Soul - 89488
-class spell_pri_strength_of_soul : public SpellScriptLoader
-{
-    public:
-        spell_pri_strength_of_soul() : SpellScriptLoader("spell_pri_strength_of_soul") { }
-
-        class spell_pri_strength_of_soul_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_strength_of_soul_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasAura(PRIEST_STRENGTH_OF_SOUL))
-                        {
-                            if (Aura* weakenedSoul = target->GetAura(PRIEST_WEAKENED_SOUL, _player->GetGUID()))
-                            {
-                                if (weakenedSoul->GetDuration() > 2000)
-                                    weakenedSoul->SetDuration(weakenedSoul->GetDuration() - 2000);
-                                else
-                                    target->RemoveAura(PRIEST_WEAKENED_SOUL);
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_pri_strength_of_soul_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pri_strength_of_soul_SpellScript();
-        }
-};
-
 // Called by Heal - 2050
 // Grace - 47517
 class spell_pri_grace : public SpellScriptLoader
@@ -1350,7 +1307,7 @@ class spell_pri_inner_fire_or_will : public SpellScriptLoader
         }
 };
 
-// Leap of Faith - 73325 and Leap of Faith - 110718 (Symbiosis)
+// Leap of Faith - 73325
 class spell_pri_leap_of_faith : public SpellScriptLoader
 {
     public:
@@ -2558,34 +2515,6 @@ class spell_pri_lightwell_trigger : public SpellScriptLoader
         }
 };
 
-// Hymn of Hope - 64904
-class spell_pri_hymn_of_hope : public SpellScriptLoader
-{
-    public:
-        spell_pri_hymn_of_hope() : SpellScriptLoader("spell_pri_hymn_of_hope") { }
-
-        class spell_pri_hymn_of_hope_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_hymn_of_hope_AuraScript);
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (Unit* target = GetUnitOwner())
-                    amount = target->CountPctFromMaxMana(amount);
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_hymn_of_hope_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_INCREASE_ENERGY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_hymn_of_hope_AuraScript();
-        }
-};
-
 // Shadowy Apparition - 148859
 class spell_pri_shadowy_apparition : public SpellScriptLoader
 {
@@ -2714,7 +2643,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_holy_word_sanctuary();
     new spell_pri_chakra_chastise();
     new spell_pri_lightwell_renew();
-    new spell_pri_strength_of_soul();
     new spell_pri_grace();
     new spell_pri_rapture();
     new spell_pri_atonement();
@@ -2750,7 +2678,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_dispel_magic();
     new spell_pri_t15_healer_4p();
     new spell_pri_lightwell_trigger();
-    new spell_pri_hymn_of_hope();
     new spell_pri_void_tendrils_grasp();
     new spell_pri_divine_star_filter();
     new spell_pri_devouring_plague_mastery();

@@ -451,55 +451,6 @@ class spell_sha_spirit_link : public SpellScriptLoader
         }
 };
 
-// Mana Tide - 16191
-class spell_sha_mana_tide : public SpellScriptLoader
-{
-    public:
-        spell_sha_mana_tide() : SpellScriptLoader("spell_sha_mana_tide") { }
-
-        class spell_sha_mana_tide_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_mana_tide_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_BLAST))
-                    return false;
-                return true;
-            }
-
-            void HandleOnHit()
-            {
-                if(!GetCaster() || !GetCaster()->GetOwner())
-                    return;
-
-                if (Unit* target = GetHitUnit())
-                {
-                    if (Player* _player = GetCaster()->GetOwner()->ToPlayer())
-                    {
-                        AuraApplication* aura = target->GetAuraApplication(SPELL_SHA_MANA_TIDE, GetCaster()->GetGUID());
-
-                        aura->GetBase()->GetEffect(0)->ChangeAmount(0);
-
-                        int32 spirit = _player->GetStat(STAT_SPIRIT) * 2;
-
-                        aura->GetBase()->GetEffect(0)->ChangeAmount(spirit);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_sha_mana_tide_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_mana_tide_SpellScript();
-        }
-};
-
 // Fire Nova - 1535
 class spell_sha_fire_nova : public SpellScriptLoader
 {
@@ -1862,7 +1813,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_mail_specialization();
     new spell_sha_frozen_power();
     new spell_sha_spirit_link();
-    new spell_sha_mana_tide();
     new spell_sha_fire_nova();
     new spell_sha_unleash_elements();
     new spell_sha_rolling_thunder();
