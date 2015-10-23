@@ -33,8 +33,10 @@
 #include <sstream>
 #include <boost/unordered_set.hpp>
 #include "G3D/Vector3.h"
+#include "G3D/LineSegment.h"
 
 using G3D::Vector3;
+using G3D::LineSegment2D;
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f

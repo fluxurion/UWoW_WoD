@@ -2250,39 +2250,20 @@ void Position::SimplePosXYRelocationByAngle(float &x, float &y, float &z, float 
 
 bool Position::IsLinesCross(Position const &pos11, Position const &pos12, Position const &pos21, Position const &pos22) const
 {
-    float x11 = pos11.GetPositionX();float y11 = pos11.GetPositionY();float x12 = pos12.GetPositionX();float y12 = pos12.GetPositionX();
-    float x21 = pos21.GetPositionX();float y21 = pos21.GetPositionY();float x22 = pos22.GetPositionX();float y22 = pos22.GetPositionX();
+    //Line 1
+    G3D::Vector2 p11(pos11.GetPositionX(), pos11.GetPositionY());
+    G3D::Vector2 p12(pos12.GetPositionX(), pos12.GetPositionY());
+    LineSegment2D line1 = LineSegment2D::fromTwoPoints(p11, p12);
+    //Line 2
+    G3D::Vector2 p21(pos21.GetPositionX(), pos21.GetPositionY());
+    G3D::Vector2 p22(pos22.GetPositionX(), pos22.GetPositionY());
+    LineSegment2D line2 = LineSegment2D::fromTwoPoints(p21, p22);
 
-    float maxx1 = std::max(x11, x12), maxy1 = std::max(y11, y12);
-    float minx1 = std::min(x11, x12), miny1 = std::min(y11, y12);
-    float maxx2 = std::max(x21, x22), maxy2 = std::max(y21, y22);
-    float minx2 = std::min(x21, x22), miny2 = std::min(y21, y22);
-
-    if (minx1 > maxx2 || maxx1 < minx2 || miny1 > maxy2 || maxy1 < miny2)
+    //check line
+    if(line1.intersection(line2) == G3D::Vector2::inf())
         return false;
-
-    float dx1 = x12-x11, dy1 = y12-y11;
-    float dx2 = x22-x21, dy2 = y22-y21;
-    float dxx = x11-x21, dyy = y11-y21;
-    float div, mul;
-
-
-    if ((div = dy2*dx1-dx2*dy1) == 0)
-        return false;
-    if (div > 0)
-    {
-        if ((mul = dx1*dyy-dy1*dxx) < 0 || mul > div)
-            return false;
-        if ((mul = dx2*dyy-dy2*dxx) < 0 || mul > div)
-            return false;
-    }
-
-    if ((mul = -dx1*dyy-dy1*dxx) < 0 || mul > -div)
-        return false;
-    if ((mul = -dx2*dyy-dy2*dxx) < 0 || mul > -div)
-        return false;
-
-    return true;
+    else
+        return true;
 }
 
 std::string Position::ToString() const
