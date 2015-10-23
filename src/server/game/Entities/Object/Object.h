@@ -944,6 +944,7 @@ class WorldObject : public Object, public WorldLocation
         bool IgnorePhaseId() const { return m_ignorePhaseIdCheck; }
 
         uint32 GetZoneId() const;
+        uint32 GetPZoneId() const;
         uint32 GetAreaId() const;
         void GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const;
 

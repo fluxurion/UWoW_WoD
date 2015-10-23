@@ -2433,6 +2433,11 @@ uint32 WorldObject::GetZoneId() const
     return GetBaseMap()->GetZoneId(m_positionX, m_positionY, m_positionZ);
 }
 
+uint32 WorldObject::GetPZoneId() const
+{
+    return GetParentZoneOrSelf(GetZoneId());
+}
+
 uint32 WorldObject::GetAreaId() const
 {
     return GetBaseMap()->GetAreaId(m_positionX, m_positionY, m_positionZ);

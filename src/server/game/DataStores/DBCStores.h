@@ -305,7 +305,7 @@ uint32 GetQuestUniqueBitFlag(uint32 questId);
 std::vector<uint32> GetItemLoadOutItems(uint32 LoadOutID);
 AreaTableEntry const* FindAreaEntry(uint32 area);
 DungeonEncounterEntry const* GetDungeonEncounterByDisplayID(uint32 displayID);
-
+uint32 GetParentZoneOrSelf(uint32 zone);
 
 // SkillRaceClassInfo
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoMap;

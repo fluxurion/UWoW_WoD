@@ -1271,6 +1271,14 @@ AreaTableEntry const* FindAreaEntry(uint32 area)
     return data->second;
 }
 
+uint32 GetParentZoneOrSelf(uint32 zone)
+{
+    AreaTableEntry const* a = FindAreaEntry(zone);
+    if (!a)
+        return zone;
+    return a->ParentAreaID ? a->ParentAreaID : zone;
+}
+
 DungeonEncounterEntry const* GetDungeonEncounterByDisplayID(uint32 displayID)
 {
     auto data = sDungeonEncounterByDisplayID.find(displayID);
