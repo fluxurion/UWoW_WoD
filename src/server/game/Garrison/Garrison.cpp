@@ -1054,22 +1054,30 @@ uint32 Garrison::GetAreaIdForTeam(uint32 team)
 
 void Garrison::Mission::Start(Player* owner, std::vector<uint64> followers)
 {
-    PacketInfo.MissionState = 1;
-    PacketInfo.StartTime = time(nullptr);
+    if (Garrison* garrison = owner->GetGarrison())
+    {
+        // check followers
+        for (auto f : followers)
+        {
+            if (Garrison::Follower* follower = garrison->GetFollower(f))
+                follower->PacketInfo.CurrentMissionID = PacketInfo.MissionRecID;
+            else
+                return;
+        }
 
-    WorldPackets::Garrison::GarrisonStartMissionResult missionRes;
+        PacketInfo.MissionState = 1;
+        PacketInfo.StartTime = time(nullptr);
 
-    missionRes.MissionData = PacketInfo;
-    missionRes.FollowerDBIDs = followers;
+        WorldPackets::Garrison::GarrisonStartMissionResult missionRes;
+        missionRes.MissionData = PacketInfo;
+        missionRes.FollowerDBIDs = followers;
+        owner->SendDirectMessage(missionRes.Write());
 
-    owner->SendDirectMessage(missionRes.Write());
-}
-
-void Garrison::Follower::SetCurrentMission(uint32 missionRecID)
-{
-    PacketInfo.CurrentMissionID = missionRecID;
-}
-/*
+        WorldPackets::Garrison::GarrisonUnk988Response resp;
+        resp.notOpen = true;
+        owner->SendDirectMessage(resp.Write());
+    }
+}/*
 The Garrison Cache next to your Town Hall accumulates  Garrison Resources (GR) 
 at a rate of 1 GR every 10 minutes of real time (6 per hour),
 which works out to 144 GR every full day (6 x 24hrs = 144 GR).

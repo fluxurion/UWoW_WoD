@@ -77,24 +77,8 @@ void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonSt
 
     if (Garrison* garrison = _player->GetGarrison())
     {
-        Garrison::Mission* mission = garrison->GetMissionByRecID(packet.MissionRecID);
-
-        if (!mission)
-            return;
-
-        // check followers
-        for (auto f : packet.FollowerDBIDs)
-        {
-            Garrison::Follower* follower = garrison->GetFollower(f);
-
-            if (!follower)
-                return;
-
-            follower->SetCurrentMission(packet.MissionRecID);
-        }
-
-        // start mission
-        mission->Start(_player, packet.FollowerDBIDs);
+        if (Garrison::Mission* mission = garrison->GetMissionByRecID(packet.MissionRecID))
+            mission->Start(_player, packet.FollowerDBIDs);
     }
 }
 

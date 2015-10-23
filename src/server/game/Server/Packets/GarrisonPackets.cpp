@@ -306,10 +306,16 @@ WorldPacket const* WorldPackets::Garrison::GarrisonMissionBonusRollResult::Write
 void WorldPackets::Garrison::GarrisonStartMission::Read()
 {
     _worldPacket >> NpcGUID;
-    FollowerDBIDs.resize(_worldPacket.read<uint32>());
+    uint32 followerCount;
+    _worldPacket >> followerCount;
     _worldPacket >> MissionRecID;
-    for (auto const& map : FollowerDBIDs)
-        FollowerDBIDs.push_back(_worldPacket.read<uint32>());
+    FollowerDBIDs.clear();
+    for (uint8 i = 0; i < followerCount; ++i)
+    {
+        uint32 followerDbId;
+        _worldPacket >> followerDbId;
+        FollowerDBIDs.push_back(followerDbId);
+    }
 }
 
 void WorldPackets::Garrison::GarrisonCompleteMission::Read()
@@ -510,9 +516,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonOpenMissionNpcResponse::Write
 WorldPacket const* WorldPackets::Garrison::GarrisonUnk988Response::Write()
 {
     _worldPacket << unkCount;
-    processMissionRecIDs.resize(_worldPacket.read<uint32>());
-    for (auto const& map : processMissionRecIDs)
-        processMissionRecIDs.push_back(_worldPacket.read<uint32>());
+    _worldPacket << processMissionCount;
     _worldPacket.WriteBit(notOpen);
     _worldPacket.FlushBits();
 

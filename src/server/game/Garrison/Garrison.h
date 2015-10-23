@@ -102,18 +102,17 @@ public:
 
     struct Follower
     {
+        WorldPackets::Garrison::GarrisonFollower PacketInfo;
+
         uint32 GetItemLevel() const;
         void IncreaseFollowerItemLevel(SpellInfo const* spellInfo, Player* caster);
-        void SetCurrentMission(uint32 missionRecID);
-
-        WorldPackets::Garrison::GarrisonFollower PacketInfo;
     };
 
     struct Mission
     {
-        void Start(Player* owner, std::vector<uint64> followers);
-
         WorldPackets::Garrison::GarrisonMission PacketInfo;
+
+        void Start(Player* owner, std::vector<uint64> followers);
     };
 
     explicit Garrison(Player* owner);
