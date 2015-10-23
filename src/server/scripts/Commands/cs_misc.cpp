@@ -322,9 +322,11 @@ public:
 
         uint32 zoneId, areaId;
         object->GetZoneAndAreaId(zoneId, areaId);
+        uint32 pzoneId = GetParentZoneOrSelf(zoneId);
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(object->GetMapId());
         AreaTableEntry const* zoneEntry = GetAreaEntryByAreaID(zoneId);
+        AreaTableEntry const* pzoneEntry = GetAreaEntryByAreaID(pzoneId);
         AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(areaId);
 
         float zoneX = object->GetPositionX();
@@ -367,9 +369,11 @@ public:
         else
             handler->PSendSysMessage("no VMAP available for area info");
 
+        uint32 pZone = GetParentZoneOrSelf(zoneId);
         handler->PSendSysMessage(LANG_MAP_POSITION,
             object->GetMapId(), (mapEntry ? mapEntry->name : "<unknown>"),
             zoneId, (zoneEntry ? zoneEntry->AreaName_lang : "<unknown>"),
+            pzoneId, (pzoneEntry ? pzoneEntry->AreaName_lang : "<unknown>"),
             areaId, AreaName,
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
