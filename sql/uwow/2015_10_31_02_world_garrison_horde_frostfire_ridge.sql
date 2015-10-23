@@ -127,3 +127,10 @@ REPLACE INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`
 -- Q: 34378
 REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, actiontype, `comment`)
 VALUES ('161033', '160767', '0', '0', 'Q34378 link create garnisone');
+
+-- Q: 34824 ALLIANCE Q: 35176
+REPLACE INTO spell_script_names (`spell_id`, `ScriptName`) VALUES ('173847', 'spell_garrison_cache_loot');
+
+DELETE FROM `creature_text` WHERE entry = 80223;
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(80223, 0, 0, 'Не забудь потом как-нибудь снова заглянуть за ресурсами, командир. Во время твоего отсутствия батраки будут складывать все вот в этот сундук.', 12, 0, 100, 1, 0, 0, 0, 'Леди Сена to Player');

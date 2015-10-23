@@ -76,6 +76,13 @@ public:
     {
         PrepareSpellScript(spell_garrison_cache_loot_SpellScript);
 
+        enum data
+        {
+            NPC__ = 80223,
+            QUESTA = 35176,
+            QUESTH = 34824,
+        };
+
         void HandleScriptEffect(SpellEffIndex effIndex)
         {
             PreventHitDefaultEffect(effIndex);
@@ -90,7 +97,12 @@ public:
                     return;
                 
                 plr->ModifyCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, garr->GetResNumber(), false, false, true, true, true);
-                garr->UpdateResTakenTime();   
+                garr->UpdateResTakenTime();
+
+                if (plr->GetQuestStatus(QUESTA) == QUEST_STATUS_INCOMPLETE ||
+                    plr->GetQuestStatus(QUESTH) == QUEST_STATUS_INCOMPLETE)
+                if (Creature *c = plr->FindNearestCreature(NPC__, 100.0f))
+                    sCreatureTextMgr->SendChat(c, TEXT_GENERIC_0, plr->GetGUID());
             }
         }
 
