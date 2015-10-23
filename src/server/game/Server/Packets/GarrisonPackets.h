@@ -444,6 +444,19 @@ namespace WorldPackets
             std::vector<uint64> FollowerDBIDs;
         };
 
+        class GarrisonCompleteMissionResult final : public ServerPacket
+        {
+        public:
+            GarrisonCompleteMissionResult() : ServerPacket(SMSG_GARRISON_COMPLETE_MISSION_RESULT, 36 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
+            GarrisonMission MissionData;
+            uint32 MissionRecID = 0;
+            bool Succeeded = false;
+        };
+
         class GarrisonIsUpgradeableResult final : public ServerPacket
         {
         public:

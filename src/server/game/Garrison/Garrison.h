@@ -111,8 +111,10 @@ public:
     struct Mission
     {
         WorldPackets::Garrison::GarrisonMission PacketInfo;
+        //std::vector<uint64> FollowerDBIDs;
 
         void Start(Player* owner, std::vector<uint64> const& followers);
+        void Complete(Player* owner);
     };
 
     explicit Garrison(Player* owner);
@@ -152,7 +154,7 @@ public:
     void OpenMissionNPC(Player* owner);
     Mission const* GetMission(uint64 dbId) const;
     Mission* GetMissionByRecID(uint32 missionRecID);
-    void SendStartMission(Player * owner, uint32 missionRecID, std::vector<uint64> followers);
+    void GetFollowersForMission(uint64 missionDbID, std::vector<uint64> &followers) const;
 
     void SendInfo();
     void SendRemoteInfo() const;

@@ -369,6 +369,17 @@ WorldPacket const* WorldPackets::Garrison::GarrisonStartMissionResult::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Garrison::GarrisonCompleteMissionResult::Write()
+{
+    _worldPacket << Result;
+    _worldPacket << MissionData;
+    _worldPacket << MissionRecID;
+    _worldPacket.WriteBit(Succeeded);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Garrison::GarrisonIsUpgradeableResult::Write()
 {
     _worldPacket << Result;

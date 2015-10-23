@@ -1068,7 +1068,47 @@ void Garrison::Mission::Start(Player* owner, std::vector<uint64> const& follower
         resp.notOpen = true;
         owner->SendDirectMessage(resp.Write());
     }
-}/*
+}
+
+void Garrison::Mission::Complete(Player* owner)
+{
+    if (Garrison* garrison = owner->GetGarrison())
+    {
+        std::vector<uint64> followers;
+        followers.clear();
+
+        garrison->GetFollowersForMission(PacketInfo.DbID, followers);
+
+        for (auto f : followers)
+        {
+            if (Garrison::Follower* follower = garrison->GetFollower(f))
+                follower->PacketInfo.CurrentMissionID = 0;
+        }
+
+        PacketInfo.MissionState = 2;
+
+        WorldPackets::Garrison::GarrisonCompleteMissionResult res;
+        res.MissionData = PacketInfo;
+        res.MissionRecID = PacketInfo.MissionRecID;
+        owner->SendDirectMessage(res.Write());
+    }
+}
+
+void Garrison::GetFollowersForMission(uint64 missionDbID, std::vector<uint64> &followers) const
+{
+    auto itr = _missions.find(missionDbID);
+    if (itr != _missions.end())
+    {
+        for (auto& f : _followers)
+        {
+            if (f.second.PacketInfo.CurrentMissionID == itr->second.PacketInfo.MissionRecID)
+                followers.push_back(f.first);
+        }
+    }
+    >> >> >> >[Garrisons]: base implemented mission complete(without bonus reward)
+}
+
+/*
 The Garrison Cache next to your Town Hall accumulates  Garrison Resources (GR) 
 at a rate of 1 GR every 10 minutes of real time (6 per hour),
 which works out to 144 GR every full day (6 x 24hrs = 144 GR).

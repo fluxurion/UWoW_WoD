@@ -90,16 +90,17 @@ void WorldSession::HandleGarrisonCompleteMission(WorldPackets::Garrison::Garriso
     if (!sGarrMissionStore.LookupEntry(packet.MissionRecID))
         return;
 
-    /*if (Garrison* garrison = _player->GetGarrison())
+    if (Garrison* garrison = _player->GetGarrison())
     {
         if (Garrison::Mission* mission = garrison->GetMissionByRecID(packet.MissionRecID))
         {
-            if (!mission->IsCompleted())
+            if (mission->PacketInfo.MissionState != 1)
                 return;
 
-            mission->Complete();
+            if (mission->PacketInfo.StartTime + mission->PacketInfo.MissionDuration <= time(nullptr))
+                mission->Complete(_player);
         }
-    }*/
+    }
 }
 
 void WorldSession::HandleCreateShipment(WorldPackets::Garrison::CreateShipment& /*packet*/)
