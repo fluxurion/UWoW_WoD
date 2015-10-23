@@ -22587,7 +22587,7 @@ void Player::VehicleSpellInitialize()
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            spellsMessage.Actions.push_back(MAKE_UNIT_ACTION_BUTTON(0, i + 8));
+            spellsMessage.Buttons[i] = MAKE_UNIT_ACTION_BUTTON(0, i + 8);
             continue;
         }
 
@@ -22595,14 +22595,14 @@ void Player::VehicleSpellInitialize()
         if (!sConditionMgr->IsObjectMeetToConditions(this, vehicle, conditions))
         {
             sLog->outDebug(LOG_FILTER_CONDITIONSYS, "VehicleSpellInitialize: conditions not met for Vehicle entry %u spell %u", vehicle->ToCreature()->GetEntry(), spellId);
-            spellsMessage.Actions.push_back(MAKE_UNIT_ACTION_BUTTON(0, i + 8));
+            spellsMessage.Buttons[i] = MAKE_UNIT_ACTION_BUTTON(0, i + 8);
             continue;
         }
 
         if (spellInfo->IsPassive())
             vehicle->CastSpell(vehicle, spellId, true);
 
-        spellsMessage.Actions.push_back(MAKE_UNIT_ACTION_BUTTON(spellId, i + 8));
+        spellsMessage.Buttons[i] = MAKE_UNIT_ACTION_BUTTON(spellId, i + 8);
     }
 
     time_t now = sWorld->GetGameTime();
