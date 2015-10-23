@@ -29964,6 +29964,10 @@ bool Player::CanSeeVignette(WorldObject *o)
 
 void Player::AddVignette(WorldObject *o)
 {
+    //! This is script vignett. More research need.
+    if (o->GetVignetteId() == 363)
+        return;
+
     PlayerVignette vignette;
     vignette.guid = o->GetVignetteGUID();
     vignette.vignetteId = o->GetVignetteId();
@@ -29972,6 +29976,7 @@ void Player::AddVignette(WorldObject *o)
     vignette.remove = false;
     vignette.update = false;
     vignette.position.Relocate(o);
+
     m_vignettes.insert(PlayerVignettesMap::value_type(o->GetGUID(), vignette));
 }
 
