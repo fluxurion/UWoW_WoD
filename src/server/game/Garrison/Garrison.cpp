@@ -643,16 +643,7 @@ Garrison::Mission const* Garrison::GetMission(uint64 dbId) const
 
 Garrison::Mission* Garrison::GetMissionByRecID(uint32 missionRecID)
 {
-    for (auto m : _missions)
-        if (m.second.PacketInfo.MissionRecID == missionRecID)
-            return &m.second;
-
-    return nullptr;
-}
-
-Garrison::Mission const* Garrison::GetMissionByRecID(uint32 missionRecID) const
-{
-    for (auto const m : _missions)
+    for (auto& m : _missions)
         if (m.second.PacketInfo.MissionRecID == missionRecID)
             return &m.second;
 
@@ -1052,7 +1043,7 @@ uint32 Garrison::GetAreaIdForTeam(uint32 team)
     return 0;
 }
 
-void Garrison::Mission::Start(Player* owner, std::vector<uint64> followers)
+void Garrison::Mission::Start(Player* owner, std::vector<uint64> const& followers)
 {
     if (Garrison* garrison = owner->GetGarrison())
     {
