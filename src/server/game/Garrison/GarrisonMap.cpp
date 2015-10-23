@@ -135,7 +135,7 @@ bool GarrisonMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     if (player->GetGUID() == _owner)
         _loadingPlayer = player;
 
-    bool result = Map::AddPlayerToMap(player, initPlayer);
+    bool result = InstanceMap::AddPlayerToMap(player, initPlayer);
 
     if (player->GetGUID() == _owner)
         _loadingPlayer = nullptr;
