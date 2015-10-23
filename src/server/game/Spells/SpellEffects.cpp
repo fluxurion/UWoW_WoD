@@ -1572,6 +1572,15 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         // special cases
         switch (triggered_spell_id)
         {
+            case 153795: //Skyreach: Rukhran - Pierce Armor
+            {
+                if (unitTarget->HasAura(77535) || unitTarget->HasAura(112048) || unitTarget->HasAura(115308)
+                || unitTarget->HasAura(132402) || unitTarget->HasAura(132403))
+                {
+                    return;
+                }
+                break;
+            }
             // Demonic Fury (not exist)
             case 104330:
             {

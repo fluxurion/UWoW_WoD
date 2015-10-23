@@ -76,10 +76,10 @@ public:
         {
             _EnterCombat();
 
-            //events.ScheduleEvent(EVENT_MELE_ATTACK, 2000); //36:41
-            //events.ScheduleEvent(EVENT_SMASH, 6000);
-            //events.ScheduleEvent(EVENT_BURST, 20000);
-            events.ScheduleEvent(EVENT_ENERGIZE_BEAM, 2000); //18s
+            events.ScheduleEvent(EVENT_MELE_ATTACK, 2000); //36:41
+            events.ScheduleEvent(EVENT_SMASH, 6000);
+            events.ScheduleEvent(EVENT_BURST, 20000);
+            events.ScheduleEvent(EVENT_ENERGIZE_BEAM, 18000);
         }
 
         void EnterEvadeMode()

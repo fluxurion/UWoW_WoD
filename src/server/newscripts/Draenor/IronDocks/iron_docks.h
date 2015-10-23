@@ -83,7 +83,7 @@ enum dungeonSpells
     SPELL_IRON_DOCKS_BANTER_7 = 168787,
 };
 
-Position const cageSpawn[19]  = 
+Position const cageSpawn[19] =
 {
     {924.45f, -1073.08f, 4.52119f},
     {6905.5f, -1096.7f, 4.91667f},
