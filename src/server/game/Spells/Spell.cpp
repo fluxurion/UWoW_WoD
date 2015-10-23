@@ -1454,17 +1454,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                         maxSize = m_spellInfo->GetMaxAffectedTargets(m_diffMode);
                         power = POWER_HEALTH;
                         break;
-                    case 57669: // Replenishment
-                        // In arenas Replenishment may only affect the caster
-                        if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->InArena())
-                        {
-                            unitTargets.clear();
-                            unitTargets.push_back(m_caster);
-                            break;
-                        }
-                        maxSize = 10;
-                        power = POWER_MANA;
-                        break;
                     default:
                         break;
                 }

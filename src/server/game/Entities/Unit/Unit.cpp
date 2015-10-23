@@ -7391,8 +7391,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     basepoints0 = CalculatePct(int32(damage), triggerAmount);
                     target = this;
                     triggered_spell_id = 30294;
-                    // Replenishment
-                    CastSpell(this, 57669, true, castItem, triggeredByAura);
                     break;
                 }
                 // Shadowflame (Voidheart Raiment set bonus)
@@ -7434,23 +7432,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
         }
         case SPELLFAMILY_PRIEST:
         {
-            // Vampiric Touch
-            if (dummySpell->SpellFamilyFlags[1] & 0x00000400)
-            {
-                if (!victim || !victim->isAlive())
-                    return false;
-
-                if (effIndex != 0)
-                    return false;
-
-                // victim is caster of aura
-                if (triggeredByAura->GetCasterGUID() != victim->GetGUID())
-                    return false;
-
-                // Energize 1% of max. mana
-                victim->CastSpell(victim, 57669, true, castItem, triggeredByAura);
-                return true;                                // no hidden cooldown
-            }
             // Divine Aegis
             if (dummySpell->Id == 47515)
             {

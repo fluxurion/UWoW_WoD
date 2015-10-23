@@ -4282,7 +4282,7 @@ void ObjectMgr::LoadQuests()
             {
                 switch (obj.Type)
                 {
-                case QUEST_OBJECTIVE_MONSTER:
+                    case QUEST_OBJECTIVE_MONSTER:
                     case QUEST_OBJECTIVE_ITEM:
                     case QUEST_OBJECTIVE_GAMEOBJECT:
                     case QUEST_OBJECTIVE_TALKTO:
@@ -4329,11 +4329,29 @@ void ObjectMgr::LoadQuests()
                     if (obj.Amount <= 0)
                         sLog->outError(LOG_FILTER_SQL, "Quest %u objective %u has invalid player kills count %d", qinfo->GetQuestId(), obj.ID, obj.Amount);
                     break;
+                case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
+                case QUEST_OBJECTIVE_OBTAIN_CURRENCY_AND_UPGRADE_GARRISON:
                 case QUEST_OBJECTIVE_CURRENCY:
                     if (!sCurrencyTypesStore.LookupEntry(obj.ObjectID))
                         sLog->outError(LOG_FILTER_SQL, "Quest %u objective %u has non existing currency %u", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
                     if (obj.Amount <= 0)
                         sLog->outError(LOG_FILTER_SQL, "Quest %u objective %u has invalid currency amount %d", qinfo->GetQuestId(), obj.ID, obj.Amount);
+                    break;
+                case QUEST_OBJECTIVE_LEARNSPELL:
+                    if (!sSpellMgr->GetSpellInfo(obj.ObjectID))
+                        sLog->outError(LOG_FILTER_SQL, "Quest %u has not exist SpellID: %u in ObjectID field ", qinfo->GetQuestId(), obj.ObjectID);
+                    break;
+                case QUEST_OBJECTIVE_MONEY:
+                case QUEST_OBJECTIVE_AREATRIGGER:
+                case QUEST_OBJECTIVE_PET_TRAINER_DEFEAT:
+                case QUEST_OBJECTIVE_DEFEATBATTLEPET:
+                case QUEST_OBJECTIVE_PET_BATTLE_VICTORIES:
+                    break;
+                case QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE:
+                    if (!sCriteriaStore.LookupEntry(obj.ObjectID))
+                        sLog->outError(LOG_FILTER_SQL, "Quest %u has not exist CriteriaTreeID: %u in ObjectID field ", qinfo->GetQuestId(), obj.ObjectID);
+                    break;
+                case QUEST_OBJECTIVE_EXCELLENCE_IN_ZONE:
                     break;
                 default:
                     sLog->outError(LOG_FILTER_SQL, "Quest %u objective %u has unhandled type %u", qinfo->GetQuestId(), obj.ID, obj.Type);

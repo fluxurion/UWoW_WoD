@@ -3819,11 +3819,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 45182:  // Cheat Death
                     spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
                     break;
-                case 123738: // Heart of the Wild VENGEANCE
-                    spellInfo->Effects[EFFECT_5].Effect = SPELL_EFFECT_APPLY_AURA;
-                    spellInfo->Effects[EFFECT_5].ApplyAuraName = SPELL_AURA_DUMMY;
-                    spellInfo->Effects[EFFECT_5].BasePoints = 150;
-                    break;
                 case 83381: // Kill Command
                     spellInfo->Attributes |= SPELL_ATTR0_IMPOSSIBLE_DODGE_PARRY_BLOCK;
                     break;
@@ -3960,7 +3955,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].MiscValue = SPELLMOD_DOT;
                     break;
                 case 74434: // Soulburn
-                    spellInfo->Effects[EFFECT_1].BasePoints = -100;
                     spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 33024;
                     break;
                 case 81269: // Efflorescence
@@ -4343,13 +4337,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 131116: // Raging Blow!
                 case 136050: // Malformed Blood
                     spellInfo->ProcCharges = 0;
-                    break;
-                case 82926: // Fire ! (for Master Marksman)
-                    spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
-                    spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
-                    spellInfo->Effects[EFFECT_0].MiscValue = SPELLMOD_CASTING_TIME;
-                    spellInfo->Effects[EFFECT_0].BasePoints = -100;
-                    spellInfo->Effects[EFFECT_0].SpellClassMask[0] |= 0x20000;
                     break;
                 case 90259: // Glyph of Frost Pillar (Root Aura)
                     spellInfo->Effects[EFFECT_0].MiscValue = 0;
@@ -5294,10 +5281,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 33619: // Reflective Shield
                     spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-                    break;
-                 // Drain Soul hack
-                case 1120:
-                    spellInfo->Effects[EFFECT_3].TriggerSpell = 0;
                     break;
                 // Thrall Lighting in goblin
                 case 68441:

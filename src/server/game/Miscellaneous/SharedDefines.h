@@ -427,7 +427,7 @@ enum SpellAttr0
     SPELL_ATTR0_UNK0                             = 0x00000001, //  0
     SPELL_ATTR0_REQ_AMMO                         = 0x00000002, //  1 on next ranged
     SPELL_ATTR0_ON_NEXT_SWING                    = 0x00000004, //  2
-    SPELL_ATTR0_IS_REPLENISHMENT                 = 0x00000008, //  3 not set in 3.0.3
+    SPELL_ATTR0_UNK                              = 0x00000008, //  3
     SPELL_ATTR0_ABILITY                          = 0x00000010, //  4 client puts 'ability' instead of 'spell' in game strings for these spells
     SPELL_ATTR0_TRADESPELL                       = 0x00000020, //  5 trade spells (recipes), will be added by client to a sublist of profession spell
     SPELL_ATTR0_PASSIVE                          = 0x00000040, //  6 Passive spell
@@ -918,7 +918,6 @@ enum SpellAttr13
     SPELL_ATTR13_UNK23                            = 0x00800000  // 23
 };
 
-#define MIN_TALENT_SPEC         0
 #define MAX_TALENT_SPEC         1
 #define MIN_TALENT_SPECS        1
 #define MAX_TALENT_SPECS        2

@@ -1109,16 +1109,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
             }
             break;
         }
-        case SPELL_AURA_PERIODIC_ENERGIZE:
-            switch (m_spellInfo->Id)
-            {
-            case 57669: // Replenishment (0.2% from max)
-                amount = CalculatePct(target->GetMaxPower(POWER_MANA), amount);
-                break;
-            default:
-                break;
-            }
-            break;
         case SPELL_AURA_PERIODIC_HEAL:
         {
             if (!caster || !target)
