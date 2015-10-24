@@ -214,6 +214,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_GARR_SITE_LEVEL_PLOT_INST, "SELECT ID, GarrSiteLevelID, GarrPlotInstanceID, LandmarkX, LandmarkY, Unknown"
         " FROM garr_site_level_plot_inst ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // CreatureDifficulty.db2
+    PrepareStatement(HOTFIX_SEL_CREATURE_DIFFICULTY, "SELECT ID, CreatureID, FactionID, Expansion, MinLevel, MaxLevel, Flags1, Flags2, "
+        "Flags3, Flags4, Flags5 FROM creature_difficulty ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // CurrencyTypes.db2
     PrepareStatement(HOTFIX_SEL_CURRENCY_TYPES, "SELECT ID, CategoryID, Name, InventoryIcon1, InventoryIcon2, SpellWeight, SpellCategory, MaxQty, "
         "MaxEarnablePerWeek, Flags, Quality, Description FROM currency_types ORDER BY ID DESC", CONNECTION_SYNCH);

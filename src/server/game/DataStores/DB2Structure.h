@@ -575,6 +575,17 @@ struct GarrSiteLevelPlotInstEntry
     uint32 Unknown;                                                  // 5
 };
 
+struct CreatureDifficultyEntry
+{
+    uint32      ID;
+    uint32      CreatureID;
+    uint32      FactionID;
+    uint32      Expansion;
+    uint32      MinLevel;
+    uint32      MaxLevel;
+    uint32      Flags[5];
+};
+
 struct CurrencyTypesEntry
 {
     uint32      ID;                                                 // 0

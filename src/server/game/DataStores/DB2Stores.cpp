@@ -37,6 +37,7 @@ DB2Storage<BattlePetSpeciesStateEntry>      sBattlePetSpeciesStateStore("BattleP
 DB2Storage<BattlePetSpeciesXAbilityEntry>   sBattlePetSpeciesXAbilityStore("BattlePetSpeciesXAbility.db2", BattlePetSpeciesXAbilityFormat, HOTFIX_SEL_BATTLE_PET_SPECIES_X_ABILITY);
 DB2Storage<BattlePetStateEntry>             sBattlePetStateStore("BattlePetState.db2", BattlePetStateFormat, HOTFIX_SEL_BATTLE_PET_STATE);
 DB2Storage<BroadcastTextEntry>              sBroadcastTextStore("BroadcastText.db2", BroadcastTextFormat, HOTFIX_SEL_BROADCAST_TEXT);
+DB2Storage<CreatureDifficultyEntry>         sCreatureDifficultyStore("CreatureDifficulty.db2", CreatureDifficultyFormat, HOTFIX_SEL_CREATURE_DIFFICULTY);
 DB2Storage<CurrencyTypesEntry>              sCurrencyTypesStore("CurrencyTypes.db2", CurrencyTypesFormat, HOTFIX_SEL_CURRENCY_TYPES);
 DB2Storage<CurvePointEntry>                 sCurvePointStore("CurvePoint.db2", CurvePointFormat, HOTFIX_SEL_CURVE_POINT);
 DB2Storage<GameObjectsEntry>                sGameObjectsStore("GameObjects.db2", GameObjectsFormat, HOTFIX_SEL_GAME_OBJECTS);
@@ -176,6 +177,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sBattlePetSpeciesXAbilityStore);
     LOAD_DB2(sBattlePetStateStore);
     LOAD_DB2(sBroadcastTextStore);
+    LOAD_DB2(sCreatureDifficultyStore);
     LOAD_DB2(sCurrencyTypesStore);
     LOAD_DB2(sCurvePointStore);
     LOAD_DB2(sGameObjectsStore);
