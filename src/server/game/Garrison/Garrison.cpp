@@ -617,15 +617,12 @@ void Garrison::AddFollower(uint32 garrFollowerId)
     Follower& follower = _followers[dbId];
     follower.PacketInfo.DbID = dbId;
     follower.PacketInfo.GarrFollowerID = garrFollowerId;
-    follower.PacketInfo.Quality = followerEntry->Quality;   // TODO: handle magic upgrades
+    follower.PacketInfo.Quality = follower.RollQuality(followerEntry->Quality);
     follower.PacketInfo.FollowerLevel = followerEntry->Level;
     follower.PacketInfo.ItemLevelWeapon = followerEntry->ItemLevelWeapon;
     follower.PacketInfo.ItemLevelArmor = followerEntry->ItemLevelArmor;
-    follower.PacketInfo.Xp = 0;
-    follower.PacketInfo.CurrentBuildingID = 0;
-    follower.PacketInfo.CurrentMissionID = 0;
     follower.PacketInfo.AbilityID = sGarrisonMgr.RollFollowerAbilities(followerEntry, follower.PacketInfo.Quality, GetFaction(), true);
-    follower.PacketInfo.FollowerStatus = 0;
+    follower.PacketInfo.FollowerStatus = FOLLOWER_STATUS_BASE;
 
     addFollowerResult.Follower = follower.PacketInfo;
     _owner->SendDirectMessage(addFollowerResult.Write());
@@ -1057,6 +1054,19 @@ void Garrison::Follower::IncreaseFollowerItemLevel(SpellInfo const* spellInfo, P
         update.Follower = PacketInfo;
         caster->SendDirectMessage(update.Write());
     }
+}
+
+uint8 Garrison::Follower::RollQuality(uint32 baseQuality)
+{
+    // 35% - rare, 7% - epic
+    uint32 r = urand(0, 100);
+    uint8 quality = 1;
+    if (r >= 65 && r < 90)
+        quality = 3;
+    else if (r >= 93 && r <= 100)
+        quality = 4;
+
+    return quality > baseQuality ? quality : baseQuality;
 }
 
 uint32 Garrison::GetAreaIdForTeam(uint32 team)

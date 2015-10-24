@@ -67,6 +67,7 @@ enum GarrisonError
 
 enum GarrisonFollowerStatus
 {
+    FOLLOWER_STATUS_BASE        = 0x00,
     FOLLOWER_STATUS_FAVORITE    = 0x01,
     FOLLOWER_STATUS_EXHAUSTED   = 0x02,
     FOLLOWER_STATUS_INACTIVE    = 0x04
@@ -113,6 +114,7 @@ public:
 
         uint32 GetItemLevel() const;
         void IncreaseFollowerItemLevel(SpellInfo const* spellInfo, Player* caster);
+        uint8 RollQuality(uint32 baseQuality);
     };
 
     struct Mission

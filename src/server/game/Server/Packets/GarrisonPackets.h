@@ -59,8 +59,8 @@ namespace WorldPackets
 
         struct GarrisonPlotInfo
         {
-            uint32 GarrPlotInstanceID = 0;
             Position PlotPos;
+            uint32 GarrPlotInstanceID = 0;
             uint32 PlotType = 0;
         };
 
@@ -86,7 +86,7 @@ namespace WorldPackets
             uint32 CurrentBuildingID = 0;
             uint32 CurrentMissionID = 0;
             std::list<GarrAbilityEntry const*> AbilityID;
-            uint32 FollowerStatus;
+            uint32 FollowerStatus = 0;
         };
 
         struct GarrisonMission
@@ -103,16 +103,16 @@ namespace WorldPackets
 
         struct LandingPageData
         {
-            uint32 MissionRecID = 0;
             uint64 FollowerDBID = 0;
+            uint32 MissionRecID = 0;
             uint32 Unk1 = 0;
             uint32 Unk2 = 0;
         };
 
         struct Shipment
         {
-            uint32 ShipmentRecID = 0;
             uint64 ShipmentID = 0;
+            uint32 ShipmentRecID = 0;
             time_t CreationTime = time(0);
             int32 ShipmentDuration = 0;
         };
@@ -178,9 +178,9 @@ namespace WorldPackets
             GarrisonPlaceBuildingResult() : ServerPacket(SMSG_GARRISON_PLACE_BUILDING_RESULT, 4 + 21 + 1) { }
 
             WorldPacket const* Write() override;
-
-            uint32 Result = 0;
+            
             GarrisonBuildingInfo BuildingInfo;
+            uint32 Result = 0;
             bool PlayActivationCinematic = false;
         };
 
@@ -260,9 +260,9 @@ namespace WorldPackets
         {
             GarrisonBuildingLandmark() : GarrBuildingPlotInstID(0), Pos() { }
             GarrisonBuildingLandmark(uint32 buildingPlotInstId, Position const& pos) : GarrBuildingPlotInstID(buildingPlotInstId), Pos(pos) { }
-
-            uint32 GarrBuildingPlotInstID;
+            
             Position Pos;
+            uint32 GarrBuildingPlotInstID;
         };
 
         class GarrisonBuildingLandmarks final : public ServerPacket
@@ -373,8 +373,8 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid NpcGUID;
-            uint32 MissionRecID = 0;
             std::vector<uint64> FollowerDBIDs;
+            uint32 MissionRecID = 0;
         };
 
         class GarrisonCompleteMission final : public ClientPacket
@@ -438,10 +438,10 @@ namespace WorldPackets
             GarrisonStartMissionResult() : ServerPacket(SMSG_GARRISON_START_MISSION_RESULT, 36 + 4 + 4) { }
 
             WorldPacket const* Write() override;
-
-            uint32 Result = 0;
+            
             GarrisonMission MissionData;
             std::vector<uint64> FollowerDBIDs;
+            uint32 Result = 0;
         };
 
         class GarrisonCompleteMissionResult final : public ServerPacket
@@ -450,9 +450,9 @@ namespace WorldPackets
             GarrisonCompleteMissionResult() : ServerPacket(SMSG_GARRISON_COMPLETE_MISSION_RESULT, 36 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
-
-            uint32 Result = 0;
+            
             GarrisonMission MissionData;
+            uint32 Result = 0;
             uint32 MissionRecID = 0;
             bool Succeeded = false;
         };
@@ -503,12 +503,12 @@ namespace WorldPackets
             GetShipmentInfoResponse() : ServerPacket(SMSG_GET_SHIPMENT_INFO_RESPONSE, 1 + 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
-
-            bool Success = false;
+            
+            std::vector<Shipment> Shipments;
             uint32 ShipmentID = 0;
             uint32 MaxShipments = 0;
             uint32 PlotInstanceID = 0;
-            std::vector<Shipment> Shipments;
+            bool Success = false;
         };
 
         class CreateShipmentResponse final : public ServerPacket
@@ -570,7 +570,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid TrophyGUID;
-            uint32 NewTrophyID;
+            uint32 NewTrophyID = 0;
         };
 
         class RevertTrophy final : public ClientPacket
@@ -590,7 +590,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 TrophyTypeID;
+            uint32 TrophyTypeID = 0;
         };
 
         class GarrisonSetFollowerInactive final : public ClientPacket
@@ -600,7 +600,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint64 FollowerDBID;
+            uint64 FollowerDBID = 0;
             bool Inactive = false;
         };
 
@@ -611,8 +611,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint64 FollowerDBID;
             ObjectGuid NpcGUID;
+            uint64 FollowerDBID = 0;
         };
 
         class GarrisonAssignFollowerToBuilding final : public ClientPacket
@@ -623,8 +623,8 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid NpcGUID;
-            uint32 PlotInstanceID;
-            uint64 FollowerDBID;
+            uint64 FollowerDBID = 0;
+            uint32 PlotInstanceID = 0;
         };
 
         class GetTrophyListResponse final : public ServerPacket
@@ -641,8 +641,8 @@ namespace WorldPackets
                 uint32 Unk2 = 0;
             };
 
-            bool Success = false;
             std::vector<TrophyData> MsgData;
+            bool Success = false;
         };
 
         class ReplaceTrophyResponse final : public ServerPacket
@@ -758,7 +758,7 @@ namespace WorldPackets
             uint32 unkCount = 0;
             uint32 processMissionCount = 0;
             std::vector<uint32> processMissionRecIDs;
-            bool notOpen;
+            bool notOpen = false;
         };
     }
 }
