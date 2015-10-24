@@ -1566,6 +1566,9 @@ bool SpellInfo::NeedsExplicitUnitTarget() const
 
 bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell, uint32 difficulty) const
 {
+    if(GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
+        return false;
+
     if (NeedsExplicitUnitTarget())
         return true;
 
