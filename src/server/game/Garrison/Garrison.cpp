@@ -329,20 +329,39 @@ void Garrison::InitializePlots()
 
 void Garrison::Upgrade()
 {
+    WorldPackets::Garrison::GarrisonUpgradeResult result;
+
     uint32 garrLvl = _siteLevel->Level;
 
     // check for cheting / modification in client
     if (garrLvl == 3)
+    {
+        result.Result = GARRISON_ERROR_MAX_LEVEL;
+        _owner->SendDirectMessage(result.Write());
         return;
+    }
 
     for (GarrSiteLevelEntry const* v : sGarrSiteLevelStore)
         if (v->SiteID == _siteLevel->SiteID && v->Level == garrLvl + 1)
             _siteLevel = v;
 
-    WorldPackets::Garrison::GarrisonUpgradeResult result;
     if (_siteLevel->Level == garrLvl)
     {
         result.Result = GARRISON_ERROR_NO_BUILDING;
+        _owner->SendDirectMessage(result.Write());
+        return;
+    }
+
+    if (!_owner->HasCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, _siteLevel->UpgradeResourceCost))
+    {
+        result.Result = GARRISON_ERROR_NOT_ENOUGH_CURRENCY;
+        _owner->SendDirectMessage(result.Write());
+        return;
+    }
+
+    if (!_owner->HasEnoughMoney(uint64(_siteLevel->UpgradeMoneyCost) * GOLD))
+    {
+        result.Result = GARRISON_ERROR_NOT_ENOUGH_GOLD;
         _owner->SendDirectMessage(result.Write());
         return;
     }
@@ -628,6 +647,15 @@ Garrison::Follower* Garrison::GetFollower(uint64 dbId)
     auto itr = _followers.find(dbId);
     if (itr != _followers.end())
         return &itr->second;
+
+    return nullptr;
+}
+
+Garrison::Follower const* Garrison::GetFollowerByID(uint32 entry)
+{
+    for (auto const& v : _followers)
+        if (v.second.PacketInfo.GarrFollowerID == entry)
+            return &v.second;
 
     return nullptr;
 }
