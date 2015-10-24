@@ -72,6 +72,13 @@ enum GarrisonFollowerStatus
     FOLLOWER_STATUS_INACTIVE    = 0x04
 };
 
+enum MissionState
+{
+    MISSION_STATE_AVIALABLE   = 0,
+    MISSION_STATE_IN_PROGRESS = 1,
+    MISSION_STATE_COMPLETED   = 2
+};
+
 class GameObject;
 class Map;
 

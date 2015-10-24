@@ -1056,7 +1056,7 @@ void Garrison::Mission::Start(Player* owner, std::vector<uint64> const& follower
                 return;
         }
 
-        PacketInfo.MissionState = 1;
+        PacketInfo.MissionState = MISSION_STATE_IN_PROGRESS;
         PacketInfo.StartTime = time(nullptr);
 
         WorldPackets::Garrison::GarrisonStartMissionResult missionRes;
@@ -1085,7 +1085,7 @@ void Garrison::Mission::Complete(Player* owner)
                 follower->PacketInfo.CurrentMissionID = 0;
         }
 
-        PacketInfo.MissionState = 2;
+        PacketInfo.MissionState = MISSION_STATE_COMPLETED;
 
         WorldPackets::Garrison::GarrisonCompleteMissionResult res;
         res.MissionData = PacketInfo;
