@@ -73,40 +73,39 @@ void WorldSession::HandleLearnTalent(WorldPackets::Talent::LearnTalent& packet)
         _player->SendTalentsInfoData(false);
 }
 
-//! 6.0.3
-void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
+void WorldSession::HandleConfirmRespecWipe(WorldPackets::Misc::ConfirmRespecWipe& packet)
 {
-    ObjectGuid guid;
-    recvData >> guid;
-    uint8 specializationReset = recvData.read<uint8>();
-
-    // Hack
-    if (GetPlayer()->HasAura(33786))
+    Player* player = GetPlayer();
+    if (!player)
         return;
 
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    // Hack
+    if (player->HasAura(33786))
+        return;
 
-    if (!specializationReset)
+    if (player->HasUnitState(UNIT_STATE_DIED))
+        player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    switch(packet.RespecType)
     {
-        if (!_player->ResetTalents())
-        {
-            WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM, 8+4);    //you have not any talent
-            data << uint8(0);
-            data << uint32(0);
-            data << ObjectGuid::Empty;
-            SendPacket(&data);
-            return;
-        }
+        case RESPEC_TYPE_TALENTS:
+            if (!player->ResetTalents())
+                player->SendTalentWipeConfirm(packet.RespecMaster, RESPEC_TYPE_TALENTS);
+            break;
+        case RESPEC_TYPE_SPEC:
+            player->ResetSpec();
+            break;
+        case RESPEC_TYPE_GLYPH:
+            break;
+        default:
+            break;
     }
-    else
-        _player->ResetSpec();
 
-    _player->SendTalentsInfoData(false);
+    player->SendTalentsInfoData(false);
 
-    if(Unit* unit = _player->GetSelectedUnit())
-        unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
+    // spell: "Untalent Visual Effect"
+    if (Unit* unit = player->GetSelectedUnit())
+        unit->CastSpell(player, 14867, true);  
 }
 
 void WorldSession::HandleShowTradeSkill(WorldPackets::Misc::ShowTradeSkill& packet)

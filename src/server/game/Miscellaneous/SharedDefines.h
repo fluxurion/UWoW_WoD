@@ -5011,4 +5011,11 @@ enum MountResultEnum : uint32
     MOUNT_RESULT_OK                 = 10
 };
 
+enum RespecType
+{
+    RESPEC_TYPE_TALENTS     = 0,
+    RESPEC_TYPE_SPEC        = 1,
+    RESPEC_TYPE_GLYPH       = 2
+};
+
 #endif

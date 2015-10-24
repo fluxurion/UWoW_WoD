@@ -1652,11 +1652,11 @@ class npc_rogue_trainer : public CreatureScript
                     break;
                 case GOSSIP_OPTION_UNLEARNTALENTS:
                     player->CLOSE_GOSSIP_MENU();
-                    player->SendTalentWipeConfirm(creature->GetGUID(), false);
+                    player->SendTalentWipeConfirm(creature->GetGUID(), RESPEC_TYPE_TALENTS);
                     break;
                 case GOSSIP_OPTION_UNLEARNSPECIALIZATION:
                     player->CLOSE_GOSSIP_MENU();
-                    player->SendTalentWipeConfirm(creature->GetGUID(), true);
+                    player->SendTalentWipeConfirm(creature->GetGUID(), RESPEC_TYPE_SPEC);
                     break;
                 case GOSSIP_OPTION_LEARNDUALSPEC:
                     if (player->GetSpecsCount() == 1 && !(player->getLevel() < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL)))

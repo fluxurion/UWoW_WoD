@@ -933,6 +933,29 @@ namespace WorldPackets
 
             int32 TeleportSpellID = 0;
         };
+
+        class RespecWipeConfirm final : public ServerPacket
+        {
+        public:
+            RespecWipeConfirm() : ServerPacket(SMSG_RESPEC_WIPE_CONFIRM, 16 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid RespecMaster;
+            uint32 Cost = 0;
+            RespecType RespecType = RESPEC_TYPE_TALENTS;
+        };
+
+        class ConfirmRespecWipe final : public ClientPacket
+        {
+        public:
+            ConfirmRespecWipe(WorldPacket&& packet) : ClientPacket(CMSG_CONFIRM_RESPEC_WIPE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid RespecMaster;
+            RespecType RespecType = RESPEC_TYPE_TALENTS;
+        }; 
     }
 }
 

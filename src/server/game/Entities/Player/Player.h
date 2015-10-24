@@ -2025,7 +2025,7 @@ class Player : public Unit, public GridObject<Player>
         bool m_mailsUpdated;
 
         void SetBindPoint(ObjectGuid guid);
-        void SendTalentWipeConfirm(ObjectGuid guid, bool specializaion);
+        void SendTalentWipeConfirm(ObjectGuid guid, RespecType = RESPEC_TYPE_TALENTS);
         void CalcRage(uint32 damage, bool attacker);
         void RegenerateAll();
         void Regenerate(Powers power, uint32 saveTimer);

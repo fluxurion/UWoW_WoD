@@ -11097,21 +11097,28 @@ void Player::SetBindPoint(ObjectGuid guid)
     GetSession()->SendPacket(WorldPackets::Misc::BinderConfirm(guid).Write());
 }
 
-//! 6.0.3
-void Player::SendTalentWipeConfirm(ObjectGuid guid, bool specialization)
+void Player::SendTalentWipeConfirm(ObjectGuid guid, RespecType type /*= RESPEC_TYPE_TALENTS*/)
 {
     uint32 cost = 0;
+    switch(type)
+    {
+        case RESPEC_TYPE_TALENTS:
+            cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost();
+            break;
+        case RESPEC_TYPE_SPEC:
+            cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetSpecializationCost();
+            break;
+        case RESPEC_TYPE_GLYPH:
+            break;
+        default:
+            break;
+    }
 
-    if (!specialization)
-        cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetTalentsCost();
-    else
-        cost = sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST) ? 0 : GetNextResetSpecializationCost();
-
-    WorldPacket data(SMSG_RESPEC_WIPE_CONFIRM);
-    data << uint8(specialization ? 1 : 0);  // 0: talent, 1: specialization, 2: glyph, 3: pet speciazlization
-    data << uint32(cost);
-    data << guid;
-    GetSession()->SendPacket(&data);
+    WorldPackets::Misc::RespecWipeConfirm wipeConfirm;
+    wipeConfirm.RespecMaster = guid;
+    wipeConfirm.RespecType = type;
+    wipeConfirm.Cost = cost;
+    GetSession()->SendPacket(wipeConfirm.Write());
 }
 
 /*********************************************************/
@@ -15721,11 +15728,11 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             break;
         case GOSSIP_OPTION_UNLEARNTALENTS:
             PlayerTalkClass->SendCloseGossip();
-            SendTalentWipeConfirm(guid, false);
+            SendTalentWipeConfirm(guid, RESPEC_TYPE_TALENTS);
             break;
          case GOSSIP_OPTION_UNLEARNSPECIALIZATION:
             PlayerTalkClass->SendCloseGossip();
-            SendTalentWipeConfirm(guid, true);
+            SendTalentWipeConfirm(guid, RESPEC_TYPE_SPEC);
             break;
         case GOSSIP_OPTION_TAXIVENDOR:
             GetSession()->SendTaxiMenu(source->ToCreature());

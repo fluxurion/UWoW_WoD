@@ -330,7 +330,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_COMPLETE_ALL_READY_SHIPMENTS,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Garrison::CompleteAllReadyShipments, &WorldSession::HandleCompleteAllReadyShipments);
     DEFINE_HANDLER(CMSG_COMPLETE_CINEMATIC,                                 STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Misc::CompleteCinematic, &WorldSession::HandleCompleteCinematic);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_COMPLETE_MOVIE,                          STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleCompleteMovie             );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_CONFIRM_RESPEC_WIPE,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleTalentWipeConfirmOpcode   );
+    DEFINE_HANDLER(CMSG_CONFIRM_RESPEC_WIPE,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Misc::ConfirmRespecWipe, &WorldSession::HandleConfirmRespecWipe);
     DEFINE_HANDLER(CMSG_CONNECT_TO_FAILED,                                  STATUS_NEVER,     PROCESS_INPLACE,      WorldPacket, &WorldSession::Handle_EarlyProccess);
     DEFINE_HANDLER(CMSG_CONVERT_RAID,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Party::ConvertRaid, &WorldSession::HandleConvertRaid);
     DEFINE_HANDLER(CMSG_CREATE_CHARACTER,                                   STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::CreateChar, &WorldSession::HandleCharCreateOpcode);

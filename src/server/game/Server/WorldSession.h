@@ -251,6 +251,8 @@ namespace WorldPackets
         class TogglePvP;
         class SetPvP;
         class WorldTeleport;
+        class ConfirmRespecWipe;
+        class ShowTradeSkill;
     }
 
     namespace Movement
@@ -363,7 +365,6 @@ namespace WorldPackets
         class SetTradeItem;
         class SetTradeCurrency;
         class TradeStatus;
-        class ShowTradeSkill;
     }
 
     namespace Who
@@ -1305,7 +1306,7 @@ class WorldSession
         void HandleCancelAura(WorldPackets::Spells::CancelAura& packet);
         void HandleCancelAutoRepeatSpellOpcode(WorldPacket& recvPacket);
 
-        void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);
+        void HandleConfirmRespecWipe(WorldPackets::Misc::ConfirmRespecWipe& packet);
         void HandleUnlearnSkill(WorldPackets::Spells::UnlearnSkill& packet);
         void HandleSetSpecialization(WorldPackets::Talent::SetSpecialization& packet);
         void HandleLearnTalent(WorldPackets::Talent::LearnTalent& packet);
