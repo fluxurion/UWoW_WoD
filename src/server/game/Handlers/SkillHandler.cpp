@@ -109,28 +109,21 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
         unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
 }
 
-void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
+void WorldSession::HandleShowTradeSkill(WorldPackets::Misc::ShowTradeSkill& packet)
 {
-    uint32 spellId, skillId;
-    ObjectGuid guid;
-
-    recvPacket >> spellId >> skillId;
-    //recvPacket.ReadGuidMask<6, 0, 2, 3, 5, 7, 1, 4>(guid);
-    //recvPacket.ReadGuidBytes<5, 6, 1, 3, 4, 0, 7, 2>(guid);
-
-    if (!sSkillLineStore.LookupEntry(skillId) || !sSpellMgr->GetSpellInfo(spellId))
+    if (!sSkillLineStore.LookupEntry(packet.SkillLineID) || !sSpellMgr->GetSpellInfo(packet.SpellID))
         return;
 
-    Player* player = sObjectAccessor->FindPlayer(guid);
+    Player* player = sObjectAccessor->FindPlayer(packet.PlayerGUID);
     if (!player)
         return;
 
     std::set<uint32> relatedSkills;
-    relatedSkills.insert(skillId);
+    relatedSkills.insert(packet.SkillLineID);
 
     for (SkillLineEntry const* skillLine : sSkillLineStore)
     {
-        if (skillLine->parentSkillId != skillId)
+        if (skillLine->parentSkillId != packet.SkillLineID)
             continue;
 
         if (!player->HasSkill(skillLine->parentSkillId))
@@ -140,26 +133,25 @@ void WorldSession::HandleQueryPlayerRecipes(WorldPacket& recvPacket)
     }
 
     std::set<uint32> profSpells;
-    PlayerSpellMap const& spellMap = player->GetSpellMap();
-    for (PlayerSpellMap::const_iterator itr = spellMap.begin(); itr != spellMap.end(); ++itr)
+    for (auto const& v : player->GetSpellMap())
     {
-        if (itr->second->state == PLAYERSPELL_REMOVED)
+        if (v.second->state == PLAYERSPELL_REMOVED)
             continue;
 
-        if (!itr->second->active || itr->second->disabled)
+        if (!v.second->active || v.second->disabled)
             continue;
 
-        for (std::set<uint32>::const_iterator itr2 = relatedSkills.begin(); itr2 != relatedSkills.end(); ++itr2)
-            if (IsPartOfSkillLine(*itr2, itr->first))
-                profSpells.insert(itr->first);
+        for (auto const& s : relatedSkills)
+            if (IsPartOfSkillLine(s, v.first))
+                profSpells.insert(v.first);
     }
 
     if (profSpells.empty())
         return;
 
     WorldPackets::Misc::ShowTradeSkillResponse response;
-    response.PlayerGUID = guid;
-    response.SpellId = spellId;
+    response.PlayerGUID = packet.PlayerGUID;
+    response.SpellId = packet.SpellID;
 
     for (uint32 const& x : profSpells)
         response.KnownAbilitySpellIDs.push_back(x);

@@ -1604,7 +1604,7 @@ class WorldSession
         void HandleChangeCurrencyFlags(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& packet);
         void HandleClearRaidMarker(WorldPackets::Party::ClearRaidMarker& packet);
-        void HandleQueryPlayerRecipes(WorldPacket& recvPacket);
+        void HandleShowTradeSkill(WorldPackets::Misc::ShowTradeSkill& packet);
         void HandleForcedReactions(WorldPackets::Reputation::RequestForcedReactions& packet);
         void HandleSaveCUFProfiles(WorldPacket& recvPacket);
         void SendLoadCUFProfiles();

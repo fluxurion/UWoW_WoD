@@ -609,6 +609,13 @@ WorldPacket const* WorldPackets::Misc::ShowTradeSkillResponse::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Misc::ShowTradeSkill::Read()
+{
+    _worldPacket >> PlayerGUID;
+    _worldPacket >> SpellID;
+    _worldPacket >> SkillLineID;
+}
+
 WorldPacket const* WorldPackets::Misc::SetTaskComplete::Write()
 {
     _worldPacket << TaskID;

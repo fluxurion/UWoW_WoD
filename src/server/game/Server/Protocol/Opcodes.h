@@ -724,8 +724,6 @@ enum OpcodeClient : uint32
     CMSG_WORLD_PORT_RESPONSE                          = 0x061D,
     CMSG_WORLD_TELEPORT                               = 0x0E97,
     CMSG_WRAP_ITEM                                    = 0x0528,
-
-    CMSG_QUERY_PLAYER_RECIPES = 0xBADD,
 };
 
 // SMSGs 6.1.2.19802

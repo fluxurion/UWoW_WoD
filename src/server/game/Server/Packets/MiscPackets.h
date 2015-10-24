@@ -838,6 +838,18 @@ namespace WorldPackets
             std::vector<int32> KnownAbilitySpellIDs;
         };
 
+        class ShowTradeSkill final : public ClientPacket
+        {
+        public:
+            ShowTradeSkill(WorldPacket&& packet) : ClientPacket(CMSG_SHOW_TRADE_SKILL, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PlayerGUID;
+            uint32 SpellID = 0;
+            uint32 SkillLineID = 0;
+        };
+
         class SetTaskComplete final : public ServerPacket
         {
         public:
