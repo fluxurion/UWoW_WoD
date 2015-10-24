@@ -268,6 +268,21 @@ namespace WorldPackets
             int32 MaxCount = 0;
             int32 GoldAwarded = 0;
         };
+
+        class LFGuildSetGuildPost final : public ClientPacket
+        {
+        public:
+            LFGuildSetGuildPost(WorldPacket&& packet) : ClientPacket(CMSG_LF_GUILD_SET_GUILD_POST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Availability = 0;
+            uint32 PlayStyle = 0;
+            uint32 ClassRoles = 0;
+            uint32 LevelRange = 0;
+            std::string Comment;
+            bool Active = false;
+        };
     }
 }
 

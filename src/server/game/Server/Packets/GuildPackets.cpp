@@ -250,3 +250,13 @@ WorldPacket const* WorldPackets::Guild::GuildChallengeCompleted::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Guild::LFGuildSetGuildPost::Read()
+{
+    _worldPacket >> PlayStyle;
+    _worldPacket >> Availability;
+    _worldPacket >> ClassRoles;
+    _worldPacket >> LevelRange;
+    Active = _worldPacket.ReadBit();
+    Comment = _worldPacket.ReadString(_worldPacket.ReadBits(10));
+}

@@ -180,6 +180,7 @@ namespace WorldPackets
     namespace Guild
     {
         class QueryGuildInfo;
+        class LFGuildSetGuildPost;
     }
 
     namespace Item
@@ -1214,7 +1215,7 @@ class WorldSession
         void HandleGuildFinderGetRecruits(WorldPacket& recvPacket);
         void HandleGuildFinderPostRequest(WorldPacket& recvPacket);
         void HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket);
-        void HandleGuildFinderSetGuildPost(WorldPacket& recvPacket);
+        void HandleLFGuildSetGuildPost(WorldPackets::Guild::LFGuildSetGuildPost& packet);
 
         void HandleEnableTaxiNode(WorldPackets::Taxi::EnableTaxiNode& packet);
         void HandleTaxiNodeStatusQuery(WorldPackets::Taxi::TaxiNodeStatusQuery& packet);

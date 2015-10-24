@@ -249,34 +249,25 @@ void WorldSession::HandleGuildFinderRemoveRecruit(WorldPacket& recvPacket)
     sGuildFinderMgr->RemoveMembershipRequest(GetPlayer()->GetGUID(), guildGuid);
 }
 
-// Sent any time a guild master sets an option in the interface and when listing / unlisting his guild
-void WorldSession::HandleGuildFinderSetGuildPost(WorldPacket& recvPacket)
+void WorldSession::HandleLFGuildSetGuildPost(WorldPackets::Guild::LFGuildSetGuildPost& packet)
 {
-    uint32 classRoles = 0;
-    uint32 availability = 0;
-    uint32 guildInterests =  0;
-    uint32 level = 0;
-
-    recvPacket >> guildInterests >> availability >> level >> classRoles;
-    bool listed = recvPacket.ReadBit();
     // Level sent is zero if untouched, force to any (from interface). Idk why
-    if (!level)
-        level = ANY_FINDER_LEVEL;
+    if (!packet.LevelRange)
+        packet.LevelRange = ANY_FINDER_LEVEL;
 
-    uint16 length = recvPacket.ReadBits(11);
-    std::string comment = recvPacket.ReadString(length);
+    if (!(packet.ClassRoles & GUILDFINDER_ALL_ROLES) || packet.ClassRoles > GUILDFINDER_ALL_ROLES)
+        return;
 
-    if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
+    if (!(packet.Availability & ALL_WEEK) || packet.Availability > ALL_WEEK)
         return;
-    if (!(availability & ALL_WEEK) || availability > ALL_WEEK)
+
+    if (!(packet.PlayStyle & ALL_INTERESTS) || packet.PlayStyle > ALL_INTERESTS)
         return;
-    if (!(guildInterests & ALL_INTERESTS) || guildInterests > ALL_INTERESTS)
-        return;
-    if (!(level & ALL_GUILDFINDER_LEVELS) || level > ALL_GUILDFINDER_LEVELS)
+
+    if (!(packet.LevelRange & ALL_GUILDFINDER_LEVELS) || packet.LevelRange > ALL_GUILDFINDER_LEVELS)
         return;
 
     Player* player = GetPlayer();
-
     if (!player->GetGuildId()) // Player must be in guild
         return;
 
@@ -285,6 +276,6 @@ void WorldSession::HandleGuildFinderSetGuildPost(WorldPacket& recvPacket)
             return;
 
     ObjectGuid guildGuid = ObjectGuid::Create<HighGuid::Guild>(player->GetGuildId());
-    LFGuildSettings settings(listed, player->GetTeamId(), guildGuid, classRoles, availability, guildInterests, level, comment);
+    LFGuildSettings settings(packet.Active, player->GetTeamId(), guildGuid, packet.ClassRoles, packet.Availability, packet.PlayStyle, packet.LevelRange, packet.Comment);
     sGuildFinderMgr->SetGuildSettings(guildGuid, settings);
 }
