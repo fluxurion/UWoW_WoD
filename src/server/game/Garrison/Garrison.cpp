@@ -1105,7 +1105,6 @@ void Garrison::GetFollowersForMission(uint64 missionDbID, std::vector<uint64> &f
                 followers.push_back(f.first);
         }
     }
-    >> >> >> >[Garrisons]: base implemented mission complete(without bonus reward)
 }
 
 /*

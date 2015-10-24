@@ -552,17 +552,6 @@ WorldPacket const* WorldPackets::Garrison::GarrisonFollowerChangedXP::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Garrison::GarrisonCompleteMissionResult::Write()
-{
-    _worldPacket << Result;
-    _worldPacket << MissionData;
-    _worldPacket << MissionRecID;
-    _worldPacket.WriteBit(Succeeded);
-    _worldPacket.FlushBits();
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::Garrison::GarrisonNumFollowerActivationsRemaining::Write()
 {
     _worldPacket << Amount;

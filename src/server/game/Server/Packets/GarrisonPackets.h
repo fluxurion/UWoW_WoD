@@ -699,19 +699,6 @@ namespace WorldPackets
             int32 Result = 0;
         };
 
-        class GarrisonCompleteMissionResult final : public ServerPacket
-        {
-        public:
-            GarrisonCompleteMissionResult() : ServerPacket(SMSG_GARRISON_COMPLETE_MISSION_RESULT) { }
-
-            WorldPacket const* Write() override;
-
-            GarrisonMission MissionData;
-            int32 Result = 0;
-            int32 MissionRecID = 0;
-            bool Succeeded = false;
-        };
-
         class GarrisonNumFollowerActivationsRemaining final : public ServerPacket
         {
         public:
