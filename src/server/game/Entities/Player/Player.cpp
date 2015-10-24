@@ -11116,7 +11116,7 @@ void Player::SendTalentWipeConfirm(ObjectGuid guid, RespecType type /*= RESPEC_T
 
     WorldPackets::Misc::RespecWipeConfirm wipeConfirm;
     wipeConfirm.RespecMaster = guid;
-    wipeConfirm.RespecType = type;
+    wipeConfirm.respecType = type;
     wipeConfirm.Cost = cost;
     GetSession()->SendPacket(wipeConfirm.Write());
 }

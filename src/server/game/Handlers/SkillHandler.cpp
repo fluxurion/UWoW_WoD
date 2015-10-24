@@ -86,7 +86,7 @@ void WorldSession::HandleConfirmRespecWipe(WorldPackets::Misc::ConfirmRespecWipe
     if (player->HasUnitState(UNIT_STATE_DIED))
         player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    switch(packet.RespecType)
+    switch(packet.respecType)
     {
         case RESPEC_TYPE_TALENTS:
             if (!player->ResetTalents())

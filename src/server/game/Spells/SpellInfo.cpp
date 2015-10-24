@@ -2340,18 +2340,6 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
                     return SPELL_CAST_OK;
             return SPELL_FAILED_BAD_TARGETS;
         }
-        if (neededTargets & TARGET_FLAG_FOLLOWER)
-        {
-            if(!unitTarget->ToPlayer())
-                return SPELL_FAILED_BAD_TARGETS;
-            if (Garrison* garr = unitTarget->ToPlayer()->GetGarrison())
-            {
-                if(!garr->GetFollowerByID(m_misc.GlyphSlot))
-                    return SPELL_FAILED_BAD_TARGETS;
-            }
-            else
-                return SPELL_FAILED_BAD_TARGETS;
-        }
     }
     return SPELL_CAST_OK;
 }

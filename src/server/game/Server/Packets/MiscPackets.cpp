@@ -685,7 +685,7 @@ WorldPacket const* WorldPackets::Misc::CustomLoadScreen::Write()
 
 WorldPacket const* WorldPackets::Misc::RespecWipeConfirm::Write()
 {
-    _worldPacket << int8(RespecType);
+    _worldPacket << int8(respecType);
     _worldPacket << Cost;
     _worldPacket << RespecMaster;
 
@@ -695,5 +695,5 @@ WorldPacket const* WorldPackets::Misc::RespecWipeConfirm::Write()
 void WorldPackets::Misc::ConfirmRespecWipe::Read()
 {
     _worldPacket >> RespecMaster;
-    RespecType = static_cast<::RespecType>(_worldPacket.read<uint8>());
+    respecType = static_cast<::RespecType>(_worldPacket.read<uint8>());
 }

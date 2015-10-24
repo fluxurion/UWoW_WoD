@@ -943,7 +943,7 @@ namespace WorldPackets
 
             ObjectGuid RespecMaster;
             uint32 Cost = 0;
-            RespecType RespecType = RESPEC_TYPE_TALENTS;
+            RespecType respecType = RESPEC_TYPE_TALENTS;
         };
 
         class ConfirmRespecWipe final : public ClientPacket
@@ -954,7 +954,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid RespecMaster;
-            RespecType RespecType = RESPEC_TYPE_TALENTS;
+            RespecType respecType = RESPEC_TYPE_TALENTS;
         }; 
     }
 }
