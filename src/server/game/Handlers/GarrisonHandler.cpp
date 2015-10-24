@@ -94,7 +94,7 @@ void WorldSession::HandleGarrisonCompleteMission(WorldPackets::Garrison::Garriso
     {
         if (Garrison::Mission* mission = garrison->GetMissionByRecID(packet.MissionRecID))
         {
-            if (mission->PacketInfo.MissionState != 1)
+            if (mission->PacketInfo.MissionState != MISSION_STATE_IN_PROGRESS)
                 return;
 
             if (mission->PacketInfo.StartTime + mission->PacketInfo.MissionDuration <= time(nullptr))
