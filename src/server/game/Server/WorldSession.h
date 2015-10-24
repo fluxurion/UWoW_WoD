@@ -568,6 +568,7 @@ namespace WorldPackets
         class Action;
         class NameQuery;
         class SetAction;
+        class PetCancelAura;
     }
 
     namespace LFG
@@ -1388,7 +1389,7 @@ class WorldSession
         void HandlePetSetAction(WorldPacket& recvData);
         void HandlePetAbandon(WorldPacket& recvData);
         void HandlePetRename(WorldPacket& recvData);
-        void HandlePetCancelAuraOpcode(WorldPacket& recvPacket);
+        void HandlePetCancelAura(WorldPackets::PetPackets::PetCancelAura& packet);
         void HandlePetSpellAutocastOpcode(WorldPacket& recvPacket);
         void HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& recvPacket);
 

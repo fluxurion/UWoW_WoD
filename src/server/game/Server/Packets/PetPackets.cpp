@@ -194,3 +194,9 @@ WorldPacket const* WorldPackets::PetPackets::TameFailure::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::PetPackets::PetCancelAura::Read()
+{
+    _worldPacket >> PetGUID;
+    _worldPacket >> SpellID;
+}

@@ -16,26 +16,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Chat.h"
 #include "Common.h"
+#include "CreatureAI.h"
 #include "DBCStores.h"
+#include "GameObjectAI.h"
+#include "GuildMgr.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "PetPackets.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellMgr.h"
+#include "SpellPackets.h"
+#include "TemporarySummon.h"
+#include "Totem.h"
+#include "TotemPackets.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "SpellMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "Spell.h"
-#include "Totem.h"
-#include "TemporarySummon.h"
-#include "SpellAuras.h"
-#include "CreatureAI.h"
-#include "ScriptMgr.h"
-#include "GameObjectAI.h"
-#include "SpellAuraEffects.h"
-#include "SpellPackets.h"
-#include "Chat.h"
-#include "TotemPackets.h"
 
 //! 6.0.3
 void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::ItemUse& cast)
@@ -338,35 +339,25 @@ void WorldSession::HandleCancelAura(WorldPackets::Spells::CancelAura& packet)
     player->RemoveOwnedAura(packet.SpellID, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
 }
 
-//! 5.4.1
-void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
+void WorldSession::HandlePetCancelAura(WorldPackets::PetPackets::PetCancelAura& packet)
 {
-    ObjectGuid guid;
-    uint32 spellId;
-
-    recvPacket >> spellId;
-
-    //recvPacket.WriteGuidMask<7, 2, 6, 4, 1, 5, 0, 3>(guid);
-    //recvPacket.WriteGuidBytes<0, 2, 3, 7, 4, 1, 6, 5>(guid);
-
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(packet.SpellID);
     if (!spellInfo)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET spell id %u", spellId);
+        sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET spell id %u", packet.SpellID);
         return;
     }
 
-    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
-
+    Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.PetGUID);
     if (!pet)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Attempt to cancel an aura for non-existant pet %u by player '%s'", uint32(guid.GetCounter()), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Attempt to cancel an aura for non-existant pet %u by player '%s'", uint32(packet.PetGUID.GetCounter()), GetPlayer()->GetName());
         return;
     }
 
     if (pet != GetPlayer()->GetGuardianPet() && pet != GetPlayer()->GetCharm())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Pet %u is not a pet of player '%s'", uint32(guid.GetCounter()), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Pet %u is not a pet of player '%s'", uint32(packet.PetGUID.GetCounter()), GetPlayer()->GetName());
         return;
     }
 
@@ -376,9 +367,9 @@ void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    pet->RemoveOwnedAura(spellId, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+    pet->RemoveOwnedAura(packet.SpellID, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
 
-    pet->AddCreatureSpellCooldown(spellId);
+    pet->AddCreatureSpellCooldown(packet.SpellID);
 }
 
 void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPacket& /*recvPacket*/)
