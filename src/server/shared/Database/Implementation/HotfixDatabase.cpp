@@ -179,7 +179,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GarrMechanic.db2
-    PrepareStatement(HOTFIX_SEL_GARR_MECHANIC, "SELECT ID, mechanicType, mod FROM garr_mechanic ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_GARR_MECHANIC, "SELECT ID, mechanicType, 'mod' FROM garr_mechanic ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GarrMission.db2
     PrepareStatement(HOTFIX_SEL_GARR_MISSION, "SELECT ID, requiredLevel, requiredItemLevel, mechanicID, reqFollowersCount, unk1, missionTime, "
