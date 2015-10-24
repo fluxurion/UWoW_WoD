@@ -62,7 +62,10 @@ enum SpellCastTargetFlags
     TARGET_FLAG_GLYPH_SLOT      = 0x00020000,               // used in glyph spells
     TARGET_FLAG_DEST_TARGET     = 0x00040000,               // sometimes appears with DEST_TARGET spells (may appear or not for a given spell)
     TARGET_FLAG_EXTRA_TARGETS   = 0x00080000,               // uint32 counter, loop { vec3 - screen position (?), guid }, not used so far
-    TARGET_FLAG_UNIT_PASSENGER  = 0x00100000,               // guessed, used to validate target (if vehicle passenger)
+    TARGET_FLAG_FOLLOWER        = 0x00100000,               // select follower
+    TARGET_FLAG_ITEM_HEIRLOOM   = 0x00200000,               // item
+    TARGET_FLAG_GARRISON_MISSION= 0x00400000,               // garrison mission
+    TARGET_FLAG_UNIT_PASSENGER  = 0x10000000,               // guessed, used to validate target (if vehicle passenger) flags is custom
 
     TARGET_FLAG_UNIT_MASK = TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY
         | TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT_DEAD | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER,
