@@ -1012,8 +1012,6 @@ void Unit::UpdateMeleeHastMod()
     amount *= GetTotalForAurasMultiplier(&auratypelist);
     amount -= 100.0f;
 
-    //sLog->outError(LOG_FILTER_NETWORKIO, "UpdateMeleeHastMod mod %f", mod);
-
     float value = 1.0f;
     float oldValue = 1.0f;
     if(isAnySummons())
@@ -1126,8 +1124,6 @@ void Unit::UpdateRangeHastMod()
 
     amount *= GetTotalForAurasMultiplier(&auratypelist);
     amount -= 100.0f;
-
-    //sLog->outError(LOG_FILTER_NETWORKIO, "UpdateRangeHastMod mod %f", mod);
 
     float value = 1.0f;
     if(isAnySummons())

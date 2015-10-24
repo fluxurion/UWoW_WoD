@@ -81,7 +81,7 @@ void ByteBuffer::textlike() const
 
 void ByteBuffer::hexlike() const
 {
-    if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled debug output
+    if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_WARN)) // optimize disabled debug output
         return;
 
     uint32 j = 1, k = 1;
