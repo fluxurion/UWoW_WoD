@@ -147,8 +147,9 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
 
             uint64 dbId = fields[0].GetUInt64();
             uint32 missionRecID = fields[1].GetUInt32();
-            //if (!sGarrMissionStore.LookupEntry(missionRecID))
-            //    continue;
+
+            if (!sGarrMissionStore.LookupEntry(missionRecID))
+                continue;
 
             Mission& mission = _missions[dbId];
             mission.PacketInfo.DbID = dbId;
@@ -234,6 +235,10 @@ void Garrison::SaveToDB(SQLTransaction trans)
     {
         Mission const& mission = m.second;
         uint8 index = 0;
+
+        if (mission.PacketInfo.MissionState == MISSION_STATE_COMPLETED)
+            continue;
+
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_MISSIONS);
         stmt->setUInt64(index++, mission.PacketInfo.DbID);
         stmt->setUInt64(index++, _owner->GetGUID().GetCounter());
@@ -1186,6 +1191,20 @@ void Garrison::Mission::Complete(Player* owner)
 {
     if (Garrison* garrison = owner->GetGarrison())
     {
+        // succeeded or failed
+        if (HasBonusRoll())
+            PacketInfo.MissionState = MISSION_STATE_WAITING_BONUS;
+        else
+            PacketInfo.MissionState = MISSION_STATE_COMPLETED;
+
+        WorldPackets::Garrison::GarrisonCompleteMissionResult res;
+        res.MissionData = PacketInfo;
+        res.MissionRecID = PacketInfo.MissionRecID;
+        owner->SendDirectMessage(res.Write());
+
+        // SMSG_GARRISON_FOLLOWER_CHANGED_XP
+        //
+
         std::vector<uint64> followers;
         followers.clear();
 
@@ -1196,13 +1215,26 @@ void Garrison::Mission::Complete(Player* owner)
             if (Garrison::Follower* follower = garrison->GetFollower(f))
                 follower->PacketInfo.CurrentMissionID = 0;
         }
+    }
+}
 
+void Garrison::Mission::BonusRoll(Player* owner)
+{
+    if (Garrison* garrison = owner->GetGarrison())
+    {
         PacketInfo.MissionState = MISSION_STATE_COMPLETED;
 
-        WorldPackets::Garrison::GarrisonCompleteMissionResult res;
+        WorldPackets::Garrison::GarrisonMissionBonusRollResult res;
         res.MissionData = PacketInfo;
         res.MissionRecID = PacketInfo.MissionRecID;
         owner->SendDirectMessage(res.Write());
+
+        // SMSG_GARRISON_FOLLOWER_CHANGED_XP
+        //
+
+        WorldPackets::Garrison::GarrisonMissionListUpdate data;
+        data.openMissionNpc = true;
+        owner->SendDirectMessage(data.Write());
     }
 }
 

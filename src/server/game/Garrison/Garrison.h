@@ -75,7 +75,7 @@ enum GarrisonFollowerStatus
 
 enum MissionState
 {
-    MISSION_STATE_AVIALABLE     = 0,
+    MISSION_STATE_AVAILABLE     = 0,
     MISSION_STATE_IN_PROGRESS   = 1,
     MISSION_STATE_WAITING_BONUS = 2,
     MISSION_STATE_COMPLETED     = 5
@@ -125,6 +125,8 @@ public:
 
         void Start(Player* owner, std::vector<uint64> const& followers);
         void Complete(Player* owner);
+        void BonusRoll(Player* onwer);
+        bool HasBonusRoll() { return roll_chance_i(70); }
     };
 
     explicit Garrison(Player* owner);

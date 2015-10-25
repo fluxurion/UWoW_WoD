@@ -55,8 +55,25 @@ void WorldSession::HandleGarrisonGetBuildingLandmarks(WorldPackets::Garrison::Ga
         garrison->SendBuildingLandmarks(_player);
 }
 
-void WorldSession::HandleGarrisonMissionBonusRoll(WorldPackets::Garrison::GarrisonMissionBonusRoll& /*packet*/)
-{ }
+void WorldSession::HandleGarrisonMissionBonusRoll(WorldPackets::Garrison::GarrisonMissionBonusRoll& packet)
+{
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))
+        return;
+
+    if (!sGarrMissionStore.LookupEntry(packet.MissionRecID))
+        return;
+
+    if (Garrison* garrison = _player->GetGarrison())
+    {
+        if (Garrison::Mission* mission = garrison->GetMissionByRecID(packet.MissionRecID))
+        {
+            if (mission->PacketInfo.MissionState != MISSION_STATE_WAITING_BONUS)
+                return;
+
+            mission->BonusRoll(_player);
+        }
+    }
+}
 
 void WorldSession::HandleGarrisonRequestLandingPageShipmentInfo(WorldPackets::Garrison::GarrisonRequestLandingPageShipmentInfo& /*packet*/)
 { }
@@ -78,7 +95,12 @@ void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonSt
     if (Garrison* garrison = _player->GetGarrison())
     {
         if (Garrison::Mission* mission = garrison->GetMissionByRecID(packet.MissionRecID))
+        {
+            if (mission->PacketInfo.MissionState != MISSION_STATE_AVAILABLE)
+                return;
+
             mission->Start(_player, packet.FollowerDBIDs);
+        }
     }
 }
 
