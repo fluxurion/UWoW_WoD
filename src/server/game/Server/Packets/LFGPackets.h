@@ -182,12 +182,12 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             RideTicket Ticket;
+            GuidVector SuspendedPlayers;
+            std::vector<uint32> Slots;
+            uint32 RequestedRoles = 0;
             uint8 SubType = 0;
             uint8 Reason = 0;
             uint8 Needs[3] = { };
-            std::vector<uint32> Slots;
-            uint32 RequestedRoles = 0;
-            GuidVector SuspendedPlayers;
             bool IsParty = false;
             bool NotifyUI = false;
             bool Joined = false;

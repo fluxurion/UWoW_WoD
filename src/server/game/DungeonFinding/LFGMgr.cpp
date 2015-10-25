@@ -1517,7 +1517,7 @@ void LFGMgr::SendUpdateStatus(Player* player, LfgUpdateData const& updateData, b
     update.RequestedRoles = GetRoles(guid);
     //update.SuspendedPlayers;
     update.IsParty = party;
-    update.NotifyUI = true;
+    update.NotifyUI = false;
     update.Joined = join;
     update.LfgJoined = lfgJoined;
     update.Queued = queued;

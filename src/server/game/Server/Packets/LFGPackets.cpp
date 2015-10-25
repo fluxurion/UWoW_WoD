@@ -98,7 +98,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::BootInfo const& boot
     data.WriteBits(boot.Reason.length(), 8);
     data << boot.Target;
     data << boot.TotalVotes;
-    data << boot.TotalVotes;
+    data << boot.BootVotes;
     data << boot.TimeLeft;
     data << boot.VotesNeeded;
     data << boot.Reason;
@@ -307,8 +307,6 @@ WorldPacket const* WorldPackets::LFG::QueueStatusUpdate::Write()
     _worldPacket.WriteBit(Joined);
     _worldPacket.WriteBit(LfgJoined);
     _worldPacket.WriteBit(Queued);
-    _worldPacket.FlushBits();
-
     _worldPacket.WriteBits(Comment.length(), 8);
     _worldPacket.WriteString(Comment);
 

@@ -238,6 +238,7 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
     for (auto const& map : joinData.lockmap)
     {
         WorldPackets::LFG::BlackList list;
+        list.PlayerGuid = boost::in_place();
         list.PlayerGuid = map.first;
         list.Initialize(map.second);
         result.blackList.push_back(list);
