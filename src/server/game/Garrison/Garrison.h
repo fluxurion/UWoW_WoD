@@ -164,17 +164,17 @@ public:
     Follower* GetFollowerByID(uint32 entry);
 
     // Missions
-    void OpenMissionNPC(Player* owner);
     Mission const* GetMission(uint64 dbId) const;
     Mission* GetMissionByRecID(uint32 missionRecID);
     void GetFollowersForMission(uint64 missionDbID, std::vector<uint64> &followers) const;
-    void RemoveFollowersFromMission(uint64 missionDbID, std::vector<uint64> &followers);
+    void RemoveFollowersFromMission(uint64 missionDbID);
 
     void SendInfo();
     void SendRemoteInfo() const;
     void SendBlueprintAndSpecializationData();
     void SendBuildingLandmarks(Player* receiver) const;
     void SendGarrisonUpgradebleResult(Player* receiver) const;
+    void SendMissionListUpdate(Player* owner, bool openMissionNpc) const;
 
     void ResetFollowerActivationLimit() { _followerActivationsRemainingToday = 1; }
 

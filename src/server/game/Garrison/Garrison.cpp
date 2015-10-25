@@ -706,13 +706,6 @@ void Garrison::SendInfo()
     _owner->SendDirectMessage(garrisonInfo.Write());
 }
 
-void Garrison::OpenMissionNPC(Player* owner)
-{
-    WorldPackets::Garrison::GarrisonMissionListUpdate data;
-    data.openMissionNpc = true;
-    owner->SendDirectMessage(data.Write());
-}
-
 void Garrison::SendRemoteInfo() const
 {
     MapEntry const* garrisonMap = sMapStore.LookupEntry(_siteLevel->MapID);
@@ -1181,9 +1174,7 @@ void Garrison::Mission::Start(Player* owner, std::vector<uint64> const& follower
         missionRes.FollowerDBIDs = followers;
         owner->SendDirectMessage(missionRes.Write());
 
-        WorldPackets::Garrison::GarrisonMissionListUpdate data;
-        data.openMissionNpc = false;
-        owner->SendDirectMessage(data.Write());
+        garrison->SendMissionListUpdate(owner, false);
     }
 }
 
@@ -1192,7 +1183,9 @@ void Garrison::Mission::Complete(Player* owner)
     if (Garrison* garrison = owner->GetGarrison())
     {
         // succeeded or failed
-        if (HasBonusRoll())
+        bool bonus = HasBonusRoll();
+
+        if (bonus)
             PacketInfo.MissionState = MISSION_STATE_WAITING_BONUS;
         else
             PacketInfo.MissionState = MISSION_STATE_COMPLETED;
@@ -1200,16 +1193,24 @@ void Garrison::Mission::Complete(Player* owner)
         WorldPackets::Garrison::GarrisonCompleteMissionResult res;
         res.MissionData = PacketInfo;
         res.MissionRecID = PacketInfo.MissionRecID;
+        res.Succeeded = bonus ? true : false;
         owner->SendDirectMessage(res.Write());
 
         // SMSG_GARRISON_FOLLOWER_CHANGED_XP
         //
 
-        std::vector<uint64> followers;
-        followers.clear();
+        garrison->RemoveFollowersFromMission(PacketInfo.DbID);
 
-        garrison->RemoveFollowersFromMission(PacketInfo.DbID, followers);
+        if (!bonus)
+            garrison->SendMissionListUpdate(owner, true);
     }
+}
+
+void Garrison::SendMissionListUpdate(Player* owner, bool openMissionNpc) const
+{
+    WorldPackets::Garrison::GarrisonMissionListUpdate data;
+    data.openMissionNpc = openMissionNpc;
+    owner->SendDirectMessage(data.Write());
 }
 
 void Garrison::Mission::BonusRoll(Player* owner)
@@ -1226,9 +1227,7 @@ void Garrison::Mission::BonusRoll(Player* owner)
         // SMSG_GARRISON_FOLLOWER_CHANGED_XP
         //
 
-        WorldPackets::Garrison::GarrisonMissionListUpdate data;
-        data.openMissionNpc = true;
-        owner->SendDirectMessage(data.Write());
+        garrison->SendMissionListUpdate(owner, true);
     }
 }
 
@@ -1245,17 +1244,16 @@ void Garrison::GetFollowersForMission(uint64 missionDbID, std::vector<uint64> &f
     }
 }
 
-void Garrison::RemoveFollowersFromMission(uint64 missionDbID, std::vector<uint64> &followers)
+void Garrison::RemoveFollowersFromMission(uint64 missionDbID)
 {
-    GetFollowersForMission(missionDbID, followers);
-
-    if (followers.empty())
-        return;
-
-    for (auto f : followers)
+    auto itr = _missions.find(missionDbID);
+    if (itr != _missions.end())
     {
-        if (Garrison::Follower* follower = GetFollower(f))
-            follower->PacketInfo.CurrentMissionID = 0;
+        for (auto& f : _followers)
+        {
+            if (f.second.PacketInfo.CurrentMissionID == itr->second.PacketInfo.MissionRecID)
+                f.second.PacketInfo.CurrentMissionID = 0;
+        }
     }
 }
 
