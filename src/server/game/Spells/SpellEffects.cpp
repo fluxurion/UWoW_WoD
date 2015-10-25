@@ -8417,11 +8417,18 @@ void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!unitTarget)
         return;
 
-    if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
+    Player* player = unitTarget->ToPlayer();
+    if (!player)
+        return;
+
+    if (Garrison* garrison = player->GetGarrison())
+    {
         garrison->AddFollower(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
+        player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+    }
 }
 
 void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)
