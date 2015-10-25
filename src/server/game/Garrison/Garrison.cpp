@@ -1208,13 +1208,7 @@ void Garrison::Mission::Complete(Player* owner)
         std::vector<uint64> followers;
         followers.clear();
 
-        garrison->GetFollowersForMission(PacketInfo.DbID, followers);
-
-        for (auto f : followers)
-        {
-            if (Garrison::Follower* follower = garrison->GetFollower(f))
-                follower->PacketInfo.CurrentMissionID = 0;
-        }
+        garrison->RemoveFollowersFromMission(PacketInfo.DbID, followers);
     }
 }
 
@@ -1248,6 +1242,20 @@ void Garrison::GetFollowersForMission(uint64 missionDbID, std::vector<uint64> &f
             if (f.second.PacketInfo.CurrentMissionID == itr->second.PacketInfo.MissionRecID)
                 followers.push_back(f.first);
         }
+    }
+}
+
+void Garrison::RemoveFollowersFromMission(uint64 missionDbID, std::vector<uint64> &followers)
+{
+    GetFollowersForMission(missionDbID, followers);
+
+    if (followers.empty())
+        return;
+
+    for (auto f : followers)
+    {
+        if (Garrison::Follower* follower = GetFollower(f))
+            follower->PacketInfo.CurrentMissionID = 0;
     }
 }
 

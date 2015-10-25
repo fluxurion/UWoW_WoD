@@ -168,6 +168,7 @@ public:
     Mission const* GetMission(uint64 dbId) const;
     Mission* GetMissionByRecID(uint32 missionRecID);
     void GetFollowersForMission(uint64 missionDbID, std::vector<uint64> &followers) const;
+    void RemoveFollowersFromMission(uint64 missionDbID, std::vector<uint64> &followers);
 
     void SendInfo();
     void SendRemoteInfo() const;
