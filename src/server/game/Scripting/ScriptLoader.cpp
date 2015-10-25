@@ -959,7 +959,9 @@ void AddSC_instance_the_secrets_of_ragefire();
 void AddSC_unga_ingoo();
 void AddSC_instance_unga_ingoo();
 
-
+//< Proving Grounds
+void AddSC_instance_proving_grounds();
+void AddSC_proving_grounds();
 
 // battlegrounds
 
@@ -1957,6 +1959,10 @@ void AddPandarieScripts()
     //< Unga Ingoo
     AddSC_unga_ingoo();
     AddSC_instance_unga_ingoo();
+
+    //< Proving Grounds
+    AddSC_instance_proving_grounds();
+    AddSC_proving_grounds();
 
 #endif
 }

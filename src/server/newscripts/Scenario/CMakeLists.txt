@@ -69,6 +69,9 @@ source_group(TrovesOfTheThunderKing FILES ${sources_TrovesOfTheThunderKing})
 file(GLOB_RECURSE sources_UngaIngoo Scenario/UngaIngoo/*.cpp Scenario/UngaIngoo/*.h)
 source_group(UngaIngoo FILES ${sources_UngaIngoo})
 
+file(GLOB_RECURSE sources_ProvingGrounds Scenario/ProvingGrounds/*.cpp Scenario/ProvingGrounds/*.h)
+source_group(ProvingGrounds FILES ${sources_ProvingGrounds})
+
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
@@ -92,7 +95,7 @@ set(scripts_STAT_SRCS
   ${sources_ThunderForge}
   ${sources_TrovesOfTheThunderKing}
   ${sources_UngaIngoo}
+  ${sources_ProvingGrounds}
 )
-
 
 message("  -> Prepared: Scenario")
