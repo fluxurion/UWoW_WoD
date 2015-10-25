@@ -8397,7 +8397,7 @@ void Spell::EffectLearnGarrisonBuilding(SpellEffIndex effIndex)
         return;
 
     if (Garrison* garrison = player->GetGarrison())
-        if (garrison->LearnBlueprint(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue))
+        if (garrison->LearnBlueprint(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue) && m_CastItem)
             player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
 }
 
@@ -8427,7 +8427,8 @@ void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
     if (Garrison* garrison = player->GetGarrison())
     {
         garrison->AddFollower(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
-        player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+        if (m_CastItem)
+            player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
     }
 }
 
