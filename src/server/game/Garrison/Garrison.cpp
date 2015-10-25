@@ -648,9 +648,9 @@ Garrison::Follower* Garrison::GetFollower(uint64 dbId)
     return nullptr;
 }
 
-Garrison::Follower const* Garrison::GetFollowerByID(uint32 entry)
+Garrison::Follower* Garrison::GetFollowerByID(uint32 entry)
 {
-    for (auto const& v : _followers)
+    for (auto& v : _followers)
         if (v.second.PacketInfo.GarrFollowerID == entry)
             return &v.second;
 
@@ -1009,10 +1009,13 @@ uint32 Garrison::Follower::GetItemLevel() const
 void Garrison::Follower::IncreaseFollowerItemLevel(SpellInfo const* spellInfo, Player* caster)
 {
     bool updateInfo = false;
-    
-    uint32 bp = spellInfo->Effects->BasePoints;
 
-    if (spellInfo->Effects->MiscValue == 2 && spellInfo->Effects->MiscValueB == 1) // increment weapon ilvl
+    uint32 bp = spellInfo->Effects[0].BasePoints;
+    uint32 mv = spellInfo->Effects[0].MiscValue;
+    uint32 mvb = spellInfo->Effects[0].MiscValueB;
+
+    // code for 6.2.2 - delete hardcoded cases by spellID after update
+    /*if (mv == 2 && mvb == 1) // increment weapon ilvl
     {
         if (PacketInfo.ItemLevelWeapon < 675)
         {
@@ -1020,8 +1023,7 @@ void Garrison::Follower::IncreaseFollowerItemLevel(SpellInfo const* spellInfo, P
             updateInfo = true;
         }
     }
-
-    if (spellInfo->Effects->MiscValue == 3 && spellInfo->Effects->MiscValueB == 1) // increment armor ilvl
+    else if (mv == 3 && mvb == 1) // increment armor ilvl
     {
         if (PacketInfo.ItemLevelArmor < 675)
         {
@@ -1029,8 +1031,7 @@ void Garrison::Follower::IncreaseFollowerItemLevel(SpellInfo const* spellInfo, P
             updateInfo = true;
         }
     }
-
-    if (spellInfo->Effects->MiscValue == 1 && !spellInfo->Effects->MiscValueB) // set armor ilvl
+    else if (mv == 1 && !mvb) // set armor ilvl
     {
         if (PacketInfo.ItemLevelArmor < bp)
         {
@@ -1038,18 +1039,91 @@ void Garrison::Follower::IncreaseFollowerItemLevel(SpellInfo const* spellInfo, P
             updateInfo = true;
         }
     }
-
-    if (!spellInfo->Effects->MiscValue && !spellInfo->Effects->MiscValueB == 1) // set weapon ilvl
+    else if (!mv && !mvb == 1) // set weapon ilvl
     {
         if (PacketInfo.ItemLevelWeapon < bp)
         {
             PacketInfo.ItemLevelWeapon = bp;
             updateInfo = true;
         }
+    }*/
+
+    switch (spellInfo->Id)
+    {
+        // Description: Equip a follower with an item level $s2 weapon.
+        case 168143:
+        case 168150:
+        case 168389:
+            if (PacketInfo.ItemLevelWeapon < mvb)
+            {
+                PacketInfo.ItemLevelWeapon = mvb;
+                updateInfo = true;
+            }
+            break;
+            // Description: Upgrade a follower's weapon by $s1 item levels.
+        case 168154:
+        case 168155:
+        case 168156:
+        case 168157:
+        case 168158:
+        case 168159:
+        case 168161:
+        case 168395:
+            if (PacketInfo.ItemLevelWeapon < mvb)
+            {
+                PacketInfo.ItemLevelWeapon += bp;
+                updateInfo = true;
+            }
+            break;
+            // Description: Upgrade a follower's weapon by 15 item levels, up to a total item level of 655.
+        case 168162:
+        case 168246:
+        case 168151:
+            if (PacketInfo.ItemLevelWeapon < 655)
+            {
+                PacketInfo.ItemLevelWeapon += bp;
+                updateInfo = true;
+            }
+            break;
+            // Description: Upgrade a follower's armor by $s1 item levels.
+        case 168235:
+        case 168236:
+        case 168237:
+        case 168238:
+        case 168239:
+        case 168240:
+        case 168241:
+            if (PacketInfo.ItemLevelArmor < mvb)
+            {
+                PacketInfo.ItemLevelArmor += bp;
+                updateInfo = true;
+            }
+            break;
+            // Description: Equip a follower with a full set of item level $s2 armor.
+        case 168242:
+        case 168243:
+        case 168244:
+        case 168245:
+            if (PacketInfo.ItemLevelArmor < mvb)
+            {
+                PacketInfo.ItemLevelArmor = mvb;
+                updateInfo = true;
+            }
+            break;
+        case 174914: // wrong spell for effect
+            break;
+        default:
+            break;
     }
 
     if (updateInfo)
     {
+        if (PacketInfo.ItemLevelWeapon > 675)
+            PacketInfo.ItemLevelWeapon = 675;
+
+        if (PacketInfo.ItemLevelArmor > 675)
+            PacketInfo.ItemLevelArmor = 675;
+
         WorldPackets::Garrison::GarrisonFollowerChangedItemLevel update;
         update.Follower = PacketInfo;
         caster->SendDirectMessage(update.Write());

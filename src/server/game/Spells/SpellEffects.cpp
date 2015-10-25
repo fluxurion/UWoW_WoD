@@ -8491,6 +8491,17 @@ void Spell::EffectRemovePhase(SpellEffIndex effIndex)
 
 void Spell::EffectIncreaseFollowerItemLevel(SpellEffIndex effIndex)
 {
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectIncreaseFollowerItemLevel GlyphSlot %u", m_misc.GlyphSlot);
-    //@TODO fixup target - find follower from player followers by spellCastData.Misc ( it's followerEntry ) and use IncreaseFollowerItemLevel on it
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* player = m_caster->ToPlayer();
+    if (!player)
+        return;
+
+    Garrison* garrison = player->GetGarrison();
+    if (!garrison)
+        return;
+
+    if (Garrison::Follower* follower = garrison->GetFollowerByID(m_misc.Data))
+        follower->IncreaseFollowerItemLevel(m_spellInfo, player);
 }

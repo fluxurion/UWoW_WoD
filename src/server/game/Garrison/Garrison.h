@@ -158,7 +158,7 @@ public:
     void AddFollower(uint32 garrFollowerId);
     Follower const* GetFollower(uint64 dbId) const;
     Follower* GetFollower(uint64 dbId);
-    Follower const* GetFollowerByID(uint32 entry);
+    Follower* GetFollowerByID(uint32 entry);
 
     // Missions
     void OpenMissionNPC(Player* owner);
