@@ -1884,10 +1884,6 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
         delayCast = new DelayCastEvent(ObjectGuid::Empty, pTarget ? pTarget->GetGUID() : ObjectGuid::Empty, triggered_spell_id);
     }
 
-    //Fix creature to move back old pos
-    if (m_caster->ToCreature())
-        m_caster->GetMotionMaster()->Clear(false);
-
     // Init dest coordinates
     float x, y, z, o = 0.0f;
     destTarget->GetPosition(x, y, z);

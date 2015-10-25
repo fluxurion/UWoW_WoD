@@ -27,8 +27,8 @@ enum eCreatures
     NPC_DREAD_RAVEN_HATCHLING    = 76253,
     NPC_PILE_OF_ASH              = 79505,
     NPC_SOLAR_FLARE              = 76227,
-    //Viryx
-    NPC_LENS_FLARE               = 76083,
+    //Other
+    NPC_RESHAD                   = 84782,
 };
 
 enum eGameObjects
@@ -44,6 +44,12 @@ enum eGameObjects
     GO_VIRYX_DOOR               = 235994,
     
     GO_CACHE_ARAKKOAN_TREASURES = 234165,
+};
+
+Position const reshadPos[2] =
+{
+    {1219.41f, 1849.78f, 291.05f},
+    {1124.76f, 1802.27f, 262.17f},
 };
 
 #endif

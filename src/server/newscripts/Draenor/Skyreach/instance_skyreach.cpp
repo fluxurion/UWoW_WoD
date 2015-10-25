@@ -60,6 +60,13 @@ public:
                             cache->SetRespawnTime(cache->GetRespawnDelay());
                     }
                     break;
+                case DATA_VIRYX:
+                    if (state == DONE)
+                    {
+                        if (Creature* reshad = instance->SummonCreature(NPC_RESHAD, reshadPos[0]))
+                            reshad->GetMotionMaster()->MovePoint(1, reshadPos[1]);
+                    }
+                    break;
             }
 
             return true;

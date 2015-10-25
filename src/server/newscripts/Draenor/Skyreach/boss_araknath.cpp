@@ -141,6 +141,12 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
+            if (me->GetDistance(me->GetHomePosition()) > 30.0f)
+            {
+                EnterEvadeMode();
+                return;
+            }
+
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)

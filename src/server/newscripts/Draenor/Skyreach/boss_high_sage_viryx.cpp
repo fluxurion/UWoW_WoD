@@ -43,20 +43,22 @@ enum eEvents
     EVENT_CALL_ADDS      = 4,
 };
 
-Position const centrPos = {1063.10f, 1799.82f, 262.17f};
+Position const centrPos = {1074.27f, 1792.10f, 262.17f};
 
-Position const linePos[4] =
+Position const linePos[6] =
 {
-    {1063.10f, 1799.82f, 262.17f}, //Right line
-    {1072.62f, 1733.22f, 262.17f},
-    {1063.10f, 1799.82f, 262.17f}, //Left line
-    {1125.21f, 1820.63f, 262.17f},
+    {1082.44f, 1800.62f, 262.0f}, //Right line
+    {1167.0f, 1844.0f, 262.0f},
+    {1069.32f, 1780.34f, 262.0f}, //Left line
+    {1087.0f, 1695.0f, 262.0f},
+    {1044.09f, 1753.11f, 262.0f},
+    {1111.97f, 1848.32f, 262.0f}, //Back line
 };
 
 Position const lineEndPos[2] =
 {
-    {1088.75f, 1722.93f, 262.17f},
     {1137.63f, 1820.51f, 262.17f},
+    {1088.75f, 1722.93f, 262.17f},
 };
 
 class boss_high_sage_viryx : public CreatureScript
@@ -120,6 +122,12 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
+            if (me->GetDistance(me->GetHomePosition()) > 55.0f)
+            {
+                EnterEvadeMode();
+                return;
+            }
+
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
@@ -140,7 +148,7 @@ public:
                         events.ScheduleEvent(EVENT_LENS_FLARE, 36000);
                         break;
                     case EVENT_CALL_ADDS:
-                        DoCast(156791); //SPELL_CALL_ADDS
+                        DoCast(SPELL_CALL_ADDS);
                         events.ScheduleEvent(EVENT_CALL_ADDS, 60000);
                         break;
                 }
@@ -236,10 +244,24 @@ public:
                         float angle = centrPos.GetAngle(me);
                         centrPos.SimplePosXYRelocationByAngle(x, y, z, 90.0f, angle);
                         Position moveTo {x, y, z};
-                        if (IsLinesCross(centrPos, moveTo, linePos[0], linePos[1])) //Right
+                        if (centrPos.IsLinesCross(centrPos, moveTo, linePos[0], linePos[1])) //Right
+                        {
                             me->GetMotionMaster()->MovePoint(1, lineEndPos[0]);
-                        else if (IsLinesCross(centrPos, moveTo, linePos[2], linePos[3])) //Left
+                        }
+                        else if (centrPos.IsLinesCross(centrPos, moveTo, linePos[2], linePos[3])) //Left
+                        {
                             me->GetMotionMaster()->MovePoint(1, lineEndPos[1]);
+                        }
+                        else if (centrPos.IsLinesCross(centrPos, moveTo, linePos[4], linePos[5])) //Back
+                        {
+                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                                if (summoner && summoner->ToPlayer())
+                                {
+                                    me->GetVehicleKit()->RemoveAllPassengers();
+                                    me->Kill(summoner);
+                                    me->DespawnOrUnsummon();
+                                }
+                        }
                         else
                             me->GetMotionMaster()->MovePoint(1, x, y, me->GetPositionZ());
                         break;
@@ -271,7 +293,7 @@ public:
 
         void IsSummonedBy(Unit* summoner)
         {
-            me->GetMotionMaster()->MoveFollow(summoner, 1.0f, 0.0f);
+            me->GetMotionMaster()->MoveFollow(summoner, 0.0f, 0.0f);
         }
 
         void UpdateAI(uint32 diff) {}
@@ -383,22 +405,8 @@ class spell_viryx_cast_down_summ : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(EFFECT_0);
 
-                switch (GetSpellInfo()->Id)
-                {
-                    case SPELL_CAST_DOWN_SUMM:
-                    {
-                        static Position const offset = {0.0f, 0.0f, 12.0f, 0.0f};
-                        GetHitDest()->RelocateOffset(offset);
-                        break;
-                    }
-                    /* case SPELL_DAGGERFALL_DAMAGE_FALL:
-                    {
-                        static Position const offset = {0.0f, 0.0f, -12.0f, 0.0f};
-                        WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
-                        dest->RelocateOffset(offset);
-                        break;
-                    } */
-                }
+                static Position const offset = {0.0f, 0.0f, 12.0f, 0.0f};
+                GetHitDest()->RelocateOffset(offset);
             }
 
             void Register()
