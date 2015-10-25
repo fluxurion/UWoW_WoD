@@ -633,7 +633,7 @@ void BattlePetMgr::SendPetBattleQueueStatus(QueueStatusData data)
         status.Msg.AverageWaitTime = _waitTimesAvgStore;
         status.Msg.Ticket.RequesterGuid = session->GetBattlenetAccountGUID();
         status.Msg.Ticket.Id = uint32(sObjectMgr->GetGenerator<HighGuid::PetBattle>()->Generate());
-        status.Msg.Ticket.Type = 5; // always 5 ?
+        status.Msg.Ticket.Type = TICKET_TYPE_PET_BATTLE;
         status.Msg.Ticket.Time = time(nullptr);
         session->SendPacket(status.Write());
     }

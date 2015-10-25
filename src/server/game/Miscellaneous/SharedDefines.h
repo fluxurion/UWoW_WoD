@@ -5018,4 +5018,12 @@ enum RespecType
     RESPEC_TYPE_GLYPH       = 2
 };
 
+enum LfgTicketType
+{
+    TICKET_TYPE_NONE        = 0,
+    TICKET_TYPE_BG_SYSTEM   = 1,
+    TICKET_TYPE_LFD_SYSTEM  = 2,
+    TICKET_TYPE_PET_BATTLE  = 5,
+};
+
 #endif

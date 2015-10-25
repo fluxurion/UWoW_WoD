@@ -1509,7 +1509,7 @@ void LFGMgr::SendUpdateStatus(Player* player, LfgUpdateData const& updateData, b
     WorldPackets::LFG::QueueStatusUpdate update;
     update.Ticket.RequesterGuid = guid;
     update.Ticket.Id = player->GetTeam();
-    update.Ticket.Type = 3;
+    update.Ticket.Type = TICKET_TYPE_LFD_SYSTEM;
     update.Ticket.Time = queueData ? queueData->joinTime : time(nullptr);
     update.SubType = queueData ? queueData->subType : LFG_SUBTYPE_DUNGEON;
     update.Reason = updateData.updateType;

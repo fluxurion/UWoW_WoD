@@ -246,7 +246,7 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
     result.Ticket.RequesterGuid = GetPlayer()->GetGUID();
     result.Ticket.Id = GetPlayer()->GetTeam();
     result.Ticket.Time = time(nullptr);
-    result.Ticket.Type = 3;
+    result.Ticket.Type = TICKET_TYPE_LFD_SYSTEM;
   
     SendPacket(result.Write());
 }
@@ -256,8 +256,8 @@ void WorldSession::SendLfgQueueStatus(lfg::LfgQueueStatusData const& queueData)
     WorldPackets::LFG::QueueStatus status;
     status.Ticket.RequesterGuid = GetPlayer()->GetGUID();
     status.Ticket.Id = GetPlayer()->GetTeam();
-    status.Ticket.Time = time(NULL) - queueData.queuedTime;
-    status.Ticket.Type = 3;
+    status.Ticket.Time = time(nullptr) - queueData.queuedTime;
+    status.Ticket.Type = TICKET_TYPE_LFD_SYSTEM;
     status.AvgWaitTimeMe = queueData.waitTimeAvg;
     status.AvgWaitTime = queueData.waitTime;
     status.QueuedTime = queueData.queuedTime;
@@ -368,7 +368,7 @@ void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
     update.Ticket.RequesterGuid = guid;
     update.Ticket.Id = GetPlayer()->GetTeam();
     update.Ticket.Time = time(nullptr);
-    update.Ticket.Type = 3;
+    update.Ticket.Type = TICKET_TYPE_LFD_SYSTEM;
     update.InstanceID = ObjectGuid::Create<HighGuid::RaidGroup>(dungeonEntry).GetGUIDLow();
     update.ProposalID = proposal.id;
     update.Slot = dungeonEntry;
