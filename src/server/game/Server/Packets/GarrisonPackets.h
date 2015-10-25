@@ -454,7 +454,7 @@ namespace WorldPackets
             GarrisonMission MissionData;
             uint32 Result = 0;
             uint32 MissionRecID = 0;
-            bool Succeeded = false;
+            bool Succeeded;
         };
 
         class GarrisonIsUpgradeableResult final : public ServerPacket
