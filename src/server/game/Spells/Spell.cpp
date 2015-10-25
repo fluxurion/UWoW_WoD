@@ -880,7 +880,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
             {
                 if (GetSpellInfo()->GetEffect(effIndex, m_diffMode)->TargetA.GetTarget() == GetSpellInfo()->Effects[j].TargetA.GetTarget() &&
                     GetSpellInfo()->GetEffect(effIndex, m_diffMode)->TargetB.GetTarget() == GetSpellInfo()->Effects[j].TargetB.GetTarget() &&
-                    GetSpellInfo()->GetEffect(effIndex, m_diffMode)->ImplicitTargetConditions == GetSpellInfo()->Effects[j].ImplicitTargetConditions &&
+                    GetSpellInfo()->Effects[effIndex].ImplicitTargetConditions == GetSpellInfo()->Effects[j].ImplicitTargetConditions &&
                     GetSpellInfo()->GetEffect(effIndex, m_diffMode)->CalcRadius(m_caster) == GetSpellInfo()->Effects[j].CalcRadius(m_caster) &&
                     GetSpellInfo()->Id != 119072)
                     effectMask |= 1 << j;
@@ -1050,7 +1050,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
             break;
     }
 
-    ConditionList* condList = m_spellInfo->GetEffect(effIndex, m_diffMode)->ImplicitTargetConditions;
+    ConditionList* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
 
     // handle emergency case - try to use other provided targets if no conditions provided
     if (targetType.GetCheckType() == TARGET_CHECK_ENTRY && (!condList || condList->empty()))
@@ -1176,7 +1176,7 @@ void Spell::SelectImplicitBetweenTargets(SpellEffIndex effIndex, SpellImplicitTa
     std::list<WorldObject*> targets;
     SpellTargetObjectTypes objectType = targetType.GetObjectType();
     SpellTargetCheckTypes selectionType = targetType.GetCheckType();
-    ConditionList* condList = m_spellInfo->GetEffect(effIndex, m_diffMode)->ImplicitTargetConditions;
+    ConditionList* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
     float width = 5.0f;
     float coneAngle = targetType.CalcDirectionAngle();
     float radius = m_spellInfo->GetEffect(effIndex, m_diffMode)->CalcRadius(m_caster) * m_spellValue->RadiusMod;
@@ -1274,7 +1274,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
     std::list<WorldObject*> targets;
     SpellTargetObjectTypes objectType = targetType.GetObjectType();
     SpellTargetCheckTypes selectionType = targetType.GetCheckType();
-    ConditionList* condList = m_spellInfo->GetEffect(effIndex, m_diffMode)->ImplicitTargetConditions;
+    ConditionList* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
     float coneAngle = M_PI/2;
 
     if (m_spellInfo->GetEffect(effIndex, m_diffMode)->TargetA.GetTarget() == TARGET_UNIT_CONE_ENEMY_110)
@@ -1392,9 +1392,9 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     if(radius <= 0)
         radius = 5000.0f;
 
-    SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->GetEffect(effIndex, m_diffMode)->ImplicitTargetConditions);
+    SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitAreaTargets %u, radius %f, GetObjectType %u, targets count %u, effIndex %i, Conditions %i", m_spellInfo->Id, radius, targetType.GetObjectType(), targets.size(), effIndex, m_spellInfo->GetEffect(effIndex, m_diffMode)->ImplicitTargetConditions);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitAreaTargets %u, radius %f, GetObjectType %u, targets count %u, effIndex %i, Conditions %i", m_spellInfo->Id, radius, targetType.GetObjectType(), targets.size(), effIndex, m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
 
     CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType.GetTarget());
 
@@ -1970,7 +1970,7 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
 
         std::list<WorldObject*> targets;
         SearchChainTargets(targets, maxTargets - 1, target, targetType.GetObjectType(), targetType.GetCheckType()
-            , m_spellInfo->GetEffect(effIndex, m_diffMode)->ImplicitTargetConditions, targetType.GetTarget() == TARGET_UNIT_TARGET_CHAINHEAL_ALLY);
+            , m_spellInfo->Effects[effIndex].ImplicitTargetConditions, targetType.GetTarget() == TARGET_UNIT_TARGET_CHAINHEAL_ALLY);
 
         // Chain primary target is added earlier
         CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType.GetTarget());
