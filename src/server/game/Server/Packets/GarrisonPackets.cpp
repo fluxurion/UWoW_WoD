@@ -524,11 +524,11 @@ WorldPacket const* WorldPackets::Garrison::GarrisonOpenMissionNpcResponse::Write
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Garrison::GarrisonUnk988Response::Write()
+WorldPacket const* WorldPackets::Garrison::GarrisonMissionListUpdate::Write()
 {
-    _worldPacket << unkCount;
-    _worldPacket << processMissionCount;
-    _worldPacket.WriteBit(notOpen);
+    _worldPacket << Result;
+    _worldPacket << updatedMissionCount;
+    _worldPacket.WriteBit(!openMissionNpc);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

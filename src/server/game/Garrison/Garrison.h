@@ -75,9 +75,10 @@ enum GarrisonFollowerStatus
 
 enum MissionState
 {
-    MISSION_STATE_AVIALABLE   = 0,
-    MISSION_STATE_IN_PROGRESS = 1,
-    MISSION_STATE_COMPLETED   = 2
+    MISSION_STATE_AVIALABLE     = 0,
+    MISSION_STATE_IN_PROGRESS   = 1,
+    MISSION_STATE_WAITING_BONUS = 2,
+    MISSION_STATE_COMPLETED     = 5
 };
 
 class GameObject;

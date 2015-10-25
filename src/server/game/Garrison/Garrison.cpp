@@ -703,8 +703,8 @@ void Garrison::SendInfo()
 
 void Garrison::OpenMissionNPC(Player* owner)
 {
-    WorldPackets::Garrison::GarrisonUnk988Response data;
-    data.notOpen = false;
+    WorldPackets::Garrison::GarrisonMissionListUpdate data;
+    data.openMissionNpc = true;
     owner->SendDirectMessage(data.Write());
 }
 
@@ -1176,9 +1176,9 @@ void Garrison::Mission::Start(Player* owner, std::vector<uint64> const& follower
         missionRes.FollowerDBIDs = followers;
         owner->SendDirectMessage(missionRes.Write());
 
-        WorldPackets::Garrison::GarrisonUnk988Response resp;
-        resp.notOpen = true;
-        owner->SendDirectMessage(resp.Write());
+        WorldPackets::Garrison::GarrisonMissionListUpdate data;
+        data.openMissionNpc = false;
+        owner->SendDirectMessage(data.Write());
     }
 }
 

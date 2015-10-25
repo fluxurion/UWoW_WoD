@@ -748,17 +748,17 @@ namespace WorldPackets
             Optional<std::string> Name;
         };
 
-        class GarrisonUnk988Response final : public ServerPacket
+        class GarrisonMissionListUpdate final : public ServerPacket
         {
         public:
-            GarrisonUnk988Response() : ServerPacket(SMSG_GARRISON_UNK_988, 4 + 4 + 1) { }
+            GarrisonMissionListUpdate() : ServerPacket(SMSG_GARRISON_MISSION_LIST_UPDATE, 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
-            uint32 unkCount = 0;
-            uint32 processMissionCount = 0;
-            std::vector<uint32> processMissionRecIDs;
-            bool notOpen = false;
+            uint32 Result = 0;
+            uint32 updatedMissionCount = 0;
+            std::vector<uint32> updatedMissionRecIDs;
+            bool openMissionNpc;
         };
     }
 }
