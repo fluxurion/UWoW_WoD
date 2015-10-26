@@ -118,8 +118,46 @@ public:
     }
 };
 
+//162714
+class spell_q34824 : public SpellScriptLoader
+{
+public:
+    spell_q34824() : SpellScriptLoader("spell_q34824") { }
+
+    class spell_q34824_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q34824_SpellScript);
+
+
+        void HandleScriptEffect(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            if (Unit* caster = GetCaster())
+            {
+                std::list<Player*> playerList;
+                caster->GetPlayerListInGrid(playerList, 10.0f);
+                for (auto player : playerList)
+                    player->KilledMonsterCredit(caster->GetEntry(), ObjectGuid::Empty);
+
+                if (Creature *c = caster->ToCreature())
+                    sCreatureTextMgr->SendChat(c, TEXT_GENERIC_0);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_q34824_SpellScript::HandleScriptEffect, 2, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q34824_SpellScript();
+    }
+};
 void AddSC_garrison_general()
 {
     new spell_garrison_hearthstone();
     new spell_garrison_cache_loot();
+    new spell_q34824();
 }

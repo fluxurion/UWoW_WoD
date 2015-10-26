@@ -41,11 +41,13 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 ('6720', '13', '0', '3364', '0', '0', '16', 'Draenor. FrostFireRidge. 34378 complete '),                     --
 ('6720', '100', '0', '2406 2537 3007 3021 3023 3025 3026 3427 3592 4086', '0', '0', '16', 'Draenor. FrostFireRidge.'); --
 
+-- Я не использую проверки по области подобно 7004 т.к. есть вопросы между уровнями гарнизонов.
+-- в целом это не особо нужно. так что эта погрешность может остаться без изменения.
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 6720; 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (23, 6720, 1, 0, 0, 14, 0, 33815, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. While non 33815'),
 (23, 6720, 2, 0, 0, 14, 0, 34402, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. While non 34402'),
-(23, 6720, 3, 0, 0, 23, 0, 7004, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. requare areaID=7004'),
+-- (23, 6720, 3, 0, 0, 23, 0, 7004, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. requare areaID=7004'),
 
 (23, 6720, 4, 0, 0, 8, 0, 34364, 0, 0, 1, 0, '', 'Draenor. FrostFireRidge. AND not rew 34364'),
 (23, 6720, 4, 1, 0, 40, 0, 594, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. scene comp. 594'),
@@ -57,7 +59,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 6720, 6, 0, 0, 42, 0, 604, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge.  triger scene 604'),
 (23, 6720, 6, 0, 1, 8, 0, 34364, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge.  or rew 34364'),
 (23, 6720, 7, 0, 0, 8, 0, 34364, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge.  or rew 34364'),
-(23, 6720, 8, 0, 0, 23, 0, 7004, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. requare areaID=7004'),
+-- (23, 6720, 8, 0, 0, 23, 0, 7004, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. requare areaID=7004'),
 (23, 6720, 8, 0, 0, 14, 0, 34375, 0, 0, 1, 0, '', 'Draenor. FrostFireRidge. While has status 34375'),
 (23, 6720, 9, 0, 0, 14, 0, 34375, 0, 0, 1, 0, '', 'Draenor. FrostFireRidge. While has status 34375'),
 (23, 6720, 10, 0, 0, 8, 0, 34375, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. rew 34375'),
@@ -97,6 +99,11 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 
 ('34379', '33816', '0', '0');
 
+-- misc
+DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 28 AND SourceEntry = 344;
+REPLACE INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+('28', '0', '344', '0', '0', '9', '0', '35914', '0', '0', '0', '0', 'vignette q. 35914 taken', NULL);
+
 -- Q: 33868 Родина Северных Волков
 REPLACE INTO `area_queststart` (`id`, `quest`) VALUES ('7257', '33868');
 
@@ -128,9 +135,32 @@ REPLACE INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`
 REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, actiontype, `comment`)
 VALUES ('161033', '160767', '0', '0', 'Q34378 link create garnisone');
 
--- Q: 34824 ALLIANCE Q: 35176
+
+-- Q: HORDE 34824 ALLIANCE Q: 35176 - only chest credit
 REPLACE INTO spell_script_names (`spell_id`, `ScriptName`) VALUES ('173847', 'spell_garrison_cache_loot');
+REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('162714', 'spell_q34824');
 
 DELETE FROM `creature_text` WHERE entry = 80223;
 REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (80223, 0, 0, 'Не забудь потом как-нибудь снова заглянуть за ресурсами, командир. Во время твоего отсутствия батраки будут складывать все вот в этот сундук.', 12, 0, 100, 1, 0, 0, 'Леди Сена to Player');
+
+UPDATE `creature_template` SET `gossip_menu_id`=86775, `AIName`='SmartAI' WHERE `entry`=86775;
+REPLACE INTO `gossip_menu` (`entry`, `text_id`) VALUES ('86775', '25119');
+REPLACE INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `box_coded`, `box_money`, `box_text`) VALUES
+(86775, 0, 0, 'Газлоу ищет тебя', 0, 0, ''); -- 86775
+DELETE FROM smart_scripts WHERE entryorguid = 86775;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(86775, 0, 0, 0, 62, 0, 100, 0, 86775, 0, 0, 0, 11, 173673, 18, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'At gossip select Q34824');
+
+
+UPDATE `creature_template` SET `gossip_menu_id`=80225, `AIName`='SmartAI' WHERE `entry`=80225;
+DELETE FROM `creature_text` WHERE entry = 80225;
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(80225, 0, 0, 'Ну вот и все! Армия полностью вооруженных и воодушевленных батраков принимается за дело.', 12, 0, 100, 0, 0, 0, 'Скеггит to Player');
+REPLACE INTO `gossip_menu` (`entry`, `text_id`) VALUES ('80225', '23892');
+REPLACE INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `box_coded`, `box_money`, `box_text`) VALUES
+(80225, 0, 0, 'Заставь батраков работать.', 0, 0, ''); -- 80225
+DELETE FROM smart_scripts WHERE entryorguid = 80225;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(80225, 0, 0, 0, 62, 0, 100, 0, 80225, 0, 0, 0, 11, 162714, 18, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'At gossip select Q34824');
+
