@@ -173,14 +173,20 @@ struct PlayerCurrency
     CurrencyTypesEntry const * currencyEntry;
 };
 
+enum VignetteState
+{
+   VIGNETTE_STATE_ADD       = 1,
+   VIGNETTE_STATE_UPDATE    = 2,
+   VIGNETTE_STATE_IN_GAME   = 3,
+   VIGNETTE_STATE_REMOVE    = 4
+};
+
 struct PlayerVignette
 {
     ObjectGuid guid;
     uint32 vignetteId;
     uint32 zoneId;
-    bool add;
-    bool remove;
-    bool update;
+    VignetteState state;
     Position position;
 };
 
@@ -3454,6 +3460,7 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerCurrenciesMap _currencyStorage;
         PlayerVignettesMap m_vignettes;
+        bool _vignetteChanged = false;
 
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
         CUFProfile* _CUFProfiles[MAX_CUF_PROFILES];

@@ -16314,8 +16314,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     phaseMgr.NotifyConditionChanged(phaseUdateData);
 
-
     UpdateForQuestWorldObjects();
+
+    SendVignette(true);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -16571,6 +16572,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     phaseMgr.NotifyConditionChanged(phaseUdateData);
 
+    SendVignette(true);
 
     // StoreNewItem, mail reward, etc. save data directly to the database
     // to prevent exploitable data desynchronisation we save the quest status to the database too
@@ -17201,6 +17203,8 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
     phaseMgr.NotifyConditionChanged(phaseUdateData);
 
     UpdateForQuestWorldObjects();
+
+    SendVignette(true);
 }
 
 void Player::RemoveActiveQuest(uint32 quest_id)
@@ -17217,6 +17221,8 @@ void Player::RemoveActiveQuest(uint32 quest_id)
         phaseUdateData.AddQuestUpdate(quest_id);
 
         phaseMgr.NotifyConditionChanged(phaseUdateData);
+
+        SendVignette(true);
         return;
     }
 }
@@ -17233,6 +17239,8 @@ void Player::RemoveRewardedQuest(uint32 quest_id)
         phaseUdateData.AddQuestUpdate(quest_id);
 
         phaseMgr.NotifyConditionChanged(phaseUdateData);
+
+        SendVignette(true);
     }
 
     if (uint32 questBit = GetQuestUniqueBitFlag(quest_id))
@@ -17927,6 +17935,8 @@ void Player::SetQuestObjectiveData(Quest const* quest, QuestObjective const* obj
         packet.ObjectiveType = obj->Type;
         GetSession()->SendPacket(packet.Write());
     }
+
+    SendVignette(false);
 }
 
 void Player::SendQuestComplete(Quest const* quest)
@@ -29621,77 +29631,6 @@ void Player::CheckItemCapLevel(bool hasCap)
     }
 }
 
-// Just for test. 
-// ToDo: add field with corect vignitte id for bosses.
-// ToDo2: system should work not at creature udapte, but at zone entering.
-void Player::SendVignette(bool force)
-{
-    if (m_vignettes.empty())
-        return;
-
-    uint32 removedCount = 0;
-    uint32 addedCount = 0;
-    uint32 updatedCount = 0;
-
-    for (auto const& x : m_vignettes)
-    {
-        if (x.second.remove)
-            removedCount++;
-
-        if (x.second.add)
-            addedCount++;
-
-        if (x.second.update)
-            updatedCount++;
-    }
-
-    if (!removedCount && !addedCount && !updatedCount)
-        return;
-
-    WorldPackets::Update::VignetteUpdate vignetteUpdate;
-    vignetteUpdate.ForceUpdate = force;
-
-    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end();)
-    {
-        if (itr->second.remove)
-        {
-            vignetteUpdate.Removed.IDs.push_back(itr->second.guid);
-            m_vignettes.erase(itr++);
-            continue;
-        }
-        ++itr;
-    }
-
-    for (auto& x : m_vignettes)
-    {
-        if (x.second.add)
-        {
-            vignetteUpdate.Added.IdList.IDs.push_back(x.second.guid);
-            WorldPackets::Update::VignetteClientData data;
-            data.ObjGUID = x.first;
-            data.Pos = x.second.position;
-            data.VignetteID = x.second.vignetteId;
-            data.ZoneID = x.second.zoneId;
-            vignetteUpdate.Added.Data.push_back(data);
-            x.second.add = false;
-        }
-
-        if (x.second.update)
-        {
-            vignetteUpdate.Updated.IdList.IDs.push_back(x.second.guid);
-            WorldPackets::Update::VignetteClientData data;
-            data.ObjGUID = x.first;
-            data.Pos = x.second.position;
-            data.VignetteID = x.second.vignetteId;
-            data.ZoneID = x.second.zoneId;
-            vignetteUpdate.Updated.Data.push_back(data);
-            x.second.update = false;
-        }
-    }
-
-    GetSession()->SendPacket(vignetteUpdate.Write());
-}
-
 bool TeleportEvent::Execute(uint64, uint32)
 {
     if (!m_owner->IsInWorld() || m_owner->IsBeingTeleported())
@@ -29944,6 +29883,39 @@ void Player::TrigerScene(uint32 instanceID, std::string const type)
 
 }
 
+void Player::UpdateSpellHastDurationRecovery()
+{
+    flag128 _mask = 0;
+    //     for (PlayerSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+    //     {
+    //         uint32 SpellId = itr->first;
+
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(/*SpellId*/116847))
+        //             if (!spellInfo->IsChanneled() && (spellInfo->AttributesEx8 & SPELL_ATTR8_HASTE_AFFECT_DURATION_RECOVERY) && spellInfo->RecoveryTime == spellInfo->GetMaxDuration())
+        //             {
+        _mask |= spellInfo->SpellFamilyFlags;
+    //             }
+    //     }
+
+    if (_mask)
+    {
+        for (SpellModList::iterator itr = m_spellMods[SPELLMOD_COOLDOWN].begin(); itr != m_spellMods[SPELLMOD_COOLDOWN].end(); ++itr)
+            if ((*itr)->spellId == 60000)
+            {
+                m_spellMods[SPELLMOD_COOLDOWN].remove(*itr);
+                break;
+            }
+
+        SpellModifier* modApply = new SpellModifier();
+        modApply->op = SPELLMOD_COOLDOWN;
+        modApply->type = SPELLMOD_PCT;
+        modApply->spellId = 60000;
+        modApply->mask = _mask;
+        modApply->value = -(100.0f - (GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE) * 100.0f));
+        AddSpellMod(modApply, true);
+    }
+}
+
 void Player::AddListner(WorldObject* o, bool /*update*/)
 {
     if(CanSeeVignette(o))
@@ -29984,12 +29956,11 @@ void Player::AddVignette(WorldObject *o)
     vignette.guid = o->GetVignetteGUID();
     vignette.vignetteId = o->GetVignetteId();
     vignette.zoneId = o->GetZoneId();
-    vignette.add = true;
-    vignette.remove = false;
-    vignette.update = false;
+    vignette.state = VIGNETTE_STATE_ADD;
     vignette.position.Relocate(o);
 
     m_vignettes.insert(PlayerVignettesMap::value_type(o->GetGUID(), vignette));
+    _vignetteChanged = true;
 }
 
 void Player::RemoveVignette(WorldObject *o, bool update)
@@ -29998,42 +29969,75 @@ void Player::RemoveVignette(WorldObject *o, bool update)
     if (itr == m_vignettes.end())
         return;
 
-    itr->second.remove = true;
+    itr->second.state = VIGNETTE_STATE_REMOVE;
+    _vignetteChanged = true;
+
     if(update)
         SendVignette();
 }
 
-void Player::UpdateSpellHastDurationRecovery()
+// Just for test. 
+// ToDo: add field with corect vignitte id for bosses.
+// ToDo2: system should work not at creature udapte, but at zone entering.
+void Player::SendVignette(bool force)
 {
-    flag128 _mask = 0;
-    //     for (PlayerSpellMap::iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
-    //     {
-    //         uint32 SpellId = itr->first;
+    if (m_vignettes.empty() || !force && !_vignetteChanged)
+        return;
 
-    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(/*SpellId*/116847))
-        //             if (!spellInfo->IsChanneled() && (spellInfo->AttributesEx8 & SPELL_ATTR8_HASTE_AFFECT_DURATION_RECOVERY) && spellInfo->RecoveryTime == spellInfo->GetMaxDuration())
-        //             {
-        _mask |= spellInfo->SpellFamilyFlags;
-    //             }
-    //     }
+    WorldPackets::Update::VignetteUpdate vignetteUpdate;
+    vignetteUpdate.ForceUpdate = /*force*/false; // force used for send all vignetts as add state. we not use it. and sending this could harm us.
 
-    if (_mask)
+    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end();)
     {
-        for (SpellModList::iterator itr = m_spellMods[SPELLMOD_COOLDOWN].begin(); itr != m_spellMods[SPELLMOD_COOLDOWN].end(); ++itr)
-            if ((*itr)->spellId == 60000)
-            {
-                m_spellMods[SPELLMOD_COOLDOWN].remove(*itr);
-                break;
-            }
+        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_VIGNETTE, itr->second.vignetteId);
+        bool checed = sConditionMgr->IsObjectMeetToConditions(this, conditions);
 
-        SpellModifier* modApply = new SpellModifier();
-        modApply->op = SPELLMOD_COOLDOWN;
-        modApply->type = SPELLMOD_PCT;
-        modApply->spellId = 60000;
-        modApply->mask = _mask;
-        modApply->value = -(100.0f - (GetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE) * 100.0f));
-        AddSpellMod(modApply, true);
+        PlayerVignette *vData = &itr->second;
+
+        if (vData->state == VIGNETTE_STATE_REMOVE || !checed && vData->state == VIGNETTE_STATE_IN_GAME)
+        {
+            vignetteUpdate.Removed.IDs.push_back(itr->second.guid);
+            if (vData->state == VIGNETTE_STATE_REMOVE)
+                m_vignettes.erase(itr++);
+            else
+                vData->state = VIGNETTE_STATE_ADD;  //for future posible enabling.
+            ++itr;
+            continue;
+        }
+
+        if (!checed || vData->state == VIGNETTE_STATE_IN_GAME)
+        {
+            ++itr;
+            continue;
+        }
+
+        WorldPackets::Update::VignetteClientData data;
+        data.ObjGUID = itr->first;
+        data.Pos = vData->position;
+        data.VignetteID = vData->vignetteId;
+        data.ZoneID = vData->zoneId;
+
+        if (vData->state == VIGNETTE_STATE_ADD)
+        {
+            vignetteUpdate.Added.IdList.IDs.push_back(vData->guid);
+            vignetteUpdate.Added.Data.push_back(data);
+            vData->state = VIGNETTE_STATE_IN_GAME;
+        }else if (vData->state = VIGNETTE_STATE_UPDATE)
+        {
+            vignetteUpdate.Updated.IdList.IDs.push_back(vData->guid);
+            vignetteUpdate.Updated.Data.push_back(data);
+            vData->state = VIGNETTE_STATE_IN_GAME;
+        }
+        ++itr;
     }
+
+    _vignetteChanged = false;
+
+    // no send if nothing.
+    if (vignetteUpdate.Removed.IDs.empty() && vignetteUpdate.Added.IdList.IDs.empty() && vignetteUpdate.Updated.IdList.IDs.empty())
+        return;
+
+    GetSession()->SendPacket(vignetteUpdate.Write());
 }
 
 void Player::HandleArenaDeserter()
@@ -30179,6 +30183,7 @@ void Player::AchieveCriteriaCredit(uint32 criteriaID)
             if (obj.ObjectID == criteriaID)
             {
                 SetQuestObjectiveData(qInfo, &obj, obj.Amount);
+
                 //SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE
                 if (CanCompleteQuest(questid))
                     CompleteQuest(questid);
