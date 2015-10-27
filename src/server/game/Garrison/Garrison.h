@@ -156,6 +156,7 @@ public:
     void PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId);
     void CancelBuildingConstruction(uint32 garrPlotInstanceId);
     void ActivateBuilding(uint32 garrPlotInstanceId);
+    uint32 GetCountOfBluePrints() const { return _knownBuildings.size();  }
 
     // Followers
     void AddFollower(uint32 garrFollowerId);

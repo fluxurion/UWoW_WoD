@@ -53,6 +53,7 @@
 #include "MovementPackets.h"
 #include "GameObjectPackets.h"
 #include "MiscPackets.h"
+#include "Garrison.h"
 
 Object::Object() : m_objectTypeId(TYPEID_OBJECT), m_objectType(TYPEMASK_OBJECT), m_uint32Values(NULL),
     _changedFields(NULL), m_valuesCount(0), _dynamicValuesCount(0), _fieldNotifyFlags(UF_FLAG_DYNAMIC), m_inWorld(false),
@@ -1264,6 +1265,19 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targ
                         }
                     }
 
+                    fieldBuffer << uint32(appendValue);
+                    continue; //skip by custom write
+                }
+                else if (index == UNIT_FIELD_NPC_FLAGS2)
+                {
+                    uint32 appendValue = m_uint32Values[index];
+
+                    if (appendValue & UNIT_NPC_FLAG2_GARRISON_ARCHITECT)
+                    {
+                        if (Garrison *garr = target->GetGarrison())
+                            if (!garr->GetCountOfBluePrints())
+                                appendValue &= ~UNIT_NPC_FLAG2_GARRISON_ARCHITECT;
+                    }
                     fieldBuffer << uint32(appendValue);
                     continue; //skip by custom write
                 }
