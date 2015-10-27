@@ -16082,6 +16082,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                     case QUEST_OBJECTIVE_GAMEOBJECT:
                     case QUEST_OBJECTIVE_PLAYERKILLS:
                     case QUEST_OBJECTIVE_TALKTO:
+                    case QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE:
                         if (GetQuestObjectiveData(qInfo, obj.StorageIndex) < obj.Amount)
                             return false;
                         break;
