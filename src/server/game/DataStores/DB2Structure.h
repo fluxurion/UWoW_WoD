@@ -387,9 +387,9 @@ struct GarrAbilityEffectEntry
     //uint32 unk1;              // 3
     //uint32 unk2               // 4
     //uint32 unk3               // 5
-    //float                     // 6
-    //float                     // 7
-    //float                     // 8
+    float amount;               // 6
+    float amount2;              // 7
+    float amount3;              // 8
     //uint32 unk5;              // 9
     //uint32 unk6               // 10
 };
@@ -472,6 +472,16 @@ struct GarrFollowerXAbilityEntry
     uint32 GarrFollowerID;                                          // 1
     uint32 GarrAbilityID;                                           // 2
     uint32 FactionIndex;                                            // 3
+};
+
+struct GarrEncounterEntry
+{
+    uint32 ID;                                                      // 0
+    uint32 creatureEntry;                                           // 1
+    LocalizedString* description;                                   // 2
+    float Mod;                                                      // 3
+    float Mod1;                                                     // 4
+    uint32 SomeFileDataID;                                          // 5
 };
 
 struct GarrMechanicEntry

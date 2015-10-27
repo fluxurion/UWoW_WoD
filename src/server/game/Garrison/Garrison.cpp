@@ -1157,11 +1157,21 @@ void Garrison::Mission::Start(Player* owner, std::vector<uint64> const& follower
 {
     if (Garrison* garrison = owner->GetGarrison())
     {
+        GarrMissionEntry const* mEntry = sGarrMissionStore.LookupEntry(PacketInfo.MissionRecID);
+
+        if (followers.size() > mEntry->reqFollowersCount)
+            return;
+
         // check followers
         for (auto f : followers)
         {
             if (Garrison::Follower* follower = garrison->GetFollower(f))
+            {
+                if (follower->PacketInfo.CurrentMissionID)
+                    return;
+
                 follower->PacketInfo.CurrentMissionID = PacketInfo.MissionRecID;
+            }
             else
                 return;
         }
@@ -1197,7 +1207,7 @@ void Garrison::Mission::Complete(Player* owner)
         owner->SendDirectMessage(res.Write());
 
         // SMSG_GARRISON_FOLLOWER_CHANGED_XP
-        //
+        // test
 
         garrison->RemoveFollowersFromMission(PacketInfo.DbID);
 
@@ -1253,6 +1263,21 @@ void Garrison::RemoveFollowersFromMission(uint64 missionDbID)
         {
             if (f.second.PacketInfo.CurrentMissionID == itr->second.PacketInfo.MissionRecID)
                 f.second.PacketInfo.CurrentMissionID = 0;
+        }
+    }
+}
+
+void Garrison::ChangeFollowersXpFromMission(uint64 missionDbID)
+{
+    auto itr = _missions.find(missionDbID);
+    if (itr != _missions.end())
+    {
+        for (auto& f : _followers)
+        {
+            if (f.second.PacketInfo.CurrentMissionID == itr->second.PacketInfo.MissionRecID)
+            {
+
+            }
         }
     }
 }

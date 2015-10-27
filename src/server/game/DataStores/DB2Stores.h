@@ -48,6 +48,7 @@ extern DB2Storage<GarrClassSpecEntry>               sGarrClassSpecStore;
 extern DB2Storage<GarrFollowerEntry>                sGarrFollowerStore;
 extern DB2Storage<GarrFollowerXAbilityEntry>        sGarrFollowerXAbilityStore;
 extern DB2Storage<GarrMissionEntry>                 sGarrMissionStore;
+extern DB2Storage<GarrMissionRewardEntry>           sGarrMissionRewardStore;
 extern DB2Storage<GarrPlotBuildingEntry>            sGarrPlotBuildingStore;
 extern DB2Storage<GarrPlotEntry>                    sGarrPlotStore;
 extern DB2Storage<GarrPlotInstanceEntry>            sGarrPlotInstanceStore;

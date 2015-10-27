@@ -116,6 +116,7 @@ public:
         uint32 GetItemLevel() const;
         void IncreaseFollowerItemLevel(SpellInfo const* spellInfo, Player* caster);
         uint8 RollQuality(uint32 baseQuality);
+        void XpChanged(Player* owner);
     };
 
     struct Mission
@@ -169,6 +170,7 @@ public:
     Mission* GetMissionByRecID(uint32 missionRecID);
     void GetFollowersForMission(uint64 missionDbID, std::vector<uint64> &followers) const;
     void RemoveFollowersFromMission(uint64 missionDbID);
+    void ChangeFollowersXpFromMission(uint64 missionDbID);
 
     void SendInfo();
     void SendRemoteInfo() const;
