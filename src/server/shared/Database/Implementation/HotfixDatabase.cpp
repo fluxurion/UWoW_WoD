@@ -174,6 +174,14 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM garr_follower ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_FOLLOWER, "SELECT ID, HordeSourceText_lang, AllianceSourceText_lang FROM garr_follower_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // GarrFollowerLevelXP.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_LEVEL_XP, "SELECT ID, Level, NextLevelXP, Unknown"
+        " FROM garr_follower_level_xp ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // GarrFollowerQuality.db2
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_QUALITY, "SELECT ID, Quality, NextQualityXP, Unknown"
+        " FROM garr_follower_quality ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // GarrFollowerXAbility.db2
     PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY, "SELECT ID, GarrFollowerID, GarrAbilityID, FactionIndex FROM garr_follower_x_ability"
         " ORDER BY ID DESC", CONNECTION_SYNCH);

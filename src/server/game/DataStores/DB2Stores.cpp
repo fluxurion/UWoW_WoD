@@ -46,6 +46,8 @@ DB2Storage<GarrBuildingEntry>               sGarrBuildingStore("GarrBuilding.db2
 DB2Storage<GarrBuildingPlotInstEntry>       sGarrBuildingPlotInstStore("GarrBuildingPlotInst.db2", GarrBuildingPlotInstFormat, HOTFIX_SEL_GARR_BUILDING_PLOT_INST);
 DB2Storage<GarrClassSpecEntry>              sGarrClassSpecStore("GarrClassSpec.db2", GarrClassSpecFormat, HOTFIX_SEL_GARR_CLASS_SPEC);
 DB2Storage<GarrFollowerEntry>               sGarrFollowerStore("GarrFollower.db2", GarrFollowerFormat, HOTFIX_SEL_GARR_FOLLOWER);
+DB2Storage<GarrFollowerLevelXPEntry>        sGarrFollowerStore("GarrFollowerLevelXP.db2", GarrFollowerLevelXPFormat, HOTFIX_SEL_GARR_FOLLOWER_LEVEL_XP);
+DB2Storage<GarrFollowerQualityEntry>        sGarrFollowerStore("GarrFollowerQuality.db2", GarrFollowerQualityFormat, HOTFIX_SEL_GARR_FOLLOWER_QUALITY);
 DB2Storage<GarrFollowerXAbilityEntry>       sGarrFollowerXAbilityStore("GarrFollowerXAbility.db2", GarrFollowerXAbilityFormat, HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY);
 DB2Storage<GarrMissionEntry>                sGarrMissionStore("GarrMission.db2", GarrMissionFormat, HOTFIX_SEL_GARR_MISSION);
 DB2Storage<GarrMissionRewardEntry>          sGarrMissionRewardStore("GarrMissionReward.db2", GarrMissionRewardFormat, HOTFIX_SEL_GARR_MISSION_REWARD);
@@ -187,6 +189,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sGarrBuildingStore);
     LOAD_DB2(sGarrClassSpecStore);
     LOAD_DB2(sGarrFollowerStore);
+    LOAD_DB2(sGarrFollowerLevelXpStore);
+    LOAD_DB2(sGarrFollowerQualityStore);
     LOAD_DB2(sGarrFollowerXAbilityStore);
     LOAD_DB2(sGarrMissionStore);
     LOAD_DB2(sGarrMissionRewardStore);

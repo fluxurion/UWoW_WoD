@@ -466,6 +466,22 @@ struct GarrFollowerEntry
     uint32 AlliancePortraitIconID;                                  // 20
 };
 
+struct GarrFollowerLevelXPEntry
+{
+    uint32 ID;
+    uint32 level;
+    uint32 nextLevelXP;
+    uint32 unk;
+};
+
+struct GarrFollowerQualityEntry
+{
+    uint32 ID;
+    uint32 quality;
+    uint32 nextQualityXP;
+    uint32 unk;
+};
+
 struct GarrFollowerXAbilityEntry
 {
     uint32 ID;                                                      // 0
@@ -510,7 +526,7 @@ struct GarrMissionEntry
     uint32 missionType;         // 14
     uint32 reqResourcesCount;   // 15
     uint32 unk4;                // 16
-    uint32 bonusXP;             // 17
+    uint32 baseXP;              // 17
     uint32 baseChance;          // 18
 };
 
@@ -526,6 +542,11 @@ struct GarrMissionRewardEntry
     uint32 unk2;                // 7
     uint32 unk3;                // 8
     uint32 unk4;                // 9
+
+    bool HasItemReward() { return rewardItemID != 0; }
+    bool HasMoneyReward() { return currencyID == 0 && currencyValue > 0; }
+    bool HasCurrencyReward(uint32 _currencyID) { return currencyID == _currencyID && currencyValue > 0; }
+    bool HasFollowerXPReward() { return rewardXP > 0; }
 };
 
 struct GarrMissionXEncounterEntry
