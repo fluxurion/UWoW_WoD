@@ -151,6 +151,7 @@ public:
     typedef std::unordered_map<uint32 /*SpeciesID*/, BattlePetStateMap> BattlePetSpeciesStates;
     typedef std::unordered_map<uint32 /*level*/, uint32 /*nextLevelXP*/> GarrFollowerLevelXPMap;
     typedef std::unordered_map<uint32 /*quality*/, uint32 /*nextQualityXP*/> GarrFollowerQualityXPMap;
+    typedef std::unordered_map<uint32 /*missionID*/, GarrMissionRewardEntry const*> GarrMissionRewardByMissionIDMap;
 
     static DB2Manager& Instance()
     {
@@ -189,6 +190,7 @@ public:
     BattlePetSpeciesEntry const* GetBattlePetSpeciesEntry(uint32 creatureEntry);
     uint32 GetXPForNextFollowerLevel(uint32 level);
     uint32 GetXPForNextFollowerQuality(uint32 quality);
+    GarrMissionRewardEntry const* GetMissionRewardByRecID(uint32 missionRecID);
 
     MapChallengeModeEntryMap _mapChallengeModeEntrybyMap; // @TODO: move this to private and make special getters
 
@@ -220,6 +222,7 @@ private:
     BattlePetSpeciesBySpellIdMap _battlePetSpeciesBySpellId;
     GarrFollowerLevelXPMap _garrFollowerLevelXP;
     GarrFollowerQualityXPMap _garrFollowerQualityXP;
+    GarrMissionRewardByMissionIDMap _garrMissionRewardByMissionID;
 };
 
 #define sDB2Manager DB2Manager::Instance()

@@ -139,7 +139,7 @@ public:
         void Start(Player* owner, std::vector<uint64> const& followers);
         void Complete(Player* owner);
         void BonusRoll(Player* onwer);
-        bool HasBonusRoll() { return roll_chance_i(70); }
+        bool HasBonusRoll() { return true; }
     };
 
     explicit Garrison(Player* owner);
@@ -182,7 +182,7 @@ public:
     Mission* GetMissionByRecID(uint32 missionRecID);
     void GetFollowersForMission(uint64 missionDbID, std::vector<uint64> &followers) const;
     void RemoveFollowersFromMission(uint64 missionDbID);
-    void ChangeFollowersXpFromMission(Player* owner, uint64 missionDbID);
+    void ChangeFollowersXpFromMission(Player* owner, uint64 missionDbID, bool bonus = false);
 
     void SendInfo();
     void SendRemoteInfo() const;

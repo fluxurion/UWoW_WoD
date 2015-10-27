@@ -46,8 +46,8 @@ DB2Storage<GarrBuildingEntry>               sGarrBuildingStore("GarrBuilding.db2
 DB2Storage<GarrBuildingPlotInstEntry>       sGarrBuildingPlotInstStore("GarrBuildingPlotInst.db2", GarrBuildingPlotInstFormat, HOTFIX_SEL_GARR_BUILDING_PLOT_INST);
 DB2Storage<GarrClassSpecEntry>              sGarrClassSpecStore("GarrClassSpec.db2", GarrClassSpecFormat, HOTFIX_SEL_GARR_CLASS_SPEC);
 DB2Storage<GarrFollowerEntry>               sGarrFollowerStore("GarrFollower.db2", GarrFollowerFormat, HOTFIX_SEL_GARR_FOLLOWER);
-DB2Storage<GarrFollowerLevelXPEntry>        sGarrFollowerStore("GarrFollowerLevelXP.db2", GarrFollowerLevelXPFormat, HOTFIX_SEL_GARR_FOLLOWER_LEVEL_XP);
-DB2Storage<GarrFollowerQualityEntry>        sGarrFollowerStore("GarrFollowerQuality.db2", GarrFollowerQualityFormat, HOTFIX_SEL_GARR_FOLLOWER_QUALITY);
+DB2Storage<GarrFollowerLevelXPEntry>        sGarrFollowerLevelXPStore("GarrFollowerLevelXP.db2", GarrFollowerLevelXPFormat, HOTFIX_SEL_GARR_FOLLOWER_LEVEL_XP);
+DB2Storage<GarrFollowerQualityEntry>        sGarrFollowerQualityStore("GarrFollowerQuality.db2", GarrFollowerQualityFormat, HOTFIX_SEL_GARR_FOLLOWER_QUALITY);
 DB2Storage<GarrFollowerXAbilityEntry>       sGarrFollowerXAbilityStore("GarrFollowerXAbility.db2", GarrFollowerXAbilityFormat, HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY);
 DB2Storage<GarrMissionEntry>                sGarrMissionStore("GarrMission.db2", GarrMissionFormat, HOTFIX_SEL_GARR_MISSION);
 DB2Storage<GarrMissionRewardEntry>          sGarrMissionRewardStore("GarrMissionReward.db2", GarrMissionRewardFormat, HOTFIX_SEL_GARR_MISSION_REWARD);
@@ -291,6 +291,9 @@ void DB2Manager::InitDB2CustomStores()
 
     for (GarrFollowerQualityEntry* const entry : sGarrFollowerQualityStore)
         _garrFollowerQualityXP[entry->quality] = entry->nextQualityXP;
+
+    for (GarrMissionRewardEntry const* entry : sGarrMissionRewardStore)
+        _garrMissionRewardByMissionID[entry->missionID] = entry;
 
     for (LanguageWordsEntry const* entry : sLanguageWordsStore)
         sLanguageWordsMapStore[entry->langId][strlen(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE])].push_back(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE]);
@@ -745,6 +748,8 @@ uint32 DB2Manager::GetXPForNextFollowerLevel(uint32 level)
     auto const it = _garrFollowerLevelXP.find(level);
     if (it != _garrFollowerLevelXP.end())
         return it->second;
+
+    return 0;
 }
 
 uint32 DB2Manager::GetXPForNextFollowerQuality(uint32 quality)
@@ -752,4 +757,15 @@ uint32 DB2Manager::GetXPForNextFollowerQuality(uint32 quality)
     auto const it = _garrFollowerQualityXP.find(quality);
     if (it != _garrFollowerQualityXP.end())
         return it->second;
+
+    return 0;
+}
+
+GarrMissionRewardEntry const* DB2Manager::GetMissionRewardByRecID(uint32 missionRecID)
+{
+    auto const it = _garrMissionRewardByMissionID.find(missionRecID);
+    if (it != _garrMissionRewardByMissionID.end())
+        return it->second;
+
+    return nullptr;
 }

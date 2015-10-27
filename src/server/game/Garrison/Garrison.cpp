@@ -1206,13 +1206,13 @@ void Garrison::Mission::Complete(Player* owner)
         res.Succeeded = bonus ? true : false;
         owner->SendDirectMessage(res.Write());
 
-        // SMSG_GARRISON_FOLLOWER_CHANGED_XP
-        // test
-
-        garrison->RemoveFollowersFromMission(PacketInfo.DbID);
+        garrison->ChangeFollowersXpFromMission(owner, PacketInfo.DbID);
 
         if (!bonus)
+        {
+            garrison->RemoveFollowersFromMission(PacketInfo.DbID);
             garrison->SendMissionListUpdate(owner, true);
+        }
     }
 }
 
@@ -1234,9 +1234,7 @@ void Garrison::Mission::BonusRoll(Player* owner)
         res.MissionRecID = PacketInfo.MissionRecID;
         owner->SendDirectMessage(res.Write());
 
-        // SMSG_GARRISON_FOLLOWER_CHANGED_XP
-        //
-
+        garrison->ChangeFollowersXpFromMission(owner, PacketInfo.DbID, true);
         garrison->SendMissionListUpdate(owner, true);
     }
 }
@@ -1267,7 +1265,7 @@ void Garrison::RemoveFollowersFromMission(uint64 missionDbID)
     }
 }
 
-void Garrison::ChangeFollowersXpFromMission(Player* owner, uint64 missionDbID)
+void Garrison::ChangeFollowersXpFromMission(Player* owner, uint64 missionDbID, bool bonus)
 {
     auto itr = _missions.find(missionDbID);
     if (itr != _missions.end())
@@ -1276,8 +1274,23 @@ void Garrison::ChangeFollowersXpFromMission(Player* owner, uint64 missionDbID)
         {
             if (f.second.PacketInfo.CurrentMissionID == itr->second.PacketInfo.MissionRecID)
             {
+                // bonus reward XP
+                if (bonus)
+                {
+                    if (GarrMissionRewardEntry const* mEntry = sDB2Manager.GetMissionRewardByRecID(itr->second.PacketInfo.MissionRecID))
+                    {
+                        f.second.PacketInfo.CurrentMissionID = 0;
+
+                        WorldPackets::Garrison::GarrisonFollowerChangedXP data;
+                        data.TotalXp = mEntry->rewardXP;
+                        data.Follower = f.second.PacketInfo;
+                        f.second.GiveXP(mEntry->rewardXP);
+                        data.Follower2 = f.second.PacketInfo;
+                        owner->SendDirectMessage(data.Write());
+                    }
+                }
                 // base XP
-                if (itr->second.PacketInfo.MissionState == MISSION_STATE_IN_PROGRESS)
+                else
                 {
                     if (GarrMissionEntry const* mEntry = sGarrMissionStore.LookupEntry(itr->second.PacketInfo.MissionRecID))
                     {
@@ -1289,16 +1302,12 @@ void Garrison::ChangeFollowersXpFromMission(Player* owner, uint64 missionDbID)
                         owner->SendDirectMessage(data.Write());
                     }
                 }
-                else if (itr->second.PacketInfo.MissionState == MISSION_STATE_WAITING_BONUS)
-                {
-
-                }
             }
         }
     }
 }
 
-void Garrison::Follower::GiveXp(uint32 xp)
+void Garrison::Follower::GiveXP(uint32 xp)
 {
     uint32 curXp = PacketInfo.Xp;
     uint32 nextLvlXP = GetXpForNextUpgrade();
