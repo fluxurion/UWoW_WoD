@@ -2205,6 +2205,12 @@ void ObjectMgr::LoadGameobjects()
             continue;
         }
 
+        if (gInfo->type == GAMEOBJECT_TYPE_GARRISON_BUILDING)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Gameobject (GUID: " UI64FMTD " Entry %u GoType: %u) is GAMEOBJECT_TYPE_GARRISON_BUILDING, not loaded.", guid, entry, gInfo->type);
+            continue;
+        }
+
         GameObjectData& data = _gameObjectDataStore[guid];
 
         data.id             = entry;
