@@ -189,7 +189,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sGarrBuildingStore);
     LOAD_DB2(sGarrClassSpecStore);
     LOAD_DB2(sGarrFollowerStore);
-    LOAD_DB2(sGarrFollowerLevelXpStore);
+    LOAD_DB2(sGarrFollowerLevelXPStore);
     LOAD_DB2(sGarrFollowerQualityStore);
     LOAD_DB2(sGarrFollowerXAbilityStore);
     LOAD_DB2(sGarrMissionStore);
@@ -285,6 +285,12 @@ void DB2Manager::InitDB2CustomStores()
 
     for (BattlePetSpeciesXAbilityEntry const* entry : sBattlePetSpeciesXAbilityStore)
         _battlePetXAbilityEntryBySpecId.insert(BattlePetXAbilityEntryBySpecIdMap::value_type(entry->speciesID, entry));
+
+    for (GarrFollowerLevelXPEntry* const entry : sGarrFollowerLevelXPStore)
+        _garrFollowerLevelXP[entry->level] = entry->nextLevelXP;
+
+    for (GarrFollowerQualityEntry* const entry : sGarrFollowerQualityStore)
+        _garrFollowerQualityXP[entry->quality] = entry->nextQualityXP;
 
     for (LanguageWordsEntry const* entry : sLanguageWordsStore)
         sLanguageWordsMapStore[entry->langId][strlen(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE])].push_back(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE]);
@@ -732,4 +738,18 @@ uint32 DB2Manager::GetBattlePetXAbilityEntryBySpec(uint32 speciesID, uint32 cust
     }
 
     return 0;
+}
+
+uint32 DB2Manager::GetXPForNextFollowerLevel(uint32 level)
+{
+    auto const it = _garrFollowerLevelXP.find(level);
+    if (it != _garrFollowerLevelXP.end())
+        return it->second;
+}
+
+uint32 DB2Manager::GetXPForNextFollowerQuality(uint32 quality)
+{
+    auto const it = _garrFollowerQualityXP.find(quality);
+    if (it != _garrFollowerQualityXP.end())
+        return it->second;
 }

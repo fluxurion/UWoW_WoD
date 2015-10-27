@@ -149,6 +149,8 @@ public:
     typedef std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> > BattlePetStateMap;
     typedef std::unordered_map<uint16 /*BreedID*/, BattlePetStateMap> BattlePetBreedStates;
     typedef std::unordered_map<uint32 /*SpeciesID*/, BattlePetStateMap> BattlePetSpeciesStates;
+    typedef std::unordered_map<uint32 /*level*/, uint32 /*nextLevelXP*/> GarrFollowerLevelXPMap;
+    typedef std::unordered_map<uint32 /*quality*/, uint32 /*nextQualityXP*/> GarrFollowerQualityXPMap;
 
     static DB2Manager& Instance()
     {
@@ -185,6 +187,8 @@ public:
     uint32 GetBattlePetTurnByAbility(uint32 abilityID, uint8 turnIndex = 1);
     uint32 GetBattlePetXAbilityEntryBySpec(uint32 speciesID, uint32 customAbility, uint8 rank);
     BattlePetSpeciesEntry const* GetBattlePetSpeciesEntry(uint32 creatureEntry);
+    uint32 GetXPForNextFollowerLevel(uint32 level);
+    uint32 GetXPForNextFollowerQuality(uint32 quality);
 
     MapChallengeModeEntryMap _mapChallengeModeEntrybyMap; // @TODO: move this to private and make special getters
 
@@ -214,6 +218,8 @@ private:
     BattlePetXAbilityEntryBySpecIdMap _battlePetXAbilityEntryBySpecId;
     BattlePetEffectEntryByTurnIdMap _battlePetEffectEntryByTurnId;
     BattlePetSpeciesBySpellIdMap _battlePetSpeciesBySpellId;
+    GarrFollowerLevelXPMap _garrFollowerLevelXP;
+    GarrFollowerQualityXPMap _garrFollowerQualityXP;
 };
 
 #define sDB2Manager DB2Manager::Instance()

@@ -545,6 +545,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonRemoveFollowerResult::Write()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonFollowerChangedXP::Write()
 {
+    _worldPacket << TotalXp;
     _worldPacket << Result;
     _worldPacket << Follower;
     _worldPacket << Follower2;

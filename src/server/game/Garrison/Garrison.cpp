@@ -1132,11 +1132,11 @@ uint8 Garrison::Follower::RollQuality(uint32 baseQuality)
 {
     // 35% - rare, 7% - epic
     uint32 r = urand(0, 100);
-    uint8 quality = 1;
+    uint8 quality = FOLLOWER_QUALITY_UNCOMMON;
     if (r >= 65 && r < 90)
-        quality = 3;
+        quality = FOLLOWER_QUALITY_RARE;
     else if (r >= 93 && r <= 100)
-        quality = 4;
+        quality = FOLLOWER_QUALITY_EPIC;
 
     return quality > baseQuality ? quality : baseQuality;
 }
@@ -1267,7 +1267,7 @@ void Garrison::RemoveFollowersFromMission(uint64 missionDbID)
     }
 }
 
-void Garrison::ChangeFollowersXpFromMission(uint64 missionDbID)
+void Garrison::ChangeFollowersXpFromMission(Player* owner, uint64 missionDbID)
 {
     auto itr = _missions.find(missionDbID);
     if (itr != _missions.end())
@@ -1276,10 +1276,70 @@ void Garrison::ChangeFollowersXpFromMission(uint64 missionDbID)
         {
             if (f.second.PacketInfo.CurrentMissionID == itr->second.PacketInfo.MissionRecID)
             {
+                // base XP
+                if (itr->second.PacketInfo.MissionState == MISSION_STATE_IN_PROGRESS)
+                {
+                    if (GarrMissionEntry const* mEntry = sGarrMissionStore.LookupEntry(itr->second.PacketInfo.MissionRecID))
+                    {
+                        WorldPackets::Garrison::GarrisonFollowerChangedXP data;
+                        data.TotalXp = mEntry->baseXP;
+                        data.Follower = f.second.PacketInfo;
+                        f.second.GiveXP(mEntry->baseXP);
+                        data.Follower2 = f.second.PacketInfo;
+                        owner->SendDirectMessage(data.Write());
+                    }
+                }
+                else if (itr->second.PacketInfo.MissionState == MISSION_STATE_WAITING_BONUS)
+                {
 
+                }
             }
         }
     }
+}
+
+void Garrison::Follower::GiveXp(uint32 xp)
+{
+    uint32 curXp = PacketInfo.Xp;
+    uint32 nextLvlXP = GetXpForNextUpgrade();
+    uint32 newXP = curXp + xp;
+
+    if (PacketInfo.FollowerLevel == 100 && PacketInfo.Quality == FOLLOWER_QUALITY_EPIC)
+        newXP = 0;
+
+    // calc level xp
+    while (newXP >= nextLvlXP && PacketInfo.FollowerLevel < 100)
+    {
+        newXP -= nextLvlXP;
+
+        if (PacketInfo.FollowerLevel < 100)
+            GiveLevel(PacketInfo.FollowerLevel + 1);
+
+        nextLvlXP = GetXpForNextUpgrade();
+    }
+
+    // calc level quality
+    while (newXP >= nextLvlXP && PacketInfo.FollowerLevel == 100 && PacketInfo.Quality < FOLLOWER_QUALITY_EPIC)
+    {
+        newXP -= nextLvlXP;
+
+        if (PacketInfo.Quality < FOLLOWER_QUALITY_EPIC)
+            GiveQuality(PacketInfo.Quality + 1);
+
+        nextLvlXP = GetXpForNextUpgrade();
+    }
+
+    PacketInfo.Xp = newXP;
+}
+
+uint32 Garrison::Follower::GetXpForNextUpgrade()
+{
+    if (PacketInfo.FollowerLevel < 100)
+        return sDB2Manager.GetXPForNextFollowerLevel(PacketInfo.FollowerLevel);
+    else if (PacketInfo.FollowerLevel == 100)
+        return sDB2Manager.GetXPForNextFollowerQuality(PacketInfo.Quality);
+
+    return 0;
 }
 
 /*

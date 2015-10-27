@@ -697,7 +697,7 @@ namespace WorldPackets
             GarrisonFollower Follower;
             GarrisonFollower Follower2;
             int32 Result = 0;
-            uint32 Xp = 0;
+            uint32 TotalXp = 0;
         };
 
         class GarrisonNumFollowerActivationsRemaining final : public ServerPacket

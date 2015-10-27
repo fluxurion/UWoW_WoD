@@ -81,6 +81,14 @@ enum MissionState
     MISSION_STATE_COMPLETED     = 5
 };
 
+enum FollowerQuality
+{
+    FOLLOWER_QUALITY_UNCOMMON  = 2,
+    FOLLOWER_QUALITY_RARE      = 3,
+    FOLLOWER_QUALITY_EPIC      = 4,
+    FOLLOWER_QUALITY_LEGENDARY = 5
+};
+
 class GameObject;
 class Map;
 
@@ -117,6 +125,10 @@ public:
         void IncreaseFollowerItemLevel(SpellInfo const* spellInfo, Player* caster);
         uint8 RollQuality(uint32 baseQuality);
         void XpChanged(Player* owner);
+        void GiveLevel(uint32 level) { PacketInfo.FollowerLevel = level; }
+        void GiveQuality(uint32 quality) { PacketInfo.Quality = quality; }
+        void GiveXP(uint32 xp);
+        uint32 GetXpForNextUpgrade();
     };
 
     struct Mission
@@ -170,7 +182,7 @@ public:
     Mission* GetMissionByRecID(uint32 missionRecID);
     void GetFollowersForMission(uint64 missionDbID, std::vector<uint64> &followers) const;
     void RemoveFollowersFromMission(uint64 missionDbID);
-    void ChangeFollowersXpFromMission(uint64 missionDbID);
+    void ChangeFollowersXpFromMission(Player* owner, uint64 missionDbID);
 
     void SendInfo();
     void SendRemoteInfo() const;
