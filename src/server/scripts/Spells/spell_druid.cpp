@@ -482,6 +482,9 @@ class spell_dru_rip_duration : public SpellScriptLoader
                             }
                         }
                     }
+                    if (Aura* prowl = _player->GetAura(SPELL_DRUID_PROWL))
+                        if (AuraEffect const* aurEff = prowl->GetEffect(EFFECT_3))
+                            SetHitDamage(GetHitDamage() + int32(CalculatePct(GetHitDamage(), aurEff->GetAmount())));
                 }
             }
 
@@ -587,7 +590,7 @@ class spell_dru_ferocious_bite : public SpellScriptLoader
                     comboPoints = GetCaster()->ToPlayer()->GetComboPoints(GetSpellInfo()->Id);
             }
 
-            void HandleOnHit()
+            void Damage(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
                 if (!caster)
@@ -602,29 +605,23 @@ class spell_dru_ferocious_bite : public SpellScriptLoader
                     if (Aura* rip = target->GetAura(SPELL_DRUID_RIP, player->GetGUID()))
                         rip->RefreshDuration();
 
-                int32 AP = player->GetTotalAttackPowerValue(BASE_ATTACK) * comboPoints;
                 float perc = 1.0f;
                 int32 bpHp = 5;
-                int32 damageN = irand(((3.511 * caster->getLevel()) + (8.46 * caster->getLevel()) * comboPoints + 0.196 * AP), ((7.611 * caster->getLevel()) + (8.46 * caster->getLevel()) * comboPoints + 0.196 * AP));
+                int32 damageN = (GetHitDamage() / 5) * comboPoints;
                 int32 curValue = caster->GetPower(POWER_ENERGY);
 
                 if(curValue >= 25)
                 {
                     perc += 1.0f;
-                    caster->ModifyPower(POWER_ENERGY, -25, true);
                     bpHp += 5;
                 }
                 else if(curValue > 0)
                 {
                     perc += curValue * 0.04f;
-                    caster->ModifyPower(POWER_ENERGY, -curValue, true);
                     bpHp += int32((curValue * 2) / 10);
                 }
                 if(caster->HasAura(67598)) //Glyph of Ferocious Bite
                     caster->CastCustomSpell(caster, 101024, &bpHp, NULL, NULL, true);
-
-                if(target)
-                    damageN = caster->SpellDamageBonusDone(target, GetSpellInfo(), damageN, SPELL_DIRECT_DAMAGE, SpellEffIndex(0), 1);
 
                 SetHitDamage(int32(damageN * perc));
 
@@ -647,7 +644,7 @@ class spell_dru_ferocious_bite : public SpellScriptLoader
             void Register()
             {
                 BeforeCast += SpellCastFn(spell_dru_ferocious_bite_SpellScript::HandleBeforeCast);
-                OnHit += SpellHitFn(spell_dru_ferocious_bite_SpellScript::HandleOnHit);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_ferocious_bite_SpellScript::Damage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -1415,18 +1412,10 @@ class spell_dru_frenzied_regeneration : public SpellScriptLoader
                         if (!_player->HasAura(SPELL_DRUID_GLYPH_OF_FRENZIED_REGEN))
                         {
                             int32 rageused = _player->GetPower(POWER_RAGE);
-                            int32 AP = _player->GetTotalAttackPowerValue(BASE_ATTACK);
-                            int32 agility = _player->GetStat(STAT_AGILITY) * 2;
-                            int32 stamina = int32(_player->GetStat(STAT_STAMINA));
-                            int32 a = (AP - agility) * GetSpellInfo()->Effects[1].BasePoints / 100;
-                            int32 b = stamina * GetSpellInfo()->Effects[2].BasePoints / 100;
-
-                            int32 healAmount = int32(std::max(a, b));
-
                             if (rageused >= 600)
                                 rageused = 600;
-                            else
-                                healAmount = rageused * healAmount / 600;
+
+                            int32 healAmount = _player->GetTotalAttackPowerValue(BASE_ATTACK) * rageused / 100;
 
                             SetEffectValue(healAmount);
                             _player->EnergizeBySpell(_player, 22842, -rageused, POWER_RAGE);
@@ -2522,7 +2511,7 @@ class spell_dru_tooth_and_claw : public SpellScriptLoader
                     {
                         if(caster->HasAura(135286))
                         {
-                            int32 bp = int32(std::max((caster->GetTotalAttackPowerValue(BASE_ATTACK) - caster->GetTotalStatValue(STAT_AGILITY) * 2) * 0.88f, caster->GetTotalStatValue(STAT_STAMINA)));
+                            int32 bp = int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 2.4f);
                             caster->CastCustomSpell(caster, 135597, &bp, NULL, NULL, true);
                             caster->CastCustomSpell(target, 135601, &bp, NULL, NULL, true);
                         }

@@ -131,6 +131,7 @@ enum SpellLinkedActionType
     LINK_ACTION_CASTNOTRIGGER = 4,
     LINK_ACTION_ADDAURA       = 5,
     LINK_ACTION_CASTINAURA    = 6,
+    LINK_ACTION_CHANGE_STACK  = 7,
 };
 
 enum SpellTriggeredType

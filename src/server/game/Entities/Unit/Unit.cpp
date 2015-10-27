@@ -10217,17 +10217,12 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
             break;
         }
         // Primal Fury
-        case 16959:
+        case 159286:
         {
             if (procSpell)
             {
                 if (procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) || procSpell->Id == 33876)
-                {
-                    if(m_movedPlayer)
-                        if (Unit* targetCP = m_movedPlayer->GetSelectedUnit())
-                            if(targetCP == victim)
-                                CastSpell(victim, 16953, true);
-                }
+                    CastSpell(victim, 16953, true);
             }
             break;
         }
@@ -12419,6 +12414,10 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                     {
                         switch (spellProto->Id)
                         {
+                            case 5221: // crit chance x2 if prowl
+                                if (HasAura(5215))
+                                    crit_chance *= 2.0f;
+                                break;
                             case 22568: // +25% crit chance for Ferocious Bite on bleeding targets
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
                                     crit_chance += 25.0f;
@@ -20833,11 +20832,11 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if(!((type == CHARM_TYPE_VEHICLE) == IsVehicle()))
         return false;
 
-    sLog->outDebug(LOG_FILTER_UNITS, "SetCharmedBy: charmer %u (GUID %u), charmed %u (GUID %u), type %u.", charmer->GetEntry(), charmer->GetGUID().GetCounter(), GetEntry(), GetGUID().GetCounter(), uint32(type));
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SetCharmedBy: charmer %u (GUID %u), charmed %u (GUID %u), type %u.", charmer->GetEntry(), charmer->GetGUID().GetGUIDLow(), GetEntry(), GetGUID().GetGUIDLow(), uint32(type));
 
     if (this == charmer)
     {
-        sLog->outFatal(LOG_FILTER_UNITS, "Unit::SetCharmedBy: Unit %u (GUID %u) is trying to charm itself!", GetEntry(), GetGUID().GetCounter());
+        sLog->outFatal(LOG_FILTER_UNITS, "Unit::SetCharmedBy: Unit %u (GUID %u) is trying to charm itself!", GetEntry(), GetGUID().GetGUIDLow());
         return false;
     }
 

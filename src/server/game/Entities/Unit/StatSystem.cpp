@@ -1251,6 +1251,12 @@ void Unit::UpdatePowerRegen(uint32 power)
             addvalue += 100.0f / 20;
             break;
         }
+        // Regenerate Soul Shards
+        case POWER_ECLIPSE:
+        {
+            addvalue += 1.0f;
+            break;
+        }
         default:
             break;
     }

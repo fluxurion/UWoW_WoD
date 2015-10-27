@@ -2193,6 +2193,8 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster, SpellEffIn
 
     Unit* target = aurApp->GetTarget();
 
+    AuraSpellTrigger(target, caster, effIndex);
+
     switch (GetAuraType())
     {
         case SPELL_AURA_PERIODIC_DUMMY:
@@ -7101,9 +7103,6 @@ bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effI
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const
 {
-    if (AuraSpellTrigger(target, caster, effIndex))
-        return;
-
 	if (GetId() == 102522)
     {
         switch(rand()%4)
@@ -7339,9 +7338,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
 
 void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const
 {
-    if (AuraSpellTrigger(target, caster, effIndex))
-        return;
-
     // generic casting code with custom spells and target/caster customs
     uint32 triggerSpellId = GetSpellInfo()->GetEffect(GetEffIndex(), m_diffMode)->TriggerSpell;
 

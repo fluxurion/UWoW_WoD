@@ -542,10 +542,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             return;
                         break;
                     }
-                    case 6807:
-                        if (unitTarget->HasAuraState(AURA_STATE_BLEEDING))
-                            AddPct(damage, 20);
-                        break;
                     default:
                         break;
                 }

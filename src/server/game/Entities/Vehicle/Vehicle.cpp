@@ -463,7 +463,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     if (_status == STATUS_UNINSTALLING)
     {
         sLog->outError(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, attempting to board vehicle GuidLow: %u, Entry: %u during uninstall! SeatId: %d",
-            unit->GetGUID().GetCounter(), unit->GetEntry(), _me->GetGUID().GetCounter(), _me->GetEntry(), (int32)seatId);
+            unit->GetGUID().GetGUIDLow(), unit->GetEntry(), _me->GetGUID().GetGUIDLow(), _me->GetEntry(), (int32)seatId);
         return false;
     }
 
@@ -471,8 +471,8 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         return false;
 
     sLog->outDebug(LOG_FILTER_VEHICLES, "Unit %s scheduling enter vehicle (entry: %u, vehicleId: %u, guid: %u (dbguid: %u) on seat %d",
-        unit->GetName(), _me->GetEntry(), _vehicleInfo->ID, _me->GetGUID().GetCounter(),
-        (_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetDBTableGUIDLow() : 0), (int32)seatId);
+        unit->GetName(), _me->GetEntry(), _vehicleInfo->ID, _me->GetGUID().GetGUIDLow(),
+        (_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetGUIDLow() : 0), (int32)seatId);
 
     // The seat selection code may kick other passengers off the vehicle.
     // While the validity of the following may be arguable, it is possible that when such a passenger
@@ -898,8 +898,8 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         if (Seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_CAN_CONTROL
             && !Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE))     // SMSG_CLIENT_CONTROL
         {
-            return false;
             //ASSERT(false);
+            return false;
         }
         else if (Seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_UNK2 && Seat->second.SeatInfo->Flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         {
