@@ -119,7 +119,7 @@ timeLastChannelUnmoderCommand(0),
 timeLastChannelUnmuteCommand(0),
 timeLastChannelKickCommand(0), timeLastHandleSendMail(0), timeLastHandleSellItem(0), timeLastHandlePlayerLogin(0), timeLastHandleSpellClick(0),
 timeCharEnumOpcode(0), timeAddIgnoreOpcode(0), timeMoveTeleportAck(0),
-playerLoginCounter(0), m_currentBankerGUID()
+playerLoginCounter(0), m_currentBankerGUID(), wardenModuleFailed(false)
 {
     _warden = NULL;
     _pakagepersecond = 0;
@@ -1111,19 +1111,10 @@ void WorldSession::ProcessQueryCallbacks()
     }
 }
 
-void WorldSession::InitWarden(BigNumber* k, std::string os)
+void WorldSession::InitializeWarden(BigNumber* k, std::string os)
 {
-    if (os == "Win")
-    {
-        _warden = new WardenWin();
-        _warden->Init(this, k);
-    }
-    else if (os == "OSX")
-    {
-        // Disabled as it is causing the client to crash
-        // _warden = new WardenMac();
-        // _warden->Init(this, k);
-    }
+    _warden = new WardenWin();
+    _warden->Init(this, k);
 }
 
 void WorldSession::RemoveAuthFlag(AuthFlags f)

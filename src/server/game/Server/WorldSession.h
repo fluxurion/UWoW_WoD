@@ -863,7 +863,7 @@ class WorldSession
         void SetPlayer(Player* player);
         uint8 Expansion() const { return m_expansion; }
 
-        void InitWarden(BigNumber* k, std::string os);
+        void InitializeWarden(BigNumber* k, std::string os);
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
@@ -1670,6 +1670,8 @@ class WorldSession
         bool skip_send_packer = false;
 
         void SetBankerGuid(ObjectGuid const& g) { m_currentBankerGUID = g; }
+        void SetWardenModuleFailed(bool s) { wardenModuleFailed = s; }
+        bool IsWardenModuleFailed() { return wardenModuleFailed; }
     private:
         void InitializeQueryCallbackParameters();
         void ProcessQueryCallbacks();
@@ -1764,6 +1766,8 @@ class WorldSession
         time_t timeMoveTeleportAck;
         time_t timeLastHandleSpellClick;
         uint8 playerLoginCounter;
+
+        bool wardenModuleFailed;
 
         uint32 _pakagepersecond;
         uint32 _second;

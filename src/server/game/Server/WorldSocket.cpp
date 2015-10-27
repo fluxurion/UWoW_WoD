@@ -607,7 +607,7 @@ void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)
-        _worldSession->InitWarden(&k, os);
+        _worldSession->InitializeWarden(&k, os);
 
     sWorld->AddSession(_worldSession);
 }

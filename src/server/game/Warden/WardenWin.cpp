@@ -336,8 +336,8 @@ void WardenWin::RequestData()
     //sLog->outDebug(LOG_FILTER_WARDEN, "%s", stream.str().c_str());
 
     WorldPacket data1(SMSG_SERVER_TIME, 8);
-    data1 << uint32(12755321);
-    data1 << uint32(13904220);
+    data1 << uint32(5184099);
+    data1 << uint32(14478288);
     _session->SendPacket(&data1);
 }
 
