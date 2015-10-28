@@ -84,10 +84,7 @@ void GarrisonGridLoader::Visit(GameObjectMapType& m)
             GameObject* go = plot->CreateGameObject(i_map, i_garrison->GetFaction());
             if (!go)
                 continue;
-
-            go->AddToGrid(m);
-            ObjectGridLoader::SetObjectCell(go, cellCoord);
-            go->AddToWorld();
+            i_map->AddToMap(go);
             ++i_gameObjects;
         }
     }
