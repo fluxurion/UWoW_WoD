@@ -66,6 +66,41 @@ bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg
     return true;
 }
 
+void WorldSession::HandleChatMessageAFK(WorldPackets::Chat::ChatMessageAFK& chatMessageAFK)
+{
+    Player* sender = GetPlayer();
+    if (!sender)
+        return;
+
+    if (sender->isInCombat())
+        return;
+
+    if (sender->HasAura(1852))
+    {
+        SendNotification(GetTrinityString(LANG_GM_SILENCE), sender->GetName());
+        return;
+    }
+
+    if (sender->isAFK())
+    {
+        if (chatMessageAFK.Text.empty())
+            sender->ToggleAFK();
+        else
+            sender->afkMsg = chatMessageAFK.Text;
+    }
+    else
+    {
+        sender->afkMsg = chatMessageAFK.Text.empty() ? GetTrinityString(LANG_PLAYER_AFK_DEFAULT) : chatMessageAFK.Text;
+
+        if (sender->isDND())
+            sender->ToggleDND();
+
+        sender->ToggleAFK();
+    }
+
+    sScriptMgr->OnPlayerChat(sender, CHAT_MSG_AFK, LANG_UNIVERSAL, chatMessageAFK.Text);
+}
+
 void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& packet)
 {
     ChatMsg type;
@@ -89,9 +124,6 @@ void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& pack
             break;
         case CMSG_CHAT_MESSAGE_OFFICER:
             type = CHAT_MSG_OFFICER;
-            break;
-        case CMSG_CHAT_MESSAGE_AFK:
-            type = CHAT_MSG_AFK;
             break;
         case CMSG_CHAT_MESSAGE_DND:
             type = CHAT_MSG_DND;
@@ -145,7 +177,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
 
     //sLog->outDebug(LOG_FILTER_GENERAL, "CHAT: packet received. type %u, lang %u", type, lang);
 
-    if (!sender->CanSpeak() && type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
+    if (!sender->CanSpeak() && type != CHAT_MSG_DND)
     {
         std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
         SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
@@ -153,7 +185,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
     }
 
     // no language sent with emote packet.
-    if (type != CHAT_MSG_EMOTE && type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
+    if (type != CHAT_MSG_EMOTE && type != CHAT_MSG_DND)
     {
         // prevent talking at unknown language (cheating)
         LanguageDesc const* langDesc = GetLanguageDescByID(lang);
@@ -233,20 +265,17 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
         return;
     }
 
-    if (type != CHAT_MSG_AFK && CHAT_MSG_AFK != CHAT_MSG_DND)
-    {
-        if (msg.empty())
-            return;
+    if (msg.empty())
+        return;
 
-        if (ChatHandler(this).ParseCommands(msg.c_str()) > 0)
-            return;
+    if (ChatHandler(this).ParseCommands(msg.c_str()) > 0)
+        return;
 
-        if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))
-            return;
+    if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))
+        return;
 
-        if (msg.empty())
-            return;
-    }
+    if (msg.empty())
+        return;
 
     /// filtering of bad words
     if(sWorld->getBoolConfig(CONFIG_WORD_FILTER_ENABLE))
@@ -462,25 +491,6 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
 
                     chn->Say(_player->GetGUID(), msg.c_str(), lang);
                 }
-            }
-            break;
-        }
-        case CHAT_MSG_AFK:
-        {
-            if ((msg.empty() || !_player->isAFK()) && !_player->isInCombat())
-            {
-                if (!_player->isAFK())
-                {
-                    if (msg.empty())
-                        msg  = GetTrinityString(LANG_PLAYER_AFK_DEFAULT);
-                    _player->afkMsg = msg;
-                }
-
-                sScriptMgr->OnPlayerChat(_player, type, lang, msg);
-
-                _player->ToggleAFK();
-                if (_player->isAFK() && _player->isDND())
-                    _player->ToggleDND();
             }
             break;
         }

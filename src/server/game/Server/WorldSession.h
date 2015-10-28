@@ -1334,6 +1334,7 @@ class WorldSession
 
         bool processChatmessageFurtherAfterSecurityChecks(std::string&, uint32);
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& packet);
+        void HandleChatMessageAFK(WorldPackets::Chat::ChatMessageAFK& packet);
         void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& packet);
         void HandleChatMessageChannelOpcode(WorldPackets::Chat::ChatMessageChannel& packet);
         void HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageEmote& packet);
