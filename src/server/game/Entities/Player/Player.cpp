@@ -8972,6 +8972,10 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
     if (item->IsBroken())
         return;
 
+    // Disable War Games items
+    if (proto->Flags3 & ITEM_FLAG3_USEABLE_WAR_GAMES)
+        return;
+
     // Check for limit cap. Only at apply
     if (apply)
         item->SetLevelCap(GetMap()->ItemLevelCap(), GetMap()->IsBattlegroundOrArena());

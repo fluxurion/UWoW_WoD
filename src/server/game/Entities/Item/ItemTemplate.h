@@ -244,7 +244,7 @@ enum ItemFlags3
     ITEM_FLAG3_UNK8                        = 0x00000400,
     ITEM_FLAG3_UNK9                        = 0x00000800,
     ITEM_FLAG3_DOESNT_APPEAR_IN_GUILD_NEWS = 0x00001000, // Item is not included in the guild news panel
-    ITEM_FLAG3_UNK10                       = 0x00002000,
+    ITEM_FLAG3_USEABLE_WAR_GAMES           = 0x00002000,
     ITEM_FLAG3_UNK11                       = 0x00004000,
     ITEM_FLAG3_UNK12                       = 0x00008000,
     ITEM_FLAG3_UNK13                       = 0x00010000,
