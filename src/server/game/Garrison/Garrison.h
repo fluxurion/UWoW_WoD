@@ -134,12 +134,15 @@ public:
     struct Mission
     {
         WorldPackets::Garrison::GarrisonMission PacketInfo;
-        //std::vector<uint64> FollowerDBIDs;
+        std::vector<uint64> CurrentFollowerDBIDs;
 
-        void Start(Player* owner, std::vector<uint64> const& followers);
-        void Complete(Player* owner);
+        void Start(Player* owner);
+        bool CanStart(Player* owner);
         void BonusRoll(Player* onwer);
-        bool HasBonusRoll() { return true; }
+        bool CanBonusRoll();
+        void Complete(Player* owner);
+        bool HasBonusRoll() { float chance = ComputeSuccessChance(); return roll_chance_f(chance); }
+        float ComputeSuccessChance();
     };
 
     explicit Garrison(Player* owner);
@@ -181,9 +184,6 @@ public:
     // Missions
     Mission const* GetMission(uint64 dbId) const;
     Mission* GetMissionByRecID(uint32 missionRecID);
-    void GetFollowersForMission(uint64 missionDbID, std::vector<uint64> &followers) const;
-    void RemoveFollowersFromMission(uint64 missionDbID);
-    void ChangeFollowersXpFromMission(Player* owner, uint64 missionDbID, bool bonus = false);
 
     void SendInfo();
     void SendRemoteInfo() const;

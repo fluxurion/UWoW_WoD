@@ -67,10 +67,8 @@ void WorldSession::HandleGarrisonMissionBonusRoll(WorldPackets::Garrison::Garris
     {
         if (Garrison::Mission* mission = garrison->GetMissionByRecID(packet.MissionRecID))
         {
-            if (mission->PacketInfo.MissionState != MISSION_STATE_WAITING_BONUS)
-                return;
-
-            mission->BonusRoll(_player);
+            if (mission->CanBonusRoll())
+                mission->BonusRoll(_player);
         }
     }
 }
@@ -96,10 +94,10 @@ void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonSt
     {
         if (Garrison::Mission* mission = garrison->GetMissionByRecID(packet.MissionRecID))
         {
-            if (mission->PacketInfo.MissionState != MISSION_STATE_AVAILABLE)
-                return;
+            mission->CurrentFollowerDBIDs = packet.FollowerDBIDs;
 
-            mission->Start(_player, packet.FollowerDBIDs);
+            if (mission->CanStart(_player))
+                mission->Start(_player);
         }
     }
 }
