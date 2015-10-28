@@ -4133,22 +4133,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         if (spellInfo->IsMountOrCompanions())
         {
             // added battlepets
-            uint32 petEntry = spellInfo->GetBattlePetEntry();
-            if (petEntry)
-            {
+            if (uint32 petEntry = spellInfo->GetBattlePetEntry())
                 if (BattlePetSpeciesEntry const* spEntry = sDB2Manager.GetBattlePetSpeciesEntry(petEntry))
-                {
-                    ObjectGuid::LowType petguid = GetBattlePetMgr()->GetPetGUIDBySpell(spellInfo->Id);
-                    uint32 petCount = GetBattlePetMgr()->GetPetCount(spEntry->ID);
-                    if (petguid && petCount < 1)
-                    {
-                        GetBattlePetMgr()->AddPet(spEntry->ID, GetBattlePetMgr()->GetRandomBreedID(spEntry->ID), GetBattlePetMgr()->GetRandomQuailty(), STATE_NORMAL);
-                        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, petEntry);
-                        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OBTAIN_BATTLEPET, spEntry->ID);
-                        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_BATTLEPET);
-                    }
-                }
-            }
+                    GetBattlePetMgr()->AddPet(spEntry->ID, GetBattlePetMgr()->GetRandomBreedID(spEntry->ID), GetBattlePetMgr()->GetRandomQuailty());
+
             // added or replaced mounts
             mountReplace = sSpellMgr->GetMountListId(spellId, GetTeamId());
             if(charload)

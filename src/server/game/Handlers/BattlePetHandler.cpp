@@ -35,21 +35,14 @@ void WorldSession::HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetGuidR
         return;
 
     if (player->m_SummonSlot[SUMMON_SLOT_MINIPET])
-    {
-        Creature* oldSummon = player->GetMap()->GetCreature(player->m_SummonSlot[SUMMON_SLOT_MINIPET]);
-        if (oldSummon && oldSummon->isSummon() && oldSummon->GetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) == packet.BattlePetGUID)
-            oldSummon->ToTempSummon()->UnSummon();
-        else
-        {
-            player->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, packet.BattlePetGUID);
-            player->CastSpell(player, petInfo->serverSideData.SpellID, true);
-        }
-    }
-    else
-    {
-        player->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, packet.BattlePetGUID);
-        player->CastSpell(player, petInfo->serverSideData.SpellID, true);
-    }
+        if (Creature* oldSummon = player->GetMap()->GetCreature(player->m_SummonSlot[SUMMON_SLOT_MINIPET]))
+            if (oldSummon->isSummon() && oldSummon->GetGuidValue(UNIT_FIELD_BATTLE_PET_COMPANION_GUID) == packet.BattlePetGUID)
+                oldSummon->ToTempSummon()->UnSummon();
+
+    player->SetGuidValue(PLAYER_FIELD_SUMMONED_BATTLE_PET_GUID, packet.BattlePetGUID);
+
+    BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(petInfo->JournalInfo.SpeciesID);
+    player->CastSpell(player, speciesEntry->spellId ? speciesEntry->spellId : SPELL_SUMMON_BATTLE_PET, true);
 }
 
 void WorldSession::HandleBattlePetNameQuery(WorldPackets::BattlePet::Query& packet)

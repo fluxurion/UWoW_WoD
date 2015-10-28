@@ -86,6 +86,8 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
                 _pets[pet.JournalInfo.BattlePetGUID.GetCounter()] = pet;
 
                 _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, pet.JournalInfo.CreatureID);
+                _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OBTAIN_BATTLEPET, speciesEntry->ID);
+                _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_BATTLEPET);
             }
         }
         while (pets->NextRow());
@@ -230,11 +232,14 @@ void BattlePetMgr::BattlePet::CalculateStats()
     //speed *= sDB2Manager.CalcBattlePetQualityMuliplier(JournalInfo.BreedQuality, JournalInfo.Level);
 
     JournalInfo.MaxHealth = uint32((ceil(health / 20) + 100));
+    if (JournalInfo.Health > JournalInfo.MaxHealth)
+        JournalInfo.Health = JournalInfo.MaxHealth;
+
     JournalInfo.Power = uint32(ceil(power / 100));
     JournalInfo.Speed = uint32(ceil(speed / 100));
 }
 
-void BattlePetMgr::AddPet(uint32 species, uint16 breed, uint8 quality, uint16 level /*= 1*/, BattlePetSaveInfo state /*= STATE_NEW*/)
+void BattlePetMgr::AddPet(uint32 species, uint16 breed, uint8 quality, uint16 level /*= 1*/)
 {
     BattlePetSpeciesEntry const* speciesStore = sBattlePetSpeciesStore.LookupEntry(species);
     if (!speciesStore)
@@ -250,7 +255,7 @@ void BattlePetMgr::AddPet(uint32 species, uint16 breed, uint8 quality, uint16 le
     pet.JournalInfo.CustomName.clear();
     pet.CalculateStats();
     pet.JournalInfo.Health = pet.JournalInfo.MaxHealth;
-    pet.SaveInfo = state;
+    pet.SaveInfo = STATE_NEW;
     _pets[pet.JournalInfo.BattlePetGUID.GetCounter()] = pet;
 
     std::vector<BattlePet> updates;
@@ -342,12 +347,7 @@ void BattlePetMgr::SendUpdatePets(std::vector<BattlePet> updates, bool added /*=
     WorldPackets::BattlePet::Updates update;
     update.AddedPet = added;
     for (auto pet : updates)
-    {
-        if (pet.SaveInfo == STATE_DELETED)
-            continue;
-
         update.Pets.push_back(pet.JournalInfo);
-    }
 
     _player->GetSession()->SendPacket(update.Write());
 }
@@ -1766,7 +1766,7 @@ void PetBattle::UpdatePetsAfterBattle()
             // update trapped pets and added in journal
             else
             {
-                _player->GetBattlePetMgr()->AddPet(v->GetSpeciesID(), v->GetBreedID(), v->GetQuality(), v->GetLevel(), STATE_NORMAL);
+                //_player->GetBattlePetMgr()->AddPet(v->GetSpeciesID(), v->GetBreedID(), v->GetQuality(), v->GetLevel());
                 // hack, fix it!
                 if (v->GetSummonSpell())
                     _player->learnSpell(v->GetSummonSpell(), false);

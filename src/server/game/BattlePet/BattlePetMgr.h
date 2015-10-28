@@ -523,7 +523,7 @@ public:
     void LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slots);
     void SaveToDB(SQLTransaction& trans);
 
-    void AddPet(uint32 species, uint16 breed, uint8 quality, uint16 level = 1, BattlePetSaveInfo state = STATE_NEW);
+    void AddPet(uint32 species, uint16 breed, uint8 quality, uint16 level = 1);
     BattlePet* GetPet(ObjectGuid guid);
     WorldPackets::BattlePet::BattlePetJournalInfo* GetPetInfo(ObjectGuid guid);
 
