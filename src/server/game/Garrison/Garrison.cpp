@@ -500,6 +500,8 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
         placeBuildingResult.BuildingInfo.GarrBuildingID = garrBuildingId;
         placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
 
+        _owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING, garrBuildingId);
+
         Plot* plot = GetPlot(garrPlotInstanceId);
         uint32 oldBuildingId = 0;
         Map* map = FindMap();
