@@ -18932,8 +18932,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         if (!ticket->IsClosed() && ticket->IsCompleted())
             ticket->SendResponse(GetSession());
 
-    // Clean bug Specialization Spells
-    RemoveSpecializationSpells();
     _ApplyOrRemoveItemEquipDependentAuras(ObjectGuid::Empty, false);
 
     if(PreparedQueryResult resultvis = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_VISUAL))
