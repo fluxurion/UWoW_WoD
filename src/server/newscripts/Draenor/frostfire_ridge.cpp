@@ -113,7 +113,7 @@ public:
                     else
                     {
                         Position pos;
-                        tree->GetRandomNearPosition(pos, 5.0f);
+                        go->GetRandomNearPosition(pos, 5.0f);
                         if (TempSummon* summon = go->SummonCreature(NPC_TREE, pos))
                             treeGUID = summon->GetGUID();
                     }

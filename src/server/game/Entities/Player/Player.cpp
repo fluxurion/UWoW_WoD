@@ -30000,8 +30000,11 @@ void Player::SendVignette(bool force)
     WorldPackets::Update::VignetteUpdate vignetteUpdate;
     vignetteUpdate.ForceUpdate = /*force*/false; // force used for send all vignetts as add state. we not use it. and sending this could harm us.
 
-    for (auto itr = m_vignettes.begin(); itr != m_vignettes.end();)
+    for (auto itr = m_vignettes.begin(), next; itr != m_vignettes.end(); itr = next)
     {
+        next = itr;
+        ++next;
+
         ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_VIGNETTE, itr->second.vignetteId);
         bool checed = sConditionMgr->IsObjectMeetToConditions(this, conditions);
 
@@ -30014,15 +30017,11 @@ void Player::SendVignette(bool force)
                 m_vignettes.erase(itr++);
             else
                 vData->state = VIGNETTE_STATE_ADD;  //for future posible enabling.
-            ++itr;
             continue;
         }
 
         if (!checed || vData->state == VIGNETTE_STATE_IN_GAME)
-        {
-            ++itr;
             continue;
-        }
 
         WorldPackets::Update::VignetteClientData data;
         data.ObjGUID = itr->first;
@@ -30041,7 +30040,6 @@ void Player::SendVignette(bool force)
             vignetteUpdate.Updated.Data.push_back(data);
             vData->state = VIGNETTE_STATE_IN_GAME;
         }
-        ++itr;
     }
 
     _vignetteChanged = false;
