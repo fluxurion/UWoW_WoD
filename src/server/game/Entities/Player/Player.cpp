@@ -30139,8 +30139,8 @@ void Player::OnEnterPvPCombat()
             if (PvpItemEntry const* pvpItem = sPvpItemStore.LookupEntry(item->GetEntry()))
                 item->SetScaleIlvl(pvpItem->BonusIlvl);
 
-    _RemoveAllStatBonuses();
-    _ApplyAllStatBonuses();
+    //_RemoveAllStatBonuses();
+    //_ApplyAllStatBonuses();
 }
 
 void Player::UpdatePvP(uint32 diff)
@@ -30165,8 +30165,8 @@ void Player::OnLeavePvPCombat()
         if (Item* item = m_items[i])
             item->SetScaleIlvl(0);
 
-    _RemoveAllStatBonuses();
-    _ApplyAllStatBonuses();
+    //_RemoveAllStatBonuses();
+    //_ApplyAllStatBonuses();
 }
 
 void Player::AchieveCriteriaCredit(uint32 criteriaID)
