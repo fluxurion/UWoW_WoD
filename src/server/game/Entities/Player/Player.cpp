@@ -30000,7 +30000,7 @@ void Player::SendVignette(bool force)
     WorldPackets::Update::VignetteUpdate vignetteUpdate;
     vignetteUpdate.ForceUpdate = /*force*/false; // force used for send all vignetts as add state. we not use it. and sending this could harm us.
 
-    for (auto itr = m_vignettes.begin(), next; itr != m_vignettes.end(); itr = next)
+    for (PlayerVignettesMap::iterator itr = m_vignettes.begin(), next; itr != m_vignettes.end(); itr = next)
     {
         next = itr;
         ++next;
