@@ -479,7 +479,7 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     if (initPlayer)
         player->m_clientGUIDs.clear();
 
-    player->UpdateObjectVisibility(false);
+    player->UpdateObjectVisibility(true);
 
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
