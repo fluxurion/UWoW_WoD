@@ -119,6 +119,7 @@ namespace WorldPackets
         class SetFactionNotAtWar;
         class SetFactionInactive;
         class SetWatchedFaction;
+        class EmoteClient;
 
 
         enum class LoginFailureReason : uint8;
@@ -1076,7 +1077,7 @@ class WorldSession
 
         void HandleSetSelectionOpcode(WorldPackets::Misc::SetSelection& packet);
         void HandleStandStateChangeOpcode(WorldPackets::Misc::StandStateChange& packet);
-        void HandleEmoteOpcode(WorldPacket& recvPacket);
+        void HandleEmote(WorldPackets::Character::EmoteClient& packet);
         void HandleContactListOpcode(WorldPackets::Social::SendContactList& packet);
         void HandleAddFriend(WorldPackets::Social::AddFriend& packet);
         void HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std::string friendNote);

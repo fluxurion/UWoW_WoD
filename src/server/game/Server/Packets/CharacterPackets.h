@@ -654,6 +654,14 @@ namespace WorldPackets
             uint32 NewRaceID = 0;
             bool Success = false;
         };
+
+        class EmoteClient final : public ClientPacket
+        {
+        public:
+            EmoteClient(WorldPacket&& packet) : ClientPacket(CMSG_EMOTE, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 

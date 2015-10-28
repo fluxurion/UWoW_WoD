@@ -361,7 +361,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_DO_READY_CHECK,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Party::DoReadyCheck, &WorldSession::HandleDoReadyCheck);
     DEFINE_HANDLER(CMSG_DUEL_RESPONSE,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Duel::DuelResponse, &WorldSession::HandleDuelResponse);
     DEFINE_HANDLER(CMSG_EJECT_PASSENGER,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Vehicle::EjectPassenger, &WorldSession::HandleEjectPassenger);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_EMOTE,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEmoteOpcode               );
+    DEFINE_HANDLER(CMSG_EMOTE,                                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Character::EmoteClient, &WorldSession::HandleEmote);
     DEFINE_OPCODE_HANDLER_OLD(CMSG_ENABLE_NAGLE,                            STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess            );
     DEFINE_HANDLER(CMSG_ENABLE_TAXI_NODE,                                   STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   WorldPackets::Taxi::EnableTaxiNode, &WorldSession::HandleEnableTaxiNode);    DEFINE_HANDLER(CMSG_ENGINE_SURVEY,                                      STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_ENUM_CHARACTERS,                                    STATUS_AUTHED,    PROCESS_THREADUNSAFE, WorldPackets::Character::EnumCharacters, &WorldSession::HandleCharEnumOpcode);

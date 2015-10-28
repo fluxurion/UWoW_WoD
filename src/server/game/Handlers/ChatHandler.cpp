@@ -621,23 +621,12 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
     }
 }
 
-void WorldSession::HandleEmoteOpcode(WorldPacket & recvData)
+void WorldSession::HandleEmote(WorldPackets::Character::EmoteClient& packet)
 {
-    uint32 emote;
-    recvData >> emote;
-
-    if (emote > ANIM_FLY_MONK_OFFENSE_ATTACK_WEAPON)
-    {
-        sLog->outWarn(LOG_FILTER_WARDEN, "Detected debugger - %s", GetPlayerName(false).c_str());
-        KickPlayer();
-        return;
-    }
-
     if (!GetPlayer()->isAlive() || GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         return;
 
-    sScriptMgr->OnPlayerEmote(GetPlayer(), emote);
-    GetPlayer()->HandleEmoteCommand(emote);
+    sScriptMgr->OnPlayerClearEmote(GetPlayer());
 }
 
 void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
