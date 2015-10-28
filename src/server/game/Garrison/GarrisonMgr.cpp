@@ -369,8 +369,8 @@ void GarrisonMgr::LoadPlotFinalizeGOInfo()
         GameObjectTemplate const* goTemplate = sObjectMgr->GetGameObjectTemplate(hordeGameObjectId);
         if (!goTemplate)
         {
-            sLog->outError(LOG_FILTER_SQL, "Non-existing gameobject_template entry %u was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId %u.",
-                hordeGameObjectId, garrPlotInstanceId);
+            sLog->outError(LOG_FILTER_SQL, "Non-existing gameobject_template entry %u was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId %u goID %u.",
+                hordeGameObjectId, garrPlotInstanceId, hordeGameObjectId);
             continue;
         }
 
@@ -381,11 +381,11 @@ void GarrisonMgr::LoadPlotFinalizeGOInfo()
             continue;
         }
 
-        goTemplate = sObjectMgr->GetGameObjectTemplate(allianceGameObjectId);
+        /*goTemplate = sObjectMgr->GetGameObjectTemplate(allianceGameObjectId);
         if (!goTemplate)
         {
-            sLog->outError(LOG_FILTER_SQL, "Non-existing gameobject_template entry %u was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId %u.",
-                allianceGameObjectId, garrPlotInstanceId);
+            sLog->outError(LOG_FILTER_SQL, "Non-existing gameobject_template entry %u was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId %u goID %u.",
+                allianceGameObjectId, garrPlotInstanceId, allianceGameObjectId);
             continue;
         }
 
@@ -394,7 +394,7 @@ void GarrisonMgr::LoadPlotFinalizeGOInfo()
             sLog->outError(LOG_FILTER_SQL, "Invalid gameobject type %u (entry %u) was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId %u.",
                 goTemplate->type, allianceGameObjectId, garrPlotInstanceId);
             continue;
-        }
+        */
 
         FinalizeGarrisonPlotGOInfo& info = _finalizePlotGOInfo[garrPlotInstanceId];
         info.FactionInfo[GARRISON_FACTION_INDEX_HORDE].GameObjectId = hordeGameObjectId;

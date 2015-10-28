@@ -71,7 +71,7 @@ void GarrisonGridLoader::LoadN()
 
 void GarrisonGridLoader::Visit(GameObjectMapType& m)
 {
-    /*std::vector<Garrison::Plot*> plots = i_garrison->GetPlots();
+    std::vector<Garrison::Plot*> plots = i_garrison->GetPlots();
     if (!plots.empty())
     {
         CellCoord cellCoord = i_cell.GetCellCoord();
@@ -90,7 +90,7 @@ void GarrisonGridLoader::Visit(GameObjectMapType& m)
             go->AddToWorld();
             ++i_gameObjects;
         }
-    }*/
+    }
 }
 
 void GarrisonGridLoader::Visit(CreatureMapType& /*m*/)
@@ -114,13 +114,13 @@ void GarrisonMap::LoadGridObjects(NGridType* grid, Cell const& cell)
 
 Garrison* GarrisonMap::GetGarrison()
 {
-    if (_loadingPlayer)
-        return _loadingPlayer->GetGarrison();
+    if (_garrison)
+        return _garrison;
 
     if (Player* owner = ObjectAccessor::FindPlayer(_owner))
-        return owner->GetGarrison();
+        _garrison =  owner->GetGarrison();
 
-    return nullptr;
+    return _garrison;
 }
 
 void GarrisonMap::InitVisibilityDistance()
@@ -133,12 +133,7 @@ void GarrisonMap::InitVisibilityDistance()
 bool GarrisonMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
 {
     if (player->GetGUID() == _owner)
-        _loadingPlayer = player;
+        _garrison = player->GetGarrison();
 
-    bool result = InstanceMap::AddPlayerToMap(player, initPlayer);
-
-    if (player->GetGUID() == _owner)
-        _loadingPlayer = nullptr;
-
-    return result;
+    return InstanceMap::AddPlayerToMap(player, initPlayer);
 }

@@ -886,7 +886,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
 
     Position const& pos = PacketInfo.PlotPos;
     GameObject* building = new GameObject();
-    if (!building->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), entry, map, 0, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
+    if (!building->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), entry, map, 1, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
         0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
     {
         delete building;
@@ -899,7 +899,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         {
             Position const& pos2 = finalizeInfo->FactionInfo[faction].Pos;
             GameObject* finalizer = new GameObject();
-            if (finalizer->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), finalizeInfo->FactionInfo[faction].GameObjectId, map, 0, pos2.GetPositionX(), pos2.GetPositionY(),
+            if (finalizer->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), finalizeInfo->FactionInfo[faction].GameObjectId, map, 1, pos2.GetPositionX(), pos2.GetPositionY(),
                 pos2.GetPositionZ(), pos2.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
             {
                 // set some spell id to make the object delete itself after use
@@ -916,19 +916,19 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         }
     }
 
-    //if (building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING && building->GetGOInfo()->garrisonBuilding.mapID)
-    //{
-    //    for (CellObjectGuidsMap::value_type const& cellGuids : sObjectMgr->GetMapObjectGuids(building->GetGOInfo()->garrisonBuilding.mapID, map->GetSpawnMode()))
-    //    {
-    //        for (ObjectGuid::LowType spawnId : cellGuids.second.creatures)
-    //            if (Creature* spawn = BuildingSpawnHelper<Creature, &Creature::SetHomePosition>(building, spawnId, map))
-    //                BuildingInfo.Spawns.insert(spawn->GetGUID());
+    if (building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING && building->GetGOInfo()->garrisonBuilding.mapID)
+    {
+        //for (CellObjectGuidsMap::value_type const& cellGuids : sObjectMgr->GetMapObjectGuids(building->GetGOInfo()->garrisonBuilding.mapID, map->GetSpawnMode()))
+        //{
+        //    for (ObjectGuid::LowType spawnId : cellGuids.second.creatures)
+        //        if (Creature* spawn = BuildingSpawnHelper<Creature, &Creature::SetHomePosition>(building, spawnId, map))
+        //            BuildingInfo.Spawns.insert(spawn->GetGUID());
 
-    //        for (ObjectGuid::LowType spawnId : cellGuids.second.gameobjects)
-    //            if (GameObject* spawn = BuildingSpawnHelper<GameObject, &GameObject::RelocateStationaryPosition>(building, spawnId, map))
-    //                BuildingInfo.Spawns.insert(spawn->GetGUID());
-    //    }
-    //}
+        //    for (ObjectGuid::LowType spawnId : cellGuids.second.gameobjects)
+        //        if (GameObject* spawn = BuildingSpawnHelper<GameObject, &GameObject::RelocateStationaryPosition>(building, spawnId, map))
+        //            BuildingInfo.Spawns.insert(spawn->GetGUID());
+        //}
+    }
 
     BuildingInfo.Guid = building->GetGUID();
     return building;

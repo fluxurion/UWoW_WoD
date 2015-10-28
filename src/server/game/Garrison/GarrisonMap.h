@@ -36,6 +36,7 @@ public:
     bool AddPlayerToMap(Player* player, bool initPlayer = true) override;
 
 private:
+    Garrison* _garrison;
     ObjectGuid _owner;
     Player* _loadingPlayer; ///< @workaround Player is not registered in ObjectAccessor during login
 };
