@@ -1311,7 +1311,7 @@ enum SpellEffects
     SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL       = 230,
     SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE       = 231,
     SPELL_EFFECT_REMOVE_PHASE                       = 232,
-    SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES       = 233,
+    SPELL_EFFECT_RETRAIN_FOLLOWER                   = 233,
     SPELL_EFFECT_234                                = 234,
     SPELL_EFFECT_235                                = 235,
     SPELL_EFFECT_GIVE_EXPERIENCE                    = 236, // Increases players XP

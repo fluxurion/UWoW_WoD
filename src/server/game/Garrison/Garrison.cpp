@@ -662,6 +662,21 @@ Garrison::Follower* Garrison::GetFollowerByID(uint32 entry)
     return nullptr;
 }
 
+void Garrison::ReTrainFollower(SpellInfo const* spellInfo, uint32 followerID)
+{
+    auto follower = GetFollowerByID(followerID);
+    if (!follower)
+        return;
+
+    auto followerEntry = sGarrFollowerStore.LookupEntry(follower->PacketInfo.GarrFollowerID);
+    if (!followerEntry)
+        return;
+
+    follower->PacketInfo.AbilityID = sGarrisonMgr.RollFollowerAbilities(followerEntry, follower->PacketInfo.Quality, GetFaction(), spellInfo->Effects[0].MiscValue == 1 ? false : true);
+
+    // here should be SMSG_GARRISON_FOLLOWER_CHANGED_ABILITIES
+}
+
 Garrison::Mission const* Garrison::GetMission(uint64 dbId) const
 {
     auto itr = _missions.find(dbId);

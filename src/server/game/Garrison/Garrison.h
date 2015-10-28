@@ -176,6 +176,7 @@ public:
     Follower const* GetFollower(uint64 dbId) const;
     Follower* GetFollower(uint64 dbId);
     Follower* GetFollowerByID(uint32 entry);
+    void ReTrainFollower(SpellInfo const* spellInfo, uint32 followerID);
 
     // Missions
     Mission const* GetMission(uint64 dbId) const;

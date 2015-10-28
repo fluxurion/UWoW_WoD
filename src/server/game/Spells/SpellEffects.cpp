@@ -310,7 +310,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectIncreaseFollowerItemLevel,                //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL
     &Spell::EffectNULL,                                     //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
     &Spell::EffectRemovePhase,                              //232 SPELL_EFFECT_REMOVE_PHASE
-    &Spell::EffectNULL,                                     //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
+    &Spell::EffectReTrainFollower,                          //233 SPELL_EFFECT_RETRAIN_FOLLOWER
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234
     &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235
     &Spell::EffectGieveExperience,                          //236 SPELL_EFFECT_GIVE_EXPERIENCE
@@ -8513,4 +8513,18 @@ void Spell::EffectIncreaseFollowerItemLevel(SpellEffIndex effIndex)
 
     if (Garrison::Follower* follower = garrison->GetFollowerByID(m_misc.Data))
         follower->IncreaseFollowerItemLevel(m_spellInfo, player);
+}
+
+void Spell::EffectReTrainFollower(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* player = m_caster->ToPlayer();
+    if (!player)
+        return;
+
+    Garrison* garrison = player->GetGarrison();
+    if (garrison)
+        garrison->ReTrainFollower(m_spellInfo, m_misc.Data);
 }
