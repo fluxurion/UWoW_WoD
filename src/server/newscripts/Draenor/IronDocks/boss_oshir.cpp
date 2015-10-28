@@ -51,7 +51,7 @@ public:
     {
         boss_oshirAI(Creature* creature) : BossAI(creature, DATA_OSHIR), summons(me) 
         {
-            into = true;
+            intro = true;
         }
 
         SummonList summons;
@@ -59,7 +59,7 @@ public:
         uint32 DamageCount;
         uint32 HealthPct;
 
-        bool into;
+        bool intro;
 
         void Reset()
         {
@@ -71,6 +71,8 @@ public:
             HealthPct = 0;
             me->RemoveAurasDueToSpell(SPELL_FEEDING_FRENZY);
             me->SetReactState(REACT_AGGRESSIVE);
+            if (intro)
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -94,13 +96,16 @@ public:
 
         void DoAction(const int32 action)
         {
-            if (action == 1 && into)
+            if (action == 1 && intro)
             {
-                into = false;
+                intro = false;
                 if (GameObject* cage = me->FindNearestGameObject(239227, 5.0f))
                     cage->SetGoState(GO_STATE_ACTIVE);
+
                 me->SetHomePosition(6956.0f, -1101.0f, 4.7f, 4.0f);
-                me->GetMotionMaster()->MoveTargetedHome();
+                //me->GetMotionMaster()->MoveTargetedHome();
+                me->NearTeleportTo(6956.0f, -1101.0f, 4.7f, 4.0f); //hack
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
         }
 
@@ -194,6 +199,7 @@ public:
                     case EVENT_JUMP_TO_CAGE:
                     {
                         DoStopAttack();
+                        me->GetMotionMaster()->Clear(false);
                         if (rand == 0)
                         {
                             rand = 1;
@@ -213,7 +219,7 @@ public:
                         break;
                     case EVENT_OPEN_CAGE:
                         for (uint8 i = 0; i < 19; ++i)
-                            if (me->GetDistance(cageSpawn[i]) < 5.0f)
+                            if (me->GetDistance(cageSpawn[i]) < 4.5f)
                                 instance->SetData(DATA_OSHIR_CAGE, i);
                         me->SetReactState(REACT_AGGRESSIVE);
                         break;

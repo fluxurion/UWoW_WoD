@@ -77,7 +77,10 @@ public:
 
     struct boss_orebender_gorashanAI : public BossAI
     {
-        boss_orebender_gorashanAI(Creature* creature) : BossAI(creature, DATA_GORASHAN), summons(me) {}
+        boss_orebender_gorashanAI(Creature* creature) : BossAI(creature, DATA_GORASHAN), summons(me) 
+        {
+            SetCombatMovement(false);
+        }
 
         SummonList summons;
 
@@ -209,7 +212,6 @@ public:
             if (!UpdateVictim())
                 return;
 
-            EnterEvadeIfOutOfCombatArea(diff);
             events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
