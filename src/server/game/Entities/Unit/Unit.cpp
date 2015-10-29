@@ -11858,7 +11858,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                 if (spellProto->SpellIconID == 186)
                 {
                     if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
-                        DoneTotalMod *= 4.0f;
+                        DoneTotalMod *= 2.0f;
 
                     // search Fingers of Frost
                     if (AuraEffect const* aurEff = GetAuraEffect(44544, EFFECT_1))
