@@ -79,6 +79,9 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
             plot->BuildingInfo.PacketInfo->TimeBuilt = timeBuilt;
             plot->BuildingInfo.PacketInfo->Active = active;
 
+            if (!plot->BuildingInfo.PacketInfo->Active)
+                plot->buildingActivationWaiting = true;
+
         }
         while (buildings->NextRow());
     }
@@ -430,6 +433,41 @@ void Garrison::Leave() const
     }
 }
 
+void Garrison::Update(uint32 diff)
+{
+    for (auto& p : _plots)
+    {
+        if (p.second.buildingActivationWaiting &&
+            p.second.BuildingInfo.CanActivate() && p.second.BuildingInfo.PacketInfo && !p.second.BuildingInfo.PacketInfo->Active)
+        {
+            if (Map* map = FindMap())
+            {
+                p.second.buildingActivationWaiting = false;
+
+                if (FinalizeGarrisonPlotGOInfo const* finalizeInfo = sGarrisonMgr.GetPlotFinalizeGOInfo(p.second.PacketInfo.GarrPlotInstanceID))
+                {
+                    Position const& pos2 = finalizeInfo->FactionInfo[GetFaction()].Pos;
+                    GameObject* finalizer = new GameObject();
+                    if (finalizer->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), finalizeInfo->FactionInfo[GetFaction()].GameObjectId, map, 1, pos2.GetPositionX(), pos2.GetPositionY(),
+                        pos2.GetPositionZ(), pos2.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
+                    {
+                        // set some spell id to make the object delete itself after use
+                        finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);
+                        finalizer->SetRespawnTime(0);
+
+                        if (uint16 animKit = finalizeInfo->FactionInfo[GetFaction()].AnimKitId)
+                            finalizer->SetAIAnimKitId(animKit);
+
+                        map->AddToMap(finalizer);
+                    }
+                    else
+                        delete finalizer;
+                }
+            }
+        }
+    }
+}
+
 GarrisonFactionIndex Garrison::GetFaction() const
 {
     return _owner->GetTeam() == HORDE ? GARRISON_FACTION_INDEX_HORDE : GARRISON_FACTION_INDEX_ALLIANCE;
@@ -511,6 +549,8 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
         placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
 
         Plot* plot = GetPlot(garrPlotInstanceId);
+        plot->buildingActivationWaiting = true;
+
         uint32 oldBuildingId = 0;
         Map* map = FindMap();
         GarrBuildingEntry const* building = sGarrBuildingStore.AssertEntry(garrBuildingId);
@@ -950,29 +990,6 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
     {
         delete building;
         return nullptr;
-    }
-
-    if (BuildingInfo.CanActivate() && BuildingInfo.PacketInfo && !BuildingInfo.PacketInfo->Active)
-    {
-        if (FinalizeGarrisonPlotGOInfo const* finalizeInfo = sGarrisonMgr.GetPlotFinalizeGOInfo(PacketInfo.GarrPlotInstanceID))
-        {
-            Position const& pos2 = finalizeInfo->FactionInfo[faction].Pos;
-            GameObject* finalizer = new GameObject();
-            if (finalizer->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), finalizeInfo->FactionInfo[faction].GameObjectId, map, 1, pos2.GetPositionX(), pos2.GetPositionY(),
-                pos2.GetPositionZ(), pos2.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
-            {
-                // set some spell id to make the object delete itself after use
-                finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);
-                finalizer->SetRespawnTime(0);
-
-                if (uint16 animKit = finalizeInfo->FactionInfo[faction].AnimKitId)
-                    finalizer->SetAIAnimKitId(animKit);
-
-                map->AddToMap(finalizer);
-            }
-            else
-                delete finalizer;
-        }
     }
 
     if (building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING && building->GetGOInfo()->garrisonBuilding.mapID)

@@ -115,6 +115,8 @@ public:
         uint32 EmptyGameObjectId = 0;
         uint32 GarrSiteLevelPlotInstId = 0;
         Building BuildingInfo;
+
+        bool buildingActivationWaiting = false;
     };
 
     struct Follower
@@ -159,6 +161,8 @@ public:
 
     void Enter() const;
     void Leave() const;
+
+    void Update(uint32 diff);
 
     GarrisonFactionIndex GetFaction() const;
 

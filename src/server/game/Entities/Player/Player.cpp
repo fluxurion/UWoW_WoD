@@ -1929,6 +1929,11 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && !IsCanDelayTeleport() && isAlive() && !isWatchingMovie())
         TeleportTo(m_teleport_dest, m_teleport_options);
+
+    // Garrison update
+    if (Garrison *garr = GetGarrison())
+        garr->Update(p_time);
+
     plrUpdate = false; 
 }
 
