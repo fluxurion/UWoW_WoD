@@ -76,3 +76,14 @@ WorldPacket const* WorldPackets::GameObject::GameObjectPlaySpellVisual::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::GameObject::DestructibleBuildingDamage::Write()
+{
+    _worldPacket << Target;
+    _worldPacket << Caster;
+    _worldPacket << Owner;
+    _worldPacket << Damage;
+    _worldPacket << SpellID;
+
+    return &_worldPacket;
+}

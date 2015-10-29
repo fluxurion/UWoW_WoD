@@ -1953,14 +1953,13 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
     // TODO: is there any packet for healing?
     if (change < 0 && player)
     {
-        //! 6.0.3
-        WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE);
-        data << GetGUID();
-        data << attackerOrHealer->GetGUID();
-        data << GetOwnerGUID();
-        data << int32(-change);
-        data << uint32(spellId);
-        player->GetSession()->SendPacket(&data);
+        WorldPackets::GameObject::DestructibleBuildingDamage buildingDamage;
+        buildingDamage.Target = GetGUID();
+        buildingDamage.Caster = attackerOrHealer->GetGUID();
+        buildingDamage.Owner = GetOwnerGUID();
+        buildingDamage.Damage = -change;
+        buildingDamage.SpellID = spellId;
+        player->GetSession()->SendPacket(buildingDamage.Write());
     }
 
     GameObjectDestructibleState newState = GetDestructibleState();

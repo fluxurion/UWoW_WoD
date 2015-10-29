@@ -112,6 +112,20 @@ namespace WorldPackets
             ObjectGuid ActivatorGUID;
             int32 SpellVisualID = 0;
         };
+
+        class DestructibleBuildingDamage final : public ServerPacket
+        {
+        public:
+            DestructibleBuildingDamage() : ServerPacket(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 16 * 3 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target;
+            ObjectGuid Caster;
+            ObjectGuid Owner;
+            int32 Damage = 0;
+            uint32 SpellID = 0;
+        };
     }
 }
 #endif // GOPackets_h__
