@@ -23528,25 +23528,21 @@ void Unit::SendDispelFailed(ObjectGuid const& targetGuid, uint32 spellId, std::l
 
 void Unit::SendDispelLog(ObjectGuid const& unitTargetGuid, uint32 spellId, std::list<uint32>& spellList, bool broke, bool stolen)
 {
-    //! 6.0.3
-    WorldPacket data(SMSG_SPELL_DISPELL_LOG, 4 + 4 + spellList.size() * 5 + 3 + 1);
-    data.WriteBit(stolen);      // used in dispel, 0 - dispeled, 1 - stolen
-    data.WriteBit(broke);       // 0 - dispel, 1 - break
-    data << unitTargetGuid;
-    data << GetGUID();
-    data << uint32(spellId);
-
-    data << uint32(spellList.size());
-    for (std::list<uint32>::const_iterator itr = spellList.begin(); itr != spellList.end(); ++itr)
+    WorldPackets::Spells::SpellDispellLog dispellLog;
+    dispellLog.TargetGUID = unitTargetGuid;
+    dispellLog.CasterGUID = GetGUID();
+    dispellLog.SpellID = spellId;
+    dispellLog.IsSteal = stolen;
+    dispellLog.IsBreak = broke;
+    for (auto const& v : spellList)
     {
-        data << uint32(*itr);
-
-        data.WriteBit(!stolen);
-        data.WriteBit(0);
-        data.WriteBit(0);
+        WorldPackets::Spells::DispellData data;
+        data.SpellID = v;
+        data.IsHarmful = !stolen;
+        dispellLog.Dispell.push_back(data);
     }
 
-    SendMessageToSet(&data, true);
+    SendMessageToSet(dispellLog.Write(), true);
 }
 
 void Unit::SendMoveflag2_0x1000_Update(bool on)

@@ -1028,3 +1028,28 @@ WorldPacket const* WorldPackets::Spells::DispelFailed::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::SpellDispellLog::Write()
+{
+    _worldPacket.WriteBit(IsSteal);
+    _worldPacket.WriteBit(IsBreak);
+    _worldPacket.FlushBits();
+    _worldPacket << TargetGUID;
+    _worldPacket << CasterGUID;
+    _worldPacket << SpellID;
+    _worldPacket << static_cast<uint32>(Dispell.size());
+    for (auto const& x : Dispell)
+    {
+        _worldPacket << x.SpellID;
+        _worldPacket.WriteBit(x.IsHarmful);
+        _worldPacket.WriteBit(x.Rolled.is_initialized());
+        _worldPacket.WriteBit(x.Needed.is_initialized());
+        _worldPacket.FlushBits();
+        if (x.Rolled)
+            _worldPacket << *x.Rolled;
+        if (x.Needed)
+            _worldPacket << *x.Needed;
+    }
+
+    return &_worldPacket;
+}

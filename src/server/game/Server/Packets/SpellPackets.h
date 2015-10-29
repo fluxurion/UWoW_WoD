@@ -1041,6 +1041,29 @@ namespace WorldPackets
             uint32 SpellID = 0;
             std::list<uint32> FailedSpellIDs;
         };
+
+        struct DispellData
+        {
+            uint32 SpellID = 0;
+            Optional<uint32> Rolled;
+            Optional<uint32> Needed;
+            bool IsHarmful = false;
+        };
+
+        class SpellDispellLog final : public ServerPacket
+        {
+        public:
+            SpellDispellLog() : ServerPacket(SMSG_SPELL_DISPELL_LOG, 32 + 4 + 4) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid TargetGUID;
+            ObjectGuid CasterGUID;
+            std::vector<DispellData> Dispell;
+            uint32 SpellID = 0;
+            bool IsSteal = false;
+            bool IsBreak = false;
+        };
     }
 }
 
