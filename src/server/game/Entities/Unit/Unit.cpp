@@ -9897,27 +9897,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
 
             break;
         }
-        // Master Marksmann
-        case 34487:
-        {
-            if (!procSpell || procSpell->Id != 56641) // Steady Shot
-                return false;
-
-            if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_HUNTER)
-                return false;
-
-            Aura* aimed = GetAura(trigger_spell_id);
-            //  After reaching 3 stacks, your next Aimed Shot's cast time and Focus cost are reduced by 100% for 10 sec
-            if (aimed && aimed->GetStackAmount() >= 2)
-            {
-                RemoveAura(trigger_spell_id);
-                CastSpell(this, 82926, true); // Fire !
-
-                return false;
-            }
-
-            break;
-        }
         // Will of the Necropolis
         case 81164:
         {
@@ -9930,7 +9909,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
             if (ToPlayer()->HasSpellCooldown(81164))
                 return false;
 
-            ToPlayer()->AddSpellCooldown(81164, 0, getPreciseTime() + 45.0);
+            ToPlayer()->AddSpellCooldown(81164, 0, getPreciseTime() + 30.0);
             ToPlayer()->RemoveSpellCooldown(48982, true);
 
             break;
