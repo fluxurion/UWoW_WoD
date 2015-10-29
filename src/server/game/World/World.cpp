@@ -1805,6 +1805,7 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading linked spells...");
     sSpellMgr->LoadSpellLinked();
     sSpellMgr->LoadTalentSpellLinked();
+    sSpellMgr->LoadSpellConcatenateAura();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Prco Check spells...");
     sSpellMgr->LoadSpellPrcoCheck();

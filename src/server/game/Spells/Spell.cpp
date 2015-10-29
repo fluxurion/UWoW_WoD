@@ -5838,18 +5838,22 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
                             _lplayer->learnSpell(i->effect, false);
                         break;
                     }
-                    case LINK_ACTION_SPELLCOOLDOWN:
+                    case LINK_ACTION_SEND_COOLDOWN:
                         _caster->SendSpellCooldown(i->effect, m_spellInfo->Id);
                         break;
-                    case LINK_ACTION_CASTNOTRIGGER:
+                    case LINK_ACTION_CAST_NO_TRIGGER:
                         _caster->CastSpell(_target ? _target : _caster, i->effect, false);
                         break;
-                    case LINK_ACTION_ADDAURA:
+                    case LINK_ACTION_ADD_AURA:
                         _caster->AddAura(i->effect, _target ? _target : _caster);
                         break;
                     case LINK_ACTION_CHANGE_STACK:
                         if (Aura* aura = (_target ? _target : _caster)->GetAura(i->effect))
                             aura->ModStackAmount(1);
+                        break;
+                    case LINK_ACTION_REMOVE_COOLDOWN:
+                        if (Player* _lplayer = _caster->ToPlayer())
+                            _lplayer->RemoveSpellCooldown(i->effect, true);
                         break;
                 }
 

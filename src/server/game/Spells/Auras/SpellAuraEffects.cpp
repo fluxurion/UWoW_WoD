@@ -1903,7 +1903,10 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
     if (handleMask & AURA_EFFECT_HANDLE_CHANGE_AMOUNT)
     {
         if (!mark)
+        {
             m_amount = newAmount;
+            GetBase()->UpdateConcatenateAura(GetCaster(), newAmount, m_effIndex);
+        }
         else
             SetAmount(newAmount);
         CalculateSpellMod();

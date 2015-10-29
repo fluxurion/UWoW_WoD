@@ -1147,6 +1147,18 @@ const std::vector<SpellTalentLinked>* SpellMgr::GetSpelltalentLinked(int32 spell
     return itr != mSpellTalentLinkedMap.end() ? &(itr->second) : NULL;
 }
 
+const std::vector<SpellConcatenateAura>* SpellMgr::GetSpellConcatenateApply(int32 spell_id) const
+{
+    SpellConcatenateApplyMap::const_iterator itr = mSpellConcatenateApplyMap.find(spell_id);
+    return itr != mSpellConcatenateApplyMap.end() ? &(itr->second) : NULL;
+}
+
+const std::vector<SpellConcatenateAura>* SpellMgr::GetSpellConcatenateUpdate(int32 spell_id) const
+{
+    SpellConcatenateUpdateMap::const_iterator itr = mSpellConcatenateUpdateMap.find(spell_id);
+    return itr != mSpellConcatenateUpdateMap.end() ? &(itr->second) : NULL;
+}
+
 const std::vector<SpellVisual>* SpellMgr::GetSpellVisual(int32 spell_id) const
 {
     SpellVisualMap::const_iterator itr = mSpellVisualMap.find(spell_id);
@@ -2606,6 +2618,58 @@ void SpellMgr::LoadTalentSpellLinked()
     } while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u linked talent spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void SpellMgr::LoadSpellConcatenateAura()
+{
+    uint32 oldMSTime = getMSTime();
+
+    mSpellConcatenateApplyMap.clear();    // need for reload case
+    mSpellConcatenateUpdateMap.clear();    // need for reload case
+
+    //                                                  0          1         2         3
+    QueryResult result = WorldDatabase.Query("SELECT spellid, effectSpell, auraId, effectAura FROM spell_concatenate_aura");
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 concatenate auraspells. DB table `spell_concatenate_aura` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        int32 spellid = fields[0].GetInt32();
+        int32 effectSpell = fields[1].GetUInt8();
+        int32 auraId   = fields[2].GetInt32();
+        int32 effectAura = fields[3].GetUInt8();
+
+        SpellInfo const* spellInfo = GetSpellInfo(spellid);
+        if (!spellInfo)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_concatenate_aura` does not exist", spellid);
+            continue;
+        }
+        spellInfo = GetSpellInfo(auraId);
+        if (!spellInfo)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_concatenate_aura` does not exist", auraId);
+            continue;
+        }
+
+        SpellConcatenateAura tempAura;
+        tempAura.spellid = spellid;
+        tempAura.effectSpell = effectSpell;
+        tempAura.auraId   = auraId;
+        tempAura.effectAura = effectAura;
+        mSpellConcatenateUpdateMap[spellid].push_back(tempAura);
+        mSpellConcatenateApplyMap[auraId].push_back(tempAura);
+
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u concatenate aura spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellVisual()

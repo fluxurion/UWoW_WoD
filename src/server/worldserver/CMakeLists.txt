@@ -175,7 +175,6 @@ target_link_libraries(worldserver
   gsoap
   Detour
   zmqpp
-  ${JEMALLOC_LIBRARY}
   ${READLINE_LIBRARY}
   ${TERMCAP_LIBRARY}
   ${MYSQL_LIBRARY}
@@ -196,7 +195,6 @@ target_link_libraries(worldserver
   gsoap
   Detour
   zmqpp
-  ${JEMALLOC_LIBRARY}
   ${READLINE_LIBRARY}
   ${TERMCAP_LIBRARY}
   ${MYSQL_LIBRARY}

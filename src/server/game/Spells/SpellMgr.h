@@ -124,14 +124,15 @@ enum SpellLinkedHasType
 
 enum SpellLinkedActionType
 {
-    LINK_ACTION_DEFAULT       = 0,
-    LINK_ACTION_LEARN         = 1,
-    LINK_ACTION_AURATYPE      = 2,
-    LINK_ACTION_SPELLCOOLDOWN = 3,
-    LINK_ACTION_CASTNOTRIGGER = 4,
-    LINK_ACTION_ADDAURA       = 5,
-    LINK_ACTION_CASTINAURA    = 6,
-    LINK_ACTION_CHANGE_STACK  = 7,
+    LINK_ACTION_DEFAULT          = 0,
+    LINK_ACTION_LEARN            = 1,
+    LINK_ACTION_AURATYPE         = 2,
+    LINK_ACTION_SEND_COOLDOWN    = 3,
+    LINK_ACTION_CAST_NO_TRIGGER  = 4,
+    LINK_ACTION_ADD_AURA         = 5,
+    LINK_ACTION_CASTINAURA       = 6,
+    LINK_ACTION_CHANGE_STACK     = 7,
+    LINK_ACTION_REMOVE_COOLDOWN  = 8,
 };
 
 enum SpellTriggeredType
@@ -877,6 +878,14 @@ struct SpellScene
     uint32 scriptID;
 };
 
+struct SpellConcatenateAura
+{
+    int32 spellid;
+    int32 effectSpell;
+    int32 auraId;
+    int32 effectAura;
+};
+
 typedef std::unordered_map<int32, std::vector<SpellTriggered> > SpellTriggeredMap;
 typedef std::unordered_map<int32, std::vector<SpellDummyTrigger> > SpellDummyTriggerMap;
 typedef std::unordered_map<int32, std::vector<SpellDummyTrigger> > SpellAuraTriggerMap;
@@ -890,6 +899,8 @@ typedef std::unordered_map<int32, SpellVisualPlayOrphan > SpellVisualPlayOrphanM
 typedef std::unordered_map<int32, std::vector<SpellPendingCast> > SpellPendingCastMap;
 typedef std::unordered_map<int32, SpellMountList* > SpellMountListMap;
 typedef std::map<int32, SpellScene > SpellSceneMap;
+typedef std::unordered_map<int32, std::vector<SpellConcatenateAura> > SpellConcatenateApplyMap;
+typedef std::unordered_map<int32, std::vector<SpellConcatenateAura> > SpellConcatenateUpdateMap;
 
 bool IsWeaponSkill(uint32 skill);
 
@@ -1003,6 +1014,8 @@ class SpellMgr
 
         const std::vector<SpellLinked> *GetSpellLinked(int32 spell_id) const;
         const std::vector<SpellTalentLinked> *GetSpelltalentLinked(int32 spell_id) const;
+        const std::vector<SpellConcatenateAura> *GetSpellConcatenateApply(int32 spell_id) const;
+        const std::vector<SpellConcatenateAura> *GetSpellConcatenateUpdate(int32 spell_id) const;
         const uint32 GetMountListId(uint32 spell_id, uint32 teamid) const;
         const std::vector<SpellPrcoCheck> *GetSpellPrcoCheck(int32 spell_id) const;
         const std::vector<SpellTriggered> *GetSpellTriggered(int32 spell_id) const;
@@ -1055,6 +1068,7 @@ class SpellMgr
         void LoadSpellEnchantProcData();
         void LoadSpellLinked();
         void LoadTalentSpellLinked();
+        void LoadSpellConcatenateAura();
         void LoadmSpellMountList();
         void LoadSpellPrcoCheck();
         void LoadSpellTriggered();
@@ -1118,6 +1132,8 @@ class SpellMgr
         SpellPendingCastMap        mSpellPendingCastMap;
         std::list<uint32>          mForbiddenSpells;
         SpellSceneMap              mSpellSceneMap;
+        SpellConcatenateApplyMap   mSpellConcatenateApplyMap;
+        SpellConcatenateUpdateMap  mSpellConcatenateUpdateMap;
 };
 
 #define sSpellMgr SpellMgr::instance()

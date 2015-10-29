@@ -74,10 +74,10 @@ _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectM
             _slot = slot;
             GetTarget()->SetVisibleAura(slot, this);
             SetNeedClientUpdate();
-            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura: %u Effect: %d put to unit visible auras slot: %u", GetBase()->GetId(), GetEffectMask(), slot);
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura: %u EffectMask: %d put to unit visible auras slot: %u", GetBase()->GetId(), effMask, slot);
         }
         else
-            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura: %u EffectMask: %d could not find empty unit visible slot", GetBase()->GetId(), effMask);
     }
 
     _InitFlags(caster, effMask);
@@ -220,6 +220,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
                 {
                     switch (effect->GetAuraType())
                     {
+                        case SPELL_AURA_DUMMY:
                         case SPELL_AURA_SCHOOL_ABSORB:
                         case SPELL_AURA_SCHOOL_HEAL_ABSORB:
                         case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
@@ -665,6 +666,7 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
         else
             m_effects[i] = NULL;
     }
+    UpdateConcatenateAura(caster, 0, 0, true);
 }
 
 Aura::~Aura()
@@ -3203,4 +3205,37 @@ uint32 Aura::CalcAgonyTickDamage(uint32 damage)
                 eff1->SetAmount(damage);
         }
     return damage;
+}
+
+void Aura::UpdateConcatenateAura(Unit* caster, int32 amount, int32 effIndex, bool apply)
+{
+    if(!caster)
+        return;
+
+    if(apply)
+    {
+        if (std::vector<SpellConcatenateAura> const* spellConcatenateAura = sSpellMgr->GetSpellConcatenateApply(GetId()))
+        {
+            for (std::vector<SpellConcatenateAura>::const_iterator itr = spellConcatenateAura->begin(); itr != spellConcatenateAura->end(); ++itr)
+            {
+                if (AuraEffect* effectSpell = caster->GetAuraEffect(itr->spellid, itr->effectSpell))
+                    if (AuraEffect* effectAura = GetEffect(itr->effectAura))
+                        effectAura->SetAmount(effectSpell->GetAmount());
+            }
+        }
+    }
+    else
+    {
+        if (std::vector<SpellConcatenateAura> const* spellConcatenateAura = sSpellMgr->GetSpellConcatenateUpdate(GetId()))
+        {
+            for (std::vector<SpellConcatenateAura>::const_iterator itr = spellConcatenateAura->begin(); itr != spellConcatenateAura->end(); ++itr)
+            {
+
+                if(effIndex != itr->effectSpell)
+                    continue;
+                if (AuraEffect* effect = caster->GetAuraEffect(itr->auraId, itr->effectAura))
+                    effect->SetAmount(amount);
+            }
+        }
+    }
 }

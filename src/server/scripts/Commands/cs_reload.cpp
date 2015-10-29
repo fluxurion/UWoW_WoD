@@ -877,6 +877,7 @@ public:
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Spell Linked Spells...");
         sSpellMgr->LoadSpellLinked();
         sSpellMgr->LoadTalentSpellLinked();
+        sSpellMgr->LoadSpellConcatenateAura();
         handler->SendGlobalGMSysMessage("DB table `spell_linked_spell` reloaded.");
         return true;
     }

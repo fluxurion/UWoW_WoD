@@ -32,6 +32,7 @@
 #include <fstream>
 #include "WordFilterMgr.h"
 #include "ObjectMgr.h"
+#include "SpellAuraEffects.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -77,6 +78,7 @@ public:
         };
         static ChatCommand auraCommandTable[] =
         {
+            { "amount",             SEC_ADMINISTRATOR,      true,  &HandleAuraAmountCommand,            "", NULL },
             { "duration",           SEC_ADMINISTRATOR,      true,  &HandleAuraDurationCommand,          "", NULL },
             { "charges",            SEC_ADMINISTRATOR,      true,  &HandleAuraChargesCommand,           "", NULL },
             { "",                   SEC_ADMINISTRATOR,      true,  &HandleAuraCommand,                  "", NULL },
@@ -445,6 +447,32 @@ public:
             else
                 return false;
         }
+
+        return true;
+    }
+
+    static bool HandleAuraAmountCommand(ChatHandler* handler, char const* args)
+    {
+        Unit* target = handler->getSelectedUnit();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 spellId = handler->extractSpellIdFromLink((char*)args);
+        if (!spellId)
+            return false;
+
+        char const* effectStr = strtok(NULL, " ");
+        char const* amountStr = strtok(NULL, " ");
+
+        uint8 effectId = effectStr ? atoi(effectStr) : 0;
+        int32 amount = amountStr ? atoi(amountStr) : 0;
+
+        if (AuraEffect* effect = target->GetAuraEffect(spellId, effectId))
+            effect->SetAmount(amount);
 
         return true;
     }

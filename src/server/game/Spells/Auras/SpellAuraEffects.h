@@ -64,6 +64,7 @@ class AuraEffect
             {
                 m_amount = amount;
                 GetBase()->SetNeedClientUpdateForTargets();
+                GetBase()->UpdateConcatenateAura(GetCaster(), m_amount, m_effIndex);
             }
 
             m_canBeRecalculated = false;

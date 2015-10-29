@@ -451,6 +451,8 @@ class spell_dru_rip_duration : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_rip_duration_SpellScript);
 
+            uint8 addPerc = 0;
+
             void HandleOnHit()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
@@ -482,14 +484,24 @@ class spell_dru_rip_duration : public SpellScriptLoader
                             }
                         }
                     }
-                    if (Aura* prowl = _player->GetAura(SPELL_DRUID_PROWL))
-                        if (AuraEffect const* aurEff = prowl->GetEffect(EFFECT_3))
-                            SetHitDamage(GetHitDamage() + int32(CalculatePct(GetHitDamage(), aurEff->GetAmount())));
+                    if (addPerc)
+                        SetHitDamage(GetHitDamage() + int32(CalculatePct(GetHitDamage(), addPerc)));
                 }
+            }
+
+            SpellCastResult CheckCast()
+            {
+                if (GetCaster())
+                    if (Aura* prowl = GetCaster()->GetAura(SPELL_DRUID_PROWL))
+                        if (AuraEffect const* aurEff = prowl->GetEffect(EFFECT_3))
+                            addPerc = aurEff->GetAmount();
+
+                return SPELL_CAST_OK;
             }
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_dru_rip_duration_SpellScript::CheckCast);
                 OnHit += SpellHitFn(spell_dru_rip_duration_SpellScript::HandleOnHit);
             }
         };
@@ -1411,18 +1423,17 @@ class spell_dru_frenzied_regeneration : public SpellScriptLoader
                     {
                         if (!_player->HasAura(SPELL_DRUID_GLYPH_OF_FRENZIED_REGEN))
                         {
-                            int32 rageused = _player->GetPower(POWER_RAGE);
-                            if (rageused >= 600)
-                                rageused = 600;
+                            float rageused = _player->GetPower(POWER_RAGE);
+                            if (rageused >= 600.0f)
+                                rageused = 600.0f;
 
-                            int32 healAmount = _player->GetTotalAttackPowerValue(BASE_ATTACK) * rageused / 100;
-
-                            SetEffectValue(healAmount);
+                            SetHitHeal(int32(GetHitHeal() * float(rageused / 600.0f)));
                             _player->EnergizeBySpell(_player, 22842, -rageused, POWER_RAGE);
+                            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "spell_dru_frenzied_regeneration rageused %i GetHitHeal%i", rageused, GetHitHeal());
                         }
                         else
                         {
-                            SetEffectValue(0);
+                            SetHitHeal(0);
                             _player->CastSpell(_player, SPELL_DRUID_FRENZIED_REGEN_HEAL_TAKE, true);
                         }
                     }
@@ -1431,7 +1442,7 @@ class spell_dru_frenzied_regeneration : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectLaunchTarget += SpellEffectFn(spell_dru_frenzied_regeneration_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_frenzied_regeneration_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
@@ -1496,36 +1507,6 @@ class spell_dru_stampeding_roar : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_stampeding_roar_SpellScript();
-        }
-};
-
-// Lacerate - 33745, 77758
-class spell_dru_lacerate : public SpellScriptLoader
-{
-    public:
-        spell_dru_lacerate() : SpellScriptLoader("spell_dru_lacerate") { }
-
-        class spell_dru_lacerate_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_lacerate_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (roll_chance_i(25))
-                            _player->RemoveSpellCooldown(33878, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dru_lacerate_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dru_lacerate_SpellScript();
         }
 };
 
@@ -2512,8 +2493,15 @@ class spell_dru_tooth_and_claw : public SpellScriptLoader
                         if(caster->HasAura(135286))
                         {
                             int32 bp = int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 2.4f);
-                            caster->CastCustomSpell(caster, 135597, &bp, NULL, NULL, true);
-                            caster->CastCustomSpell(target, 135601, &bp, NULL, NULL, true);
+                            if (AuraEffect* effect = caster->GetAuraEffect(135597, 0))
+                                effect->SetAmount(effect->GetAmount() + bp);
+                            else
+                                caster->CastCustomSpell(caster, 135597, &bp, NULL, NULL, true);
+
+                            if (AuraEffect* effect = target->GetAuraEffect(135601, 0))
+                                effect->SetAmount(effect->GetAmount() + bp);
+                            else
+                                caster->CastCustomSpell(target, 135601, &bp, NULL, NULL, true);
                         }
 
                         if (target->HasAuraWithMechanic((1<<MECHANIC_BLEED)))
@@ -3145,7 +3133,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_frenzied_regeneration();
     new spell_dru_stampeding_roar_speed();
     new spell_dru_stampeding_roar();
-    new spell_dru_lacerate();
     new spell_dru_faerie_fire();
     new spell_dru_teleport_moonglade();
     new spell_dru_growl();

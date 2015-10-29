@@ -273,6 +273,7 @@ class Aura
         int32 m_aura_amount;
         int32 m_damage_amount;
         std::vector<Position> _positions;
+        void UpdateConcatenateAura(Unit* caster, int32 amount, int32 effIndex, bool apply = false);
 
         void SetFromAreaTrigger(bool set) { m_fromAreatrigger = set; }
 
