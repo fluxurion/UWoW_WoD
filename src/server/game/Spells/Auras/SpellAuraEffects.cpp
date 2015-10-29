@@ -7961,7 +7961,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
 
     caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, dmg, &absorb, &resist, GetSpellInfo());
 
-    damage = dmg;
+    damage = caster->InterceptionOfDamage(target, dmg, DOT, m_spellInfo->GetSchoolMask(), m_spellInfo);
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) attacked %u (TypeId: %u) for %u dmg inflicted by %u abs is %u",
         GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), damage, GetId(), absorb);
@@ -8053,7 +8053,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster, S
     if (target->getClass() == CLASS_MONK)
         dmg = target->CalcStaggerDamage(dmg, m_spellInfo->GetSchoolMask(), m_spellInfo);
 
-    damage = dmg;
+    damage = caster->InterceptionOfDamage(target, dmg, DOT, m_spellInfo->GetSchoolMask(), m_spellInfo);
     caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, damage, &absorb, &resist, m_spellInfo);
 
     if (target->GetHealth() < damage)

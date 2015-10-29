@@ -1176,6 +1176,23 @@ uint32 Unit::CalcStaggerDamage(uint32 damage, SpellSchoolMask damageSchoolMask, 
     return damage;
 }
 
+int32 Unit::InterceptionOfDamage(Unit* victim, uint32 damage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo)
+{
+    if (victim->getClass() == CLASS_DRUID && (damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL) && damage > 0)
+    {
+        // Mastery: Primal Tenacity
+        if(Aura* auraPrimal = victim->GetAura(155783))
+        {
+            AuraEffect* effectPrimal0 = auraPrimal->GetEffect(0);
+            AuraEffect* effectPrimal1 = auraPrimal->GetEffect(1);
+
+            if (effectPrimal0 && effectPrimal1 && !effectPrimal1->GetAmount() && effectPrimal0->GetAmount())
+                effectPrimal1->SetAmount(int32(CalculatePct(damage, effectPrimal0->GetAmount())));
+        }
+    }
+    return damage;
+}
+
 void Unit::CastStop(uint32 except_spellid)
 {
     for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
@@ -1455,7 +1472,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     else
         damage = 0;
 
-    damageInfo->damage = damage;
+    damageInfo->damage = InterceptionOfDamage(victim, damage, SPELL_DIRECT_DAMAGE, damageSchoolMask, spellInfo);
 }
 
 void Unit::DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss)
@@ -1680,6 +1697,8 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     }
     else // Impossible get negative result but....
         damageInfo->damage = 0;
+
+    damageInfo->damage = InterceptionOfDamage(victim, damageInfo->damage, DIRECT_DAMAGE, SpellSchoolMask(damageInfo->damageSchoolMask));
 }
 
 void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
@@ -2036,6 +2055,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
         // get amount which can be still absorbed by the aura
         int32 currentAbsorb = absorbAurEff->GetAmount();
+        int32 _amount = currentAbsorb;
         // aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
         if (currentAbsorb < 0)
             currentAbsorb = 0;
@@ -2065,12 +2085,17 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             currentAbsorb = dmgInfo.GetAbsorb();
 
         // Check if our aura is using amount to count damage
-        if (absorbAurEff->GetAmount() >= 0 && currentAbsorb && !(absorbAurEff->GetSpellInfo()->AttributesEx6 & SPELL_ATTR6_NOT_LIMIT_ABSORB))
+        if (_amount >= 0 && currentAbsorb && !(absorbAurEff->GetSpellInfo()->AttributesEx6 & SPELL_ATTR6_NOT_LIMIT_ABSORB))
         {
+            if(absorbAurEff->GetSpellInfo()->IsPassive())
+            {
+                absorbAurEff->SetAmount(_amount - (currentAbsorb > _amount ? _amount : currentAbsorb));
+                continue;
+            }
             // Reduce shield amount
-            absorbAurEff->SetAmount(absorbAurEff->GetAmount() - currentAbsorb);
+            absorbAurEff->SetAmount(_amount - currentAbsorb);
             // Aura cannot absorb anything more - remove it
-            if (absorbAurEff->GetAmount() <= 0) // Custom MoP Script - Stance of the Sturdy Ox shoudn't be removed at any damage
+            if (_amount <= 0) // Custom MoP Script - Stance of the Sturdy Ox shoudn't be removed at any damage
                 absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
         }
     }
