@@ -4493,21 +4493,19 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
         UpdateObjectVisibility();
 }
 
-//! 6.0.3
-void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= NULL*/)
+void WorldObject::PlayDistanceSound(uint32 soundID, Player* target /*= nullptr*/)
 {
-    ObjectGuid obj_guid = target ? target->GetGUID() : ObjectGuid::Empty;
-    
-    WorldPacket data(SMSG_PLAY_OBJECT_SOUND, 30);
-    data << uint32(sound_id);
-    data << GetGUID();
-    data << obj_guid;
-    data << GetPositionX() << GetPositionY() << GetPositionZ();
+    WorldPackets::GameObject::PlayObjectSound objectSound;
+    objectSound.SourceObjectGUID = GetGUID();
+    if (target)
+        objectSound.TargetObjectGUID = target->GetGUID();
+    objectSound.Pos = GetPosition();
+    objectSound.SoundId = soundID;
 
     if (target)
-        target->SendDirectMessage(&data);
+        target->SendDirectMessage(objectSound.Write());
     else
-        SendMessageToSet(&data, true);
+        SendMessageToSet(objectSound.Write(), true);
 }
 
 void WorldObject::PlayDirectSound(uint32 soundKitID, Player* target /*= NULL*/)

@@ -126,6 +126,19 @@ namespace WorldPackets
             int32 Damage = 0;
             uint32 SpellID = 0;
         };
+
+        class PlayObjectSound final : public ServerPacket
+        {
+        public:
+            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 32 + 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceObjectGUID;
+            ObjectGuid TargetObjectGUID;
+            Position Pos;
+            uint32 SoundId = 0;
+        };
     }
 }
 #endif // GOPackets_h__

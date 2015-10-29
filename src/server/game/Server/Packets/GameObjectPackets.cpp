@@ -87,3 +87,13 @@ WorldPacket const* WorldPackets::GameObject::DestructibleBuildingDamage::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::GameObject::PlayObjectSound::Write()
+{
+    _worldPacket << SoundId;
+    _worldPacket << SourceObjectGUID;
+    _worldPacket << TargetObjectGUID;
+    _worldPacket << Pos.PositionXYZStream();
+
+    return &_worldPacket;
+}
