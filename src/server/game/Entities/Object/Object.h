@@ -637,11 +637,8 @@ struct MovementInfo
     {
         void Reset()
         {
-            fallTime = 0;
             zspeed = sinAngle = cosAngle = xyspeed = 0.0f;
         }
-
-        uint32 fallTime;
 
         float zspeed, sinAngle, cosAngle, xyspeed;
 
@@ -668,7 +665,7 @@ struct MovementInfo
         guid.Clear();
         flags = 0;
         flags2 = 0;
-        time =  fallTime = 0;
+        time = fallTime = 0;
         splineElevation = 0;
         hasSplineElevation = false;
         hasPitch = false;

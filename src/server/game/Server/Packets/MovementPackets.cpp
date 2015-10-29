@@ -26,7 +26,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
 {
     bool hasTransportData = !movementInfo.transport.guid.IsEmpty();
     bool hasFallDirection = movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR);
-    bool hasFallData = hasFallDirection || movementInfo.jump.fallTime != 0;
+    bool hasFallData = hasFallDirection || movementInfo.fallTime != 0;
 
     data << movementInfo.guid;
     data << movementInfo.time;
@@ -61,7 +61,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo& movementInfo)
 
     if (hasFallData)
     {
-        data << movementInfo.jump.fallTime;
+        data << movementInfo.fallTime;
         data << movementInfo.jump.zspeed;
 
         data.WriteBit(hasFallDirection);
@@ -90,8 +90,8 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
     uint32 removeMovementForcesCount;
     data >> removeMovementForcesCount;
 
-    uint32 int168;
-    data >> int168;
+    uint32 MoveTime;
+    data >> MoveTime;
 
     for (uint32 i = 0; i < removeMovementForcesCount; ++i)
     {
@@ -99,11 +99,14 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
         data >> guid;
     }
 
+    data.ResetBitPos();
+
     movementInfo.flags = data.ReadBits(30);
     movementInfo.flags2 = data.ReadBits(15);
 
     bool hasTransport = data.ReadBit();
     bool hasFall = data.ReadBit();
+    bool hasSpline = data.ReadBit();
 
     data.ReadBit(); // HeightChangeFailed
     data.ReadBit(); // RemoteTimeValid
@@ -113,8 +116,10 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
 
     if (hasFall)
     {
-        data >> movementInfo.jump.fallTime;
+        data >> movementInfo.fallTime;
         data >> movementInfo.jump.zspeed;
+
+        data.ResetBitPos();
 
         bool hasFallDirection = data.ReadBit();
         if (hasFallDirection)

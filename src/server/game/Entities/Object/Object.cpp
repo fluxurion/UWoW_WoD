@@ -432,7 +432,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
         if (HasFall)
         {
-            *data << uint32(unit->m_movementInfo.jump.fallTime);              // Time
+            *data << uint32(unit->m_movementInfo.fallTime);                   // Time
             *data << float(unit->m_movementInfo.jump.zspeed);                 // JumpVelocity
 
             if (data->WriteBit(HasFallDirection))
