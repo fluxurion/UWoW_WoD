@@ -23852,17 +23852,16 @@ uint32 Unit::GetDynamicPassiveSpells(uint32 slot)
     return GetDynamicUInt32Value(UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS, slot);
 }
 
-//! 6.0.3
-void Unit::SendMissileCancel(uint32 spellId, bool cancel)
+void Unit::SendMissileCancel(uint32 spellId, bool reverse /*= true*/)
 {
     if (GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_MISSILE_CANCEL, 13);
-    data << GetGUID();
-    data << uint32(spellId);
-    data.WriteBit(cancel);            // Reverse
-    ToPlayer()->GetSession()->SendPacket(&data);
+    WorldPackets::Spells::MissileCancel missicleCancel;
+    missicleCancel.OwnerGUID = GetGUID();
+    missicleCancel.SpellID = spellId;
+    missicleCancel.Reverse = reverse;
+    ToPlayer()->GetSession()->SendPacket(missicleCancel.Write());
 }
 
 //! 6.0.3

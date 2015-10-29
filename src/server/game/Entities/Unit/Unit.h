@@ -2136,7 +2136,7 @@ class Unit : public WorldObject
         void SendSpellPlayOrphanVisual(SpellInfo const* spellInfo, bool apply, Position const* position = NULL, Unit* target = NULL);
         void SendFakeAuraUpdate(uint32 auraId, uint32 flags, uint32 diration, uint32 _slot, bool remove);
         bool GetFreeAuraSlot(uint32& slot);
-        void SendMissileCancel(uint32 spellId, bool cancel = true);
+        void SendMissileCancel(uint32 spellId, bool reverse = true);
         void SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uint32 rmDuraction, uint32 mechanic, uint32 schoolMask, LossOfControlType type, bool apply);
         void SendDisplayToast(uint32 entry, uint8 hasDisplayToastMethod, bool isBonusRoll, uint32 count, uint8 type, Item* item = NULL);
         void GeneratePersonalLoot(Creature* creature, Player* anyLooter);

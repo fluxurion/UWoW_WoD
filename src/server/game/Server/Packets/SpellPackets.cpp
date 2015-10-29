@@ -1006,3 +1006,14 @@ WorldPacket const* WorldPackets::Spells::SpellDelayed::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::MissileCancel::Write()
+{
+    _worldPacket << OwnerGUID;
+    _worldPacket << SpellID;
+    _worldPacket.WriteBit(Reverse);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
