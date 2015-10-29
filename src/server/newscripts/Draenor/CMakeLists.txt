@@ -14,6 +14,7 @@ set(scripts_STAT_SRCS
   Draenor/frostfire_ridge.cpp
   
   Draenor/garrison/garrison_general.cpp
+  Draenor/garrison/instance_garr.cpp
   
   Draenor/IronDocks/instance_iron_docks.cpp
   Draenor/IronDocks/boss_fleshrender_nokgar.cpp

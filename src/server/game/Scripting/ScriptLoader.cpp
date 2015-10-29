@@ -95,6 +95,7 @@ void AddSC_wp_commandscript();
 
 //garrison
 void AddSC_garrison_general();
+void AddSC_garrison_instance();
 
 //draenor
 void AddSC_wod_dark_portal();
@@ -1090,6 +1091,7 @@ void AddDraenorScripts()
 {
 #ifdef SCRIPTS
     AddSC_garrison_general();
+    AddSC_garrison_instance();
 
     AddSC_wod_dark_portal();
     AddSC_wod_frostfire_ridge();

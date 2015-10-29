@@ -23,6 +23,7 @@
 #include "ObjectMgr.h"
 #include "VehicleDefines.h"
 #include "MiscPackets.h"
+#include "InstanceScript.h"
 
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1), _lastResTaken(0)
 { }
@@ -509,14 +510,17 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
         placeBuildingResult.BuildingInfo.GarrBuildingID = garrBuildingId;
         placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
 
-        _owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING, garrBuildingId);
-
         Plot* plot = GetPlot(garrPlotInstanceId);
         uint32 oldBuildingId = 0;
         Map* map = FindMap();
         GarrBuildingEntry const* building = sGarrBuildingStore.AssertEntry(garrBuildingId);
         if (map)
+        {
+            if (InstanceMap* instance = map->ToInstanceMap())
+                instance->GetInstanceScript()->OnPlaceBuilding(_owner, this, garrBuildingId, garrPlotInstanceId, placeBuildingResult.BuildingInfo.TimeBuilt);
+
             plot->DeleteGameObject(map);
+        }
 
         if (plot->BuildingInfo.PacketInfo)
         {
@@ -527,8 +531,10 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
 
         plot->SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
         if (map)
+        {
             if (GameObject* go = plot->CreateGameObject(map, GetFaction()))
                 map->AddToMap(go);
+        }
 
         _owner->ModifyCurrency(building->CostCurrencyID, -building->CostCurrencyAmount, false, true);
         _owner->ModifyMoney(-building->CostMoney * GOLD, false);

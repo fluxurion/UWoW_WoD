@@ -267,6 +267,9 @@ class InstanceScript : public ZoneScript
         void SetChallengeProgresInSec(uint32 timer);
         uint32 GetChallengeTime() { return challenge_timer; }
 
+        // Garrison
+        virtual void OnPlaceBuilding(Player* /*owner*/, Garrison* /*gar*/, uint32 /*garrBuildingId*/, uint32 /*garrPlotInstanceId*/, time_t &time) {};
+
     protected:
         void LoadDoorData(DoorData const* data);
         void LoadMinionData(MinionData const* data);
