@@ -357,6 +357,19 @@ namespace WorldPackets
             int32 Enchantment = 0;
         };
 
+        class ItemEnchantTimeUpdate final : public ServerPacket
+        {
+        public:
+            ItemEnchantTimeUpdate() : ServerPacket(SMSG_ITEM_ENCHANT_TIME_UPDATE, 40) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ItemGuid;
+            ObjectGuid PlayerGuid;
+            uint32 Duration = 0;
+            uint32 Slot = 0;
+        };
+
         class UseCritterItem final : public ClientPacket
         {
         public:

@@ -397,6 +397,16 @@ WorldPacket const* WorldPackets::Item::EnchantmentLog::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Item::ItemEnchantTimeUpdate::Write()
+{
+    _worldPacket << ItemGuid;
+    _worldPacket << Duration;
+    _worldPacket << Slot;
+    _worldPacket << PlayerGuid;
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Item::UseCritterItem::Read()
 {
     _worldPacket >> ItemGuid;

@@ -2105,7 +2105,6 @@ void Battleground::SendFlagsPositionsUpdate(uint32 diff)
     SendPacketToAll(playerPositions.Write());
 }
 
-//! 6.0.3
 void Battleground::SendOpponentSpecialization(uint32 team)
 {
     WorldPackets::Battleground::ArenaPrepOpponentSpecializations spec;

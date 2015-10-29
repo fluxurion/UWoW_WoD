@@ -1411,7 +1411,6 @@ void AchievementMgr<ScenarioProgress>::SendCriteriaUpdate(CriteriaEntry const* e
         GetOwner()->UpdateCurrentStep(false);
 }
 
-//! 6.0.3 ToDo: check time
 template<>
 void AchievementMgr<Guild>::SendCriteriaUpdate(CriteriaEntry const* entry, CriteriaTreeProgress const* progress, uint32 /*timeElapsed*/, bool /*timedCompleted*/) const
 {
@@ -3063,7 +3062,6 @@ void AchievementMgr<ScenarioProgress>::SendAllAchievementData(Player* receiver)
     // not needed
 }
 
-//! 6.0.3
 template<>
 void AchievementMgr<Guild>::SendAllAchievementData(Player* receiver)
 {

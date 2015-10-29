@@ -964,15 +964,14 @@ void Item::SendEnchantmentLog(Player* player, ObjectGuid const& caster, ObjectGu
     player->GetSession()->SendPacket(log.Write());
 }
 
-void Item::SendItemEnchantTimeUpdate(Player* player, ObjectGuid const& Itemguid, uint32 slot, uint32 Duration)
+void Item::SendItemEnchantTimeUpdate(Player* player, ObjectGuid const& Itemguid, uint32 slot, uint32 duration)
 {
-    //! 6.0.3
-    WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, 8 + 8 + 1 + 1 + 4 + 4);
-    data << Itemguid;
-    data << uint32(Duration);
-    data << uint32(slot);
-    data << player->GetGUID();
-    player->GetSession()->SendPacket(&data);
+    WorldPackets::Item::ItemEnchantTimeUpdate timeUpdate;
+    timeUpdate.ItemGuid = Itemguid;
+    timeUpdate.PlayerGuid = player->GetGUID();
+    timeUpdate.Duration = duration;
+    timeUpdate.Slot = slot;
+    player->GetSession()->SendPacket(timeUpdate.Write());
 }
 
 void Item::SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner)
