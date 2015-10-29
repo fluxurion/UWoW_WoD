@@ -9056,15 +9056,8 @@ bool Unit::HandleAuraProc(Unit* victim, DamageInfo* /*dmgInfoProc*/, Aura* trigg
             break;
         case SPELLFAMILY_PALADIN:
         {
-            // Judgements of the Just
-            if (dummySpell->SpellIconID == 3015)
-            {
-                *handled = true;
-                CastSpell(victim, 68055, true);
-                return true;
-            }
             // Glyph of Divinity
-            else if (dummySpell->Id == 54939)
+            if (dummySpell->Id == 54939)
             {
                 *handled = true;
                 // Check if we are the target and prevent mana gain
@@ -9081,28 +9074,6 @@ bool Unit::HandleAuraProc(Unit* victim, DamageInfo* /*dmgInfoProc*/, Aura* trigg
                     }
                 }
                 return true;
-            }
-            break;
-        }
-        case SPELLFAMILY_MAGE:
-        {
-            switch (dummySpell->Id)
-            {
-                // Empowered Fire
-                case 31656:
-                case 31657:
-                case 31658:
-                {
-                    *handled = true;
-
-                    SpellInfo const* spInfo = sSpellMgr->GetSpellInfo(67545);
-                    if (!spInfo)
-                        return false;
-
-                    int32 bp0 = int32(CalculatePct(GetCreateMana(), spInfo->GetEffect(0, GetSpawnMode())->CalcValue()));
-                    CastCustomSpell(this, 67545, &bp0, NULL, NULL, true, NULL, triggeredByAura->GetEffect(EFFECT_0), GetGUID());
-                    return true;
-                }
             }
             break;
         }
@@ -9335,7 +9306,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
                         if ((this->GetHealth() - damage) < CalculatePct(this->GetMaxHealth(), auraSpellInfo->Effects[0].BasePoints))
                         {
                             trigger_spell_id = 114214;
-                            basepoints0 = CalculatePct(this->GetMaxHealth(), 20);
+                            basepoints0 = CalculatePct(this->GetMaxHealth(), 15);
                             cooldown = 90.0;
                         }
                         break;
