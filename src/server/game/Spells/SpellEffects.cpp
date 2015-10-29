@@ -7854,7 +7854,7 @@ void Spell::EffectUnlearnTalent(SpellEffIndex effIndex)
     if (!talent)
         return;
 
-    Player* player = unitTarget ? unitTarget->ToPlayer() : nullptr;
+    Player* player = m_caster ? m_caster->ToPlayer() : nullptr;
     if (!player)
         return;
 
