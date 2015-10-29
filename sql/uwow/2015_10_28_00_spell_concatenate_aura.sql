@@ -4,5 +4,5 @@ CREATE TABLE `spell_concatenate_aura`(
   `auraId` INT(11) NOT NULL DEFAULT 0,
   `effectAura` TINYINT(11) NOT NULL DEFAULT 0,
   `comment` VARCHAR(100) NOT NULL DEFAULT '',
-  PRIMARY KEY (`spellid`, `effectSpell`, `aura`, `effectAura`)
+  PRIMARY KEY (`spellid`, `effectSpell`, `auraId`, `effectAura`)
 );
