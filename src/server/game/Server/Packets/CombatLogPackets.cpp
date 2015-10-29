@@ -29,8 +29,9 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     *this << int32(ShieldBlock);
     *this << int32(Resisted);
     *this << int32(Absorbed);
+    FlushBits();
     WriteBit(Periodic);
-    WriteBits(Flags, 8);
+    WriteBits(Flags, 9);
     WriteBit(false); // Debug info
     WriteLogDataBit();
     FlushBits();

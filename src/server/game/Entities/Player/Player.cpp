@@ -15444,7 +15444,7 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
     packet.Pushed = received;
     packet.IsEncounterLoot = false;
     packet.Created = created;
-    packet.IsBonusRoll = bonusRoll;
+    packet.IsBonusRoll = !created;
 
     if (broadcast && GetGroup())
         GetGroup()->BroadcastPacket(packet.Write(), true);
