@@ -143,6 +143,8 @@ public:
         void Complete(Player* owner);
         bool HasBonusRoll() { float chance = ComputeSuccessChance(); return roll_chance_f(chance); }
         float ComputeSuccessChance();
+        float CalcChance(float a, float b, float c);
+        uint32 GetDuration(Player* owner);
     };
 
     explicit Garrison(Player* owner);
@@ -184,13 +186,14 @@ public:
     // Missions
     Mission const* GetMission(uint64 dbId) const;
     Mission* GetMissionByRecID(uint32 missionRecID);
+    void RewardMission(uint32 missionRecID);
 
     void SendInfo();
     void SendRemoteInfo() const;
     void SendBlueprintAndSpecializationData();
     void SendBuildingLandmarks(Player* receiver) const;
     void SendGarrisonUpgradebleResult(Player* receiver) const;
-    void SendMissionListUpdate(Player* owner, bool openMissionNpc) const;
+    void SendMissionListUpdate(bool openMissionNpc) const;
 
     void ResetFollowerActivationLimit() { _followerActivationsRemainingToday = 1; }
 

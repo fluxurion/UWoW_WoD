@@ -543,10 +543,10 @@ struct GarrMissionRewardEntry
     uint32 unk3;                // 8
     uint32 unk4;                // 9
 
-    bool HasItemReward() { return rewardItemID != 0; }
-    bool HasMoneyReward() { return currencyID == 0 && currencyValue > 0; }
-    bool HasCurrencyReward(uint32 _currencyID) { return currencyID == _currencyID && currencyValue > 0; }
-    bool HasFollowerXPReward() { return rewardXP > 0; }
+    bool HasItemReward() const { return rewardItemID != 0; }
+    bool HasMoneyReward() const { return currencyID == 0 && currencyValue > 0; }
+    bool HasCurrencyReward() const { return currencyID != 0 && currencyValue > 0; }
+    bool HasFollowerXPReward() const { return rewardXP > 0; }
 };
 
 struct GarrMissionXEncounterEntry

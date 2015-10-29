@@ -1189,7 +1189,10 @@ void Garrison::Mission::Start(Player* owner)
         missionRes.FollowerDBIDs = CurrentFollowerDBIDs;
         owner->SendDirectMessage(missionRes.Write());
 
-        garrison->SendMissionListUpdate(owner, false);
+        if (GarrMissionEntry const* entry = sGarrMissionStore.LookupEntry(PacketInfo.MissionRecID))
+            owner->ModifyCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, entry->reqResourcesCount);
+
+        garrison->SendMissionListUpdate(false);
     }
 }
 
@@ -1238,16 +1241,16 @@ void Garrison::Mission::Complete(Player* owner)
             }
 
             CurrentFollowerDBIDs.clear();
-            garrison->SendMissionListUpdate(owner, true);
+            garrison->SendMissionListUpdate(true);
         }
     }
 }
 
-void Garrison::SendMissionListUpdate(Player* owner, bool openMissionNpc) const
+void Garrison::SendMissionListUpdate(bool openMissionNpc) const
 {
     WorldPackets::Garrison::GarrisonMissionListUpdate data;
     data.openMissionNpc = openMissionNpc;
-    owner->SendDirectMessage(data.Write());
+    _owner->SendDirectMessage(data.Write());
 }
 
 void Garrison::Mission::BonusRoll(Player* owner)
@@ -1261,11 +1264,16 @@ void Garrison::Mission::BonusRoll(Player* owner)
         res.MissionRecID = PacketInfo.MissionRecID;
         owner->SendDirectMessage(res.Write());
 
-        for (auto f : CurrentFollowerDBIDs)
+        GarrMissionRewardEntry const* entry = sDB2Manager.GetMissionRewardByRecID(PacketInfo.MissionRecID);
+
+        if (!entry)
+            return;
+
+        if (entry->HasFollowerXPReward())
         {
-            if (Garrison::Follower* follower = garrison->GetFollower(f))
+            for (auto f : CurrentFollowerDBIDs)
             {
-                if (GarrMissionRewardEntry const* entry = sDB2Manager.GetMissionRewardByRecID(PacketInfo.MissionRecID))
+                if (Garrison::Follower* follower = garrison->GetFollower(f))
                 {
                     follower->PacketInfo.CurrentMissionID = 0;
 
@@ -1282,7 +1290,9 @@ void Garrison::Mission::BonusRoll(Player* owner)
         }
 
         CurrentFollowerDBIDs.clear();
-        garrison->SendMissionListUpdate(owner, true);
+
+        garrison->RewardMission(PacketInfo.MissionRecID);
+        garrison->SendMissionListUpdate(true);
     }
 }
 
@@ -1388,6 +1398,62 @@ bool Garrison::Mission::CanBonusRoll()
 float Garrison::Mission::ComputeSuccessChance()
 {
     return 100.0f;
+}
+
+float Garrison::Mission::CalcChance(float a, float b, float c)
+{
+    float d = 0.0f;
+    if (c >= 0)
+        d = ((b - a) * c) + a;
+    else
+        d = (c + 1) * a;
+
+    return d;
+}
+
+uint32 Garrison::Mission::GetDuration(Player* owner)
+{
+    uint32 duration = PacketInfo.MissionDuration;
+
+    /*if (Garrison* garrison = owner->GetGarrison())
+    {
+        for (auto f : CurrentFollowerDBIDs)
+        {
+            if (Garrison::Follower* follower = garrison->GetFollower(f))
+            {
+                // Epic Mount
+                for (GarrAbilityEntry const* entry : follower->PacketInfo.AbilityID)
+                {
+                    if (entry && entry->ID == 221)
+                        duration *= 0.5f;
+                }
+            }
+        }
+    }*/
+
+    return duration;
+}
+
+void Garrison::RewardMission(uint32 missionRecID)
+{
+    if (GarrMissionRewardEntry const* entry = sDB2Manager.GetMissionRewardByRecID(missionRecID))
+    {
+        if (entry->HasMoneyReward())
+            _owner->ModifyMoney(entry->currencyValue);
+
+        if (entry->HasCurrencyReward())
+            _owner->ModifyCurrency(entry->currencyID, entry->currencyValue);
+
+        if (entry->HasItemReward())
+        {
+            ItemPosCountVec dest;
+            if (_owner->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, entry->rewardItemID, entry->itemAmount) == EQUIP_ERR_OK)
+            {
+                Item* item = _owner->StoreNewItem(dest, entry->rewardItemID, true, Item::GenerateItemRandomPropertyId(entry->rewardItemID));
+                _owner->SendNewItem(item, entry->itemAmount, true, false);
+            }
+        }
+    }
 }
 
 /*
