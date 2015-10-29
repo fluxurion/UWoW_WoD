@@ -3566,6 +3566,10 @@ void Player::RemoveSpecializationSpells()
                     RemoveAurasDueToSpell(mastery);
         }
     }
+
+    for (MinorTalentEntry const* entry : sMinorTalentStore)
+        if (HasAura(entry->SpellID))
+            removeSpell(entry->SpellID, false);
 }
 
 void Player::InitStatsForLevel(bool reapplyMods)
