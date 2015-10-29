@@ -1340,7 +1340,7 @@ class WorldSession
         void HandleChatMessageEmoteOpcode(WorldPackets::Chat::ChatMessageEmote& packet);
         void HandleChatMessage(ChatMsg type, uint32 lang, std::string msg, std::string target = "");
         void HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMessage& packet);
-        void HandleChatAddonMessageWhisperOpcode(WorldPackets::Chat::ChatAddonMessageWhisper& packet);
+        void HandleChatAddonMessageWhisper(WorldPackets::Chat::ChatAddonMessageWhisper& packet);
         void HandleChatAddonMessage(ChatMsg type, std::string prefix, std::string text, std::string target = "");
 
         void SendPlayerNotFoundNotice(std::string name);

@@ -540,9 +540,6 @@ void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMes
         case CMSG_CHAT_ADDON_MESSAGE_RAID:
             type = CHAT_MSG_RAID;
             break;
-        case CMSG_CHAT_ADDON_MESSAGE_WHISPER:    //WorldSession::HandleChatAddonMessageWhisperOpcode
-            type = CHAT_MSG_WHISPER;
-            break;
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", packet.GetOpcode());
             return;
@@ -551,7 +548,7 @@ void WorldSession::HandleChatAddonMessageOpcode(WorldPackets::Chat::ChatAddonMes
     HandleChatAddonMessage(type, packet.Prefix, packet.Text);
 }
 
-void WorldSession::HandleChatAddonMessageWhisperOpcode(WorldPackets::Chat::ChatAddonMessageWhisper& packet)
+void WorldSession::HandleChatAddonMessageWhisper(WorldPackets::Chat::ChatAddonMessageWhisper& packet)
 {
     HandleChatAddonMessage(CHAT_MSG_WHISPER, packet.Prefix, packet.Text, packet.Target);
 }
