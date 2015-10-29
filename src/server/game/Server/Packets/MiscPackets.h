@@ -956,6 +956,18 @@ namespace WorldPackets
             ObjectGuid RespecMaster;
             RespecType respecType = RESPEC_TYPE_TALENTS;
         }; 
+
+        class CrossedInebriationThreshold final : public ServerPacket
+        {
+        public:
+            CrossedInebriationThreshold() : ServerPacket(SMSG_CROSSED_INEBRIATION_THRESHOLD, 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            int32 Threshold = 0;
+            uint32 ItemID = 0;
+        };
     }
 }
 

@@ -697,3 +697,12 @@ void WorldPackets::Misc::ConfirmRespecWipe::Read()
     _worldPacket >> RespecMaster;
     respecType = static_cast<RespecType>(_worldPacket.read<uint8>());
 }
+
+WorldPacket const* WorldPackets::Misc::CrossedInebriationThreshold::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << Threshold;
+    _worldPacket << ItemID;
+
+    return &_worldPacket;
+}

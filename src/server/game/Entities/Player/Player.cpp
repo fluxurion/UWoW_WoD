@@ -1239,22 +1239,21 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
     return false;
 }
 
-//! 6.0.3
-void Player::SendMirrorTimer(MirrorTimerType Type, uint32 MaxValue, uint32 CurrentValue, int32 Regen)
+void Player::SendMirrorTimer(MirrorTimerType type, uint32 maxValue, uint32 currentValue, int32 regen)
 {
-    if (int(MaxValue) == DISABLED_MIRROR_TIMER)
+    if (int(maxValue) == DISABLED_MIRROR_TIMER)
     {
-        if (int(CurrentValue) != DISABLED_MIRROR_TIMER)
-            StopMirrorTimer(Type);
+        if (int(currentValue) != DISABLED_MIRROR_TIMER)
+            StopMirrorTimer(type);
         return;
     }
 
     WorldPackets::Misc::StartMirrorTimer timer;
-    timer.Scale = Type;
-    timer.MaxValue = MaxValue;
-    timer.Timer = Regen;
+    timer.Scale = type;
+    timer.MaxValue = maxValue;
+    timer.Timer = regen;
     timer.SpellID = 0;
-    timer.Value = CurrentValue;
+    timer.Value = currentValue;
     timer.Paused = false;
     GetSession()->SendPacket(timer.Write());
 }
@@ -1521,12 +1520,11 @@ void Player::SetDrunkValue(uint8 newDrunkValue, uint32 itemId /*= 0*/)
     if (newDrunkenState == oldDrunkenState)
         return;
 
-    //! 6.0.3
-    WorldPacket data(SMSG_CROSSED_INEBRIATION_THRESHOLD, (8+4+4));
-    data << GetGUID();
-    data << uint32(newDrunkenState);
-    data << uint32(itemId);
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::CrossedInebriationThreshold packet;
+    packet.Guid = GetGUID();
+    packet.Threshold = newDrunkenState;
+    packet.ItemID = itemId;
+    SendMessageToSet(packet.Write(), true);
 }
 
 void Player::Update(uint32 p_time)
