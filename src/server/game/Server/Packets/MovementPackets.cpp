@@ -787,3 +787,14 @@ WorldPacket const* WorldPackets::Movement::AdjustSplineDuration::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Movement::MoveKnockBack::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << Direction.PositionXYStream();
+    _worldPacket << HorzSpeed;
+    _worldPacket << VertSpeed;
+
+    return &_worldPacket;
+}

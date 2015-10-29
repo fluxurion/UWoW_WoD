@@ -21557,18 +21557,14 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     AddUnitState(UNIT_STATE_JUMPING);
     m_TempSpeed = fabs(speedZ * 10.0f);
 
-    //! 6.0.3
-    WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1+8+4+4+4+4+4));
-    data << GetGUID();
-    data << uint32(m_movementCounter++);
-
-    data << float(vcos);
-    data << float(vsin);
-
-    data << float(speedXY);
-    data << float(speedZ);
-
-    player->GetSession()->SendPacket(&data);
+    WorldPackets::Movement::MoveKnockBack knockBack;
+    knockBack.MoverGUID = GetGUID();
+    knockBack.Direction.m_positionX = vcos;
+    knockBack.Direction.m_positionX = vsin;
+    knockBack.SequenceIndex = m_movementCounter++;
+    knockBack.HorzSpeed = speedXY;
+    knockBack.VertSpeed = speedZ;
+    player->GetSession()->SendPacket(knockBack.Write());
 }
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
@@ -22909,7 +22905,6 @@ bool Unit::SetDisableGravity(bool disable, bool packetOnly /*= false*/)
         else
         {
             RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
-            RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
             if (!HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY))
                 SetFall(true);
         }
@@ -23270,24 +23265,18 @@ void Unit::SendTeleportPacket(Position &destPos)
 {
     WorldPackets::Movement::MoveUpdateTeleport packet;
     packet.movementInfo = &m_movementInfo;
-    packet.movementInfo->pos.m_positionX = destPos.GetPositionX();
-    packet.movementInfo->pos.m_positionY = destPos.GetPositionY();
-    packet.movementInfo->pos.m_positionZ = destPos.GetPositionZ();
+    packet.movementInfo->pos = destPos;
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
         WorldPackets::Movement::MoveTeleport selfPacket;
-
         selfPacket.MoverGUID = GetGUID();
-
         ObjectGuid transGuid = GetTransGUID();
         if (!transGuid.IsEmpty())
             selfPacket.TransportGUID = transGuid;
-
-        selfPacket.Pos.Relocate(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ());
+        selfPacket.Pos.Relocate(destPos);
         selfPacket.Facing = destPos.GetOrientation();
         selfPacket.SequenceIndex = m_movementCounter++;
-
         ToPlayer()->SendDirectMessage(selfPacket.Write());
     }
 
@@ -23719,16 +23708,9 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position const* pos
     if (visual.TravelSpeed)
     {
         if (target && target != this)
-        {
-            visual.TargetPosition.m_positionX = target->GetPositionX();
-            visual.TargetPosition.m_positionY = target->GetPositionY();
-            visual.TargetPosition.m_positionZ = target->GetPositionZ();
-        } else
-        {
-            visual.TargetPosition.m_positionX = position->GetPositionX();
-            visual.TargetPosition.m_positionY = position->GetPositionY();
-            visual.TargetPosition.m_positionZ = position->GetPositionZ();
-        }
+            visual.TargetPosition = target->GetPosition();
+        else
+            visual.TargetPosition = *position;
     }
     
     SendMessageToSet(visual.Write(), true);
