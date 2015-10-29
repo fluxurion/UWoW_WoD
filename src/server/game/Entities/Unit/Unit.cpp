@@ -9555,12 +9555,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
-        case 45243: // Focused Will
-        {
-            if ((damage < CountPctFromMaxHealth(10) && !(procEx & PROC_EX_CRITICAL_HIT)) || ((procEx & PROC_EX_CRITICAL_HIT) && dmgInfoProc->GetDamageType() == DOT))
-                return false;
-            break;
-        }
         case 122280: // Healing Elixirs (Talent)
         {
             trigger_spell_id = 0;
