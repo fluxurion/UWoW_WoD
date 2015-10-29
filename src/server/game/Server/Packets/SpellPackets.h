@@ -1028,6 +1028,19 @@ namespace WorldPackets
             uint32 SpellID = 0;
             bool Reverse = false;
         };
+
+        class DispelFailed final : public ServerPacket
+        {
+        public:
+            DispelFailed() : ServerPacket(SMSG_DISPEL_FAILED, 32 + 4 + 4) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid VictimGUID;
+            ObjectGuid CasterGUID;
+            uint32 SpellID = 0;
+            std::list<uint32> FailedSpellIDs;
+        };
     }
 }
 

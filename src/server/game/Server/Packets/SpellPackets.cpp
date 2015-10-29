@@ -1017,3 +1017,14 @@ WorldPacket const* WorldPackets::Spells::MissileCancel::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Spells::DispelFailed::Write()
+{
+    _worldPacket << CasterGUID;
+    _worldPacket << VictimGUID;
+    _worldPacket << SpellID;
+    _worldPacket << static_cast<uint32>(FailedSpellIDs.size());
+    for (uint32 const& x : FailedSpellIDs)
+        _worldPacket << x;
+
+    return &_worldPacket;
+}

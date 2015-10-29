@@ -23517,20 +23517,13 @@ std::string Trinity::CodeChatMessage(std::string text, uint32 lang_id)
 
 void Unit::SendDispelFailed(ObjectGuid const& targetGuid, uint32 spellId, std::list<uint32>& spellList)
 {
-    ObjectGuid sourceGuid = GetGUID();
-
-    //! 6.0.3
-    WorldPacket data(SMSG_DISPEL_FAILED, spellList.size() * 4 + 8 + 8 + 1 + 1 + 3);
-    data << GetGUID();
-    data << targetGuid;
-
-    data << uint32(spellId);
-    data << uint32(spellList.size());
-
-    for (std::list<uint32>::const_iterator itr = spellList.begin(); itr != spellList.end(); ++itr)
-        data << uint32(*itr);
-
-    SendMessageToSet(&data, true);
+    WorldPackets::Spells::DispelFailed dispelFailed;
+    dispelFailed.CasterGUID = GetGUID();
+    dispelFailed.VictimGUID = targetGuid;
+    dispelFailed.SpellID = spellId;
+    for (auto const& v : spellList)
+        dispelFailed.FailedSpellIDs.push_back(v);
+    SendMessageToSet(dispelFailed.Write(), true);
 }
 
 void Unit::SendDispelLog(ObjectGuid const& unitTargetGuid, uint32 spellId, std::list<uint32>& spellList, bool broke, bool stolen)

@@ -23384,7 +23384,6 @@ void Player::ContinueTaxiFlight()
     GetSession()->SendDoFlight(mountDisplayId, path, startNode);
 }
 
- //! 6.0.3
 void Player::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
     WorldPackets::Spells::SpellCooldown cooldowns;
@@ -29024,14 +29023,10 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
 
 void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
 {
-    ObjectGuid guid = GetGUID();
-
-    //! 6.0.3
-    WorldPacket data(apply ? SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY : SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY, 12);
-    
-    data << guid.WriteAsPacked();
-    data << uint32(m_movementCounter++);          //! movement counter
-    SendDirectMessage(&data);
+    WorldPackets::Movement::MoveSetFlag packet(apply ? SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY : SMSG_MOVE_DISABLE_TRANSITION_BETWEEN_SWIM_AND_FLY);
+    packet.MoverGUID = GetGUID();
+    packet.SequenceIndex = m_movementCounter++;
+    SendDirectMessage(packet.Write());
 }
 
 void Player::SendMovementSetCollisionHeight(float height)
