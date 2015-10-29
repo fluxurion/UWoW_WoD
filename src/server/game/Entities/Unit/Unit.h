@@ -1266,7 +1266,6 @@ struct CharmInfo
         bool AddSpellToActionBar(SpellInfo const* spellInfo, ActiveStates newstate = ACT_DECIDE);
         bool RemoveSpellFromActionBar(uint32 spell_id);
         void LoadPetActionBar(const std::string& data);
-        void BuildActionBar(WorldPacket* data);
         void SetSpellAutocast(SpellInfo const* spellInfo, bool state);
         void SetActionBar(uint8 index, uint32 spellOrAction, ActiveStates type)
         {
@@ -1321,7 +1320,6 @@ enum ReactiveType
 {
     REACTIVE_DEFENSE      = 0,
     REACTIVE_HUNTER_PARRY = 1,
-    REACTIVE_OVERPOWER    = 2
 };
 
 #define MAX_REACTIVE 3
@@ -1932,7 +1930,7 @@ class Unit : public WorldObject
 
         Pet* CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id = 0);
         Pet* CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id = 0);
-        bool InitTamedPet(Pet* pet, uint8 level, uint32 spell_id);
+        bool InitTamedPet(Pet* pet, uint32 spell_id);
 
         // aura apply/remove helpers - you should better not use these
         Aura* _TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount = NULL, Item* castItem = NULL, ObjectGuid casterGUID = ObjectGuid::Empty);
@@ -2077,7 +2075,7 @@ class Unit : public WorldObject
             ApplyPercentModFloatValue(UNIT_FIELD_STAT_POS_BUFF+stat, val, apply);
             ApplyPercentModFloatValue(UNIT_FIELD_STAT_NEG_BUFF+stat, val, apply);
         }
-        float GetSpellCritFromIntellect();
+        float GetBaseSpellCritChance();
         float OCTRegenMPPerSpirit();
         float GetRatingMultiplier(CombatRating cr) const;
 

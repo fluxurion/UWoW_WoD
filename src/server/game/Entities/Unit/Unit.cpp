@@ -12391,11 +12391,6 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                                 if (victim->HasAuraState(AURA_STATE_BLEEDING))
                                     crit_chance += 25.0f;
                                 break;
-                            case 6785:   // Ravage
-                            case 102545: // Ravage!
-                                if (victim->GetHealthPct() > 80.0f)
-                                    crit_chance += 50.0f; // Ravage has a 50% increased chance to critically strike targets with over 80% health.
-                                break;
                             default:
                                 break;
                         }
@@ -12416,8 +12411,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                             case 118000: // Dragon Roar is always a critical hit
                                 critChance = 100.0f;
                                 return true;
-
-                            case 23881: // Bloodthirst has double critical chance
+                            case 23881: // Bloodthirst has an additional 40% chance to be a critical strike.
                                 if (AuraEffect const* aurEff = GetAuraEffect(23881, EFFECT_3))
                                     crit_chance += aurEff->GetAmount();
                                 break;
@@ -12755,17 +12749,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
     // Taken fixed damage bonus auras
     int32 TakenAdvertisedBenefit = SpellBaseHealingBonusTaken(spellProto->GetSchoolMask());
-
-    // Nourish heal boost
-    if (spellProto->Id == 50464)
-    {
-        // Heals for an additional 20% if you have a Rejuvenation, Regrowth, Lifebloom, or Wild Growth effect active on the target.
-        if (HasAura(48438, caster->GetGUID()) ||   // Wild Growth
-            HasAura(33763, caster->GetGUID()) ||   // Lifebloom
-            HasAura(8936, caster->GetGUID()) ||    // Regrowth
-            HasAura(774, caster->GetGUID()))       // Rejuvenation
-            AddPct(TakenTotalMod, 20);
-    }
 
     // Check for table values
     SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
@@ -16182,7 +16165,7 @@ float Unit::OCTRegenMPPerSpirit()
     return GetStat(STAT_SPIRIT) * moreRatio->ratio;
 }
 
-float Unit::GetSpellCritFromIntellect()
+float Unit::GetBaseSpellCritChance()
 {
     uint8 level = getLevel();
     uint32 pclass = getClass();
@@ -16192,11 +16175,10 @@ float Unit::GetSpellCritFromIntellect()
 
     GtChanceToSpellCritBaseEntry const* critBase = sGtChanceToSpellCritBaseStore.EvaluateTable(pclass - 1, 0);
     GtChanceToSpellCritEntry const* critRatio = sGtChanceToSpellCritStore.EvaluateTable(level - 1, pclass - 1);
-    if (critBase == NULL || critRatio == NULL)
+    if (critBase == nullptr || critRatio == nullptr)
         return 0.0f;
 
-    float crit = critBase->base + GetStat(STAT_INTELLECT) * critRatio->ratio;
-    return crit * 100.0f;
+    return critBase->base * critRatio->ratio * 100.0f;
 }
 
 float Unit::GetRatingMultiplier(CombatRating cr) const
@@ -16601,12 +16583,6 @@ void CharmInfo::LoadPetActionBar(const std::string& data)
     }
 }
 
-void CharmInfo::BuildActionBar(WorldPacket* data)
-{
-    for (uint32 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
-        *data << uint32(PetActionBar[i].packedData);
-}
-
 void CharmInfo::SetSpellAutocast(SpellInfo const* spellInfo, bool state)
 {
     for (uint8 i = 0; i < MAX_UNIT_ACTION_BAR_INDEX; ++i)
@@ -16817,16 +16793,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 {
                     ModifyAuraState(AURA_STATE_DEFENSE, true);
                     StartReactiveTimer(REACTIVE_DEFENSE);
-                }
-            }
-            else // For attacker
-            {
-                // Overpower on victim dodge
-                if (procExtra & PROC_EX_DODGE && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_WARRIOR)
-                {
-                    ToPlayer()->AddComboPoints(target, 1);
-                    StartReactiveTimer(REACTIVE_OVERPOWER);
-                    CastSpell(this, 119962, true);
                 }
             }
         }
@@ -17685,10 +17651,6 @@ void Unit::UpdateReactives(uint32 p_time)
                     if (getClass() == CLASS_HUNTER && HasAuraState(AURA_STATE_HUNTER_PARRY))
                         ModifyAuraState(AURA_STATE_HUNTER_PARRY, false);
                     break;
-                case REACTIVE_OVERPOWER:
-                    if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
-                        ToPlayer()->ClearComboPoints();
-                    break;
                 default:
                     break;
             }
@@ -18004,7 +17966,7 @@ void Unit::SetContestedPvP(Player* attackedPlayer)
     }
 }
 
-Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
+Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spellID)
 {
     if (GetTypeId() != TYPEID_PLAYER)
         return NULL;
@@ -18017,14 +17979,12 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
         return NULL;
     }
 
-    uint8 level = creatureTarget->getLevel() + 5 < getLevel() ? (getLevel() - 5) : creatureTarget->getLevel();
-
-    InitTamedPet(pet, level, spell_id);
+    InitTamedPet(pet, spellID);
 
     return pet;
 }
 
-Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
+Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spellID)
 {
     if (GetTypeId() != TYPEID_PLAYER)
         return NULL;
@@ -18035,7 +17995,7 @@ Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
 
     Pet* pet = new Pet((Player*)this, HUNTER_PET);
 
-    if (!pet->CreateBaseAtCreatureInfo(creatureInfo, this) || !InitTamedPet(pet, getLevel(), spell_id))
+    if (!pet->CreateBaseAtCreatureInfo(creatureInfo, this) || !InitTamedPet(pet, spellID))
     {
         delete pet;
         return NULL;
@@ -18044,16 +18004,16 @@ Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
     return pet;
 }
 
-bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
+bool Unit::InitTamedPet(Pet* pet, uint32 spellID)
 {
     pet->SetCreatorGUID(GetGUID());
     pet->setFaction(getFaction());
-    pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, spell_id);
+    pet->SetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL, spellID);
 
     if (GetTypeId() == TYPEID_PLAYER)
         pet->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
-    if (!pet->InitStatsForLevel(level))
+    if (!pet->InitStatsForLevel(getLevel()))
     {
         sLog->outError(LOG_FILTER_UNITS, "Pet::InitStatsForLevel() failed for creature (Entry: %u)!", pet->GetEntry());
         return false;
