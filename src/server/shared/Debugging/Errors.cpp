@@ -17,6 +17,7 @@
  */
 
 #include "Errors.h"
+#include "Duration.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -53,7 +54,7 @@ void Fatal(char const* file, int line, char const* function, char const* message
     fprintf(stderr, "\n%s:%i in %s FATAL ERROR:\n  %s\n",
                    file, line, function, message);
 
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::this_thread::sleep_for(Seconds(10));
     *((volatile int*)NULL) = 0;
     exit(1);
 }

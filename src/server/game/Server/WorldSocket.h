@@ -103,7 +103,7 @@ private:
     BigNumber _encryptSeed;
     BigNumber _decryptSeed;
 
-    std::chrono::steady_clock::time_point _LastPingTime;
+    TimePoint _LastPingTime;
     uint32 _OverSpeedPings;
 
     WorldSession* _worldSession;

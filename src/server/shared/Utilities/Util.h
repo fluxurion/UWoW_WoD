@@ -22,6 +22,7 @@
 #include "Define.h"
 #include "Common.h"
 #include "Log.h"
+#include "Duration.h"
 
 #include <algorithm>
 #include <string>

@@ -22,6 +22,7 @@
 #include "Errors.h"
 #include "Log.h"
 #include "Timer.h"
+#include "Duration.h"
 #include <atomic>
 #include <chrono>
 #include <memory>
@@ -120,7 +121,7 @@ protected:
         uint32 tickStart = 0, diff = 0;
         while (!_stopped)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+            std::this_thread::sleep_for(Milliseconds(sleepTime));
 
             tickStart = getMSTime();
 

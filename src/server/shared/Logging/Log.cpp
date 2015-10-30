@@ -312,7 +312,7 @@ void Log::write(LogMessage* msg)
 
 std::string Log::GetTimestampStr()
 {
-    time_t tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    time_t tt = SystemClock::to_time_t(SystemClock::now());
 
     std::tm aTm;
     localtime_r(&tt, &aTm);

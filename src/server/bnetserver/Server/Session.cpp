@@ -669,7 +669,7 @@ bool Battlenet::Session::Update()
     if (!BattlenetSocket::Update())
         return false;
 
-    if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    if (_queryFuture.valid() && _queryFuture.wait_for(Seconds(0)) == std::future_status::ready)
     {
         auto callback = std::move(_queryCallback);
         callback(_queryFuture.get());

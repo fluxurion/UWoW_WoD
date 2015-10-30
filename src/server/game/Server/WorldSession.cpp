@@ -1061,7 +1061,7 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //! HandlePlayerLoginOpcode
-    if (_charLoginCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    if (_charLoginCallback.valid() && _charLoginCallback.wait_for(Seconds(0)) == std::future_status::ready)
     {
         SQLQueryHolder* param = _charLoginCallback.get();
         HandlePlayerLogin((LoginQueryHolder*)param);
@@ -1086,7 +1086,7 @@ void WorldSession::ProcessQueryCallbacks()
     }
 
     //- HandleCharAddIgnoreOpcode
-    if (_addIgnoreCallback.valid() && _addIgnoreCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    if (_addIgnoreCallback.valid() && _addIgnoreCallback.wait_for(Seconds(0)) == std::future_status::ready)
     {
         result = _addIgnoreCallback.get();
         HandleAddIgnoreOpcodeCallBack(result);

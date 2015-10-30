@@ -204,7 +204,7 @@ void BattlePayMgr::Update(uint32 const diff)
                 break;
             case 999:
                 //! HandlePlayerLoginOpcode Level Up Loading.
-                if (_charLoginCallback.valid() && _charLoginCallback.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+                if (_charLoginCallback.valid() && _charLoginCallback.wait_for(Seconds(0)) == std::future_status::ready)
                 {
                     SQLQueryHolder* param = _charLoginCallback.get();
                     HandlePlayerLevelUp((LoginQueryHolder*)param);

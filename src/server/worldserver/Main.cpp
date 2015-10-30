@@ -429,7 +429,7 @@ void WorldUpdateLoop()
         {
             prevSleepTime = WORLD_SLEEP_CONST + prevSleepTime - diff;
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(prevSleepTime));
+            std::this_thread::sleep_for(Milliseconds(prevSleepTime));
         }
         else
             prevSleepTime = 0;

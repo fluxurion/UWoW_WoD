@@ -3582,7 +3582,7 @@ void World::ProcessQueryCallbacks()
 
     for (std::deque<std::future<PreparedQueryResult>>::iterator itr = m_realmCharCallbacks.begin(); itr != m_realmCharCallbacks.end(); )
     {
-        if ((*itr).wait_for(std::chrono::seconds(0)) != std::future_status::ready)
+        if ((*itr).wait_for(Seconds(0)) != std::future_status::ready)
         {
             ++itr;
             continue;

@@ -19,15 +19,13 @@
 #ifndef TRINITY_TIMER_H
 #define TRINITY_TIMER_H
 
-#include <chrono>
-
-using namespace std::chrono;
+#include "Duration.h"
 
 inline uint32 getMSTime()
 {
-    static const system_clock::time_point ApplicationStartTime = system_clock::now();
+    static const SystemClock::time_point ApplicationStartTime = SystemClock::now();
 
-    return duration_cast<milliseconds>(system_clock::now() - ApplicationStartTime).count();
+    return uint32(std::chrono::duration_cast<Milliseconds>(SystemClock::now() - ApplicationStartTime).count());
 }
 
 inline uint32 getMSTimeDiff(uint32 oldMSTime, uint32 newMSTime)
@@ -46,7 +44,7 @@ inline uint32 GetMSTimeDiffToNow(uint32 oldMSTime)
 
 inline double getPreciseTime()
 {
-    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count() / 1000.0;
+    return std::chrono::duration_cast<Milliseconds>(SystemClock::now().time_since_epoch()).count() / 1000.0;
 }
 
 struct IntervalTimer

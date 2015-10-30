@@ -49,7 +49,7 @@ class QueryCallback
         {
             if (_timer && time(NULL)-_timer < sec)
                 return false;
-            return _result.valid() && _result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+            return _result.valid() && _result.wait_for(Seconds(0)) == std::future_status::ready;
         }
 
         void InitTimer()
@@ -136,7 +136,7 @@ class QueryCallback_2
 
         int IsReady()
         {
-            return _result.valid() && _result.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+            return _result.valid() && _result.wait_for(Seconds(0)) == std::future_status::ready;
         }
 
         void GetResult(Result& res)
