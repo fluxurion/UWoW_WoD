@@ -1064,6 +1064,22 @@ namespace WorldPackets
             bool IsSteal = false;
             bool IsBreak = false;
         };
+
+        class AddLossOfControl final : public ServerPacket
+        {
+        public:
+            AddLossOfControl() : ServerPacket(SMSG_ADD_LOSS_OF_CONTROL, 16 + 4 + 4 + 4 + 4 + 4 + 4) { }
+            
+            WorldPacket const* Write() override;
+
+            ObjectGuid Caster;
+            Mechanics Mechanic = MECHANIC_NONE;
+            SpellSchoolMask LockoutSchoolMask = SPELL_SCHOOL_MASK_NONE;
+            uint32 Type = 0;
+            uint32 SpellID = 0;
+            int32 Duration = 0;
+            int32 DurationRemaining = 0;
+        };
     }
 }
 

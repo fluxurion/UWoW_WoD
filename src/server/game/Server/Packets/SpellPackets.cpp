@@ -1053,3 +1053,16 @@ WorldPacket const* WorldPackets::Spells::SpellDispellLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::AddLossOfControl::Write()
+{
+    _worldPacket.WriteBits(Mechanic, 8);
+    _worldPacket.WriteBits(Type, 8);
+    _worldPacket << SpellID;
+    _worldPacket << Caster;
+    _worldPacket << Duration;
+    _worldPacket << DurationRemaining;
+    _worldPacket << LockoutSchoolMask;
+
+    return &_worldPacket;
+}

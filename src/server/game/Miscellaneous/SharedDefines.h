@@ -335,7 +335,7 @@ enum Powers
 
 #define MAX_POWERS_PER_CLASS              6
 
-enum SpellSchools
+enum SpellSchools : int32
 {
     SPELL_SCHOOL_NORMAL                 = 0,
     SPELL_SCHOOL_HOLY                   = 1,

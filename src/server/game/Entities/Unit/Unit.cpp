@@ -72,6 +72,7 @@
 #include "ChatPackets.h"
 #include "PetPackets.h"
 #include "UpdatePackets.h"
+#include "SpellPackets.h"
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -23788,7 +23789,6 @@ bool Unit::GetFreeAuraSlot(uint32& slot)
     return false;
 }
 
-//! 6.0.3
 void Unit::SendSpellCooldown(int32 spellId, int32 spell_cooldown, int32 cooldown)
 {
     Player* player = ToPlayer();
@@ -23853,27 +23853,22 @@ void Unit::SendMissileCancel(uint32 spellId, bool reverse /*= true*/)
     ToPlayer()->GetSession()->SendPacket(missicleCancel.Write());
 }
 
-//! 6.0.3
-void Unit::SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uint32 rmDuraction, uint32 mechanic, uint32 schoolMask, LossOfControlType type, bool apply)
+void Unit::SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uint32 rmDuraction, Mechanics mechanic, SpellSchoolMask schoolMask, LossOfControlType type, bool apply)
 {
     if (GetTypeId() != TYPEID_PLAYER || !caster)
         return;
 
-    ObjectGuid guid = caster->GetGUID();
-
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::SendLossOfControl GetEffectMechanic %i, apply %i, GetId %i duraction %i rmDuraction %i schoolMask %i", mechanic, apply, spellId, duraction, rmDuraction, schoolMask);
-
-    if(apply)
+    if (apply)
     {
-        WorldPacket data(SMSG_ADD_LOSS_OF_CONTROL);
-        data.WriteBits(mechanic, 8);             // Mechanic
-        data.WriteBits(type, 8);                 // Type (interrupt or some other) may be loss control = 0, silence = 0, interrupt = 1, disarm = 0, root = 0
-        data << uint32(spellId);                 // SpellID
-        data << caster->GetGUID();
-        data << uint32(duraction);               // Duration (время действия)
-        data << uint32(rmDuraction);             // RemainingDuration (контролирует блокировку баров, скажем если duration = 40000, а это число 10000, то как только останется 10 секунд, на барах пойдет прокрутка, иначе просто затеменено)
-        data << uint32(schoolMask);              // SchoolMask (для type == interrupt and other)
-        ToPlayer()->GetSession()->SendPacket(&data);
+        WorldPackets::Spells::AddLossOfControl addLoosOfControl;
+        addLoosOfControl.Mechanic = mechanic;
+        addLoosOfControl.Type = type;
+        addLoosOfControl.SpellID = spellId;
+        addLoosOfControl.Caster = caster->GetGUID();
+        addLoosOfControl.Duration = duraction;
+        addLoosOfControl.DurationRemaining = rmDuraction;
+        addLoosOfControl.LockoutSchoolMask = schoolMask;
+        ToPlayer()->GetSession()->SendPacket(addLoosOfControl.Write());
     }
     else
     {
