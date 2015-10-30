@@ -844,12 +844,12 @@ enum GOState
 struct GameObjectData
 {
     explicit GameObjectData() : dbData(true) {}
-    ObjectGuid::LowType guid;
+    ObjectGuid::LowType guid = 0;
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
-    uint16 zoneId;
-    uint16 areaId;
-    uint32 phaseMask;
+    uint16 zoneId = 0;
+    uint16 areaId = 0;
+    uint32 phaseMask = 1;
     float posX;
     float posY;
     float posZ;
@@ -858,12 +858,12 @@ struct GameObjectData
     float rotation1;
     float rotation2;
     float rotation3;
-    int32  spawntimesecs;
-    uint32 animprogress;
-    GOState go_state;
-    uint32 spawnMask;
-    uint8 artKit;
-    bool isActive;
+    int32  spawntimesecs = 0;
+    uint32 animprogress = 0;
+    GOState go_state = GO_STATE_ACTIVE;
+    uint32 spawnMask = 1;
+    uint8 artKit = 0;
+    bool isActive = false;
     bool dbData;
 
     uint32 AiID;

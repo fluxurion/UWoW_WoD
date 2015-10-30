@@ -48,6 +48,8 @@ public:
                 {
                     //ToDo: event 60 sec len
                     sCreatureTextMgr->SendChat(gazlo, TEXT_GENERIC_0, player->GetGUID());
+                    sCreatureTextMgr->SendChat(gazlo, TEXT_GENERIC_1, player->GetGUID());
+                    sCreatureTextMgr->SendChat(gazlo, TEXT_GENERIC_2, player->GetGUID());
                     player->KilledMonsterCredit(gazlo->GetEntry(), ObjectGuid::Empty);
 
                     time -= 3540;

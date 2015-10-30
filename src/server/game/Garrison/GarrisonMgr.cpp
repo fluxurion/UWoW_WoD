@@ -62,6 +62,8 @@ void GarrisonMgr::Initialize()
     InitializeDbIdSequences();
     LoadPlotFinalizeGOInfo();
     LoadFollowerClassSpecAbilities();
+    LoadBuildingSpawnNPC();
+    LoadBuildingSpawnGo();
 }
 
 GarrSiteLevelEntry const* GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
@@ -451,4 +453,151 @@ void GarrisonMgr::LoadFollowerClassSpecAbilities()
         pair.second.sort();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u garrison follower class spec abilities in %u.", count, GetMSTimeDiffToNow(msTime));
+}
+
+void GarrisonMgr::LoadBuildingSpawnNPC()
+{
+    //                                                  0       1      2   3    4              5           6            7
+    QueryResult result = WorldDatabase.Query("SELECT plotID, BuildID, id, map, position_x, position_y, position_z, orientation FROM garrison_building_creature");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 garrison building creatures. DB table `garrison_building_creature` is empty.");
+        return;
+    }
+
+    uint32 msTime = getMSTime();
+    uint32 count = 0;
+    do
+    {
+        uint8 index = 0;
+        Field* fields = result->Fetch();
+
+        uint32 garrPlotInstanceId = fields[index++].GetUInt32();
+        uint32 BuildID = fields[index++].GetUInt32();
+        uint32 entry = fields[index++].GetUInt32();
+
+        CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(entry);
+        if (!cInfo)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table `garrison_building_creature` has creature with non existing creature entry %u, skipped.", entry);
+            continue;
+        }
+
+        if (!sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Non-existing GarrPlotInstance.db2 entry %u was referenced in `garrison_building_creature`.", garrPlotInstanceId);
+            continue;
+        }
+
+        //! BuildID = 0 - empty build spawn.
+        if (BuildID && !sGarrBuildingStore.LookupEntry(BuildID))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Non-existing GarrBuilding.db2 entry %u was referenced in `garrison_building_creature`.", BuildID);
+            continue;
+        }
+
+        CreatureData data;
+        data.id = entry;
+        data.mapid = fields[index++].GetUInt16();
+        data.posX = fields[index++].GetFloat();
+        data.posY = fields[index++].GetFloat();
+        data.posZ = fields[index++].GetFloat();
+        data.orientation = fields[index++].GetFloat();
+        data.dbData = false;
+        _buildSpawnNpc[BuildID][garrPlotInstanceId].push_back(data);
+
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u garrison building creatures in %u.", count, GetMSTimeDiffToNow(msTime));
+}
+
+void GarrisonMgr::LoadBuildingSpawnGo()
+{
+    //                                                  0       1      2   3    4              5           6            7           8           9       10          11
+    QueryResult result = WorldDatabase.Query("SELECT plotID, BuildID, id, map, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3 FROM garrison_building_gameobject");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 garrison building go. DB table `garrison_building_gameobject` is empty.");
+        return;
+    }
+
+    uint32 msTime = getMSTime();
+    uint32 count = 0;
+    do
+    {
+        uint8 index = 0;
+        Field* fields = result->Fetch();
+
+        uint32 garrPlotInstanceId = fields[index++].GetUInt32();
+        uint32 BuildID = fields[index++].GetUInt32();
+        uint32 entry = fields[index++].GetUInt32();
+
+        if (!sObjectMgr->GetGameObjectTemplate(entry))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table `garrison_building_gameobject` has creature with non existing go entry %u, skipped.", entry);
+            continue;
+        }
+
+        if (!sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Non-existing GarrPlotInstance.db2 entry %u was referenced in `garrison_building_gameobject`.", garrPlotInstanceId);
+            continue;
+        }
+
+        //! BuildID = 0 - empty build spawn.
+        if (BuildID && !sGarrBuildingStore.LookupEntry(BuildID))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Non-existing GarrBuilding.db2 entry %u was referenced in `garrison_building_gameobject`.", BuildID);
+            continue;
+        }
+
+        GameObjectData data;
+        data.id = entry;
+        data.mapid = fields[index++].GetUInt16();
+        data.posX = fields[index++].GetFloat();
+        data.posY = fields[index++].GetFloat();
+        data.posZ = fields[index++].GetFloat();
+        data.orientation = fields[index++].GetFloat();
+        data.rotation0 = fields[index++].GetFloat();
+        data.rotation1 = fields[index++].GetFloat();
+        data.rotation2 = fields[index++].GetFloat();
+        data.rotation3 = fields[index++].GetFloat();
+        data.dbData = false;
+        _buildSpawnGo[BuildID][garrPlotInstanceId].push_back(data);
+
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u garrison building go in %u.", count, GetMSTimeDiffToNow(msTime));
+}
+
+std::list<GameObjectData> const* GarrisonMgr::GetGoSpawnBuilding(uint32 plotID, uint32 build) const
+{
+    auto b = _buildSpawnGo.find(build);
+    if (b != _buildSpawnGo.end())
+    {
+        auto p = b->second.find(plotID);
+        if (p != b->second.end())
+        {
+            return &p->second;
+        }
+    }
+    return NULL;
+}
+
+std::list<CreatureData> const* GarrisonMgr::GetNpcSpawnBuilding(uint32 plotID, uint32 build) const
+{
+    auto b = _buildSpawnNpc.find(build);
+    if (b != _buildSpawnNpc.end())
+    {
+        auto p = b->second.find(plotID);
+        if (p != b->second.end())
+        {
+            return &p->second;
+        }
+    }
+    return NULL;
 }

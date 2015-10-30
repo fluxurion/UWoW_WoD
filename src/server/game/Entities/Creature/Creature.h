@@ -325,30 +325,30 @@ typedef std::unordered_map<uint32, EquipmentInfoContainerInternal> EquipmentInfo
 struct CreatureData
 {
     explicit CreatureData() : dbData(true) {}
-    ObjectGuid::LowType guid;
+    ObjectGuid::LowType guid = 0;
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
-    uint16 zoneId;
-    uint16 areaId;
-    uint32 phaseMask;
-    uint32 displayid;
-    int8 equipmentId;
+    uint16 zoneId = 0;
+    uint16 areaId = 0;
+    uint32 phaseMask = 1;
+    uint32 displayid = 0;
+    int8 equipmentId = 0;
     float posX;
     float posY;
     float posZ;
     float orientation;
-    uint32 spawntimesecs;
+    uint32 spawntimesecs = 0;
     float spawndist;
-    uint32 currentwaypoint;
-    uint32 curhealth;
-    uint32 curmana;
-    uint8 movementType;
-    uint32 spawnMask;
-    uint32 npcflag;
-    uint32 npcflag2;
-    uint32 unit_flags;                                      // enum UnitFlags mask values
-    uint32 dynamicflags;
-    bool isActive;
+    uint32 currentwaypoint = 0;
+    uint32 curhealth = 0;
+    uint32 curmana = 0;
+    uint8 movementType = 0;
+    uint32 spawnMask = 1;
+    uint32 npcflag = 0;
+    uint32 npcflag2 = 0;
+    uint32 unit_flags = 0;                                      // enum UnitFlags mask values
+    uint32 dynamicflags = 0;
+    bool isActive = false;
     bool dbData;
     std::set<uint32> PhaseID;
 };

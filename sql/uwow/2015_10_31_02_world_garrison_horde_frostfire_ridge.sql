@@ -177,6 +177,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (80225, 0, 0, 0, 62, 0, 100, 0, 80225, 0, 0, 0, 11, 162714, 18, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'At gossip select Q34824');
 
 -- Q HORDE: 34461 Q ALLIANCE: 34587
+-- cast 161693
 UPDATE `quest_objectives` SET `StorageIndex` = '0' WHERE `quest_objectives`.`ID` = 275371;
 UPDATE `quest_objectives` SET `StorageIndex` = '1' WHERE `quest_objectives`.`ID` = 275372;
 UPDATE `quest_objectives` SET `StorageIndex` = '2' WHERE `quest_objectives`.`ID` = 272934;

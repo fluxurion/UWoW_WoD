@@ -930,42 +930,6 @@ GarrisonError Garrison::CheckBuildingRemoval(uint32 garrPlotInstanceId) const
     return GARRISON_SUCCESS;
 }
 
-template<class T, void(T::*SecondaryRelocate)(float, float, float, float)>
-T* BuildingSpawnHelper(GameObject* building, ObjectGuid::LowType spawnId, Map* map)
-{
-    T* spawn = new T();
-    if (!spawn->LoadFromDB(spawnId, map))
-    {
-        delete spawn;
-        return nullptr;
-    }
-
-    float x = spawn->GetPositionX();
-    float y = spawn->GetPositionY();
-    float z = spawn->GetPositionZ();
-    float o = spawn->GetOrientation();
-
-    //@TODO: fixup this function, we dont have CalculatePassengerPosition for (float&, float&, float&, float*, float, float, float, float)
-    //TransportBase::CalculatePassengerPosition(x, y, z, &o, building->GetPositionX(), building->GetPositionY(), building->GetPositionZ(), building->GetOrientation());
-
-    //spawn->Relocate(x, y, z, o);
-    //(spawn->*SecondaryRelocate)(x, y, z, o);
-
-    if (!spawn->IsPositionValid())
-    {
-        delete spawn;
-        return nullptr;
-    }
-
-    if (!map->AddToMap(spawn))
-    {
-        delete spawn;
-        return nullptr;
-    }
-
-    return spawn;
-}
-
 GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex faction)
 {
     uint32 entry = EmptyGameObjectId;
@@ -993,19 +957,36 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         delete building;
         return nullptr;
     }
-
-    if (building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING && building->GetGOInfo()->garrisonBuilding.mapID)
+    
+    if ((building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING || building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_PLOT)/* && building->GetGOInfo()->garrisonBuilding.mapID*/)
     {
-        //for (CellObjectGuidsMap::value_type const& cellGuids : sObjectMgr->GetMapObjectGuids(building->GetGOInfo()->garrisonBuilding.mapID, map->GetSpawnMode()))
-        //{
-        //    for (ObjectGuid::LowType spawnId : cellGuids.second.creatures)
-        //        if (Creature* spawn = BuildingSpawnHelper<Creature, &Creature::SetHomePosition>(building, spawnId, map))
-        //            BuildingInfo.Spawns.insert(spawn->GetGUID());
 
-        //    for (ObjectGuid::LowType spawnId : cellGuids.second.gameobjects)
-        //        if (GameObject* spawn = BuildingSpawnHelper<GameObject, &GameObject::RelocateStationaryPosition>(building, spawnId, map))
-        //            BuildingInfo.Spawns.insert(spawn->GetGUID());
-        //}
+        if (std::list<GameObjectData> const* goList = sGarrisonMgr.GetGoSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo ? BuildingInfo.PacketInfo->GarrBuildingID : 0))
+        for (std::list<GameObjectData>::const_iterator data = goList->begin(); data != goList->end(); ++data)
+        {
+            GameObject* linkGO = new GameObject();
+            if (!linkGO->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), data->id, map, 1, data->posX, data->posY, data->posZ, data->orientation,
+                data->rotation0, data->rotation1, data->rotation2, data->rotation3, 255, GO_STATE_READY) ||
+                !linkGO->IsPositionValid() || !map->AddToMap(linkGO))
+            {
+                delete linkGO;
+                continue;
+            }
+            BuildingInfo.Spawns.insert(linkGO->GetGUID());
+        }
+
+        if (std::list<CreatureData> const* npcList = sGarrisonMgr.GetNpcSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo ?  BuildingInfo.PacketInfo->GarrBuildingID : 0))
+        for (std::list<CreatureData>::const_iterator data = npcList->begin(); data != npcList->end(); ++data)
+        {
+            Creature* linkNPC = new Creature();
+            if (!linkNPC->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), map, 1, data->id, 0, 0, data->posX, data->posY, data->posZ, data->orientation) ||
+                !linkNPC->IsPositionValid() || !map->AddToMap(linkNPC))
+            {
+                delete linkNPC;
+                continue;
+            }
+            BuildingInfo.Spawns.insert(linkNPC->GetGUID());
+        }
     }
 
     BuildingInfo.Guid = building->GetGUID();
