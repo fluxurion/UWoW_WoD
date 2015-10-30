@@ -67,7 +67,7 @@ void WorldListener::HandleOpen()
     {
         _worldSocket->bind(std::string("tcp://*:") + std::to_string(_worldListenPort));
     }
-    catch (zmqpp::zmq_internal_exception& ex)
+    catch (zmqpp::zmq_internal_exception& /*ex*/)
     {
         abort();
     }

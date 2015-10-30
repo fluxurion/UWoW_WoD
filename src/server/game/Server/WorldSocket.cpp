@@ -27,7 +27,7 @@
 #include "BattlenetAccountMgr.h"
 #include "World.h"
 #include "CharacterPackets.h"
-
+#include "Duration.h"
 #include <zlib.h>
 #include <memory>
 
@@ -663,19 +663,16 @@ void WorldSocket::HandlePing(WorldPacket& recvPacket)
     recvPacket >> ping;
     recvPacket >> latency;
 
-    if (_LastPingTime == steady_clock::time_point())
-    {
-        _LastPingTime = steady_clock::now();
-    }
+    if (_LastPingTime == TimePoint())
+        _LastPingTime = SteadyClock::now();
     else
     {
-        steady_clock::time_point now = steady_clock::now();
-
-        steady_clock::duration diff = now - _LastPingTime;
+        TimePoint now = SteadyClock::now();
+        Duration diff = now - _LastPingTime;
 
         _LastPingTime = now;
 
-        if (diff < seconds(27))
+        if (diff < Seconds(27))
         {
             ++_OverSpeedPings;
 

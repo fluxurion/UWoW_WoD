@@ -35,8 +35,14 @@ typedef std::chrono::hours Hours;
 /// Point in time shorthand typedef.
 typedef std::chrono::steady_clock::time_point TimePoint;
 
+/// Represents a monotonic clock typedef.
+typedef std::chrono::steady_clock SteadyClock;
+
 /// The system-wide real time wall clock typedef.
 typedef std::chrono::system_clock SystemClock;
+
+/// Represents a time interval typedef.
+typedef std::chrono::system_clock::duration Duration;
 
 /// Makes std::chrono_literals globally available.
 // ToDo: Enable this when TC supports C++14.
