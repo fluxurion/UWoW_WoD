@@ -480,7 +480,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     }
 
     // Send packet every 10 seconds until the 2nd field reach 0
-    if (m_CountdownTimer >= Seconds(10) && std::chrono::duration_cast<Minutes>(GetElapsedTime()) < Minutes(2))
+    if (m_CountdownTimer >= Seconds(10) && GetElapsedTime() < Minutes(2))
     {
         m_CountdownTimer = Seconds(0);
 

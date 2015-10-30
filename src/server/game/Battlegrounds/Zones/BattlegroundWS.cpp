@@ -79,7 +79,7 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
         else if (GetElapsedTime() > Minutes(_minutesElapsed + 3))
         {
             ++_minutesElapsed;
-            UpdateWorldState(BG_WS_STATE_TIMER, 15 - _minutesElapsed); //< Time remaining showed on top of the screen via world state
+            UpdateWorldState(BG_WS_STATE_TIMER, int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(15)).count() - (60 * _minutesElapsed))); //< Time remaining showed on top of the screen via world state
         }
 
         /// Flags state update:
@@ -222,7 +222,7 @@ void BattlegroundWS::StartingEventOpenDoors()
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, WS_EVENT_START_BATTLE);
 
     UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 1);
-    UpdateWorldState(BG_WS_STATE_TIMER, 20);
+    UpdateWorldState(BG_WS_STATE_TIMER, int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(15)).count()));
 }
 
 bool BattlegroundWS::SetupBattleground()
@@ -342,7 +342,7 @@ void BattlegroundWS::FillInitialWorldStates(WorldPacket& data)
 
         /// Show Timer
         FillInitialWorldState(data, BG_WS_STATE_TIMER_ACTIVE, 1);
-        FillInitialWorldState(data, BG_WS_STATE_TIMER, 20 - _minutesElapsed);
+        FillInitialWorldState(data, BG_WS_STATE_TIMER, int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(15)).count() - (60 * _minutesElapsed)));
     }
     else
     {
