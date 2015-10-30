@@ -124,11 +124,10 @@ public:
         uint32 GetItemLevel() const;
         void IncreaseFollowerItemLevel(SpellInfo const* spellInfo, Player* caster);
         uint8 RollQuality(uint32 baseQuality);
-        void XpChanged(Player* owner);
         void GiveLevel(uint32 level) { PacketInfo.FollowerLevel = level; }
         void GiveQuality(uint32 quality) { PacketInfo.Quality = quality; }
         void GiveXP(uint32 xp);
-        uint32 GetXpForNextUpgrade();
+        uint32 GetXPForNextUpgrade();
     };
 
     struct Mission
@@ -184,6 +183,7 @@ public:
     void ReTrainFollower(SpellInfo const* spellInfo, uint32 followerID);
 
     // Missions
+    void AddMission(uint32 missionRecID);
     Mission const* GetMission(uint64 dbId) const;
     Mission* GetMissionByRecID(uint32 missionRecID);
     void RewardMission(uint32 missionRecID);
@@ -221,6 +221,7 @@ private:
     std::unordered_map<uint64 /*dbId*/, Follower> _followers;
     std::unordered_set<uint32> _followerIds;
     std::unordered_map<uint64 /*dbId*/, Mission> _missions;
+    std::unordered_set<uint32> _missionIds;
 };
 
 #endif // Garrison_h__

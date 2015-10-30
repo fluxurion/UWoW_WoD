@@ -147,15 +147,21 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
 
             uint64 dbId = fields[0].GetUInt64();
             uint32 missionRecID = fields[1].GetUInt32();
+            uint32 offerTime = fields[2].GetUInt32();
+            uint32 offerDuration = fields[3].GetUInt32();
 
             if (!sGarrMissionStore.LookupEntry(missionRecID))
                 continue;
 
+            if (offerTime + offerDuration <= time(nullptr))
+                continue;
+
+            _missionIds.insert(missionRecID);
             Mission& mission = _missions[dbId];
             mission.PacketInfo.DbID = dbId;
             mission.PacketInfo.MissionRecID = missionRecID;
-            mission.PacketInfo.OfferTime = fields[2].GetUInt32();
-            mission.PacketInfo.OfferDuration = fields[3].GetUInt32();
+            mission.PacketInfo.OfferTime = offerTime;
+            mission.PacketInfo.OfferDuration = offerDuration;
             mission.PacketInfo.StartTime = fields[4].GetUInt32();
             mission.PacketInfo.TravelDuration = fields[5].GetUInt32();
             mission.PacketInfo.MissionDuration = fields[6].GetUInt32();
@@ -237,6 +243,9 @@ void Garrison::SaveToDB(SQLTransaction trans)
         uint8 index = 0;
 
         if (mission.PacketInfo.MissionState == MISSION_STATE_COMPLETED)
+            continue;
+
+        if (mission.PacketInfo.OfferTime + mission.PacketInfo.OfferDuration <= time(nullptr))
             continue;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_MISSIONS);
@@ -635,6 +644,33 @@ void Garrison::AddFollower(uint32 garrFollowerId)
     _owner->SendDirectMessage(addFollowerResult.Write());
 
     _owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER, follower.PacketInfo.DbID);
+}
+
+void Garrison::AddMission(uint32 missionRecID)
+{
+    WorldPackets::Garrison::GarrisonAddMissionResult addMissionResult;
+    GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(missionRecID);
+    if (_missionIds.count(missionRecID) || !missionEntry)
+    {
+        addMissionResult.Result = GARRISON_GENERIC_UNKNOWN_ERROR;
+        _owner->SendDirectMessage(addMissionResult.Write());
+        return;
+    }
+
+    _missionIds.insert(missionRecID);
+    uint64 dbId = sGarrisonMgr.GenerateMissionDbId();
+    Mission& mission = _missions[dbId];
+    mission.PacketInfo.DbID = dbId;
+    mission.PacketInfo.MissionRecID = missionRecID;
+    mission.PacketInfo.OfferTime = time(nullptr);
+    mission.PacketInfo.OfferDuration = missionEntry->offerDuration;
+    mission.PacketInfo.StartTime = 0;
+    mission.PacketInfo.TravelDuration = 0;
+    mission.PacketInfo.MissionDuration = missionEntry->missionDuration;
+    mission.PacketInfo.MissionState = MISSION_STATE_AVAILABLE;
+
+    addMissionResult.MissionData = mission.PacketInfo;
+    _owner->SendDirectMessage(addMissionResult.Write());
 }
 
 Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const
@@ -1299,7 +1335,7 @@ void Garrison::Mission::BonusRoll(Player* owner)
 void Garrison::Follower::GiveXP(uint32 xp)
 {
     uint32 curXp = PacketInfo.Xp;
-    uint32 nextLvlXP = GetXpForNextUpgrade();
+    uint32 nextLvlXP = GetXPForNextUpgrade();
     uint32 newXP = curXp + xp;
 
     if (PacketInfo.FollowerLevel == 100 && PacketInfo.Quality == FOLLOWER_QUALITY_EPIC)
@@ -1313,7 +1349,7 @@ void Garrison::Follower::GiveXP(uint32 xp)
         if (PacketInfo.FollowerLevel < 100)
             GiveLevel(PacketInfo.FollowerLevel + 1);
 
-        nextLvlXP = GetXpForNextUpgrade();
+        nextLvlXP = GetXPForNextUpgrade();
     }
 
     // calc level quality
@@ -1324,13 +1360,13 @@ void Garrison::Follower::GiveXP(uint32 xp)
         if (PacketInfo.Quality < FOLLOWER_QUALITY_EPIC)
             GiveQuality(PacketInfo.Quality + 1);
 
-        nextLvlXP = GetXpForNextUpgrade();
+        nextLvlXP = GetXPForNextUpgrade();
     }
 
     PacketInfo.Xp = newXP;
 }
 
-uint32 Garrison::Follower::GetXpForNextUpgrade()
+uint32 Garrison::Follower::GetXPForNextUpgrade()
 {
     if (PacketInfo.FollowerLevel < 100)
         return sDB2Manager.GetXPForNextFollowerLevel(PacketInfo.FollowerLevel);

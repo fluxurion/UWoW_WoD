@@ -515,8 +515,8 @@ struct GarrMissionEntry
     uint32 mechanicID;          // 3
     uint32 reqFollowersCount;   // 4
     uint32 unk1;                // 5
-    uint32 missionTime;         // 6
-    uint32 vaildTime;           // 7
+    uint32 missionDuration;     // 6
+    uint32 offerDuration;       // 7
     uint32 unk2;                // 8
     uint32 category;            // 9
     LocalizedString* name;      // 10
