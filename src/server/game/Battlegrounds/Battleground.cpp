@@ -39,6 +39,8 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "Duration.h"
+#include "InstancePackets.h"
 
 namespace Trinity
 {
@@ -136,7 +138,7 @@ Battleground::Battleground()
     m_InstanceID        = 0;
     m_Status            = STATUS_NONE;
     m_ClientInstanceID  = 0;
-    m_EndTime           = 0;
+    m_EndTime           = Milliseconds(0);
     m_LastResurrectTime = 0;
     m_BracketId         = BG_BRACKET_ID_FIRST;
     m_InvitedAlliance   = 0;
@@ -146,7 +148,8 @@ Battleground::Battleground()
     m_needFirstUpdateVision  = true;
     m_needSecondUpdateVision = true;
     m_Winner            = 2;
-    m_StartTime         = 0;
+    m_StartTime         = Milliseconds(0);
+    m_CountdownTimer    = Milliseconds(0);
     m_ResetStatTimer    = 0;
     m_ValidStartPositionTimer = 0;
     m_Events            = 0;
@@ -198,10 +201,10 @@ Battleground::Battleground()
 
     m_HonorMode = BG_NORMAL;
 
-    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_2M;
-    StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_1M;
-    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_30S;
-    StartDelayTimes[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
+    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = Minutes(2);
+    StartDelayTimes[BG_STARTING_EVENT_SECOND] = Minutes(1);
+    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = Seconds(30);
+    StartDelayTimes[BG_STARTING_EVENT_FOURTH] = Milliseconds(0);
     //we must set to some default existing values
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_WS_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
@@ -214,7 +217,7 @@ Battleground::Battleground()
 
     m_flagCarrierTime = FLAGS_UPDATE;
 
-    m_StartDelayTime = 0;
+    m_StartDelayTime = Milliseconds(0);
 }
 
 Battleground::~Battleground()
@@ -283,7 +286,7 @@ void Battleground::Update(uint32 diff)
             // after 47 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
-                if (m_StartTime >= 60200 && m_needSecondUpdateVision)
+                if (m_StartTime >= Seconds(60) && m_needSecondUpdateVision)
                 {
                     UpdateArenaVision();
                     m_needSecondUpdateVision = false;
@@ -295,19 +298,19 @@ void Battleground::Update(uint32 diff)
                 }
 
                 //! Patch 5.4: If neither team has won after 20 minutes, the Arena match will end in a draw.
-                if (GetElapsedTime() >= 20 * MINUTE*IN_MILLISECONDS)
+                if (GetElapsedTime() >= Minutes(20))
                 {
                     UpdateArenaWorldState();
                     CheckArenaAfterTimerConditions();
                     return;
                     //! Patch 5.4: For Arena matches that last more than 10 minutes, all players in the Arena will begin to receive Dampening.
                     //! Patch 5.4.7: Dampening is now applied to an Arena match starting at the 5 minute mark (down from 10 minutes).
-                } else if (GetElapsedTime() >= uint32(dumpeningTime * MINUTE * IN_MILLISECONDS))
+                } else if (GetElapsedTime() >= Minutes(dumpeningTime))
                 {
-                    ModifyStartDelayTime(diff);
-                    if (GetStartDelayTime() <= 0 || GetStartDelayTime() > 10000)
+                    ModifyStartDelayTime(Milliseconds(diff));
+                    if (GetStartDelayTime() <= Seconds(0) || GetStartDelayTime() > Seconds(10))
                     {
-                        SetStartDelayTime(10000);
+                        SetStartDelayTime(Seconds(10));
                         for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
                             if (Player* player = sObjectAccessor->FindPlayer(itr->first))
                                 if (!player->HasAura(SPELL_ARENA_DUMPENING))
@@ -333,10 +336,12 @@ void Battleground::Update(uint32 diff)
     }
 
     // Update start time and reset stats timer
-    SetElapsedTime(GetElapsedTime() + diff);
+    SetElapsedTime(GetElapsedTime() + Milliseconds(diff));
     if (GetStatus() == STATUS_WAIT_JOIN)
+    {
         m_ResetStatTimer += diff;
-
+        m_CountdownTimer += Milliseconds(diff);
+    }
     m_ValidStartPositionTimer += diff;
 
     PostUpdateImpl(diff);
@@ -460,11 +465,11 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     // *********************************************************
     // ***           BATTLEGROUND STARTING SYSTEM            ***
     // *********************************************************
-    ModifyStartDelayTime(diff);
+    ModifyStartDelayTime(Milliseconds(diff));
 
     // I know it's a too big but it's the value sent in packet, I get it from retail sniff.
     // I think it's link to the countdown when bgs start
-    SetRemainingTime(300000);
+    SetRemainingTime(Minutes(5));
 
     if (m_ResetStatTimer > 5000)
     {
@@ -472,6 +477,23 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 player->ResetAllPowers(true);
+    }
+
+    // Send packet every 10 seconds until the 2nd field reach 0
+    if (m_CountdownTimer >= Seconds(10) && std::chrono::duration_cast<Minutes>(GetElapsedTime()) < Minutes(2))
+    {
+        m_CountdownTimer = Seconds(0);
+
+        Minutes countdownMaxForBGType = isArena() ? Minutes(1) : Minutes(2);
+
+        WorldPackets::Instance::StartTimer startTimer;
+        startTimer.Type = WORLD_TIMER_TYPE_PVP;
+        startTimer.TimeRemaining = countdownMaxForBGType - std::chrono::duration_cast<Seconds>(GetElapsedTime());
+        startTimer.TotalTime = countdownMaxForBGType;
+
+        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+                player->GetSession()->SendPacket(startTimer.Write());
     }
 
     if (!(m_Events & BG_STARTING_EVENT_1))
@@ -510,7 +532,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_THIRD], CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
     // Delay expired (after 2 or 1 minute)
-    else if (GetStartDelayTime() <= 0 && !(m_Events & BG_STARTING_EVENT_4))
+    else if (GetStartDelayTime() <= Milliseconds(0) && !(m_Events & BG_STARTING_EVENT_4))
     {
         m_Events |= BG_STARTING_EVENT_4;
 
@@ -577,8 +599,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         }
     }
 
-    if (GetRemainingTime() > 0 && (m_EndTime -= diff) > 0)
-        SetRemainingTime(GetRemainingTime() - diff);
+    if (GetRemainingTime() > Milliseconds(0) && (m_EndTime -= Milliseconds(diff)) > Milliseconds(0))
+        SetRemainingTime(GetRemainingTime() - Milliseconds(diff));
 
 
     // Find if the player left our start zone; if so, teleport it back
@@ -615,10 +637,10 @@ inline void Battleground::_ProcessLeave(uint32 diff)
     // ***           BATTLEGROUND ENDING SYSTEM              ***
     // *********************************************************
     // remove all players from battleground after 2 minutes
-    SetRemainingTime(GetRemainingTime() - diff);
-    if (GetRemainingTime() <= 0)
+    SetRemainingTime(GetRemainingTime() - Milliseconds(diff));
+    if (GetRemainingTime() <= Milliseconds(0))
     {
-        SetRemainingTime(0);
+        SetRemainingTime(Milliseconds(0));
         BattlegroundPlayerMap::iterator itr, next;
         for (itr = m_Players.begin(); itr != m_Players.end(); itr = next)
         {
@@ -787,7 +809,7 @@ void Battleground::EndBattleground(uint32 winner)
 
     SetStatus(STATUS_WAIT_LEAVE);
     //we must set it this way, because end time is sent in packet!
-    SetRemainingTime(TIME_AUTOCLOSE_BATTLEGROUND);
+    SetRemainingTime(Minutes(2));
 
     bool guildAwarded = false;
     uint8 aliveWinners = GetAlivePlayersCountByTeam(winner);
@@ -952,11 +974,11 @@ void Battleground::EndBattleground(uint32 winner)
                 l++;
             }
 
-        uint32 _arenaTimer = m_StartTime / 1000;
+        uint32 _arenaTimer = m_StartTime.count();
         uint32 _min = _arenaTimer / 60;
         uint32 _sec = _arenaTimer - (_min * 60);
         const char* att = "";
-        if (m_StartTime < 75000)
+        if (m_StartTime < Seconds(75))
             att = "--- ATTENTION!";
 
         switch (m_JoinType)
@@ -1142,8 +1164,8 @@ void Battleground::Reset()
 {
     SetWinner(WINNER_NONE);
     SetStatus(STATUS_WAIT_QUEUE);
-    SetElapsedTime(0);
-    SetRemainingTime(0);
+    SetElapsedTime(Milliseconds(0));
+    SetRemainingTime(Milliseconds(0));
     SetLastResurrectTime(0);
     SetJoinType(0);
     SetRated(false);
@@ -1169,7 +1191,7 @@ void Battleground::Reset()
 
 void Battleground::StartBattleground()
 {
-    SetElapsedTime(0);
+    SetElapsedTime(Milliseconds(0));
     SetLastResurrectTime(0);
     // add BG to free slot queue
     AddToBGFreeSlotQueue();
@@ -1281,16 +1303,6 @@ void Battleground::AddPlayer(Player* player)
     {
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
             player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
-    }
-
-    if (GetStatus() == STATUS_WAIT_JOIN)
-    {
-        //! 6.0.3
-        WorldPacket data(SMSG_START_TIMER, 12);
-        data << uint32(StartDelayTimes[BG_STARTING_EVENT_FIRST] / 1000);
-        data << uint32(GetStartDelayTime() / 1000);
-        data << uint32(0);  // timer type
-        SendPacketToAll(&data);
     }
 
     // setup BG group membership
@@ -1838,7 +1850,7 @@ void Battleground::EndNow()
 {
     RemoveFromBGFreeSlotQueue();
     SetStatus(STATUS_WAIT_LEAVE);
-    SetRemainingTime(0);
+    SetRemainingTime(Milliseconds(0));
 }
 
 // To be removed

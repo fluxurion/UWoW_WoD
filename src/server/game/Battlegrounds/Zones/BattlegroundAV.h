@@ -28,7 +28,7 @@
 #define BG_AV_CAPTIME                    240000  //4:00
 #define BG_AV_SNOWFALL_FIRSTCAP          300000  //5:00 but i also have seen 4:05
 
-#define BG_AV_SCORE_INITIAL_POINTS       600
+#define BG_AV_SCORE_INITIAL_POINTS       500
 #define SEND_MSG_NEAR_LOSE               120
 
 #define BG_AV_KILL_BOSS                 4

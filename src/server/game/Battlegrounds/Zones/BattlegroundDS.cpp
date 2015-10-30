@@ -29,10 +29,10 @@ BattlegroundDS::BattlegroundDS()
     BgObjects.resize(BG_DS_OBJECT_MAX);
     BgCreatures.resize(BG_DS_NPC_MAX);
 
-    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
-    StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
-    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
-    StartDelayTimes[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
+    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = Minutes(1);
+    StartDelayTimes[BG_STARTING_EVENT_SECOND] = Seconds(30);
+    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = Seconds(15);
+    StartDelayTimes[BG_STARTING_EVENT_FOURTH] = Seconds(0);
     //we must set messageIds
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;

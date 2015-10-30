@@ -24546,7 +24546,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
             }
             else if (bg->isArena())
             {
-                if (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN || bg->GetRemainingTime() == 120000)
+                if (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN || bg->GetRemainingTime() == Minutes(2))
                     HandleArenaDeserter();
             }
         }

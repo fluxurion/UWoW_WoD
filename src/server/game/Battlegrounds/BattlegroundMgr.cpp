@@ -245,10 +245,10 @@ void BattlegroundMgr::BuildBattlegroundStatusNeedConfirmation(WorldPackets::Batt
 void BattlegroundMgr::BuildBattlegroundStatusActive(WorldPackets::Battleground::BattlefieldStatusActive* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 arenaType)
 {
     BuildBattlegroundStatusHeader(&battlefieldStatus->Header, bg, player, ticketId, joinTime, arenaType);
-    battlefieldStatus->ShutdownTimer = bg->GetRemainingTime();
+    battlefieldStatus->ShutdownTimer = std::chrono::duration_cast<Seconds>(bg->GetRemainingTime()).count();
     battlefieldStatus->ArenaFaction = player->GetBGTeam() == HORDE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE;
     battlefieldStatus->LeftEarly = bg->isRated() && bg->GetStatus() != STATUS_WAIT_LEAVE;
-    battlefieldStatus->StartTimer = bg->GetElapsedTime();
+    battlefieldStatus->StartTimer = std::chrono::duration_cast<Seconds>(bg->GetElapsedTime()).count();
     battlefieldStatus->Mapid = bg->GetMapId();
 }
 

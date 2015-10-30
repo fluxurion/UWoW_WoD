@@ -4900,11 +4900,10 @@ enum ChallengeMode
     NUM_CHALLENGE_MEDALS    = 3,
 };
 
-enum ChallengeTimerType
+enum TimerType
 {
-    LE_WORLD_ELAPSED_TIMER_TYPE_PROVING_GROUND  = 0,
-    LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE  = 1,
-    LE_WORLD_ELAPSED_TIMER_TYPE_NONE            = 2
+    WORLD_TIMER_TYPE_PVP            = 0,
+    WORLD_TIMER_TYPE_CHALLENGE_MODE = 1
 };
 
 enum LossOfControlType

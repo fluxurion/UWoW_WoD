@@ -223,3 +223,11 @@ WorldPacket const* WorldPackets::Instance::PendingRaidLock::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Instance::StartTimer::Write()
+{
+    _worldPacket << uint32(TimeRemaining.count());
+    _worldPacket << uint32(TotalTime.count());
+    _worldPacket << int32(Type);
+
+    return &_worldPacket;
+}

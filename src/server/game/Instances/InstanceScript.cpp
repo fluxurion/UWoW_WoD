@@ -708,12 +708,12 @@ void InstanceScript::UpdatePhasing()
             player->GetPhaseMgr().NotifyConditionChanged(phaseUdateData);
 }
 
-void InstanceScript::BroadcastPacket(WorldPacket& data) const
+void InstanceScript::BroadcastPacket(WorldPacket const* data) const
 {
     Map::PlayerList const& players = instance->GetPlayers();
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->getSource())
-            player->GetSession()->SendPacket(&data);
+            player->GetSession()->SendPacket(data);
 }
 
 void InstanceScript::Update(uint32 diff)
@@ -729,9 +729,9 @@ void InstanceScript::Update(uint32 diff)
                 challenge_timer = getMSTime();
 
                 WorldPacket data(SMSG_INSTANCE_ENCOUNTER_TIMER_START, 8);
-                data << uint32(LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE);
+                data << uint32(WORLD_TIMER_TYPE_CHALLENGE_MODE);
                 data << uint32(0);                                                          //time elapsed in sec
-                BroadcastPacket(data);
+                BroadcastPacket(&data);
 
                 // save challenge progress every min
                 _events.ScheduleEvent(EVENT_SAVE_CHALLENGE, 60000);
@@ -743,9 +743,9 @@ void InstanceScript::Update(uint32 diff)
             case EVENT_CONTINUE_CHALLENGE:
             {
                 WorldPacket data(SMSG_INSTANCE_ENCOUNTER_TIMER_START, 8);
-                data << uint32(LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE);
+                data << uint32(WORLD_TIMER_TYPE_CHALLENGE_MODE);
                 data << uint32((getMSTime() - challenge_timer)/IN_MILLISECONDS);         //time elapsed in sec
-                BroadcastPacket(data);
+                BroadcastPacket(&data);
 
                 // save challenge progress every min
                 _events.ScheduleEvent(EVENT_SAVE_CHALLENGE, 60000);
@@ -767,8 +767,8 @@ void InstanceScript::Update(uint32 diff)
                 WorldPacket data(SMSG_WORLD_STATE_TIMER_STOP, 5);
                 data.WriteBit(1);
                 data.FlushBits();
-                data << uint32(LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE);
-                BroadcastPacket(data);
+                data << uint32(WORLD_TIMER_TYPE_CHALLENGE_MODE);
+                BroadcastPacket(&data);
                 break;
             }
             default:
@@ -811,12 +811,11 @@ void InstanceScript::StartChallenge()
     // Set Timer For Start challenge
     _events.ScheduleEvent(EVENT_START_CHALLENGE, CHALLENGE_START * IN_MILLISECONDS);
 
-    //! 6.0.3
-    WorldPacket data(SMSG_START_TIMER, 12);
-    data << uint32(CHALLENGE_START);
-    data << uint32(CHALLENGE_START);
-    data << uint32(LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE);
-    BroadcastPacket(data);
+    WorldPackets::Instance::StartTimer startTimer;
+    startTimer.Type = WORLD_TIMER_TYPE_CHALLENGE_MODE;
+    startTimer.TimeRemaining = Seconds(CHALLENGE_START);
+    startTimer.TotalTime = Seconds(CHALLENGE_START);
+    BroadcastPacket(startTimer.Write());
 }
 
 void InstanceScript::StopChallenge()
@@ -828,7 +827,7 @@ void InstanceScript::FillInitialWorldTimers(WorldPacket& data)
 {
     if (challenge_timer && instance->GetSpawnMode() == DIFFICULTY_HEROIC)
     {
-        data << uint32(LE_WORLD_ELAPSED_TIMER_TYPE_CHALLENGE_MODE);
+        data << uint32(WORLD_TIMER_TYPE_CHALLENGE_MODE);
         data << uint32((getMSTime() - challenge_timer)/IN_MILLISECONDS);    //time elapsed in sec
     }
 }

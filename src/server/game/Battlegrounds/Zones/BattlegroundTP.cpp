@@ -54,8 +54,8 @@ void BattlegroundTP::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        /// Total time it's supposed to be 20 (game) + 2 (when the battle begins and doors are closed) minutes
-        if (GetElapsedTime() >= 22 * MINUTE * IN_MILLISECONDS) ///< End of game - Verify score
+        /// Total time it's supposed to be 15 (game) + 2 (when the battle begins and doors are closed) minutes
+        if (GetElapsedTime() >= Minutes(15 + 2)) ///< End of game - Verify score
         {
             if (m_TeamScores[TEAM_ALLIANCE] == 0)
             {
@@ -74,10 +74,10 @@ void BattlegroundTP::PostUpdateImpl(uint32 diff)
                 EndBattleground(ALLIANCE);
         }
         // First Update is needed only after 1 minute in battle
-        else if (GetElapsedTime() > uint32((_minutesElapsed + 1) * MINUTE * IN_MILLISECONDS) +  2 * MINUTE * IN_MILLISECONDS)
+        else if (GetElapsedTime() > Minutes(_minutesElapsed + 3))
         {
             ++_minutesElapsed;
-            UpdateWorldState(BG_TP_STATE_TIMER, 20 - _minutesElapsed); //< Time remaining showed on top of the screen via world state
+            UpdateWorldState(BG_TP_STATE_TIMER, 15 - _minutesElapsed); //< Time remaining showed on top of the screen via world state
         }
 
         /// Flags state update:

@@ -257,7 +257,7 @@ class InstanceScript : public ZoneScript
         }
         void LoadDoorDataBase(std::vector<DoorData> const* data);
 
-        void BroadcastPacket(WorldPacket& data) const;
+        void BroadcastPacket(WorldPacket const* data) const;
 
         // Challenge
         void FillInitialWorldTimers(WorldPacket& data);

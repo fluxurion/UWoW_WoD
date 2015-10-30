@@ -292,6 +292,18 @@ namespace WorldPackets
             bool Extending = false;
             bool WarningOnly = false;
         };
+
+        class StartTimer final : public ServerPacket
+        {
+        public:
+            StartTimer() : ServerPacket(SMSG_START_TIMER, 12) { }
+
+            WorldPacket const* Write() override;
+
+            Seconds TimeRemaining = Seconds(0);
+            Seconds TotalTime = Seconds(0);
+            TimerType Type = WORLD_TIMER_TYPE_PVP;
+        };
     }
 }
 

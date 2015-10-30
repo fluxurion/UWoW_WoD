@@ -23,6 +23,7 @@
 #include "GameObject.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
+#include "InstancePackets.h"
 
 BattlegroundSA::BattlegroundSA()
 {
@@ -250,12 +251,11 @@ bool BattlegroundSA::ResetObjs()
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 SendBasicWorldStateUpdate(player);
 
-        //! 6.0.3
-        WorldPacket data(SMSG_START_TIMER, 12);
-        data << uint32(BG_START_DELAY_1M / 1000);
-        data << uint32(BG_START_DELAY_1M / 1000);
-        data << uint32(0);  // timer type
-        SendPacketToAll(&data);
+        WorldPackets::Instance::StartTimer startTimer;
+        startTimer.Type = WORLD_TIMER_TYPE_PVP;
+        startTimer.TimeRemaining = Minutes(1);
+        startTimer.TotalTime = Minutes(1);
+        SendPacketToAll(startTimer.Write());
     }
 
     for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)

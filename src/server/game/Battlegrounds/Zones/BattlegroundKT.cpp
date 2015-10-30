@@ -431,7 +431,7 @@ void BattlegroundKT::FillInitialWorldStates(WorldPacket& data)
         FillInitialWorldState(data, count, BG_KT_ICON_H, 0);*/
 
     //WTF???
-    //FillInitialWorldState(data, BG_KT_ORB_POINTS_MAX, BG_KT_MAX_TEAM_SCORE);
+    //FillInitialWorldState(data, BG_KT_MAX_TEAM_SCORE, BG_KT_MAX_TEAM_SCORE);
 
     /*if (m_OrbState[BG_TEAM_HORDE] == BG_KT_ORB_STATE_ON_PLAYER)
         FillInitialWorldState(data, count, BG_KT_ORB_STATE, 2);

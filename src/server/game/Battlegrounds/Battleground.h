@@ -24,6 +24,7 @@
 #include "DBCEnums.h"
 #include "ObjectDefines.h"
 #include "ByteBuffer.h"
+#include "Duration.h"
 
 class Creature;
 class GameObject;
@@ -120,15 +121,6 @@ enum BattlegroundTimeIntervals
     BUFF_RESPAWN_TIME               = 180,                  // secs
     BATTLEGROUND_COUNTDOWN_MAX      = 120,                  // secs
     ARENA_COUNTDOWN_MAX             = 60                    // secs
-};
-
-enum BattlegroundStartTimeIntervals
-{
-    BG_START_DELAY_2M               = 120000,               // ms (2 minutes)
-    BG_START_DELAY_1M               = 60000,                // ms (1 minute)
-    BG_START_DELAY_30S              = 30000,                // ms (30 seconds)
-    BG_START_DELAY_15S              = 15000,                // ms (15 seconds) Used only in arena
-    BG_START_DELAY_NONE             = 0,                    // ms
 };
 
 enum BattlegroundBuffObjects
@@ -395,8 +387,8 @@ class Battleground
         uint32 GetInstanceID() const        { return m_InstanceID; }
         BattlegroundStatus GetStatus() const { return m_Status; }
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
-        uint32 GetElapsedTime() const       { return m_StartTime; }
-        uint32 GetRemainingTime() const     { return m_EndTime; }
+        Milliseconds GetElapsedTime() const       { return m_StartTime; }
+        Milliseconds GetRemainingTime() const     { return m_EndTime; }
         uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
         uint32 GetMaxPlayers() const        { return m_MaxPlayers; }
         uint32 GetMinPlayers() const        { return m_MinPlayers; }
@@ -407,7 +399,7 @@ class Battleground
         uint32 GetMaxPlayersPerTeam() const { return m_MaxPlayersPerTeam; }
         uint32 GetMinPlayersPerTeam() const { return m_MinPlayersPerTeam; }
 
-        int32 GetStartDelayTime() const     { return m_StartDelayTime; }
+        Milliseconds GetStartDelayTime() const { return m_StartDelayTime; }
         uint8 GetJoinType() const          { return m_JoinType; }
         uint8 GetWinner() const             { return m_Winner; }
         uint32 GetHolidayId() const         { return m_holiday; }
@@ -425,8 +417,8 @@ class Battleground
         void SetInstanceID(uint32 InstanceID) { m_InstanceID = InstanceID; }
         void SetStatus(BattlegroundStatus Status) { m_Status = Status; }
         void SetClientInstanceID(uint32 InstanceID) { m_ClientInstanceID = InstanceID; }
-        void SetElapsedTime(uint32 Time)      { m_StartTime = Time; }
-        void SetRemainingTime(uint32 Time)        { m_EndTime = Time; }
+        void SetElapsedTime(Milliseconds Time)      { m_StartTime = Time; }
+        void SetRemainingTime(Milliseconds Time)        { m_EndTime = Time; }
         void SetLastResurrectTime(uint32 Time) { m_LastResurrectTime = Time; }
         void SetMaxPlayers(uint32 MaxPlayers) { m_MaxPlayers = MaxPlayers; }
         void SetMinPlayers(uint32 MinPlayers) { m_MinPlayers = MinPlayers; }
@@ -438,8 +430,8 @@ class Battleground
         void SetHolidayId(uint8 holiday)        { m_holiday = holiday; }
         void SetScriptId(uint32 scriptId)   { ScriptId = scriptId; }
 
-        void ModifyStartDelayTime(int diff) { m_StartDelayTime -= diff; }
-        void SetStartDelayTime(int Time)    { m_StartDelayTime = Time; }
+        void ModifyStartDelayTime(Milliseconds diff) { m_StartDelayTime -= diff; }
+        void SetStartDelayTime(Milliseconds Time)    { m_StartDelayTime = Time; }
 
         void SetMaxPlayersPerTeam(uint32 MaxPlayers) { m_MaxPlayersPerTeam = MaxPlayers; }
         void SetMinPlayersPerTeam(uint32 MinPlayers) { m_MinPlayersPerTeam = MinPlayers; }
@@ -671,7 +663,7 @@ class Battleground
 
         // these are important variables used for starting messages
         uint8 m_Events;
-        BattlegroundStartTimeIntervals  StartDelayTimes[BG_STARTING_EVENT_COUNT];
+        Milliseconds  StartDelayTimes[BG_STARTING_EVENT_COUNT];
         // this must be filled in constructors!
         uint32 StartMessageIds[BG_STARTING_EVENT_COUNT];
 
@@ -686,10 +678,11 @@ class Battleground
         uint32 m_InstanceID;                                // Battleground Instance's GUID!
         BattlegroundStatus m_Status;
         uint32 m_ClientInstanceID;                          // the instance-id which is sent to the client and without any other internal use
-        uint32 m_StartTime;
+        Milliseconds m_StartTime;
         uint32 m_ResetStatTimer;
         uint32 m_ValidStartPositionTimer;
-        int32 m_EndTime;                                    // it is set to 120000 when bg is ending and it decreases itself
+        Milliseconds m_EndTime;                                    // it is set to 120000 when bg is ending and it decreases itself
+        Milliseconds m_CountdownTimer;
         uint32 m_LastResurrectTime;
         BattlegroundBracketId m_BracketId;
         uint8  m_JoinType;                                 // 2=2v2, 3=3v3, 5=5v5
@@ -699,7 +692,7 @@ class Battleground
         bool   m_needFirstUpdateVision;
         bool   m_needSecondUpdateVision;
         uint8  m_Winner;                                    // 0=alliance, 1=horde, 2=none
-        int32  m_StartDelayTime;
+        Milliseconds  m_StartDelayTime;
         int32  m_flagCarrierTime;
         bool   m_IsRated;                                   // is this battle rated?
         bool   m_PrematureCountDown;

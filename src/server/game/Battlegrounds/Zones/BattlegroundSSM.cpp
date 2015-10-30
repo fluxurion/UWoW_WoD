@@ -38,17 +38,9 @@ BattlegroundSSM::BattlegroundSSM()
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_SSM_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_SSM_HAS_BEGUN;
 
-    m_waysStep[0] = 1;
-    m_waysStep[1] = 1;
-    m_waysStep[2] = 1;
-
     m_waysMap[0] = Way1;
     m_waysMap[1] = Way2;
     m_waysMap[2] = Way3;
-
-    m_cart[0] = NULL;
-    m_cart[1] = NULL;
-    m_cart[2] = NULL;
 
     m_timerPointsUpdate = SSM_SCORE_UPDATE_TIMER;
     m_timerCartsUpdate = SSM_CARTS_UPDATE_TIMER;
@@ -63,6 +55,9 @@ BattlegroundSSM::BattlegroundSSM()
 
         m_PlayersNearPoint[i].clear();
         m_PlayersNearPoint[i].reserve(15);
+
+        m_waysStep[i] = 1;
+        m_cart[i] = NULL;
     }
 
     m_PlayersNearPoint[SSM_POINTS_MAX].clear();
@@ -274,8 +269,8 @@ void BattlegroundSSM::AddPlayer(Player* player)
     AddPlayerScore(player->GetGUID(), new BattleGroundSSMScore);
     Battleground::AddPlayer(player);
 
-    this->UpdateWorldStateForPlayer(SSM_POINTS_ALLIANCE, 30, player);
-    this->UpdateWorldStateForPlayer(SSM_POINTS_HORDE, 40, player);
+    UpdateWorldStateForPlayer(SSM_POINTS_ALLIANCE, 30, player);
+    UpdateWorldStateForPlayer(SSM_POINTS_HORDE, 40, player);
 
     m_PlayersNearPoint[SSM_POINTS_MAX].push_back(player->GetGUID());
 }
