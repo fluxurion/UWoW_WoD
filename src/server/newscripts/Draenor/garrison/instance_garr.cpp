@@ -48,6 +48,8 @@ public:
                 {
                     //ToDo: event 60 sec len
                     sCreatureTextMgr->SendChat(gazlo, TEXT_GENERIC_0, player->GetGUID());
+                    player->KilledMonsterCredit(gazlo->GetEntry(), ObjectGuid::Empty);
+
                     time -= 3540;
                     //if (Garrison::Plot* plot = garrison->GetPlot(garrPlotInstanceId))
                     //    plot->BuildingInfo.PacketInfo->TimeBuilt -= 3540;
@@ -88,13 +90,13 @@ public:
                 if (player->GetQuestStatus(Q_BUILD_BARRACKS_A) != QUEST_STATUS_INCOMPLETE)
                     return;
 
-                if (Creature *gazlo = player->FindNearestCreature(NPC_BAROS, 100.0f))
+                if (Creature *baros = player->FindNearestCreature(NPC_BAROS, 100.0f))
                 {
                     //ToDo: event 60 sec len
-                    sCreatureTextMgr->SendChat(gazlo, TEXT_GENERIC_4, player->GetGUID());
-                    sCreatureTextMgr->SendChat(gazlo, TEXT_GENERIC_5, player->GetGUID());
-                    sCreatureTextMgr->SendChat(gazlo, TEXT_GENERIC_6, player->GetGUID());
-                    sCreatureTextMgr->SendChat(gazlo, TEXT_GENERIC_7, player->GetGUID());
+                    sCreatureTextMgr->SendChat(baros, TEXT_GENERIC_4, player->GetGUID());
+                    sCreatureTextMgr->SendChat(baros, TEXT_GENERIC_5, player->GetGUID());
+                    sCreatureTextMgr->SendChat(baros, TEXT_GENERIC_6, player->GetGUID());
+                    sCreatureTextMgr->SendChat(baros, TEXT_GENERIC_7, player->GetGUID());
                     time -= 3540;
                     //if (Garrison::Plot* plot = garrison->GetPlot(garrPlotInstanceId))
                     //    plot->BuildingInfo.PacketInfo->TimeBuilt -= 3540;

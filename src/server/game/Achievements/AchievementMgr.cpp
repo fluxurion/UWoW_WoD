@@ -1571,6 +1571,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_WIN:
             case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP:
             case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+            case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
                 canComplete = SetCriteriaProgress(achievement, criteriaTree, criteria, init ? 0 : 1, referencePlayer, PROGRESS_ACCUMULATE, progressMap, progress);
                 break;
@@ -1826,7 +1827,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_LEAVE_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
             case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
-            case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
             case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON:
             case ACHIEVEMENT_CRITERIA_TYPE_START_GARRISON_MISSION:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION_COUNT:
@@ -1998,6 +1998,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(CriteriaTreeEntry const* criteriaTre
         case ACHIEVEMENT_CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT:
         case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP:
         case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+        case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
         case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
             progress->completed = progress->counter >= criteriaTree->requirement_count;
             break;
@@ -3788,7 +3789,11 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementEntry const* achievemen
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
-            if (miscValue1 != criteria->GarrBuildingID)
+            if (miscValue1 != criteria->garBuild.GarrBuildingID)
+                return false;
+            break;
+        case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
+            if (miscValue1 != criteria->garBuild.GarrBuildingID)
                 return false;
             break;
         default:

@@ -554,8 +554,13 @@ struct CriteriaEntry
             // uint32  count;                               // treeCount in CriteriaTree main requirement count
         } raw;
 
-        // ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING = 169
-        uint32 GarrBuildingID;
+        struct
+        {
+            //ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING = 167
+            //ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING = 168
+            // ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING = 169
+            uint32 GarrBuildingID;
+        } garBuild;
 
         // ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON       = 170
         uint32 GarrisonLevel;
