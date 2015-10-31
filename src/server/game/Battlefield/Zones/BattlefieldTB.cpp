@@ -51,18 +51,18 @@ bool BattlefieldTB::SetupBattlefield()
     SetGraveyardNumber(BATTLEFIELD_TB_GY_MAX);
 
     //Load from db
-    if ((sWorld->getWorldState(5387) == 0) && (sWorld->getWorldState(5384) == 0) && (sWorld->getWorldState(ClockBTWorldState[0]) == 0))
+    if ((sWorld->getWorldState(WS_TB_NEXT_BATTLE_TIMER_ENABLED) == 0) && (sWorld->getWorldState(WS_TB_HORDE_DEFENCE) == 0) && (sWorld->getWorldState(ClockBTWorldState[0]) == 0))
     {
-        sWorld->setWorldState(5387,false);
-        sWorld->setWorldState(5384,urand(0,1));
+        sWorld->setWorldState(WS_TB_NEXT_BATTLE_TIMER_ENABLED,false);
+        sWorld->setWorldState(WS_TB_HORDE_DEFENCE, urand(0, 1));
         sWorld->setWorldState(ClockBTWorldState[0],m_NoWarBattleTime);
     }
 
     if (sWorld->getWorldState(20011) == 0)
         sWorld->setWorldState(20011, time(NULL) + 86400);
 
-    m_isActive = sWorld->getWorldState(5387);
-    m_DefenderTeam = (TeamId)sWorld->getWorldState(5384);
+    m_isActive = sWorld->getWorldState(WS_TB_NEXT_BATTLE_TIMER_ENABLED);
+    m_DefenderTeam = (TeamId)sWorld->getWorldState(WS_TB_HORDE_DEFENCE);
     m_Timer = sWorld->getWorldState(ClockBTWorldState[0]);
 
     if(m_isActive)
@@ -113,14 +113,14 @@ bool BattlefieldTB::SetupBattlefield()
         if (Creature* creature = SpawnCreature(QuestGivers[i].entrya, QuestGivers[i].x, QuestGivers[i].y, QuestGivers[i].z, QuestGivers[i].o, TEAM_ALLIANCE))
         {
             HideNpc(creature);
-            creature->setFaction(TolBaradFaction[TEAM_ALLIANCE]);
+            creature->setFaction(BfFactions[TEAM_ALLIANCE]);
             questgiversA.insert(creature->GetGUID());
         }
 
         if (Creature* creature = SpawnCreature(QuestGivers[i].entryh, QuestGivers[i].x, QuestGivers[i].y, QuestGivers[i].z, QuestGivers[i].o, TEAM_HORDE))
         {
             HideNpc(creature);
-            creature->setFaction(TolBaradFaction[TEAM_HORDE]);
+            creature->setFaction(BfFactions[TEAM_HORDE]);
             questgiversH.insert(creature->GetGUID());
         }
     }
@@ -200,8 +200,8 @@ bool BattlefieldTB::Update(uint32 diff)
 
     if (m_saveTimer <= diff)
     {
-        sWorld->setWorldState(5387, m_isActive);
-        sWorld->setWorldState(5384, m_DefenderTeam);
+        sWorld->setWorldState(WS_TB_NEXT_BATTLE_TIMER_ENABLED, m_isActive);
+        sWorld->setWorldState(WS_TB_HORDE_DEFENCE, m_DefenderTeam);
         sWorld->setWorldState(ClockBTWorldState[0], m_Timer );
         m_saveTimer = 60 * IN_MILLISECONDS;
     } else m_saveTimer -= diff;
@@ -331,7 +331,7 @@ void BattlefieldTB::OnBattleStart()
             if (Creature* creature = unit->ToCreature())
             {
                 ShowNpc(creature, false);
-                creature->setFaction(TolBaradFaction[GetAttackerTeam()]);
+                creature->setFaction(BfFactions[GetAttackerTeam()]);
             }
         }
     }
@@ -380,9 +380,7 @@ void BattlefieldTB::OnBattleEnd(bool endbytimer)
         SendWarningToAllInZone(GetDefenderTeam() == TEAM_ALLIANCE ? BATTLEFIELD_TB_TEXT_ALLIANCE_TAKEN_TOLBARAD : BATTLEFIELD_TB_TEXT_HORDE_TAKEN_TOLBARAD);
 
     if (sWorld->getWorldState(20011) > uint64(time(NULL)))
-    {
         sWorld->setWorldState(20011, time(NULL) + 86400);
-    }
 
     for (TbGameObjectBuilding::const_iterator itr = BuildingsInZone.begin(); itr != BuildingsInZone.end(); ++itr)
         if ((*itr))
@@ -527,20 +525,20 @@ void BattlefieldTB::OnBattleEnd(bool endbytimer)
 void BattlefieldTB::FillInitialWorldStates(WorldPacket &data)
 {
     FillInitialWorldState(data, WS_TB_BATTLE_TIMER_ENABLED, IsWarTime() ? 1 : 0);
-    FillInitialWorldState(data, WS_TB_BATTLE_TIMER, uint32(IsWarTime() ? (time(NULL) + GetTimer() / 1000) : 0));
+    FillInitialWorldState(data, BG_WS_BATTLE_TIMER, uint32(IsWarTime() ? (time(NULL) + GetTimer() / 1000) : 0));
     FillInitialWorldState(data, WS_TB_COUNTER_BUILDINGS, 0);
     FillInitialWorldState(data, WS_TB_COUNTER_BUILDINGS_ENABLED, IsWarTime() ? 1 : 0);
     FillInitialWorldState(data, WS_TB_HORDE_DEFENCE, IsWarTime() ? (GetDefenderTeam() == TEAM_HORDE ? 1 : 0) : 0);
     FillInitialWorldState(data, WS_TB_ALLIANCE_DEFENCE, uint32(IsWarTime() ? (GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0) : 0));
     FillInitialWorldState(data, WS_TB_NEXT_BATTLE_TIMER_ENABLED, IsWarTime() ? 0 : 1);
-    FillInitialWorldState(data, WS_TB_NEXT_BATTLE_TIMER, uint32(!IsWarTime() ? time(NULL) + (GetTimer() / 1000) : 0));
+    FillInitialWorldState(data, BG_WS_NEXT_BATTLE_TIMER, uint32(!IsWarTime() ? time(NULL) + (GetTimer() / 1000) : 0));
     FillInitialWorldState(data, WS_TB_ALLIANCE_ATTACK, IsWarTime() ? (GetAttackerTeam() == TEAM_ALLIANCE ? 1 : 0) : 0);
     FillInitialWorldState(data, WS_TB_HORDE_ATTACK, IsWarTime() ? (GetAttackerTeam() == TEAM_HORDE ? 1 : 0) : 0);
 
     if (!IsWarTime())
-        FillInitialWorldState(data, 5332, uint32(time(NULL)+(GetTimer() / 1000)));
+        FillInitialWorldState(data, BG_WS_NEXT_BATTLE_TIMER, uint32(time(NULL)+(GetTimer() / 1000)));
     else
-        FillInitialWorldState(data, 5332, 0);
+        FillInitialWorldState(data, BG_WS_NEXT_BATTLE_TIMER, 0);
     FillInitialWorldState(data, WS_TB_KEEP_HORDE_DEFENCE, GetDefenderTeam() == TEAM_HORDE ? 1 : 0);
     FillInitialWorldState(data, WS_TB_KEEP_ALLIANCE_DEFENCE, GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0);
 
@@ -650,7 +648,7 @@ void BattlefieldTB::OnDestroyed()
     // Tower destroing incrase battle time
     m_Timer += 10 * 60 * 1000;
     sWorld->setWorldState(ClockBTWorldState[0], m_Timer );
-    SendUpdateWorldState(WS_TB_BATTLE_TIMER, (time(NULL) + GetTimer() / 1000));
+    SendUpdateWorldState(BG_WS_BATTLE_TIMER, (time(NULL) + GetTimer() / 1000));
 }
 
 void BattlefieldTB::HandleKill(Player *killer, Unit *victim)

@@ -14,8 +14,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 
-const uint32 ClockBTWorldState[2] = {5333,5332};
-const uint32 TolBaradFaction[3] = {1732, 1735, 35};
+const uint32 ClockBTWorldState[2] = {BG_WS_BATTLE_TIMER, BG_WS_NEXT_BATTLE_TIMER};
 
 #define POS_Z_TOWER 150.0f
 #define POS_X_START -900.0f
@@ -67,12 +66,10 @@ enum eBuildingsWSDiff
 enum eWorldStates
 {
     WS_TB_BATTLE_TIMER_ENABLED                      = 5346,
-    WS_TB_BATTLE_TIMER                              = 5333,
     WS_TB_COUNTER_BUILDINGS                         = 5348,
     WS_TB_COUNTER_BUILDINGS_ENABLED                 = 5349,
     WS_TB_HORDE_DEFENCE                             = 5384,
     WS_TB_ALLIANCE_DEFENCE                          = 5385,
-    WS_TB_NEXT_BATTLE_TIMER                         = 5332,
     WS_TB_NEXT_BATTLE_TIMER_ENABLED                 = 5387,
 
     WS_TB_SOUTH_CAPTURE_POINT                       = 5418,
@@ -484,7 +481,7 @@ struct BfTBGameObjectBuilding
         m_Build->Refresh();
         //Updating worldstate
         m_State = BATTLEFIELD_TB_OBJECTSTATE_ALLIANCE_INTACT-(m_Team*3);
-        m_Build->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE,TolBaradFaction[m_Team]);
+        m_Build->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE,BfFactions[m_Team]);
     }
 
     //Called when associate gameobject is damaged
@@ -528,7 +525,7 @@ struct BfTBGameObjectBuilding
         m_TB->OnDestroyed();
 
         m_TB->SetTimer(m_TB->GetTimer() + 5 * 60 * 1000);
-        m_TB->SendUpdateWorldState(WS_TB_BATTLE_TIMER, (time(NULL) + m_TB->GetTimer() / 1000));
+        m_TB->SendUpdateWorldState(BG_WS_BATTLE_TIMER, (time(NULL) + m_TB->GetTimer() / 1000));
 
         for (int i = 0; i < BUILDING_MAX_DIFF; i++)
         {

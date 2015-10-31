@@ -420,7 +420,7 @@ void BattlegroundDG::Point::UpdateState(PointStates state)
             m_prevAura = BG_DG_AURA_ALLIANCE_CONTEST;
             m_timer = CAPTURE_TIME;
 
-            GetBg()->PlaySoundToAll(m_state == POINT_STATE_NEUTRAL ? BG_DG_SOUND_NODE_CLAIMED : BG_DG_SOUND_NODE_ASSAULTED_ALLIANCE);
+            GetBg()->PlaySoundToAll(m_state == POINT_STATE_NEUTRAL ? BG_SOUND_FLAG_RESET : BG_SOUND_FLAG_PICKED_UP_ALLIANCE);
 
             break;
         }
@@ -430,7 +430,7 @@ void BattlegroundDG::Point::UpdateState(PointStates state)
             m_prevAura = BG_DG_AURA_HORDE_CONTEST;
             m_timer = CAPTURE_TIME;
 
-            GetBg()->PlaySoundToAll(m_state == POINT_STATE_NEUTRAL ? BG_DG_SOUND_NODE_CLAIMED : BG_DG_SOUND_NODE_ASSAULTED_HORDE);
+            GetBg()->PlaySoundToAll(m_state == POINT_STATE_NEUTRAL ? BG_SOUND_FLAG_RESET : BG_SOUND_FLAG_PICKED_UP_HORDE);
 
             break;
         }
@@ -439,7 +439,7 @@ void BattlegroundDG::Point::UpdateState(PointStates state)
             m_point->AddAura(BG_DG_AURA_ALLIANCE_CATURED, m_point);
             m_prevAura = BG_DG_AURA_ALLIANCE_CATURED;
 
-            GetBg()->PlaySoundToAll(BG_DG_SOUND_NODE_CAPTURED_ALLIANCE);
+            GetBg()->PlaySoundToAll(BG_SOUND_FLAG_CAPTURED_ALLIANCE);
 
             break;
         }
@@ -448,7 +448,7 @@ void BattlegroundDG::Point::UpdateState(PointStates state)
             m_point->AddAura(BG_DG_AURA_HORDE_CAPTURED, m_point);
             m_prevAura = BG_DG_AURA_HORDE_CAPTURED;
 
-            GetBg()->PlaySoundToAll(BG_DG_SOUND_NODE_CAPTURED_HORDE);
+            GetBg()->PlaySoundToAll(BG_SOUND_FLAG_CAPTURED_HORDE);
 
             break;
         }
@@ -660,7 +660,7 @@ void BattlegroundDG::Cart::ToggleCaptured(Player *player)
         cartEntry = 71073;
         flagStateField = 7904;
         cartAuraId = BG_DG_AURA_CART_HORDE;
-        GetBg()->PlaySoundToAll(BG_DG_SOUND_NODE_ASSAULTED_ALLIANCE);
+        GetBg()->PlaySoundToAll(BG_SOUND_FLAG_PICKED_UP_ALLIANCE);
     }
     else
     {
@@ -669,7 +669,7 @@ void BattlegroundDG::Cart::ToggleCaptured(Player *player)
         flagStateField = 7887;
         cartAuraId = BG_DG_AURA_CART_ALLIANCE;
 
-        GetBg()->PlaySoundToAll(BG_DG_SOUND_NODE_ASSAULTED_HORDE);
+        GetBg()->PlaySoundToAll(BG_SOUND_FLAG_PICKED_UP_HORDE);
     }
 
     player->CastSpell(player, summonSpellId);
@@ -734,7 +734,7 @@ void BattlegroundDG::Cart::CartDelivered()
     UnbindCartFromPlayer();
     player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, DG_OBJECTIVE_CAPTURE_CART, 1);
 
-    GetBg()->PlaySoundToAll(player->GetBGTeamId() == TEAM_ALLIANCE ? BG_DG_SOUND_NODE_CAPTURED_ALLIANCE : BG_DG_SOUND_NODE_CAPTURED_HORDE);
+    GetBg()->PlaySoundToAll(player->GetBGTeamId() == TEAM_ALLIANCE ? BG_SOUND_FLAG_CAPTURED_ALLIANCE : BG_SOUND_FLAG_CAPTURED_HORDE);
 }
 
 void BattlegroundDG::Cart::UnbindCartFromPlayer()

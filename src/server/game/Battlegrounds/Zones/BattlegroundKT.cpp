@@ -69,7 +69,7 @@ void BattlegroundKT::PostUpdateImpl(uint32 diff)
             uint32 minutesLeft = GetRemainingTimeInMinutes();
 
             if (minutesLeft != minutesLeftPrev)
-                UpdateWorldState(BG_KT_TIME_REMAINING, minutesLeft);
+                UpdateWorldState(BG_WS_CURRENT_TIMER, minutesLeft);
         }
 
         if (m_UpdatePointsTimer <= diff)
@@ -116,8 +116,8 @@ void BattlegroundKT::StartingEventOpenDoors()
         SpawnBGObject(BG_KT_OBJECT_ORB_1 + i, RESPAWN_IMMEDIATELY);
 
     // Players that join battleground after start are not eligible to get achievement.
-    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, BG_KT_EVENT_START_BATTLE);
-    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, BG_KT_EVENT_START_BATTLE);
+    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, BG_EVENT_START_BATTLE);
+    StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT2, BG_EVENT_START_BATTLE);
 }
 
 void BattlegroundKT::AddPlayer(Player *player)
@@ -147,7 +147,7 @@ void BattlegroundKT::EventPlayerClickedOnOrb(Player* source, GameObject* target_
         if (m_OrbKeepers[i] == source->GetGUID())
             return;
 
-    PlaySoundToAll(source->GetTeamId() == TEAM_ALLIANCE ? BG_KT_SOUND_A_ORB_PICKED_UP : BG_KT_SOUND_H_ORB_PICKED_UP);
+    PlaySoundToAll(source->GetTeamId() == TEAM_ALLIANCE ? BG_SOUND_FLAG_PICKED_UP_HORDE : BG_SOUND_FLAG_PICKED_UP_HORDE);
     source->CastSpell(source, BG_KT_ORBS_SPELLS[index], true);
     source->CastSpell(source, source->GetTeamId() == TEAM_ALLIANCE ? BG_KT_ALLIANCE_INSIGNIA : BG_KT_HORDE_INSIGNIA, true);
 
@@ -180,7 +180,7 @@ void BattlegroundKT::EventPlayerDroppedFlag(Player* source)
             break;
     }
 
-    PlaySoundToAll(source->GetTeamId() == TEAM_ALLIANCE ? BG_KT_SOUND_A_ORB_PICKED_UP : BG_KT_SOUND_H_ORB_PICKED_UP);
+    PlaySoundToAll(source->GetTeamId() == TEAM_ALLIANCE ? BG_SOUND_FLAG_PICKED_UP_HORDE : BG_SOUND_FLAG_PICKED_UP_HORDE);
     source->RemoveAurasDueToSpell(BG_KT_ORBS_SPELLS[index]);
     source->RemoveAurasDueToSpell(BG_KT_ALLIANCE_INSIGNIA);
     source->RemoveAurasDueToSpell(BG_KT_HORDE_INSIGNIA);
@@ -439,6 +439,6 @@ void BattlegroundKT::FillInitialWorldStates(WorldPacket& data)
     else
         FillInitialWorldState(data, count, BG_KT_ORB_STATE, 1);*/
 
-    FillInitialWorldState(data, BG_KT_TIME_ENABLED, 1);
-    FillInitialWorldState(data, BG_KT_TIME_REMAINING, GetRemainingTimeInMinutes());
+    FillInitialWorldState(data, BG_WS_ENABLE_TIMER, 1);
+    FillInitialWorldState(data, BG_WS_CURRENT_TIMER, GetRemainingTimeInMinutes());
 }

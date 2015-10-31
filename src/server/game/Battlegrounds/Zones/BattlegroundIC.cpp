@@ -221,7 +221,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                 DelObject(nodePoint[i].gameobject_type);
                 AddObject(nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry, cords[0], cords[1], cords[2], cords[3], 0, 0, 0, 0, RESPAWN_ONE_DAY);
 
-                GetBGObject(nodePoint[i].gameobject_type)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_Factions[1] : BG_IC_Factions[0]);
+                GetBGObject(nodePoint[i].gameobject_type)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, nodePoint[i].faction == TEAM_ALLIANCE ? BgFactions[1] : BgFactions[0]);
 
                 UpdateNodeWorldState(&nodePoint[i]);
                 HandleCapturedNodes(&nodePoint[i], false);
@@ -431,9 +431,9 @@ bool BattlegroundIC::SetupBattleground()
 
     // setting correct factions for Keep Cannons
     for (uint8 i = BG_IC_NPC_KEEP_CANNON_1; i < BG_IC_NPC_KEEP_CANNON_12; i++)
-        GetBGCreature(i)->setFaction(BG_IC_Factions[0]);
+        GetBGCreature(i)->setFaction(BgFactions[0]);
     for (uint8 i = BG_IC_NPC_KEEP_CANNON_13; i < BG_IC_NPC_KEEP_CANNON_25; i++)
-        GetBGCreature(i)->setFaction(BG_IC_Factions[1]);
+        GetBGCreature(i)->setFaction(BgFactions[1]);
 
     // correcting spawn time for keeps bombs
     for (uint8 i = BG_IC_GO_HUGE_SEAFORIUM_BOMBS_A_1; i < BG_IC_GO_HUGE_SEAFORIUM_BOMBS_H_4; i++)
@@ -575,7 +575,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
             DelObject(nodePoint[i].gameobject_type);
             AddObject(nodePoint[i].gameobject_type, nodePoint[i].gameobject_entry, cords[0], cords[1], cords[2], cords[3], 0, 0, 0, 0, RESPAWN_ONE_DAY);
 
-            GetBGObject(nodePoint[i].gameobject_type)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_Factions[1] : BG_IC_Factions[0]);
+            GetBGObject(nodePoint[i].gameobject_type)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, nodePoint[i].faction == TEAM_ALLIANCE ? BgFactions[1] : BgFactions[0]);
 
             if (nodePoint[i].nodeType == NODE_TYPE_WORKSHOP)
             {
@@ -735,7 +735,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                         BG_IC_DocksVehiclesGlaives[i].GetPositionX(), BG_IC_DocksVehiclesGlaives[i].GetPositionY(),
                         BG_IC_DocksVehiclesGlaives[i].GetPositionZ(), BG_IC_DocksVehiclesGlaives[i].GetOrientation(),
                         RESPAWN_ONE_DAY))
-                        GetBGCreature(type)->setFaction(BG_IC_Factions[(nodePoint->faction == TEAM_ALLIANCE ? 0 : 1)]);
+                        GetBGCreature(type)->setFaction(BgFactions[(nodePoint->faction == TEAM_ALLIANCE ? 0 : 1)]);
             }
 
             // spawning catapults
@@ -750,7 +750,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                         BG_IC_DocksVehiclesCatapults[i].GetPositionX(), BG_IC_DocksVehiclesCatapults[i].GetPositionY(),
                         BG_IC_DocksVehiclesCatapults[i].GetPositionZ(), BG_IC_DocksVehiclesCatapults[i].GetOrientation(),
                         RESPAWN_ONE_DAY))
-                        GetBGCreature(type)->setFaction(BG_IC_Factions[(nodePoint->faction == TEAM_ALLIANCE ? 0 : 1)]);
+                        GetBGCreature(type)->setFaction(BgFactions[(nodePoint->faction == TEAM_ALLIANCE ? 0 : 1)]);
             }
             break;
         case BG_IC_GO_WORKSHOP_BANNER:
@@ -785,7 +785,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                             BG_IC_WorkshopVehicles[i].GetPositionX(), BG_IC_WorkshopVehicles[i].GetPositionY(),
                             BG_IC_WorkshopVehicles[i].GetPositionZ(), BG_IC_WorkshopVehicles[i].GetOrientation(),
                             RESPAWN_ONE_DAY))
-                            GetBGCreature(type)->setFaction(BG_IC_Factions[(nodePoint->faction == TEAM_ALLIANCE ? 0 : 1)]);
+                            GetBGCreature(type)->setFaction(BgFactions[(nodePoint->faction == TEAM_ALLIANCE ? 0 : 1)]);
                     }
 
                     // we check if the opossing siege engine is in use
@@ -812,7 +812,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                         if (Creature* siegeEngine = GetBGCreature(siegeType))
                         {
                             siegeEngine->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_UNK_14|UNIT_FLAG_IMMUNE_TO_PC);
-                            siegeEngine->setFaction(BG_IC_Factions[(nodePoint->faction == TEAM_ALLIANCE ? 0 : 1)]);
+                            siegeEngine->setFaction(BgFactions[(nodePoint->faction == TEAM_ALLIANCE ? 0 : 1)]);
                         }
                     }
                 }
@@ -827,7 +827,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                     if (GameObject* seaforiumBombs = GetBGObject(BG_IC_GO_SEAFORIUM_BOMBS_1+i))
                     {
                         seaforiumBombs->SetRespawnTime(10);
-                        seaforiumBombs->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, BG_IC_Factions[(nodePoint->faction == TEAM_ALLIANCE ? 0 : 1)]);
+                        seaforiumBombs->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, BgFactions[(nodePoint->faction == TEAM_ALLIANCE ? 0 : 1)]);
                     }
                 }
                 break;

@@ -103,6 +103,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "BattlegroundSA.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -7930,7 +7931,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     }
 
     // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
-    if (HasAura(SPELL_AURA_PLAYER_INACTIVE))
+    if (HasAura(SPELL_BG_AURA_PLAYER_INACTIVE))
         return false;
 
     ObjectGuid victim_guid;
@@ -10598,14 +10599,14 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 bg->FillInitialWorldStates(data);
             else
             {
-                FillInitialWorldState(data, 0x62d, 0x0);       // 7 1581 alliance flag captures
-                FillInitialWorldState(data, 0x62e, 0x0);       // 8 1582 horde flag captures
-                FillInitialWorldState(data, 0x609, 0x0);       // 9 1545 unk, set to 1 on alliance flag pickup...
-                FillInitialWorldState(data, 0x60a, 0x0);       // 10 1546 unk, set to 1 on horde flag pickup, after drop it's -1
-                FillInitialWorldState(data, 0x60b, 0x2);       // 11 1547 unk
-                FillInitialWorldState(data, 0x641, 0x3);       // 12 1601 unk (max flag captures?)
-                FillInitialWorldState(data, 0x922, 0x1);       // 13 2338 horde (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
-                FillInitialWorldState(data, 0x923, 0x1);       // 14 2339 alliance (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
+                FillInitialWorldState(data, BG_WS_FLAG_CAPTURES_ALLIANCE, 0x0);       // 7 1581 alliance flag captures
+                FillInitialWorldState(data, BG_WS_FLAG_CAPTURES_HORDE, 0x0);       // 8 1582 horde flag captures
+                FillInitialWorldState(data, BG_WS_FLAG_UNK_ALLIANCE, 0x0);       // 9 1545 unk, set to 1 on alliance flag pickup...
+                FillInitialWorldState(data, BG_WS_FLAG_UNK_HORDE, 0x0);       // 10 1546 unk, set to 1 on horde flag pickup, after drop it's -1
+                FillInitialWorldState(data, BG_WS_FLAG_UNKNOWN, 0x2);       // 11 1547 unk
+                FillInitialWorldState(data, BG_WS_FLAG_CAPTURES_MAX, 0x3);       // 12 1601 unk (max flag captures?)
+                FillInitialWorldState(data, BG_WS_FLAG_STATE_HORDE, 0x1);       // 13 2338 horde (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
+                FillInitialWorldState(data, BG_WS_FLAG_STATE_ALLIANCE, 0x1);       // 14 2339 alliance (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
             }
             break;
         case 3358:                                          // Arathi Basin
@@ -10871,32 +10872,32 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             else
             {
                 // 1-3 A defend, 4-6 H defend, 7-9 unk defend, 1 - ok, 2 - half destroyed, 3 - destroyed
-                FillInitialWorldState(data, 0xf09, 0x0);       // 7  3849 Gate of Temple
-                FillInitialWorldState(data, 0xe36, 0x0);       // 8  3638 Gate of Yellow Moon
-                FillInitialWorldState(data, 0xe27, 0x0);       // 9  3623 Gate of Green Emerald
-                FillInitialWorldState(data, 0xe24, 0x0);       // 10 3620 Gate of Blue Sapphire
-                FillInitialWorldState(data, 0xe21, 0x0);       // 11 3617 Gate of Red Sun
-                FillInitialWorldState(data, 0xe1e, 0x0);       // 12 3614 Gate of Purple Ametyst
+                FillInitialWorldState(data, BG_SA_ANCIENT_GATEWS, 0x0);       // 7  3849 Gate of Temple
+                FillInitialWorldState(data, BG_SA_YELLOW_GATEWS, 0x0);       // 8  3638 Gate of Yellow Moon
+                FillInitialWorldState(data, BG_SA_GREEN_GATEWS, 0x0);       // 9  3623 Gate of Green Emerald
+                FillInitialWorldState(data, BG_SA_BLUE_GATEWS, 0x0);       // 10 3620 Gate of Blue Sapphire
+                FillInitialWorldState(data, BG_SA_RED_GATEWS, 0x0);       // 11 3617 Gate of Red Sun
+                FillInitialWorldState(data, BG_SA_PURPLE_GATEWS, 0x0);       // 12 3614 Gate of Purple Ametyst
 
-                FillInitialWorldState(data, 0xdf3, 0x0);       // 13 3571 bonus timer (1 - on, 0 - off)
+                FillInitialWorldState(data, BG_SA_BONUS_TIMER, 0x0);       // 13 3571 bonus timer (1 - on, 0 - off)
                 FillInitialWorldState(data, 0xded, 0x0);       // 14 3565 Horde Attacker
-                FillInitialWorldState(data, 0xdec, 0x0);       // 15 3564 Alliance Attacker
+                FillInitialWorldState(data, BG_SA_ENABLE_TIMER, 0x0);       // 15 3564 Alliance Attacker
                 // End Round (timer), better explain this by example, eg. ends in 19:59 -> A:BC
                 FillInitialWorldState(data, 0xde9, 0x0);       // 16 3561 C
                 FillInitialWorldState(data, 0xde8, 0x0);       // 17 3560 B
                 FillInitialWorldState(data, 0xde7, 0x0);       // 18 3559 A
-                FillInitialWorldState(data, 0xe35, 0x0);       // 19 3637 East g - Horde control
-                FillInitialWorldState(data, 0xe34, 0x0);       // 20 3636 West g - Horde control
-                FillInitialWorldState(data, 0xe33, 0x0);       // 21 3635 South g - Horde control
-                FillInitialWorldState(data, 0xe32, 0x0);       // 22 3634 East g - Alliance control
-                FillInitialWorldState(data, 0xe31, 0x0);       // 23 3633 West g - Alliance control
-                FillInitialWorldState(data, 0xe30, 0x0);       // 24 3632 South g - Alliance control
-                FillInitialWorldState(data, 0xe2f, 0x0);       // 25 3631 Chamber of Ancients - Horde control
-                FillInitialWorldState(data, 0xe2e, 0x0);       // 26 3630 Chamber of Ancients - Alliance control
-                FillInitialWorldState(data, 0xe2d, 0x0);       // 27 3629 Beach1 - Horde control
-                FillInitialWorldState(data, 0xe2c, 0x0);       // 28 3628 Beach2 - Horde control
-                FillInitialWorldState(data, 0xe2b, 0x0);       // 29 3627 Beach1 - Alliance control
-                FillInitialWorldState(data, 0xe2a, 0x0);       // 30 3626 Beach2 - Alliance control
+                FillInitialWorldState(data, BG_SA_CENTER_GY_ALLIANCE, 0x0);       // 19 3637 East g - Horde control
+                FillInitialWorldState(data, BG_SA_RIGHT_GY_ALLIANCE, 0x0);       // 20 3636 West g - Horde control
+                FillInitialWorldState(data, BG_SA_LEFT_GY_ALLIANCE, 0x0);       // 21 3635 South g - Horde control
+                FillInitialWorldState(data, BG_SA_CENTER_GY_HORDE, 0x0);       // 22 3634 East g - Alliance control
+                FillInitialWorldState(data, BG_SA_LEFT_GY_HORDE, 0x0);       // 23 3633 West g - Alliance control
+                FillInitialWorldState(data, BG_SA_RIGHT_GY_HORDE, 0x0);       // 24 3632 South g - Alliance control
+                FillInitialWorldState(data, BG_SA_HORDE_DEFENCE_TOKEN, 0x0);       // 25 3631 Chamber of Ancients - Horde control
+                FillInitialWorldState(data, BG_SA_ALLIANCE_DEFENCE_TOKEN, 0x0);       // 26 3630 Chamber of Ancients - Alliance control
+                FillInitialWorldState(data, BG_SA_LEFT_ATT_TOKEN_HRD, 0x0);       // 27 3629 Beach1 - Horde control
+                FillInitialWorldState(data, BG_SA_RIGHT_ATT_TOKEN_HRD, 0x0);       // 28 3628 Beach2 - Horde control
+                FillInitialWorldState(data, BG_SA_RIGHT_ATT_TOKEN_ALL, 0x0);       // 29 3627 Beach1 - Alliance control
+                FillInitialWorldState(data, BG_SA_LEFT_ATT_TOKEN_ALL, 0x0);       // 30 3626 Beach2 - Alliance control
                 // and many unks...
             }
             break;
@@ -10978,14 +10979,14 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 bg->FillInitialWorldStates(data);
             else
             {
-                FillInitialWorldState(data, 0x62d, 0x0);       //  7 1581 alliance flag captures
-                FillInitialWorldState(data, 0x62e, 0x0);       //  8 1582 horde flag captures
-                FillInitialWorldState(data, 0x609, 0x0);       //  9 1545 unk
-                FillInitialWorldState(data, 0x60a, 0x0);       // 10 1546 unk
-                FillInitialWorldState(data, 0x60b, 0x2);       // 11 1547 unk
-                FillInitialWorldState(data, 0x641, 0x3);       // 12 1601 unk
-                FillInitialWorldState(data, 0x922, 0x1);       // 13 2338 horde (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
-                FillInitialWorldState(data, 0x923, 0x1);       // 14 2339 alliance (0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
+                FillInitialWorldState(data, BG_WS_FLAG_CAPTURES_ALLIANCE, 0x0);
+                FillInitialWorldState(data, BG_WS_FLAG_CAPTURES_HORDE, 0x0);
+                FillInitialWorldState(data, BG_WS_FLAG_UNK_ALLIANCE, 0x0);
+                FillInitialWorldState(data, BG_WS_FLAG_UNK_HORDE, 0x0);
+                FillInitialWorldState(data, BG_WS_FLAG_UNKNOWN, 0x2);
+                FillInitialWorldState(data, BG_WS_FLAG_CAPTURES_MAX, 0x3);
+                FillInitialWorldState(data, BG_WS_FLAG_STATE_HORDE, 0x1);
+                FillInitialWorldState(data, BG_WS_FLAG_STATE_ALLIANCE, 0x1);
             }
             break;
         // Battle for Gilneas
@@ -24585,7 +24586,7 @@ void Player::ReportedAfkBy(Player* reporter)
     }
 
     // check if player has 'Idle' or 'Inactive' debuff
-    if (m_bgData.bgAfkReporter.find(reporter->GetGUID().GetCounter()) == m_bgData.bgAfkReporter.end() && !HasAura(43680) && !HasAura(43681) && reporter->CanReportAfkDueToLimit())
+    if (m_bgData.bgAfkReporter.find(reporter->GetGUID().GetCounter()) == m_bgData.bgAfkReporter.end() && !HasAura(43680) && !HasAura(SPELL_BG_AURA_PLAYER_INACTIVE) && reporter->CanReportAfkDueToLimit())
     {
         m_bgData.bgAfkReporter.insert(reporter->GetGUID().GetCounter());
         // 3 players have to complain to apply debuff
@@ -26789,7 +26790,7 @@ bool Player::CanUseBattlegroundObject()
              //i'm not sure if these two are correct, because invisible players should get visible when they click on flag
              !HasStealthAura() &&                           // not stealthed
              !HasInvisibilityAura() &&                      // not invisible
-             !HasAura(SPELL_RECENTLY_DROPPED_FLAG) &&    // can't pickup
+             !HasAura(SPELL_BG_RECENTLY_DROPPED_FLAG) &&    // can't pickup
              isAlive()                                      // live player
 );
 }

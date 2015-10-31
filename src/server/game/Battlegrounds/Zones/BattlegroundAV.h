@@ -52,53 +52,6 @@
 
 #define AV_EVENT_START_BATTLE           9166 // Achievement: The Alterac Blitz
 
-enum BG_AV_Sounds
-{ //TODO: get out if there comes a sound when neutral team captures mine
-
-/*
-8212:
-    alliance grave assault
-    alliance tower assault
-    drek "mlanzenabschaum! In meiner Burg?! Toetet sie all" - nicht immer der sound
-8333:
-    galv "sterbt fuer euch ist kein platz hier"
-
-8332:
-    bal "Verschwinde, dreckiger Abschaum! Die Allianz wird im Alteractal "
-8174:
-    horde tower assault
-    horde grave assault
-    van "es Sturmlanzenklans, euer General wird angegriffen! Ich fordere Unterst"
-8173:
-    ally grave capture/defend
-    tower destroy
-    mine capture
-    ally wins
-8192:
-    ally tower destroy(only iceblood - found a bug^^)
-    ally tower  defend
-    horde tower defend
-8213
-horde:
-    grave defend/capture
-    tower destroy
-    mine capture
-    horde wins
-    */
-
-    AV_SOUND_NEAR_VICTORY                   = 8456, //not confirmed yet
-
-    AV_SOUND_ALLIANCE_ASSAULTS              = 8212, //tower, grave + enemy boss if someone tries to attack him
-    AV_SOUND_HORDE_ASSAULTS                 = 8174,
-    AV_SOUND_ALLIANCE_GOOD                  = 8173, //if something good happens for the team:  wins(maybe only through killing the boss), captures mine or grave, destroys tower and defends grave
-    AV_SOUND_HORDE_GOOD                     = 8213,
-    AV_SOUND_BOTH_TOWER_DEFEND              = 8192,
-
-    AV_SOUND_ALLIANCE_CAPTAIN               = 8232, //gets called when someone attacks them and at the beginning after 3min+rand(x)*10sec (maybe buff)
-    AV_SOUND_HORDE_CAPTAIN                  = 8333,
-
-};
-
 enum BG_AV_OTHER_VALUES
 {
     AV_STATICCPLACE_MAX        = 123,

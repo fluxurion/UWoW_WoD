@@ -192,7 +192,7 @@ bool BattlefieldWG::SetupBattlefield()
     {
         GameObject* go = SpawnGameObject(WGPortalDefenderData[i].entry, WGPortalDefenderData[i].x, WGPortalDefenderData[i].y, WGPortalDefenderData[i].z, WGPortalDefenderData[i].o);
         DefenderPortalList.insert(go);
-        go->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, WintergraspFaction[GetDefenderTeam()]);
+        go->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, BfFactions[GetDefenderTeam()]);
     }
 
     // Spawn banners in the keep
@@ -245,7 +245,7 @@ void BattlefieldWG::OnBattleStart()
     if (m_titansRelic)
     {
         // Update faction of relic, only attacker can click on
-        m_titansRelic->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, WintergraspFaction[GetAttackerTeam()]);
+        m_titansRelic->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, BfFactions[GetAttackerTeam()]);
         // Set in use (not allow to click on before last door is broken)
         m_titansRelic->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
     }
@@ -261,7 +261,7 @@ void BattlefieldWG::OnBattleStart()
             if (Creature* creature = unit->ToCreature())
             {
                 ShowNpc(creature, true);
-                creature->setFaction(WintergraspFaction[GetDefenderTeam()]);
+                creature->setFaction(BfFactions[GetDefenderTeam()]);
             }
         }
     }
@@ -333,7 +333,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
             if (Creature* creature = unit->ToCreature())
             {
                 if (!endByTimer)
-                    creature->setFaction(WintergraspFaction[GetDefenderTeam()]);
+                    creature->setFaction(BfFactions[GetDefenderTeam()]);
                 HideNpc(creature);
             }
         }
@@ -392,7 +392,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
 
     // Update portal defender faction
     for (GameObjectSet::const_iterator itr = DefenderPortalList.begin(); itr != DefenderPortalList.end(); ++itr)
-        (*itr)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, WintergraspFaction[GetDefenderTeam()]);
+        (*itr)->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, BfFactions[GetDefenderTeam()]);
 
     // Saving data
     for (GameObjectBuilding::const_iterator itr = BuildingsInZone.begin(); itr != BuildingsInZone.end(); ++itr)
@@ -404,7 +404,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
     {
         if (Player* player = sObjectAccessor->FindPlayer(*itr))
         {
-            player->PlayDirectSound(GetDefenderTeam()==TEAM_ALLIANCE ? OutdoorPvP_WG_SOUND_ALLIANCE_WINS : OutdoorPvP_WG_SOUND_HORDE_WINS) ; // SoundOnEndWin
+            player->PlayDirectSound(GetDefenderTeam()==TEAM_ALLIANCE ? BG_SOUND_ALLIANCE_WINS : BG_SOUND_HORDE_WINS) ; // SoundOnEndWin
             player->CastSpell(player, SPELL_ESSENCE_OF_WINTERGRASP, true);
             //custom check
             //player->CastSpell(player, SPELL_VICTORY_REWARD, true);
@@ -422,7 +422,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
     for (GuidSet::const_iterator itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
         if (Player* player = sObjectAccessor->FindPlayer(*itr))
         {
-            player->PlayDirectSound(OutdoorPvP_WG_SOUND_NEAR_VICTORY) ; // SoundOnEndLoose
+            player->PlayDirectSound(BG_SOUND_NEAR_VICTORY) ; // SoundOnEndLoose
             //player->CastSpell(player, SPELL_DEFEAT_REWARD, true);
         }
 
@@ -674,9 +674,9 @@ void BattlefieldWG::OnCreatureRemove(Creature* /*creature*/)
             case NPC_WINTERGRASP_DEMOLISHER:
             {
                 uint8 team;
-                if (creature->getFaction() == WintergraspFaction[TEAM_ALLIANCE])
+                if (creature->getFaction() == BfFactions[TEAM_ALLIANCE])
                     team = TEAM_ALLIANCE;
-                else if (creature->getFaction() == WintergraspFaction[TEAM_HORDE])
+                else if (creature->getFaction() == BfFactions[TEAM_HORDE])
                     team = TEAM_HORDE;
                 else
                     return;
@@ -873,7 +873,7 @@ void BattlefieldWG::OnPlayerJoinWar(Player* player)
     player->CastSpell(player, SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA, true);
 
     bool onWg = player->GetZoneId() == m_AreaID; 
-    player->PlayDirectSound(OutdoorPvP_WG_SOUND_START_BATTLE); // START Battle
+    player->PlayDirectSound(BG_SOUND_START); // START Battle
 
     // resurect dead plr
     if(!player->isAlive())
@@ -1079,13 +1079,13 @@ void BattlefieldWG::ProcessEvent(WorldObject *obj, uint32 eventId)
                         for (uint32 team = 0; team < 2; ++team)
                             for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
                                 if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                                    player->PlayDirectSound(GetDefenderTeam()==TEAM_ALLIANCE ? OutdoorPvP_WG_SOUND_KEEP_ASSAULTED_HORDE : OutdoorPvP_WG_SOUND_KEEP_ASSAULTED_ALLIANCE) ; // Wintergrasp Fortress under Siege
+                                    player->PlayDirectSound(GetDefenderTeam()==TEAM_ALLIANCE ? BG_SOUND_FLAG_PICKED_UP_HORDE : BG_SOUND_FLAG_PICKED_UP_ALLIANCE) ; // Wintergrasp Fortress under Siege
                         break;
                     case BATTLEFIELD_WG_OBJECTTYPE_TOWER:
                         for (uint32 team = 0; team < 2; ++team)
                             for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
                                 if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                                    player->PlayDirectSound(GetDefenderTeam()==TEAM_ALLIANCE ? OutdoorPvP_WG_SOUND_KEEP_CAPTURED_HORDE : OutdoorPvP_WG_SOUND_KEEP_CAPTURED_ALLIANCE) ; // Wintergrasp Fortress under Siege
+                                    player->PlayDirectSound(GetDefenderTeam()==TEAM_ALLIANCE ? BG_SOUND_FLAG_CAPTURED_HORDE : BG_SOUND_FLAG_CAPTURED_ALLIANCE) ; // Wintergrasp Fortress under Siege
                         break;
                 }
             }
@@ -1099,13 +1099,13 @@ void BattlefieldWG::ProcessEvent(WorldObject *obj, uint32 eventId)
                         for (uint32 team = 0; team < 2; ++team)
                             for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
                                 if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                                    player->PlayDirectSound(GetDefenderTeam()==TEAM_ALLIANCE ? OutdoorPvP_WG_SOUND_KEEP_CAPTURED_HORDE : OutdoorPvP_WG_SOUND_KEEP_CAPTURED_ALLIANCE) ; // Wintergrasp Fortress under Siege
+                                    player->PlayDirectSound(GetDefenderTeam()==TEAM_ALLIANCE ? BG_SOUND_FLAG_CAPTURED_HORDE : BG_SOUND_FLAG_CAPTURED_ALLIANCE) ; // Wintergrasp Fortress under Siege
                         break;
                     case BATTLEFIELD_WG_OBJECTTYPE_TOWER:
                         for (uint32 team = 0; team < 2; ++team)
                             for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
                                 if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                                    player->PlayDirectSound(GetDefenderTeam()==TEAM_ALLIANCE ? OutdoorPvP_WG_HORDE_CAPTAIN : OutdoorPvP_WG_ALLIANCE_CAPTAIN) ; // Wintergrasp Fortress under Siege
+                                    player->PlayDirectSound(GetDefenderTeam()==TEAM_ALLIANCE ? BG_SOUND_FLAG_PLACED_HORDE : BG_SOUND_FLAG_PLACED_ALLIANCE) ; // Wintergrasp Fortress under Siege
                         break;
                 }
             }
@@ -1214,7 +1214,7 @@ void BattlefieldWG::UpdateTenacity()
 void BattlefieldWG::RewardMarkOfHonor(Player *plr, uint32 count)
 {
     // 'Inactive' this aura prevents the player from gaining honor points and battleground tokens
-    if (plr->HasAura(SPELL_AURA_PLAYER_INACTIVE))
+    if (plr->HasAura(SPELL_BG_AURA_PLAYER_INACTIVE))
         return;
     if (count == 0)
         return;

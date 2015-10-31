@@ -92,13 +92,13 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                     {
                         // FIXME: team and node names not localized
                         SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AB_ALLY, _GetNodeNameId(node));
-                        PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
+                        PlaySoundToAll(BG_SOUND_FLAG_CAPTURED_ALLIANCE);
                     }
                     else
                     {
                         // FIXME: team and node names not localized
                         SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AB_HORDE, _GetNodeNameId(node));
-                        PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
+                        PlaySoundToAll(BG_SOUND_FLAG_CAPTURED_HORDE);
                     }
                 }
             }
@@ -137,7 +137,7 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                         SendMessageToAll(LANG_BG_AB_A_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
                     else
                         SendMessageToAll(LANG_BG_AB_H_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-                    PlaySoundToAll(BG_AB_SOUND_NEAR_VICTORY);
+                    PlaySoundToAll(BG_SOUND_NEAR_VICTORY);
                     m_IsInformedNearVictory = true;
                 }
 
@@ -386,7 +386,7 @@ void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
     if (trigger)
     {
         trigger->setFaction(team == ALLIANCE ? 84 : 83);
-        trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
+        trigger->CastSpell(trigger, SPELL_BG_HONORABLE_DEFENDER_25Y, false);
     }
 }
 
@@ -471,7 +471,7 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
         else
             SendMessage2ToAll(LANG_BG_AB_NODE_CLAIMED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), LANG_BG_AB_HORDE);
 
-        sound = BG_AB_SOUND_NODE_CLAIMED;
+        sound = BG_SOUND_FLAG_RESET;
     }
     // If node is contested
     else if ((m_Nodes[node] == BG_AB_NODE_STATUS_ALLY_CONTESTED) || (m_Nodes[node] == BG_AB_NODE_STATUS_HORDE_CONTESTED))
@@ -515,7 +515,7 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
             else
                 SendMessage2ToAll(LANG_BG_AB_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
         }
-        sound = (teamIndex == BG_TEAM_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
+        sound = (teamIndex == BG_TEAM_ALLIANCE) ? BG_SOUND_FLAG_PICKED_UP_ALLIANCE : BG_SOUND_FLAG_PICKED_UP_HORDE;
     }
     // If node is occupied, change to enemy-contested
     else
@@ -537,7 +537,7 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
         else
             SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
 
-        sound = (teamIndex == BG_TEAM_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
+        sound = (teamIndex == BG_TEAM_ALLIANCE) ? BG_SOUND_FLAG_PICKED_UP_ALLIANCE : BG_SOUND_FLAG_PICKED_UP_HORDE;
     }
 
     // If node is occupied again, send "X has taken the Y" msg.

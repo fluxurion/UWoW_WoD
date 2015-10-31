@@ -30,46 +30,6 @@ enum BG_WS_TimerOrScore
     BG_WS_SPELL_BRUTAL_TIME                 = 900000
 };
 
-enum BG_WS_Sound
-{
-    BG_WS_SOUND_FLAG_CAPTURED_ALLIANCE      = 8173,
-    BG_WS_SOUND_FLAG_CAPTURED_HORDE         = 8213,
-    BG_WS_SOUND_FLAG_PLACED                 = 8232,
-    BG_WS_SOUND_FLAG_RETURNED               = 8192,
-    BG_WS_SOUND_HORDE_FLAG_PICKED_UP        = 8212,
-    BG_WS_SOUND_ALLIANCE_FLAG_PICKED_UP     = 8174,
-    BG_WS_SOUND_FLAGS_RESPAWNED             = 8232
-};
-
-enum BG_WS_SpellId
-{
-    BG_WS_SPELL_HORDE_FLAG                  = 23333,
-    BG_WS_SPELL_HORDE_FLAG_DROPPED          = 23334,
-    BG_WS_SPELL_HORDE_FLAG_PICKED           = 61266,    ///< Fake Spell - Used as a start timer event
-    BG_WS_SPELL_ALLIANCE_FLAG               = 23335,
-    BG_WS_SPELL_ALLIANCE_FLAG_DROPPED       = 23336,
-    BG_WS_SPELL_ALLIANCE_FLAG_PICKED        = 61265,    ///< Fake Spell - Used as a start timer event
-    BG_WS_SPELL_FOCUSED_ASSAULT             = 46392,
-    BG_WS_SPELL_BRUTAL_ASSAULT              = 46393,
-    BG_WS_SPELL_REMOVE_CARRIED_FLAG         = 45919     ///< Need implementation. This spell if casted on each player from 1 faction when the flag is captured / dropped. + Remove unnecesary RemoveauraDueToSpell() from code.
-};
-
-/// To Do: Find what unk world states means and rename
-enum BG_WS_WorldStates
-{
-    BG_WS_FLAG_UNK_ALLIANCE                 = 1545, ///< Value: -1 when alliance flag is dropped | 1 when alliance flag is on player | 0 On base | -2 ???
-    BG_WS_FLAG_UNK_HORDE                    = 1546, ///< Value: -1 when horde flag is dropped    | 1 when horde flag is on player    | 0 On base | -2 ???
-    BG_WS_FLAG_UNKNOWN                      = 1547, ///< -1 before capturing flag, 0 after both flags respawned
-    BG_WS_FLAG_CAPTURES_ALLIANCE            = 1581,
-    BG_WS_FLAG_CAPTURES_HORDE               = 1582,
-    BG_WS_FLAG_CAPTURES_MAX                 = 1601,
-    BG_WS_FLAG_STATE_HORDE                  = 2338,
-    BG_WS_FLAG_STATE_ALLIANCE               = 2339,
-    BG_WS_STATE_TIMER                       = 4248,
-    BG_WS_STATE_TIMER_ACTIVE                = 4247,
-    BG_WS_STATE_UNKNOWN                     = 4249, ///< Used after flag is captured (value: 1)
-};
-
 enum BG_WS_ObjectTypes
 {
     BG_WS_OBJECT_DOOR_A_1       = 0,
@@ -135,19 +95,12 @@ enum BG_WS_CreatureTypes
     BG_CREATURES_MAX_WS       = 2
 };
 
-enum BG_WS_CarrierDebuffs
-{
-    WS_SPELL_FOCUSED_ASSAULT                = 46392,
-    WS_SPELL_BRUTAL_ASSAULT                 = 46393
-};
-
 enum BG_WS_Objectives
 {
     WS_OBJECTIVE_CAPTURE_FLAG   = 42,
     WS_OBJECTIVE_RETURN_FLAG    = 44
 };
 
-#define WS_EVENT_START_BATTLE   8563
 
 // Class for scorekeeping
 class BattlegroundWGScore : public BattlegroundScore

@@ -6389,7 +6389,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                 case 134732: // Battle Fatigue
                 {
                     if (Player* plr = ToPlayer())
-                        if ((plr->InArena() || plr->InRBG()) && HasAura(134735))
+                        if ((plr->InArena() || plr->InRBG()) && HasAura(SPELL_BG_BATTLE_FATIGUE))
                             return false;
 
                     if (Unit * owner = victim->GetOwner())

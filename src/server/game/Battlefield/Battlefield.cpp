@@ -761,7 +761,7 @@ void BfGraveyard::AddPlayer(ObjectGuid playerGuid)
         m_ResurrectQueue.insert(playerGuid);
 
         if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
-            player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
+            player->CastSpell(player, SPELL_BG_WAITING_FOR_RESURRECT, true);
     }
 }
 
@@ -770,7 +770,7 @@ void BfGraveyard::RemovePlayer(ObjectGuid playerGuid)
     m_ResurrectQueue.erase(m_ResurrectQueue.find(playerGuid));
 
     if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
-        player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
+        player->RemoveAurasDueToSpell(SPELL_BG_WAITING_FOR_RESURRECT);
 }
 
 void BfGraveyard::Resurrect()
@@ -788,14 +788,14 @@ void BfGraveyard::Resurrect()
         // Check  if the player is in world and on the good graveyard
         if (player->IsInWorld())
             if (Unit* spirit = ObjectAccessor::FindUnit(m_SpiritGuide[m_ControlTeam]))
-                spirit->CastSpell(spirit, SPELL_SPIRIT_HEAL, true);
+                spirit->CastSpell(spirit, SPELL_BG_SPIRIT_HEAL, true);
 
         // Resurect player
-        player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
+        player->CastSpell(player, SPELL_BG_RESURRECTION_VISUAL, true);
         player->ResurrectPlayer(1.0f);
         player->CastSpell(player, 6962, true);
-        player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
-        player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
+        player->CastSpell(player, SPELL_BG_SPIRIT_HEAL_MANA, true);
+        player->RemoveAurasDueToSpell(SPELL_BG_WAITING_FOR_RESURRECT);
 
         sObjectAccessor->ConvertCorpseForPlayer(player->GetGUID());
     }

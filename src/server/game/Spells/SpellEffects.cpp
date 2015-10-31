@@ -386,7 +386,7 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
             pet->CastPetAuras(false, m_spellInfo->Id);
     }
 
-    if (unitTarget->HasAura(44521) || unitTarget->HasAura(32727)) // BG and Arena Preparation
+    if (unitTarget->HasAura(SPELL_BG_PREPARATION) || unitTarget->HasAura(SPELL_BG_ARENA_PREPARATION))
         return;
 
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)

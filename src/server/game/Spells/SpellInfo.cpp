@@ -2094,18 +2094,18 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             return ((player && player->InBattleground()) ? SPELL_FAILED_NOT_IN_BATTLEGROUND : SPELL_CAST_OK);
         case 29534:                                         // Traces of Silithyst
             return zone_id == 1377 ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
-        case 23333:                                         // Warsong Flag
-        case 23335:                                         // Silverwing Flag
+        case SPELL_BG_HORDE_FLAG:
+        case SPELL_BG_ALLIANCE_FLAG:
             return (map_id == 489 || map_id == 726) && player && player->InBattleground() ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         case 34976:                                         // Netherstorm Flag
             return map_id == 566 && player && player->InBattleground() ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
-        case 2584:                                          // Waiting to Resurrect
-        case 22011:                                         // Spirit Heal Channel
-        case 22012:                                         // Spirit Heal
-        case 24171:                                         // Resurrection Impact Visual
-        case 42792:                                         // Recently Dropped Flag
-        case 43681:                                         // Inactive
-        case 44535:                                         // Spirit Heal (mana)
+        case SPELL_BG_WAITING_FOR_RESURRECT:
+        case SPELL_BG_SPIRIT_HEAL_CHANNEL:
+        case SPELL_BG_SPIRIT_HEAL:
+        case SPELL_BG_RESURRECTION_VISUAL:
+        case SPELL_BG_RECENTLY_DROPPED_FLAG:
+        case SPELL_BG_AURA_PLAYER_INACTIVE:
+        case SPELL_BG_SPIRIT_HEAL_MANA:
         {
             MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
             if (!mapEntry)
@@ -2113,7 +2113,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
 
             return zone_id == 4197 || (mapEntry->IsBattleground() && player && player->InBattleground()) ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         }
-        case 44521:                                         // Preparation
+        case SPELL_BG_PREPARATION:
         {
             if (!player)
                 return SPELL_FAILED_REQUIRES_AREA;
@@ -2128,10 +2128,10 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
             Battleground* bg = player->GetBattleground();
             return bg && bg->GetStatus() == STATUS_WAIT_JOIN ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         }
-        case 32724:                                         // Gold Team (Alliance)
-        case 32725:                                         // Green Team (Alliance)
-        case 35774:                                         // Gold Team (Horde)
-        case 35775:                                         // Green Team (Horde)
+        case SPELL_BG_ALLIANCE_GOLD_FLAG:
+        case SPELL_BG_ALLIANCE_GREEN_FLAG:
+        case SPELL_BG_HORDE_GOLD_FLAG:
+        case SPELL_BG_HORDE_GREEN_FLAG:
         {
             MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
             if (!mapEntry)
@@ -2139,7 +2139,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
 
             return mapEntry->IsBattlegroundOrArena() && player && player->InBattleground() ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         }
-        case 32727:                                         // Arena Preparation
+        case SPELL_BG_ARENA_PREPARATION:
         {
             if (!player)
                 return SPELL_FAILED_REQUIRES_AREA;
@@ -2748,7 +2748,7 @@ uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
 
     // hack -- no cast time while prep
     if(sWorld->getBoolConfig(CONFIG_FUN_OPTION_ENABLED) && caster)
-        if (caster->HasAura(SPELL_PREPARATION) || caster->HasAura(SPELL_ARENA_PREPARATION))
+        if (caster->HasAura(SPELL_BG_PREPARATION) || caster->HasAura(SPELL_BG_ARENA_PREPARATION))
             return 0;
 
     // not all spells have cast time index and this is all is pasiive abilities

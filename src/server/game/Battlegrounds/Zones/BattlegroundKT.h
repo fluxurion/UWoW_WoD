@@ -26,7 +26,6 @@ enum BG_KT_NPC
 };
 
 #define BG_KT_MAX_TEAM_SCORE        1500
-#define BG_KT_EVENT_START_BATTLE    8563
 #define BG_KT_OBJECTIVE_ORB_COUNT   419
 
 enum BG_KT_Objects
@@ -66,14 +65,6 @@ enum BG_KT_Objets_Entry
     BG_KT_OBJECT_ORB_4_ENTRY    = 212094
 };
 
-enum BG_KT_Sound
-{
-    BG_KT_SOUND_ORB_PLACED      = 8232,
-    BG_KT_SOUND_A_ORB_PICKED_UP = 8174,
-    BG_KT_SOUND_H_ORB_PICKED_UP = 8174,
-    BG_KT_SOUND_ORB_RESPAWNED   = 8232
-};
-
 enum BG_KT_SpellId
 {
     BG_KT_SPELL_ORB_PICKED_UP_1 = 121176,   // GREEN
@@ -97,8 +88,6 @@ enum BG_KT_WorldStates
 	BG_KT_ORB_POINTS_A          = 6303,
 	BG_KT_ORB_POINTS_H          = 6304,
     BG_KT_ORB_STATE             = 6309,
-    BG_KT_TIME_ENABLED          = 4247,
-    BG_KT_TIME_REMAINING        = 4248
 };
 
 enum BG_KT_Graveyards

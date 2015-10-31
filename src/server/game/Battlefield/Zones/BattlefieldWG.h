@@ -26,10 +26,7 @@
 #include "GroupMgr.h"
 #include "Battlefield.h"
 
-uint32 const VehNumWorldState[2]        = { 3680, 3490 };
-uint32 const MaxVehNumWorldState[2]     = { 3681, 3491 };
 uint32 const ClockWorldState[2]         = { 3781, 4354 };
-uint32 const WintergraspFaction[3]      = { 1732, 1735, 35 };
 float const WintergraspStalkerPos[4]    = { 0, 0, 0, 0 };
 
 class BattlefieldWG;
@@ -105,20 +102,8 @@ enum WGQuestCredit
 
 enum Wintergrasp_Sounds
 {
-    OutdoorPvP_WG_SOUND_KEEP_CLAIMED            = 8192,
-    OutdoorPvP_WG_SOUND_KEEP_CAPTURED_ALLIANCE  = 8173,
-    OutdoorPvP_WG_SOUND_KEEP_CAPTURED_HORDE     = 8213,
-    OutdoorPvP_WG_SOUND_KEEP_ASSAULTED_ALLIANCE = 8212,
-    OutdoorPvP_WG_SOUND_KEEP_ASSAULTED_HORDE    = 8174,
-    OutdoorPvP_WG_SOUND_NEAR_VICTORY            = 8456,
-    OutdoorPvP_WG_SOUND_HORDE_WINS              = 8454,
-    OutdoorPvP_WG_SOUND_ALLIANCE_WINS           = 8455,
     OutdoorPvP_WG_SOUND_WORKSHOP_Horde          = 6205, // время убивать орда
     OutdoorPvP_WG_SOUND_WORKSHOP_ALLIANCE       = 6298, // к оружию альянс
-    OutdoorPvP_WG_HORDE_CAPTAIN                 = 8333,
-    OutdoorPvP_WG_ALLIANCE_CAPTAIN              = 8232,
-//    OutdoorPvP_WG_SOUND_START_BATTLE            = 11803,   //L70ETC Concert
-    OutdoorPvP_WG_SOUND_START_BATTLE            = 3439, //Standart BG Start sound
 };
 
 enum WintergraspData
@@ -165,6 +150,9 @@ enum WintergraspWorldStates
     BATTLEFIELD_WG_WORLD_STATE_ATTACKER          = 3803,
     BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE   = 3710,
 };
+
+uint32 const VehNumWorldState[2]        = { BATTLEFIELD_WG_WORLD_STATE_VEHICLE_A, BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H };
+uint32 const MaxVehNumWorldState[2]     = { BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_A, BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H };
 
 enum WintergraspAreaIds
 {
@@ -1243,7 +1231,7 @@ struct BfWGGameObjectBuilding
             m_WG->SendUpdateWorldState(m_WorldState, m_State);
         }
         UpdateCreatureAndGo();
-        m_Build->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, WintergraspFaction[m_Team]);
+        m_Build->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, BfFactions[m_Team]);
     }
 
     // Called when associated gameobject is damaged
@@ -1430,12 +1418,12 @@ struct BfWGGameObjectBuilding
                         case GO_WINTERGRASP_FORTRESS_TOWER_2:
                         case GO_WINTERGRASP_FORTRESS_TOWER_3:
                         case GO_WINTERGRASP_FORTRESS_TOWER_4:
-                            turret->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
+                            turret->setFaction(BfFactions[m_WG->GetDefenderTeam()]);
                             break;
                         case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
                         case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
                         case GO_WINTERGRASP_FLAMEWATCH_TOWER:
-                            turret->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
+                            turret->setFaction(BfFactions[m_WG->GetAttackerTeam()]);
                             break;
                     }
                     m_WG->HideNpc(turret);
@@ -1456,12 +1444,12 @@ struct BfWGGameObjectBuilding
                         case GO_WINTERGRASP_FORTRESS_TOWER_2:
                         case GO_WINTERGRASP_FORTRESS_TOWER_3:
                         case GO_WINTERGRASP_FORTRESS_TOWER_4:
-                            turret->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
+                            turret->setFaction(BfFactions[m_WG->GetDefenderTeam()]);
                             break;
                         case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
                         case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
                         case GO_WINTERGRASP_FLAMEWATCH_TOWER:
-                            turret->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
+                            turret->setFaction(BfFactions[m_WG->GetAttackerTeam()]);
                             break;
                     }
                     m_WG->HideNpc(turret);
@@ -1522,14 +1510,14 @@ struct BfWGGameObjectBuilding
                             case GO_WINTERGRASP_FORTRESS_TOWER_3:
                             case GO_WINTERGRASP_FORTRESS_TOWER_4:
                             {
-                                creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
+                                creature->setFaction(BfFactions[m_WG->GetDefenderTeam()]);
                                 break;
                             }
                             case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
                             case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
                             case GO_WINTERGRASP_FLAMEWATCH_TOWER:
                             {
-                                creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
+                                creature->setFaction(BfFactions[m_WG->GetAttackerTeam()]);
                                 break;
                             }
                         }
@@ -1558,14 +1546,14 @@ struct BfWGGameObjectBuilding
                             case GO_WINTERGRASP_FORTRESS_TOWER_3:
                             case GO_WINTERGRASP_FORTRESS_TOWER_4:
                             {
-                                creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
+                                creature->setFaction(BfFactions[m_WG->GetDefenderTeam()]);
                                 break;
                             }
                             case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
                             case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
                             case GO_WINTERGRASP_FLAMEWATCH_TOWER:
                             {
-                                creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
+                                creature->setFaction(BfFactions[m_WG->GetAttackerTeam()]);
                                 break;
                             }
                         }

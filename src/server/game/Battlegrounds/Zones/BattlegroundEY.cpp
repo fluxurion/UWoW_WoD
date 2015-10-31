@@ -554,7 +554,7 @@ void BattlegroundEY::RespawnFlag(bool send_message)
     if (send_message)
     {
         SendMessageToAll(LANG_BG_EY_RESETED_FLAG, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-        PlaySoundToAll(BG_EY_SOUND_FLAG_RESET);             // flags respawned sound...
+        PlaySoundToAll(BG_SOUND_FLAG_RESET);             // flags respawned sound...
     }
 
     UpdateWorldState(NETHERSTORM_FLAG, 1);
@@ -606,7 +606,7 @@ void BattlegroundEY::EventPlayerDroppedFlag(Player* Source)
     Source->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
     m_FlagState = BG_EY_FLAG_STATE_ON_GROUND;
     m_FlagsTimer = BG_EY_FLAG_RESPAWN_TIME;
-    Source->CastSpell(Source, SPELL_RECENTLY_DROPPED_FLAG, true);
+    Source->CastSpell(Source, SPELL_BG_RECENTLY_DROPPED_FLAG, true);
     Source->CastSpell(Source, BG_EY_PLAYER_DROPPED_FLAG_SPELL, true);
     //this does not work correctly :((it should remove flag carrier name)
     UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
@@ -626,12 +626,12 @@ void BattlegroundEY::EventPlayerClickedOnFlag(Player* Source, GameObject* target
     if (Source->GetTeam() == ALLIANCE)
     {
         UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_ON_PLAYER);
-        PlaySoundToAll(BG_EY_SOUND_FLAG_PICKED_UP_ALLIANCE);
+        PlaySoundToAll(BG_SOUND_FLAG_PICKED_UP_ALLIANCE);
     }
     else
     {
         UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_ON_PLAYER);
-        PlaySoundToAll(BG_EY_SOUND_FLAG_PICKED_UP_HORDE);
+        PlaySoundToAll(BG_SOUND_FLAG_PICKED_UP_HORDE);
     }
 
     if (m_FlagState == BG_EY_FLAG_STATE_ON_BASE)
@@ -761,7 +761,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* Source, uint32 Point)
     if (trigger)
     {
         trigger->setFaction(Team == ALLIANCE ? 84 : 83);
-        trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
+        trigger->CastSpell(trigger, SPELL_BG_HONORABLE_DEFENDER_25Y, false);
     }
 }
 
@@ -777,9 +777,9 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* Source, uint32 BgObjectType
     Source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 
     if (Source->GetTeam() == ALLIANCE)
-        PlaySoundToAll(BG_EY_SOUND_FLAG_CAPTURED_ALLIANCE);
+        PlaySoundToAll(BG_SOUND_FLAG_CAPTURED_ALLIANCE);
     else
-        PlaySoundToAll(BG_EY_SOUND_FLAG_CAPTURED_HORDE);
+        PlaySoundToAll(BG_SOUND_FLAG_CAPTURED_HORDE);
 
     SpawnBGObject(BgObjectType, RESPAWN_IMMEDIATELY);
 

@@ -36,12 +36,43 @@ class BattlegroundMap;
 struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
 
+enum SharedWorldStates
+{
+    BG_WS_ENABLE_TIMER              = 4247,
+    BG_WS_CURRENT_TIMER             = 4248,
+    BG_WS_UNKNOWN                   = 4249, ///< Used after flag is captured (value: 1)
+    BG_WS_FLAG_UNK_ALLIANCE         = 1545, ///< Value: -1 when alliance flag is dropped | 1 when alliance flag is on player | 0 On base | -2 ???
+    BG_WS_FLAG_UNK_HORDE            = 1546, ///< Value: -1 when horde flag is dropped    | 1 when horde flag is on player    | 0 On base | -2 ???
+    BG_WS_FLAG_UNKNOWN              = 1547, ///< -1 before capturing flag, 0 after both flags respawned
+    BG_WS_FLAG_CAPTURES_ALLIANCE    = 1581,
+    BG_WS_FLAG_CAPTURES_HORDE       = 1582,
+    BG_WS_FLAG_CAPTURES_MAX         = 1601,
+    BG_WS_FLAG_STATE_HORDE          = 2338, ///< 0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
+    BG_WS_FLAG_STATE_ALLIANCE       = 2339, ///< 0 - hide, 1 - flag ok, 2 - flag picked up (flashing), 3 - flag picked up (not flashing)
+    BG_WS_BATTLE_TIMER              = 5333,
+    BG_WS_NEXT_BATTLE_TIMER         = 5332,
+};
+
+enum BattlegroundMisc
+{
+    BG_EVENT_START_BATTLE           = 8563,
+};
+
 enum BattlegroundSounds
 {
-    SOUND_HORDE_WINS                = 8454,
-    SOUND_ALLIANCE_WINS             = 8455,
-    SOUND_BG_START                  = 3439,
-    SOUND_BG_START_L70ETC           = 11803,
+    BG_SOUND_START                      = 3439,
+    BG_SOUND_NEAR_VICTORY               = 8456,
+    BG_SOUND_FLAG_RESET                 = 8192,
+
+    BG_SOUND_ALLIANCE_WINS              = 8455,
+    BG_SOUND_FLAG_CAPTURED_ALLIANCE     = 8173,
+    BG_SOUND_FLAG_PICKED_UP_ALLIANCE    = 8212,
+    BG_SOUND_FLAG_PLACED_ALLIANCE       = 8232,
+
+    BG_SOUND_HORDE_WINS                 = 8454,
+    BG_SOUND_FLAG_CAPTURED_HORDE        = 8213,
+    BG_SOUND_FLAG_PICKED_UP_HORDE       = 8174,
+    BG_SOUND_FLAG_PLACED_HORDE          = 8333,
 };
 
 enum BattlegroundQuests
@@ -85,26 +116,50 @@ enum BattlegroundCreatures
     BG_CREATURE_ENTRY_H_SPIRITGUIDE      = 13117,           // horde
 };
 
+enum BattlegroundFactions
+{
+    BG_FACTION_ALLIANCE     = 1732,
+    BG_FACTION_HORDE        = 1735,
+    BG_FACTION_VILLIAN      = 35,
+
+    BG_MAX_FACTIONS         = 2,
+    BF_MAX_FACTIONS         = 3,
+};
+
+uint32 const BgFactions[BG_MAX_FACTIONS] = { BG_FACTION_ALLIANCE, BG_FACTION_HORDE };
+uint32 const BfFactions[BF_MAX_FACTIONS] = { BG_FACTION_ALLIANCE, BG_FACTION_HORDE, BG_FACTION_VILLIAN };
+
 enum BattlegroundSpells
 {
-    SPELL_WAITING_FOR_RESURRECT     = 2584,                 // Waiting to Resurrect
-    SPELL_SPIRIT_HEAL_CHANNEL       = 22011,                // Spirit Heal Channel
-    SPELL_SPIRIT_HEAL               = 22012,                // Spirit Heal
-    SPELL_RESURRECTION_VISUAL       = 24171,                // Resurrection Impact Visual
-    SPELL_ARENA_PREPARATION         = 32727,                // use this one, 32728 not correct
-    SPELL_ALLIANCE_GOLD_FLAG        = 32724,
-    SPELL_ALLIANCE_GREEN_FLAG       = 32725,
-    SPELL_HORDE_GOLD_FLAG           = 35774,
-    SPELL_HORDE_GREEN_FLAG          = 35775,
-    SPELL_PREPARATION               = 44521,                // Preparation
-    SPELL_SPIRIT_HEAL_MANA          = 44535,                // Spirit Heal
-    SPELL_RECENTLY_DROPPED_FLAG     = 42792,                // Recently Dropped Flag
-    SPELL_AURA_PLAYER_INACTIVE      = 43681,                // Inactive
-    SPELL_HONORABLE_DEFENDER_25Y    = 68652,                // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
-    SPELL_HONORABLE_DEFENDER_60Y    = 66157,                // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
-    SPELL_THE_LAST_STANDING         = 26549,                // Arena achievement related
-    SPELL_ARENA_DUMPENING           = 110310,               // Arena. Cast on all every 10 sec.
-    SPELL_BATTLE_FATIGUE            = 134735
+    SPELL_BG_FOCUSED_ASSAULT            = 46392,
+    SPELL_BG_BRUTAL_ASSAULT             = 46393,
+
+    SPELL_BG_HORDE_FLAG                 = 23333,
+    SPELL_BG_HORDE_FLAG_DROPPED         = 23334,
+    SPELL_BG_HORDE_FLAG_PICKED_UP       = 61266,    ///< Fake Spell - Used as a start timer event
+    SPELL_BG_HORDE_GOLD_FLAG            = 35774,
+    SPELL_BG_HORDE_GREEN_FLAG           = 35775,
+
+    SPELL_BG_ALLIANCE_FLAG              = 23335,
+    SPELL_BG_ALLIANCE_FLAG_DROPPED      = 23336,
+    SPELL_BG_ALLIANCE_FLAG_PICKED_UP    = 61265,    ///< Fake Spell - Used as a start timer event
+    SPELL_BG_ALLIANCE_GOLD_FLAG         = 32724,
+    SPELL_BG_ALLIANCE_GREEN_FLAG        = 32725,
+
+    SPELL_BG_WAITING_FOR_RESURRECT      = 2584,
+    SPELL_BG_SPIRIT_HEAL_CHANNEL        = 22011,
+    SPELL_BG_SPIRIT_HEAL                = 22012,
+    SPELL_BG_RESURRECTION_VISUAL        = 24171,
+    SPELL_BG_ARENA_PREPARATION          = 32727,
+    SPELL_BG_PREPARATION                = 44521,
+    SPELL_BG_SPIRIT_HEAL_MANA           = 44535,
+    SPELL_BG_RECENTLY_DROPPED_FLAG      = 42792,
+    SPELL_BG_AURA_PLAYER_INACTIVE       = 43681,
+    SPELL_BG_HONORABLE_DEFENDER_25Y     = 68652,
+    SPELL_BG_HONORABLE_DEFENDER_60Y     = 66157,
+    SPELL_BG_THE_LAST_STANDING          = 26549,
+    SPELL_BG_ARENA_DUMPENING            = 110310,
+    SPELL_BG_BATTLE_FATIGUE             = 134735,
 };
 
 enum BattlegroundTimeIntervals

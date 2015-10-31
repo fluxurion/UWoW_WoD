@@ -253,7 +253,7 @@ void BattlegroundAV::UpdateScore(uint16 team, int16 points)
         else if (!m_IsInformedNearVictory[teamindex] && m_Team_Scores[teamindex] < SEND_MSG_NEAR_LOSE)
         {
             SendMessageToAll(teamindex == BG_TEAM_HORDE?LANG_BG_AV_H_NEAR_LOSE:LANG_BG_AV_A_NEAR_LOSE, teamindex == BG_TEAM_HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE);
-            PlaySoundToAll(AV_SOUND_NEAR_VICTORY);
+            PlaySoundToAll(BG_SOUND_NEAR_VICTORY);
             m_IsInformedNearVictory[teamindex] = true;
         }
     }
@@ -325,7 +325,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         if (Creature* trigger = AddCreature(WORLD_TRIGGER, triggerSpawnID, BG_AV_CreatureInfo[creature->GetEntry()][1], BG_AV_CreaturePos[triggerSpawnID][0], BG_AV_CreaturePos[triggerSpawnID][1], BG_AV_CreaturePos[triggerSpawnID][2], BG_AV_CreaturePos[triggerSpawnID][3]))
         {
             trigger->setFaction(newFaction);
-            trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
+            trigger->CastSpell(trigger, SPELL_BG_HONORABLE_DEFENDER_25Y, false);
         }
     }
 
@@ -630,7 +630,7 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
     if (team != ALLIANCE && team != HORDE)
         team = AV_NEUTRAL_TEAM;
     else
-        PlaySoundToAll((team == ALLIANCE)?AV_SOUND_ALLIANCE_GOOD:AV_SOUND_HORDE_GOOD);
+        PlaySoundToAll((team == ALLIANCE)?BG_SOUND_FLAG_CAPTURED_ALLIANCE:BG_SOUND_FLAG_CAPTURED_HORDE);
 
     if (m_Mine_Owner[mine] == team && !initial)
         return;
@@ -769,7 +769,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
             return;
         }
         trigger->setFaction(owner == ALLIANCE ? 84 : 83);
-        trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
+        trigger->CastSpell(trigger, SPELL_BG_HONORABLE_DEFENDER_25Y, false);
     }
 }
 void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
@@ -943,9 +943,9 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
     //update the statistic for the defending player
     UpdatePlayerScore(player, (IsTower(node)) ? SCORE_TOWERS_DEFENDED : SCORE_GRAVEYARDS_DEFENDED, 1);
     if (IsTower(node))
-        PlaySoundToAll(AV_SOUND_BOTH_TOWER_DEFEND);
+        PlaySoundToAll(BG_SOUND_FLAG_RESET);
     else
-        PlaySoundToAll((team == ALLIANCE)?AV_SOUND_ALLIANCE_GOOD:AV_SOUND_HORDE_GOOD);
+        PlaySoundToAll((team == ALLIANCE)?BG_SOUND_FLAG_CAPTURED_ALLIANCE:BG_SOUND_FLAG_CAPTURED_HORDE);
 }
 
 void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
@@ -1056,7 +1056,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
         YellToAll(creature, buf, LANG_UNIVERSAL);
     //update the statistic for the assaulting player
     UpdatePlayerScore(player, (IsTower(node)) ? SCORE_TOWERS_ASSAULTED : SCORE_GRAVEYARDS_ASSAULTED, 1);
-    PlaySoundToAll((team == ALLIANCE)?AV_SOUND_ALLIANCE_ASSAULTS:AV_SOUND_HORDE_ASSAULTS);
+    PlaySoundToAll((team == ALLIANCE)?BG_SOUND_FLAG_PICKED_UP_ALLIANCE:BG_SOUND_FLAG_PICKED_UP_HORDE);
 }
 
 void BattlegroundAV::FillInitialWorldStates(WorldPacket& data)

@@ -21,12 +21,6 @@
 
 class Battleground;
 
-const uint32 BG_IC_Factions[2] =
-{
-    1732, // Alliance
-    1735  // Horde
-};
-
 enum creaturesIC
 {
     NPC_HIGH_COMMANDER_HALFORD_WYRMBANE = 34924, // Alliance Boss

@@ -313,8 +313,8 @@ void Battleground::Update(uint32 diff)
                         SetStartDelayTime(Seconds(10));
                         for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
                             if (Player* player = sObjectAccessor->FindPlayer(itr->first))
-                                if (!player->HasAura(SPELL_ARENA_DUMPENING))
-                                    player->CastSpell(player, SPELL_ARENA_DUMPENING, true);
+                                if (!player->HasAura(SPELL_BG_ARENA_DUMPENING))
+                                    player->CastSpell(player, SPELL_BG_ARENA_DUMPENING, true);
                     }
                 }
             } else
@@ -390,11 +390,11 @@ inline void Battleground::_ProcessRessurect(uint32 diff)
                     {
                         sh = player->GetMap()->GetCreature(itr->first);
                         if (sh)
-                            sh->CastSpell(sh, SPELL_SPIRIT_HEAL, true);
+                            sh->CastSpell(sh, SPELL_BG_SPIRIT_HEAL, true);
                     }
 
                     // Resurrection visual
-                    player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
+                    player->CastSpell(player, SPELL_BG_RESURRECTION_VISUAL, true);
                     m_ResurrectQueue.push_back(*itr2);
                 }
                 (itr->second).clear();
@@ -414,7 +414,7 @@ inline void Battleground::_ProcessRessurect(uint32 diff)
                 continue;
             player->ResurrectPlayer(1.0f);
             player->CastSpell(player, 6962, true);
-            player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
+            player->CastSpell(player, SPELL_BG_SPIRIT_HEAL_MANA, true);
             sObjectAccessor->ConvertCorpseForPlayer(*itr);
         }
         m_ResurrectQueue.clear();
@@ -562,7 +562,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     // Remove preparation send plr updates, but on some cases it not work
 
 
-                    player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
+                    player->RemoveAurasDueToSpell(SPELL_BG_ARENA_PREPARATION);
                     player->ResetAllPowers();
 
                     // remove auras with duration lower than 30s
@@ -585,12 +585,12 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             CheckArenaWinConditions();
         } else
         {
-            PlaySoundToAll(SOUND_BG_START);
+            PlaySoundToAll(BG_SOUND_START);
 
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 {
-                    player->RemoveAurasDueToSpell(SPELL_PREPARATION);
+                    player->RemoveAurasDueToSpell(SPELL_BG_PREPARATION);
                     player->ResetAllPowers();
                 }
             // Announce BG starting
@@ -793,12 +793,12 @@ void Battleground::EndBattleground(uint32 winner)
     if (winner == ALLIANCE)
     {
         winmsg_id = isBattleground() ? LANG_BG_A_WINS : LANG_ARENA_GOLD_WINS;
-        PlaySoundToAll(SOUND_ALLIANCE_WINS);                // alliance wins sound
+        PlaySoundToAll(BG_SOUND_ALLIANCE_WINS);                // alliance wins sound
         SetWinner(WINNER_ALLIANCE);
     } else if (winner == HORDE)
     {
         winmsg_id = isBattleground() ? LANG_BG_H_WINS : LANG_ARENA_GREEN_WINS;
-        PlaySoundToAll(SOUND_HORDE_WINS);                   // horde wins sound
+        PlaySoundToAll(BG_SOUND_HORDE_WINS);                   // horde wins sound
         SetWinner(WINNER_HORDE);
     } else
     {
@@ -844,7 +844,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         // Last standing - Rated 5v5 arena & be solely alive player
         if (team == winner && isArena() && isRated() && GetJoinType() == ARENA_TYPE_5v5 && aliveWinners == 1 && player->isAlive())
-            player->CastSpell(player, SPELL_THE_LAST_STANDING, true);
+            player->CastSpell(player, SPELL_BG_THE_LAST_STANDING, true);
 
         if (!player->isAlive())
         {
@@ -880,8 +880,8 @@ void Battleground::EndBattleground(uint32 winner)
         uint32 loser_bonus = player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
 
         // remove temporary currency bonus auras before rewarding player
-        player->RemoveAura(SPELL_HONORABLE_DEFENDER_25Y);
-        player->RemoveAura(SPELL_HONORABLE_DEFENDER_60Y);
+        player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_25Y);
+        player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_60Y);
 
         // Reward winner team
         if (team == winner)
@@ -1065,7 +1065,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             if (realTeam != team)
                 player->setFactionForRace(player->getRace());
         }
-        player->RemoveAura(SPELL_BATTLE_FATIGUE);
+        player->RemoveAura(SPELL_BG_BATTLE_FATIGUE);
     }
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
@@ -1244,7 +1244,7 @@ void Battleground::AddPlayer(Player* player)
         if (realTeam != team)
             player->setFaction(team == ALLIANCE ? 1 : 2);
 
-        player->CastSpell(player, SPELL_BATTLE_FATIGUE, true);
+        player->CastSpell(player, SPELL_BG_BATTLE_FATIGUE, true);
     }
 
     // add arena specific auras
@@ -1268,25 +1268,25 @@ void Battleground::AddPlayer(Player* player)
         if (team == ALLIANCE)                                // gold
         {
             if (player->GetTeam() == HORDE)
-                player->CastSpell(player, SPELL_HORDE_GOLD_FLAG, true);
+                player->CastSpell(player, SPELL_BG_HORDE_GOLD_FLAG, true);
             else
-                player->CastSpell(player, SPELL_ALLIANCE_GOLD_FLAG, true);
+                player->CastSpell(player, SPELL_BG_ALLIANCE_GOLD_FLAG, true);
         } else                                                // green
         {
             if (player->GetTeam() == HORDE)
-                player->CastSpell(player, SPELL_HORDE_GREEN_FLAG, true);
+                player->CastSpell(player, SPELL_BG_HORDE_GREEN_FLAG, true);
             else
-                player->CastSpell(player, SPELL_ALLIANCE_GREEN_FLAG, true);
+                player->CastSpell(player, SPELL_BG_ALLIANCE_GREEN_FLAG, true);
         }
 
-        player->CastSpell(player, SPELL_BATTLE_FATIGUE, true);
+        player->CastSpell(player, SPELL_BG_BATTLE_FATIGUE, true);
 
         player->DestroyConjuredItems(true);
         player->UnsummonPetTemporaryIfAny();
 
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
-            player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
+            player->CastSpell(player, SPELL_BG_ARENA_PREPARATION, true);
             player->ResetAllPowers(true);
         }
 
@@ -1302,7 +1302,7 @@ void Battleground::AddPlayer(Player* player)
     } else
     {
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
-            player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
+            player->CastSpell(player, SPELL_BG_PREPARATION, true);   // reduces all mana cost of spells.
     }
 
     // setup BG group membership
@@ -1534,7 +1534,7 @@ void Battleground::AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid pla
     if (!player)
         return;
 
-    player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
+    player->CastSpell(player, SPELL_BG_WAITING_FOR_RESURRECT, true);
 }
 
 void Battleground::RemovePlayerFromResurrectQueue(ObjectGuid player_guid)
@@ -1547,7 +1547,7 @@ void Battleground::RemovePlayerFromResurrectQueue(ObjectGuid player_guid)
             {
                 (itr->second).erase(itr2);
                 if (Player* player = ObjectAccessor::FindPlayer(player_guid))
-                    player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
+                    player->RemoveAurasDueToSpell(SPELL_BG_WAITING_FOR_RESURRECT);
                 return;
             }
         }
@@ -1771,13 +1771,13 @@ BG_CREATURE_ENTRY_A_SPIRITGUIDE :
         creature->SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, creature->GetGUID());
         // aura
         // TODO: Fix display here
-        // creature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
+        // creature->SetVisibleAura(0, SPELL_BG_SPIRIT_HEAL_CHANNEL);
         // casting visual effect
-        creature->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
+        creature->SetUInt32Value(UNIT_FIELD_CHANNEL_SPELL, SPELL_BG_SPIRIT_HEAL_CHANNEL);
         // correct cast speed
         creature->SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);
         creature->SetFloatValue(UNIT_FIELD_MOD_SPELL_HASTE, 1.0f);
-        //creature->CastSpell(creature, SPELL_SPIRIT_HEAL_CHANNEL, true);
+        //creature->CastSpell(creature, SPELL_BG_SPIRIT_HEAL_CHANNEL, true);
         return true;
     }
     sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::AddSpiritGuide: cannot create spirit guide (type: %u, entry: %u) for BG (map: %u, instance id: %u)!",

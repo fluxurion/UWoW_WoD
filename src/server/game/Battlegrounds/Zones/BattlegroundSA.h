@@ -108,10 +108,8 @@ enum BG_SA_WorldStates
     //3568 val 600
     //3549 val. 0.1.2
     //3550 val 0
-    //----
-    //3547 val 300
-    //5332 - 1386411356
-    //5333 - 1386403256
+    //BG_WS_NEXT_BATTLE_TIMER - 1386411356
+    //BG_WS_BATTLE_TIMER - 1386403256
     //5344 - val1
     //5684 - 0
 
@@ -405,12 +403,6 @@ uint32 const BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
     192819,
     192819,
     190753
-};
-
-uint32 const BG_SA_Factions[2] =
-{
-    1732,
-    1735,
 };
 
 enum BG_SA_Graveyards

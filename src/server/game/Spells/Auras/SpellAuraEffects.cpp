@@ -974,8 +974,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                     }
                     break;
                 }
-                case 23333: // Bg: Horde Flag
-                case 23335: // Bg: Alliance Flag
+                case SPELL_BG_HORDE_FLAG:
+                case SPELL_BG_ALLIANCE_FLAG:
                 {
                     if (Player* plr = caster->ToPlayer())
                     {
@@ -6023,7 +6023,7 @@ void AuraEffect::HandleModPowerCostPCT(AuraApplication const* aurApp, uint8 mode
 
     // Preparation
     // This allows changind spec while in battleground
-    if (GetId() == 44521)
+    if (GetId() == SPELL_BG_PREPARATION)
         target->ModifyAuraState(AURA_STATE_UNKNOWN20, apply);
 }
 
@@ -6256,7 +6256,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             if (Creature* caster = target->ToCreature())
                                 caster->SetReactState(REACT_AGGRESSIVE);
                             break;
-                        case 2584: // Waiting to Resurrect
+                        case SPELL_BG_WAITING_FOR_RESURRECT:
                             // Waiting to resurrect spell cancel, we must remove player from resurrect queue
                             if (target->GetTypeId() == TYPEID_PLAYER)
                             {
