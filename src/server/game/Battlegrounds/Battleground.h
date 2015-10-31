@@ -566,6 +566,8 @@ class Battleground
         void UpdateWorldState(uint32 Field, uint32 Value);
         void UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* Source);
         virtual void EndBattleground(uint32 winner);
+        void PlayerReward(Player* player, bool isWinner, uint8 type, bool firstWeekly, bool firstDaily);
+
         void BlockMovement(Player* player);
 
         void SendWarningToAll(int32 entry, ...);

@@ -8234,41 +8234,27 @@ void Player::ModifyCurrencyFlag(uint32 id, uint8 flag)
         _currencyStorage[id].state = PLAYERCURRENCY_CHANGED;
 }
 
-//! 6.1.2
 void Player::SendPvpRewards()
 {
-    WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40);
+    WorldPackets::Battleground::RequestPVPRewardsResponse rewardsResponse;
+    rewardsResponse.RewardPointsThisWeek = GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS);
+    rewardsResponse.MaxRewardPointsThisWeek = GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS);
+    rewardsResponse.RatedRewardPointsThisWeek = GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_RATED_BG_META);
+    rewardsResponse.RatedMaxRewardPointsThisWeek = GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_RATED_BG_META);
+    rewardsResponse.RandomRewardPointsThisWeek = GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_ARENA_META);
+    rewardsResponse.RandomMaxRewardPointsThisWeek = GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_ARENA_META);
+    rewardsResponse.ArenaRewardPointsThisWeek = GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_ARENA_META);
+    rewardsResponse.ArenaMaxRewardPointsThisWeek = GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_ARENA_META);
+    rewardsResponse.ArenaRewardPoints = 40000; //sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD);
+    rewardsResponse.RatedRewardPoints = 18000; //sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RBG_REWARD);
 
-    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_POINTS));                           //RewardPointsThisWeek
-    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_POINTS));                          //MaxRewardPointsThisWeek
+    Quest const* bgQuest = sObjectMgr->GetQuestTemplate(bgQuests[GetRandomWinner() ? 2 : 1][GetBGTeam() == ALLIANCE ? 0 : 1]);
+    rewardsResponse.Reward[0].Initialize(bgQuest, nullptr, this);
 
-    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_RATED_BG_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_RATED_BG_META));             //RatedRewardPointsThisWeek
-    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_RATED_BG_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_RATED_BG_META));            //RatedMaxRewardPointsThisWeek
+    Quest const* skQuest = sObjectMgr->GetQuestTemplate(bgQuests[GetRandomWinner() ? 5 : 4][GetBGTeam() == ALLIANCE ? 0 : 1]);
+    rewardsResponse.Reward[1].Initialize(skQuest, nullptr, this);
 
-    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_ARENA_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_ARENA_META));                   //RandomRewardPointsThisWeek
-    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_ARENA_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_ARENA_META));                  //RandomMaxRewardPointsThisWeek
-
-    packet << uint32(GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_ARENA_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_ARENA_META));                   //ArenaRewardPointsThisWeek
-    packet << uint32(GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_ARENA_META) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_ARENA_META));                  //ArenaMaxRewardPointsThisWeek
-
-    packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_ARENA_META));     //ArenaRewardPoints
-    packet << uint32(sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RBG_REWARD) / GetCurrencyPrecision(CURRENCY_TYPE_CONQUEST_RATED_BG_META));    //RatedRewardPoints
-
-    //ReadShortageReward
-    for (uint32 i = 0; i < 2; ++i)
-    {
-        packet << uint32(0);
-        packet << uint32(0);
-        packet << uint32(0);
-
-        packet << uint32(0);
-        packet << uint32(0);
-        packet << uint32(0);
-
-        packet.WriteBit(0);
-    }
-
-    GetSession()->SendPacket(&packet);
+    GetSession()->SendPacket(rewardsResponse.Write());
 }
 
 uint32 Player::GetCurrency(uint32 id) const
@@ -28778,9 +28764,7 @@ void Player::SetRandomWinner(bool isWinner)
     if (m_IsBGRandomWinner)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BATTLEGROUND_RANDOM);
-
         stmt->setUInt64(0, GetGUID().GetCounter());
-
         CharacterDatabase.Execute(stmt);
     }
 }

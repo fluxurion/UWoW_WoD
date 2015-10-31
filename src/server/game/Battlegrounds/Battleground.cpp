@@ -772,15 +772,15 @@ void Battleground::EndBattleground(uint32 winner)
         winmsg_id = isBattleground() ? LANG_BG_A_WINS : LANG_ARENA_GOLD_WINS;
         PlaySoundToAll(BG_SOUND_ALLIANCE_WINS);                // alliance wins sound
         SetWinner(WINNER_ALLIANCE);
-    } else if (winner == HORDE)
+    }
+    else if (winner == HORDE)
     {
         winmsg_id = isBattleground() ? LANG_BG_H_WINS : LANG_ARENA_GREEN_WINS;
         PlaySoundToAll(BG_SOUND_HORDE_WINS);                   // horde wins sound
         SetWinner(WINNER_HORDE);
-    } else
-    {
-        SetWinner(3);
     }
+    else
+        SetWinner(3);
 
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: EndBattleground. JounType: %u, Bracket %u, Winer %u", GetJoinType(), bType, winner);
 
@@ -827,7 +827,8 @@ void Battleground::EndBattleground(uint32 winner)
         {
             player->ResurrectPlayer(1.0f);
             player->SpawnCorpseBones();
-        } else
+        }
+        else
         {
             //needed cause else in av some creatures will kill the players at the end
             player->CombatStop();
@@ -845,34 +846,30 @@ void Battleground::EndBattleground(uint32 winner)
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, 1);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
                 player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_ARENA_META, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
-            } else
-            {
-                // Arena lost => reset the win_rated_arena having the "no_lose" condition
-                player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
             }
+            else
+                player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
+
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA, GetMapId());
         }
 
-        uint32 winner_bonus = player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
-        uint32 loser_bonus = player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
+        uint32 winnerBonus = player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
+        uint32 loserBonus = player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
 
         // remove temporary currency bonus auras before rewarding player
         player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_25Y);
         player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_60Y);
+
+        PlayerReward(player, team == winner, !isArena() ? 0 : 2, false /*firstWeekly*/, !player->GetRandomWinner());
 
         // Reward winner team
         if (team == winner)
         {
             if (isBattleground() && !IsRBG() && (IsRandom() || BattlegroundMgr::IsBGWeekend(GetTypeID())))
             {
-                UpdatePlayerScore(player, SCORE_BONUS_HONOR, winner_bonus);
+                UpdatePlayerScore(player, SCORE_BONUS_HONOR, winnerBonus);
                 if (!player->GetRandomWinner())
-                {
-                    // 150cp awarded for the first rated battleground won each day 
-                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_ARENA_META/*CURRENCY_TYPE_CONQUEST_RANDOM_BG_META*/, BG_REWARD_WINNER_CONQUEST_FIRST);
                     player->SetRandomWinner(true);
-                } else
-                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_ARENA_META/*CURRENCY_TYPE_CONQUEST_RANDOM_BG_META*/, BG_REWARD_WINNER_CONQUEST_LAST);
             }
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
@@ -890,10 +887,11 @@ void Battleground::EndBattleground(uint32 winner)
                         }
                     }
             }
-        } else
+        }
+        else
         {
             if (IsRandom() || BattlegroundMgr::IsBGWeekend(GetTypeID()))
-                UpdatePlayerScore(player, SCORE_BONUS_HONOR, loser_bonus);
+                UpdatePlayerScore(player, SCORE_BONUS_HONOR, loserBonus);
         }
 
         player->ResetAllPowers();
@@ -903,15 +901,12 @@ void Battleground::EndBattleground(uint32 winner)
 
         if (IsRBG())
         {
-            uint32 realTeam = player->GetTeam();
-            if (realTeam != team)
+            if (player->GetTeam() != team)
                 player->setFactionForRace(player->getRace());
+                
+            PlayerReward(player, team == winner, 1, false, false);
 
             player->getBracket(BRACKET_TYPE_RATED_BG)->FinishGame(team == winner, GetMatchmakerRating(team == winner ? GetOtherTeam(winner) : winner));
-
-            if (team == winner)
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_RATED_BG_META, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RBG_REWARD));
-
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND, GetMapId());
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_RBG_RATING, std::max<uint32>(bracket->getRating(), 1));
         }
@@ -992,6 +987,45 @@ void Battleground::EndBattleground(uint32 winner)
 
     if (winmsg_id)
         SendMessageToAll(winmsg_id, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+}
+
+void Battleground::PlayerReward(Player* player, bool isWinner, uint8 type, bool firstWeekly, bool firstDaily)
+{
+    uint8 t = 0;
+    switch (type)
+    {
+        case 0: // bg
+            if (isWinner)
+            {
+                if (firstWeekly)
+                    t = 0;
+                else if (firstDaily)
+                    t = 1;
+                else
+                    t = 2;
+            }
+            else
+                t = 3;
+            break;
+        case 1: // rated bg
+            //player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_RATED_BG_META, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_RBG_REWARD));
+            break;
+        case 2: // skirmish
+            if (isWinner)
+                t = firstDaily ? 4 : 5;
+            else
+                t = 6;
+            break;
+        default:
+            break;
+    }
+
+    auto quest = sObjectMgr->GetQuestTemplate(bgQuests[t][player->GetBGTeam() == ALLIANCE ? 0 : 1]);
+    if (quest)
+    {
+        if (player->CanRewardQuest(quest, false))
+            player->RewardQuest(quest, 0, nullptr, false);
+    }
 }
 
 uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const

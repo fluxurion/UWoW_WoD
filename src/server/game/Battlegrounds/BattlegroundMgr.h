@@ -39,6 +39,18 @@ namespace WorldPackets
     }
 }
 
+const uint32 bgQuests[][2] = // for 100 lvl
+{
+    {38118, 38119}, //First bg week win
+    {38129, 38130}, //First daily bg win
+    {38172, 38174}, //Not first daily win
+    {38140, 38141}, //BG loose
+
+    {38171, 38173}, //Skirmish first win
+    {38169, 38170}, //Skirmish win
+    {38158, 38159}, //Skirmish loose
+};
+
 typedef std::map<uint32, Battleground*> BattlegroundSet;
 
 typedef std::unordered_map<uint32, BattlegroundTypeId> BattleMastersMap;

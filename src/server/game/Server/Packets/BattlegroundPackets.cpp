@@ -278,18 +278,16 @@ WorldPacket const* WorldPackets::Battleground::RequestPVPRewardsResponse::Write(
 {
     _worldPacket << RewardPointsThisWeek;
     _worldPacket << MaxRewardPointsThisWeek;
-
     _worldPacket << RatedRewardPointsThisWeek;
     _worldPacket << RatedMaxRewardPointsThisWeek;
-
     _worldPacket << RandomRewardPointsThisWeek;
     _worldPacket << RandomMaxRewardPointsThisWeek;
-
     _worldPacket << ArenaRewardPointsThisWeek;
     _worldPacket << ArenaMaxRewardPointsThisWeek;
-
     _worldPacket << ArenaRewardPoints;
     _worldPacket << RatedRewardPoints;
+    _worldPacket << Reward[0];
+    _worldPacket << Reward[1];
 
     return &_worldPacket;
 }

@@ -19,6 +19,7 @@
 #define BattlegroundPackets_h__
 
 #include "Packet.h"
+#include "Packets/LFGPackets.h"
 
 namespace WorldPackets
 {
@@ -284,22 +285,19 @@ namespace WorldPackets
         class RequestPVPRewardsResponse final : public ServerPacket
         {
         public:
-            RequestPVPRewardsResponse() : ServerPacket(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40) { }
+            RequestPVPRewardsResponse() : ServerPacket(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 40 + 50) { }
 
             WorldPacket const* Write() override;
 
+            WorldPackets::LFG::ShortageReward Reward[2] = { };
             uint32 RewardPointsThisWeek = 0;
             uint32 MaxRewardPointsThisWeek = 0;
-
             uint32 RatedRewardPointsThisWeek = 0;
             uint32 RatedMaxRewardPointsThisWeek = 0;
-
             uint32 RandomRewardPointsThisWeek = 0;
             uint32 RandomMaxRewardPointsThisWeek = 0;
-
             uint32 ArenaRewardPointsThisWeek = 0;
             uint32 ArenaMaxRewardPointsThisWeek = 0;
-
             uint32 ArenaRewardPoints = 0;
             uint32 RatedRewardPoints = 0;
         };
