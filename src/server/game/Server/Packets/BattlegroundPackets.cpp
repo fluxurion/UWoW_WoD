@@ -297,11 +297,10 @@ WorldPacket const* WorldPackets::Battleground::RequestPVPRewardsResponse::Write(
 WorldPacket const* WorldPackets::Battleground::PlayerPositions::Write()
 {
     _worldPacket << static_cast<uint32>(FlagCarriers.size());
-    for (BattlegroundPlayerPosition const& map : FlagCarriers)
+    for (auto& map : FlagCarriers)
     {
         _worldPacket << map.Guid;
-        _worldPacket << map.Pos.x;
-        _worldPacket << map.Pos.y;
+        _worldPacket << map.Pos.PositionXYStream();
         _worldPacket << map.IconID;
         _worldPacket << map.ArenaSlot;
     }

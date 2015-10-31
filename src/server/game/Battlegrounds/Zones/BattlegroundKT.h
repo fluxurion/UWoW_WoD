@@ -233,6 +233,15 @@ class BattlegroundKT : public Battleground
         void RemovePoint(Team team, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
 
         void AccumulateScore(uint32 team, BG_KT_ZONE zone);
+
+        ObjectGuid GetFlagPickerGUID(int32 index) const override
+        {
+            if (MAX_ORBS)
+                return m_OrbKeepers[index];
+
+            return ObjectGuid::Empty;
+        }
+
     private:
 
         ObjectGuid m_OrbKeepers[MAX_ORBS];

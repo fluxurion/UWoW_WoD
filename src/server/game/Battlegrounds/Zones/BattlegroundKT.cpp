@@ -39,7 +39,7 @@ BattlegroundKT::BattlegroundKT()
     m_HonorEndKills = 0;
 
     m_EndTimer = 0;
-    m_UpdatePointsTimer = 2 * IN_MILLISECONDS;
+    m_UpdatePointsTimer = 1.5 * IN_MILLISECONDS;
     m_LastCapturedOrbTeam = TEAM_NONE;
 }
 
@@ -103,7 +103,7 @@ void BattlegroundKT::StartingEventCloseDoors()
     DoorClose(BG_KT_OBJECT_A_DOOR);
     DoorClose(BG_KT_OBJECT_H_DOOR);
 
-    for (uint8 i = 0; i < 4; ++i)
+    for (uint8 i = 0; i < MAX_ORBS; ++i)
         SpawnBGObject(BG_KT_OBJECT_ORB_1 + i, RESPAWN_ONE_DAY);
 }
 
@@ -112,7 +112,7 @@ void BattlegroundKT::StartingEventOpenDoors()
     DoorOpen(BG_KT_OBJECT_A_DOOR);
     DoorOpen(BG_KT_OBJECT_H_DOOR);
 
-    for (uint8 i = 0; i < 4; ++i)
+    for (uint8 i = 0; i < MAX_ORBS; ++i)
         SpawnBGObject(BG_KT_OBJECT_ORB_1 + i, RESPAWN_IMMEDIATELY);
 
     // Players that join battleground after start are not eligible to get achievement.

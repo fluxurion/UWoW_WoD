@@ -485,7 +485,7 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player* Source)
         // just take off the aura
         if (Source->GetTeam() == ALLIANCE)
         {
-            if (!this->IsHordeFlagPickedup())
+            if (!IsHordeFlagPickedup())
                 return;
 
             if (GetFlagPickerGUID(TEAM_HORDE) == Source->GetGUID())
@@ -496,7 +496,7 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player* Source)
         }
         else
         {
-            if (!this->IsAllianceFlagPickedup())
+            if (!IsAllianceFlagPickedup())
                 return;
 
             if (GetFlagPickerGUID(TEAM_ALLIANCE) == Source->GetGUID())

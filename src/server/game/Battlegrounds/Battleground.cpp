@@ -2082,37 +2082,39 @@ void Battleground::SendFlagsPositionsUpdate(uint32 diff)
 
     m_flagCarrierTime = FLAGS_UPDATE;
 
-    uint32 flagCarrierCount = 0;
-    Player* FlagCarrier[2];
-
-    for (uint8 i = 0; i < 2; ++i)
+    WorldPackets::Battleground::PlayerPositions playerPositions;
+    if (GetTypeID(true) == BATTLEGROUND_KT || GetTypeID(true) == BATTLEGROUND_RB && GetMapId() == 998)
     {
-        FlagCarrier[i] = nullptr;
-        ObjectGuid guid = GetFlagPickerGUID(i);
-        if (!guid.IsEmpty())
+        for (uint8 i = 0; i < 3; ++i) // MAX_ORBS
         {
-            FlagCarrier[TEAM_ALLIANCE] = ObjectAccessor::FindPlayer(guid);
-            if (FlagCarrier[i])
-                ++flagCarrierCount;
+            Player* player = ObjectAccessor::FindPlayer(GetFlagPickerGUID(i));
+            if (!player)
+                continue;
+
+            WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition flagCarriers;
+            flagCarriers.Guid = player->GetGUID();
+            flagCarriers.Pos = player->GetPosition();
+            flagCarriers.IconID = player->GetBGTeam() == ALLIANCE ? 2 : 1;
+            flagCarriers.ArenaSlot = i + 2;
+            playerPositions.FlagCarriers.push_back(flagCarriers);
         }
     }
-
-    WorldPackets::Battleground::PlayerPositions playerPositions;
-    playerPositions.FlagCarriers.reserve(flagCarrierCount);
-    WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition position;
-    for (uint8 i = 0; i < 2; ++i)
+    else
     {
-        Player* player = FlagCarrier[i];
-        if (!player)
-            continue;
+        for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+        {
+            Player* player = ObjectAccessor::FindPlayer(GetFlagPickerGUID(i));
+            if (!player)
+                continue;
 
-        position.Pos = {player->GetPositionX(), player->GetPositionY()};
-        position.Guid = player->GetGUID();
-        position.IconID = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 2;
-        position.ArenaSlot = player->GetTeamId() == TEAM_ALLIANCE ? 3 : 2;
+            WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition flagCarriers;
+            flagCarriers.Pos = player->GetPosition();
+            flagCarriers.Guid = player->GetGUID();
+            flagCarriers.IconID = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 2;
+            flagCarriers.ArenaSlot = player->GetTeamId() == TEAM_ALLIANCE ? 3 : 2;
+            playerPositions.FlagCarriers.push_back(flagCarriers);
+        }
     }
-
-    playerPositions.FlagCarriers.push_back(position);
 
     SendPacketToAll(playerPositions.Write());
 }

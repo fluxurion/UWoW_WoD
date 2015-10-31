@@ -313,7 +313,7 @@ namespace WorldPackets
 
             struct BattlegroundPlayerPosition
             {
-                G3D::Vector2 Pos;
+                Position Pos;
                 ObjectGuid Guid;
                 uint8 IconID = 0;
                 uint8 ArenaSlot = 0;
