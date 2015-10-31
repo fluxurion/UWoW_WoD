@@ -396,6 +396,10 @@ void BattlegroundMgr::BuildObjectivesBlock(std::vector<int32>& stats, Battlegrou
                         stats.push_back(((BattlegroundBFGScore*)itr2->second)->BasesAssaulted);
                         stats.push_back(((BattlegroundBFGScore*)itr2->second)->BasesDefended);
                         break;
+                    case 998:
+                        stats.push_back(uint32(((BattleGroundKTScore*)itr2->second)->OrbHandles));
+                        stats.push_back(uint32(((BattleGroundKTScore*)itr2->second)->Score));
+                        break;
                     default:
                         break;
                 }
@@ -436,7 +440,7 @@ void BattlegroundMgr::BuildObjectivesBlock(std::vector<int32>& stats, Battlegrou
                 break;
             case BATTLEGROUND_KT:
                 stats.push_back(((BattleGroundKTScore*)itr2->second)->OrbHandles);
-                stats.push_back(((BattleGroundKTScore*)itr2->second)->Score * 10);
+                stats.push_back(((BattleGroundKTScore*)itr2->second)->Score);
                 break;
             case BATTLEGROUND_SSM:
                 stats.push_back(((BattleGroundSSMScore*)itr2->second)->CartsTaken);

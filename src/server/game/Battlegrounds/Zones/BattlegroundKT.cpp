@@ -29,9 +29,9 @@
 
 BattlegroundKT::BattlegroundKT()
 {
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = 0;
+    StartMessageIds[BG_STARTING_EVENT_FIRST] = 0;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_KT_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_KT_START_HALF_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_BG_KT_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_KT_HAS_BEGUN;
 
     m_ReputationCapture = 0;
@@ -39,13 +39,12 @@ BattlegroundKT::BattlegroundKT()
     m_HonorEndKills = 0;
 
     m_EndTimer = 0;
-    m_UpdatePointsTimer = BG_KT_POINTS_UPDATE_TIME;
+    m_UpdatePointsTimer = 2 * IN_MILLISECONDS;
     m_LastCapturedOrbTeam = TEAM_NONE;
 }
 
 BattlegroundKT::~BattlegroundKT()
-{
-}
+{ }
 
 void BattlegroundKT::PostUpdateImpl(uint32 diff)
 {
@@ -54,17 +53,14 @@ void BattlegroundKT::PostUpdateImpl(uint32 diff)
         if (m_EndTimer <= diff)
         {
             uint32 allianceScore = GetTeamScore(ALLIANCE);
-            uint32 hordeScore    = GetTeamScore(HORDE);
+            uint32 hordeScore = GetTeamScore(HORDE);
 
             if (allianceScore > hordeScore)
                 EndBattleground(ALLIANCE);
             else if (allianceScore < hordeScore)
                 EndBattleground(HORDE);
             else
-            {
-                // if 0 => tie
                 EndBattleground(m_LastCapturedOrbTeam);
-            }
         }
         else
         {
@@ -87,12 +83,12 @@ void BattlegroundKT::PostUpdateImpl(uint32 diff)
                 if (Player* player = ObjectAccessor::FindPlayer(guid))
                 {
                     AccumulateScore(player->GetTeamId(), m_playersZone[guid]);
-                    UpdatePlayerScore(player, SCORE_ORB_SCORE, m_playersZone[guid]);
-                            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_KT_OBJECTIVE_ORB_COUNT, m_playersZone[guid] + 3);
+                    UpdatePlayerScore(player, SCORE_ORB_SCORE, BG_KT_TickPoints[m_playersZone[guid]]);
+                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_KT_OBJECTIVE_ORB_COUNT, m_playersZone[guid] + 3);
                 }
             }
 
-            m_UpdatePointsTimer = BG_KT_POINTS_UPDATE_TIME;
+            m_UpdatePointsTimer = 2 * IN_MILLISECONDS;
         }
         else
             m_UpdatePointsTimer -= diff;
@@ -151,9 +147,9 @@ void BattlegroundKT::EventPlayerClickedOnOrb(Player* source, GameObject* target_
         if (m_OrbKeepers[i] == source->GetGUID())
             return;
 
-    PlaySoundToAll(source->GetTeamId() == TEAM_ALLIANCE ? BG_KT_SOUND_A_ORB_PICKED_UP: BG_KT_SOUND_H_ORB_PICKED_UP);
+    PlaySoundToAll(source->GetTeamId() == TEAM_ALLIANCE ? BG_KT_SOUND_A_ORB_PICKED_UP : BG_KT_SOUND_H_ORB_PICKED_UP);
     source->CastSpell(source, BG_KT_ORBS_SPELLS[index], true);
-    source->CastSpell(source, source->GetTeamId() == TEAM_ALLIANCE ? BG_KT_ALLIANCE_INSIGNIA: BG_KT_HORDE_INSIGNIA, true);
+    source->CastSpell(source, source->GetTeamId() == TEAM_ALLIANCE ? BG_KT_ALLIANCE_INSIGNIA : BG_KT_HORDE_INSIGNIA, true);
 
     UpdatePlayerScore(source, SCORE_ORB_HANDLES, 1);
 
@@ -164,7 +160,7 @@ void BattlegroundKT::EventPlayerClickedOnOrb(Player* source, GameObject* target_
     if (Creature* aura = GetBGCreature(BG_KT_CREATURE_ORB_AURA_1 + index))
         aura->RemoveAllAuras();
 
-    SendMessageToAll(LANG_BG_KT_PICKEDUP_1 + index, source->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE: CHAT_MSG_BG_SYSTEM_HORDE, source);
+    SendMessageToAll(LANG_BG_KT_PICKEDUP_1 + index, source->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
@@ -184,7 +180,7 @@ void BattlegroundKT::EventPlayerDroppedFlag(Player* source)
             break;
     }
 
-    PlaySoundToAll(source->GetTeamId() == TEAM_ALLIANCE ? BG_KT_SOUND_A_ORB_PICKED_UP: BG_KT_SOUND_H_ORB_PICKED_UP);
+    PlaySoundToAll(source->GetTeamId() == TEAM_ALLIANCE ? BG_KT_SOUND_A_ORB_PICKED_UP : BG_KT_SOUND_H_ORB_PICKED_UP);
     source->RemoveAurasDueToSpell(BG_KT_ORBS_SPELLS[index]);
     source->RemoveAurasDueToSpell(BG_KT_ALLIANCE_INSIGNIA);
     source->RemoveAurasDueToSpell(BG_KT_HORDE_INSIGNIA);
@@ -196,13 +192,13 @@ void BattlegroundKT::EventPlayerDroppedFlag(Player* source)
         aura->AddAura(BG_KT_ORBS_AURA[index], aura);
 
     UpdateWorldState(BG_KT_ICON_A, 0);
-    SendWarningToAll(LANG_BG_KT_DROPPED_1 + index, source->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE: CHAT_MSG_BG_SYSTEM_HORDE, source);
+    SendWarningToAll(LANG_BG_KT_DROPPED_1 + index, source->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
 void BattlegroundKT::RemovePlayer(Player* player, ObjectGuid guid, uint32)
 {
-    if(!player)
+    if (!player)
         return;
 
     EventPlayerDroppedFlag(player);
@@ -232,7 +228,7 @@ void BattlegroundKT::HandleAreaTrigger(Player* source, uint32 trigger)
         return;
 
     ObjectGuid sourceGuid = source->GetGUID();
-    switch(trigger)
+    switch (trigger)
     {
         case 7734: // Out-In trigger
         {
@@ -266,22 +262,22 @@ void BattlegroundKT::HandleAreaTrigger(Player* source, uint32 trigger)
 bool BattlegroundKT::SetupBattleground()
 {
     // Doors
-    if (   !AddObject(BG_KT_OBJECT_A_DOOR, BG_KT_OBJECT_DOOR_ENTRY, BG_KT_DoorPositions[0][0], BG_KT_DoorPositions[0][1], BG_KT_DoorPositions[0][2], BG_KT_DoorPositions[0][3], 0, 0, sin(BG_KT_DoorPositions[0][3]/2), cos(BG_KT_DoorPositions[0][3]/2), RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_KT_OBJECT_H_DOOR, BG_KT_OBJECT_DOOR_ENTRY, BG_KT_DoorPositions[1][0], BG_KT_DoorPositions[1][1], BG_KT_DoorPositions[1][2], BG_KT_DoorPositions[1][3], 0, 0, sin(BG_KT_DoorPositions[1][3]/2), cos(BG_KT_DoorPositions[1][3]/2), RESPAWN_IMMEDIATELY))
+    if (!AddObject(BG_KT_OBJECT_A_DOOR, BG_KT_OBJECT_DOOR_ENTRY, BG_KT_DoorPositions[0][0], BG_KT_DoorPositions[0][1], BG_KT_DoorPositions[0][2], BG_KT_DoorPositions[0][3], 0, 0, sin(BG_KT_DoorPositions[0][3] / 2), cos(BG_KT_DoorPositions[0][3] / 2), RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_KT_OBJECT_H_DOOR, BG_KT_OBJECT_DOOR_ENTRY, BG_KT_DoorPositions[1][0], BG_KT_DoorPositions[1][1], BG_KT_DoorPositions[1][2], BG_KT_DoorPositions[1][3], 0, 0, sin(BG_KT_DoorPositions[1][3] / 2), cos(BG_KT_DoorPositions[1][3] / 2), RESPAWN_IMMEDIATELY))
         return false;
     // buffs    
-    if (   !AddObject(BG_KT_OBJECT_BERSERKBUFF_1, BG_OBJECTID_BERSERKERBUFF_ENTRY, 1856.635f, 1333.741f, 10.555f, 3.150048f, 0, 0, 0.5591929f, 0.8290376f, BUFF_RESPAWN_TIME)
+    if (!AddObject(BG_KT_OBJECT_BERSERKBUFF_1, BG_OBJECTID_BERSERKERBUFF_ENTRY, 1856.635f, 1333.741f, 10.555f, 3.150048f, 0, 0, 0.5591929f, 0.8290376f, BUFF_RESPAWN_TIME)
         || !AddObject(BG_KT_OBJECT_BERSERKBUFF_2, BG_OBJECTID_BERSERKERBUFF_ENTRY, 1710.284f, 1333.345f, 10.554f, 0.116051f, 0, 0, 0.9396926f, -0.3420201f, BUFF_RESPAWN_TIME))
         return false;
 
-    if (   !AddSpiritGuide(BG_KT_CREATURE_SPIRIT_1, BG_KT_SpiritPositions[0][0], BG_KT_SpiritPositions[0][1], BG_KT_SpiritPositions[0][2], BG_KT_SpiritPositions[0][3], ALLIANCE)
+    if (!AddSpiritGuide(BG_KT_CREATURE_SPIRIT_1, BG_KT_SpiritPositions[0][0], BG_KT_SpiritPositions[0][1], BG_KT_SpiritPositions[0][2], BG_KT_SpiritPositions[0][3], ALLIANCE)
         || !AddSpiritGuide(BG_KT_CREATURE_SPIRIT_2, BG_KT_SpiritPositions[1][0], BG_KT_SpiritPositions[1][1], BG_KT_SpiritPositions[1][2], BG_KT_SpiritPositions[1][3], HORDE))
         return false;
 
     // Orbs
     for (uint8 i = 0; i < MAX_ORBS; ++i)
     {
-        if (!AddObject(BG_KT_OBJECT_ORB_1 + i, BG_KT_OBJECT_ORB_1_ENTRY + i, BG_KT_OrbPositions[i][0], BG_KT_OrbPositions[i][1], BG_KT_OrbPositions[i][2], BG_KT_OrbPositions[i][3], 0, 0, sin(BG_KT_OrbPositions[i][3]/2), cos(BG_KT_OrbPositions[i][3]/2), RESPAWN_ONE_DAY))
+        if (!AddObject(BG_KT_OBJECT_ORB_1 + i, BG_KT_OBJECT_ORB_1_ENTRY + i, BG_KT_OrbPositions[i][0], BG_KT_OrbPositions[i][1], BG_KT_OrbPositions[i][2], BG_KT_OrbPositions[i][3], 0, 0, sin(BG_KT_OrbPositions[i][3] / 2), cos(BG_KT_OrbPositions[i][3] / 2), RESPAWN_ONE_DAY))
             return false;
 
         if (Creature* trigger = AddCreature(WORLD_TRIGGER, BG_KT_CREATURE_ORB_AURA_1 + i, TEAM_NEUTRAL, BG_KT_OrbPositions[i][0], BG_KT_OrbPositions[i][1], BG_KT_OrbPositions[i][2], BG_KT_OrbPositions[i][3], RESPAWN_IMMEDIATELY))
@@ -298,7 +294,7 @@ void BattlegroundKT::Reset()
     BgObjects.resize(BG_KT_OBJECT_MAX);
     BgCreatures.resize(BG_KT_CREATURE_MAX);
 
-    for(uint32 i = 0; i < MAX_ORBS; ++i)
+    for (uint32 i = 0; i < MAX_ORBS; ++i)
         m_OrbKeepers[i].Clear();
 
     bool isBGWeekend = BattlegroundMgr::IsBGWeekend(GetTypeID());
@@ -306,7 +302,7 @@ void BattlegroundKT::Reset()
     m_HonorWinKills = (isBGWeekend) ? 3 : 1;
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;
 
-    m_EndTimer = BG_KT_TIME_LIMIT;
+    m_EndTimer = 15 * MINUTE * IN_MILLISECONDS;
     m_LastCapturedOrbTeam = TEAM_NONE;
 }
 
@@ -323,8 +319,8 @@ void BattlegroundKT::EndBattleground(uint32 winner)
     {
         RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), HORDE);
         CastSpellOnTeam(135788, HORDE); // Quest credit "The Lion Roars"
-    }        
-    
+    }
+
     //complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), HORDE);
@@ -346,10 +342,10 @@ void BattlegroundKT::HandleKillPlayer(Player *player, Player *killer)
 void BattlegroundKT::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
     BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if(itr == PlayerScores.end())                         // player not found
+    if (itr == PlayerScores.end())                         // player not found
         return;
 
-    switch(type)
+    switch (type)
     {
         case SCORE_ORB_HANDLES:                           // orb handles
             ((BattleGroundKTScore*)itr->second)->OrbHandles += value;

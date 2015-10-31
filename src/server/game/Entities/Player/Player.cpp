@@ -24555,8 +24555,8 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
 
 bool Player::CanJoinToBattleground() const
 {
-    // check Deserter debuff
-    if (HasAura(26013))
+    // check Deserter and Craven debuff
+    if (HasAura(26013) || HasAura(158263))
         return false;
 
     return true;
