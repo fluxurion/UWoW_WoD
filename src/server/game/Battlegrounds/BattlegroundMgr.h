@@ -57,14 +57,8 @@ struct CreateBattlegroundData
     uint32 LevelMax;
     char* BattlegroundName;
     uint32 MapID;
-    float Team1StartLocX;
-    float Team1StartLocY;
-    float Team1StartLocZ;
-    float Team1StartLocO;
-    float Team2StartLocX;
-    float Team2StartLocY;
-    float Team2StartLocZ;
-    float Team2StartLocO;
+    Position Team1StartLoc;
+    Position Team2StartLoc;
     float StartMaxDist;
     uint32 holiday;
     uint32 scriptId;

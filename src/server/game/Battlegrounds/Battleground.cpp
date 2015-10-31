@@ -170,17 +170,8 @@ Battleground::Battleground()
     m_MapId             = 0;
     m_Map               = nullptr;
 
-    m_TeamStartLocX[BG_TEAM_ALLIANCE]   = 0;
-    m_TeamStartLocX[BG_TEAM_HORDE]      = 0;
-
-    m_TeamStartLocY[BG_TEAM_ALLIANCE]   = 0;
-    m_TeamStartLocY[BG_TEAM_HORDE]      = 0;
-
-    m_TeamStartLocZ[BG_TEAM_ALLIANCE]   = 0;
-    m_TeamStartLocZ[BG_TEAM_HORDE]      = 0;
-
-    m_TeamStartLocO[BG_TEAM_ALLIANCE]   = 0;
-    m_TeamStartLocO[BG_TEAM_HORDE]      = 0;
+    m_TeamStartLoc[BG_TEAM_ALLIANCE]= { };
+    m_TeamStartLoc[BG_TEAM_HORDE] = { };
 
     m_GroupIds[BG_TEAM_ALLIANCE]   = 0;
     m_GroupIds[BG_TEAM_HORDE]      = 0;
@@ -550,7 +541,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 {
                     // BG Status packet
-                    WorldPacket status;
                     BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetJoinType());
                     uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
                    
@@ -612,19 +602,12 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         {
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             {
-                if (Player *plr = ObjectAccessor::FindPlayer(itr->first))
+                if (Player* plr = ObjectAccessor::FindPlayer(itr->first))
                 {
-                    float x, y, z, o;
-                    uint32 team = plr->GetBGTeam();
-                    GetTeamStartLoc(team, x, y, z, o);
-
-                    float dist = plr->GetDistance(x, y, z);
-
-                    if (dist >= maxDist)
-                    {
-                        sLog->outError(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Sending %s back to start location (map: %u) (possible exploit)", plr->GetName(), GetMapId());
-                        plr->TeleportTo(GetMapId(), x, y, z, o);
-                    }
+                    Position pos;
+                    GetTeamStartLoc(plr->GetBGTeam(), pos);
+                    if (plr->GetDistance(pos) >= maxDist)
+                        plr->TeleportTo(GetMapId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
                 }
             }
         }
@@ -690,13 +673,9 @@ inline Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayer
     return player;
 }
 
-void Battleground::SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O)
+void Battleground::SetTeamStartLoc(uint32 TeamID, Position pos)
 {
-    BattlegroundTeamId idx = GetTeamIndexByTeamId(TeamID);
-    m_TeamStartLocX[idx] = X;
-    m_TeamStartLocY[idx] = Y;
-    m_TeamStartLocZ[idx] = Z;
-    m_TeamStartLocO[idx] = O;
+    m_TeamStartLoc[GetTeamIndexByTeamId(TeamID)] = pos;
 }
 
 void Battleground::SendPacketToAll(WorldPacket const* packet)
@@ -721,7 +700,6 @@ void Battleground::PlaySoundToAll(uint32 soundKitID)
 
 void Battleground::PlaySoundToTeam(uint32 soundKitID, uint32 TeamID)
 {
-    WorldPacket data;
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayerForTeam(TeamID, itr, "PlaySoundToTeam"))
             player->GetSession()->SendPacket(WorldPackets::Misc::PlaySound(ObjectGuid::Empty, soundKitID).Write());
@@ -785,7 +763,6 @@ void Battleground::EndBattleground(uint32 winner)
 {
     RemoveFromBGFreeSlotQueue();
 
-    WorldPacket data;
     int32 winmsg_id = 0;
 
     BracketType bType = BattlegroundMgr::BracketByJoinType(GetJoinType());
@@ -1020,7 +997,7 @@ void Battleground::EndBattleground(uint32 winner)
 uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const
 {
     //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
-    uint32 maxLevel = std::min(GetMaxLevel(), 90U);
+    uint32 maxLevel = std::min(GetMaxLevel(), 100U);
     return Trinity::Honor::hk_honor_at_level(maxLevel, float(kills));
 }
 
@@ -1060,11 +1037,9 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         }
 
         if (IsRBG())
-        {
-            uint32 realTeam = player->GetTeam();
-            if (realTeam != team)
+            if (player->GetTeam() != team)
                 player->setFactionForRace(player->getRace());
-        }
+
         player->RemoveAura(SPELL_BG_BATTLE_FATIGUE);
     }
 
@@ -1123,12 +1098,9 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
 
         // remove from raid group if player is member
         if (Group* group = GetBgRaid(team))
-        {
             if (!group->RemoveMember(guid))                // group was disbanded
-            {
                 SetBgRaid(team, nullptr);
-            }
-        }
+
         DecreaseInvitedCount(team);
         //we should update battleground queue, but only if bg isn't ending
         if (isBattleground() && GetStatus() < STATUS_WAIT_LEAVE)
@@ -1223,7 +1195,6 @@ void Battleground::AddPlayer(Player* player)
     PlayerScores[guid]->Team = team;
 
     UpdatePlayersCountByTeam(team, false);                  // +1 player
-    WorldPacket data;
     SendPacketToTeam(team, WorldPackets::Battleground::PlayerJoined(guid).Write(), player, false);
     // BG Status packet
     BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetJoinType());
@@ -1240,8 +1211,7 @@ void Battleground::AddPlayer(Player* player)
 
     if (IsRBG())
     {
-        uint32 realTeam = player->GetTeam();
-        if (realTeam != team)
+        if (player->GetTeam() != team)
             player->setFaction(team == ALLIANCE ? 1 : 2);
 
         player->CastSpell(player, SPELL_BG_BATTLE_FATIGUE, true);
@@ -1266,18 +1236,9 @@ void Battleground::AddPlayer(Player* player)
 
         player->RemoveArenaEnchantments(TEMP_ENCHANTMENT_SLOT);
         if (team == ALLIANCE)                                // gold
-        {
-            if (player->GetTeam() == HORDE)
-                player->CastSpell(player, SPELL_BG_HORDE_GOLD_FLAG, true);
-            else
-                player->CastSpell(player, SPELL_BG_ALLIANCE_GOLD_FLAG, true);
-        } else                                                // green
-        {
-            if (player->GetTeam() == HORDE)
-                player->CastSpell(player, SPELL_BG_HORDE_GREEN_FLAG, true);
-            else
-                player->CastSpell(player, SPELL_BG_ALLIANCE_GREEN_FLAG, true);
-        }
+           player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_BG_HORDE_GOLD_FLAG : SPELL_BG_ALLIANCE_GOLD_FLAG, true);
+        else                                                // green
+           player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_BG_HORDE_GREEN_FLAG : SPELL_BG_ALLIANCE_GREEN_FLAG, true);
 
         player->CastSpell(player, SPELL_BG_BATTLE_FATIGUE, true);
 
@@ -1292,9 +1253,6 @@ void Battleground::AddPlayer(Player* player)
 
         // Set arena faction client-side to display arena unit frame
         player->SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_ARENA_FACTION, player->GetBGTeam() == HORDE ? 0 : 1);
-
-        Pet* pet = player->GetPet();
-        ObjectGuid petGUID = pet ? pet->GetGUID() : ObjectGuid::Empty;
 
         //not shure if we should to it at join.
         SendOpponentSpecialization(team);
@@ -1761,9 +1719,7 @@ bool Battleground::DelObject(uint32 type)
 
 bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team)
 {
-    uint32 entry = (team == ALLIANCE) ?
-BG_CREATURE_ENTRY_A_SPIRITGUIDE :
-                                BG_CREATURE_ENTRY_H_SPIRITGUIDE;
+    uint32 entry = (team == ALLIANCE) ? BG_CREATURE_ENTRY_A_SPIRITGUIDE : BG_CREATURE_ENTRY_H_SPIRITGUIDE;
 
     if (Creature* creature = AddCreature(entry, type, team, x, y, z, o))
     {
@@ -1964,7 +1920,6 @@ void Battleground::PlayerAddedToBGCheckIfBGIsRunning(Player* player)
     if (GetStatus() != STATUS_WAIT_LEAVE)
         return;
 
-    WorldPacket data;
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetJoinType());
 
     BlockMovement(player);

@@ -67,42 +67,44 @@ bool BattlegroundSA::SetupBattleground()
     return ResetObjs();
 }
 
-void BattlegroundSA::GetTeamStartLoc(uint32 TeamID, float &X, float &Y, float &Z, float &O) const
+void BattlegroundSA::GetTeamStartLoc(uint32 TeamID, Position& pos) const
 {
     BattlegroundTeamId idx = GetTeamIndexByTeamId(TeamID);
     if (idx == Attackers)
     {
         if (!ShipsStarted)
         {
-            switch(urand(0, 1))
+            switch (urand(0, 1))
             {
-                case 0: 
-                    X = 2682.936f;
-                    Y = -830.368f;
-                    Z = 15.0f;
-                    O = 2.895f;
+                case 0:
+                    pos.m_positionX = 2682.936f;
+                    pos.m_positionY = -830.368f;
+                    pos.m_positionZ = 15.0f;
+                    pos.m_orientation = 2.895f;
                     break;
                 case 1:
                 default:
-                    X = 2577.003f;
-                    Y = 980.261f;
-                    Z = 15.0f;
-                    O = 0.807f;
+                    pos.m_positionX = 2577.003f;
+                    pos.m_positionY = 980.261f;
+                    pos.m_positionZ = 15.0f;
+                    pos.m_orientation = 0.807f;
                     break;
             }
-        }else
-        {
-            X = 1600.381f;
-            Y = -106.263f;
-            Z = 8.8745f;
-            O = 3.78f;
         }
-    }else
+        else
+        {
+            pos.m_positionX = 1600.381f;
+            pos.m_positionY = -106.263f;
+            pos.m_positionZ = 8.8745f;
+            pos.m_orientation = 3.78f;
+        }
+    }
+    else
     {
-        X = 1209.7f;
-        Y = -65.16f;
-        Z = 70.1f;
-        O = 0.0f;
+        pos.m_positionX = 1209.7f;
+        pos.m_positionY = -65.16f;
+        pos.m_positionZ = 70.1f;
+        pos.m_orientation = 0.0f;
     }
 }
 

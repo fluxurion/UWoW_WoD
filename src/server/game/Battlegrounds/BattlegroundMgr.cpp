@@ -734,8 +734,8 @@ uint32 BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
     bg->SetMinPlayers(data.MinPlayersPerTeam * 2);
     bg->SetMaxPlayers(data.MaxPlayersPerTeam * 2);
     bg->SetName(data.BattlegroundName);
-    bg->SetTeamStartLoc(ALLIANCE, data.Team1StartLocX, data.Team1StartLocY, data.Team1StartLocZ, data.Team1StartLocO);
-    bg->SetTeamStartLoc(HORDE, data.Team2StartLocX, data.Team2StartLocY, data.Team2StartLocZ, data.Team2StartLocO);
+    bg->SetTeamStartLoc(ALLIANCE, data.Team1StartLoc);
+    bg->SetTeamStartLoc(HORDE, data.Team2StartLoc);
     bg->SetStartMaxDist(data.StartMaxDist);
     bg->SetLevelRange(data.LevelMin, data.LevelMax);
     bg->SetHolidayId(data.holiday);
@@ -810,16 +810,16 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         startId = fields[5].GetUInt32();
         if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
         {
-            data.Team1StartLocX = start->Loc.X;
-            data.Team1StartLocY = start->Loc.Y;
-            data.Team1StartLocZ = start->Loc.Z;
-            data.Team1StartLocO = fields[6].GetFloat();
+            data.Team1StartLoc.m_positionX = start->Loc.X;
+            data.Team1StartLoc.m_positionY = start->Loc.Y;
+            data.Team1StartLoc.m_positionZ = start->Loc.Z;
+            data.Team1StartLoc.m_orientation = fields[6].GetFloat();
         } else if (data.bgTypeId == BATTLEGROUND_AA || data.bgTypeId == BATTLEGROUND_RB || data.bgTypeId == BATTLEGROUND_RATED_10_VS_10)
         {
-            data.Team1StartLocX = 0;
-            data.Team1StartLocY = 0;
-            data.Team1StartLocZ = 0;
-            data.Team1StartLocO = fields[6].GetFloat();
+            data.Team1StartLoc.m_positionX = 0;
+            data.Team1StartLoc.m_positionY = 0;
+            data.Team1StartLoc.m_positionZ = 0;
+            data.Team1StartLoc.m_orientation = fields[6].GetFloat();
         } else
         {
             sLog->outError(LOG_FILTER_SQL, "Table `battleground_template` for id %u have non-existed WorldSafeLocs.dbc id %u in field `AllianceStartLoc`. BG not created.", data.bgTypeId, startId);
@@ -829,16 +829,16 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         startId = fields[7].GetUInt32();
         if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
         {
-            data.Team2StartLocX = start->Loc.X;
-            data.Team2StartLocY = start->Loc.Y;
-            data.Team2StartLocZ = start->Loc.Z;
-            data.Team2StartLocO = fields[8].GetFloat();
+            data.Team2StartLoc.m_positionX = start->Loc.X;
+            data.Team2StartLoc.m_positionY = start->Loc.Y;
+            data.Team2StartLoc.m_positionZ = start->Loc.Z;
+            data.Team2StartLoc.m_orientation = fields[8].GetFloat();
         } else if (data.bgTypeId == BATTLEGROUND_AA || data.bgTypeId == BATTLEGROUND_RB || data.bgTypeId == BATTLEGROUND_RATED_10_VS_10)
         {
-            data.Team2StartLocX = 0;
-            data.Team2StartLocY = 0;
-            data.Team2StartLocZ = 0;
-            data.Team2StartLocO = fields[8].GetFloat();
+            data.Team2StartLoc.m_positionX = 0;
+            data.Team2StartLoc.m_positionY = 0;
+            data.Team2StartLoc.m_positionZ = 0;
+            data.Team2StartLoc.m_orientation = fields[8].GetFloat();
         } else
         {
             sLog->outError(LOG_FILTER_SQL, "Table `battleground_template` for id %u have non-existed WorldSafeLocs.dbc id %u in field `HordeStartLoc`. BG not created.", data.bgTypeId, startId);
@@ -874,19 +874,17 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     Battleground* bg = GetBattleground(instanceId, bgTypeId);
     if (bg)
     {
-        uint32 mapid = bg->GetMapId();
-        float x, y, z, O;
         uint32 team = player->GetBGTeam();
         if (team == 0)
             team = player->GetTeam();
-        bg->GetTeamStartLoc(team, x, y, z, O);
 
-        sLog->outInfo(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Sending %s to map %u, X %f, Y %f, Z %f, O %f", player->GetName(), mapid, x, y, z, O);
-        player->TeleportTo(mapid, x, y, z, O);
-    } else
-    {
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "player %u is trying to port to non-existent bg instance %u", player->GetGUID().GetCounter(), instanceId);
+        Position pos;
+        bg->GetTeamStartLoc(team, pos);
+
+        player->TeleportTo(bg->GetMapId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
     }
+    else
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "player %u is trying to port to non-existent bg instance %u", player->GetGUID().GetCounter(), instanceId);
 }
 
 void BattlegroundMgr::SendAreaSpiritHealerQuery(Player* player, Battleground* bg, ObjectGuid const& guid)

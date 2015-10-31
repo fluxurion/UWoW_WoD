@@ -400,9 +400,6 @@ enum BGHonorMode
     BG_HONOR_MODE_NUM
 };
 
-#define BG_AWARD_ARENA_POINTS_MIN_LEVEL 71
-#define ARENA_TIMELIMIT_POINTS_LOSS    -16
-
 /*
 This class is used to:
 1. Add player to battleground
@@ -544,15 +541,9 @@ class Battleground
         BattlegroundMap* GetBgMap() const { if(m_Map) return m_Map; else return nullptr; }
         BattlegroundMap* FindBgMap() const { return m_Map; }
 
-        void SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O);
-        virtual void GetTeamStartLoc(uint32 TeamID, float &X, float &Y, float &Z, float &O) const
-        {
-            BattlegroundTeamId idx = GetTeamIndexByTeamId(TeamID);
-            X = m_TeamStartLocX[idx];
-            Y = m_TeamStartLocY[idx];
-            Z = m_TeamStartLocZ[idx];
-            O = m_TeamStartLocO[idx];
-        }
+        void SetTeamStartLoc(uint32 TeamID, Position pos);
+        virtual void GetTeamStartLoc(uint32 TeamID, Position& pos) const { pos = m_TeamStartLoc[GetTeamIndexByTeamId(TeamID)]; }
+
         void SetStartMaxDist(float startMaxDist) { m_StartMaxDist = startMaxDist; }
         float GetStartMaxDist() const { return m_StartMaxDist; }
 
@@ -680,7 +671,6 @@ class Battleground
         int32 m_TeamScores[BG_TEAMS_COUNT];
 
         void RewardXPAtKill(Player* killer, Player* victim);
-        bool CanAwardArenaPoints() const { return m_LevelMin >= BG_AWARD_ARENA_POINTS_MIN_LEVEL; }
 
         virtual ObjectGuid GetFlagPickerGUID(int32 /*team*/ = -1) const { return ObjectGuid::Empty; }
         
@@ -821,10 +811,7 @@ class Battleground
         // Start location
         uint32 m_MapId;
         BattlegroundMap* m_Map;
-        float m_TeamStartLocX[BG_TEAMS_COUNT];
-        float m_TeamStartLocY[BG_TEAMS_COUNT];
-        float m_TeamStartLocZ[BG_TEAMS_COUNT];
-        float m_TeamStartLocO[BG_TEAMS_COUNT];
+        Position m_TeamStartLoc[BG_TEAMS_COUNT];
         float m_StartMaxDist;
         uint32 m_holiday;
         uint32 ScriptId;
