@@ -2873,7 +2873,16 @@ class Player : public Unit, public GridObject<Player>
 
         void SetBGTeam(uint32 team) { m_bgData.bgTeam = team; }
         uint32 GetBGTeam() const { return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam(); }
-        TeamId GetBGTeamId() const { if (GetBGTeam() == ALLIANCE) return TEAM_ALLIANCE; if (GetBGTeam() == HORDE) return TEAM_HORDE; return TEAM_NEUTRAL; }
+        TeamId GetBGTeamId() const
+        {
+            if (GetBGTeam() == ALLIANCE)
+                return TEAM_ALLIANCE;
+
+            if (GetBGTeam() == HORDE)
+                return TEAM_HORDE;
+
+            return TEAM_NEUTRAL;
+        }
 
         void LeaveBattleground(bool teleportToEntryPoint = true);
         bool CanJoinToBattleground() const;

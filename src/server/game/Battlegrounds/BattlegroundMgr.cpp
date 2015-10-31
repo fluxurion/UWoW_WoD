@@ -277,7 +277,6 @@ void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::
 void BattlegroundMgr::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& packet, Battleground* bg)
 {
     BracketType bType = BattlegroundMgr::BracketByJoinType(bg->GetJoinType());
-    Bracket* bracket = nullptr;
 
     if (bg->GetStatus() == STATUS_WAIT_LEAVE)
         packet.Winner = bg->GetWinner();
@@ -295,7 +294,7 @@ void BattlegroundMgr::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogDa
 
         playerData.PlayerGUID = itr2->first;
         playerData.Kills = itr2->second->KillingBlows;
-        playerData.Faction = itr2->second->Team;
+        playerData.Faction = itr2->second->Team == ALLIANCE ? 1 : 0;
         if (itr2->second->HonorableKills || itr2->second->Deaths || itr2->second->BonusHonor)
         {
             playerData.Honor = boost::in_place();
@@ -308,23 +307,25 @@ void BattlegroundMgr::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogDa
         playerData.HealingDone = itr2->second->HealingDone;
         BuildObjectivesBlock(playerData.Stats, bg);
 
-        if (Player* player = player = ObjectAccessor::FindPlayer(itr2->first))
+        if (Player* player = ObjectAccessor::FindPlayer(playerData.PlayerGUID))
         {
-            if (bg->isRated())
-                bracket = player ? player->getBracket(bType) : sBracketMgr->TryGetOrCreateBracket(itr2->first, bType);
-            else
-                bracket = nullptr;
-
             playerData.IsInWorld = true;
-            playerData.PrimaryTalentTree = player ? player->GetSpecializationId(player->GetActiveSpec()) : 0;
-        }
+            playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
 
-        if (bg->isRated())
-        {
-            playerData.PreMatchRating = bracket->getRatingLastChange();
-            playerData.RatingChange = bracket->getRating();
-            playerData.PreMatchMMR = bracket->getLastMMRChange();
-            playerData.MmrChange = bracket->getMMV() - bracket->getLastMMRChange();
+            if (bg->isRated())
+            {
+                Bracket* bracket = player->getBracket(bType);
+                if (!bracket)
+                    sBracketMgr->TryGetOrCreateBracket(itr2->first, bType);
+            
+                if (bracket)
+                {
+                    playerData.PreMatchRating = bracket->getRatingLastChange();
+                    playerData.RatingChange = bracket->getRating();
+                    playerData.PreMatchMMR = bracket->getLastMMRChange();
+                    playerData.MmrChange = bracket->getMMV() - bracket->getLastMMRChange();
+                }
+            }
         }
 
         packet.Players.push_back(playerData);
