@@ -387,6 +387,7 @@ namespace WorldPackets
         class AreaSpiritHealerQueue;
         class Port;
         class QueueRequest;
+        class JoinSkirmish;
     }
 
     namespace VoidStorage
@@ -1413,6 +1414,7 @@ class WorldSession
         void HandleBattlefieldList(WorldPackets::Battleground::ListClient& packet);
         void HandleLeaveBattlefield(WorldPackets::Battleground::NullCmsg& packet);
         void HandleBattlemasterJoinArena(WorldPackets::Battleground::JoinArena& packet);
+        void HandleJoinSkirmish(WorldPackets::Battleground::JoinSkirmish& packet);
         void HandleBattlemasterJoinRated(WorldPacket& recvData);
         void JoinBracket(uint8 slot);
 

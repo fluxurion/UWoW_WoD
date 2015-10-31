@@ -208,7 +208,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_BATTLEMASTER_HELLO,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::NPC::Hello, &WorldSession::HandleBattlemasterHello);
     DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::Join, &WorldSession::HandleBattlemasterJoin);
     DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN_ARENA,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::JoinArena, &WorldSession::HandleBattlemasterJoinArena);
-    DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN_SKIRMISH,                         STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_BATTLEMASTER_JOIN_SKIRMISH,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::JoinSkirmish, &WorldSession::HandleJoinSkirmish);
     DEFINE_HANDLER(CMSG_BATTLENET_CHALLENGE_RESPONSE,                       STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_BEGIN_TRADE,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Trade::NullCmsg, &WorldSession::HandleBeginTrade);
     DEFINE_HANDLER(CMSG_BF_MGR_ENTRY_INVITE_RESPONSE,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Battleground::EntryOrQueueInviteResponse, &WorldSession::HandleBfEntryInviteResponse);

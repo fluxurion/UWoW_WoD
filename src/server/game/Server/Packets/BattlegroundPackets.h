@@ -640,6 +640,19 @@ namespace WorldPackets
 
             uint64 QueueID = 0;
         };
+
+        class JoinSkirmish final : public ClientPacket
+        {
+        public:
+            JoinSkirmish(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEMASTER_JOIN_SKIRMISH, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Roles = 0;
+            uint8 Bracket = 0;
+            bool JoinAsGroup = false;
+            bool UnkBool = false;
+        };
     }
 }
 

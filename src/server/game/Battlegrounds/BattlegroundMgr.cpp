@@ -211,7 +211,7 @@ void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::
 {
     header->Ticket.RequesterGuid = player->GetGUID();
     header->Ticket.Id = ticketId;
-    header->Ticket.Type = (bg->isArena() || bg->IsRBG()) ? arenaType : TICKET_TYPE_BG_SYSTEM;
+    header->Ticket.Type = /*(bg->isArena() || bg->IsRBG()) ? arenaType : */TICKET_TYPE_BG_SYSTEM;
     header->Ticket.Time = joinTime;
     header->QueueID = bg->GetQueueID();
     header->RangeMin = bg->GetMinLevel();

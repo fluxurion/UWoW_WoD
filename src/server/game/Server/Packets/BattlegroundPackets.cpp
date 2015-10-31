@@ -552,3 +552,11 @@ void WorldPackets::Battleground::QueueRequest::Read()
 {
     _worldPacket >> QueueID;
 }
+
+void WorldPackets::Battleground::JoinSkirmish::Read()
+{
+    JoinAsGroup = _worldPacket.ReadBit();
+    UnkBool = _worldPacket.ReadBit();
+    _worldPacket >> Roles;
+    _worldPacket >> Bracket;
+}
