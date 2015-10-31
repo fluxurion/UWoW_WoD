@@ -1022,10 +1022,7 @@ void Battleground::PlayerReward(Player* player, bool isWinner, uint8 type, bool 
 
     auto quest = sObjectMgr->GetQuestTemplate(bgQuests[t][player->GetBGTeam() == ALLIANCE ? 0 : 1]);
     if (quest)
-    {
-        if (player->CanRewardQuest(quest, false))
-            player->RewardQuest(quest, 0, nullptr, false);
-    }
+        player->RewardQuest(quest, 0, nullptr, false);
 }
 
 uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const
