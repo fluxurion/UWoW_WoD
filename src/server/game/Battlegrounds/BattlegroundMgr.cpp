@@ -316,7 +316,7 @@ void BattlegroundMgr::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogDa
             {
                 Bracket* bracket = player->getBracket(bType);
                 if (!bracket)
-                    sBracketMgr->TryGetOrCreateBracket(itr2->first, bType);
+                    bracket = sBracketMgr->TryGetOrCreateBracket(itr2->first, bType);
             
                 if (bracket)
                 {
