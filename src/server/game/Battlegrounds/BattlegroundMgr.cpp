@@ -165,7 +165,7 @@ void BattlegroundMgr::Update(uint32 diff)
             for (int8 qtype = BATTLEGROUND_QUEUE_2v2; qtype <= BATTLEGROUND_QUEUE_5v5; ++qtype)
                 for (int8 bracket = BG_BRACKET_ID_FIRST; bracket < MAX_BATTLEGROUND_BRACKETS; ++bracket)
                     m_BattlegroundQueues[qtype].BattlegroundQueueUpdate(diff, BATTLEGROUND_AA, BattlegroundBracketId(bracket),
-                        BattlegroundMgr::BGJoinType(BattlegroundQueueTypeId(qtype)), false, 0);
+                        BGJoinType(BattlegroundQueueTypeId(qtype)), false, 0);
 
             m_NextRatedArenaUpdate = sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER);
         } else
@@ -276,7 +276,7 @@ void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::
 
 void BattlegroundMgr::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& packet, Battleground* bg)
 {
-    BracketType bType = BattlegroundMgr::BracketByJoinType(bg->GetJoinType());
+    BracketType bType = BracketByJoinType(bg->GetJoinType());
 
     if (bg->GetStatus() == STATUS_WAIT_LEAVE)
         packet.Winner = bg->GetWinner();
