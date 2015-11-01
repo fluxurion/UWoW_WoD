@@ -20,6 +20,7 @@
 
 #include <future>
 #include "QueryResult.h"
+#include "Duration.h"
 
 typedef std::future<QueryResult> QueryResultFuture;
 typedef std::promise<QueryResult> QueryResultPromise;
