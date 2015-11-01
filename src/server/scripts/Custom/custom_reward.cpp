@@ -219,46 +219,46 @@ public:
 
                 if(!bonus5 && totaltime >= (100 * HOUR))
                 {
-                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 49663);
+                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 111660);
                     update = true;
                     bonus5 = true;
                 }
                 if(!bonus6 && totaltime >= (500 * HOUR))
                 {
-                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 83086);
+                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 118517);
                     update = true;
                     bonus6 = true;
                 }
                 if(!bonus7 && totaltime >= (1000 * HOUR))
                 {
-                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 106246);
+                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 76755);
                     update = true;
                     bonus7 = true;
                 }
                 if(!bonus8 && totaltime >= (2500 * HOUR))
                 {
-                    if(player->GetTeam() == HORDE)
-                        CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 76902);
-                    else
-                        CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 76889);
+                    //if(player->GetTeam() == HORDE)
+                        CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 98618);
+                    //else
+                        //CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 76889);
                     update = true;
                     bonus8 = true;
                 }
                 if(!bonus9 && totaltime >= (5000 * HOUR))
                 {
-                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 69846);
+                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 109013);
                     update = true;
                     bonus9 = true;
                 }
                 if(!bonus10 && totaltime >= (9000 * HOUR))
                 {
-                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 21176);
+                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 112327);
                     update = true;
                     bonus10 = true;
                 }
                 if(!bonus11 && totaltime >= (250 * HOUR))
                 {
-                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 68385);
+                    CharacterDatabase.PQuery("INSERT INTO `character_reward` (`owner_guid`, `type`, `id`, `count`) VALUES('%u','3','%u','1')", owner_guid, 25535);
                     update = true;
                     bonus11 = true;
                 }
