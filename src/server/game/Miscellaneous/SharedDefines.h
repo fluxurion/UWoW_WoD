@@ -333,6 +333,15 @@ enum Powers
     POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
 };
 
+enum PowerIndex
+{
+    POWER_INDEX_MAIN                    = 0,
+    POWER_INDEX_SECOND                  = 1,
+    POWER_INDEX_THIRD                   = 2,
+    POWER_INDEX_FOURTH                  = 3,
+    POWER_INDEX_MAX                     = 6,
+};
+
 #define MAX_POWERS_PER_CLASS              6
 
 enum SpellSchools : int32

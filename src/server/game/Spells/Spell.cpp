@@ -3700,6 +3700,8 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         _triggeredCastFlags, m_targets.GetTargetMask(), m_targets.GetUnitTarget() ? m_targets.GetUnitTarget()->ToString().c_str() : "" );
     #endif
 
+    LinkedSpell(m_caster, m_targets.GetUnitTarget(), SPELL_LINK_PREPARE_CAST);
+
     //Containers for channeled spells have to be set
     //TODO:Apply this to all casted spells if needed
     // Why check duration? 29350: channeled triggers channeled

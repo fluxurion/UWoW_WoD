@@ -2410,7 +2410,7 @@ class spell_dru_a12_4p_feral_bonus : public SpellScriptLoader
         }
 };
 
-// 779 - Swipe
+// 106785 - Swipe
 class spell_dru_swipe : public SpellScriptLoader
 {
     public:
@@ -2424,53 +2424,31 @@ class spell_dru_swipe : public SpellScriptLoader
             {
                 if (Unit* unitTarget = GetHitUnit())
                 {
-                    float percent = float(GetSpellInfo()->Effects[1].BasePoints + 100)/100.0f;
+                    GetSpell()->AddEffectTarget(unitTarget->GetGUID());
                     if(unitTarget->HasAuraState(AURA_STATE_BLEEDING))
-                        SetHitDamage(int32(GetHitDamage() * percent));
+                        SetHitDamage(GetHitDamage() + int32(CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].BasePoints)));
                 }
+            }
+
+            void HandleAfterCast()
+            {
+                if(GetSpell()->GetEffectTargets().empty())
+                    return;
+
+                if (Unit* caster = GetCaster())
+                    caster->ModifyPower(POWER_COMBO_POINTS, 1);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dru_swipe_SpellScript::Damage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_swipe_SpellScript::Damage, EFFECT_2, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+                AfterCast += SpellCastFn(spell_dru_swipe_SpellScript::HandleAfterCast);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_swipe_SpellScript();
-        }
-};
-
-// 62078 - Swipe
-class spell_dru_swipe_two : public SpellScriptLoader
-{
-    public:
-        spell_dru_swipe_two() : SpellScriptLoader("spell_dru_swipe_two") { }
-
-        class spell_dru_swipe_two_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_swipe_two_SpellScript);
-
-            void Damage(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    float percent = float(GetSpellInfo()->Effects[1].BasePoints + 100)/100.0f;
-                    if(unitTarget->HasAuraState(AURA_STATE_BLEEDING))
-                        SetHitDamage(int32(GetHitDamage() * percent));
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dru_swipe_two_SpellScript::Damage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dru_swipe_two_SpellScript();
         }
 };
 
@@ -3153,7 +3131,6 @@ void AddSC_druid_spell_scripts()
     new spell_druid_berserk_tiger_fury_buff();
     new spell_dru_a12_4p_feral_bonus();
     new spell_dru_swipe();
-    new spell_dru_swipe_two();
     new spell_dru_tooth_and_claw();
     new spell_dru_spell_dru_tooth_and_claw_absorb();
     new spell_dru_healing_ouch();

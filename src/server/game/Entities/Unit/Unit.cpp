@@ -1187,8 +1187,13 @@ int32 Unit::InterceptionOfDamage(Unit* victim, uint32 damage, DamageEffectType d
             AuraEffect* effectPrimal0 = auraPrimal->GetEffect(0);
             AuraEffect* effectPrimal1 = auraPrimal->GetEffect(1);
 
-            if (effectPrimal0 && effectPrimal1 && !effectPrimal1->GetAmount() && effectPrimal0->GetAmount())
+            if (effectPrimal0 && effectPrimal1 && effectPrimal0->GetAmount() && !auraPrimal->GetCustomData())
+            {
                 effectPrimal1->SetAmount(int32(CalculatePct(damage, effectPrimal0->GetAmount())));
+                auraPrimal->SetCustomData(1);
+            }
+            else if(auraPrimal->GetCustomData())
+                auraPrimal->SetCustomData(0);
         }
     }
     return damage;

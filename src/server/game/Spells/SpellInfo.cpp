@@ -2851,10 +2851,10 @@ uint32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) 
         // Apply cost mod by spell
         if (Player* modOwner = caster->GetSpellModOwner())
         {
-            if (power.PowerIndex == POWER_MANA)
-                modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost);
-            else if (power.PowerIndex == POWER_RAGE)
+            if (power.PowerIndex == POWER_INDEX_SECOND)
                 modOwner->ApplySpellMod(Id, SPELLMOD_SPELL_COST2, powerCost);
+            else if(power.PowerType != POWER_BURNING_EMBERS)
+                modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost);
         }
 
         if (!caster->IsControlledByPlayer() && G3D::fuzzyEq(power.PowerCostPercentage, 0.0f) && SpellLevel)
