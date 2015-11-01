@@ -155,9 +155,11 @@ void ReputationMgr::SendForceReactions()
 {
     WorldPackets::Reputation::SetForcedReactions reactions;
     reactions.Reactions.resize(_forcedReactions.size());
+
+    std::size_t i = 0;
     for (const auto& itr : _forcedReactions)
     {
-        WorldPackets::Reputation::ForcedReaction& fReaction = reactions.Reactions[_forcedReactions.size()];
+        WorldPackets::Reputation::ForcedReaction& fReaction = reactions.Reactions[i++];
         fReaction.Faction = itr.first;
         fReaction.Reaction = uint32(itr.second);
     }
