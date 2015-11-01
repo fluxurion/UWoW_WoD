@@ -211,7 +211,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     std::string name = "NO_NAME_FOR_GUID";
 
     WorldPackets::Petition::QueryPetitionResponse responsePacket;
-    responsePacket.PetitionID = petitionguid.GetEntry();
+    responsePacket.PetitionID = uint32(petitionguid.GetCounter());
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION);
 
@@ -235,7 +235,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     int32 reqSignatures = sWorld->getIntConfig(CONFIG_MIN_PETITION_SIGNS);
 
     WorldPackets::Petition::PetitionInfo petitionInfo;
-    petitionInfo.PetitionID = petitionguid.GetEntry();
+    petitionInfo.PetitionID = int32(petitionguid.GetCounter());
     petitionInfo.Petitioner = ownerguid;
     petitionInfo.MinSignatures = reqSignatures;
     petitionInfo.MaxSignatures = reqSignatures;
