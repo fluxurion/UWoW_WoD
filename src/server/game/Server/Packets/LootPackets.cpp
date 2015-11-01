@@ -41,10 +41,10 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
 {
     _worldPacket << Owner;
     _worldPacket << LootObj;
-    _worldPacket << Threshold;
-    _worldPacket << LootMethod;
-    _worldPacket << AcquireReason;
     _worldPacket << FailureReason;
+    _worldPacket << AcquireReason;
+    _worldPacket << LootMethod;
+    _worldPacket << Threshold;
     _worldPacket << Coins;
     _worldPacket << static_cast<uint32>(Items.size());
     _worldPacket << static_cast<uint32>(Currencies.size());
