@@ -300,7 +300,8 @@ bool WorldSocket::ReadDataHandler()
                     _worldSession->ResetTimeOutTime();
 
                     // Copy the packet to the heap before enqueuing
-                    _worldSession->QueuePacket(new WorldPacket(std::move(packet)));
+                    bool deletePacket = true;
+                    _worldSession->QueuePacket(new WorldPacket(std::move(packet)), deletePacket);
                     break;
                 }
             }

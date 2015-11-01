@@ -73,15 +73,6 @@ void WorldSession::HandleChannelList(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelPassword(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelPassCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-        timeLastChannelPassCommand = now;
-
     uint32 nameLength = recvPacket.ReadBits(7);
     uint32 passLength = recvPacket.ReadBits(7);
 
@@ -95,15 +86,6 @@ void WorldSession::HandleChannelPassword(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelSetOwner(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelSetownerCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-       timeLastChannelSetownerCommand = now;
-
     uint32 channelLength = recvPacket.ReadBits(7);
     uint32 nameLength = recvPacket.ReadBits(9);
 
@@ -120,15 +102,6 @@ void WorldSession::HandleChannelSetOwner(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelOwner(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelOwnerCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-       timeLastChannelOwnerCommand = now;
-
     uint32 length = recvPacket.ReadBits(7);
     std::string channelname = recvPacket.ReadString(length);
 
@@ -139,15 +112,6 @@ void WorldSession::HandleChannelOwner(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelModerator(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelModerCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-       timeLastChannelModerCommand = now;
-
     uint32 channelLength = recvPacket.ReadBits(7);
     uint32 nameLength = recvPacket.ReadBits(9);
 
@@ -164,15 +128,6 @@ void WorldSession::HandleChannelModerator(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelUnmoderator(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelUnmoderCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-       timeLastChannelUnmoderCommand = now;
-
     uint32 channelLength = recvPacket.ReadBits(7);
     uint32 nameLength = recvPacket.ReadBits(9);
 
@@ -189,15 +144,6 @@ void WorldSession::HandleChannelUnmoderator(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelMute(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelMuteCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-        timeLastChannelMuteCommand = now;
-
     uint32 channelLength = recvPacket.ReadBits(7);
     uint32 nameLength = recvPacket.ReadBits(9);
 
@@ -214,15 +160,6 @@ void WorldSession::HandleChannelMute(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelUnmute(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelUnmuteCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-       timeLastChannelUnmuteCommand = now;
-
     uint32 channelLength = recvPacket.ReadBits(7);
     uint32 nameLength = recvPacket.ReadBits(9);
 
@@ -239,15 +176,6 @@ void WorldSession::HandleChannelUnmute(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelInvite(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelInviteCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-       timeLastChannelInviteCommand = now;
-
     uint32 channelLength = recvPacket.ReadBits(7);
     uint32 nameLength = recvPacket.ReadBits(9);
 
@@ -273,15 +201,6 @@ void WorldSession::HandleChannelInvite(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelKick(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelKickCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-       timeLastChannelKickCommand = now;
-
     uint32 channelLength = recvPacket.ReadBits(7);
     uint32 nameLength = recvPacket.ReadBits(9);
 
@@ -298,15 +217,6 @@ void WorldSession::HandleChannelKick(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelBan(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelBanCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-       timeLastChannelBanCommand = now;
-
     uint32 channelLength, nameLength;
     std::string channelname, otp;
 
@@ -326,15 +236,6 @@ void WorldSession::HandleChannelBan(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelUnban(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelUnbanCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-       timeLastChannelUnbanCommand = now;
-
     uint32 channelLength = recvPacket.ReadBits(7);
     uint32 nameLength = recvPacket.ReadBits(9);
 
@@ -351,15 +252,6 @@ void WorldSession::HandleChannelUnban(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelAnnouncements(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastChannelAnnounceCommand < 5)
-    {
-        recvPacket.rfinish();
-        return;
-    }
-    else
-       timeLastChannelAnnounceCommand = now;
-
     uint32 length = recvPacket.ReadBits(7);
     std::string channelname = recvPacket.ReadString(length);
 

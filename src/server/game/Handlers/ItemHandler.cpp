@@ -350,16 +350,6 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
     if (!player)
         return;
 
-    //time_t now = time(nullptr);
-    //if (now - timeLastHandleSellItem < 1)
-    //{
-    //    player->SendSellError(SELL_ERR_CANT_FIND_ITEM, nullptr, 0);
-    //    recvData.rfinish();
-    //    return;
-    //}
-    //else
-    //   timeLastHandleSellItem = now;
-
     if (packet.ItemGUID.IsEmpty())
         return;
 

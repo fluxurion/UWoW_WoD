@@ -439,12 +439,6 @@ void WorldSession::HandleSelfRes(WorldPackets::Spells::SelfRes& /*packet*/)
 
 void WorldSession::HandleSpellClick(WorldPackets::Spells::SpellClick& packet)
 {
-    time_t now = time(NULL);
-    if (now - timeLastHandleSpellClick < 2)
-        return;
-    else
-        timeLastHandleSpellClick = now;
-
     // this will get something not in world. crash
     Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.SpellClickUnitGuid);
     if (!unit)

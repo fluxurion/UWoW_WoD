@@ -45,6 +45,8 @@ class Player;
 class WorldSocket;
 class SystemMgr;
 
+#define PACKETS_COUNT 10000
+
 // ServerMessages.dbc
 enum ServerMessageType
 {
@@ -792,6 +794,7 @@ class World
         void setWorldState(uint32 index, uint64 value);
         uint64 getWorldState(uint32 index) const;
         void LoadWorldStates();
+        void LoadWorldAntispamm();
 
         /// Are we on a "Player versus Player" server?
         bool IsPvPRealm() const { return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
@@ -877,6 +880,8 @@ class World
         time_t getInstanceResetTime(uint32 resetTime);
 
         void DeleteCharName(std::string name) { nameMap.erase(name); }
+
+        uint32 GetAntiSpamm(uint32 opcode, uint32 value) { return loadantispamm[opcode][value]; }
 
     protected:
         void _UpdateGameTime();
@@ -998,6 +1003,8 @@ class World
 
         void ProcessQueryCallbacks();
         std::deque<std::future<PreparedQueryResult>> m_realmCharCallbacks;
+
+        uint32 loadantispamm[PACKETS_COUNT][2];//0 maxcount, 1 time
 };
 
 extern Realm realm;

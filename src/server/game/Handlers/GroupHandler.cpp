@@ -67,12 +67,6 @@ void WorldSession::HandlePartyInvite(WorldPackets::Party::PartyInviteClient& pac
     if (!c_player)
         return;
 
-    time_t now = time(NULL);
-    if (now - timeLastGroupInviteCommand < 5)
-        return;
-    else
-       timeLastGroupInviteCommand = now;
-
     // cheating
     if (!normalizePlayerName(packet.TargetName))
     {
@@ -610,12 +604,6 @@ void WorldSession::HandleConvertRaid(WorldPackets::Party::ConvertRaid& packet)
 
 void WorldSession::HandleChangeSubGroup(WorldPackets::Party::ChangeSubGroup& packet)
 {
-    time_t now = time(NULL);
-    if (now - timeAddIgnoreOpcode < 3)
-        return;
-    else
-       timeAddIgnoreOpcode = now;
-
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;

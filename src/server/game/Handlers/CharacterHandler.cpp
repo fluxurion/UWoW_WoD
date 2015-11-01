@@ -405,13 +405,6 @@ void WorldSession::HandleCharUndelete(WorldPacket & recvData)
 
 void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateChar& charCreate)
 {
-    time_t now = time(NULL);
-    if (now - timeAddIgnoreOpcode < 3)
-        return;
-    else
-       timeAddIgnoreOpcode = now;
-
-
     if (AccountMgr::IsPlayerAccount(GetSecurity()))
     {
         if (uint32 mask = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED))
@@ -852,12 +845,6 @@ void WorldSession::HandleCharDeleteOpcode(WorldPackets::Character::DeleteChar& c
 
 void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin& playerLogin)
 {
-    time_t now = time(NULL);
-    if (now - timeLastHandlePlayerLogin < 5)
-        return;
-    else
-       timeLastHandlePlayerLogin = now;
-
     // Prevent flood of CMSG_PLAYER_LOGIN
     if (++playerLoginCounter > 10)
     {
@@ -1209,12 +1196,6 @@ void WorldSession::HandleShowingCloak(WorldPackets::Character::ShowingCloak& /*p
 
 void WorldSession::HandleCharacterRenameRequest(WorldPackets::Character::CharacterRenameRequest& packet)
 {
-    time_t now = time(nullptr);
-    if (now - timeAddIgnoreOpcode < 3)
-        return;
-    else
-       timeAddIgnoreOpcode = now;
-
     if (!normalizePlayerName(packet.RenameInfo->NewName))
     {
         WorldPackets::Character::CharacterRenameResult result;

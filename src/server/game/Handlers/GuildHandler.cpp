@@ -68,12 +68,6 @@ void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 //! 6.0.3
 void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
 {
-    time_t now = time(NULL);
-    if (now - timeLastGuildInviteCommand < 5)
-        return;
-    else
-       timeLastGuildInviteCommand = now;
-
     std::string invitedName = recvPacket.ReadString(recvPacket.ReadBits(9));
 
     if (normalizePlayerName(invitedName))

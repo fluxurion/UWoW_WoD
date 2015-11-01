@@ -26,12 +26,6 @@
 
 void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
 {
-    time_t now = time(nullptr);
-    if (now - timeLastWhoCommand < 15)
-        return;
-    else
-        timeLastWhoCommand = now;
-
     WorldPackets::Who::WhoRequest& request = whoRequest.Request;
 
     if (whoRequest.Areas.size() > 10)

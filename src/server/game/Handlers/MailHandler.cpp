@@ -37,16 +37,6 @@
 //! 6.0.3
 void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
 {
-    time_t now = time(NULL);
-    if (now - timeLastHandleSendMail < 15)
-    {
-        _player->SendMailResult(0, MAIL_SEND, MAIL_ERR_INTERNAL_ERROR);
-        SendNotification("You can't send mail more than once every few seconds");
-        return;
-    }
-    else
-       timeLastHandleSendMail = now;
-
     if (packet.Info.Attachments.size() > MAX_MAIL_ITEMS)        // client limit
     {
         GetPlayer()->SendMailResult(0, MAIL_SEND, MAIL_ERR_TOO_MANY_ATTACHMENTS);

@@ -33,12 +33,6 @@ void WorldSession::HandleContactListOpcode(WorldPackets::Social::SendContactList
 
 void WorldSession::HandleAddFriend(WorldPackets::Social::AddFriend& packet)
 {
-    time_t now = time(nullptr);
-    if (now - timeAddIgnoreOpcode < 3)
-        return;
-    else
-       timeAddIgnoreOpcode = now;
-
     if (!normalizePlayerName(packet.Name))
         return;
 
@@ -61,12 +55,6 @@ void WorldSession::HandleDelFriendOpcode(WorldPackets::Social::DelFriend& packet
 
 void WorldSession::HandleAddIgnore(WorldPackets::Social::AddIgnore& packet)
 {
-    time_t now = time(nullptr);
-    if (now - timeAddIgnoreOpcode < 3)
-        return;
-    else
-       timeAddIgnoreOpcode = now;
-
     if (!normalizePlayerName(packet.Name))
         return;
 

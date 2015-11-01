@@ -379,15 +379,6 @@ void WorldSession::HandlePetRename(WorldPacket & recvData)
 //! 6.0.3
 void WorldSession::HandlePetAbandon(WorldPacket& recvData)
 {
-    time_t now = time(NULL);
-    if (now - timeAddIgnoreOpcode < 3)
-    {
-        recvData.rfinish();
-        return;
-    }
-    else
-       timeAddIgnoreOpcode = now;
-
     ObjectGuid guid;
     recvData >> guid;
 
@@ -595,16 +586,6 @@ void WorldSession::HandleLearnPetSpecializationGroup(WorldPackets::PetPackets::L
 //! 6.0.3
 void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recvData)
 {
-    time_t now = time(NULL);
-    if (now - timeAddIgnoreOpcode < 1)
-    {
-        SendStableResult(STABLE_ERR_STABLE);
-        recvData.rfinish();
-        return;
-    }
-    else
-       timeAddIgnoreOpcode = now;
-
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_REQUEST_STABLED_PETS");
 
     ObjectGuid npcGUID;
@@ -630,16 +611,6 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recvData)
 //! 6.0.3
 void WorldSession::HandleStableChangeSlot(WorldPacket & recv_data)
 {
-    time_t now = time(NULL);
-    if (now - timeAddIgnoreOpcode < 1)
-    {
-        SendStableResult(STABLE_ERR_STABLE);
-        recv_data.rfinish();
-        return;
-    }
-    else
-       timeAddIgnoreOpcode = now;
-
     //sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_SET_PET_SLOT.");
     uint32 pet_number;
     ObjectGuid npcGUID;
@@ -725,7 +696,6 @@ void WorldSession::HandleStableChangeSlotCallback(PreparedQueryResult result, ui
     {
         // We need to remove and add the new pet to there diffrent slots
         GetPlayer()->SwapPetSlot(slot, (PetSlot)new_slot);
-        timeAddIgnoreOpcode = 0;
     }
 
     SendStableResult(STABLE_SUCCESS_STABLE);
