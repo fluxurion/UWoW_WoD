@@ -1471,17 +1471,38 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
 
     if (victim)
     {
+        uint8 plrExp;
+        uint8 plrlvl;
+        if (victim->ToPlayer())
+            plrlvl = victim->getLevel();
+        else if (ToPlayer())
+            plrlvl = getLevel();
+
+        if (ToPlayer() || victim->ToPlayer())
+        {
+            if (plrlvl < 60) //Classic
+                plrExp = 0;
+            else if (plrlvl > 59 && plrlvl < 70) //Bk
+                plrExp = 1;
+            else if (plrlvl > 69 && plrlvl < 80) //Lk
+                plrExp = 2;
+            else if (plrlvl > 79 && plrlvl < 85) //Cata
+                plrExp = 3;
+            else if (plrlvl > 84) //Mop+Wod
+                plrExp = 4;
+        }
+
         if (ToCreature() && victim->ToPlayer())
         {
-            if (ToCreature() && ToCreature()->GetCreatureTemplate()->expansion < 4)
-                if (victim->getLevel() - getLevel() > 10)
-                    damage /= 15;
+            if (ToCreature() && ToCreature()->GetCreatureTemplate()->expansion < plrExp)
+                if (plrlvl - getLevel() > 10)
+                    damage /= 10;
         }
         else if (ToPlayer() && victim->ToCreature())
         {
-            if (victim->ToCreature() && victim->ToCreature()->GetCreatureTemplate()->expansion < 4)
+            if (victim->ToCreature() && victim->ToCreature()->GetCreatureTemplate()->expansion < plrExp)
             {
-                switch (getLevel() - victim->getLevel())
+                switch (plrlvl - victim->getLevel())
                 {
                     case 1: damage *= 1.0625f; break;
                     case 2: damage *= 1.1250f; break;
@@ -1496,7 +1517,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                             break;
                 }
 
-                if (getLevel() - victim->getLevel() >= 10)
+                if (plrlvl - victim->getLevel() >= 10)
                     damage *= 16.500f;
             }
         }
@@ -1598,17 +1619,38 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
 
     if (victim)
     {
+        uint8 plrExp;
+        uint8 plrlvl;
+        if (victim->ToPlayer())
+            plrlvl = victim->getLevel();
+        else if (ToPlayer())
+            plrlvl = getLevel();
+
+        if (ToPlayer() || victim->ToPlayer())
+        {
+            if (plrlvl < 60) //Classic
+                plrExp = 0;
+            else if (plrlvl > 59 && plrlvl < 70) //Bk
+                plrExp = 1;
+            else if (plrlvl > 69 && plrlvl < 80) //Lk
+                plrExp = 2;
+            else if (plrlvl > 79 && plrlvl < 85) //Cata
+                plrExp = 3;
+            else if (plrlvl > 84) //Mop+Wod
+                plrExp = 4;
+        }
+
         if (ToCreature() && victim->ToPlayer())
         {
-            if (ToCreature() && ToCreature()->GetCreatureTemplate()->expansion < 4)
-                if (victim->getLevel() - getLevel() > 10)
-                    damage /= 15;
+            if (ToCreature() && ToCreature()->GetCreatureTemplate()->expansion < plrExp)
+                if (plrlvl - getLevel() > 10)
+                    damage /= 10;
         }
         else if (ToPlayer() && victim->ToCreature())
         {
-            if (victim->ToCreature() && victim->ToCreature()->GetCreatureTemplate()->expansion < 4)
+            if (victim->ToCreature() && victim->ToCreature()->GetCreatureTemplate()->expansion < plrExp)
             {
-                switch (getLevel() - victim->getLevel())
+                switch (plrlvl - victim->getLevel())
                 {
                     case 1: damage *= 1.0625f; break;
                     case 2: damage *= 1.1250f; break;
@@ -1623,7 +1665,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
                             break;
                 }
 
-                if (getLevel() - victim->getLevel() >= 10)
+                if (plrlvl - victim->getLevel() >= 10)
                     damage *= 16.500f;
             }
         }
