@@ -59,6 +59,19 @@ public:
             }
         };
 
+        void OnCreatureCreate(Creature* creature) override
+        {
+            switch (creature->GetEntry())
+            {
+                case 76411:
+                {
+                    uint32 const sp[3] = {163066, 163071, 163069};
+                    creature->CastSpell(creature, sp[urand(0, 2)]);
+                    break;
+                }
+            }
+        }
+
         void Update(uint32 diff) 
         {
 

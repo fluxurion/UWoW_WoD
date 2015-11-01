@@ -35,6 +35,7 @@ update `creature_template` set `npcflag2` = 2  WHERE `name` LIKE 'Architect Tabl
 -- 3326 - rew 34375 removed with 3326
 -- 3887 - taken 34378
 -- 3364 - compl. 34378
+-- 3311 - Q34462 area 6966
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES 
 ('6720', '1', '0', '3194', '0', '0', '16', 'Draenor. FrostFireRidge. While not rew q33868'),    --                                      2406 2537 3007 3021 3023 3025 3026 3194 3195 3427 3441 3592 4086
 ('6720', '2', '0', '3441 3195', '0', '0', '16', 'Draenor. FrostFireRidge. While not teken q34402'),                  -- q33815 take     2406 2537 3007 3021 3023 3025 3026 3195 3427 3441 3592 4086
@@ -51,6 +52,7 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 ('6720', '11', '0', '3887', '0', '0', '16', 'Draenor. FrostFireRidge. 34378 taken '),                                -- take 34378      2406 2537 3007 3021 3023 3025 3026 3196 3197 3213 3324 3325 3326 3427 3592 3887 3962 4086 4177
 ('6720', '12', '0', '0', '1152', '0', '24', 'Draenor. FrostFireRidge. Garrison terrain lvl.1 '),                     -- comp. 34378     2406 2537 3007 3021 3023 3025 3026 3196 3213 3324 3364 3592 3962 4086 4177
 ('6720', '13', '0', '3364', '0', '0', '16', 'Draenor. FrostFireRidge. 34378 complete '),                     --
+                                                                                                                     --                 2406 2537 3007 3021 3023 3025 3026 3196 3213 3324 3364 3592 3962 4086 4177
 ('6720', '100', '0', '2406 2537 3007 3021 3023 3025 3026 3427 3592 4086', '0', '0', '16', 'Draenor. FrostFireRidge.'); --
 
 -- Я не использую проверки по области подобно 7004 т.к. есть вопросы между уровнями гарнизонов.
@@ -94,7 +96,8 @@ DELETE FROM `spell_area` WHERE area in (6720);
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
 ('158228', '6720', '34402', '34402', '0', '0', '2', '1', '10', '64'),
 ('49416', '6720', '34375', '34375', '0', '0', '2', '1', '10', '64'),
-('175536', '6720', '34378', '34378', '0', '0', '2', '0', '2', '64');
+('175536', '6720', '34378', '34378', '0', '0', '2', '0', '2', '64'),
+('161693', '6720', '34461', '0', '0', '0', '2', '1', '66', '64');
 
 -- Quest chaine fixes.
 REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`) VALUES 
@@ -108,6 +111,9 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34822', '34378', '34461', '-34822'),
 ('34824', '34378', '34461', '-34822'),
 ('34823', '34378', '0', '0'),
+('34861', '34461', '0', '0'),
+('34462', '34861', '0', '0'),
+('34775', '34462', '0', '0'),
 
 ('34379', '33816', '0', '0');
 
