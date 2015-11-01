@@ -166,7 +166,6 @@ enum BattlegroundTimeIntervals
 {
     FLAGS_UPDATE                    = 5000,
     RESURRECTION_INTERVAL           = 30000,                // ms
-    //REMIND_INTERVAL                 = 10000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
     INVITE_ACCEPT_WAIT_TIME         = 90000,                // ms
     TIME_AUTOCLOSE_BATTLEGROUND     = 120000,               // ms
@@ -646,11 +645,18 @@ class Battleground
         // TODO: make this protected:
         GuidVector BgObjects;
         GuidVector BgCreatures;
+
         void SpawnBGObject(uint32 type, uint32 respawntime);
+
+        bool AddObject(uint32 type, uint32 entry, Position pos, Position rotation = { }, uint32 respawnTime = 0);
         bool AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime = 0);
+
+        Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, Position pos, uint32 respawntime = 0);
         Creature* AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime = 0);
+
         bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
+        bool AddSpiritGuide(uint32 type, Position pos, uint32 team);
         bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team);
         int32 GetObjectType(ObjectGuid guid);
 
@@ -778,6 +784,7 @@ class Battleground
          * @see Update(), PreUpdateImpl().
          */
         virtual void PostUpdateImpl(uint32 /* diff */) { };
+        virtual void PostUpdateImpl(Milliseconds /*diff*/) { };
 
         // Player lists
         GuidVector m_ResurrectQueue;               // Player GUID

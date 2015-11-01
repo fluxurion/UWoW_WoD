@@ -1436,6 +1436,7 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targ
                         {
                             case GAMEOBJECT_TYPE_CHEST:
                             case GAMEOBJECT_TYPE_GOOBER:
+                            case GAMEOBJECT_TYPE_CAPTURE_POINT:
                                 if (!IsActivateToQuest)
                                     fieldBuffer << uint16(GO_DYNFLAG_LO_ACTIVATE);
                                 else

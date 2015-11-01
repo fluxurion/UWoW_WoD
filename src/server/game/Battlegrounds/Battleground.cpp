@@ -336,6 +336,7 @@ void Battleground::Update(uint32 diff)
     m_ValidStartPositionTimer += diff;
 
     PostUpdateImpl(diff);
+    PostUpdateImpl(Milliseconds(diff));
 }
 
 inline void Battleground::_ProcessOfflineQueue()
@@ -1543,6 +1544,11 @@ void Battleground::RemovePlayerFromResurrectQueue(ObjectGuid player_guid)
     }
 }
 
+bool Battleground::AddObject(uint32 type, uint32 entry, Position pos, Position rotation /*= { }*/, uint32 respawnTime /*= 0*/)
+{
+    return AddObject(type, entry, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation, rotation.m_positionX, rotation.m_positionY, rotation.m_positionZ, rotation.m_orientation, respawnTime);
+}
+
 bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/)
 {
     // If the assert is called, means that BgObjects must be resized!
@@ -1665,6 +1671,11 @@ void Battleground::SpawnBGObject(uint32 type, uint32 respawntime)
         }
 }
 
+Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, Position pos, uint32 respawntime /*= 0*/)
+{
+    return AddCreature(entry, type, teamval, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation, respawntime);
+}
+
 Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime)
 {
     // If the assert is called, means that BgCreatures must be resized!
@@ -1746,6 +1757,11 @@ bool Battleground::DelObject(uint32 type)
                    type, BgObjects[type].GetCounter(), m_MapId, m_InstanceID);
     BgObjects[type].Clear();
     return false;
+}
+
+bool Battleground::AddSpiritGuide(uint32 type, Position pos, uint32 team)
+{
+    return AddSpiritGuide(type, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation, team);
 }
 
 bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team)
