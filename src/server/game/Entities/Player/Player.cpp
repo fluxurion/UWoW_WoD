@@ -23860,6 +23860,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         return false;
     }
 
+    uint64 extGold = 0;
     if (crItem->ExtendedCost)
     {
         // Can only buy full stacks for extended cost
@@ -23934,6 +23935,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
             SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
             return false;
         }
+        extGold = iece->RequiredMoney;
     }
 
     std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
@@ -23974,15 +23976,15 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     }
 
     uint64 price = 0;
-    if (crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
+    if (extGold || crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
     {
-        uint32 maxCount = MAX_MONEY_AMOUNT / pProto->BuyPrice;
+        uint32 maxCount = MAX_MONEY_AMOUNT / (extGold ? extGold : pProto->BuyPrice);
         if ((uint32)count > maxCount)
         {
             sLog->outError(LOG_FILTER_PLAYER, "Player %s tried to buy %u item id %u, causing overflow", GetName(), (uint32)count, pProto->ItemId);
             count = (uint8)maxCount;
         }
-        price = pProto->BuyPrice * count; //it should not exceed MAX_MONEY_AMOUNT
+        price = (extGold ? extGold : pProto->BuyPrice) * count; //it should not exceed MAX_MONEY_AMOUNT
 
         // reputation discount
         price *= double(GetReputationPriceDiscount(creature));

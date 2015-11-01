@@ -636,12 +636,9 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
             // if (!unk "enabler") data << uint32(something);
             if (vendorItem->ExtendedCost != 0)
             {
-                //Hack for donate
-                if (vendorItem->ExtendedCost > 14999)
-                {
-                    if (ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(vendorItem->ExtendedCost))
-                        price = uint32(iece->RequiredItemCount[0] * 10000 * sWorld->getRate(RATE_DONATE));
-                }
+                if (ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(vendorItem->ExtendedCost))
+                    if(iece->RequiredMoney > 0)
+                        price = iece->RequiredMoney;
             }
 
             item.MuID = slot + 1; // client expects counting to start at 1
