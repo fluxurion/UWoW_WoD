@@ -2001,27 +2001,17 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     if (armor < 0.0f)
         armor = 0.0f;
 
-    float levelModifier = getLevel();
-    if ( levelModifier > 95 )
-        levelModifier = 424.5f;
-    else if ( levelModifier > 85 )
- 		levelModifier = levelModifier + (4.5 * (levelModifier - 59)) + (20 * (levelModifier - 80)) + (22 * (levelModifier - 85));
- 	else if ( levelModifier > 80 )
- 		levelModifier = levelModifier + (4.5 * (levelModifier - 59)) + (20 * (levelModifier - 80));
- 	else if ( levelModifier > 59 )
- 		levelModifier = levelModifier + (4.5 * (levelModifier - 59));
+    GtArmorMitigationByLvlEntry const* gtArmorMitigation = sGtArmorMitigationByLvlStore.LookupEntry(getLevel() - 1);
+    float percReduced = armor / (armor + gtArmorMitigation->Armor);
 
-    float tmpvalue = armor / (8.5f * levelModifier + 40);
-    tmpvalue = tmpvalue / (1.0f + tmpvalue);
+    if (percReduced < 0.0f)
+        percReduced = 0.0f;
+    if (percReduced > 0.75f)
+        percReduced = 0.75f;
 
-    if (tmpvalue < 0.0f)
-        tmpvalue = 0.0f;
-    if (tmpvalue > 0.75f)
-        tmpvalue = 0.75f;
+    newdamage = uint32(damage - (damage * percReduced));
 
-    newdamage = uint32(damage - (damage * tmpvalue));
-
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalcArmorReducedDamage newdamage %i tmpvalue %f levelModifier %f damage %i", newdamage, tmpvalue, levelModifier, damage);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalcArmorReducedDamage newdamage %i percReduced %f damage %i", newdamage, percReduced, damage);
 
     return (newdamage > 1) ? newdamage : 1;
 }
