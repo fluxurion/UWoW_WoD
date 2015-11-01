@@ -628,7 +628,7 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
                     continue;
             }
 
-            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(vendorItem->gold ? vendorItem->gold : itemTemplate->BuyPrice/* * discountMod*/) : 0;
+            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(itemTemplate->BuyPrice/* * discountMod*/) : 0;
 
             //if (int32 priceMod = player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                  //price -= CalculatePct(price, priceMod);
