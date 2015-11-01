@@ -1,0 +1,4 @@
+delete from item_extended_cost where id in (5187,5188);
+INSERT INTO `item_extended_cost` (`ID`, `RequiredArenaSlot`, `RequiredItem1`, `RequiredItem2`, `RequiredItem3`, `RequiredItem4`, `RequiredItem5`, `RequiredItemCount1`, `RequiredItemCount2`, `RequiredItemCount3`, `RequiredItemCount4`, `RequiredItemCount5`, `RequiredPersonalArenaRating`, `ItemPurchaseGroup`, `RequiredCurrency1`, `RequiredCurrency2`, `RequiredCurrency3`, `RequiredCurrency4`, `RequiredCurrency5`, `RequiredCurrencyCount1`, `RequiredCurrencyCount2`, `RequiredCurrencyCount3`, `RequiredCurrencyCount4`, `RequiredCurrencyCount5`, `RequiredFactionId`, `RequiredFactionStanding`, `RequirementFlags`, `RequiredAchievement`, `RequiredMoney`, `VerifiedBuild`) VALUES 
+(5187, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 823, 0, 0, 0, 0, 10000, 0, 0, 0, 0, 0, 0, 0, 0, 100000000, 0),
+(5188, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 823, 0, 0, 0, 0, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 200000000, 0);

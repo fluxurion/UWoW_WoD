@@ -1407,21 +1407,55 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
             break;
     }
 
-    //float att_speed = float(GetAttackTime(attType))/1000.0f;
+    //float att_speed = float(GetAttackTime(BASE_ATTACK)) / 1000.0f;
 
     float weapon_mindamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
-    /* difference in AP between current attack power and base value from DB */
-    float att_pwr_change = GetTotalAttackPowerValue(attType) - GetCreatureTemplate()->attackpower;
-    float base_value  = GetModifierValue(unitMod, BASE_VALUE) + (att_pwr_change * GetAPMultiplier(attType, false) / 3.5f);
+    float base_value  = GetModifierValue(unitMod, BASE_VALUE);
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, SPELL_SCHOOL_MASK_NORMAL);
     float dmg_multiplier = GetCreatureTemplate()->dmg_multiplier;
-    if(CreatureDifficultyStat const* _stats = GetCreatureDiffStat())
+
+    /* if(CreatureDifficultyStat const* _stats = GetCreatureDiffStat())
         if(GetMobDifficulty() == 1 || GetMobDifficulty() == 3)
-            dmg_multiplier *= _stats->dmg_multiplier;
+            dmg_multiplier *= _stats->dmg_multiplier; */
+
+    switch (GetMap()->GetDifficultyID())
+    {
+        case DIFFICULTY_N_SCENARIO:
+            dmg_multiplier *= 1.5f;
+            break;
+        case DIFFICULTY_NORMAL:
+        case DIFFICULTY_HC_SCENARIO:
+        case DIFFICULTY_10_N:
+        case DIFFICULTY_10_HC:
+            dmg_multiplier *= 2;
+            break;
+        case DIFFICULTY_HEROIC:
+        case DIFFICULTY_25_N:
+        case DIFFICULTY_25_HC:
+            dmg_multiplier *= 4;
+            break;
+        case DIFFICULTY_CHALLENGE:
+        case DIFFICULTY_LFR:
+        case DIFFICULTY_LFR_NEW:
+            dmg_multiplier *= 5;
+            break;
+        case DIFFICULTY_NORMAL_RAID:
+        case DIFFICULTY_MYTHIC_DUNGEON:
+            dmg_multiplier *= 6;
+            break;
+        case DIFFICULTY_HEROIC_RAID:
+            dmg_multiplier *= 7;
+            break;
+        case DIFFICULTY_MYTHIC_RAID:
+            dmg_multiplier *= 8;
+            break;
+        default:
+            break;
+    }
 
     if (!CanUseAttackType(attType))
     {

@@ -1469,6 +1469,39 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         return;
     }
 
+    if (victim)
+    {
+        if (ToCreature() && victim->ToPlayer())
+        {
+            if (ToCreature() && ToCreature()->GetCreatureTemplate()->expansion < 4)
+                if (victim->getLevel() - getLevel() > 10)
+                    damage /= 10;
+        }
+        else if (ToPlayer() && victim->ToCreature())
+        {
+            if (victim->ToCreature() && victim->ToCreature()->GetCreatureTemplate()->expansion < 4)
+            {
+                switch (getLevel() - victim->getLevel())
+                {
+                    case 1: damage *= 1.0625f; break;
+                    case 2: damage *= 1.1250f; break;
+                    case 3: damage *= 1.1875f; break;
+                    case 4: damage *= 1.125f; break;
+                    case 5: damage *= 4.0f; break;
+                    case 6: damage *= 4.5f; break;
+                    case 7: damage *= 5.0f; break;
+                    case 8: damage *= 5.5f; break;
+                    case 9: damage *= 6.0f; break;
+                        default:
+                            break;
+                }
+
+                if (getLevel() - victim->getLevel() >= 10)
+                    damage *= 16.500f;
+            }
+        }
+    }
+
     // Calculate absorb resist
     if (damage > 0)
     {
@@ -1562,6 +1595,39 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     }
 
     damage += CalculateDamage(damageInfo->attackType, false, true);
+
+    if (victim)
+    {
+        if (ToCreature() && victim->ToPlayer())
+        {
+            if (ToCreature() && ToCreature()->GetCreatureTemplate()->expansion < 4)
+                if (victim->getLevel() - getLevel() > 10)
+                    damage /= 10;
+        }
+        else if (ToPlayer() && victim->ToCreature())
+        {
+            if (victim->ToCreature() && victim->ToCreature()->GetCreatureTemplate()->expansion < 4)
+            {
+                switch (getLevel() - victim->getLevel())
+                {
+                    case 1: damage *= 1.0625f; break;
+                    case 2: damage *= 1.1250f; break;
+                    case 3: damage *= 1.1875f; break;
+                    case 4: damage *= 1.125f; break;
+                    case 5: damage *= 4.0f; break;
+                    case 6: damage *= 4.5f; break;
+                    case 7: damage *= 5.0f; break;
+                    case 8: damage *= 5.5f; break;
+                    case 9: damage *= 6.0f; break;
+                        default:
+                            break;
+                }
+
+                if (getLevel() - victim->getLevel() >= 10)
+                    damage *= 16.500f;
+            }
+        }
+    }
 
     // Add melee damage bonus
     damage = MeleeDamageBonusDone(damageInfo->target, damage, damageInfo->attackType);

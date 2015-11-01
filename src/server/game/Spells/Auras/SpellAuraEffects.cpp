@@ -7576,6 +7576,10 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
         // Spell exist but require custom code
         switch (auraId)
         {
+            case 51769: // Emblazon Runeblade
+                if (caster)
+                    caster->CastSpell(caster, triggerSpellId, false);
+                return;
             // Hour of Twilight, Ultraxion, Dragon Soul
             case 106371:
                 if (caster)
