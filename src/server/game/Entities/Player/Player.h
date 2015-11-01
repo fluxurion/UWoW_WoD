@@ -3312,6 +3312,9 @@ class Player : public Unit, public GridObject<Player>
         bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
+        // client version server check and helpers
+        void SendVersionMismatchWarinings();
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -3735,6 +3738,9 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_knockBackTimer;
 
         uint32 m_groupUpdateDelay;
+
+        uint32 m_clientCheckDelay;
+        uint32 m_clientKickDelay;
 
         BracketList m_BracketsList;
 

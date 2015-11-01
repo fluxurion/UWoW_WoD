@@ -759,6 +759,9 @@ Player::Player(WorldSession* session): Unit(true),
 
     m_groupUpdateDelay = 5000;
 
+    m_clientCheckDelay = 15000;
+    m_clientKickDelay = 0;
+
     memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
     memset(_CUFProfiles, 0, MAX_CUF_PROFILES * sizeof(CUFProfile*));
 
@@ -1919,6 +1922,27 @@ void Player::Update(uint32 p_time)
     }
     else
         m_groupUpdateDelay -= p_time;
+
+    if (GetSession()->IsWardenModuleFailed())
+    {
+        if (m_clientCheckDelay < p_time)
+        {
+            SendVersionMismatchWarinings();
+            if (!m_clientKickDelay)
+                m_clientKickDelay = 25000;
+            m_clientCheckDelay = 11000;
+        }
+        else
+            m_clientCheckDelay -= p_time;
+
+        if (m_clientKickDelay)
+        {
+            if (m_clientKickDelay < p_time)
+                GetSession()->KickPlayer();
+            else
+                m_clientKickDelay -= p_time;
+        }
+    }
 
     UpdateSpellCharges(p_time);
 
@@ -30180,4 +30204,13 @@ void Player::AchieveCriteriaCredit(uint32 criteriaID)
             }
         }
     }
+}
+
+void Player::SendVersionMismatchWarinings()
+{
+    char buff[2048];
+    sprintf(buff, GetSession()->GetTrinityString(LANG_CLIENT_VERSION_MISMATCH_MESSAGE));
+    sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
+
+    GetSession()->SendNotification(LANG_CLIENT_VERSION_MISMATCH_MESSAGE_NOTIFY);
 }
