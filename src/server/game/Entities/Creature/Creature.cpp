@@ -494,7 +494,7 @@ void Creature::UpdateStat()
     // health
     float healthmod = _GetHealthMod(cInfo->rank);
 
-    uint32 basehp = stats->GenerateHealth(cInfo, GetMap()->GetEntry()->Expansion(), diffStats);
+    uint32 basehp = stats->GenerateHealth(cInfo, diffStats);
     uint32 health = uint32(basehp * healthmod);
 
     //shouldn't be more. Check stats.
@@ -1313,7 +1313,7 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     // health
     float healthmod = _GetHealthMod(rank);
 
-    uint32 basehp = stats->GenerateHealth(cinfo, GetMap()->GetEntry()->Expansion(), diffStats);
+    uint32 basehp = stats->GenerateHealth(cinfo, diffStats);
     uint32 health = uint32(basehp * healthmod);
 
     //shouldn't be more. Check stats.
@@ -1356,7 +1356,7 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     SetModifierValue(UNIT_MOD_MANA, BASE_VALUE, (float)mana);
 
     //damage
-    float basedamage = stats->GenerateBaseDamage(cinfo, GetMap()->GetEntry()->Expansion());
+    float basedamage = stats->GenerateBaseDamage(cinfo);
 
     float weaponBaseMinDamage = basedamage;
     float weaponBaseMaxDamage = basedamage * 1.5f;

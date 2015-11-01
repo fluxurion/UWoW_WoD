@@ -263,17 +263,17 @@ struct CreatureBaseStats
 
     // Helpers
 
-    uint32 GenerateHealth(CreatureTemplate const* info, uint8 expansion, CreatureDifficultyStat const* diffStats = NULL) const
+    uint32 GenerateHealth(CreatureTemplate const* info, CreatureDifficultyStat const* diffStats = NULL) const
     {
         if(diffStats)
-            return uint32((BaseHealth[expansion] * diffStats->ModHealth) + 0.5f);
+            return uint32((BaseHealth[info->expansion] * diffStats->ModHealth) + 0.5f);
         else
-            return uint32((BaseHealth[expansion] * info->ModHealth) + 0.5f);
+            return uint32((BaseHealth[info->expansion] * info->ModHealth) + 0.5f);
     }
 
-    float GenerateBaseDamage(CreatureTemplate const* info, uint8 expansion) const
+    float GenerateBaseDamage(CreatureTemplate const* info) const
     {
-        return BaseDamage[expansion];
+        return BaseDamage[info->expansion];
     }
 
     uint32 GenerateMana(CreatureTemplate const* info) const

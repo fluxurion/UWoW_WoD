@@ -2091,9 +2091,8 @@ bool ObjectMgr::MoveCreData(ObjectGuid::LowType const& guid, uint32 mapId, Posit
 
 ObjectGuid::LowType ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay)
 {
-    MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
     CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
-    if (!cInfo || !mapEntry)
+    if (!cInfo)
         return UI64LIT(0);
 
     uint32 level = cInfo->minlevel == cInfo->maxlevel ? cInfo->minlevel : urand(cInfo->minlevel, cInfo->maxlevel); // Only used for extracting creature base stats
@@ -2112,7 +2111,7 @@ ObjectGuid::LowType ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 
     data.spawntimesecs = spawntimedelay;
     data.spawndist = 0;
     data.currentwaypoint = 0;
-    data.curhealth = stats->GenerateHealth(cInfo, mapEntry->Expansion());
+    data.curhealth = stats->GenerateHealth(cInfo);
     data.curmana = stats->GenerateMana(cInfo);
     data.movementType = cInfo->MovementType;
     data.spawnMask = 1;
