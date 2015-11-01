@@ -16424,15 +16424,28 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
 
     if (quest->GetRewChoiceItemsCount() > 0)
     {
-        for (uint32 i = 0; i < quest->GetRewChoiceItemsCount(); ++i)
+        if (uint32 itemId = quest->RewardChoiceItemId[reward])
         {
-            if (quest->RewardChoiceItemId[i] && quest->RewardChoiceItemId[i] == reward)
+            ItemPosCountVec dest;
+            if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardChoiceItemCount[reward]) == EQUIP_ERR_OK)
+            {
+                Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+                SendNewItem(item, quest->RewardChoiceItemCount[reward], true, false);
+            }
+        }
+    }
+
+    if (quest->GetRewItemsCount() > 0)
+    {
+        for (uint32 i = 0; i < quest->GetRewItemsCount(); ++i)
+        {
+            if (uint32 itemId = quest->RewardItemId[i])
             {
                 ItemPosCountVec dest;
-                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, reward, quest->RewardChoiceItemCount[i]) == EQUIP_ERR_OK)
+                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemCount[i]) == EQUIP_ERR_OK)
                 {
-                    Item* item = StoreNewItem(dest, reward, true, Item::GenerateItemRandomPropertyId(reward));
-                    SendNewItem(item, quest->RewardChoiceItemCount[i], true, false);
+                    Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+                    SendNewItem(item, quest->RewardItemCount[i], true, false);
                 }
             }
         }
@@ -16462,23 +16475,6 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             }
         }
     }
-
-    if (quest->GetRewItemsCount() > 0)
-    {
-        for (uint32 i = 0; i < quest->GetRewItemsCount(); ++i)
-        {
-            if (uint32 itemId = quest->RewardItemId[i])
-            {
-                ItemPosCountVec dest;
-                if (CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardItemCount[i]) == EQUIP_ERR_OK)
-                {
-                    Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-                    SendNewItem(item, quest->RewardItemCount[i], true, false);
-                }
-            }
-        }
-    }
-
 
     if (quest->GetRewCurrencyCount() > 0)
     {
