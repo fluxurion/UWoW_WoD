@@ -1475,7 +1475,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         {
             if (ToCreature() && ToCreature()->GetCreatureTemplate()->expansion < 4)
                 if (victim->getLevel() - getLevel() > 10)
-                    damage /= 10;
+                    damage /= 15;
         }
         else if (ToPlayer() && victim->ToCreature())
         {
@@ -1602,7 +1602,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         {
             if (ToCreature() && ToCreature()->GetCreatureTemplate()->expansion < 4)
                 if (victim->getLevel() - getLevel() > 10)
-                    damage /= 10;
+                    damage /= 15;
         }
         else if (ToPlayer() && victim->ToCreature())
         {
