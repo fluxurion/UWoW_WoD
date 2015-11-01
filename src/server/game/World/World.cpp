@@ -1417,6 +1417,8 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_DISABLE_DONATE] = sConfigMgr->GetBoolDefault("DisableDonateScript", false);
 
     m_bool_configs[CONFIG_BLACKMARKET_ENABLED] = sConfigMgr->GetBoolDefault("BlackMarket.Enabled", true);
+    m_bool_configs[CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED] = sConfigMgr->GetBoolDefault("Bpay.Enabled", true);
+
     m_int_configs[CONFIG_BLACKMARKET_MAXAUCTIONS] = sConfigMgr->GetIntDefault("BlackMarket.MaxAuctions", 12);
     m_int_configs[CONFIG_BLACKMARKET_UPDATE_PERIOD] = sConfigMgr->GetIntDefault("BlackMarket.UpdatePeriod", 24);
 
