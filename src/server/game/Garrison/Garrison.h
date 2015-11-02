@@ -178,7 +178,8 @@ public:
     void CancelBuildingConstruction(uint32 garrPlotInstanceId);
     void ActivateBuilding(uint32 garrPlotInstanceId);
     uint32 GetCountOfBluePrints() const { return _knownBuildings.size();  }
-
+    uint32 GetCountOFollowers() const { return _followers.size(); }
+    
     // Followers
     void AddFollower(uint32 garrFollowerId);
     Follower const* GetFollower(uint64 dbId) const;

@@ -25921,7 +25921,12 @@ void Player::UpdateForQuestWorldObjects()
                     if (garr->GetCountOfBluePrints())
                         buildUpdateBlock = true;
             }
-
+            else if (obj->HasFlag(UNIT_FIELD_NPC_FLAGS2, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))
+            {
+                if (Garrison *garr = GetGarrison())
+                    if (garr->GetCountOFollowers())
+                        buildUpdateBlock = true;
+            }
             if (buildUpdateBlock)
                 obj->BuildCreateUpdateBlockForPlayer(&udata, this);
         }

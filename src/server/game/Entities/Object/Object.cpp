@@ -1278,6 +1278,14 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targ
                             if (!garr->GetCountOfBluePrints())
                                 appendValue &= ~UNIT_NPC_FLAG2_GARRISON_ARCHITECT;
                     }
+
+                    if (appendValue & UNIT_NPC_FLAG2_GARRISON_MISSION_NPC)
+                    {
+                        if (Garrison *garr = target->GetGarrison())
+                            if (!garr->GetCountOFollowers())
+                                appendValue &= ~UNIT_NPC_FLAG2_GARRISON_MISSION_NPC;
+                    }
+
                     fieldBuffer << uint32(appendValue);
                     continue; //skip by custom write
                 }
