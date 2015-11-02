@@ -183,9 +183,74 @@ public:
     };
 };
 
+//80582
+class npc_q34462 : public CreatureScript
+{
+public:
+    npc_q34462() : CreatureScript("npc_q34462") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_q34462AI(creature);
+    }
+
+    enum data
+    {
+        NPC_TRIGER = 80578,
+
+    };
+    struct npc_q34462AI : public ScriptedAI
+    {
+        npc_q34462AI(Creature* creature) : ScriptedAI(creature) {}
+
+        ObjectGuid playerGuid;
+        EventMap _events;
+
+        void Reset()
+        {
+
+        }
+
+        void IsSummonedBy(Unit* summoner)
+        {
+            Player* player = summoner->ToPlayer();
+            if (!player)
+                return;
+
+            me->PlayOneShotAnimKit(655);
+            me->AddPlayerInPersonnalVisibilityList(summoner->GetGUID());
+            playerGuid = summoner->GetGUID();
+            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_0);
+            
+            me->DespawnOrUnsummon(15000);            
+            if (Creature *cre = summoner->FindNearestCreature(NPC_TRIGER, 10.0f))
+            {
+                if (Vehicle * ve = cre->GetVehicleKit())
+                    if (Unit* pas = ve->GetPassenger(0))
+                    {
+                        pas->AddToHideList(player->GetGUID());
+                        pas->DestroyForPlayer(player);
+                    }
+                cre->AddToHideList(player->GetGUID());
+            }
+            _events.ScheduleEvent(EVENT_1, 5000);
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                me->GetMotionMaster()->MovePoint(1, 5733.759f, 4133.515f, 60.66695f);
+            }
+        }
+    };
+};
 void AddSC_wod_frostfire_ridge()
 {
     new sceneTrigger_q33815();
     new go_wod_q34375();
     new mob_wod_q34375();
+    new npc_q34462();
 }

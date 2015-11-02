@@ -437,6 +437,7 @@ bool Vehicle::CheckCustomCanEnter()
         case 33513: //368
         case 33386: //360
         case 63872: //2341
+        case 80578: //Q34462
             return true;
     }
 

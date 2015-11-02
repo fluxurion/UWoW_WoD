@@ -2,6 +2,9 @@
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
+UPDATE `creature_template` set `npcflag2` = 2 WHERE `name` LIKE 'Architect Table';
+UPDATE `creature_template` set `npcflag2` = 64 WHERE `name` LIKE 'Command Table';
+
 REPLACE INTO `instance_template` (`map`, `parent`, `script`, `allowMount`, `bonusChance`) VALUES 
 ('1152', '1116', 'wod_garrisone_horde_lvl1', '1', '0'),
 ('1158', '1116', 'wod_garrisone_alliance_lvl1', '1', '0');
@@ -212,3 +215,15 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 (77209, 5, 0, 'Строительство других зданий займет гораздо больше времени.', 12, 0, 100, 0, 0, 0, 'Барос Алекстон to Player'),
 (77209, 6, 0, 'Прими работу, когда пожелаешь.', 12, 0, 100, 0, 0, 0, 'Барос Алекстон to Player'),
 (77209, 7, 0, 'Казармы выглядят превосходно. Поговори с Мараадом, а я пока полюбуюсь своей искусной работой.', 12, 0, 100, 0, 0, 0, 'Барос Алекстон to Player');
+
+--  Q: 34462 80577 -> 80578 | 55370 ??
+UPDATE `creature_template` SET `ScriptName` = 'npc_q34462' WHERE `creature_template`.`entry` = 80582;
+DELETE FROM `creature` WHERE id = 80577;
+UPDATE `creature_template` SET `InhabitType` = '4' WHERE `creature_template`.`entry` = 80577;
+UPDATE `creature_template` SET `flags_extra` = '128', `InhabitType` = '4' WHERE `creature_template`.`entry` = 80578;
+REPLACE INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES ('80578', '46598', '0', '0');
+REPLACE INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES ('80577', '162720', '3', '0');
+
+DELETE FROM `creature_text` WHERE entry = 80582;
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(80582, 0, 0, 'Еще раз огромное спасибо тебе, командир. Кабы не ты, эти твари сожрали бы меня заживо. Увидимся в гарнизоне.', 12, 0, 100, 5, 0, 0, 'Оулин Бурошкур to Player');
