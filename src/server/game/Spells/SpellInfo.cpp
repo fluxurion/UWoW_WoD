@@ -2221,6 +2221,19 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
                      else if ((unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
                          return SPELL_FAILED_TARGET_NO_POCKETS;
                 }
+
+                // Not allow disarm unarmed player
+                if (Mechanic == MECHANIC_DISARM)
+                {
+                    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        Player const* player = unitTarget->ToPlayer();
+                        if (!player->GetWeaponForAttack(BASE_ATTACK) || !player->IsUseEquipedWeapon(true))
+                            return SPELL_FAILED_TARGET_NO_WEAPONS;
+                    }
+                    else if (!unitTarget->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID) && Id != 64058) // Custom MoP Script - Hack Fix Psychic Horror
+                        return SPELL_FAILED_TARGET_NO_WEAPONS;
+                }
             }
         }
     }
