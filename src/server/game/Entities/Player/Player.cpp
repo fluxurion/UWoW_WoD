@@ -8314,7 +8314,7 @@ bool Player::HasCurrency(uint32 id, uint32 count) const
     return itr != _currencyStorage.end() && itr->second.totalCount >= count;
 }
 
-void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool modifyWeek/* = true*/, bool modifySeason/* = true*/, bool toast_Send/* = false*/)
+void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool modifyWeek/* = true*/, bool modifySeason/* = true*/)
 {
     if (!count)
         return;
@@ -8425,9 +8425,6 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
                 packet << uint32(newWeekCount / precision);
 
             GetSession()->SendPacket(&packet);
-
-            if (toast_Send)
-                SendDisplayToast(id, 10, 0, count, 1);
         }
 
         if (currency->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
@@ -27326,8 +27323,10 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         SendNotifyLootItemRemoved(lootSlot, loot);
         currency->is_looted = true;
         --loot->unlootedCount;
+
         if(loot->personal)
             SendDisplayToast(item->item.ItemID, 3, 0/*loot->bonusLoot*/, item->count, 1);
+
         return;
     }
 

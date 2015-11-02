@@ -218,3 +218,24 @@ WorldPacket const* WorldPackets::Loot::MasterLootCandidateList::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Loot::LootDisplayToast::Write()
+{
+    _worldPacket << Quantity;
+    _worldPacket << DisplayToastMethod;
+    _worldPacket.WriteBit(Mailed);
+    _worldPacket.WriteBits(Type, 2);
+
+    if (Type == 2)
+    {
+        _worldPacket.WriteBit(BonusRoll);
+        _worldPacket << Loot;
+        _worldPacket << SpecID;
+        _worldPacket << Unk;
+    }
+
+    if (Type == 1)
+        _worldPacket << CurrencyID;
+
+    return &_worldPacket;
+}

@@ -23999,51 +23999,34 @@ void Unit::SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uin
     }
 }
 
-void Unit::SendDisplayToast(uint32 entry, uint8 hasDisplayToastMethod, bool isBonusRoll, uint32 count, uint8 type, Item* item)
+void Unit::SendDisplayToast(uint32 entry, uint8 displayToastMethod, bool isBonusRoll, uint32 count, uint8 type, Item* item)
 {
     if (GetTypeId() != TYPEID_PLAYER)
         return;
 
     ObjectGuid guid = GetGUID();
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::SendDisplayToast entry %i, hasDisplayToastMethod %i, isBonusRoll %i count %i type %i", entry, hasDisplayToastMethod, isBonusRoll, count, type);
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::SendDisplayToast entry %i, hasDisplayToastMethod %i, isBonusRoll %i count %i type %i", entry, hasDisplayToastMethod, isBonusRoll, count, type);
 
-    WorldPacket data(SMSG_DISPLAY_TOAST);
-    data << uint32(count); // count
-    data << uint8(hasDisplayToastMethod); // DisplayToastMethod - это принимает значения 1,2,3, 1 и 3 клиент запускает эвенты на лут и бонус лут ролл (EVENT_SHOW_LOOT_TOAST/EVENT_BONUS_ROLL_RESULT, на 2 - запускает чето связанное с батлпетами (EVENT_PET_BATTLE_LOOT_RECEIVED)
-    data.WriteBit(isBonusRoll);
-    data.WriteBits(type, 2);
+    WorldPackets::Loot::LootDisplayToast data;
+    data.Quantity = count;
+    data.DisplayToastMethod = displayToastMethod;
+    data.BonusRoll = isBonusRoll;
+    data.Type = type;
 
-    if (type == 2)
-    {
-        data.WriteBit(0); // Mailed?
-
-        data << uint32(entry); // ItemID
-        data << uint32(0); // RandomPropertiesSeed
-        data << uint32(item->GetItemSuffixFactor()); // RandomPropertiesID
-        data.WriteBit(false); // HasItemBonus
-        /*{
-            packet.ReadByte("Context", indexes);
-
-            var bonusCount = packet.ReadUInt32();
-            for (var j = 0; j < bonusCount; ++j)
-                packet.ReadUInt32("BonusListID", indexes, j);
-        }*/
-        data.WriteBit(false); // HasModifications
-        /*{
-            var mask = packet.ReadUInt32();
-            for (var j = 0; mask != 0; mask >>= 1, ++j)
-                if ((mask & 1) != 0)
-                     packet.ReadInt32(((ItemModifier)j).ToString(), indexes);
-        }*/
-
-        data << uint32(0); // SpecializationID
-        data << uint32(0); // ItemQuantity
-    }
     if (type == 1)
-        data << uint32(entry); // CurrencyID
+        data.CurrencyID = entry;
+    else if (type == 2)
+    {
+        if (!item)
+            return;
 
-    ToPlayer()->GetSession()->SendPacket(&data);
+        WorldPackets::Item::ItemInstance I;
+        I.Initialize(item);
+        data.Loot = I;
+    }
+
+    ToPlayer()->GetSession()->SendPacket(data.Write());
 }
 
 void Unit::GeneratePersonalLoot(Creature* creature, Player* anyLooter)

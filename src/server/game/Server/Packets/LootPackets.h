@@ -286,6 +286,24 @@ namespace WorldPackets
             ObjectGuid LootObj;
             GuidVector Players;
         };
+
+        class LootDisplayToast final : public ServerPacket
+        {
+        public:
+            LootDisplayToast() : ServerPacket(SMSG_DISPLAY_TOAST) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Quantity = 0;
+            uint8 DisplayToastMethod = 0;
+            bool Mailed = false;
+            uint32 Type = 0;
+            bool BonusRoll = false;
+            WorldPackets::Item::ItemInstance Loot;
+            uint32 SpecID = 0;
+            uint32 Unk = 0;
+            uint32 CurrencyID = 0;
+        };
     }
 }
 

@@ -8309,7 +8309,7 @@ void Spell::EffectBonusLoot(SpellEffIndex effIndex)
         {
             //sLog->outDebug(LOG_FILTER_LOOT, "Spell::EffectBonusLoot gold %i bonusLoot %i", loot->gold, loot->bonusLoot);
             player->ModifyMoney(loot->gold);
-            player->SendDisplayToast(0, 1, 0/*loot->bonusLoot*/, loot->gold, 0);
+            player->SendDisplayToast(0, 7, 0/*loot->bonusLoot*/, loot->gold, 3);
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, loot->gold);
             loot->gold = 0;
         }
