@@ -7146,14 +7146,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
         case SPELLFAMILY_GENERIC:
             switch (GetId())
             {
-                case 145108: // Ysera's Gift
-                {
-                    uint32 triggerSpell = caster->IsFullHealth() ? 145110: 145109;
-                    int32 heal = CalculatePct(caster->GetMaxHealth(), m_amount);
-
-                    caster->CastCustomSpell(target, triggerSpell, &heal, 0, 0, true);
-                    break;
-                }
                 case 146310: // Restless Agility
                 case 146317: // Restless Spirit
                 {
@@ -7208,6 +7200,21 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
                     break;
             }
             break;
+        case SPELLFAMILY_DRUID:
+        {
+            switch (GetSpellInfo()->Id)
+            {
+                case 145108: // Ysera's Gift
+                {
+                    uint32 triggerSpell = caster->IsFullHealth() ? 145110: 145109;
+                    int32 heal = CalculatePct(caster->GetMaxHealth(), m_amount);
+
+                    caster->CastCustomSpell(target, triggerSpell, &heal, 0, 0, true);
+                    break;
+                }
+            }
+            break;
+        }
         case SPELLFAMILY_ROGUE:
         {
             switch (GetSpellInfo()->Id)

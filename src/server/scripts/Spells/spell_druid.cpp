@@ -491,10 +491,15 @@ class spell_dru_rip_duration : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-                if (GetCaster())
-                    if (Aura* prowl = GetCaster()->GetAura(SPELL_DRUID_PROWL))
+                if (Unit* caster = GetCaster())
+                {
+                    if (Aura* prowl = caster->GetAura(SPELL_DRUID_PROWL))
                         if (AuraEffect const* aurEff = prowl->GetEffect(EFFECT_3))
                             addPerc = aurEff->GetAmount();
+                    if (Aura* prowl = caster->GetAura(102547))
+                        if (AuraEffect const* aurEff = prowl->GetEffect(EFFECT_3))
+                            addPerc = aurEff->GetAmount();
+                }
 
                 return SPELL_CAST_OK;
             }

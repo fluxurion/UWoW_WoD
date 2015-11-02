@@ -3100,8 +3100,8 @@ void SpellMgr::LoadSpellTriggered()
         ++count;
     } while (result->NextRow());
 
-    //                                        0             1          2         3         4           5              6             7           8        9          10         11        12           13        14
-    result = WorldDatabase.Query("SELECT `spellId`, `spellDummyId`, `option`, `target`, `caster`, `targetaura`, `effectmask`, `effectDummy`, `aura`, `chance`, `removeAura`, `attr`, `attrValue`, `custombp`, `type` FROM `spell_aura_dummy`");
+    //                                        0             1          2         3         4           5              6             7           8        9          10         11        12           13        14       15
+    result = WorldDatabase.Query("SELECT `spellId`, `spellDummyId`, `option`, `target`, `caster`, `targetaura`, `effectmask`, `effectDummy`, `aura`, `chance`, `removeAura`, `attr`, `attrValue`, `custombp`, `type`, `charge` FROM `spell_aura_dummy`");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 aura dummy spells. DB table `spell_aura_dummy` is empty.");
@@ -3127,6 +3127,7 @@ void SpellMgr::LoadSpellTriggered()
         int32 attrValue = fields[12].GetInt32();
         float custombp = fields[13].GetFloat();
         int32 type = fields[14].GetInt32();
+        int32 charge = fields[15].GetInt32();
 
         SpellInfo const* spellInfo = GetSpellInfo(abs(spellId));
         if (!spellInfo)
@@ -3152,6 +3153,7 @@ void SpellMgr::LoadSpellTriggered()
         tempdummy.attrValue = attrValue;
         tempdummy.custombp = custombp;
         tempdummy.type = type;
+        tempdummy.charge = charge;
         mSpellAuraDummyMap[spellId].push_back(tempdummy);
 
         ++count;
@@ -4281,10 +4283,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 117952:// Crackling Jade Lightning
                 case 116: // Frost Bolt
                     spellInfo->PreventionType = SPELL_PREVENTION_TYPE_SILENCE;
-                    break;
-                case 102793:
-                    spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
-                    spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_DECREASE_SPEED;
                     break;
                 case 108201:// Desecrated Ground
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;

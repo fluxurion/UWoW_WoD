@@ -4383,10 +4383,18 @@ void Spell::_handle_finish_phase()
         // Take for real after all targets are processed
         if (m_needComboPoints)
         {
+            Player* _player = m_caster->ToPlayer();
+
+            if(_player && _player->HasAura(158476)) // Soul of the Forest
+            {
+                int32 newBp = 4 * _player->GetComboPoints(m_spellInfo->Id);
+                _player->CastCustomSpell(_player, 114113, &newBp, NULL, NULL, true);
+            }
+
             m_caster->m_movedPlayer->ClearComboPoints();
 
             // Anticipation
-            if (Player* _player = m_caster->ToPlayer())
+            if (_player)
             {
                 if (_player->HasAura(115189))
                 {
