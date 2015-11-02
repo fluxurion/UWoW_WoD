@@ -2094,8 +2094,8 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
 {
     WorldPackets::Guild::GuildBankQueryResults packet;
 
-    packet.Money = uint64(m_bankMoney);
-    packet.WithdrawalsRemaining = int32(_GetMemberRemainingSlots(session->GetPlayer()->GetGUID(), 0));
+    packet.Money = m_bankMoney;
+    packet.WithdrawalsRemaining = _GetMemberRemainingSlots(session->GetPlayer()->GetGUID(), tabId);
     packet.Tab = int32(tabId);
     packet.FullUpdate = fullUpdate;
 
@@ -2110,55 +2110,55 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
             tabInfo.Icon = m_bankTabs[i]->GetIcon();
             packet.TabInfo.push_back(tabInfo);
         }
-    }
 
-    uint32 itemCount = 0;
-    if (fullUpdate && _MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
-        if (BankTab const* tab = GetBankTab(tabId))
-            for (uint8 slotId = 0; slotId < GUILD_BANK_MAX_SLOTS; ++slotId)
-                if (tab->GetItem(slotId))
-                    ++itemCount;
+        uint32 itemCount = 0;
+        if (_MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
+            if (BankTab const* tab = GetBankTab(tabId))
+                for (uint8 slotId = 0; slotId < GUILD_BANK_MAX_SLOTS; ++slotId)
+                    if (tab->GetItem(slotId))
+                        ++itemCount;
 
-    packet.ItemInfo.reserve(itemCount);
+        packet.ItemInfo.reserve(itemCount);
 
-    if (fullUpdate && _MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
-    {
-        if (BankTab const* tab = GetBankTab(tabId))
+        if (_MemberHasTabRights(session->GetPlayer()->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
         {
-            for (uint8 slotId = 0; slotId < GUILD_BANK_MAX_SLOTS; ++slotId)
+            if (BankTab const* tab = GetBankTab(tabId))
             {
-                if (Item* tabItem = tab->GetItem(slotId))
+                for (uint8 slotId = 0; slotId < GUILD_BANK_MAX_SLOTS; ++slotId)
                 {
-                    WorldPackets::Guild::GuildBankItemInfo itemInfo;
-
-                    itemInfo.Slot = int32(slotId);
-                    itemInfo.Item.ItemID = tabItem->GetEntry();
-                    itemInfo.Count = int32(tabItem->GetCount());
-                    itemInfo.Charges = int32(abs(tabItem->GetSpellCharges()));
-                    itemInfo.EnchantmentID = int32(tabItem->GetItemRandomPropertyId()); // verify that...
-                    itemInfo.OnUseEnchantmentID = 0/*int32(tabItem->GetItemSuffixFactor())*/;
-                    itemInfo.Flags = 0;
-
-                    uint32 enchants = 0;
-                    for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
-                        if (tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
-                            ++enchants;
-
-                    itemInfo.SocketEnchant.reserve(enchants);
-                    for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
+                    if (Item* tabItem = tab->GetItem(slotId))
                     {
-                        if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
+                        WorldPackets::Guild::GuildBankItemInfo itemInfo;
+
+                        itemInfo.Slot = int32(slotId);
+                        itemInfo.Item.ItemID = tabItem->GetEntry();
+                        itemInfo.Count = int32(tabItem->GetCount());
+                        itemInfo.Charges = int32(abs(tabItem->GetSpellCharges()));
+                        itemInfo.EnchantmentID = int32(tabItem->GetItemRandomPropertyId()); // verify that...
+                        itemInfo.OnUseEnchantmentID = 0/*int32(tabItem->GetItemSuffixFactor())*/;
+                        itemInfo.Flags = 0;
+
+                        uint32 enchants = 0;
+                        for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
+                            if (tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
+                                ++enchants;
+
+                        itemInfo.SocketEnchant.reserve(enchants);
+                        for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
                         {
-                            WorldPackets::Guild::GuildBankItemInfo::GuildBankSocketEnchant socketEnchant;
-                            socketEnchant.SocketEnchantID = int32(enchantId);
-                            socketEnchant.SocketIndex = int32(ench);
-                            itemInfo.SocketEnchant.push_back(socketEnchant);
+                            if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
+                            {
+                                WorldPackets::Guild::GuildBankItemInfo::GuildBankSocketEnchant socketEnchant;
+                                socketEnchant.SocketEnchantID = int32(enchantId);
+                                socketEnchant.SocketIndex = int32(ench);
+                                itemInfo.SocketEnchant.push_back(socketEnchant);
+                            }
                         }
+
+                        itemInfo.Locked = false;
+
+                        packet.ItemInfo.push_back(itemInfo);
                     }
-
-                    itemInfo.Locked = false;
-
-                    packet.ItemInfo.push_back(itemInfo);
                 }
             }
         }
@@ -2175,32 +2175,35 @@ void Guild::SendBankTabText(WorldSession* session, uint8 tabId) const
 
 void Guild::SendPermissions(WorldSession* session) const
 {
-    ObjectGuid guid = session->GetPlayer()->GetGUID();
-    uint32 rankId = session->GetPlayer()->GetRank();
-    WorldPacket data(SMSG_GUILD_PERMISSIONS_QUERY_RESULTS, 4 * 15 + 1);
-    data << uint32(rankId);
-    data << int32(_GetMemberRemainingMoney(guid));
-    data << uint32(_GetRankRights(rankId));
-    data << uint32(GetPurchasedTabsSize());
+    Member const* member = GetMember(session->GetPlayer()->GetGUID());
+    if (!member)
+        return;
 
-    data << uint32(GUILD_BANK_MAX_TABS);
+    uint8 rankId = member->GetRankId();
+
+    WorldPackets::Guild::GuildPermissionsQueryResults queryResult;
+    queryResult.RankID = rankId;
+    queryResult.WithdrawGoldLimit = _GetMemberRemainingMoney(member->GetGUID());
+    queryResult.Flags = _GetRankRights(rankId);
+    queryResult.NumTabs = GetPurchasedTabsSize();
+    queryResult.Tab.reserve(GUILD_BANK_MAX_TABS);
+
     for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)
     {
-        data << uint32(_GetRankBankTabRights(rankId, tabId));
-        data << int32(_GetMemberRemainingSlots(guid, tabId));
+        WorldPackets::Guild::GuildPermissionsQueryResults::GuildRankTabPermissions tabPerm;
+        tabPerm.Flags = _GetRankBankTabRights(rankId, tabId);
+        tabPerm.WithdrawItemLimit = _GetMemberRemainingSlots(member->GetGUID(), tabId);
+        queryResult.Tab.push_back(tabPerm);
     }
 
-    session->SendPacket(&data);
+    session->SendPacket(queryResult.Write());
 }
 
 void Guild::SendMoneyInfo(WorldSession* session) const
 {
-    WorldPacket data(SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY, 4);
-    // -1 in 64bit is 0xFFFFFFFFFFFFFFFF not 0xFFFFFFFF, 
-    // so transform uint32 0xFFFFFFFF to -1 and then send -1 as uint64
-    // Now _GetMemberRemainingMoney return int value no need double convertation
-    data << int64(_GetMemberRemainingMoney(session->GetPlayer()->GetGUID()));
-    session->SendPacket(&data);
+    WorldPackets::Guild::GuildBankRemainingWithdrawMoney packet;
+    packet.RemainingWithdrawMoney = int64(_GetMemberRemainingMoney(session->GetPlayer()->GetGUID()));
+    session->SendPacket(packet.Write());
 }
 
 void Guild::SendLoginInfo(WorldSession* session)
@@ -3195,32 +3198,31 @@ void Guild::_SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) cons
     _SendBankContentUpdate(tabId, slots);
 }
 
-//! 6.0.3
 void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
 {
-        if (BankTab const* tab = GetBankTab(tabId))
+    if (BankTab const* tab = GetBankTab(tabId))
     {
         WorldPackets::Guild::GuildBankQueryResults packet;
         packet.FullUpdate = true;          // @todo
         packet.Tab = int32(tabId);
         packet.Money = m_bankMoney;
 
-        for (SlotIds::const_iterator itr = slots.begin(); itr != slots.end(); ++itr)
+        for (auto const& v : slots)
         {
-            Item const* tabItem = tab->GetItem(*itr);
-
             WorldPackets::Guild::GuildBankItemInfo itemInfo;
 
-            itemInfo.Slot = int32(*itr);
-            itemInfo.Item.ItemID = int32(tabItem ? tabItem->GetEntry() : 0);
-            itemInfo.Count = int32(tabItem ? tabItem->GetCount() : 0);
-            itemInfo.Charges = int32(tabItem ? abs(tabItem->GetSpellCharges()) : 0);
-            itemInfo.OnUseEnchantmentID = 0/*int32(tabItem->GetItemSuffixFactor())*/;
+            itemInfo.Slot = v;
             itemInfo.Flags = 0;
             itemInfo.Locked = false;
 
+            Item const* tabItem = tab->GetItem(v);
             if (tabItem)
             {
+                itemInfo.Item.ItemID = tabItem->GetEntry();
+                itemInfo.Count = tabItem->GetCount();
+                itemInfo.Charges = abs(tabItem->GetSpellCharges());
+                itemInfo.OnUseEnchantmentID = 0/*int32(tabItem->GetItemSuffixFactor())*/;
+
                 uint32 enchants = 0;
                 for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
                     if (tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
@@ -3242,11 +3244,11 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
             packet.ItemInfo.push_back(itemInfo);
         }
 
-        for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-            if (_MemberHasTabRights(itr->second->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
-                if (Player* player = itr->second->FindPlayer())
+        for (auto const& x : m_members)
+            if (_MemberHasTabRights(x.second->GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
+                if (Player* player = x.second->FindPlayer())
                 {
-                    packet.WithdrawalsRemaining = int32(_GetMemberRemainingSlots(player->GetGUID(), tabId));
+                    packet.WithdrawalsRemaining = _GetMemberRemainingSlots(x.second->GetGUID(), tabId);
                     player->GetSession()->SendPacket(packet.Write());
                 }
     }

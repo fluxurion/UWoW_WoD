@@ -28,6 +28,7 @@
 #include "GossipDef.h"
 #include "SocialMgr.h"
 #include "AchievementPackets.h"
+#include "GuildPackets.h"
 
 // Helper for getting guild object of session's player.
 // If guild does not exist, sends error (if necessary).
@@ -331,32 +332,29 @@ void WorldSession::HandleGuildBankQueryTab(WorldPacket & recvData)
             guild->SendBankList(this, tabId, fullUpdate);
 }
 
-//! 6.0.3
-void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recvData)
+void WorldSession::HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet)
 {
-    ObjectGuid goGuid;
-    uint64 money;
+    Player* player = GetPlayer();
+    if (!player)
+        return;
 
-    recvData >> goGuid >> money;
+    if (!player->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
 
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(goGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-        if (money && GetPlayer()->HasEnoughMoney(money))
-            if (Guild* guild = _GetPlayerGuild(this))
-                guild->HandleMemberDepositMoney(this, money);
+    if (player->HasEnoughMoney(packet.Money))
+        if (Guild* guild = _GetPlayerGuild(this))
+            guild->HandleMemberDepositMoney(this, packet.Money);
 }
 
-//! 6.0.3
-void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & recvData)
+void WorldSession::HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney& packet)
 {
-    ObjectGuid GoGuid;
-    uint64 money;
+    Player* player = GetPlayer();
+    if (player)
+        if (!player->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+            return;
 
-    recvData >> GoGuid >> money;
-
-    if (money)
-        if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-            if (Guild* guild = _GetPlayerGuild(this))
-                guild->HandleMemberWithdrawMoney(this, money);
+    if (Guild* guild = _GetPlayerGuild(this))
+        guild->HandleMemberWithdrawMoney(this, packet.Money);
 }
 
 //! 6.0.3 TODo: check it.

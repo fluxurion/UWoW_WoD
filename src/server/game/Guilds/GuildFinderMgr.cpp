@@ -22,12 +22,10 @@
 #include "GuildPackets.h"
 
 GuildFinderMgr::GuildFinderMgr()
-{
-}
+{ }
 
 GuildFinderMgr::~GuildFinderMgr()
-{
-}
+{ }
 
 void GuildFinderMgr::LoadFromDB()
 {
@@ -43,13 +41,13 @@ void GuildFinderMgr::LoadGuildSettings()
                                                  "FROM guild_finder_guild_settings gfgs "
                                                  "LEFT JOIN guild_member gm ON gm.guildid=gfgs.guildId "
                                                  "LEFT JOIN characters c ON c.guid = gm.guid LIMIT 1");
-    
+
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild finder guild-related settings. Table `guild_finder_guild_settings` is empty.");
         return;
     }
-    
+
     uint32 count = 0;
     uint32 oldMSTime = getMSTime();
     do
@@ -57,10 +55,10 @@ void GuildFinderMgr::LoadGuildSettings()
         Field* fields = result->Fetch();
         ObjectGuid guildId = ObjectGuid::Create<HighGuid::Guild>(fields[0].GetUInt64());
         uint8  availability = fields[1].GetUInt8();
-        uint8  classRoles   = fields[2].GetUInt8();
-        uint8  playStyle    = fields[3].GetUInt8();
-        uint8  level        = fields[4].GetUInt8();
-        bool   listed       = (fields[5].GetUInt8() != 0);
+        uint8  classRoles = fields[2].GetUInt8();
+        uint8  playStyle = fields[3].GetUInt8();
+        uint8  level = fields[4].GetUInt8();
+        bool   listed = (fields[5].GetUInt8() != 0);
         std::string comment = fields[6].GetString();
 
         TeamId guildTeam = TEAM_NEUTRAL;
@@ -69,9 +67,10 @@ void GuildFinderMgr::LoadGuildSettings()
 
         LFGuildSettings settings(listed, guildTeam, guildId, classRoles, availability, playStyle, level, comment);
         _guildSettings[guildId] = settings;
-        
+
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild finder guild-related settings in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -82,13 +81,13 @@ void GuildFinderMgr::LoadMembershipRequests()
     //                                                      0         1           2            3           4         5         6
     QueryResult result = CharacterDatabase.Query("SELECT guildId, playerGuid, availability, classRole, interests, comment, submitTime "
                                                  "FROM guild_finder_applicant");
-    
+
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild finder membership requests. Table `guild_finder_applicant` is empty.");
         return;
     }
-    
+
     uint32 count = 0;
     uint32 oldMSTime = getMSTime();
     do
@@ -97,17 +96,18 @@ void GuildFinderMgr::LoadMembershipRequests()
         ObjectGuid guildId = ObjectGuid::Create<HighGuid::Guild>(fields[0].GetUInt64());
         ObjectGuid playerId = ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt64());
         uint8  availability = fields[2].GetUInt8();
-        uint8  classRoles   = fields[3].GetUInt8();
-        uint8  playStyle    = fields[4].GetUInt8();
+        uint8  classRoles = fields[3].GetUInt8();
+        uint8  playStyle = fields[4].GetUInt8();
         std::string comment = fields[5].GetString();
-        uint32 submitTime   = fields[6].GetUInt32();
-        
+        uint32 submitTime = fields[6].GetUInt32();
+
         MembershipRequest request(playerId, guildId, availability, classRoles, playStyle, comment, time_t(submitTime));
 
         _membershipRequests[guildId].push_back(request);
-        
+
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild finder membership requests in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -115,7 +115,7 @@ void GuildFinderMgr::LoadMembershipRequests()
 void GuildFinderMgr::AddMembershipRequest(ObjectGuid const& guildGuid, MembershipRequest const& request)
 {
     _membershipRequests[guildGuid].push_back(request);
-    
+
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GUILD_FINDER_APPLICANT);
     stmt->setUInt64(0, request.GetGuildGuid().GetCounter());
@@ -142,7 +142,7 @@ void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(ObjectGuid const& pla
     for (MembershipRequestStore::iterator itr = _membershipRequests.begin(); itr != _membershipRequests.end(); ++itr)
     {
         std::vector<MembershipRequest>::iterator itr2 = itr->second.begin();
-        for(; itr2 != itr->second.end(); ++itr2)
+        for (; itr2 != itr->second.end(); ++itr2)
             if (itr2->GetPlayerGUID() == playerId)
                 break;
 
@@ -168,7 +168,7 @@ void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(ObjectGuid const& pla
 void GuildFinderMgr::RemoveMembershipRequest(ObjectGuid const& playerId, ObjectGuid const& guildId)
 {
     std::vector<MembershipRequest>::iterator itr = _membershipRequests[guildId].begin();
-    for(; itr != _membershipRequests[guildId].end(); ++itr)
+    for (; itr != _membershipRequests[guildId].end(); ++itr)
         if (itr->GetPlayerGUID() == playerId)
             break;
 
@@ -301,7 +301,7 @@ void GuildFinderMgr::DeleteGuild(ObjectGuid const& guildId)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_GUILD_SETTINGS);
         stmt->setUInt64(0, itr->GetGuildGuid().GetCounter());
         trans->Append(stmt);
-            
+
         CharacterDatabase.CommitTransaction(trans);
         _membershipRequests[guildId].erase(itr);
 
@@ -323,6 +323,7 @@ void GuildFinderMgr::SendApplicantListUpdate(Guild& guild)
     std::vector<MembershipRequest> recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(guild.GetGUID());
 
     WorldPackets::Guild::LFGuildRecruits recruit;
+    //recruit.UpdateTime 
     recruit.Recruits.reserve(recruitsList.size());
     for (auto const& x : recruitsList)
     {
@@ -350,9 +351,10 @@ void GuildFinderMgr::SendApplicantListUpdate(Guild& guild)
 
 void GuildFinderMgr::SendMembershipRequestListUpdate(Player& player)
 {
-    std::vector<MembershipRequest> recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(ObjectGuid::Create<HighGuid::Guild>(player.GetGuildId()));    
-    
+    std::vector<MembershipRequest> recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(ObjectGuid::Create<HighGuid::Guild>(player.GetGuildId()));
+
     WorldPackets::Guild::LFGuildRecruits recruits;
+    //recruit.UpdateTime 
     recruits.Recruits.reserve(recruitsList.size());
     for (auto const& x : recruitsList)
     {

@@ -129,7 +129,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::LFGuildRecruitData
 WorldPacket const* WorldPackets::Guild::LFGuildRecruits::Write()
 {
     _worldPacket << static_cast<uint32>(Recruits.size());
-
+    _worldPacket << int32(UpdateTime);
     for (auto const& v : Recruits)
         _worldPacket << v;
 
@@ -259,4 +259,40 @@ void WorldPackets::Guild::LFGuildSetGuildPost::Read()
     _worldPacket >> LevelRange;
     Active = _worldPacket.ReadBit();
     Comment = _worldPacket.ReadString(_worldPacket.ReadBits(10));
+}
+
+void WorldPackets::Guild::GuildBankDepositMoney::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> Money;
+}
+
+void WorldPackets::Guild::GuildBankWithdrawMoney::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> Money;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildPermissionsQueryResults::Write()
+{
+    _worldPacket << RankID;
+    _worldPacket << WithdrawGoldLimit;
+    _worldPacket << Flags;
+    _worldPacket << NumTabs;
+    _worldPacket << uint32(Tab.size());
+
+    for (auto const& v : Tab)
+    {
+        _worldPacket << v.Flags;
+        _worldPacket << v.WithdrawItemLimit;
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildBankRemainingWithdrawMoney::Write()
+{
+    _worldPacket << RemainingWithdrawMoney;
+
+    return &_worldPacket;
 }

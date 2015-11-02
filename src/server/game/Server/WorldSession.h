@@ -182,6 +182,8 @@ namespace WorldPackets
     {
         class QueryGuildInfo;
         class LFGuildSetGuildPost;
+        class GuildBankDepositMoney;
+        class GuildBankWithdrawMoney;
     }
 
     namespace Item
@@ -1509,8 +1511,8 @@ class WorldSession
         void HandleGuildBankerActivate(WorldPacket& recvData);
         void HandleGuildBankQueryTab(WorldPacket& recvData);
         void HandleGuildBankLogQuery(WorldPacket& recvData);
-        void HandleGuildBankDepositMoney(WorldPacket& recvData);
-        void HandleGuildBankWithdrawMoney(WorldPacket& recvData);
+        void HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet);
+        void HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney& packet);
         void HandleGuildBankSwapItems(WorldPacket& recvData);
 
         void HandleGuildBankUpdateTab(WorldPacket& recvData);

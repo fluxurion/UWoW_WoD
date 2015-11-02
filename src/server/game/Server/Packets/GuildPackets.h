@@ -115,9 +115,9 @@ namespace WorldPackets
 
             std::vector<GuildBankItemInfo> ItemInfo;
             std::vector<GuildBankTabInfo> TabInfo;
+            uint64 Money = 0;
             int32 WithdrawalsRemaining = 0;
             int32 Tab = 0;
-            uint64 Money = 0;
             bool FullUpdate = false;
         };
 
@@ -140,11 +140,12 @@ namespace WorldPackets
         class LFGuildRecruits final : public ServerPacket
         {
         public:
-            LFGuildRecruits() : ServerPacket(SMSG_LF_GUILD_RECRUITS, 4) { }
+            LFGuildRecruits() : ServerPacket(SMSG_LF_GUILD_RECRUITS, 4 + 4) { }
 
             WorldPacket const* Write() override;
 
             std::vector<LFGuildRecruitData> Recruits;
+            time_t UpdateTime = time_t(0);
         };
 
         struct GuildPostData
@@ -282,6 +283,58 @@ namespace WorldPackets
             uint32 LevelRange = 0;
             std::string Comment;
             bool Active = false;
+        };
+
+        class GuildBankDepositMoney final : public ClientPacket
+        {
+        public:
+            GuildBankDepositMoney(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_DEPOSIT_MONEY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint64 Money = 0;
+        };
+
+        class GuildBankWithdrawMoney final : public ClientPacket
+        {
+        public:
+            GuildBankWithdrawMoney(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_WITHDRAW_MONEY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint64 Money = 0;
+        };
+
+        class GuildPermissionsQueryResults final : public ServerPacket
+        {
+        public:
+            struct GuildRankTabPermissions
+            {
+                int32 Flags = 0;
+                int32 WithdrawItemLimit = 0;
+            };
+
+            GuildPermissionsQueryResults() : ServerPacket(SMSG_GUILD_PERMISSIONS_QUERY_RESULTS, 20) { }
+
+            WorldPacket const* Write() override;
+
+            int32 NumTabs = 0;
+            int32 WithdrawGoldLimit = 0;
+            int32 Flags = 0;
+            uint32 RankID = 0;
+            std::vector<GuildRankTabPermissions> Tab;
+        };
+
+        class GuildBankRemainingWithdrawMoney final : public ServerPacket
+        {
+        public:
+            GuildBankRemainingWithdrawMoney() : ServerPacket(SMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY, 8) { }
+
+            WorldPacket const* Write() override;
+
+            int64 RemainingWithdrawMoney = 0;
         };
     }
 }
