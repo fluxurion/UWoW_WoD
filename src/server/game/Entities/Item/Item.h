@@ -256,6 +256,10 @@ struct BonusData
     float ItemStatSocketCostMultiplier[MAX_ITEM_PROTO_STATS];
     uint32 SocketColor[MAX_ITEM_PROTO_SOCKETS];
     uint32 AppearanceModID;
+    uint32 UnkField234;
+    uint32 UnkField240;
+    float StatScalingMod;
+    uint32 UnkField248;
 
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);

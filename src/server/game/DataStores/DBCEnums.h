@@ -623,14 +623,17 @@ enum ItemEnchantmentType
 
 enum ItemBonusType
 {
-    ITEM_BONUS_ITEM_LEVEL     = 1,
-    ITEM_BONUS_STAT           = 2,
-    ITEM_BONUS_QUALITY        = 3,
-    ITEM_BONUS_DESCRIPTION    = 4,
-    ITEM_BONUS_SUFFIX         = 5,
-    ITEM_BONUS_SOCKET         = 6,
-    ITEM_BONUS_APPEARANCE     = 7,
-    ITEM_BONUS_REQUIRED_LEVEL = 8,
+    ITEM_BONUS_ITEM_LEVEL       = 1,
+    ITEM_BONUS_STAT             = 2,
+    ITEM_BONUS_QUALITY          = 3,
+    ITEM_BONUS_DESCRIPTION      = 4,
+    ITEM_BONUS_SUFFIX           = 5,
+    ITEM_BONUS_SOCKET           = 6,
+    ITEM_BONUS_APPEARANCE       = 7,
+    ITEM_BONUS_REQUIRED_LEVEL   = 8,
+    ITEM_BONUS_UNK              = 9,
+    ITEM_BONUS_STAT_SCALING_MOD = 10,
+    ITEM_BONUS_UNK2             = 11
 };
 
 enum ItemLimitCategoryMode

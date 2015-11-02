@@ -1748,8 +1748,9 @@ void Item::AddBonuses(uint32 bonusListID)
 void BonusData::Initialize(ItemTemplate const* proto)
 {
     Quality = proto->GetQuality();
-    ItemLevel = 0;
+    ItemLevel = proto->GetBaseItemLevel();
     RequiredLevel = proto->GetBaseRequiredLevel();
+
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         ItemStatType[i] = proto->GetItemStatType(i);
 
@@ -1766,6 +1767,7 @@ void BonusData::Initialize(ItemTemplate const* proto)
         SocketColor[i] = proto->GetSocketColor(i);
 
     AppearanceModID = 0;
+    StatScalingMod = proto->StatScalingFactor;
 }
 
 void BonusData::Initialize(WorldPackets::Item::ItemInstance const& itemInstance)
@@ -1827,6 +1829,26 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             break;
         case ITEM_BONUS_REQUIRED_LEVEL:
             RequiredLevel += values[0];
+            break;
+        case ITEM_BONUS_UNK:
+        {
+            if (values[0] < 0xB)
+            {
+                if (values[1] < UnkField240)
+                {
+                    UnkField234 = values[0];
+                    UnkField240 = values[1];
+                }
+            }
+            break;
+        }
+        case ITEM_BONUS_STAT_SCALING_MOD:
+        {
+            StatScalingMod *= values[0] * 0.0099999998f;
+            break;
+        }
+        case ITEM_BONUS_UNK2:
+            UnkField248 = values[0];
             break;
     }
 }
