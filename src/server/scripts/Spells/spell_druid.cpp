@@ -807,8 +807,8 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
                 if (Player* _plr = GetCaster()->ToPlayer())
                 {
-                    healAmount = _plr->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, HEAL, EFFECT_1, stack);
-                    healAmount = GetTarget()->SpellHealingBonusTaken(_plr, GetSpellInfo(), healAmount, HEAL, EFFECT_1, stack);
+                    healAmount = _plr->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, HEAL, EFFECT_0, stack);
+                    healAmount = GetTarget()->SpellHealingBonusTaken(_plr, GetSpellInfo(), healAmount, HEAL, EFFECT_0, stack);
 
                     if(_plr->HasAura(121840))
                         healAmount *= 1.5f;
@@ -828,15 +828,15 @@ class spell_dru_lifebloom : public SpellScriptLoader
             {
                 if (Unit* target = GetUnitOwner())
                 {
-                    if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
+                    if (AuraEffect const* aurEff = GetEffect(EFFECT_0))
                     {
                         // final heal
                         int32 healAmount = aurEff->GetAmount();
 
                         if (Unit* caster = GetCaster())
                         {
-                            healAmount = caster->SpellHealingBonusDone(target, GetSpellInfo(), healAmount, HEAL, EFFECT_1, dispelInfo->GetRemovedCharges());
-                            healAmount = target->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, EFFECT_1, dispelInfo->GetRemovedCharges());
+                            healAmount = caster->SpellHealingBonusDone(target, GetSpellInfo(), healAmount, HEAL, EFFECT_0, dispelInfo->GetRemovedCharges());
+                            healAmount = target->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, EFFECT_0, dispelInfo->GetRemovedCharges());
 
                             target->CastCustomSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, NULL, GetCasterGUID());
 
@@ -849,7 +849,7 @@ class spell_dru_lifebloom : public SpellScriptLoader
 
             void Register()
             {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
                 AfterDispel += AuraDispelFn(spell_dru_lifebloom_AuraScript::HandleDispel);
             }
         };
@@ -2580,7 +2580,7 @@ class spell_dru_healing_ouch : public SpellScriptLoader
         }
 };
 
-// Wild Mushroom - 145205,147349
+// Wild Mushroom - 145205, 147349
 class spell_dru_wild_mushroom_heal : public SpellScriptLoader
 {
     public:
@@ -2625,8 +2625,7 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
                         int32 scale = int32(savePoints * 100/maxhealth);
                         summon->CastCustomSpell(summon, 138616, &scale, &savePoints, NULL, true);
                     }
-                    if(caster->HasAura(145529))
-                        summon->CastSpell(summon, 81262, true);
+                    summon->CastSpell(summon, 81262, true);
                 }
             }
 
@@ -3084,6 +3083,37 @@ class spell_dru_leader_of_the_pack : public SpellScriptLoader
         }
 };
 
+// Nature's Cure - 88423
+class spell_dru_natures_cure : public SpellScriptLoader
+{
+    public:
+        spell_dru_natures_cure() : SpellScriptLoader("spell_dru_natures_cure") { }
+
+        class spell_dru_natures_cure_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_natures_cure_SpellScript);
+
+            void HandleAfterCast()
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if(!GetSpell()->GetCountDispel())
+                        _player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                }
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_dru_natures_cure_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_natures_cure_SpellScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_play_death();
@@ -3146,4 +3176,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_fortifying_brew();
     new spell_dru_mangle();
     new spell_dru_leader_of_the_pack();
+    new spell_dru_natures_cure();
 }

@@ -1535,13 +1535,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                         power = POWER_HEALTH;
                         break;
                     }
-                    case 48438:  // Wild Growth
-                    {
-                        shouldCheck = true;
-                        maxSize = m_caster->HasAura(62970) ? 6 : 5; // Glyph of Wild Growth
-                        power = POWER_HEALTH;
-                        break;
-                    }
                     default:
                         break;
                 }

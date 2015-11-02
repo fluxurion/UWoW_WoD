@@ -7090,9 +7090,25 @@ bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effI
                     check = true;
                 }
                 break;
-                case DUMMY_TRIGGER_CAST_DEST: //5
+                case AURA_TRIGGER_DEST: //4
                 {
                     triggerCaster->CastSpell(triggerTarget->GetPositionX(), triggerTarget->GetPositionY(), triggerTarget->GetPositionZ(), spell_trigger, true, NULL, this);
+                    check = true;
+                }
+                break;
+                case AURA_TRIGGER_DYNOBJECT: //5
+                {
+                    std::list<DynamicObject*> list;
+                    triggerCaster->GetDynObjectList(list, GetId());
+                    if(!list.empty())
+                    {
+                        Unit* owner = triggerCaster->GetAnyOwner();
+                        for (std::list<DynamicObject*>::iterator itr = list.begin(); itr != list.end(); ++itr)
+                        {
+                            if(DynamicObject* dynObj = (*itr))
+                                triggerCaster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), spell_trigger, true, NULL, this, owner ? owner->GetGUID() : ObjectGuid::Empty);
+                        }
+                    }
                     check = true;
                 }
                 break;
@@ -7191,18 +7207,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEf
                     break;
             }
             break;
-        case SPELLFAMILY_DRUID:
-        {
-            switch (GetSpellInfo()->Id)
-            {
-                case 81262: // Efflorescence
-                {
-                    trigger_spell_id = 81269;
-                    break;
-                }
-            }
-            break;
-        }
         case SPELLFAMILY_ROGUE:
         {
             switch (GetSpellInfo()->Id)

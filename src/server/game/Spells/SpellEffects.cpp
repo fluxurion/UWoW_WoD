@@ -4646,7 +4646,8 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 break;
             case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
                 if (!calcAllEffects && effIndex == j + 1 || calcAllEffects)
-                    weaponDamagePercentMod += CalculateDamage(j, unitTarget) / 100.0f;
+                    weaponDamagePercentMod += m_spellInfo->GetEffect(j, m_diffMode)->CalcValue(m_caster) / 100.0f;
+                    //weaponDamagePercentMod += CalculateDamage(j, unitTarget) / 100.0f;
                 break;
             default:
                 break;                                      // not weapon damage effect, just skip

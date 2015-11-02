@@ -2053,7 +2053,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
 
     newdamage = uint32(damage - (damage * percReduced));
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalcArmorReducedDamage newdamage %i percReduced %f damage %i", newdamage, percReduced, damage);
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalcArmorReducedDamage newdamage %i percReduced %f damage %i", newdamage, percReduced, damage);
 
     return (newdamage > 1) ? newdamage : 1;
 }

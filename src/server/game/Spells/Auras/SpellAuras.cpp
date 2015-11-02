@@ -1182,7 +1182,10 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode)
 
     if (Unit* caster = GetCaster())
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_STACKAMOUNT, maxStackAmount);
+        {
+            modOwner->ApplySpellMod(GetId(), SPELLMOD_STACK_AMOUNT, maxStackAmount);
+            modOwner->ApplySpellMod(GetId(), SPELLMOD_STACK_AMOUNT2, maxStackAmount);
+        }
 
     // limit the stack amount (only on stack increase, stack amount may be changed manually)
     if ((num > 0) && (stackAmount > int32(maxStackAmount)))
@@ -1235,7 +1238,10 @@ void Aura::SetMaxStackAmount()
 
     if (Unit* caster = GetCaster())
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_STACKAMOUNT, maxStackAmount);
+        {
+            modOwner->ApplySpellMod(GetId(), SPELLMOD_STACK_AMOUNT, maxStackAmount);
+            modOwner->ApplySpellMod(GetId(), SPELLMOD_STACK_AMOUNT2, maxStackAmount);
+        }
 
     bool refresh = maxStackAmount >= GetStackAmount();
 

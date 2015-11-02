@@ -197,6 +197,7 @@ enum AuraTriggerType
     AURA_TRIGGER_BP_CUSTOM                      = 2,            // set basepoint to spell custom from BD
     AURA_TRIGGER_CHECK_COMBAT                   = 3,            // cast spell in check combat
     AURA_TRIGGER_DEST                           = 4,            // cast spell on dest
+    AURA_TRIGGER_DYNOBJECT                      = 5,            // cast spell on dest DynObject
 };
 
 enum SpellAuraDummyOption
