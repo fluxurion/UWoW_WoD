@@ -60,6 +60,7 @@ public:
             player->GetQuestStatus(QUEST__H) == QUEST_STATUS_REWARDED)
         {
             player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_TELE_OUT_HORDE : SPELL_TELE_OUT_ALLIANCE);
+        }
         else
             player->CastSpell(player, SPELL_TELE_INTRO);
 
