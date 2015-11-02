@@ -9006,6 +9006,9 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
     if (slot >= INVENTORY_SLOT_BAG_END || !proto)
         return;
 
+    if (proto->Flags3 & ITEM_FLAG3_USEABLE_WAR_GAMES)
+        return;
+
     // req. check at equip, but allow use for extended range if range limit max level, set proper level
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
