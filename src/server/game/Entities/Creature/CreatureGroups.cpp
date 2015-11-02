@@ -184,7 +184,10 @@ void CreatureGroup::RemoveMember(Creature* member)
 
 void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
 {
-    sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::MemberAttackStart: GetDBTableGUIDLow %u GetGUIDLow %u entry %u m_leader %u %u", member->GetDBTableGUIDLow(), member->GetGUID().GetGUIDLow(), member->GetEntry(), m_leader->GetEntry(), m_leader->GetGUID().GetGUIDLow());
+    if(!member || !target)
+        return;
+
+    sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::MemberAttackStart: GetDBTableGUIDLow %u GetGUIDLow %u entry %u m_leader %u %u", member->GetDBTableGUIDLow(), member->GetGUIDLow(), member->GetEntry(), m_leader->GetEntry(), m_leader->GetGUIDLow());
 
     uint8 groupAI = 0;
     if(member->GetDBTableGUIDLow())
