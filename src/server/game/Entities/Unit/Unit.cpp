@@ -4976,36 +4976,52 @@ bool Unit::HasAuraType(AuraType auraType) const
 bool Unit::HasAuraTypeWithCaster(AuraType auratype, ObjectGuid caster) const
 {
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+    {
+        next = i;
+        ++next;
         if (caster == (*i)->GetCasterGUID())
             return true;
+    }
     return false;
 }
 
 bool Unit::HasAuraTypeWithMiscvalue(AuraType auratype, int32 miscvalue) const
 {
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+    {
+        next = i;
+        ++next;
         if (miscvalue == (*i)->GetMiscValue())
             return true;
+    }
     return false;
 }
 
 bool Unit::HasAuraTypeWithAffectMask(AuraType auratype, SpellInfo const* affectedSpell) const
 {
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+    {
+        next = i;
+        ++next;
         if ((*i)->IsAffectingSpell(affectedSpell))
             return true;
+    }
     return false;
 }
 
 bool Unit::HasAuraTypeWithValue(AuraType auratype, int32 value) const
 {
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+    {
+        next = i;
+        ++next;
         if (value == (*i)->GetAmount())
             return true;
+    }
     return false;
 }
 
@@ -5198,10 +5214,14 @@ std::list<AuraEffect*> Unit::GetTotalNotStuckAuraEffectByType(AuraType auratype)
     std::multimap<SpellGroup, AuraEffect*> SameEffectSpellGroup;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+    {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(eff->GetSpellInfo(), eff, SameEffectSpellGroup))
                 FinishedEffectList.push_back(eff);
+    }
 
     for (std::map<SpellGroup, AuraEffect*>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
         FinishedEffectList.push_back(itr->second);
@@ -5216,7 +5236,10 @@ int32 Unit::GetTotalAuraModifier(AuraType auratype, bool raid) const
     int32 raidModifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+    {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
         {
             if (raid && (eff->GetSpellInfo()->AttributesEx7 & SPELL_ATTR7_CONSOLIDATED_RAID_BUFF))
@@ -5227,6 +5250,7 @@ int32 Unit::GetTotalAuraModifier(AuraType auratype, bool raid) const
             else if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(eff->GetSpellInfo(), eff->GetAmount(), SameEffectSpellGroup))
                 modifier += eff->GetAmount();
         }
+    }
 
     for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
         modifier += itr->second;
@@ -5249,10 +5273,14 @@ int32 Unit::GetTotalForAurasModifier(std::list<AuraType> *auratypelist) const
 
     if (!mTotalAuraList.empty())
     {
-        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+        {
+            next = i;
+            ++next;
             if (AuraEffect* eff = (*i))
                 if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(eff->GetSpellInfo(), eff->GetAmount(), SameEffectSpellGroup))
                     modifier += eff->GetAmount();
+        }
 
         for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
             modifier += itr->second;
@@ -5276,10 +5304,14 @@ float Unit::GetTotalForAurasMultiplier(std::list<AuraType> *auratypelist) const
 
     if (!mTotalAuraList.empty())
     {
-        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+        {
+            next = i;
+            ++next;
             if (AuraEffect* eff = (*i))
                 if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(eff->GetSpellInfo(), eff->GetAmount(), SameEffectSpellGroup))
                     AddPct(multiplier, eff->GetAmount());
+        }
 
         for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
             AddPct(multiplier, itr->second);
@@ -5294,10 +5326,14 @@ float Unit::GetTotalAuraMultiplier(AuraType auratype) const
     float multiplier = 1.0f;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+    {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(eff->GetSpellInfo(), eff->GetAmount(), SameEffectSpellGroup))
                 AddPct(multiplier, eff->GetAmount());
+    }
 
     for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
         AddPct(multiplier, itr->second);
@@ -5311,11 +5347,15 @@ float Unit::GetTotalPositiveAuraMultiplierByMiscMask(AuraType auratype, uint32 m
     float multiplier = 1.0f;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+    {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if ((eff->GetMiscValue() & misc_mask) && eff->GetAmount() > 0)
                 if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(eff->GetSpellInfo(), eff->GetAmount(), SameEffectSpellGroup))
                     AddPct(multiplier, eff->GetAmount());
+    }
 
     for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
         AddPct(multiplier, itr->second);
@@ -5328,8 +5368,10 @@ int32 Unit::GetMaxPositiveAuraModifier(AuraType auratype)
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->GetAmount() > modifier)
                 modifier = eff->GetAmount();
@@ -5343,8 +5385,10 @@ int32 Unit::GetMaxNegativeAuraModifier(AuraType auratype) const
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->GetAmount() < modifier)
                 modifier = eff->GetAmount();
@@ -5360,11 +5404,15 @@ int32 Unit::GetTotalAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) 
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
 
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+    {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->GetMiscValue() & misc_mask)
                 if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(eff->GetSpellInfo(), eff->GetAmount(), SameEffectSpellGroup))
                     modifier += eff->GetAmount();
+    }
 
     for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
         modifier += itr->second;
@@ -5378,8 +5426,10 @@ float Unit::GetTotalAuraMultiplierByMiscMask(AuraType auratype, uint32 misc_mask
     float multiplier = 1.0f;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if ((eff->GetMiscValue() & misc_mask))
             {
@@ -5401,8 +5451,10 @@ int32 Unit::GetMaxPositiveAuraModifierByMiscMask(AuraType auratype, uint32 misc_
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (except != (*i) && (*i)->GetMiscValue()& misc_mask && (*i)->GetAmount() > modifier)
             modifier = (*i)->GetAmount();
     }
@@ -5415,8 +5467,10 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscMask(AuraType auratype, uint32 misc_
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->GetMiscValue()& misc_mask && eff->GetAmount() < modifier)
                 modifier = eff->GetAmount();
@@ -5431,8 +5485,10 @@ int32 Unit::GetTotalAuraModifierByMiscValue(AuraType auratype, int32 misc_value)
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->GetMiscValue() == misc_value)
                 if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(eff->GetSpellInfo(), eff->GetAmount(), SameEffectSpellGroup))
@@ -5451,8 +5507,10 @@ float Unit::GetTotalAuraMultiplierByMiscValue(AuraType auratype, int32 misc_valu
     float multiplier = 1.0f;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->GetMiscValue() == misc_value)
                 if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(eff->GetSpellInfo(), eff->GetAmount(), SameEffectSpellGroup))
@@ -5471,8 +5529,10 @@ float Unit::GetTotalAuraMultiplierByMiscValueB(AuraType auratype, int32 misc_val
     float multiplier = 1.0f;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->GetMiscValue() == misc_value)
                 if (eff->GetMiscValueB() == 0 || eff->GetMiscValueB() == misc_valueB)
@@ -5491,8 +5551,10 @@ int32 Unit::GetMaxPositiveAuraModifierByMiscValue(AuraType auratype, int32 misc_
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->GetMiscValue() == misc_value && eff->GetAmount() > modifier)
                 modifier = eff->GetAmount();
@@ -5506,8 +5568,10 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->GetMiscValue() == misc_value && eff->GetAmount() < modifier)
                 modifier = eff->GetAmount();
@@ -5522,8 +5586,10 @@ int32 Unit::GetTotalAuraModifierByAffectMask(AuraType auratype, SpellInfo const*
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->IsAffectingSpell(affectedSpell))
                 if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(eff->GetSpellInfo(), eff->GetAmount(), SameEffectSpellGroup))
@@ -5542,8 +5608,10 @@ float Unit::GetTotalAuraMultiplierByAffectMask(AuraType auratype, SpellInfo cons
     float multiplier = 1.0f;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->IsAffectingSpell(affectedSpell))
                 if (!sSpellMgr->AddSameEffectStackRuleSpellGroups(eff->GetSpellInfo(), eff->GetAmount(), SameEffectSpellGroup))
@@ -5561,8 +5629,10 @@ int32 Unit::GetMaxPositiveAuraModifierByAffectMask(AuraType auratype, SpellInfo 
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->IsAffectingSpell(affectedSpell) && eff->GetAmount() > modifier)
                 modifier = eff->GetAmount();
@@ -5576,8 +5646,10 @@ int32 Unit::GetMaxNegativeAuraModifierByAffectMask(AuraType auratype, SpellInfo 
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
-    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
     {
+        next = i;
+        ++next;
         if (AuraEffect* eff = (*i))
             if (eff->IsAffectingSpell(affectedSpell) && eff->GetAmount() < modifier)
                 modifier = eff->GetAmount();
@@ -10821,8 +10893,12 @@ void Unit::CombatStopWithPets(bool includingCast)
 {
     CombatStop(includingCast);
 
-    for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+    for (ControlList::const_iterator itr = m_Controlled.begin(), next; itr != m_Controlled.end(); itr = next)
+    {
+        next = itr;
+        ++next;
         (*itr)->CombatStop(includingCast);
+    }
 }
 
 bool Unit::isAttackingPlayer() const
@@ -14329,8 +14405,10 @@ int32 Unit::ModifyHealth(int32 dVal)
     if(dVal < 0)
     {
         AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(SPELL_AURA_PROC_ON_HP_BELOW);
-        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
         {
+            next = i;
+            ++next;
             int64 curCount = CountPctFromMaxHealth((*i)->GetAmount());
             uint32 triggered_spell_id = (*i)->GetTriggerSpell() ? (*i)->GetTriggerSpell(): 0;
             SpellInfo const* triggerEntry = sSpellMgr->GetSpellInfo(triggered_spell_id);
@@ -14409,8 +14487,10 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal)
     if(modVal > 0)
     {
         AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(SPELL_AURA_PROC_ON_POWER_AMOUNT_2);
-        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
         {
+            next = i;
+            ++next;
             uint32 triggered_spell_id = (*i)->GetTriggerSpell() ? (*i)->GetTriggerSpell(): 0;
             SpellInfo const* triggerEntry = sSpellMgr->GetSpellInfo(triggered_spell_id);
             if ((*i)->GetMiscValue() == power && oldVal < (*i)->GetAmount() && curentVal >= (*i)->GetAmount() && (*i)->GetMiscValueB() == 0)
@@ -14423,8 +14503,10 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal)
     else
     {
         AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(SPELL_AURA_PROC_ON_POWER_AMOUNT_2);
-        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
         {
+            next = i;
+            ++next;
             uint32 triggered_spell_id = (*i)->GetTriggerSpell() ? (*i)->GetTriggerSpell(): 0;
             SpellInfo const* triggerEntry = sSpellMgr->GetSpellInfo(triggered_spell_id);
             if ((*i)->GetMiscValue() == power && oldVal > (*i)->GetAmount() && curentVal <= (*i)->GetAmount() && (*i)->GetMiscValueB() == 1)
@@ -15534,9 +15616,13 @@ void Unit::ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell
     {
         float mod = 1.0f;
         AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(SPELL_AURA_MOD_CAST_TIME_WHILE_MOVING);
-        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+        for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
+        {
+            next = i;
+            ++next;
             if ((*i)->IsAffectingSpell(spellProto))
                 AddPct(mod, (*i)->GetAmount());
+        }
 
         castTime *= mod;
     }
