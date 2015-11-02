@@ -11,3 +11,7 @@ insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `p
 
 insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `comment`) values
 ('5215','-157274','0','4','0','0','0','0','0','0','7','0','0','0','0','0','Улучшенное подкрадывание');
+
+DELETE FROM spell_linked_spell WHERE spell_trigger IN (137452);
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `actiontype`, `comment`) values
+('102280','768','6','0','0','0','0','0','0','0','0','0','0','0','Druid: talent Displacer Beast');
