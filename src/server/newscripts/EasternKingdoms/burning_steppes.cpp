@@ -43,6 +43,7 @@ public:
         SPELL_TELE_OUT_ALLIANCE = 167221, //Teleport Out: Alliance / 2308.57 Y: 447.469 Z: 5.11977 O: 2.199202
         SPELL_TELE_OUT_HORDE = 167220,//Teleport Out: Alliance
 
+        SPELL_TELE_INTRO = 167771,
         MOVIE_HORDE = 185,
         MOVIE_ALLIANCE = 187,
 
@@ -55,12 +56,13 @@ public:
         if (player->getLevel() < 90 || player->HasAura(SPELL_TIME_SHIFT))
             return false;       //tele to outlend
 
-        if (player->GetQuestStatus(QUEST__A) == QUEST_STATUS_COMPLETE ||
-            player->GetQuestStatus(QUEST__H) == QUEST_STATUS_COMPLETE)
+        if (player->GetQuestStatus(QUEST__A) == QUEST_STATUS_REWARDED ||
+            player->GetQuestStatus(QUEST__H) == QUEST_STATUS_REWARDED)
         {
             player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_TELE_OUT_HORDE : SPELL_TELE_OUT_ALLIANCE);
-            player->SendMovieStart(player->GetTeam() == HORDE ? MOVIE_HORDE : MOVIE_ALLIANCE);    //alliance
-        }
+        else
+            player->CastSpell(player, SPELL_TELE_INTRO);
+
         return true;
     }
 };

@@ -7887,7 +7887,14 @@ update `gameobject` set AiID = 5460 WHERE `id` in (232539, 231261);
 update `gameobject` set AiID = 7254 WHERE `id` in (236913, 236914);
 
 --
+DELETE FROM creature where guid = 299088 AND id = 78553;
 UPDATE `creature` SET `PhaseId` = '4019' WHERE `creature`.`guid` = 298993 AND id = 78553;
+
+DELETE FROM creature where guid = 299301 AND id = 78996;
 UPDATE `creature` SET `PhaseId` = '3423' WHERE `creature`.`guid` = 299256 AND id = 78996;
+
+DELETE FROM creature where guid = 299360 AND id = 80468;
 UPDATE `creature` SET `PhaseId` = '4200' WHERE `creature`.`guid` = 299470 AND id = 80468;
+
+DELETE FROM creature where guid = 299456 AND id = 80574;
 UPDATE `creature` SET `PhaseId` = '3351' WHERE `creature`.`guid` = 299437 AND id = 80574;
