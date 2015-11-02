@@ -23,6 +23,7 @@
 #include "Config.h"
 #include "Util.h"
 #include <boost/graph/dijkstra_shortest_paths.hpp>
+//#include <boost/property_map/transform_value_property_map.hpp>
 
 void TaxiPathGraph::Initialize()
 {
@@ -121,49 +122,6 @@ void TaxiPathGraph::AddVerticeAndEdgeFromNodeInfo(TaxiNodesEntry const* from, Ta
     }
 }
 
-namespace boost_shit2 {
-
-    template<typename Func, typename PM, typename Ret = typename boost::result_of<const Func(typename boost::property_traits<PM>::reference)>::type>
-    class transform_value_property_map : public boost::put_get_helper<Ret, transform_value_property_map<Func, PM, Ret> > {
-    public:
-        typedef typename boost::property_traits<PM>::key_type key_type;
-        typedef Ret reference;
-        typedef typename boost::remove_cv<typename boost::remove_reference<Ret>::type>::type value_type;
-
-        typedef typename boost::mpl::if_<
-            boost::mpl::and_<
-            boost::is_reference<Ret>,
-            boost::mpl::not_<boost::is_const<Ret> >
-            >,
-            boost::lvalue_property_map_tag,
-            boost::readable_property_map_tag>::type
-            category;
-
-        transform_value_property_map(Func f, PM pm) : f(f), pm(pm) {}
-
-        reference operator[](const key_type& k) const {
-            return f(get(pm, k));
-        }
-
-    private:
-        Func f;
-        PM pm;
-    };
-
-    template<typename PM, typename Func>
-    transform_value_property_map<Func, PM>
-        make_transform_value_property_map(const Func& f, const PM& pm) {
-        return transform_value_property_map<Func, PM>(f, pm);
-    }
-
-    template<typename Ret, typename PM, typename Func>
-    transform_value_property_map<Func, PM, Ret>
-        make_transform_value_property_map(const Func& f, const PM& pm) {
-        return transform_value_property_map<Func, PM, Ret>(f, pm);
-    }
-
-} // boost
-
 std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* from, TaxiNodesEntry const* to, Player const* player, std::vector<uint32>& shortestPath)
 {
     /*
@@ -185,11 +143,11 @@ std::size_t TaxiPathGraph::GetCompleteNodeRoute(TaxiNodesEntry const* from, Taxi
         shortestPath.clear();
         std::vector<vertex_descriptor> p(boost::num_vertices(m_graph));
 
-        boost::dijkstra_shortest_paths(m_graph, GetVertexIDFromNodeID(from),
-            boost::predecessor_map(boost::make_iterator_property_map(p.begin(), boost::get(boost::vertex_index, m_graph)))
-            .weight_map(boost_shit2::make_transform_value_property_map(
-            [player](EdgeCost const& edgeCost) { return (unsigned int)edgeCost.EvaluateDistance(player); },
-            boost::get(boost::edge_weight, m_graph))));
+        //boost::dijkstra_shortest_paths(m_graph, GetVertexIDFromNodeID(from),
+        //    boost::predecessor_map(boost::make_iterator_property_map(p.begin(), boost::get(boost::vertex_index, m_graph)))
+        //    .weight_map(boost::make_transform_value_property_map(
+        //        [player](EdgeCost const& edgeCost) { return edgeCost.EvaluateDistance(player); },
+        //        boost::get(boost::edge_weight, m_graph))));
 
         // found a path to the goal
         for (vertex_descriptor v = GetVertexIDFromNodeID(to); ; v = p[v])
