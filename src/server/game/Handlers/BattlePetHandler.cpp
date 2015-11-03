@@ -136,7 +136,10 @@ void WorldSession::HandleCageBattlePet(WorldPackets::BattlePet::BattlePetGuidRea
         if (!item)                                               // prevent crash
             return;
 
-        item->SetBattlePet(petInfo->JournalInfo.SpeciesID, dynData, petInfo->JournalInfo.Level);
+        item->SetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID, petInfo->JournalInfo.SpeciesID);
+        item->SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, dynData);
+        item->SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, petInfo->JournalInfo.Level);
+
         _player->SendNewItem(item, 1, false, true, petInfo);
 
         // at fourth - unlearn spell - TODO: fix it because more than one spell/battle pet of same type

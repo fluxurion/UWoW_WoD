@@ -8146,8 +8146,8 @@ void Spell::EffectUncageBattlePet(SpellEffIndex effIndex)
     if (!player)
         return;
 
-    uint32 speciesID = m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
-    uint32 tempData = m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_BREED_DATA);
+    uint32 speciesID = m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
+    uint32 tempData = m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA);
 
     BattlePetSpeciesEntry const* speciesEntry = sBattlePetSpeciesStore.LookupEntry(speciesID);
     if (!speciesEntry)
@@ -8168,7 +8168,7 @@ void Spell::EffectUncageBattlePet(SpellEffIndex effIndex)
     if (!player->HasSpell(speciesEntry->spellId))
         player->learnSpell(speciesEntry->spellId, false);
 
-    battlePetMgr->AddPet(speciesID, tempData & 0xFF, tempData >> 24, m_CastItem->GetBattlePetData(ITEM_MODIFIER_BATTLE_PET_LEVEL));
+    battlePetMgr->AddPet(speciesID, tempData & 0xFF, tempData >> 24, m_CastItem->GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL));
     player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
 
     // prevent crash at access to deleted m_targets.GetItemTarget

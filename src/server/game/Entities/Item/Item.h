@@ -440,11 +440,6 @@ class Item : public Object
         void SetUpgradeId(uint32 value);
         uint32 GetUpgradeId() const;
 
-        // item battle pet
-        bool isBattlePet() { return GetEntry() == ITEM_BATTLE_PET_CAGE_ID; }
-        void SetBattlePet(uint32 speciesID, uint32 data, uint32 level);
-        uint32 GetBattlePetData(ItemModifier off);
-
         void SetLevelCap(uint32 cup, bool pvp);
 
         void SetScaleIlvl(uint32 ilvl) { m_scaleLvl = ilvl; }

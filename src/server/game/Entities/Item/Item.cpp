@@ -1631,17 +1631,6 @@ uint32 Item::GetUpgradeId() const
     return GetModifier(ITEM_MODIFIER_UPGRADE_ID);
 }
 
-void Item::SetBattlePet(uint32 speciesID, uint32 data, uint32 level)
-{
-    SetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID, speciesID);
-    SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, data);
-    SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, level);
-}
-
-uint32 Item::GetBattlePetData(ItemModifier mod)
-{
-    return GetModifier(mod);
-}
 
 //!@ For all inventoty items at add to world.
 //! TODO: FIX ME.
