@@ -448,6 +448,18 @@ class ByteBuffer
             return *this;
         }
 
+        ByteBuffer &operator<<(Milliseconds value)
+        {
+            append<uint32>(value.count());
+            return *this;
+        }
+
+        ByteBuffer &operator<<(Seconds value)
+        {
+            append<uint32>(value.count());
+            return *this;
+        }
+
         // signed as in 2e complement
         ByteBuffer &operator<<(int8 value)
         {
