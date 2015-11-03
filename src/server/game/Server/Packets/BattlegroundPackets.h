@@ -426,13 +426,23 @@ namespace WorldPackets
             bool LoggingIn = false;
         };
 
-        struct BattlegroundCapturePointInfo
+        struct BattlegroundCapturePointInfoData
         {
             ObjectGuid Guid;
-            G3D::Vector2 Pos;
-            uint8 State = 0;
+            Position Pos;
+            BattleGroundCapturePointState NodeState = NODE_STATE_NONE;
             uint32 CaptureTime = 0;
             uint32 CaptureTotalDuration = 0;
+        };
+
+        class BattlegroundCapturePointInfo final : public ServerPacket
+        {
+        public:
+            BattlegroundCapturePointInfo() : ServerPacket(SMSG_BATTLEGROUND_CAPTURE_POINT_INFO, 16 + 8 + 1 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            BattlegroundCapturePointInfoData Info;
         };
 
         class MapObjectivesInit final : public ServerPacket
@@ -442,7 +452,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<BattlegroundCapturePointInfo> CapturePointInfo;
+            std::vector<BattlegroundCapturePointInfoData> CapturePointInfo;
         };
 
         class BFMgrEjectPending final : public ServerPacket

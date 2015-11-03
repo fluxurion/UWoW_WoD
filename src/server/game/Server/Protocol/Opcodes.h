@@ -1218,6 +1218,7 @@ enum OpcodeServer : uint32
     SMSG_MAIL_QUERY_NEXT_TIME_RESULT                  = 0x0F8C,
     SMSG_MAP_OBJ_EVENTS                               = 0x161F,
     SMSG_MAP_OBJECTIVES_INIT                          = 0x1238,
+    SMSG_BATTLEGROUND_CAPTURE_POINT_INFO              = 0x06A0,
     SMSG_MASTER_LOOT_CANDIDATE_LIST                   = 0x1821,
     SMSG_MESSAGE_BOX                                  = 0x13BD,
     SMSG_MINIMAP_PING                                 = 0x1697,

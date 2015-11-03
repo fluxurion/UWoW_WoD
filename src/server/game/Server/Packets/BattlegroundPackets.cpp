@@ -387,21 +387,32 @@ WorldPacket const* WorldPackets::Battleground::BFMgrQueueRequestResponse::Write(
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::BattlegroundCapturePointInfoData& info)
+{
+    data << info.Guid;
+    data << info.Pos.PositionXYStream();
+    data << int8(info.NodeState);
+    if (info.NodeState == NODE_STATE_HORDE_ASSAULT || info.NodeState == NODE_STATE_ALLIANCE_ASSAULT)
+    {
+        data << info.CaptureTime;
+        data << info.CaptureTotalDuration;
+    }
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Battleground::MapObjectivesInit::Write()
 {
     _worldPacket << static_cast<uint32>(CapturePointInfo.size());
-    for (BattlegroundCapturePointInfo const& map : CapturePointInfo)
-    {
-        _worldPacket << map.Guid;
-        _worldPacket << map.Pos.x;
-        _worldPacket << map.Pos.y;
-        _worldPacket << map.State;
-        if (map.State == 2 || map.State == 3)
-        {
-            _worldPacket << map.CaptureTime;
-            _worldPacket << map.CaptureTotalDuration;
-        }
-    }
+    for (auto& v : CapturePointInfo)
+        _worldPacket << v;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Battleground::BattlegroundCapturePointInfo::Write()
+{
+    _worldPacket << Info;
 
     return &_worldPacket;
 }
