@@ -2620,7 +2620,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
     {
         // Reduce dodge chance by attacker expertise rating
         if (GetTypeId() == TYPEID_PLAYER)
-            dodge_chance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
+            dodge_chance -= int32(ToPlayer()->GetBaseEnemyDodgeChance(ToPlayer()->getLevel() - victim->getLevel()) * 100);
         else
         {
             dodge_chance -= m_expertise * 100.0f;
@@ -2648,7 +2648,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
     {
         // Reduce parry chance by attacker expertise rating
         if (GetTypeId() == TYPEID_PLAYER)
-            parry_chance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100);
+            parry_chance -= int32(ToPlayer()->GetBaseEnemyParryChance(ToPlayer()->getLevel() - victim->getLevel()) * 100);
         else
         {
             parry_chance -= m_expertise * 100.0f;
@@ -3000,7 +3000,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         dodgeChance = int32(float(dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
         // Reduce dodge chance by attacker expertise rating
         if (GetTypeId() == TYPEID_PLAYER)
-            dodgeChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
+            dodgeChance -= int32(ToPlayer()->GetBaseEnemyDodgeChance(ToPlayer()->getLevel() - victim->getLevel()) * 100.0f);
         else
         {
             dodgeChance -= m_expertise * 100.0f;
@@ -3021,7 +3021,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         int32 parryChance = int32(victim->GetUnitParryChance() * 100.0f);
         // Reduce parry chance by attacker expertise rating
         if (GetTypeId() == TYPEID_PLAYER)
-            parryChance -= int32(ToPlayer()->GetExpertiseDodgeOrParryReduction(attType) * 100.0f);
+            parryChance -= int32(ToPlayer()->GetBaseEnemyParryChance(ToPlayer()->getLevel() - victim->getLevel()) * 100.0f);
         else
         {
             parryChance -= m_expertise * 100.0f;

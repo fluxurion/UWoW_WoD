@@ -6654,21 +6654,26 @@ float Player::GetRatingBonusValue(CombatRating cr) const
 //    return float(1.0f - pow(0.99f, baseResult)) * 100.0f;
 }
 
-float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
+float Player::GetBaseEnemyDodgeChance(uint8 levelOffset) const
 {
-    switch (attType)
-    {
-        case BASE_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE);
-        case OFF_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE);
-        case RANGED_ATTACK:
-            return GetFloatValue(PLAYER_FIELD_RANGED_EXPERTISE);
-        default:
-            break;
-    }
-    return 0.0f;
+    if (levelOffset < 0 || levelOffset > 3)
+        return 0.0f;
+
+    float baseEnemyDodgeChance[4] = { -4.5f, -3.0f, -1.5f, 0.0f };
+
+    return baseEnemyDodgeChance[levelOffset];
 }
+
+float Player::GetBaseEnemyParryChance(uint8 levelOffset) const
+{
+    if (levelOffset < 0 || levelOffset > 3)
+        return 0.0f;
+
+    float baseEnemyParryChance[4] = { -1.5f, 0.0f, 1.5f, 3.0f };
+
+    return baseEnemyParryChance[levelOffset];
+}
+
 
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 {
@@ -13611,10 +13616,11 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
     if (slot < EQUIPMENT_SLOT_END)
     {
         // narcotics with blizz!
-        SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, GetAverageItemLevel());
-        SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, GetAverageItemLevel());
-        SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, GetAverageItemLevel()); // TODO: total
-        SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, GetAverageItemLevel()); // TODO: total
+        float avgItemLevel = GetAverageItemLevel();
+        SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, avgItemLevel);
+        SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, avgItemLevel);
+        SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, avgItemLevel); // TODO: total
+        SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, avgItemLevel); // TODO: total
     }
 
     pItem->SetState(ITEM_CHANGED, this);
@@ -13688,10 +13694,11 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
         if (slot < EQUIPMENT_SLOT_END)
         {
             // narcotics with blizz!
-            SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, GetAverageItemLevel());
-            SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, GetAverageItemLevel());
-            SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, GetAverageItemLevel()); // TODO: total
-            SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, GetAverageItemLevel()); // TODO: total
+            float avgItemLevel = GetAverageItemLevel();
+            SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, avgItemLevel);
+            SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, avgItemLevel);
+            SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, avgItemLevel); // TODO: total
+            SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, avgItemLevel); // TODO: total
         }
 
         if (IsInWorld() && update)
