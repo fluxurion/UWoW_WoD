@@ -1236,6 +1236,8 @@ void Garrison::Mission::Start(Player* owner)
             owner->ModifyCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, entry->reqResourcesCount);
 
         garrison->SendMissionListUpdate(false);
+
+        owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_START_GARRISON_MISSION, PacketInfo.MissionRecID);
     }
 }
 

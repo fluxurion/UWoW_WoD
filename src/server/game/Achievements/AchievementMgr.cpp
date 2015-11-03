@@ -1572,6 +1572,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP:
             case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
             case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
+            case ACHIEVEMENT_CRITERIA_TYPE_START_GARRISON_MISSION:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
                 canComplete = SetCriteriaProgress(achievement, criteriaTree, criteria, init ? 0 : 1, referencePlayer, PROGRESS_ACCUMULATE, progressMap, progress);
                 break;
@@ -1828,7 +1829,6 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
             case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
             case ACHIEVEMENT_CRITERIA_TYPE_UPGRADE_GARRISON:
-            case ACHIEVEMENT_CRITERIA_TYPE_START_GARRISON_MISSION:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION_COUNT:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GARRISON_MISSION:
             case ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_COUNT:
@@ -1999,6 +1999,7 @@ bool AchievementMgr<T>::IsCompletedCriteria(CriteriaTreeEntry const* criteriaTre
         case ACHIEVEMENT_CRITERIA_TYPE_BATTLEPET_LEVEL_UP:
         case ACHIEVEMENT_CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
         case ACHIEVEMENT_CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
+        case ACHIEVEMENT_CRITERIA_TYPE_START_GARRISON_MISSION:
         case ACHIEVEMENT_CRITERIA_TYPE_OWN_HEIRLOOMS:
             progress->completed = progress->counter >= criteriaTree->requirement_count;
             break;
@@ -3796,6 +3797,8 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementEntry const* achievemen
             if (miscValue1 != criteria->garBuild.GarrBuildingID)
                 return false;
             break;
+        case ACHIEVEMENT_CRITERIA_TYPE_START_GARRISON_MISSION:
+            return true;
         default:
             break;
     }
