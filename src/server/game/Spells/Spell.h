@@ -499,6 +499,7 @@ class Spell
         void EffectLearnGarrisonBuilding(SpellEffIndex effIndex);
         void EffectCreateGarrison(SpellEffIndex effIndex);
         void EffectAddGarrisonFollower(SpellEffIndex effIndex);
+        void EffectAddGarrisonMission(SpellEffIndex effIndex);
         void EffectActivateGarrisonBuilding(SpellEffIndex effIndex);
         void EffectCreateHeirloomItem(SpellEffIndex effIndex);
         void EffectUpgradeHeirloom(SpellEffIndex effIndex);

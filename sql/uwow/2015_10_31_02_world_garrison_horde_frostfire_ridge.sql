@@ -227,3 +227,6 @@ REPLACE INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `us
 DELETE FROM `creature_text` WHERE entry = 80582;
 REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (80582, 0, 0, 'Еще раз огромное спасибо тебе, командир. Кабы не ты, эти твари сожрали бы меня заживо. Увидимся в гарнизоне.', 12, 0, 100, 5, 0, 0, 'Оулин Бурошкур to Player');
+
+-- Q: 34775
+INSERT INTO `quest_template_addon` (`ID`,  `SourceSpellID`) VALUES ('34775', '161438');

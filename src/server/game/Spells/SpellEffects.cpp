@@ -298,7 +298,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218
     &Spell::EffectSummonConversation,                       //219 SPELL_EFFECT_SUMMON_CONVERSATION
     &Spell::EffectAddGarrisonFollower,                      //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
-    &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
+    &Spell::EffectAddGarrisonMission,                       //221 SPELL_EFFECT_ADD_GARRISON_MISSION
     &Spell::EffectCreateHeirloomItem,                       //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
     &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
     &Spell::EffectActivateGarrisonBuilding,                 //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
@@ -324,7 +324,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
-    &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
+    &Spell::EffectAddGarrisonMission,                       //247 SPELL_EFFECT_ADD_GARRISON_MISSION2
     &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_249
     &Spell::EffectNULL,                                     //250 SPELL_EFFECT_TAKE_SCREENSHOT
@@ -8434,6 +8434,22 @@ void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
         if (m_CastItem)
             player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
     }
+}
+
+void Spell::EffectAddGarrisonMission(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget)
+        return;
+
+    Player* player = unitTarget->ToPlayer();
+    if (!player)
+        return;
+
+    if (Garrison* garrison = player->GetGarrison())
+        garrison->AddMission(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
 }
 
 void Spell::EffectActivateGarrisonBuilding(SpellEffIndex effIndex)

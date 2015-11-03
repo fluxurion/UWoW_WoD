@@ -419,6 +419,7 @@ namespace WorldPackets
 
             GarrisonMission MissionData;
             uint32 Result = 0;
+            uint8 unk = 0;
         };
 
         class GarrisonUpgradeResult final : public ServerPacket

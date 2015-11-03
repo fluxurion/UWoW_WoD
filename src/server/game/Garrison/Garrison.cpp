@@ -717,6 +717,7 @@ void Garrison::AddMission(uint32 missionRecID)
     mission.PacketInfo.MissionDuration = missionEntry->missionDuration;
     mission.PacketInfo.MissionState = MISSION_STATE_AVAILABLE;
 
+    addMissionResult.unk = 1;
     addMissionResult.MissionData = mission.PacketInfo;
     _owner->SendDirectMessage(addMissionResult.Write());
 }

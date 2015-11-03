@@ -344,8 +344,9 @@ WorldPacket const* WorldPackets::Garrison::GarrisonLandingPage::Write()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonAddMissionResult::Write()
 {
-    _worldPacket << MissionData;
     _worldPacket << Result;
+    _worldPacket << unk; // 2 == GARRISON_RANDOM_MISSION_ADDED = 904
+    _worldPacket << MissionData;
 
     return &_worldPacket;
 }
