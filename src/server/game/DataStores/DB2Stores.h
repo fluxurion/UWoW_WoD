@@ -50,6 +50,7 @@ extern DB2Storage<GarrFollowerLevelXPEntry>         sGarrFollowerLevelXPStore;
 extern DB2Storage<GarrFollowerQualityEntry>         sGarrFollowerQualityStore;
 extern DB2Storage<GarrFollowerXAbilityEntry>        sGarrFollowerXAbilityStore;
 extern DB2Storage<GarrEncounterEntry>               sGarrEncounterStore;
+extern DB2Storage<GarrEncounterXMechanicEntry>      sGarrEncounterXMechanicStore;
 extern DB2Storage<GarrMechanicEntry>                sGarrMechanicStore;
 extern DB2Storage<GarrMechanicTypeEntry>            sGarrMechanicTypeStore;
 extern DB2Storage<GarrMissionEntry>                 sGarrMissionStore;

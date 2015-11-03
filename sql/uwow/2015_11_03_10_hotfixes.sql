@@ -53,6 +53,19 @@ CREATE TABLE `garr_encounter` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+DROP TABLE IF EXISTS `garrison_encounter_x_mechanic`;
+DROP TABLE IF EXISTS `garr_encounter_x_mechanic`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `garr_encounter_x_mechanic` (
+  `ID` int(10) unsigned NOT NULL DEFAULT '0',
+  `GarrEncounterID` int(10) unsigned NOT NULL DEFAULT '0',
+  `GarrMechanicID` int(10) unsigned NOT NULL DEFAULT '0',
+  `VerifiedBuild` smallint(6) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 DROP TABLE IF EXISTS `garrison_mechanic`;
 DROP TABLE IF EXISTS `garr_mechanic`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

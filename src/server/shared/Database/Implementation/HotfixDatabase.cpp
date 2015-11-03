@@ -190,6 +190,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // GarrEncounter.db2
     PrepareStatement(HOTFIX_SEL_GARR_ENCOUNTER, "SELECT ID, CreatureEntry, Name, Mod, Mod1, SomeFileDataID FROM garr_encounter ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // GarrEncounterXMechanic.db2
+    PrepareStatement(HOTFIX_SEL_GARR_ENCOUNTER_X_MECHANIC, "SELECT ID, GarrEncounterID, GarrMechanicID FROM garr_encounter_x_mechanic ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // GarrMechanic.db2
     PrepareStatement(HOTFIX_SEL_GARR_MECHANIC, "SELECT ID, Type, Mod FROM garr_mechanic ORDER BY ID DESC", CONNECTION_SYNCH);
 

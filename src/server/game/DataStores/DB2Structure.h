@@ -500,6 +500,13 @@ struct GarrEncounterEntry
     uint32 SomeFileDataID;                                          // 5
 };
 
+struct GarrEncounterXMechanicEntry
+{
+    uint32 ID;                  // 0
+    uint32 GarrEncounterID;     // 1
+    uint32 GarrMechanicID;      // 2
+};
+
 struct GarrMechanicEntry
 {
     uint32 ID;                  // 0

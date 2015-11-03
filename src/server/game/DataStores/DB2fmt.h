@@ -49,6 +49,7 @@ char const GarrFollowerLevelXPFormat[] = "niii";
 char const GarrFollowerQualityFormat[] = "niii";
 char const GarrFollowerXAbilityFormat[] = "niii";
 char const GarrEncounterFormat[] = "nisffi";
+char const GarrEncounterXMechanicFormat[] = "nii";
 char const GarrMechanicFormat[] = "nif";
 char const GarrMechanicTypeFormat[] = "nissi";
 char const GarrMissionFormat[] = "niiiiiiiiisssiiiiii";
