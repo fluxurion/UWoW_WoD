@@ -13258,6 +13258,26 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
     return lastItem;
 }
 
+static bool castItemSpells(Item* pItem, Player* player, uint8 bag)
+{
+    bool res = true;
+    const ItemTemplate* proto = pItem->GetTemplate();
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
+            if (bag == INVENTORY_SLOT_BAG_0 || (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END))
+                if (!player->HasAura(proto->Spells[i].SpellId))
+                {
+                    player->CastSpell(player, proto->Spells[i].SpellId, true, pItem);
+                    if (SpellInfo* spell = new SpellInfo(sSpellStore.LookupEntry(proto->Spells[i].SpellId)))
+                    {
+                        //delete this item
+                        if (spell->HasEffect(SPELL_EFFECT_ADD_GARRISON_FOLLOWER))
+                            res = false;
+                    }
+                }
+    return res;
+}
+
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
 Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool update)
 {
@@ -13317,14 +13337,8 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
         AddEnchantmentDurations(pItem);
         AddItemDurations(pItem);
 
-
-        const ItemTemplate* proto = pItem->GetTemplate();
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-            if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
-                if (bag == INVENTORY_SLOT_BAG_0 || (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END))
-                    if (!HasAura(proto->Spells[i].SpellId))
-                        CastSpell(this, proto->Spells[i].SpellId, true, pItem);
-
+        if (!castItemSpells(pItem, this, bag))
+            return NULL;
         return pItem;
     }
     else
@@ -13361,13 +13375,8 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
 
         pItem2->SetState(ITEM_CHANGED, this);
 
-        const ItemTemplate* proto = pItem2->GetTemplate();
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-            if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
-                if (bag == INVENTORY_SLOT_BAG_0 || (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END))
-                    if (!HasAura(proto->Spells[i].SpellId))
-                        CastSpell(this, proto->Spells[i].SpellId, true, pItem2);
-
+        if (!castItemSpells(pItem2, this, bag))
+            return NULL;
         return pItem2;
     }
 }
@@ -15446,7 +15455,29 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
 
     packet.Slot = item->GetBagSlot();
     packet.SlotInBag = (item->GetCount() == count) ? item->GetSlot() : -1;
+
+    packet.Item.ItemID = item->GetEntry();
+    packet.Item.RandomPropertiesSeed = item->GetItemSuffixFactor();
+    packet.Item.RandomPropertiesID = item->GetItemRandomPropertyId();
+    std::vector<uint32> const& bonusListIds = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
+    if (!bonusListIds.empty())
+    {
+        packet.Item.ItemBonus = boost::in_place();
+        packet.Item.ItemBonus->BonusListIDs.insert(packet.Item.ItemBonus->BonusListIDs.end(), bonusListIds.begin(), bonusListIds.end());
+        packet.Item.ItemBonus->Context = item->GetUInt32Value(ITEM_FIELD_CONTEXT);
+    }
+
+    if (uint32 mask = item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK))
+    {
+        packet.Item.Modifications = boost::in_place();
+
+        for (size_t i = 0; mask != 0; mask >>= 1, ++i)
+            if ((mask & 1) != 0)
+                packet.Item.Modifications->Insert(i, item->GetModifier(ItemModifier(i)));
+    }
+
     packet.Item.Initialize(item);
+
     packet.QuestLogItemID = 0;
     packet.Quantity = count;
     packet.QuantityInInventory = GetItemCount(item->GetEntry());

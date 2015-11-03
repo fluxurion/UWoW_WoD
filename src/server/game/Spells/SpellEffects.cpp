@@ -8432,7 +8432,7 @@ void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
     {
         garrison->AddFollower(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
         if (m_CastItem)
-            player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), true);
+            player->DestroyItem(m_CastItem->GetBagSlot(), m_CastItem->GetSlot(), false/*STOP! NO true*/);
     }
 }
 

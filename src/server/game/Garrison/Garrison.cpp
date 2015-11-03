@@ -1494,8 +1494,8 @@ void Garrison::RewardMission(uint32 missionRecID)
             ItemPosCountVec dest;
             if (_owner->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, entry->RewardItemID, entry->ItemAmount) == EQUIP_ERR_OK)
             {
-                Item* item = _owner->StoreNewItem(dest, entry->RewardItemID, true, Item::GenerateItemRandomPropertyId(entry->RewardItemID));
-                _owner->SendNewItem(item, entry->ItemAmount, true, false);
+                if (Item* item = _owner->StoreNewItem(dest, entry->RewardItemID, true, Item::GenerateItemRandomPropertyId(entry->RewardItemID)))
+                    _owner->SendNewItem(item, entry->ItemAmount, true, false);
             }
         }
     }

@@ -216,7 +216,7 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 (77209, 6, 0, 'Прими работу, когда пожелаешь.', 12, 0, 100, 0, 0, 0, 'Барос Алекстон to Player'),
 (77209, 7, 0, 'Казармы выглядят превосходно. Поговори с Мараадом, а я пока полюбуюсь своей искусной работой.', 12, 0, 100, 0, 0, 0, 'Барос Алекстон to Player');
 
---  Q: 34462 80577 -> 80578 | 55370 ??
+--  Q: 34462 80577 -> 80578 | 55370 ?? learn 160951
 UPDATE `creature_template` SET `ScriptName` = 'npc_q34462' WHERE `creature_template`.`entry` = 80582;
 DELETE FROM `creature` WHERE id = 80577;
 UPDATE `creature_template` SET `InhabitType` = '4' WHERE `creature_template`.`entry` = 80577;
