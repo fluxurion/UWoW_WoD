@@ -226,12 +226,12 @@ class spell_dru_incarnation : public SpellScriptLoader
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_dru_incarnation_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectApply += AuraEffectApplyFn(spell_dru_incarnation_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectApply += AuraEffectApplyFn(spell_dru_incarnation_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_incarnation_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectApply += AuraEffectApplyFn(spell_dru_incarnation_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
 
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dru_incarnation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dru_incarnation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_incarnation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_incarnation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dru_incarnation_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -319,63 +319,6 @@ class spell_dru_moonfire_sunfire : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_moonfire_sunfire_SpellScript();
-        }
-};
-
-// Nature's Vigil - 124974
-class spell_dru_natures_vigil : public SpellScriptLoader
-{
-    public:
-        spell_dru_natures_vigil() : SpellScriptLoader("spell_dru_natures_vigil") { }
-
-        class spell_dru_natures_vigil_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dru_natures_vigil_AuraScript);
-
-            void OnTick(AuraEffect const* aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Aura* aura = caster->GetAura(137009))
-                    {
-                        if (AuraEffect* eff2 = aura->GetEffect(EFFECT_2))
-                        {
-                            if (int32 bp = eff2->GetAmount())
-                            {
-                                std::list<Unit*> partyList;
-                                caster->GetPartyMembers(partyList);
-                                partyList.sort(Trinity::UnitHealthState(true));
-                                partyList.resize(1);
-
-                                for (std::list<Unit*>::const_iterator itr = partyList.begin(); itr != partyList.end(); ++itr)
-                                    if (Unit* _target = (*itr))
-                                        caster->CastCustomSpell(_target, SPELL_DRUID_NATURES_VIGIL_HEAL, &bp, 0, 0, true);
-
-                                eff2->SetAmount(0);
-                            }
-                        }
-                        if (AuraEffect* eff3 = aura->GetEffect(EFFECT_3))
-                        {
-                            if (int32 bp = eff3->GetAmount())
-                            {
-                                if (Unit* target = caster->GetNearbyVictim(caster, 40.0f, false, true))
-                                    caster->CastCustomSpell(target, SPELL_DRUID_NATURES_VIGIL_DAMAGE, &bp, 0, 0, true);
-                                eff3->SetAmount(0);
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_natures_vigil_AuraScript::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dru_natures_vigil_AuraScript();
         }
 };
 
@@ -800,55 +743,19 @@ class spell_dru_lifebloom : public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     return;
 
-                if (!GetCaster())
+                Unit* caster = GetCaster();
+                if (!caster)
                     return;
 
-                if (GetCaster()->ToPlayer()->HasSpellCooldown(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL))
-                    return;
-
-                // final heal
-                int32 stack = GetStackAmount();
-                int32 healAmount = aurEff->GetAmount();
-
-                if (Player* _plr = GetCaster()->ToPlayer())
-                {
-                    healAmount = _plr->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, HEAL, EFFECT_0, stack);
-                    healAmount = GetTarget()->SpellHealingBonusTaken(_plr, GetSpellInfo(), healAmount, HEAL, EFFECT_0, stack);
-
-                    if(_plr->HasAura(121840))
-                        healAmount *= 1.5f;
-
-                    GetTarget()->CastCustomSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
-
-                    _plr->AddSpellCooldown(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, 0, getPreciseTime() + 1.0);
-
-                    return;
-                }
-
-                GetTarget()->CastCustomSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
-                GetCaster()->ToPlayer()->AddSpellCooldown(SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, 0, getPreciseTime() + 1.0);
+                caster->CastSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, true);
             }
 
             void HandleDispel(DispelInfo* dispelInfo)
             {
                 if (Unit* target = GetUnitOwner())
                 {
-                    if (AuraEffect const* aurEff = GetEffect(EFFECT_0))
-                    {
-                        // final heal
-                        int32 healAmount = aurEff->GetAmount();
-
-                        if (Unit* caster = GetCaster())
-                        {
-                            healAmount = caster->SpellHealingBonusDone(target, GetSpellInfo(), healAmount, HEAL, EFFECT_0, dispelInfo->GetRemovedCharges());
-                            healAmount = target->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, EFFECT_0, dispelInfo->GetRemovedCharges());
-
-                            target->CastCustomSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, NULL, GetCasterGUID());
-
-                            return;
-                        }
-                        target->CastCustomSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, NULL, NULL, true, NULL, NULL, GetCasterGUID());
-                    }
+                    if (Unit* caster = GetCaster())
+                        caster->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, true);
                 }
             }
 
@@ -2666,25 +2573,6 @@ class spell_dru_genesis : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_genesis_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (!GetCaster()->ToPlayer()->GetGroup())
-                {
-                    targets.clear();
-                    targets.push_back(GetCaster());
-                }
-                else
-                {
-                    std::list<WorldObject*> tempTargets;
-                    for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                        if ((*itr)->GetTypeId() == TYPEID_PLAYER && GetCaster()->IsInRaidWith((*itr)->ToUnit()) && GetCaster()->IsWithinDistInMap((*itr)->ToUnit(), 60.0f))
-                            tempTargets.push_back((*itr));
-
-                    targets.clear();
-                    targets = tempTargets;
-                }
-            }
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
@@ -2697,17 +2585,17 @@ class spell_dru_genesis : public SpellScriptLoader
                         if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
                         {
                             int32 tick = (eff->GetTotalTicks() - eff->GetTickNumber()) + 1;
-                            int32 bp = (eff->GetAmount() * tick) / 3;
+                            int32 bp = (eff->GetAmount() * tick) / 4;
                             if (Unit* caster = GetCaster())
                                 caster->CastCustomSpell(target, 162359, &bp, 0, 0, true);
                         }
+                        aura->Remove();
                     }
                 }
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_genesis_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
                 OnEffectHitTarget += SpellEffectFn(spell_dru_genesis_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
@@ -3096,42 +2984,10 @@ class spell_dru_leader_of_the_pack : public SpellScriptLoader
         }
 };
 
-// Nature's Cure - 88423
-class spell_dru_natures_cure : public SpellScriptLoader
-{
-    public:
-        spell_dru_natures_cure() : SpellScriptLoader("spell_dru_natures_cure") { }
-
-        class spell_dru_natures_cure_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_natures_cure_SpellScript);
-
-            void HandleAfterCast()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if(!GetSpell()->GetCountDispel())
-                        _player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                }
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_dru_natures_cure_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dru_natures_cure_SpellScript();
-        }
-};
-
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_play_death();
     new spell_dru_moonfire_sunfire();
-    new spell_dru_natures_vigil();
     new spell_dru_solar_beam();
     new spell_dru_dash();
     new spell_dru_rip_duration();
@@ -3189,5 +3045,4 @@ void AddSC_druid_spell_scripts()
     new spell_dru_fortifying_brew();
     new spell_dru_mangle();
     new spell_dru_leader_of_the_pack();
-    new spell_dru_natures_cure();
 }

@@ -7782,18 +7782,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                         if (procSpell->Effects[i].Effect)
                             if (procSpell->Effects[i].HasRadius())
                                 return false;
-
-                    if (Aura* aura = GetAura(137009))
-                    {
-                        if (procSpell->IsPositive())
-                        {
-                            if (AuraEffect* eff = aura->GetEffect(EFFECT_3))
-                                eff->SetAmount(eff->GetAmount() + (damage * triggerAmount / 100.0f));
-                        }
-
-                        if (AuraEffect* eff = aura->GetEffect(EFFECT_2))
-                            eff->SetAmount(eff->GetAmount() + (damage * triggerAmount / 100.0f));
-                    }
                     return true;
                 }
                 case 102351: // Cenarion Ward
@@ -12714,10 +12702,6 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     if (spellProto->Id == 48503)
         return healamount;
 
-    // No bonus for Lifebloom : Final heal
-    if (spellProto->Id == 33778)
-        return healamount;
-
     // No bonus for Eminence (statue) and Eminence
     if (spellProto->Id == 117895 || spellProto->Id == 126890)
         return healamount;
@@ -12911,8 +12895,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
         case 126890:
         //Living Seed
         case 48503:
-        //Lifebloom : Final heal
-        case 33778:
             return healamount;
     }
 
@@ -14343,7 +14325,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
         }
     }
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "_IsValidAssistTarget Id %i GetReactionTo %i", bySpell ? bySpell->Id : 0, GetReactionTo(target));
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "_IsValidAssistTarget Id %i GetReactionTo %i guid %u target %u", bySpell ? bySpell->Id : 0, GetReactionTo(target), GetGUIDLow(), target->GetDemonCreatorGUID().GetGUIDLow());
     // can't assist non-friendly targets
     if (GetReactionTo(target) <= REP_NEUTRAL
         && target->GetReactionTo(this) <= REP_NEUTRAL
@@ -14351,7 +14333,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
         return false;
 
     //Check for pets(need for Wild Mushroom)
-    if(target->GetOwnerGUID() == GetGUID())
+    if(target->GetDemonCreatorGUID().GetGUIDLow() == GetGUIDLow())
         return true;
 
     // PvP case

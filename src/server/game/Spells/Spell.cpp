@@ -6473,7 +6473,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (castResult != SPELL_CAST_OK)
         return castResult;
 
-    bool hasDispellableAura = false;
+    /*bool hasDispellableAura = false;
     bool hasNonDispelEffect = false;
     uint32 dispelMask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -6495,14 +6495,14 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
-    /*if (!hasNonDispelEffect && !hasDispellableAura && dispelMask && !IsTriggered())
+    if (!hasNonDispelEffect && !hasDispellableAura && dispelMask && !IsTriggered())
     {
         if (Unit* target = m_targets.GetUnitTarget())
         {
             DispelChargesList dispelList;
             target->GetDispellableAuraList(m_caster, dispelMask, dispelList);
             if (dispelList.empty())
-                return SPELL_FAILED_NOTHING_TO_DISPEL;
+                _triggeredCastFlags |= TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD;
         }
     }*/
 
