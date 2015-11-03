@@ -4096,6 +4096,8 @@ void Unit::RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveMode removeMode)
     Aura* aura = i->second;
     ASSERT(!aura->IsRemoved());
 
+    aura->UnregisterCasterAuras();
+
     // if unit currently update aura list then make safe update iterator shift to next
     if (m_auraUpdateIterator == i)
         ++m_auraUpdateIterator;
@@ -4106,8 +4108,6 @@ void Unit::RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveMode removeMode)
     // Unregister single target aura
     if (aura->IsSingleTarget())
         aura->UnregisterSingleTarget();
-
-    aura->UnregisterCasterAuras();
 
     aura->_Remove(removeMode);
 
@@ -10366,7 +10366,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
             break;
         }
         // Primal Fury
-        case 159286:
+        case 16953:
         {
             if (!procSpell || !procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
                 return false;
@@ -14351,7 +14351,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
         return false;
 
     //Check for pets(need for Wild Mushroom)
-    if(target->GetOwner() == this)
+    if(target->GetOwnerGUID() == GetGUID())
         return true;
 
     // PvP case
