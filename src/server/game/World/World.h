@@ -691,7 +691,7 @@ class World
         /// Set a new Message of the Day
         void SetMotd(std::string motd);
         /// Get the current Message of the Day
-        std::vector<std::string> const& GetMotd() const;
+        StringVector const& GetMotd() const;
 
         /// Set the string for new characters (first login)
         void SetNewCharString(std::string str) { m_newCharString = str; }
@@ -954,7 +954,7 @@ class World
         uint32 m_availableDbcLocaleMask;                       // by loaded DBC
         void DetectDBCLang();
         bool m_allowMovement;
-        std::vector<std::string> _motd;
+        StringVector _motd;
         std::string m_dataPath;
 
         // for max speed access

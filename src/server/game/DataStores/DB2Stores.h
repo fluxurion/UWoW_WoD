@@ -136,8 +136,7 @@ public:
     typedef std::unordered_map<uint32, MountEntry const*> MountContainer;
     //typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
     //typedef std::unordered_map<uint32, MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
-    typedef std::vector<std::string> LanguageWordsSize;
-    typedef std::map<uint32 /*word length*/, LanguageWordsSize> LanguageWordsMap;
+    typedef std::map<uint32 /*word length*/, StringVector> LanguageWordsMap;
     typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
     typedef std::unordered_map<uint32, MapChallengeModeEntry const*> MapChallengeModeEntryMap;
     typedef std::unordered_map<uint32, ItemUpgradeData> ItemUpgradeDataMap;
@@ -179,7 +178,7 @@ public:
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
     ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
     LanguageWordsMap const* GetLanguageWordMap(uint32 landID);
-    LanguageWordsSize const* GetLanguageWordsBySize(uint32 landID, uint32 size);
+    StringVector const* GetLanguageWordsBySize(uint32 landID, uint32 size);
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     MountEntry const* GetMount(uint32 spellId) const;
     MountEntry const* GetMountById(uint32 id) const;

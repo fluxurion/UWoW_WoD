@@ -955,7 +955,7 @@ class ObjectMgr
 
         typedef std::unordered_map<uint32, PointOfInterest> PointOfInterestContainer;
 
-        typedef std::vector<std::string> ScriptNameContainer;
+        typedef StringVector ScriptNameContainer;
 
         typedef std::map<uint32, uint32> CharacterConversionMap;
 

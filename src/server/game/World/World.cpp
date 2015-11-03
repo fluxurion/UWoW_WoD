@@ -218,7 +218,7 @@ void World::SetMotd(std::string motd)
     sScriptMgr->OnMotdChange(motd);
 }
 
-std::vector<std::string> const& World::GetMotd() const
+StringVector const& World::GetMotd() const
 {
     return _motd;
 }

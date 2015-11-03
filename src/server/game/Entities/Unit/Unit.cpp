@@ -23619,7 +23619,7 @@ std::string Trinity::CodeChatMessage(std::string text, uint32 lang_id)
         if (wword.empty())
             continue;
 
-        if (std::vector<std::string> const* wordVector = sDB2Manager.GetLanguageWordsBySize(lang_id, wword.size()))
+        if (StringVector const* wordVector = sDB2Manager.GetLanguageWordsBySize(lang_id, wword.size()))
         {
             std::string replacer = wordVector->at(GetWordWeight(t[i]) % wordVector->size());
             if (isCaps(wword))

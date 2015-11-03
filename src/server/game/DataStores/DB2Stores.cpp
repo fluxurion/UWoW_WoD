@@ -584,13 +584,13 @@ DB2Manager::LanguageWordsMap const* DB2Manager::GetLanguageWordMap(uint32 langID
     return itr != sLanguageWordsMapStore.end() ? &itr->second : NULL;
 }
 
-DB2Manager::LanguageWordsSize const* DB2Manager::GetLanguageWordsBySize(uint32 langID, uint32 size)
+StringVector const* DB2Manager::GetLanguageWordsBySize(uint32 langID, uint32 size)
 {
     LanguageWordsMap const* wordMap = GetLanguageWordMap(langID);
     if (!wordMap)
         return NULL;
 
-    std::map<uint32, DB2Manager::LanguageWordsSize>::const_iterator itr = wordMap->find(size);
+    std::map<uint32, StringVector>::const_iterator itr = wordMap->find(size);
     return itr != wordMap->end() ? &itr->second : NULL;
 }
 

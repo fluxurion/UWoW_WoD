@@ -2606,7 +2606,7 @@ struct WorldStateUI
 
 struct VectorArray
 {
-    std::vector<std::string> stringVectorArray[2];
+    StringVector stringVectorArray[2];
 };
 
 typedef std::unordered_map<uint32, VectorArray> NameGenVectorArraysMap;

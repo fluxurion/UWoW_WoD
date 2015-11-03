@@ -982,7 +982,7 @@ bool WorldSession::IsAddonRegistered(const std::string& prefix) const
     if (_registeredAddonPrefixes.empty())
         return false;
 
-    std::vector<std::string>::const_iterator itr = std::find(_registeredAddonPrefixes.begin(), _registeredAddonPrefixes.end(), prefix);
+    StringVector::const_iterator itr = std::find(_registeredAddonPrefixes.begin(), _registeredAddonPrefixes.end(), prefix);
     return itr != _registeredAddonPrefixes.end();
 }
 
