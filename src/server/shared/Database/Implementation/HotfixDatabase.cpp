@@ -147,8 +147,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_ABILITY, "SELECT ID, Name_lang, Description_lang FROM garr_ability_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // GarrAbilityEffect.db2
-    PrepareStatement(HOTFIX_SEL_GARR_ABILITY_EFFECT, "SELECT ID, Flags, GarrAbilityID, Unk1, GarrMechanicTypeID, Unk3, Amount, Amoun2, Amount3"
-        " Unk4, Unk5 FROM garr_ability_effect ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_GARR_ABILITY_EFFECT, "SELECT ID, Flags, GarrAbilityID, Unk1, GarrMechanicTypeID, Unk3, Amount, Amount2, Amount3, "
+        "Unk4, Unk5 FROM garr_ability_effect ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GarrBuilding.db2
     PrepareStatement(HOTFIX_SEL_GARR_BUILDING, "SELECT ID, HordeGameObjectID, AllianceGameObjectID, Unknown, Type, Level, NameAlliance, NameHorde, "
@@ -180,30 +180,31 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM garr_follower_level_xp ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GarrFollowerQuality.db2
-    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_QUALITY, "SELECT ID, Quality, NextQualityXP, Unk"
-        " FROM garr_follower_quality ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_QUALITY, "SELECT ID, Quality, NextQualityXP, Unk FROM garr_follower_quality ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GarrFollowerXAbility.db2
     PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY, "SELECT ID, GarrFollowerID, GarrAbilityID, FactionIndex FROM garr_follower_x_ability"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GarrEncounter.db2
-    PrepareStatement(HOTFIX_SEL_GARR_ENCOUNTER, "SELECT ID, CreatureEntry, Name, Mod, Mod1, SomeFileDataID FROM garr_encounter ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_GARR_ENCOUNTER, "SELECT ID, CreatureEntry, Name, 'Mod', Mod1, SomeFileDataID FROM garr_encounter ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_ENCOUNTER, "SELECT ID, Name_lang FROM garr_encounter_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // GarrEncounterXMechanic.db2
     PrepareStatement(HOTFIX_SEL_GARR_ENCOUNTER_X_MECHANIC, "SELECT ID, GarrEncounterID, GarrMechanicID FROM garr_encounter_x_mechanic ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GarrMechanic.db2
-    PrepareStatement(HOTFIX_SEL_GARR_MECHANIC, "SELECT ID, Type, Mod FROM garr_mechanic ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_GARR_MECHANIC, "SELECT ID, Type, 'Mod' FROM garr_mechanic ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GarrMechanicType.db2
     PrepareStatement(HOTFIX_SEL_GARR_MECHANIC_TYPE, "SELECT ID, Category, Name, Description, SomeFileDataID FROM garr_mechanic_type ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_MECHANIC_TYPE, "SELECT ID, Name_lang, Description_lang FROM garr_mechanic_type_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // GarrMission.db2
-    PrepareStatement(HOTFIX_SEL_GARR_MISSION, "SELECT ID, ReqLevel, ReqFollowersItemLevel, GarrMechanicTypeID, ReqFollowersCount, Unk1, MissionDuration, "
-        "OfferDuration, Unk2, GarrMissionTypeID, Name, Description, Location, CriteriaID, Unk3, ReqResourcesCount, Unk4, BaseXP, BaseChance"
-        " FROM garr_mission ORDER BY ID DESC", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_MISSION, "SELECT ID, name_lang, description_lang, location_lang FROM garr_mission_locale WHERE locale = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_GARR_MISSION, "SELECT ID, ReqLevel, ReqFollowersItemLevel, GarrMechanicTypeID, ReqFollowersCount, Unk1, "
+        "MissionDuration, OfferDuration, Unk2, GarrMissionTypeID, Name, Description, Location, CriteriaID, Unk3, ReqResourcesCount, Unk4, BaseXP, "
+        "BaseChance FROM garr_mission ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_MISSION, "SELECT ID, Name_lang, Description_lang, Location_lang FROM garr_mission_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // GarrMissionReward.db2
     PrepareStatement(HOTFIX_SEL_GARR_MISSION_REWARD, "SELECT ID, MissionID, RewardXP, RewardItemID, ItemAmount, CurrencyID, CurrencyValue, Unk2, "
@@ -233,8 +234,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM garr_site_level_plot_inst ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CreatureDifficulty.db2
-    PrepareStatement(HOTFIX_SEL_CREATURE_DIFFICULTY, "SELECT ID, CreatureID, FactionID, Expansion, MinLevel, MaxLevel, Flags1, Flags2, "
-        "Flags3, Flags4, Flags5 FROM creature_difficulty ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CREATURE_DIFFICULTY, "SELECT ID, CreatureID, FactionID, Expansion, MinLevel, MaxLevel, Flags1, Flags2, Flags3, "
+        "Flags4, Flags5 FROM creature_difficulty ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CurrencyTypes.db2
     PrepareStatement(HOTFIX_SEL_CURRENCY_TYPES, "SELECT ID, CategoryID, Name, InventoryIcon1, InventoryIcon2, SpellWeight, SpellCategory, MaxQty, "
