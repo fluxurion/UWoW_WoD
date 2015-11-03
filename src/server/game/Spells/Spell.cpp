@@ -6834,6 +6834,13 @@ SpellCastResult Spell::CheckCast(bool strict)
                         !m_caster->ToPlayer()->CanUseBattlegroundObject())
                         return SPELL_FAILED_TRY_AGAIN;
 
+                if (m_targets.GetGOTarget() && m_targets.GetGOTarget()->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST)
+                {
+                    if (m_caster->ToPlayer()->IsFlying())
+                        return SPELL_FAILED_NOT_FLYING;
+                    else if (m_caster->ToPlayer()->IsMounted())
+                        m_caster->ToPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
+                }
                 // get the lock entry
                 uint32 lockId = 0;
                 if (GameObject* go = m_targets.GetGOTarget())
