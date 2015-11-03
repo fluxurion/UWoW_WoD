@@ -211,15 +211,15 @@ void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::
 {
     header->Ticket.RequesterGuid = player->GetGUID();
     header->Ticket.Id = ticketId;
-    header->Ticket.Type = /*(bg->isArena() || bg->IsRBG()) ? arenaType : */TICKET_TYPE_BG_SYSTEM;
+    header->Ticket.Type = TICKET_TYPE_BG_SYSTEM;
     header->Ticket.Time = joinTime;
     header->QueueID = bg->GetQueueID();
     header->RangeMin = bg->GetMinLevel();
     header->RangeMax = bg->GetMaxLevel();
     header->TeamSize = bg->isArena() ? arenaType : 0;
     header->InstanceID = bg->GetClientInstanceID();
-    header->RegisteredMatch = true; // right?
-    header->TournamentRules = bg->isRated(); // right?
+    header->RegisteredMatch = false;
+    header->TournamentRules = false; //bg->isRated();
 }
 
 void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player* player, uint32 queueSlot, uint32 joinTime, Battleground* bg, uint32 arenaType)
@@ -227,11 +227,7 @@ void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::Ba
     battlefieldStatus->Ticket.RequesterGuid = player->GetGUID();
     battlefieldStatus->Ticket.Id = queueSlot;
     battlefieldStatus->Ticket.Time = joinTime;
-
-    if (bg)
-        battlefieldStatus->Ticket.Type = (bg->isArena() || bg->IsRBG()) ? arenaType : TICKET_TYPE_BG_SYSTEM; // this check seems wrong, recheck this with sniffs 
-    else
-        battlefieldStatus->Ticket.Type = TICKET_TYPE_BG_SYSTEM;
+    battlefieldStatus->Ticket.Type = TICKET_TYPE_BG_SYSTEM;
 }
 
 void BattlegroundMgr::BuildBattlegroundStatusNeedConfirmation(WorldPackets::Battleground::BattlefieldStatusNeedConfirmation* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 timeout, uint32 arenaType)
@@ -257,8 +253,8 @@ void BattlegroundMgr::BuildBattlegroundStatusQueued(WorldPackets::Battleground::
     BuildBattlegroundStatusHeader(&battlefieldStatus->Header, bg, player, ticketId, joinTime, arenaType);
     battlefieldStatus->AverageWaitTime = avgWaitTime;
     battlefieldStatus->AsGroup = asGroup;
-    battlefieldStatus->SuspendedQueue = false;
-    battlefieldStatus->EligibleForMatchmaking = true;
+    battlefieldStatus->SuspendedQueue = true;
+    battlefieldStatus->EligibleForMatchmaking = false;
     battlefieldStatus->WaitTime = GetMSTimeDiffToNow(joinTime);
 }
 
@@ -266,7 +262,7 @@ void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::
 {
     battlefieldStatus->Ticket.RequesterGuid = player->GetGUID();
     battlefieldStatus->Ticket.Id = queueSlot;
-    battlefieldStatus->Ticket.Type = (bg->isArena() || bg->IsRBG()) ? bg->GetJoinType() : 1;
+    battlefieldStatus->Ticket.Type = TICKET_TYPE_BG_SYSTEM;
     battlefieldStatus->Ticket.Time = player->GetBattlegroundQueueJoinTime(bg->GetTypeID());
     battlefieldStatus->QueueID = bg->GetQueueID();
     battlefieldStatus->Reason = result;
