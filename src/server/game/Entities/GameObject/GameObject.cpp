@@ -1828,13 +1828,22 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     }
 }
 
-void GameObject::SendCustomAnim(uint32 anim)
+void GameObject::SendCustomAnim(uint32 animID, bool playAsDespawn /*= false*/)
 {
     WorldPackets::GameObject::GoCustomAnim customAnim;
     customAnim.ObjectGUID = GetGUID();
-    customAnim.CustomAnim = anim;
-    customAnim.PlayAsDespawn = false;
+    customAnim.CustomAnim = animID;
+    customAnim.PlayAsDespawn = playAsDespawn;
     SendMessageToSet(customAnim.Write(), true);
+}
+
+void GameObject::SendGOPlaySpellVisual(uint32 spellVisualID, ObjectGuid activatorGuid /*= ObjectGuid::Empty*/)
+{
+    WorldPackets::GameObject::GameObjectPlaySpellVisual objectSpellVisual;
+    objectSpellVisual.ActivatorGUID = activatorGuid;
+    objectSpellVisual.ObjectGUID = GetGUID();
+    objectSpellVisual.SpellVisualID = spellVisualID;
+    SendMessageToSet(objectSpellVisual.Write(), true);
 }
 
 void GameObject::SendGameObjectActivateAnimKit(uint32 animKitID, bool maintain)

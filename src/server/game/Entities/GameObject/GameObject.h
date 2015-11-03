@@ -1058,7 +1058,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         GameObject* LookupFishingHoleAround(float range);
 
         void CastSpell(Unit* target, uint32 spell);
-        void SendCustomAnim(uint32 anim);
+        void SendCustomAnim(uint32 animID, bool playAsDespawn = false);
+        void SendGOPlaySpellVisual(uint32 spellVisualID, ObjectGuid activatorGuid = ObjectGuid::Empty);
         void SendGameObjectActivateAnimKit(uint32 animKitID, bool maintain);
         bool IsInRange(float x, float y, float z, float radius) const;
 
