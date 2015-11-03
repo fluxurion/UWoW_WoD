@@ -382,16 +382,16 @@ struct GarrAbilityEntry
 struct GarrAbilityEffectEntry
 {
     uint32 ID;                  // 0
-    //uint32 unk (flags?);      // 1
-    uint32 garrAbilityID;       // 2
-    //uint32 unk1;              // 3
-    //uint32 unk2               // 4
-    //uint32 unk3               // 5
-    float amount;               // 6
-    float amount2;              // 7
-    float amount3;              // 8
-    //uint32 unk5;              // 9
-    //uint32 unk6               // 10
+    uint32 Flags;               // 1
+    uint32 GarrAbilityID;       // 2
+    uint32 Unk1;                // 3
+    uint32 GarrMechanicTypeID;  // 4
+    uint32 Unk3;                // 5
+    float Amount;               // 6
+    float Amount2;              // 7
+    float Amount3;              // 8
+    uint32 Unk4;                // 9
+    uint32 Unk5;                // 10
 };
 
 struct GarrBuildingEntry
@@ -469,17 +469,17 @@ struct GarrFollowerEntry
 struct GarrFollowerLevelXPEntry
 {
     uint32 ID;
-    uint32 level;
-    uint32 nextLevelXP;
-    uint32 unk;
+    uint32 Level;
+    uint32 NextLevelXP;
+    uint32 Unk;
 };
 
 struct GarrFollowerQualityEntry
 {
     uint32 ID;
-    uint32 quality;
-    uint32 nextQualityXP;
-    uint32 unk;
+    uint32 Quality;
+    uint32 NextQualityXP;
+    uint32 Unk;
 };
 
 struct GarrFollowerXAbilityEntry
@@ -493,8 +493,8 @@ struct GarrFollowerXAbilityEntry
 struct GarrEncounterEntry
 {
     uint32 ID;                                                      // 0
-    uint32 creatureEntry;                                           // 1
-    LocalizedString* description;                                   // 2
+    uint32 CreatureEntry;                                           // 1
+    LocalizedString* Name;                                          // 2
     float Mod;                                                      // 3
     float Mod1;                                                     // 4
     uint32 SomeFileDataID;                                          // 5
@@ -503,57 +503,66 @@ struct GarrEncounterEntry
 struct GarrMechanicEntry
 {
     uint32 ID;                  // 0
-    uint32 mechanicType;        // 1
-    float mod;                  // 2
+    uint32 Type;                // 1 (GarrMechanicTypeID)
+    float Mod;                  // 2
+};
+
+struct GarrMechanicTypeEntry
+{
+    uint32 ID;
+    uint32 Category;
+    LocalizedString* Name;
+    LocalizedString* Description;
+    uint32 SomeFileDataID;
 };
 
 struct GarrMissionEntry
 {
-    uint32 ID;                  // 0
-    uint32 requiredLevel;       // 1
-    uint32 requiredItemLevel;   // 2
-    uint32 mechanicID;          // 3
-    uint32 reqFollowersCount;   // 4
-    uint32 unk1;                // 5
-    uint32 missionDuration;     // 6
-    uint32 offerDuration;       // 7
-    uint32 unk2;                // 8
-    uint32 category;            // 9
-    LocalizedString* name;      // 10
-    LocalizedString* description;// 11
-    LocalizedString* location;  // 12
-    uint32 criteriaID;          // 13
-    uint32 missionType;         // 14
-    uint32 reqResourcesCount;   // 15
-    uint32 unk4;                // 16
-    uint32 baseXP;              // 17
-    uint32 baseChance;          // 18
+    uint32 ID;                    // 0
+    uint32 ReqLevel;              // 1
+    uint32 ReqFollowersItemLevel; // 2
+    uint32 GarrMechanicTypeID;    // 3
+    uint32 ReqFollowersCount;     // 4
+    uint32 Unk1;                  // 5
+    uint32 MissionDuration;       // 6
+    uint32 OfferDuration;         // 7
+    uint32 Unk2;                  // 8
+    uint32 GarrMissionTypeID;     // 9
+    LocalizedString* Name;        // 10
+    LocalizedString* Description; // 11
+    LocalizedString* Location;    // 12
+    uint32 CriteriaID;            // 13
+    uint32 Unk3;                  // 14
+    uint32 ReqResourcesCount;     // 15
+    uint32 Unk4;                  // 16
+    uint32 BaseXP;                // 17
+    uint32 BaseChance;            // 18
 };
 
 struct GarrMissionRewardEntry
 {
     uint32 ID;                  // 0
-    uint32 missionID;           // 1
-    uint32 rewardXP;            // 2
-    uint32 rewardItemID;        // 3
-    uint32 itemAmount;          // 4
-    uint32 currencyID;          // 5
-    uint32 currencyValue;       // 6
-    uint32 unk2;                // 7
-    uint32 unk3;                // 8
-    uint32 unk4;                // 9
+    uint32 MissionID;           // 1
+    uint32 RewardXP;            // 2
+    uint32 RewardItemID;        // 3
+    uint32 ItemAmount;          // 4
+    uint32 CurrencyID;          // 5
+    uint32 CurrencyValue;       // 6
+    uint32 Unk2;                // 7
+    uint32 Unk3;                // 8
+    uint32 Unk4;                // 9
 
-    bool HasItemReward() const { return rewardItemID != 0; }
-    bool HasMoneyReward() const { return currencyID == 0 && currencyValue > 0; }
-    bool HasCurrencyReward() const { return currencyID != 0 && currencyValue > 0; }
-    bool HasFollowerXPReward() const { return rewardXP > 0; }
+    bool HasItemReward() const { return RewardItemID != 0; }
+    bool HasMoneyReward() const { return CurrencyID == 0 && CurrencyValue > 0; }
+    bool HasCurrencyReward() const { return CurrencyID != 0 && CurrencyValue > 0; }
+    bool HasFollowerXPReward() const { return RewardXP > 0; }
 };
 
 struct GarrMissionXEncounterEntry
 {
     uint32 ID;                  // 0
-    uint32 missionID;           // 1
-    uint32 encounterID;         // 2
+    uint32 GarrMissionID;       // 1
+    uint32 GarrEncounterID;     // 2
 };
 
 struct GarrPlotEntry

@@ -711,10 +711,10 @@ void Garrison::AddMission(uint32 missionRecID)
     mission.PacketInfo.DbID = dbId;
     mission.PacketInfo.MissionRecID = missionRecID;
     mission.PacketInfo.OfferTime = time(nullptr);
-    mission.PacketInfo.OfferDuration = missionEntry->offerDuration;
+    mission.PacketInfo.OfferDuration = missionEntry->OfferDuration;
     mission.PacketInfo.StartTime = 0;
     mission.PacketInfo.TravelDuration = 0;
-    mission.PacketInfo.MissionDuration = missionEntry->missionDuration;
+    mission.PacketInfo.MissionDuration = missionEntry->MissionDuration;
     mission.PacketInfo.MissionState = MISSION_STATE_AVAILABLE;
 
     addMissionResult.unk = 1;
@@ -1233,7 +1233,7 @@ void Garrison::Mission::Start(Player* owner)
         owner->SendDirectMessage(missionRes.Write());
 
         if (GarrMissionEntry const* entry = sGarrMissionStore.LookupEntry(PacketInfo.MissionRecID))
-            owner->ModifyCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, entry->reqResourcesCount);
+            owner->ModifyCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, entry->ReqResourcesCount);
 
         garrison->SendMissionListUpdate(false);
 
@@ -1266,10 +1266,10 @@ void Garrison::Mission::Complete(Player* owner)
                 if (GarrMissionEntry const* entry = sGarrMissionStore.LookupEntry(PacketInfo.MissionRecID))
                 {
                     WorldPackets::Garrison::GarrisonFollowerChangedXP data;
-                    data.TotalXp = entry->baseXP;
+                    data.TotalXp = entry->BaseXP;
                     data.Follower = follower->PacketInfo;
 
-                    follower->GiveXP(entry->baseXP);
+                    follower->GiveXP(entry->BaseXP);
 
                     data.Follower2 = follower->PacketInfo;
                     owner->SendDirectMessage(data.Write());
@@ -1323,10 +1323,10 @@ void Garrison::Mission::BonusRoll(Player* owner)
                     follower->PacketInfo.CurrentMissionID = 0;
 
                     WorldPackets::Garrison::GarrisonFollowerChangedXP data;
-                    data.TotalXp = entry->rewardXP;
+                    data.TotalXp = entry->RewardXP;
                     data.Follower = follower->PacketInfo;
 
-                    follower->GiveXP(entry->rewardXP);
+                    follower->GiveXP(entry->RewardXP);
 
                     data.Follower2 = follower->PacketInfo;
                     owner->SendDirectMessage(data.Write());
@@ -1403,10 +1403,10 @@ bool Garrison::Mission::CanStart(Player* owner)
 
     GarrMissionEntry const* entry = sGarrMissionStore.LookupEntry(PacketInfo.MissionRecID);
 
-    if (!owner->HasCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, entry->reqResourcesCount))
+    if (!owner->HasCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, entry->ReqResourcesCount))
         return false;
 
-    if (CurrentFollowerDBIDs.empty() || CurrentFollowerDBIDs.size() != entry->reqFollowersCount)
+    if (CurrentFollowerDBIDs.empty() || CurrentFollowerDBIDs.size() != entry->ReqFollowersCount)
         return false;
 
     for (auto f : CurrentFollowerDBIDs)
@@ -1484,18 +1484,18 @@ void Garrison::RewardMission(uint32 missionRecID)
     if (GarrMissionRewardEntry const* entry = sDB2Manager.GetMissionRewardByRecID(missionRecID))
     {
         if (entry->HasMoneyReward())
-            _owner->ModifyMoney(entry->currencyValue);
+            _owner->ModifyMoney(entry->CurrencyValue);
 
         if (entry->HasCurrencyReward())
-            _owner->ModifyCurrency(entry->currencyID, entry->currencyValue);
+            _owner->ModifyCurrency(entry->CurrencyID, entry->CurrencyValue);
 
         if (entry->HasItemReward())
         {
             ItemPosCountVec dest;
-            if (_owner->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, entry->rewardItemID, entry->itemAmount) == EQUIP_ERR_OK)
+            if (_owner->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, entry->RewardItemID, entry->ItemAmount) == EQUIP_ERR_OK)
             {
-                Item* item = _owner->StoreNewItem(dest, entry->rewardItemID, true, Item::GenerateItemRandomPropertyId(entry->rewardItemID));
-                _owner->SendNewItem(item, entry->itemAmount, true, false);
+                Item* item = _owner->StoreNewItem(dest, entry->RewardItemID, true, Item::GenerateItemRandomPropertyId(entry->RewardItemID));
+                _owner->SendNewItem(item, entry->ItemAmount, true, false);
             }
         }
     }

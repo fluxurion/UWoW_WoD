@@ -42,6 +42,7 @@ DB2Storage<CurrencyTypesEntry>              sCurrencyTypesStore("CurrencyTypes.d
 DB2Storage<CurvePointEntry>                 sCurvePointStore("CurvePoint.db2", CurvePointFormat, HOTFIX_SEL_CURVE_POINT);
 DB2Storage<GameObjectsEntry>                sGameObjectsStore("GameObjects.db2", GameObjectsFormat, HOTFIX_SEL_GAME_OBJECTS);
 DB2Storage<GarrAbilityEntry>                sGarrAbilityStore("GarrAbility.db2", GarrAbilityFormat, HOTFIX_SEL_GARR_ABILITY);
+DB2Storage<GarrAbilityEffectEntry>          sGarrAbilityEffectStore("GarrAbilityEffect.db2", GarrAbilityEffectFormat, HOTFIX_SEL_GARR_ABILITY_EFFECT);
 DB2Storage<GarrBuildingEntry>               sGarrBuildingStore("GarrBuilding.db2", GarrBuildingFormat, HOTFIX_SEL_GARR_BUILDING);
 DB2Storage<GarrBuildingPlotInstEntry>       sGarrBuildingPlotInstStore("GarrBuildingPlotInst.db2", GarrBuildingPlotInstFormat, HOTFIX_SEL_GARR_BUILDING_PLOT_INST);
 DB2Storage<GarrClassSpecEntry>              sGarrClassSpecStore("GarrClassSpec.db2", GarrClassSpecFormat, HOTFIX_SEL_GARR_CLASS_SPEC);
@@ -49,8 +50,12 @@ DB2Storage<GarrFollowerEntry>               sGarrFollowerStore("GarrFollower.db2
 DB2Storage<GarrFollowerLevelXPEntry>        sGarrFollowerLevelXPStore("GarrFollowerLevelXP.db2", GarrFollowerLevelXPFormat, HOTFIX_SEL_GARR_FOLLOWER_LEVEL_XP);
 DB2Storage<GarrFollowerQualityEntry>        sGarrFollowerQualityStore("GarrFollowerQuality.db2", GarrFollowerQualityFormat, HOTFIX_SEL_GARR_FOLLOWER_QUALITY);
 DB2Storage<GarrFollowerXAbilityEntry>       sGarrFollowerXAbilityStore("GarrFollowerXAbility.db2", GarrFollowerXAbilityFormat, HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY);
+DB2Storage<GarrEncounterEntry>              sGarrEncounterStore("GarrEncounter.db2", GarrEncounterFormat, HOTFIX_SEL_GARR_ENCOUNTER);
+DB2Storage<GarrMechanicEntry>               sGarrMechanicStore("GarrMechanic.db2", GarrMechanicFormat, HOTFIX_SEL_GARR_MECHANIC);
+DB2Storage<GarrMechanicTypeEntry>           sGarrMechanicTypeStore("GarrMechanicType.db2", GarrMechanicTypeFormat, HOTFIX_SEL_GARR_MECHANIC_TYPE);
 DB2Storage<GarrMissionEntry>                sGarrMissionStore("GarrMission.db2", GarrMissionFormat, HOTFIX_SEL_GARR_MISSION);
 DB2Storage<GarrMissionRewardEntry>          sGarrMissionRewardStore("GarrMissionReward.db2", GarrMissionRewardFormat, HOTFIX_SEL_GARR_MISSION_REWARD);
+DB2Storage<GarrMissionXEncounterEntry>      sGarrMissionXEncounterStore("GarrMissionXEncounter.db2", GarrMissionXEncounterFormat, HOTFIX_SEL_GARR_MISSION_X_ENCOUNTER);
 DB2Storage<GarrPlotBuildingEntry>           sGarrPlotBuildingStore("GarrPlotBuilding.db2", GarrPlotBuildingFormat, HOTFIX_SEL_GARR_PLOT_BUILDING);
 DB2Storage<GarrPlotEntry>                   sGarrPlotStore("GarrPlot.db2", GarrPlotFormat, HOTFIX_SEL_GARR_PLOT);
 DB2Storage<GarrPlotInstanceEntry>           sGarrPlotInstanceStore("GarrPlotInstance.db2", GarrPlotInstanceFormat, HOTFIX_SEL_GARR_PLOT_INSTANCE);
@@ -185,6 +190,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sCurvePointStore);
     LOAD_DB2(sGameObjectsStore);
     LOAD_DB2(sGarrAbilityStore);
+    LOAD_DB2(sGarrAbilityEffectStore);
     LOAD_DB2(sGarrBuildingPlotInstStore);
     LOAD_DB2(sGarrBuildingStore);
     LOAD_DB2(sGarrClassSpecStore);
@@ -192,8 +198,12 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sGarrFollowerLevelXPStore);
     LOAD_DB2(sGarrFollowerQualityStore);
     LOAD_DB2(sGarrFollowerXAbilityStore);
+    LOAD_DB2(sGarrEncounterStore);
+    LOAD_DB2(sGarrMechanicStore);
+    LOAD_DB2(sGarrMechanicTypeStore);
     LOAD_DB2(sGarrMissionStore);
     LOAD_DB2(sGarrMissionRewardStore);
+    LOAD_DB2(sGarrMissionXEncounterStore);
     LOAD_DB2(sGarrPlotBuildingStore);
     LOAD_DB2(sGarrPlotInstanceStore);
     LOAD_DB2(sGarrPlotStore);
@@ -287,13 +297,13 @@ void DB2Manager::InitDB2CustomStores()
         _battlePetXAbilityEntryBySpecId.insert(BattlePetXAbilityEntryBySpecIdMap::value_type(entry->speciesID, entry));
 
     for (GarrFollowerLevelXPEntry* const entry : sGarrFollowerLevelXPStore)
-        _garrFollowerLevelXP[entry->level] = entry->nextLevelXP;
+        _garrFollowerLevelXP[entry->Level] = entry->NextLevelXP;
 
     for (GarrFollowerQualityEntry* const entry : sGarrFollowerQualityStore)
-        _garrFollowerQualityXP[entry->quality] = entry->nextQualityXP;
+        _garrFollowerQualityXP[entry->Quality] = entry->NextQualityXP;
 
     for (GarrMissionRewardEntry const* entry : sGarrMissionRewardStore)
-        _garrMissionRewardByMissionID[entry->missionID] = entry;
+        _garrMissionRewardByMissionID[entry->MissionID] = entry;
 
     for (LanguageWordsEntry const* entry : sLanguageWordsStore)
         sLanguageWordsMapStore[entry->langId][strlen(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE])].push_back(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE]);
