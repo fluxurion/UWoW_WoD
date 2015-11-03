@@ -1445,8 +1445,18 @@ class spell_dru_frenzied_regeneration : public SpellScriptLoader
                 }
             }
 
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (caster->GetPower(POWER_RAGE) < 10)
+                    return SPELL_FAILED_NOT_READY;
+
+                return SPELL_CAST_OK;
+            }
+
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_dru_frenzied_regeneration_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_dru_frenzied_regeneration_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
@@ -2630,7 +2640,6 @@ class spell_dru_wild_mushroom_heal : public SpellScriptLoader
                         int32 scale = int32(savePoints * 100/maxhealth);
                         summon->CastCustomSpell(summon, 138616, &scale, &savePoints, NULL, true);
                     }
-                    summon->CastSpell(summon, 81262, true);
                 }
             }
 
@@ -2688,10 +2697,9 @@ class spell_dru_genesis : public SpellScriptLoader
                         if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
                         {
                             int32 tick = (eff->GetTotalTicks() - eff->GetTickNumber()) + 1;
-                            int32 dur = tick * (eff->GetPeriod() / 4);
-                            aura->SetDuration(dur);
-                            eff->SetAmplitude(int32(eff->GetPeriod() / 4));
-                            eff->ResetPeriodic(true);
+                            int32 bp = (eff->GetAmount() * tick) / 3;
+                            if (Unit* caster = GetCaster())
+                                caster->CastCustomSpell(target, 162359, &bp, 0, 0, true);
                         }
                     }
                 }

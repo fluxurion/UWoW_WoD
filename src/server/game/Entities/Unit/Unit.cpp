@@ -10368,11 +10368,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
         // Primal Fury
         case 159286:
         {
-            if (procSpell)
-            {
-                if (procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS) || procSpell->Id == 33876)
-                    CastSpell(victim, 16953, true);
-            }
+            if (!procSpell || !procSpell->HasEffect(SPELL_EFFECT_ADD_COMBO_POINTS))
+                return false;
             break;
         }
         //Generate Rage - General Nazgrim[SO]

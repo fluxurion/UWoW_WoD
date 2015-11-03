@@ -1051,9 +1051,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                     if (caster->GetTypeId() != TYPEID_PLAYER)
                         break;
 
-                    amount *= caster->ToPlayer()->GetComboPoints(1079) * (caster->ToPlayer()->GetSpecializationId(caster->ToPlayer()->GetActiveSpec()) == SPEC_DRUID_CAT) ? 1.25 : 1.0f;
-
-                    amount /= int32(GetBase()->GetMaxDuration() / GetBase()->GetEffect(0)->GetPeriod());
+                    amount *= caster->ToPlayer()->GetComboPoints(1079);
                     break;
                 }
                 case 53301: // Explosive Shot
