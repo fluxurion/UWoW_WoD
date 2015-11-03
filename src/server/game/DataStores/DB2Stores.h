@@ -191,6 +191,7 @@ public:
     uint32 GetXPForNextFollowerLevel(uint32 level);
     uint32 GetXPForNextFollowerQuality(uint32 quality);
     GarrMissionRewardEntry const* GetMissionRewardByRecID(uint32 missionRecID);
+    static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
 
     MapChallengeModeEntryMap _mapChallengeModeEntrybyMap; // @TODO: move this to private and make special getters
 

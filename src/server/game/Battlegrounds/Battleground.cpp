@@ -1849,6 +1849,33 @@ void Battleground::SendMessage2ToAll(int32 entry, ChatMsg type, Player const* so
     BroadcastWorker(bg_do);
 }
 
+void Battleground::SendBroadcastTextToAll(int32 broadcastTextID, ChatMsg type, Player const* player)
+{
+    BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(broadcastTextID);
+    if (!bct)
+        return;
+
+    WorldPacket data;
+    Trinity::ChatData c;
+    
+    if (player)
+        c.targetGuid = player->GetGUID();
+    c.chatType = type;
+
+    for (auto const& v : m_Players)
+        if (Player* player = ObjectAccessor::FindPlayer(v.first))
+            if (WorldSession* session = player->GetSession())
+            {
+                LocaleConstant locale = session->GetSessionDbLocaleIndex();
+                if (locale >= LOCALE_enUS)
+                {
+                    c.message = DB2Manager::GetBroadcastTextValue(bct, locale);
+                    Trinity::BuildChatPacket(data, c);
+                    session->SendPacket(&data);
+                }
+            }
+}
+
 void Battleground::EndNow()
 {
     RemoveFromBGFreeSlotQueue();

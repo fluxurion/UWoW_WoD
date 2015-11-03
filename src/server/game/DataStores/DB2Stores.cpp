@@ -769,3 +769,19 @@ GarrMissionRewardEntry const* DB2Manager::GetMissionRewardByRecID(uint32 mission
 
     return nullptr;
 }
+
+char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale /*= DEFAULT_LOCALE*/, uint8 gender /*= GENDER_MALE*/, bool forceGender /*= false*/)
+{
+    if (gender == GENDER_FEMALE && (forceGender || broadcastText->FemaleText->Str[DEFAULT_LOCALE][0] != '\0'))
+    {
+        if (broadcastText->FemaleText->Str[locale][0] != '\0')
+            return broadcastText->FemaleText->Str[locale];
+
+        return broadcastText->FemaleText->Str[DEFAULT_LOCALE];
+    }
+
+    if (broadcastText->MaleText->Str[locale][0] != '\0')
+        return broadcastText->MaleText->Str[locale];
+
+    return broadcastText->MaleText->Str[DEFAULT_LOCALE];
+}

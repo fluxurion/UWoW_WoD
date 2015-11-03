@@ -575,6 +575,7 @@ class Battleground
 
         // specialized version with 2 string id args
         void SendMessage2ToAll(int32 entry, ChatMsg type, Player const* source, int32 strId1 = 0, int32 strId2 = 0);
+        void SendBroadcastTextToAll(int32 broadcastTextID, ChatMsg type, Player const* player);
 
         // Raid Group
         Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[BG_TEAM_ALLIANCE] : m_BgRaids[BG_TEAM_HORDE]; }
