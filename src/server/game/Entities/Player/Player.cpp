@@ -4164,11 +4164,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
         if (spellInfo->IsMountOrCompanions())
         {
-            // added battlepets
-            if (uint32 petEntry = spellInfo->GetBattlePetEntry())
-                if (BattlePetSpeciesEntry const* spEntry = sDB2Manager.GetBattlePetSpeciesEntry(petEntry))
-                    GetBattlePetMgr()->AddPet(spEntry->ID, GetBattlePetMgr()->GetRandomBreedID(spEntry->ID), GetBattlePetMgr()->GetRandomQuailty());
-
             // added or replaced mounts
             mountReplace = sSpellMgr->GetMountListId(spellId, GetTeamId());
             if(charload)
