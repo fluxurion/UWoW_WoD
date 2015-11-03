@@ -15455,27 +15455,6 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
 
     packet.Slot = item->GetBagSlot();
     packet.SlotInBag = (item->GetCount() == count) ? item->GetSlot() : -1;
-
-    packet.Item.ItemID = item->GetEntry();
-    packet.Item.RandomPropertiesSeed = item->GetItemSuffixFactor();
-    packet.Item.RandomPropertiesID = item->GetItemRandomPropertyId();
-    std::vector<uint32> const& bonusListIds = item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS);
-    if (!bonusListIds.empty())
-    {
-        packet.Item.ItemBonus = boost::in_place();
-        packet.Item.ItemBonus->BonusListIDs.insert(packet.Item.ItemBonus->BonusListIDs.end(), bonusListIds.begin(), bonusListIds.end());
-        packet.Item.ItemBonus->Context = item->GetUInt32Value(ITEM_FIELD_CONTEXT);
-    }
-
-    if (uint32 mask = item->GetUInt32Value(ITEM_FIELD_MODIFIERS_MASK))
-    {
-        packet.Item.Modifications = boost::in_place();
-
-        for (size_t i = 0; mask != 0; mask >>= 1, ++i)
-            if ((mask & 1) != 0)
-                packet.Item.Modifications->Insert(i, item->GetModifier(ItemModifier(i)));
-    }
-
     packet.Item.Initialize(item);
 
     packet.QuestLogItemID = 0;
