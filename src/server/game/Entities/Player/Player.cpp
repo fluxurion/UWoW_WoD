@@ -8314,7 +8314,7 @@ bool Player::HasCurrency(uint32 id, uint32 count) const
     return itr != _currencyStorage.end() && itr->second.totalCount >= count;
 }
 
-void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool modifyWeek/* = true*/, bool modifySeason/* = true*/)
+void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/, bool modifyWeek/* = true*/, bool modifySeason/* = true*/, bool sendToast/* = false*/)
 {
     if (!count)
         return;
@@ -8425,6 +8425,9 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
                 packet << uint32(newWeekCount / precision);
 
             GetSession()->SendPacket(&packet);
+
+            if (sendToast)
+                SendDisplayToast(id, 10, 0, count, 1);
         }
 
         if (currency->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)

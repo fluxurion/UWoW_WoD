@@ -2138,7 +2138,7 @@ class Unit : public WorldObject
         bool GetFreeAuraSlot(uint32& slot);
         void SendMissileCancel(uint32 spellId, bool reverse = true);
         void SendLossOfControl(Unit* caster, uint32 spellId, uint32 duraction, uint32 rmDuraction, Mechanics mechanic, SpellSchoolMask schoolMask, LossOfControlType type, bool apply);
-        void SendDisplayToast(uint32 entry, uint8 hasDisplayToastMethod, bool isBonusRoll, uint32 count, uint8 type, Item* item = NULL);
+        void SendDisplayToast(uint32 entry, uint8 displayToastMethod, bool isBonusRoll, uint32 count, uint8 type, Item* item = NULL);
         void GeneratePersonalLoot(Creature* creature, Player* anyLooter);
         void SendMovementForce(WorldObject* at, float x, float y, float z, float o, uint32 windType, bool apply);
 
