@@ -13608,6 +13608,15 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
     if (slot < EQUIPMENT_SLOT_END)
         SetVisibleItemSlot(slot, pItem);
 
+    if (slot < EQUIPMENT_SLOT_END)
+    {
+        // narcotics with blizz!
+        SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, GetAverageItemLevel());
+        SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, GetAverageItemLevel());
+        SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, GetAverageItemLevel()); // TODO: total
+        SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, GetAverageItemLevel()); // TODO: total
+    }
+
     pItem->SetState(ITEM_CHANGED, this);
 }
 
@@ -13675,6 +13684,16 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
         pItem->SetGuidValue(ITEM_FIELD_CONTAINED_IN, ObjectGuid::Empty);
         // pItem->SetUInt64Value(ITEM_FIELD_OWNER, 0); not clear owner at remove (it will be set at store). This used in mail and auction code
         pItem->SetSlot(NULL_SLOT);
+
+        if (slot < EQUIPMENT_SLOT_END)
+        {
+            // narcotics with blizz!
+            SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, GetAverageItemLevel());
+            SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, GetAverageItemLevel());
+            SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, GetAverageItemLevel()); // TODO: total
+            SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, GetAverageItemLevel()); // TODO: total
+        }
+
         if (IsInWorld() && update)
             pItem->SendUpdateToPlayer(this);
     }
