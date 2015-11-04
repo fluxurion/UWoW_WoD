@@ -1356,7 +1356,7 @@ static uint32 const DKTalentRowLevels[7] = { 57, 58, 59, 60, 75, 90, 100 };
 struct PlayerTalentInfo
 {
     PlayerTalentInfo() :
-        FreeTalentPoints(0), UsedTalentCount(0), QuestRewardedTalentCount(0),
+        QuestRewardedTalentCount(0),
         ResetTalentsCost(0), ResetTalentsTime(0), ResetSpecializationCost(0),
         ActiveSpec(0), SpecsCount(1), ResetSpecializationTime(0)
     {
@@ -1381,8 +1381,6 @@ struct PlayerTalentInfo
         uint32 SpecializationId;
     } SpecInfo[MAX_TALENT_SPECS];
 
-    uint32 FreeTalentPoints;
-    uint32 UsedTalentCount;
     uint32 QuestRewardedTalentCount;
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
@@ -2164,10 +2162,6 @@ class Player : public Unit, public GridObject<Player>
         Guild* GetGuild();
 
         // Talents
-        uint32 GetFreeTalentPoints() const { return _talentMgr->FreeTalentPoints; }
-        void SetFreeTalentPoints(uint32 points) { _talentMgr->FreeTalentPoints = points; }
-        uint32 GetUsedTalentCount() const { return _talentMgr->UsedTalentCount; }
-        void SetUsedTalentCount(uint32 talents) { _talentMgr->UsedTalentCount = talents; }
         uint32 GetQuestRewardedTalentCount() const { return _talentMgr->QuestRewardedTalentCount; }
         void AddQuestRewardedTalentCount(uint32 points) { _talentMgr->QuestRewardedTalentCount += points; }
         uint32 GetTalentResetCost() const { return _talentMgr->ResetTalentsCost; }

@@ -446,7 +446,7 @@ public:
             // check online security
             if (handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
                 return false;
-            target->ToPlayer()->SetFreeTalentPoints(tp);
+
             target->ToPlayer()->SendTalentsInfoData(false);
             return true;
         }

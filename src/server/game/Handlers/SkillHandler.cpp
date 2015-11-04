@@ -57,9 +57,6 @@ void WorldSession::HandleLearnTalent(WorldPackets::Talent::LearnTalent& packet)
     if (packet.Talents.size() > 7)
         return;
 
-    if (packet.Talents.size() > player->GetFreeTalentPoints())
-        return;
-
     Battleground* bg = player->GetBattleground();
     if (bg && bg->GetStatus() != STATUS_WAIT_JOIN)
         return;

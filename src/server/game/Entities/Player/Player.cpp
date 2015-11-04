@@ -3341,7 +3341,8 @@ void Player::GiveLevel(uint8 level)
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
         packet.StatDelta[i] = int32(info.stats[i]) - GetCreateStat(Stats(i));
 
-    packet.Cp = (level % 15) == 0 ? 1 : 0;
+    uint32 const* rowLevels = (getClass() != CLASS_DEATH_KNIGHT) ? DefaultTalentRowLevels : DKTalentRowLevels;
+    packet.Cp = std::find(rowLevels, rowLevels + 7, level) != (rowLevels + 7);
 
     GetSession()->SendPacket(packet.Write());
 
@@ -3416,18 +3417,13 @@ void Player::GiveLevel(uint8 level)
 void Player::InitTalentForLevel()
 {
     uint8 level = getLevel();
+    if (level < 10)
+        ResetTalentSpecialization();
+
     uint32 talentPointsForLevel = CalculateTalentsPoints();
 
-    // talents base at level diff (talents = level - 9 but some can be used already)
     if (level < 15)
-    {
-        // Remove all talent points
-        if (GetUsedTalentCount() > 0)                           // Free any used talents
-        {
-            ResetTalents(true);
-            SetFreeTalentPoints(0);
-        }
-    }
+        ResetTalents(true);
     else
     {
         if (level < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL) || GetSpecsCount() == 0)
@@ -3440,18 +3436,6 @@ void Player::InitTalentForLevel()
             for (uint32 c = 0; c < 3; ++c)
                 for (TalentEntry const* talent : sTalentByPos[getClass()][t][c])
                     RemoveTalent(talent);
-
-        // if used more that have then reset
-        if (GetUsedTalentCount() > talentPointsForLevel)
-        {
-            if (!AccountMgr::IsAdminAccount(GetSession()->GetSecurity()))
-                ResetTalents(true);
-            else
-                SetFreeTalentPoints(0);
-        }
-        // else update amount of free points
-        else
-            SetFreeTalentPoints(talentPointsForLevel - GetUsedTalentCount());
     }
 
     SetUInt32Value(PLAYER_FIELD_MAX_TALENT_TIERS, talentPointsForLevel);
@@ -3475,9 +3459,6 @@ void Player::RemoveTalent(TalentEntry const* talent)
 
     if (talent->OverridesSpellID)
         RemoveOverrideSpell(talent->OverridesSpellID, talent->spellId);
-
-    SetUsedTalentCount(GetUsedTalentCount() - 1);
-    SetFreeTalentPoints(GetFreeTalentPoints() + 1);
 
     PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveSpec())->find(talent->Id);
     if (plrTalent != GetTalentMap(GetActiveSpec())->end())
@@ -4314,13 +4295,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         return false;
     }
 
-    // update used talent points count
-    if (sSpellMgr->IsTalent(spellInfo->Id))
-    {
-        SetUsedTalentCount(GetUsedTalentCount() + 1);
-        SetFreeTalentPoints(GetFreeTalentPoints() -1);
-    }
-
     // update free primary prof.points (if any, can be none in case GM .learn prof. learning)
     if (uint32 freeProfs = GetFreePrimaryProfessionPoints())
     {
@@ -4617,23 +4591,6 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     RemoveAurasDueToSpell(spell_id);
     RemoveOwnedAura(spell_id);
-
-    uint32 talentCosts = sSpellMgr->IsTalent(spell_id) ? 1 : 0;
-
-    // free talent points
-    if (talentCosts > 0 && giveTalentPoints)
-    {
-        if (talentCosts < GetUsedTalentCount())
-        {
-            SetUsedTalentCount(GetUsedTalentCount() - talentCosts);
-            SetFreeTalentPoints(GetFreeTalentPoints() + 1);
-        }
-        else
-        {
-            SetUsedTalentCount(0);
-            SetFreeTalentPoints(CalculateTalentsPoints());
-        }
-    }
 
     // update free primary prof.points (if not overflow setting, can be in case GM use before .learn prof. learning)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
@@ -5166,14 +5123,6 @@ bool Player::ResetTalents(bool no_cost)
     if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
         RemoveAtLoginFlag(AT_LOGIN_RESET_TALENTS, true);
 
-    uint32 talentPointsForLevel = CalculateTalentsPoints();
-
-    if (!GetUsedTalentCount())
-    {
-        SetFreeTalentPoints(talentPointsForLevel);
-        return false;
-    }
-
     uint32 cost = 0;
 
     if (!no_cost && !sWorld->getBoolConfig(CONFIG_NO_RESET_TALENT_COST))
@@ -5196,9 +5145,6 @@ bool Player::ResetTalents(bool no_cost)
 
         RemoveTalent(talentInfo);
     }
-
-    SetFreeTalentPoints(talentPointsForLevel);
-    SetUsedTalentCount(0);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     _SaveTalents(trans);
@@ -18785,8 +18731,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetSpecializationId(0, fields[56].GetUInt32());
     SetSpecializationId(1, fields[57].GetUInt32());
 
-    SetFreeTalentPoints(CalculateTalentsPoints());
-
     // sanity check
     if (GetSpecsCount() > MAX_TALENT_SPECS || GetActiveSpec() > MAX_TALENT_SPEC || GetSpecsCount() < MIN_TALENT_SPECS)
     {
@@ -28477,7 +28421,6 @@ void Player::ActivateSpec(uint8 spec)
         SetGlyph(slot, glyph);
     }
 
-    SetUsedTalentCount(usedTalentPoint);
     InitTalentForLevel();
     _ApplyOrRemoveItemEquipDependentAuras(ObjectGuid::Empty, false);
 
