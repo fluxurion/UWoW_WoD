@@ -1646,7 +1646,7 @@ void ObjectMgr::LoadCreatures()
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid "
-        "ORDER BY `map` ASC");
+        "ORDER BY `map` ASC, `guid` ASC");
 
     if (!result)
     {
@@ -1732,17 +1732,9 @@ void ObjectMgr::LoadCreatures()
                     for (auto phaseID : data.PhaseID)
                         lastCreature->second->PhaseID.insert(phaseID);
 
-                    std::ostringstream ss;
-                    if (lastCreature->second->PhaseID.size())
-                    {
-                        std::set<uint32>::const_iterator itr = lastCreature->second->PhaseID.begin();
-                        ss << *itr;
-                        for (++itr; itr != lastCreature->second->PhaseID.end(); ++itr)
-                            ss << ' ' << *itr;
-                    }
                     lastCreature->second->phaseMask |= data.phaseMask;
                     lastCreature->second->spawnMask |= data.spawnMask;
-                    WorldDatabase.PExecute("UPDATE creature SET PhaseId = '%s', phaseMask = %u, spawnMask = %u WHERE guid = %u", ss.str().c_str(), lastCreature->second->phaseMask, lastCreature->second->spawnMask, lastCreature->second->guid);
+                    WorldDatabase.PExecute("UPDATE creature SET phaseMask = %u, spawnMask = %u WHERE guid = %u", lastCreature->second->phaseMask, lastCreature->second->spawnMask, lastCreature->second->guid);
                     WorldDatabase.PExecute("DELETE FROM creature WHERE guid = %u", guid);
                     sLog->outError(LOG_FILTER_SQL, "Table `creature` have clone npc %u witch stay too close (dist: %f). original npc guid %u. npc with guid %u will be deleted.", entry, distsq1, lastCreature->second->guid, guid);
                     continue;
@@ -2154,7 +2146,7 @@ void ObjectMgr::LoadGameobjects()
     //      9          10         11          12         13          14             15      16         17         18        19          20          21      22
         "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, isActive, spawnMask, phaseMask, eventEntry, pool_entry, PhaseId, AiID "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
-        "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid ORDER BY `map` ASC");
+        "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid ORDER BY `map` ASC, `guid` ASC");
 
     if (!result)
     {
@@ -2316,17 +2308,9 @@ void ObjectMgr::LoadGameobjects()
                     for (auto phaseID : data.PhaseID)
                         lastGo->second->PhaseID.insert(phaseID);
 
-                    std::ostringstream ss;
-                    if (lastGo->second->PhaseID.size())
-                    {
-                        std::set<uint32>::const_iterator itr = lastGo->second->PhaseID.begin();
-                        ss << *itr;
-                        for (++itr; itr != lastGo->second->PhaseID.end(); ++itr)
-                            ss << ' ' << *itr;
-                    }
                     lastGo->second->phaseMask |= data.phaseMask;
                     lastGo->second->spawnMask |= data.spawnMask;
-                    WorldDatabase.PExecute("UPDATE gameobject SET PhaseId = '%s', phaseMask = %u, spawnMask = %u WHERE guid = %u", ss.str().c_str(), lastGo->second->phaseMask, lastGo->second->spawnMask, lastGo->second->guid);
+                    WorldDatabase.PExecute("UPDATE gameobject SET phaseMask = %u, spawnMask = %u WHERE guid = %u", lastGo->second->phaseMask, lastGo->second->spawnMask, lastGo->second->guid);
                     WorldDatabase.PExecute("DELETE FROM gameobject WHERE guid = %u", guid);
                     sLog->outError(LOG_FILTER_SQL, "Table `gameobject` have clone go %u witch stay too close (dist: %f). original go guid %u. go with guid %u will be deleted.", entry, distsq1, lastGo->second->guid, guid);
                     continue;
