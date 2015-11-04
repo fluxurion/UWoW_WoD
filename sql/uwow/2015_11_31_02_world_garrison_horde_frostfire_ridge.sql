@@ -158,7 +158,7 @@ VALUES ('161033', '160767', '0', '0', 'Q34378 link create garnisone');
 
 
 -- Q: HORDE 34824 ALLIANCE Q: 35176 - only chest credit
-REPLACE INTO spell_script_names (`spell_id`, `ScriptName`) VALUES ('173847', 'spell_garrison_cache_loot');
+REPLACE INTO spell_script_names (`spell_id`, `ScriptName`) VALUES ('173847', 'spell_garrison_cache_loot'); -- go 237191
 REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('162714', 'spell_q34824');
 
 DELETE FROM `creature_text` WHERE entry = 80223;
@@ -229,4 +229,4 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 (80582, 0, 0, 'Еще раз огромное спасибо тебе, командир. Кабы не ты, эти твари сожрали бы меня заживо. Увидимся в гарнизоне.', 12, 0, 100, 5, 0, 0, 'Оулин Бурошкур to Player');
 
 -- Q: 34775
-INSERT INTO `quest_template_addon` (`ID`,  `SourceSpellID`) VALUES ('34775', '161438');
+REPLACE INTO `quest_template_addon` (`ID`,  `SourceSpellID`) VALUES ('34775', '161438');
