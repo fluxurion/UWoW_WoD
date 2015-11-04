@@ -135,7 +135,7 @@ public:
     struct Mission
     {
         WorldPackets::Garrison::GarrisonMission PacketInfo;
-        std::vector<uint64> CurrentFollowerDBIDs;
+        std::list<uint64> CurrentFollowerDBIDs;
 
         void Start(Player* owner);
         bool CanStart(Player* owner);

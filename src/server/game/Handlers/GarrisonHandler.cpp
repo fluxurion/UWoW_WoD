@@ -94,7 +94,7 @@ void WorldSession::HandleGarrisonStartMission(WorldPackets::Garrison::GarrisonSt
     {
         if (Garrison::Mission* mission = garrison->GetMissionByRecID(packet.MissionRecID))
         {
-            mission->CurrentFollowerDBIDs = packet.FollowerDBIDs;
+            mission->CurrentFollowerDBIDs.insert(mission->CurrentFollowerDBIDs.begin(), packet.FollowerDBIDs.begin(), packet.FollowerDBIDs.end());
 
             if (mission->CanStart(_player))
                 mission->Start(_player);

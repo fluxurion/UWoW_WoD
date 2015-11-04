@@ -614,7 +614,7 @@ void GarrisonMgr::LoadMissionLine()
         }
 
         GarrFollowerEntry const* followerEntry = sGarrFollowerStore.LookupEntry(ReqGarrFollowerID);
-        if (!followerEntry)
+        if (ReqGarrFollowerID && !followerEntry)
         {
             sLog->outError(LOG_FILTER_SQL, "Non-existing sGarrFollowerStore ReqGarrFollowerID %u was referenced in `garrison_mission_line`.", ReqGarrFollowerID);
             continue;

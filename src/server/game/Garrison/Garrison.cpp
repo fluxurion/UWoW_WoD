@@ -86,61 +86,6 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
         while (buildings->NextRow());
     }
 
-    //           0           1        2      3                4               5   6                7               8       9
-    // SELECT dbId, followerId, quality, level, itemLevelWeapon, itemLevelArmor, xp, currentBuilding, currentMission, status FROM character_garrison_followers WHERE guid = ?
-    if (followers)
-    {
-        do
-        {
-            Field* fields = followers->Fetch();
-
-            uint64 dbId = fields[0].GetUInt64();
-            uint32 followerId = fields[1].GetUInt32();
-            if (!sGarrFollowerStore.LookupEntry(followerId))
-                continue;
-
-            _followerIds.insert(followerId);
-            Follower& follower = _followers[dbId];
-            follower.PacketInfo.DbID = dbId;
-            follower.PacketInfo.GarrFollowerID = followerId;
-            follower.PacketInfo.Quality = fields[2].GetUInt32();
-            follower.PacketInfo.FollowerLevel = fields[3].GetUInt32();
-            follower.PacketInfo.ItemLevelWeapon = fields[4].GetUInt32();
-            follower.PacketInfo.ItemLevelArmor = fields[5].GetUInt32();
-            follower.PacketInfo.Xp = fields[6].GetUInt32();
-            follower.PacketInfo.CurrentBuildingID = fields[7].GetUInt32();
-            follower.PacketInfo.CurrentMissionID = fields[8].GetUInt32();
-            follower.PacketInfo.FollowerStatus = fields[9].GetUInt32();
-            if (!sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID))
-                follower.PacketInfo.CurrentBuildingID = 0;
-
-            //if (!sGarrMissionStore.LookupEntry(follower.PacketInfo.CurrentMissionID))
-            //    follower.PacketInfo.CurrentMissionID = 0;
-
-        }
-        while (followers->NextRow());
-
-        if (abilities)
-        {
-            do
-            {
-                Field* fields = abilities->Fetch();
-                uint64 dbId = fields[0].GetUInt64();
-                GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(fields[1].GetUInt32());
-
-                if (!ability)
-                    continue;
-
-                auto itr = _followers.find(dbId);
-                if (itr == _followers.end())
-                    continue;
-
-                itr->second.PacketInfo.AbilityID.push_back(ability);
-            }
-            while (abilities->NextRow());
-        }
-    }
-
     //           0             1          2              3          4               5                6             7 
     // SELECT dbId, missionRecID, offerTime, offerDuration, startTime, travelDuration, missionDuration, missionState FROM character_garrison_missions WHERE guid = ?
     if (missions)
@@ -170,8 +115,69 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
             mission.PacketInfo.TravelDuration = fields[5].GetUInt32();
             mission.PacketInfo.MissionDuration = fields[6].GetUInt32();
             mission.PacketInfo.MissionState = fields[7].GetUInt32();
+        } while (missions->NextRow());
+    }
+
+    //           0           1        2      3                4               5   6                7               8       9
+    // SELECT dbId, followerId, quality, level, itemLevelWeapon, itemLevelArmor, xp, currentBuilding, currentMission, status FROM character_garrison_followers WHERE guid = ?
+    if (followers)
+    {
+        do
+        {
+            Field* fields = followers->Fetch();
+
+            uint64 dbId = fields[0].GetUInt64();
+            uint32 followerId = fields[1].GetUInt32();
+            if (!sGarrFollowerStore.LookupEntry(followerId))
+                continue;
+
+            _followerIds.insert(followerId);
+            Follower& follower = _followers[dbId];
+            follower.PacketInfo.DbID = dbId;
+            follower.PacketInfo.GarrFollowerID = followerId;
+            follower.PacketInfo.Quality = fields[2].GetUInt32();
+            follower.PacketInfo.FollowerLevel = fields[3].GetUInt32();
+            follower.PacketInfo.ItemLevelWeapon = fields[4].GetUInt32();
+            follower.PacketInfo.ItemLevelArmor = fields[5].GetUInt32();
+            follower.PacketInfo.Xp = fields[6].GetUInt32();
+            follower.PacketInfo.CurrentBuildingID = fields[7].GetUInt32();
+            follower.PacketInfo.CurrentMissionID = fields[8].GetUInt32();
+            follower.PacketInfo.FollowerStatus = fields[9].GetUInt32();
+            if (!sGarrBuildingStore.LookupEntry(follower.PacketInfo.CurrentBuildingID))
+                follower.PacketInfo.CurrentBuildingID = 0;
+
+            if (follower.PacketInfo.CurrentMissionID)
+            {
+                if (Garrison::Mission* mission = GetMissionByRecID(follower.PacketInfo.CurrentMissionID))
+                    mission->CurrentFollowerDBIDs.push_back(follower.PacketInfo.DbID);
+                else
+                    follower.PacketInfo.CurrentMissionID = 0;
+            }
+            //if (!sGarrMissionStore.LookupEntry(follower.PacketInfo.CurrentMissionID))
+            //    follower.PacketInfo.CurrentMissionID = 0;
+
         }
-        while (missions->NextRow());
+        while (followers->NextRow());
+
+        if (abilities)
+        {
+            do
+            {
+                Field* fields = abilities->Fetch();
+                uint64 dbId = fields[0].GetUInt64();
+                GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(fields[1].GetUInt32());
+
+                if (!ability)
+                    continue;
+
+                auto itr = _followers.find(dbId);
+                if (itr == _followers.end())
+                    continue;
+
+                itr->second.PacketInfo.AbilityID.push_back(ability);
+            }
+            while (abilities->NextRow());
+        }
     }
 
     return true;
@@ -692,6 +698,9 @@ void Garrison::AddFollower(uint32 garrFollowerId)
     _owner->SendDirectMessage(addFollowerResult.Write());
 
     _owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER, follower.PacketInfo.DbID);
+
+    if (GarrMissionEntry const* mission = sGarrisonMgr.GetMissionAtFollowerTaking(garrFollowerId))
+        AddMission(mission->ID);
 }
 
 void Garrison::AddMission(uint32 missionRecID)
@@ -1229,7 +1238,7 @@ void Garrison::Mission::Start(Player* owner)
 
         WorldPackets::Garrison::GarrisonStartMissionResult missionRes;
         missionRes.MissionData = PacketInfo;
-        missionRes.FollowerDBIDs = CurrentFollowerDBIDs;
+        missionRes.FollowerDBIDs.insert(missionRes.FollowerDBIDs.begin(), CurrentFollowerDBIDs.begin(), CurrentFollowerDBIDs.end());
         owner->SendDirectMessage(missionRes.Write());
 
         if (GarrMissionEntry const* entry = sGarrMissionStore.LookupEntry(PacketInfo.MissionRecID))
@@ -1263,6 +1272,9 @@ void Garrison::Mission::Complete(Player* owner)
         {
             if (Garrison::Follower* follower = garrison->GetFollower(f))
             {
+                if (!bonus)
+                    follower->PacketInfo.CurrentMissionID = 0;
+
                 if (GarrMissionEntry const* entry = sGarrMissionStore.LookupEntry(PacketInfo.MissionRecID))
                 {
                     WorldPackets::Garrison::GarrisonFollowerChangedXP data;
@@ -1279,12 +1291,6 @@ void Garrison::Mission::Complete(Player* owner)
 
         if (!bonus)
         {
-            for (auto f : CurrentFollowerDBIDs)
-            {
-                if (Garrison::Follower* follower = garrison->GetFollower(f))
-                    follower->PacketInfo.CurrentMissionID = 0;
-            }
-
             CurrentFollowerDBIDs.clear();
             garrison->SendMissionListUpdate(true);
         }
@@ -1314,14 +1320,14 @@ void Garrison::Mission::BonusRoll(Player* owner)
         if (!entry)
             return;
 
-        if (entry->HasFollowerXPReward())
+        for (auto f : CurrentFollowerDBIDs)
         {
-            for (auto f : CurrentFollowerDBIDs)
+            if (Garrison::Follower* follower = garrison->GetFollower(f))
             {
-                if (Garrison::Follower* follower = garrison->GetFollower(f))
-                {
-                    follower->PacketInfo.CurrentMissionID = 0;
+                follower->PacketInfo.CurrentMissionID = 0;
 
+                if (entry->HasFollowerXPReward())
+                {
                     WorldPackets::Garrison::GarrisonFollowerChangedXP data;
                     data.TotalXp = entry->RewardXP;
                     data.Follower = follower->PacketInfo;
@@ -1499,6 +1505,9 @@ void Garrison::RewardMission(uint32 missionRecID)
             }
         }
     }
+
+    if (GarrMissionEntry const* mission = sGarrisonMgr.GetNextMissionInQuestLine(missionRecID))
+        AddMission(mission->ID);
 }
 
 /*
