@@ -788,7 +788,12 @@ class spell_dru_omen_of_clarity : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (caster->HasAura(SPELL_DRUID_OMEN_OF_CLARITY))
                         if (roll_chance_i(4))
-                            caster->CastSpell(caster, SPELL_DRUID_CLEARCASTING, true);
+                        {
+                            if (caster->HasAura(155577)) // Moment of Clarity
+                                caster->CastSpell(caster, 155631, true);
+                            else
+                                caster->CastSpell(caster, SPELL_DRUID_CLEARCASTING, true);
+                        }
             }
 
             void Register()
@@ -2584,8 +2589,8 @@ class spell_dru_genesis : public SpellScriptLoader
 
                         if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
                         {
-                            int32 tick = (eff->GetTotalTicks() - eff->GetTickNumber()) + 1;
-                            int32 bp = (eff->GetAmount() * tick) / 4;
+                            int32 tick = eff->GetTotalTicks() - eff->GetTickNumber();
+                            int32 bp = (eff->GetAmount() * tick) / 5;
                             if (Unit* caster = GetCaster())
                                 caster->CastCustomSpell(target, 162359, &bp, 0, 0, true);
                         }
@@ -2984,6 +2989,39 @@ class spell_dru_leader_of_the_pack : public SpellScriptLoader
         }
 };
 
+// 33745 - Lacerate
+class spell_dru_lacerate : public SpellScriptLoader
+{
+    public:
+        spell_dru_lacerate() : SpellScriptLoader("spell_dru_lacerate") { }
+
+        class spell_dru_lacerateAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_lacerateAuraScript);
+
+            void OnStackChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetTarget();
+                if (caster && target)
+                    if(GetStackAmount() >= 3 && !target->HasAura(158790))
+                        caster->CastSpell(target, 158790, true);
+            }
+
+            // function registering
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_dru_lacerateAuraScript::OnStackChange, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        // function which creates AuraScript
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_lacerateAuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_play_death();
@@ -3045,4 +3083,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_fortifying_brew();
     new spell_dru_mangle();
     new spell_dru_leader_of_the_pack();
+    new spell_dru_lacerate();
 }
