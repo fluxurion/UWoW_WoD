@@ -64,6 +64,7 @@ void GarrisonMgr::Initialize()
     LoadFollowerClassSpecAbilities();
     LoadBuildingSpawnNPC();
     LoadBuildingSpawnGo();
+    LoadMissionLine();
 }
 
 GarrSiteLevelEntry const* GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
@@ -572,6 +573,85 @@ void GarrisonMgr::LoadBuildingSpawnGo()
     } while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u garrison building go in %u.", count, GetMSTimeDiffToNow(msTime));
+}
+
+void GarrisonMgr::LoadMissionLine()
+{
+    //                                                  0    1          2                   3
+    QueryResult result = WorldDatabase.Query("SELECT ID, NextMission, ReqGarrFollowerID, IsRandom FROM garrison_mission_line");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 garrison mission lines. DB table `garrison_mission_line` is empty.");
+        return;
+    }
+
+    uint32 msTime = getMSTime();
+    uint32 count = 0;
+    do
+    {
+        uint8 index = 0;
+        Field* fields = result->Fetch();
+
+        uint32 missionID = fields[index++].GetUInt32();
+        uint32 NextMission = fields[index++].GetUInt32();
+        uint32 ReqGarrFollowerID = fields[index++].GetUInt32();
+        bool IsRandom = fields[index++].GetBool();
+
+        GarrMissionEntry const* missionEntry = sGarrMissionStore.LookupEntry(missionID);
+        if (!missionEntry)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Non-existing sGarrMissionStore missionID %u was referenced in `garrison_mission_line`.", missionID);
+            continue;
+        }
+
+        GarrMissionEntry const* NextMissionEntry = sGarrMissionStore.LookupEntry(NextMission);
+
+        if (NextMission && !NextMissionEntry)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Non-existing sGarrMissionStore missionID %u was referenced in `garrison_mission_line`.", NextMission);
+            continue;
+        }
+
+        GarrFollowerEntry const* followerEntry = sGarrFollowerStore.LookupEntry(ReqGarrFollowerID);
+        if (!followerEntry)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Non-existing sGarrFollowerStore ReqGarrFollowerID %u was referenced in `garrison_mission_line`.", ReqGarrFollowerID);
+            continue;
+        }
+
+        GarrMissionLine &data = _MissionLineStore[missionID];
+        data.MissionID = missionEntry;
+        data.NextMission = NextMissionEntry;
+        data.Reqfollower = followerEntry;
+        data.isRandom = IsRandom;
+
+        if (NextMissionEntry)
+            _nextMission[missionID] = NextMissionEntry;
+
+        if (followerEntry)
+            _nextMissionByFollower[ReqGarrFollowerID] = missionEntry;
+
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u garrison mission lines in %u.", count, GetMSTimeDiffToNow(msTime));
+}
+
+GarrMissionEntry const* GarrisonMgr::GetNextMissionInQuestLine(uint32 missionID)
+{
+    auto data = _nextMission.find(missionID);
+    if (data != _nextMission.end())
+        return data->second;
+    return NULL;
+}
+
+GarrMissionEntry const* GarrisonMgr::GetMissionAtFollowerTaking(uint32 followerID)
+{
+    auto data = _nextMissionByFollower.find(followerID);
+    if (data != _nextMissionByFollower.end())
+        return data->second;
+    return NULL;
 }
 
 std::list<GameObjectData> const* GarrisonMgr::GetGoSpawnBuilding(uint32 plotID, uint32 build) const

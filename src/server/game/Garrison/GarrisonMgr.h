@@ -32,6 +32,14 @@ struct FinalizeGarrisonPlotGOInfo
     } FactionInfo[2];
 };
 
+struct GarrMissionLine
+{
+    GarrMissionEntry const* MissionID;
+    GarrMissionEntry const* NextMission;
+    GarrFollowerEntry const* Reqfollower;
+    bool isRandom = false;
+};
+
 struct GarrAbilities
 {
     std::unordered_set<GarrAbilityEntry const*> Counters;
@@ -64,12 +72,15 @@ public:
     std::list<GameObjectData> const* GetGoSpawnBuilding(uint32 plotID, uint32 build) const;
     std::list<CreatureData> const* GetNpcSpawnBuilding(uint32 plotID, uint32 build) const;
 
+    GarrMissionEntry const* GetNextMissionInQuestLine(uint32 missionID);
+    GarrMissionEntry const* GetMissionAtFollowerTaking(uint32 followerID);
 private:
     void InitializeDbIdSequences();
     void LoadPlotFinalizeGOInfo();
     void LoadFollowerClassSpecAbilities();
     void LoadBuildingSpawnNPC();
     void LoadBuildingSpawnGo();
+    void LoadMissionLine();
 
     std::unordered_map<uint32 /*garrSiteId*/, std::vector<GarrSiteLevelPlotInstEntry const*>> _garrisonPlotInstBySiteLevel;
     std::unordered_map<uint32 /*mapId*/, std::unordered_map<uint32 /*garrPlotId*/, GameObjectsEntry const*>> _garrisonPlots;
@@ -83,6 +94,10 @@ private:
     std::unordered_map<uint32 /*BuildID*/, std::unordered_map<uint32 /*garrPlotId*/, std::list<GameObjectData>>> _buildSpawnGo;
     std::unordered_map<uint32 /*BuildID*/, std::unordered_map<uint32 /*garrPlotId*/, std::list<CreatureData>>> _buildSpawnNpc;
 
+    std::unordered_map<uint32 /*MissionID*/, GarrMissionLine /*nextMission*/> _MissionLineStore;
+    std::unordered_map<uint32 /*MissionID*/, GarrMissionEntry const* /*nextMission*/> _nextMission;
+    std::unordered_map<uint32 /*FollowerID*/, GarrMissionEntry const* /*nextMission*/> _nextMissionByFollower;
+    
     std::set<GarrAbilityEntry const*> _garrisonFollowerRandomTraits;
 
     uint64 _followerDbIdGenerator = UI64LIT(1);
