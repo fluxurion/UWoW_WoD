@@ -13615,12 +13615,9 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
 
     if (slot < EQUIPMENT_SLOT_END)
     {
-        // narcotics with blizz!
         float avgItemLevel = GetAverageItemLevel();
-        SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, avgItemLevel);
-        SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, avgItemLevel);
-        SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, avgItemLevel); // TODO: total
-        SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, avgItemLevel); // TODO: total
+        SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, avgItemLevel);
+        SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, avgItemLevel); // TODO: total
     }
 
     pItem->SetState(ITEM_CHANGED, this);
@@ -13693,12 +13690,9 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
 
         if (slot < EQUIPMENT_SLOT_END)
         {
-            // narcotics with blizz!
             float avgItemLevel = GetAverageItemLevel();
-            SetFloatValue(PLAYER_FIELD_OFFHAND_EXPERTISE, avgItemLevel);
-            SetFloatValue(PLAYER_FIELD_CRIT_PERCENTAGE, avgItemLevel);
-            SetFloatValue(PLAYER_FIELD_MAINHAND_EXPERTISE, avgItemLevel); // TODO: total
-            SetFloatValue(PLAYER_FIELD_RANGED_CRIT_PERCENTAGE, avgItemLevel); // TODO: total
+            SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_EQUIPPED, avgItemLevel);
+            SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL_TOTAL, avgItemLevel); // TODO: total
         }
 
         if (IsInWorld() && update)
