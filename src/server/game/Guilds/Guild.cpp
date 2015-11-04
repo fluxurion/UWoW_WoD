@@ -3229,19 +3229,15 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
                 itemInfo.Charges = abs(tabItem->GetSpellCharges());
                 itemInfo.OnUseEnchantmentID = 0/*int32(tabItem->GetItemSuffixFactor())*/;
 
-                uint32 enchants = 0;
-                for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
-                    if (tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
-                        ++enchants;
+                itemInfo.SocketEnchant.clear();
 
-                itemInfo.SocketEnchant.reserve(enchants);
-                for (uint32 ench = 0; ench < MAX_ENCHANTMENT_SLOT; ++ench)
+                for (uint32 i = SOCK_ENCHANTMENT_SLOT, socketIndex = 0; i < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++i, ++socketIndex)
                 {
-                    if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(ench)))
+                    if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(i)))
                     {
                         WorldPackets::Guild::GuildBankItemInfo::GuildBankSocketEnchant socketEnchant;
                         socketEnchant.SocketEnchantID = int32(enchantId);
-                        socketEnchant.SocketIndex = int32(ench);
+                        socketEnchant.SocketIndex = int32(socketIndex);
                         itemInfo.SocketEnchant.push_back(socketEnchant);
                     }
                 }
