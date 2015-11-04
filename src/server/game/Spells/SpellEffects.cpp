@@ -3284,6 +3284,8 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         {
             if (gameObjTarget)
             {
+                reqSkillValue = gameObjTarget->GetGOInfo()->chest.trivialSkillLow - 50;
+
                 // Allow one skill-up until respawned
                 if (!gameObjTarget->IsInSkillupList(player->GetGUID()) &&
                     player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue))
