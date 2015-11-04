@@ -5527,6 +5527,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 163452:
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER;
                     break;
+                case 6196:  // Far Sight
+                    spellInfo->Attributes |= SPELL_ATTR0_INDOORS_ONLY;
+                    break;
                 default:
                     break;
             }

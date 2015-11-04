@@ -280,7 +280,7 @@ bool Item::Create(ObjectGuid::LowType const& guidlow, uint32 itemid, Player cons
     if (!itemProto)
         return false;
 
-    _bonusData.Initialize(itemProto);
+    _bonusData.Initialize(itemProto, GetOwner());
 
     //for (uint32 i = 0; i < ITEM_DYN_MOD_END; ++i)
     //    AddDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0);
@@ -459,7 +459,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType const& guid, ObjectGuid const& owner_g
     if (!proto)
         return false;
 
-    _bonusData.Initialize(proto);
+    _bonusData.Initialize(proto, GetOwner());
 
     //for (uint32 i = 0; i < ITEM_DYN_MOD_END; ++i)
     //    AddDynamicValue(ITEM_DYNAMIC_FIELD_MODIFIERS, 0);
@@ -1670,13 +1670,7 @@ uint32 Item::GetItemLevel() const
     if (!stats)
         return MIN_ITEM_LEVEL;
 
-    uint32 itemLevel = stats->GetBaseItemLevel();
-    if (Player const* owner = GetOwner())
-        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(stats->GetScalingStatDistribution()))
-            if (uint32 heirloomIlvl = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
-                itemLevel = heirloomIlvl;
-
-    return std::min(std::max(itemLevel + _bonusData.ItemLevel + GetScaleIlvl(), uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
+    return std::min(std::max(_bonusData.ItemLevel + GetScaleIlvl(), uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
 }
 
 int32 Item::GetItemStatValue(uint32 index) const
@@ -1734,10 +1728,15 @@ void Item::AddBonuses(uint32 bonusListID)
     }
 }
 
-void BonusData::Initialize(ItemTemplate const* proto)
+void BonusData::Initialize(ItemTemplate const* proto, Player const* owner)
 {
-    Quality = proto->GetQuality();
     ItemLevel = proto->GetBaseItemLevel();
+
+    if (owner)
+        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(proto->GetScalingStatDistribution()))
+            ItemLevel = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel());
+
+    Quality = proto->GetQuality();
     RequiredLevel = proto->GetBaseRequiredLevel();
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
@@ -1765,7 +1764,7 @@ void BonusData::Initialize(WorldPackets::Item::ItemInstance const& itemInstance)
     if (!proto)
         return;
 
-    Initialize(proto);
+    Initialize(proto, NULL);
 
     if (itemInstance.ItemBonus)
         for (uint32 bonusListID : itemInstance.ItemBonus->BonusListIDs)

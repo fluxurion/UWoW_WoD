@@ -8978,7 +8978,7 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply)
     if (apply)
         item->SetLevelCap(GetMap()->ItemLevelCap(), GetMap()->IsBattlegroundOrArena());
 
-    sLog->outInfo(LOG_FILTER_PLAYER_ITEMS, "applying mods for item %u ", item->GetGUID().GetCounter());
+    sLog->outInfo(LOG_FILTER_PLAYER_ITEMS, "applying mods for item %u ", item->GetGUIDLow());
 
     if (proto->Socket[0].Color)                              //only (un)equipping of items with sockets can influence metagems, so no need to waste time with normal items
         CorrectMetaGemEnchants(slot, apply);
@@ -9012,6 +9012,8 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
 
         if (val == 0)
             continue;
+
+        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "_ApplyItemBonuses statType %i val %i apply %u GetEntry %u", statType, val, apply, item->GetEntry());
 
         switch (statType)
         {

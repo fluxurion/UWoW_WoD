@@ -82,7 +82,7 @@ bool Bag::Create(ObjectGuid::LowType const& guidlow, uint32 itemid, Player const
 
     Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
 
-    _bonusData.Initialize(itemProto);
+    _bonusData.Initialize(itemProto, owner);
 
     SetEntry(itemid);
     SetObjectScale(1.0f);

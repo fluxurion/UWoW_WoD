@@ -261,7 +261,7 @@ struct BonusData
     float StatScalingMod;
     uint32 UnkField248;
 
-    void Initialize(ItemTemplate const* proto);
+    void Initialize(ItemTemplate const* proto, Player const* owner);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
     void AddBonus(uint32 type, int32 const (&values)[2]);
 };

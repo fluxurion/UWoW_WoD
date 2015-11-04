@@ -187,7 +187,9 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
     if(!member || !target)
         return;
 
+    #ifdef WIN32
     sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::MemberAttackStart: GetDBTableGUIDLow %u GetGUIDLow %u entry %u m_leader %u %u", member->GetDBTableGUIDLow(), member->GetGUIDLow(), member->GetEntry(), m_leader->GetEntry(), m_leader->GetGUIDLow());
+    #endif
 
     uint8 groupAI = 0;
     if(member->GetDBTableGUIDLow())
