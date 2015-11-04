@@ -4336,6 +4336,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 6770:   // Sap
                 case 6346:   // Fear Ward
+                case 16870:  // Clearcasting
                 case 81292:  // Glyph of Mind Spike
                 case 132158: // Nature's Swiftness
                 case 143333: // Water Strider Water Walking

@@ -14,3 +14,8 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `actiontype`, `comment`) values
 ('18562','-774','1','0','0','0','155834','0','0','0','0','0','0','0','Обильный рост'),
 ('18562','-8936','1','0','0','0','155834','0','0','0','0','0','0','0','Обильный рост');
+
+replace into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values
+('145153','31','0','0','0','0','0','0','7','0','1','0','0','2','Сон Кенария'),
+('172176','31','0','0','0','0','0','0','7','0','1','0','0','2','Сон Кенария');
+
