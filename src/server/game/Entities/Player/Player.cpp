@@ -3577,7 +3577,7 @@ void Player::RemoveSpecializationSpells()
     }
 
     for (MinorTalentEntry const* entry : sMinorTalentStore)
-        if (HasAura(entry->SpellID))
+        if (HasSpell(entry->SpellID))
             removeSpell(entry->SpellID, false);
 }
 
