@@ -8964,7 +8964,9 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
         if (val == 0)
             continue;
 
+        #ifdef WIN32
         sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "_ApplyItemBonuses statType %i val %i apply %u GetEntry %u", statType, val, apply, item->GetEntry());
+        #endif
 
         switch (statType)
         {

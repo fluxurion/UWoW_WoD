@@ -188,7 +188,8 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
         return;
 
     #ifdef WIN32
-    sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::MemberAttackStart: GetDBTableGUIDLow %u GetGUIDLow %u entry %u m_leader %u %u", member->GetDBTableGUIDLow(), member->GetGUIDLow(), member->GetEntry(), m_leader->GetEntry(), m_leader->GetGUIDLow());
+    if(m_leader)
+        sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::MemberAttackStart: GetDBTableGUIDLow %u GetGUIDLow %u entry %u m_leader %u %u", member->GetDBTableGUIDLow(), member->GetGUIDLow(), member->GetEntry(), m_leader->GetEntry(), m_leader->GetGUIDLow());
     #endif
 
     uint8 groupAI = 0;
@@ -218,7 +219,7 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
         if (itr->first == member)
             continue;
 
-        if (!itr->first->isAlive())
+        if (!itr->first->isAlive() || !itr->first->IsInWorld())
             continue;
 
         if (itr->first->getVictim())
@@ -233,7 +234,7 @@ void CreatureGroup::FormationReset(bool dismiss)
 {
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
-        if (itr->first != m_leader && itr->first->isAlive())
+        if (itr->first != m_leader && itr->first->isAlive() && itr->first->IsInWorld())
         {
             if (dismiss)
                 itr->first->GetMotionMaster()->Initialize();
@@ -257,7 +258,7 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         Creature* member = itr->first;
-        if (member == m_leader || !member->isAlive() || member->getVictim())
+        if (member == m_leader || !member->isAlive() || member->getVictim() || !member->IsInWorld())
             continue;
 
         float angle = itr->second->follow_angle;

@@ -6869,7 +6869,6 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    int32 mana = 0;
     float manaCostPercentage = 0.00f;
     for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
     {
@@ -6882,14 +6881,15 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
             uint32 spell_id = totem->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
             if (spellInfo)
-            {
-                manaCostPercentage = spellInfo->PowerCostPercentage;
-                mana += m_caster->CountPctFromMaxMana(int32(manaCostPercentage));
-            }
+                manaCostPercentage += spellInfo->PowerCostPercentage;
             totem->ToTotem()->UnSummon();
         }
     }
-    ApplyPct(mana, damage);
+    if(!manaCostPercentage)
+        return;
+
+    int32 mana = m_caster->CountPctFromMaxMana(int32(manaCostPercentage));
+    mana = CalculatePct(mana, damage);
     if (mana)
         m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
 }

@@ -19,3 +19,6 @@ replace into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `
 ('145153','31','0','0','0','0','0','0','7','0','1','0','0','2','Сон Кенария'),
 ('172176','31','0','0','0','0','0','0','7','0','1','0','0','2','Сон Кенария');
 
+-- Fix crash
+DELETE FROM creature_formations WHERE leaderGUID IN (SELECT guid FROM creature WHERE id IN (59895));
+DELETE FROM creature_formations WHERE memberGUID IN (SELECT guid FROM creature WHERE id IN (59808));
