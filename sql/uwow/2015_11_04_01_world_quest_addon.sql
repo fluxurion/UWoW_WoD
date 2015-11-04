@@ -6940,3 +6940,5 @@ INSERT IGNORE INTO `quest_template_addon` (`ID`, `NextQuestID`) VALUES
 (36497, 35506),
 (36572, 35506),
 (37916, 37917);
+
+UPDATE `quest_template_addon` SET `NextQuestID` = '0' WHERE `quest_template_addon`.`ID` = 35297;

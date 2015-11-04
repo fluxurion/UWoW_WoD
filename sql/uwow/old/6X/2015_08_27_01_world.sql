@@ -4,7 +4,7 @@ DELETE FROM gameobject where map = 1265;
 DELETE FROM `creature_addon` WHERE `guid` not in (select guid from creature);
 DELETE FROM `waypoint_data` WHERE `id` not in (select guid from creature);
 
-SET @CGUID = 304122;
+SET @CGUID = 296981;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+68976;
 DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+68976;
 DELETE FROM `waypoint_data` WHERE `id` BETWEEN @CGUID+0 AND @CGUID+68976;
@@ -1744,7 +1744,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `phaseId`
 (@CGUID+1782, 80786, 1265, 1, 1, '4200 4151 4150 4022 3936 3834 3833 3824 3752 3712 3693 3594 3498 3481 3396 3395 3394 3334', 4414.739, -2089.007, 3.086015, 5.806077, 120, 0, 0), -- 80786 (Area: 7043)
 (@CGUID+1783, 41200, 1265, 1, 1, '4200 4151 4150 4022 3936 3834 3833 3824 3752 3712 3693 3594 3498 3481 3396 3395 3394 3334', 4460.537, -2188.101, -4.508638, 0, 120, 0, 0), -- 41200 (Area: 7043)
 -- (@CGUID+1784, 80786, 1265, 1, 1, '4200 4151 4150 4022 3936 3834 3833 3824 3752 3712 3693 3594 3498 3481 3396 3395 3394 3334', 4414.739, -2089.007, 3.086015, 5.806077, 120, 0, 0), -- 80786 (Area: 7043)
-(@CGUID+1785, 78996, 1265, 1, 1, '3423', 4417.996, -2090.691, 2.860902, 2.929522, 120, 0, 0), -- 78996 (Area: 7043)
+(@CGUID+1785, 78996, 1265, 1, 1, '3394', 4417.996, -2090.691, 2.860902, 2.929522, 120, 0, 0), -- 78996 (Area: 7043)
 (@CGUID+1786, 80786, 1265, 1, 1, '4200 4151 4150 4022 3936 3834 3833 3824 3752 3712 3693 3594 3498 3481 3396 3395 3394 3334', 4526.194, -2190.645, -15.27008, 2.815472, 120, 0, 0), -- 80786 (Area: 7043) (Auras: )
 (@CGUID+1787, 80786, 1265, 1, 1, '4200 4151 4150 4022 3936 3834 3833 3824 3752 3712 3693 3594 3498 3481 3396 3395 3394 3334', 4530.882, -2191.703, -15.00868, 1.647777, 120, 0, 0), -- 80786 (Area: 7043)
 (@CGUID+1788, 80786, 1265, 1, 1, '4200 4151 4150 4022 3936 3834 3833 3824 3752 3712 3693 3594 3498 3481 3396 3395 3394 3334', 4529.687, -2175.41, -15.68576, 4.856714, 120, 0, 0), -- 80786 (Area: 7043) (Auras: 158082 - 158082)
@@ -7602,7 +7602,7 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `bytes1`, `bytes2`, `e
 (@CGUID+2235, 0, 0, 0x0, 0x1, 0x0, ''); -- 79451 - Full: 0x1C195C8B804D96C0000003000041A417 Creature/0 R1623/S3 Map: 1116 Entry: 79451 Low: 4301847
 
 DELETE FROM  `gameobject` WHERE `map` = 1265;
-SET @OGUID = 132251;
+SET @OGUID = 123076;
 
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+192;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `phaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
@@ -7848,7 +7848,7 @@ UPDATE `gameobject_template` SET `size`=0.7, `faction`=1375, `flags`=32 WHERE `e
 
 
 -- Дополнительный спавн с противоположной фракции
-SET @CGUID = 306343;
+SET @CGUID = @CGUID+2221;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+16;
 
 DELETE FROM creature WHERE id in (81761, 78573, 81762, 81763, 82871, 85142);
@@ -7891,7 +7891,7 @@ DELETE FROM creature where guid = 299088 AND id = 78553;
 UPDATE `creature` SET `PhaseId` = '4019' WHERE `creature`.`guid` = 298993 AND id = 78553;
 
 DELETE FROM creature where guid = 299301 AND id = 78996;
-UPDATE `creature` SET `PhaseId` = '3423' WHERE `creature`.`guid` = 299256 AND id = 78996;
+UPDATE `creature` SET `PhaseId` = '3394' WHERE `creature`.`guid` = 299256 AND id = 78996;
 
 DELETE FROM creature where guid = 299360 AND id = 80468;
 UPDATE `creature` SET `PhaseId` = '4200' WHERE `creature`.`guid` = 299470 AND id = 80468;

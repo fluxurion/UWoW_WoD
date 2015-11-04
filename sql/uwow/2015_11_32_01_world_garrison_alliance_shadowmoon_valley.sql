@@ -12,8 +12,8 @@ DELETE FROM `creature_addon` WHERE `guid` not in (select guid from creature);
 DELETE FROM `waypoint_data` WHERE `id` not in (select guid from creature);
 
 --
-SET @CGUID = 303988-2296; -- creature
-SET @OGUID = 128465-158; -- gameobject
+SET @CGUID = 305099-2296; -- creature
+SET @OGUID = 125310-158; -- gameobject
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+11129;
 DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+11129;
