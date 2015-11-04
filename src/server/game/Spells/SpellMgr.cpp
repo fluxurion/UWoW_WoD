@@ -4510,9 +4510,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 88869:
                 case 110412:
                 {
-                    SpellInfo* fishingDummy = new SpellInfo(sSpellStore.LookupEntry(131474));
-                    fishingDummy->Id = spellInfo->Effects[EFFECT_0].TriggerSpell;
-                    mSpellInfoMap[spellInfo->Effects[EFFECT_0].TriggerSpell] = fishingDummy;
+                    if(SpellEntry const* spellEntry = sSpellStore.LookupEntry(131474))
+                    {
+                        SpellInfo* fishingDummy = new SpellInfo(spellEntry);
+                        fishingDummy->Id = spellInfo->Effects[EFFECT_0].TriggerSpell;
+                        mSpellInfoMap[spellInfo->Effects[EFFECT_0].TriggerSpell] = fishingDummy;
+                    }
                     break;
                 }
                 // Siege of the Niuzoa temple

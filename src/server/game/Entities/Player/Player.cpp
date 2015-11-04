@@ -13267,11 +13267,11 @@ static bool castItemSpells(Item* pItem, Player* player, uint8 bag)
             if (bag == INVENTORY_SLOT_BAG_0 || (bag >= INVENTORY_SLOT_BAG_START && bag < INVENTORY_SLOT_BAG_END))
                 if (!player->HasAura(proto->Spells[i].SpellId))
                 {
-                    player->CastSpell(player, proto->Spells[i].SpellId, true, pItem);
-                    if (SpellInfo* spell = new SpellInfo(sSpellStore.LookupEntry(proto->Spells[i].SpellId)))
+                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[i].SpellId))
                     {
+                        player->CastSpell(player, spellInfo, true, pItem);
                         //delete this item
-                        if (spell->HasEffect(SPELL_EFFECT_ADD_GARRISON_FOLLOWER))
+                        if (spellInfo->HasEffect(SPELL_EFFECT_ADD_GARRISON_FOLLOWER))
                             res = false;
                     }
                 }
