@@ -8175,7 +8175,7 @@ void Player::_SaveCurrency(SQLTransaction& trans)
         {
         case PLAYERCURRENCY_NEW:
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_CURRENCY);
-            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUIDLow());
             stmt->setUInt16(1, itr->first);
             stmt->setUInt32(2, itr->second.weekCount);
             stmt->setUInt32(3, itr->second.totalCount);
@@ -8191,7 +8191,7 @@ void Player::_SaveCurrency(SQLTransaction& trans)
             stmt->setUInt32(2, itr->second.seasonTotal);
             stmt->setUInt8(3, itr->second.flags);
             stmt->setUInt32(4, itr->second.curentCap);
-            stmt->setUInt64(5, GetGUID().GetCounter());
+            stmt->setUInt64(5, GetGUIDLow());
             stmt->setUInt16(6, itr->first);
             trans->Append(stmt);
             break;
@@ -8213,14 +8213,13 @@ void Player::SendCurrencies()
     {
         CurrencyTypesEntry const* entry = itr->second.currencyEntry;
 
-        uint32 precision = entry->GetPrecision();
         uint32 weekCount = itr->second.weekCount;
         uint32 weekCap = GetCurrencyWeekCap(entry);
         uint32 seasonTotal = itr->second.seasonTotal;
         bool hasSeason = entry->HasSeasonCount();
 
         packet << uint32(entry->ID);                              // Currency Id
-        packet << uint32(itr->second.totalCount / precision);     // Currency count
+        packet << uint32(itr->second.totalCount);     // Currency count
 
         packet.WriteBit(weekCap && weekCount);                          // hasWeekCount
         packet.WriteBit(weekCap);
@@ -8228,13 +8227,13 @@ void Player::SendCurrencies()
         packet.WriteBits(itr->second.flags, 5);                         // some flags
 
         if (weekCap && weekCount)
-            packet << uint32(weekCount / precision);
+            packet << uint32(weekCount);
 
         if (weekCap)
-            packet << uint32(weekCap / precision);
+            packet << uint32(weekCap);
 
         if (hasSeason)
-            packet << uint32(seasonTotal / precision);
+            packet << uint32(seasonTotal);
     }
 
     GetSession()->SendPacket(&packet);
@@ -8321,7 +8320,6 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     if (!ignoreMultipliers)
         count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, id);
 
-    int32 precision = currency->GetPrecision();
     uint32 oldTotalCount = 0;
     uint32 oldWeekCount = 0;
     uint32 oldSeasonTotalCount = 0;
@@ -8406,7 +8404,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             WorldPacket packet(SMSG_SET_CURRENCY, 5 * 4 + 1);
 
             packet << uint32(id);
-            packet << uint32(newTotalCount / precision);
+            packet << uint32(newTotalCount);
             packet << uint32(0);                                //Flags
 
             packet.WriteBit(itr->second.seasonTotal);           // hasSeasonCount - HasTrackedQuantity
@@ -8414,10 +8412,10 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             packet.WriteBit(!printLog);                         // printLog); // print in log - SuppressChatLog
 
             if (itr->second.seasonTotal)
-                packet << uint32(itr->second.seasonTotal / precision);
+                packet << uint32(itr->second.seasonTotal);
 
             if (weekCap)
-                packet << uint32(newWeekCount / precision);
+                packet << uint32(newWeekCount);
 
             GetSession()->SendPacket(&packet);
 
@@ -8526,13 +8524,12 @@ void Player::UpdateConquestCurrencyCap(uint32 currency)
         if (!currencyEntry)
             continue;
 
-        uint32 precision = currencyEntry->GetPrecision();
         uint32 cap = GetCurrencyWeekCap(currencyEntry);
 
         //! 6.0.3
         WorldPacket packet(SMSG_SET_MAX_WEEKLY_QUANTITY, 8);
         packet << uint32(currenciesToUpdate[i]);
-        packet << uint32(cap / precision);
+        packet << uint32(cap);
         GetSession()->SendPacket(&packet);
     }
 }
@@ -23918,8 +23915,6 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
                 return false;
             }
 
-            uint32 precision = entry->GetPrecision();
-            
             // Second field in dbc is season count except two strange rows
             if (i == 1 && iece->ID != 2999)
             {
