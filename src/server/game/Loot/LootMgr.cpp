@@ -2493,5 +2493,6 @@ void LootMgr::RemoveLoot(ObjectGuid const& guid)
     if (itr == m_Loots.end())
         return;
 
-    m_Loots.erase(itr);
+    //m_Loots.erase(itr);
+    itr->second = NULL;
 }

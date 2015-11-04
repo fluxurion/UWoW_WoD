@@ -22,3 +22,7 @@ replace into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `
 -- Fix crash
 DELETE FROM creature_formations WHERE leaderGUID IN (SELECT guid FROM creature WHERE id IN (59895));
 DELETE FROM creature_formations WHERE memberGUID IN (SELECT guid FROM creature WHERE id IN (59808));
+
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('76669','0','0','-53652','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Частица Света - фризит сервер похоже'),
+('53651','0','0','-86273','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Озаряющее исцеление - фризит сервер похоже');
