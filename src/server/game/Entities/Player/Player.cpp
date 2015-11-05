@@ -14709,7 +14709,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
         uint32 etime = uint32(base - m_logintime + (30 * 3600));
         uint32 eslot = slot - BUYBACK_SLOT_START;
 
-        SetGuidValue(PLAYER_FIELD_INV_SLOTS + (eslot * 4), pItem->GetGUID());
+        SetGuidValue(PLAYER_FIELD_INV_SLOTS + (slot * 4), pItem->GetGUID());
         if (ItemTemplate const* proto = pItem->GetTemplate())
             SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE + eslot, proto->SellPrice * pItem->GetCount());
         else

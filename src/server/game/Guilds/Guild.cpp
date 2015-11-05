@@ -792,13 +792,12 @@ void EmblemInfo::LoadFromDB(Field* fields)
     m_backgroundColor   = fields[7].GetUInt8();
 }
 
-//! 6.0.3
 void EmblemInfo::WritePacket(WorldPacket& data) const
 {
-    data << uint32(m_style);
     data << uint32(m_color);
-    data << uint32(m_borderStyle);
+    data << uint32(m_style);
     data << uint32(m_borderColor);
+    data << uint32(m_borderStyle);
     data << uint32(m_backgroundColor);
 }
 
