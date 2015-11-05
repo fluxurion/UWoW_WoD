@@ -207,7 +207,21 @@ void Map::LoadMap(int gx, int gy, bool reload)
     GridMaps[gx][gy] = new GridMap();
     if (!GridMaps[gx][gy]->loadData(tmp))
     {
-        sLog->outError(LOG_FILTER_MAPS, "Error loading map file: \n %s\n", tmp);
+        bool res = false;
+        if (GetParentMap() != GetId())
+        {
+            snprintf(tmp, len, (char *) (sWorld->GetDataPath() + "maps/%04u_%02u_%02u.map").c_str(), GetParentMap(), gx, gy);
+            res = GridMaps[gx][gy]->loadData(tmp);
+        }
+        if (!res)
+            sLog->outError(LOG_FILTER_MAPS, "Error loading map file: \n %s\n", tmp);
+        else
+        {
+#ifdef WIN32
+            sLog->outInfo(LOG_FILTER_MAPS, "reLoading map %s gx: %i, gy: %i", tmp, gx, gy);
+#endif
+        }
+
     }
     delete [] tmp;
 
@@ -1598,8 +1612,8 @@ inline GridMap* Map::GetGrid(float x, float y)
     int gy = (int) (CENTER_GRID_ID - y / SIZE_OF_GRIDS);                       //grid y
 
     // ensure GridMap is loaded
-    EnsureGridCreated(GridCoord(MAX_NUMBER_OF_GRIDS - gx, MAX_NUMBER_OF_GRIDS - gy));
-
+    //! WARN! MAX_NUMBER_OF_GRIDS is 64
+    EnsureGridCreated(GridCoord(63 - gx, 63 - gy));
     return GridMaps[gx][gy];
 }
 
@@ -1763,6 +1777,8 @@ uint16 Map::GetAreaFlag(float x, float y, float z, bool *isOutdoors) const
     AreaTableEntry const* atEntry = 0;
     bool haveAreaInfo = false;
 
+    GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y);  //Load vmap and grid before get areaInfo.
+
     if (GetAreaInfo(x, y, z, mogpFlags, adtId, rootId, groupId))
     {
         haveAreaInfo = true;
@@ -1777,7 +1793,7 @@ uint16 Map::GetAreaFlag(float x, float y, float z, bool *isOutdoors) const
         areaflag = atEntry->AreaBit;
     else
     {
-        if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
+        if (gmap)
             areaflag = gmap->getArea(x, y);
         // this used while not all *.map files generated (instances)
         else
