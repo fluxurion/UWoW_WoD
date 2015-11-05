@@ -133,7 +133,7 @@ class boss_wase_mari : public CreatureScript
                 //        continue;
 
                 //    (*itr)->RemoveAllAuras();
-                //}
+                //}*/
 
                 hydrolancePhase = 0;
                 foutainCount = 0;
