@@ -179,8 +179,8 @@ struct TargetInfo
 
 enum WeightType
 {
-    WEIGHT_KEYSTONE = 0,
-    WEIGHT_FRAGMENT = 3,
+    WEIGHT_FRAGMENT = 0,
+    WEIGHT_KEYSTONE = 1,
 };
 
 struct ArchaeologyWeight
