@@ -6871,7 +6871,7 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    float manaCostPercentage = 0.00f;
+    int32 mana = 0;
     for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
     {
         if (!m_caster->m_SummonSlot[slot])
@@ -6883,17 +6883,14 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
             uint32 spell_id = totem->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
             if (spellInfo)
-                manaCostPercentage += spellInfo->PowerCostPercentage;
+                mana += CalculatePct(spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask()), damage);
             totem->ToTotem()->UnSummon();
         }
     }
-    if(!manaCostPercentage)
+    if(!mana)
         return;
 
-    int32 mana = m_caster->CountPctFromMaxMana(int32(manaCostPercentage));
-    mana = CalculatePct(mana, damage);
-    if (mana)
-        m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
+    m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
 }
 
 void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)

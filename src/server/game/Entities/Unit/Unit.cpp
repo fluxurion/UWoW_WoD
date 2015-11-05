@@ -8471,7 +8471,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
 
                     if (Aura* lightningShield = _plr->GetAura(324))
                     {
-                        if (lightningShield->GetCharges() > 1 && !HasAura(88764))
+                        if (lightningShield->GetCharges() > 1 && !HasAura(88766))
                             lightningShield->DropCharge();
 
                         SpellInfo const* triggerEntry = sSpellMgr->GetSpellInfo(triggered_spell_id);
@@ -19768,7 +19768,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
         {
             sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::CalculateFromDummy spellDummyId %i, effectmask %i, option %i, aura %i, type %i", itr->spellDummyId, itr->effectmask, itr->option, itr->aura, itr->type);
 
-            if(itr->type != type)
+            if(itr->type != type) // default 0, damage 1, crit 2, time 3, proc 4, duration 5
                 continue;
 
             if (!(itr->effectmask & mask))
@@ -24387,22 +24387,22 @@ Unit* Unit::GetUnitForLinkedSpell(Unit* caster, Unit* target, uint8 type)
 {
     switch (type)
     {
-        case LINK_UNIT_TYPE_PET:
+        case LINK_UNIT_TYPE_PET: //1
             return (Unit*)(ToPlayer() ? ToPlayer()->GetPet() : NULL);
             break;
-        case LINK_UNIT_TYPE_OWNER:
+        case LINK_UNIT_TYPE_OWNER: //2
             return GetOwner();
             break;
-        case LINK_UNIT_TYPE_CASTER:
+        case LINK_UNIT_TYPE_CASTER: //3
             return caster;
             break;
-        case LINK_UNIT_TYPE_SELECTED:
+        case LINK_UNIT_TYPE_SELECTED: //4
             return ToPlayer() ? ToPlayer()->GetSelectedUnit() : NULL;
             break;
-        case LINK_UNIT_TYPE_TARGET:
+        case LINK_UNIT_TYPE_TARGET: //5
             return target;
             break;
-        case LINK_UNIT_TYPE_VICTIM:
+        case LINK_UNIT_TYPE_VICTIM: //6
             return getVictim();
             break;
     }

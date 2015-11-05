@@ -3929,10 +3929,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                     spellInfo->AttributesEx3 &= ~SPELL_ATTR3_DEATH_PERSISTENT;
                     break;
-                case 5487:  // Bear Form
-                    spellInfo->Effects[3].BasePoints = 0;
-                    spellInfo->Effects[4].BasePoints = 0;
-                    break;
                 case 53503: // Sword of Light
                     spellInfo->Effects[2].SpellClassMask[2] |= 2097152;
                     break;

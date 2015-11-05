@@ -3956,7 +3956,6 @@ void Spell::cast(bool skipCheck)
         plrCaster->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL, m_spellInfo->Id);
 
         plrCaster->TakeSpellCharge(m_spellInfo);
-        plrCaster->HandleSpellUncategoryCharges(spellid);
     }
 
     // CAST SPELL
@@ -6126,9 +6125,6 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
 
         if (!playerCaster->HasChargesForSpell(m_spellInfo))
-            return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NO_CHARGES_REMAIN;
-
-        if (!playerCaster->HasChargesForUCSpell(m_spellInfo->Id))
             return m_triggeredByAuraSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NO_CHARGES_REMAIN;
     }
 

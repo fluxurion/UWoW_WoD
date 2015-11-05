@@ -578,7 +578,7 @@ class spell_sha_unleash_elements : public SpellScriptLoader
 
 // Called by Lightning Bolt - 403 and Chain Lightning - 421
 // Lightning Bolt (Mastery) - 45284 and Chain Lightning - 45297
-// Rolling Thunder - 88764
+// Rolling Thunder - 88766
 class spell_sha_rolling_thunder : public SpellScriptLoader
 {
     public:
@@ -601,30 +601,27 @@ class spell_sha_rolling_thunder : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (roll_chance_i(60) && _player->HasAura(88764))
+                        if (roll_chance_i(60))
+                        if (AuraEffect const* fulminationEff = _player->GetAuraEffect(88766, EFFECT_0))
                         {
                             if (Aura* lightningShield = _player->GetAura(324))
                             {
                                 _player->CastSpell(_player, SPELL_SHA_ROLLING_THUNDER_ENERGIZE, true);
 
+                                uint8 maxCharges = fulminationEff->GetAmount();
                                 uint8 lsCharges = lightningShield->GetCharges();
+                                uint8 addCharges = _player->HasAura(SPELL_SHA_ITEM_T14_4P) ? ((lsCharges + 2) > maxCharges ? 1 : 2) : 1;
 
-                                if (lsCharges < 6)
+                                if (lsCharges < maxCharges)
                                 {
-                                    uint8 chargesBonus = _player->HasAura(SPELL_SHA_ITEM_T14_4P) ? 2 : 1;
-                                    lightningShield->SetCharges(lsCharges + chargesBonus);
-                                    lightningShield->RefreshDuration();
-                                }
-                                else if (lsCharges < 7)
-                                {
-                                    lightningShield->SetCharges(lsCharges + 1);
+                                    lightningShield->SetCharges(lsCharges + addCharges);
                                     lightningShield->RefreshDuration();
                                 }
 
                                 // refresh to handle Fulmination visual
                                 lsCharges = lightningShield->GetCharges();
 
-                                if (lsCharges >= 7 && _player->HasAura(SPELL_SHA_FULMINATION))
+                                if (lsCharges >= maxCharges && _player->HasAura(SPELL_SHA_FULMINATION))
                                     _player->CastSpell(_player, SPELL_SHA_FULMINATION_INFO, true);
                             }
                         }
@@ -674,8 +671,7 @@ class spell_sha_fulmination : public SpellScriptLoader
 
                 if(SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE))
                 {
-                    int32 basePoints = caster->CalculateSpellDamage(target, spellInfo, 0);
-                    int32 damage = int32(usedCharges * caster->SpellDamageBonusDone(target, spellInfo, basePoints, SPELL_DIRECT_DAMAGE, EFFECT_0));
+                    int32 damage = int32(usedCharges * GetHitDamage());
                     if(Aura* aura = caster->GetAura(144998)) // Item - Shaman T16 Elemental 2P Bonus
                         aura->GetEffect(0)->SetAmount(4 * usedCharges);
 
@@ -688,54 +684,13 @@ class spell_sha_fulmination : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_sha_fulmination_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_sha_fulmination_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
         SpellScript *GetSpellScript() const
         {
             return new spell_sha_fulmination_SpellScript();
-        }
-};
-
-// Triggered by Flame Shock - 8050
-// Lava Surge - 77756
-class spell_sha_lava_surge : public SpellScriptLoader
-{
-    public:
-        spell_sha_lava_surge() : SpellScriptLoader("spell_sha_lava_surge") { }
-
-        class spell_sha_lava_surge_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_lava_surge_AuraScript);
-
-            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                // 20% chance to reset the cooldown of Lavaburst and make the next to be instantly casted
-                if (GetCaster())
-                {
-                    if (Player* _player = GetCaster()->ToPlayer())
-                    {
-                        if (_player->HasAura(77756))
-                        {
-                            if (roll_chance_i(20))
-                            {
-                                _player->CastSpell(_player, SPELL_SHA_LAVA_SURGE_CAST_TIME, true);
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_lava_surge_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_lava_surge_AuraScript();
         }
 };
 
@@ -1817,7 +1772,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_unleash_elements();
     new spell_sha_rolling_thunder();
     new spell_sha_fulmination();
-    new spell_sha_lava_surge();
     new spell_sha_static_shock();
     new spell_sha_elemental_blast();
     new spell_sha_earthquake_tick();

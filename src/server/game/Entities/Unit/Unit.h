@@ -701,10 +701,21 @@ enum UnitFlags2
     UNIT_FLAG2_UNK4                         = 0x00100000,
     UNIT_FLAG2_UNK5                         = 0x00200000,
     UNIT_FLAG2_UNK6                         = 0x00400000,
-    UNIT_FLAG2_UNK7                         = 0x00800000,
+    UNIT_FLAG2_UNK7                         = 0x00800000, //Use in aura 321
     UNIT_FLAG2_UNK8                         = 0x01000000,
     UNIT_FLAG2_UNK9                         = 0x02000000,
     UNIT_FLAG2_PREVENT_SELECT_NPC           = 0x04000000,
+};
+
+// Value masks for UNIT_FIELD_FLAGS_3
+enum UnitFlags3
+{
+    UNIT_FLAG3_UNK0                         = 0x00000001,
+    UNIT_FLAG3_UNK1                         = 0x00000002,
+    UNIT_FLAG3_UNK2                         = 0x00000004,
+    UNIT_FLAG3_UNK3                         = 0x00000008,
+    UNIT_FLAG3_UNK4                         = 0x00000010,
+    UNIT_FLAG3_UNK5                         = 0x00000020,
 };
 
 /// Non Player Character flags

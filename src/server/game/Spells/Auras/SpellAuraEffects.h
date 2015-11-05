@@ -327,6 +327,7 @@ class AuraEffect
         void HandleAuraSeeWhileInvisible(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraMastery(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModCharges(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModChargeRecoveryMod(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleBattlegroundFlag(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModSpellVisual(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -337,6 +338,7 @@ class AuraEffect
         void HandleModNextSpell(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleDisableMovementForce(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAnimReplacementSet(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModNpcFlags2(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster, SpellEffIndex effIndex) const;

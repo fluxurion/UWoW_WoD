@@ -379,7 +379,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraMastery,                               //318 SPELL_AURA_MASTERY
     &AuraEffect::HandleModMeleeSpeedPct,                          //319 SPELL_AURA_MOD_MELEE_HASTE_3
     &AuraEffect::HandleAuraModRangedHaste,                        //320 SPELL_AURA_MOD_RANGED_HASTE_3
-    &AuraEffect::HandleNULL,                                      //321 SPELL_AURA_321
+    &AuraEffect::HandleModNpcFlags2,                              //321 SPELL_AURA_321
     &AuraEffect::HandleNoImmediateEffect,                         //322 SPELL_AURA_INTERFERE_TARGETTING
     &AuraEffect::HandleNULL,                                      //323 SPELL_AURA_MOD_CRITICAL_DAMAGE_FROM_MEELE_SPELLS
     &AuraEffect::HandleUnused,                                    //324 SPELL_AURA_324
@@ -511,8 +511,8 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //450 SPELL_AURA_UPGRADE_CHARACTER_SPELL_TIER
     &AuraEffect::HandleNULL,                                      //451 SPELL_AURA_OVERRIDE_PET_SPECS
     &AuraEffect::HandleUnused,                                    //452
-    &AuraEffect::HandleNULL,                                      //453 SPELL_AURA_CHARGE_RECOVERY_MOD
-    &AuraEffect::HandleNULL,                                      //454 SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER
+    &AuraEffect::HandleAuraModChargeRecoveryMod,                  //453 SPELL_AURA_CHARGE_RECOVERY_MOD
+    &AuraEffect::HandleAuraModChargeRecoveryMod,                  //454 SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER
     &AuraEffect::HandleAuraModRoot,                               //455 SPELL_AURA_MOD_ROOTED
     &AuraEffect::HandleNULL,                                      //456 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE
     &AuraEffect::HandleNULL,                                      //457 SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN
@@ -1859,7 +1859,7 @@ void AuraEffect::CalculateSpellMod()
         case SPELL_AURA_MOD_SPELL_COOLDOWN_BY_MELEE_HASTE:
         case SPELL_AURA_MOD_SPELL_GDC_BY_MELEE_HASTE:
         {
-            if (!m_spellmod)
+            /*if (!m_spellmod)
             {
                 m_spellmod = new SpellModifier(GetBase());
                 m_spellmod->op = SpellModOp(GetMiscValue());
@@ -1871,7 +1871,7 @@ void AuraEffect::CalculateSpellMod()
                 m_spellmod->charges = GetBase()->GetCharges();
             }
             m_spellmod->value = GetAmount();
-            break;
+            break;*/
         }
         default:
             break;
@@ -3515,6 +3515,7 @@ void AuraEffect::HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, 
 
     Unit* target = aurApp->GetTarget();
     uint32 _flags = UNIT_FLAG_PACIFIED;;
+    uint32 _flags3 = 0;;
     if(m_spellInfo->Id == 51514) // Hack for Hex, sniff send both flags
         _flags |= UNIT_FLAG_SILENCED;
 
@@ -3536,6 +3537,20 @@ void AuraEffect::HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, 
     }
     if(GetBase()->GetDuration() > 0)
         target->SendLossOfControl(GetCaster(), GetId(), GetBase()->GetDuration(), GetBase()->GetDuration(), GetSpellInfo()->GetEffectMechanic(GetEffIndex()), SPELL_SCHOOL_MASK_NONE, LOC_PACIFY, apply);
+}
+
+void AuraEffect::HandleModNpcFlags2(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    uint32 _flags = UNIT_FLAG2_UNK7;
+
+    if (apply)
+        target->SetFlag(UNIT_FIELD_FLAGS, _flags);
+    else
+        target->RemoveFlag(UNIT_FIELD_FLAGS, _flags);
 }
 
 void AuraEffect::HandleAuraModPacifyAndSilence(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -8789,6 +8804,19 @@ void AuraEffect::HandleAuraModCharges(AuraApplication const* aurApp, uint8 mode,
         return;
 
     target->RecalculateSpellCategoryCharges(GetMiscValue());
+    target->SendSpellChargeData();
+}
+
+void AuraEffect::HandleAuraModChargeRecoveryMod(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    target->RecalculateSpellCategoryRegenTime(GetMiscValue());
     target->SendSpellChargeData();
 }
 

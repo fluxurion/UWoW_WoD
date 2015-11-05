@@ -1395,69 +1395,6 @@ class spell_dk_death_pact : public SpellScriptLoader
         }
 };
 
-// Scourge Strike - 55090
-class spell_dk_scourge_strike : public SpellScriptLoader
-{
-    public:
-        spell_dk_scourge_strike() : SpellScriptLoader("spell_dk_scourge_strike") { }
-
-        class spell_dk_scourge_strike_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_scourge_strike_SpellScript);
-            float multiplier;
-
-            bool Load()
-            {
-                multiplier = 1.0f;
-                return true;
-            }
-
-            bool Validate(SpellInfo const* /*SpellInfo*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(DK_SPELL_SCOURGE_STRIKE_TRIGGERED))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    multiplier = (GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID()) / 100.f);
-                    // Death Knight T8 Melee 4P Bonus
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DK_ITEM_T8_MELEE_4P_BONUS, EFFECT_0))
-                        AddPct(multiplier, aurEff->GetAmount());
-                }
-            }
-
-            void HandleAfterHit()
-            {
-                Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    int32 bp = GetHitDamage() * multiplier;
-
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(DK_SPELL_MASTERY_DREADBLADE, EFFECT_0)) // Mastery: Dreadblade
-                        AddPct(bp, aurEff->GetAmount());
-
-                    caster->CastCustomSpell(unitTarget, DK_SPELL_SCOURGE_STRIKE_TRIGGERED, &bp, NULL, NULL, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_scourge_strike_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
-                AfterHit += SpellHitFn(spell_dk_scourge_strike_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_scourge_strike_SpellScript();
-        }
-};
-
 // Blood Boil - 48721
 class spell_dk_blood_boil : public SpellScriptLoader
 {
@@ -2045,7 +1982,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_gate_teleport();
     new spell_dk_death_gate();
     new spell_dk_death_pact();
-    new spell_dk_scourge_strike();
     new spell_dk_blood_boil();
     new spell_dk_death_grip();
     new spell_dk_death_grip_dummy();
