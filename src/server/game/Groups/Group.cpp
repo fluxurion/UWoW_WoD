@@ -762,7 +762,7 @@ void Group::ChangeLeader(ObjectGuid const& guid, int8 partyIndex /*= 0*/)
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_PERM_BINDING);
 
         stmt->setUInt32(0, m_dbStoreId);
-        stmt->setUInt64(1, player->GetGUID().GetCounter());
+        stmt->setUInt64(1, player->GetGUIDLow());
 
         CharacterDatabase.Execute(stmt);
 
@@ -773,7 +773,7 @@ void Group::ChangeLeader(ObjectGuid const& guid, int8 partyIndex /*= 0*/)
         // Update the group leader
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_LEADER);
 
-        stmt->setUInt64(0, player->GetGUID().GetCounter());
+        stmt->setUInt64(0, player->GetGUIDLow());
         stmt->setUInt32(1, m_dbStoreId);
 
         CharacterDatabase.Execute(stmt);
@@ -1351,7 +1351,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* lootObj)
             continue;
 
         if (looter->IsWithinDistInMap(lootObj, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
-            list.Players.push_back(ObjectGuid::Create<HighGuid::Player>(looter->GetGUID().GetCounter())); //HardHack! Plr should have off-like hiGuid
+            list.Players.push_back(ObjectGuid::Create<HighGuid::Player>(looter->GetGUIDLow())); //HardHack! Plr should have off-like hiGuid
     }
 
     if (Player* player = ObjectAccessor::FindPlayer(GetLooterGuid()))
@@ -2336,7 +2336,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
     bind.perm = permanent;
     if (!load)
         sLog->outDebug(LOG_FILTER_MAPS, "Group::BindToInstance: Group (guid: %u, storage id: %u) is now bound to map %d, instance %d, difficulty %d",
-        GetGUID().GetCounter(), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), save->GetDifficultyID());
+        GetGUIDLow(), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), save->GetDifficultyID());
 
     return &bind;
 }
@@ -2472,6 +2472,11 @@ ObjectGuid Group::GetLeaderGUID() const
 ObjectGuid Group::GetGUID() const
 {
     return m_guid;
+}
+
+uint32 Group::GetGUIDLow() const
+{
+    return m_guid.GetGUIDLow();
 }
 
 const char * Group::GetLeaderName() const

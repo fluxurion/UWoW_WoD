@@ -102,13 +102,13 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     if (!charter)
         return;
 
-    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT, charter->GetGUID().GetCounter());
+    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT, charter->GetGUIDLow());
     charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT + 1, 0);
     charter->SetState(ITEM_CHANGED, player);
     player->SendNewItem(charter, 1, true, false);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_BY_OWNER);
-    stmt->setUInt64(0, player->GetGUID().GetCounter());
+    stmt->setUInt64(0, player->GetGUIDLow());
     stmt->setUInt8(1, type);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -124,7 +124,7 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
         while (result->NextRow());
     }
 
-    ssInvalidPetitionGUIDs << '\'' << charter->GetGUID().GetCounter() << '\'';
+    ssInvalidPetitionGUIDs << '\'' << charter->GetGUIDLow() << '\'';
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Invalid petition GUIDs: %s", ssInvalidPetitionGUIDs.str().c_str());
     CharacterDatabase.EscapeString(packet.Title);
@@ -133,8 +133,8 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     trans->PAppend("DELETE FROM petition_sign WHERE petitionguid IN (%s)", ssInvalidPetitionGUIDs.str().c_str());
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION);
-    stmt->setUInt64(0, player->GetGUID().GetCounter());
-    stmt->setUInt64(1, charter->GetGUID().GetCounter());
+    stmt->setUInt64(0, player->GetGUIDLow());
+    stmt->setUInt64(1, charter->GetGUIDLow());
     stmt->setString(2, packet.Title);
     stmt->setUInt8(3, uint8(type));
     trans->Append(stmt);
@@ -497,7 +497,7 @@ void WorldSession::HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& 
     else
         return;
 
-    if (player->GetGUID().GetCounter() != ownerguidlo)
+    if (player->GetGUIDLow() != ownerguidlo)
         return;
 
     if (player->GetGuildId())

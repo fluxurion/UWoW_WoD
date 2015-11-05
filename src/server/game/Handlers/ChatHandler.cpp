@@ -56,7 +56,7 @@ bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg
                 && !ChatHandler(this).isValidChatMessage(msg.c_str()))
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) sent a chatmessage with an invalid link: %s", GetPlayer()->GetName(),
-                    GetPlayer()->GetGUID().GetCounter(), msg.c_str());
+                    GetPlayer()->GetGUIDLow(), msg.c_str());
             if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
                 KickPlayer();
             return false;

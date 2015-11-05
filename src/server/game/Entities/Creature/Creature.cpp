@@ -571,11 +571,11 @@ void Creature::Update(uint32 diff)
     {
         case JUST_RESPAWNED:
             // Must not be called, see Creature::setDeathState JUST_RESPAWNED -> ALIVE promoting.
-            sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u entry: %u) in wrong state: JUST_RESPAWNED (4)", GetGUID().GetCounter(), GetEntry());
+            sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u entry: %u) in wrong state: JUST_RESPAWNED (4)", GetGUIDLow(), GetEntry());
             break;
         case JUST_DIED:
             // Must not be called, see Creature::setDeathState JUST_DIED -> CORPSE promoting.
-            sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u entry: %u) in wrong state: JUST_DEAD (1)", GetGUID().GetCounter(), GetEntry());
+            sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u entry: %u) in wrong state: JUST_DEAD (1)", GetGUIDLow(), GetEntry());
             break;
         case DEAD:
         {
@@ -944,7 +944,7 @@ bool Creature::isCanTrainingOf(Player* player, bool msg) const
     if ((!trainer_spells || trainer_spells->spellList.empty()) && GetCreatureTemplate()->trainer_type != TRAINER_TYPE_PETS)
     {
         //sLog->outError(LOG_FILTER_SQL, "Creature %u (entry: %u) have UNIT_NPC_FLAG_TRAINER but have empty trainer spell list.",
-            //GetGUID().GetCounter(), GetEntry());
+            //GetGUIDLow(), GetEntry());
         return false;
     }
 
@@ -1170,7 +1170,7 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
 {
     // update in loaded data
     if (!m_DBTableGuid)
-        m_DBTableGuid = GetGUID().GetGUIDLow();
+        m_DBTableGuid = GetGUIDLow();
 
     CreatureData& data = sObjectMgr->NewOrExistCreatureData(m_DBTableGuid);
 
@@ -1514,7 +1514,6 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, int32 
 bool Creature::LoadCreatureFromDB(ObjectGuid::LowType guid, Map* map, bool addToMap)
 {
     CreatureData const* data = sObjectMgr->GetCreatureData(guid);
-
     if (!data)
     {
         sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u) not found in table `creature`, can't load. ", guid);
@@ -1668,7 +1667,7 @@ void Creature::DeleteFromDB()
 {
     if (!m_DBTableGuid)
     {
-        sLog->outError(LOG_FILTER_UNITS, "Trying to delete not saved creature! LowGUID: %u, entry: %u", GetGUID().GetCounter(), GetEntry());
+        sLog->outError(LOG_FILTER_UNITS, "Trying to delete not saved creature! LowGUID: %u, entry: %u", GetGUIDLow(), GetEntry());
         return;
     }
 
@@ -1901,7 +1900,7 @@ void Creature::Respawn(bool force, uint32 timer)
         if (m_DBTableGuid)
             GetMap()->RemoveCreatureRespawnTime(m_DBTableGuid);
 
-        sLog->outDebug(LOG_FILTER_UNITS, "Respawning creature %s (GuidLow: %u, Full GUID: " UI64FMTD " entry: %u)", GetName(), GetGUID().GetCounter(), GetGUID(), GetEntry());
+        sLog->outDebug(LOG_FILTER_UNITS, "Respawning creature %s (GuidLow: %u, Full GUID: " UI64FMTD " entry: %u)", GetName(), GetGUIDLow(), GetGUID(), GetEntry());
         m_respawnTime = 0;
         lootForPickPocketed = false;
         lootForBody         = false;
@@ -2179,7 +2178,7 @@ Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
 
     if (dist > MAX_VISIBILITY_DISTANCE)
     {
-        sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u entry: %u) SelectNearestTargetInAttackDistance called with dist > MAX_VISIBILITY_DISTANCE. Distance set to ATTACK_DISTANCE.", GetGUID().GetCounter(), GetEntry());
+        sLog->outError(LOG_FILTER_UNITS, "Creature (GUID: %u entry: %u) SelectNearestTargetInAttackDistance called with dist > MAX_VISIBILITY_DISTANCE. Distance set to ATTACK_DISTANCE.", GetGUIDLow(), GetEntry());
         dist = ATTACK_DISTANCE;
     }
 
@@ -2481,7 +2480,7 @@ bool Creature::LoadCreaturesAddon(bool reload)
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(*itr);
             if (!AdditionalSpellInfo)
             {
-                sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u entry: %u) has wrong spell %u defined in `auras` field.", GetGUID().GetCounter(), GetEntry(), *itr);
+                sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u entry: %u) has wrong spell %u defined in `auras` field.", GetGUIDLow(), GetEntry(), *itr);
                 continue;
             }
 
@@ -2489,13 +2488,13 @@ bool Creature::LoadCreaturesAddon(bool reload)
             if (HasAura(*itr))
             {
                 //if (!reload)
-                    //sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u Entry: %u) has duplicate aura (spell %u) in `auras` field.", GetGUID().GetCounter(), GetEntry(), *itr);
+                    //sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u Entry: %u) has duplicate aura (spell %u) in `auras` field.", GetGUIDLow(), GetEntry(), *itr);
 
                 continue;
             }
 
             AddAura(*itr, this);
-            sLog->outDebug(LOG_FILTER_UNITS, "Spell: %u added to creature (GUID: %u entry: %u)", *itr, GetGUID().GetCounter(), GetEntry());
+            sLog->outDebug(LOG_FILTER_UNITS, "Spell: %u added to creature (GUID: %u entry: %u GetGUID %s)", *itr, GetGUIDLow(), GetEntry(), GetGUID().ToString().c_str());
         }
     }
 

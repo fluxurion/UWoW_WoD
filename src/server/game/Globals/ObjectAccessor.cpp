@@ -343,7 +343,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(ObjectGuid player_guid, bool insi
     {
         // Create bones, don't change Corpse
         bones = new Corpse;
-        bones->Create(corpse->GetGUID().GetCounter(), map);
+        bones->Create(corpse->GetGUIDLow(), map);
 
         for (uint8 i = OBJECT_FIELD_TYPE + 1; i < CORPSE_END; ++i)                    // don't overwrite guid and object type
             bones->SetUInt32Value(i, corpse->GetUInt32Value(i));

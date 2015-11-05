@@ -2490,7 +2490,7 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
     float sizefactor = GetObjectSize() + obj->GetObjectSize();
     float maxdist = dist2compare + sizefactor;
 
-    if (m_transport && obj->GetTransport() &&  obj->GetTransport()->GetGUID().GetCounter() == m_transport->GetGUID().GetCounter())
+    if (m_transport && obj->GetTransport() &&  obj->GetTransport()->GetGUIDLow() == m_transport->GetGUIDLow())
     {
         float dtx = m_movementInfo.transport.pos.m_positionX - obj->m_movementInfo.transport.pos.m_positionX;
         float dty = m_movementInfo.transport.pos.m_positionY - obj->m_movementInfo.transport.pos.m_positionY;
@@ -3455,7 +3455,7 @@ void WorldObject::AddObjectToRemoveList()
     Map* map = FindMap();
     if (!map)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Object (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).", GetTypeId(), GetEntry(), GetGUID().GetCounter(), GetMapId());
+        sLog->outError(LOG_FILTER_GENERAL, "Object (TypeId: %u Entry: %u GUID: %u) at attempt add to move list not have valid map (Id: %u).", GetTypeId(), GetEntry(), GetGUIDLow(), GetMapId());
         return;
     }
 
@@ -3720,7 +3720,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 
     if (!pet->IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_PETS, "Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)", pet->GetGUID().GetCounter(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
+        sLog->outError(LOG_FILTER_PETS, "Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)", pet->GetGUIDLow(), pet->GetEntry(), pet->GetPositionX(), pet->GetPositionY());
         delete pet;
         return NULL;
     }

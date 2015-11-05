@@ -441,7 +441,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
         player->RemoveActiveQuest(questId);
         player->GetAchievementMgr().RemoveTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, questId);
 
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u abandoned quest %u", player->GetGUID().GetCounter(), questId);
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u abandoned quest %u", player->GetGUIDLow(), questId);
     }
 
     _player->SetQuestSlot(packet.Entry, 0);

@@ -685,7 +685,7 @@ void Player::_SaveArchaeology(SQLTransaction& trans)
 
     uint8 index = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_ARCHAEOLOGY);
-    stmt->setInt64(index++, GetGUID().GetCounter());
+    stmt->setInt64(index++, GetGUIDLow());
     std::stringstream ss;
     for (ResearchSiteSet::const_iterator itr = _researchSites.begin(); itr != _researchSites.end(); ++itr)
         ss << (*itr) << " ";
@@ -705,7 +705,7 @@ void Player::_SaveArchaeology(SQLTransaction& trans)
     {
         index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_ARCHAEOLOGY_FINDS);
-        stmt->setUInt64(index++, GetGUID().GetCounter());
+        stmt->setUInt64(index++, GetGUIDLow());
         stmt->setUInt32(index++, itr->entry->ID);
         stmt->setUInt32(index++, itr->count);
         stmt->setUInt32(index++, itr->date);

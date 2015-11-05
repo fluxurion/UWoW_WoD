@@ -337,7 +337,7 @@ void ChaseMovementGenerator<Player>::DoInitialize(Player &owner)
 template<>
 void ChaseMovementGenerator<Creature>::DoInitialize(Creature &owner)
 {
-    //sLog->outDebug(LOG_FILTER_PETS, "ChaseMovementGenerator DoInitialize i_target %u, owner %u", i_target.getTarget()->GetGUID().GetCounter(), owner.GetGUID().GetCounter());
+    //sLog->outDebug(LOG_FILTER_PETS, "ChaseMovementGenerator DoInitialize i_target %u, owner %u", i_target.getTarget()->GetGUIDLow(), owner.GetGUIDLow());
     owner.SetWalk(false);
     owner.AddUnitState(UNIT_STATE_CHASE | UNIT_STATE_CHASE_MOVE);
     _setTargetLocation(owner);
@@ -374,14 +374,14 @@ void ChaseMovementGenerator<Creature>::MovementInform(Creature &unit)
 {
     // Pass back the GUIDLow of the target. If it is pet's owner then PetAI will handle
     if (unit.AI())
-        unit.AI()->MovementInform(CHASE_MOTION_TYPE, i_target.getTarget()->GetGUID().GetCounter());
+        unit.AI()->MovementInform(CHASE_MOTION_TYPE, i_target.getTarget()->GetGUIDLow());
 }
 
 //-----------------------------------------------//
 template<class T>
 void FetchMovementGenerator<T>::_reachTarget(T &owner)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "FetchMovementGenerator _reachTarget i_target %u, owner %u", this->i_target.getTarget()->GetGUID().GetCounter(), owner.GetGUID().GetCounter());
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "FetchMovementGenerator _reachTarget i_target %u, owner %u", this->i_target.getTarget()->GetGUIDLow(), owner.GetGUIDLow());
 }
 
 template<>
@@ -390,20 +390,20 @@ void FetchMovementGenerator<Creature>::DoInitialize(Creature &owner)
     owner.SetWalk(false);
     owner.AddUnitState(UNIT_STATE_CHASE|UNIT_STATE_CHASE_MOVE);
     _setTargetLocation(owner);
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "FetchMovementGenerator Initialize i_target %u, owner %u", i_target.getTarget()->GetGUID().GetCounter(), owner.GetGUID().GetCounter());
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "FetchMovementGenerator Initialize i_target %u, owner %u", i_target.getTarget()->GetGUIDLow(), owner.GetGUIDLow());
 }
 
 template<class T>
 void FetchMovementGenerator<T>::DoFinalize(T &owner)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "FetchMovementGenerator Finalize i_target %u, owner %u", this->i_target.getTarget()->GetGUID().GetCounter(), owner.GetGUID().GetCounter());
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "FetchMovementGenerator Finalize i_target %u, owner %u", this->i_target.getTarget()->GetGUIDLow(), owner.GetGUIDLow());
     owner.ClearUnitState(UNIT_STATE_CHASE|UNIT_STATE_CHASE_MOVE);
 }
 
 template<class T>
 void FetchMovementGenerator<T>::DoReset(T &owner)
 {
-    //sLog->outDebug(LOG_FILTER_NETWORKIO, "FetchMovementGenerator Reset i_target %u, owner %u", this->i_target.getTarget()->GetGUID().GetCounter(), owner.GetGUID().GetCounter());
+    //sLog->outDebug(LOG_FILTER_NETWORKIO, "FetchMovementGenerator Reset i_target %u, owner %u", this->i_target.getTarget()->GetGUIDLow(), owner.GetGUIDLow());
     DoInitialize(owner);
 }
 
@@ -441,7 +441,7 @@ void FetchMovementGenerator<Creature>::MovementInform(Creature &unit)
     }
     // Pass back the GUIDLow of the target. If it is pet's owner then PetAI will handle
     if (unit.AI())
-        unit.AI()->MovementInform(CHASE_MOTION_TYPE, i_target.getTarget()->GetGUID().GetCounter());
+        unit.AI()->MovementInform(CHASE_MOTION_TYPE, i_target.getTarget()->GetGUIDLow());
 }
 
 //-----------------------------------------------//
@@ -470,7 +470,7 @@ void FollowMovementGenerator<Creature>::_updateSpeed(Creature &u)
     if (!((Creature&)u).isPet() || !i_target.isValid() || i_target->GetGUID() != u.GetOwnerGUID())
         return;
 
-    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator _updateSpeed i_target %u, owner %u", i_target.getTarget()->GetGUID().GetCounter(), u.GetGUID().GetCounter());
+    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator _updateSpeed i_target %u, owner %u", i_target.getTarget()->GetGUIDLow(), u.GetGUIDLow());
 
     u.UpdateSpeed(MOVE_RUN,true);
     u.UpdateSpeed(MOVE_WALK,true);
@@ -484,7 +484,7 @@ void TargetedMovementGeneratorMedium<T,D>::_updateSpeed(T &u)
     if (!((Creature&)u).isPet() || !i_target.isValid() || i_target->GetGUID() != u.GetOwnerGUID())
         return;
 
-    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator _updateSpeed i_target %u, owner %u", i_target.getTarget()->GetGUID().GetCounter(), u.GetGUID().GetCounter());
+    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator _updateSpeed i_target %u, owner %u", i_target.getTarget()->GetGUIDLow(), u.GetGUIDLow());
 
     u.UpdateSpeed(MOVE_RUN,true);
     u.UpdateSpeed(MOVE_WALK,true);
@@ -498,7 +498,7 @@ void FollowMovementGenerator<Player>::DoInitialize(Player &owner)
     _updateSpeed(owner);
     _setTargetLocation(owner);
 
-    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator DoInitialize i_target %u, owner %u", i_target.getTarget()->GetGUID().GetCounter(), owner.GetGUID().GetCounter());
+    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator DoInitialize i_target %u, owner %u", i_target.getTarget()->GetGUIDLow(), owner.GetGUIDLow());
 }
 
 template<>
@@ -508,7 +508,7 @@ void FollowMovementGenerator<Creature>::DoInitialize(Creature &owner)
     _updateSpeed(owner);
     _setTargetLocation(owner);
 
-    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator DoInitialize i_target %u, owner %u", i_target.getTarget()->GetGUID().GetCounter(), owner.GetGUID().GetCounter());
+    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator DoInitialize i_target %u, owner %u", i_target.getTarget()->GetGUIDLow(), owner.GetGUIDLow());
 }
 
 template<class T>
@@ -517,13 +517,13 @@ void FollowMovementGenerator<T>::DoFinalize(T &owner)
     owner.ClearUnitState(UNIT_STATE_FOLLOW|UNIT_STATE_FOLLOW_MOVE);
     _updateSpeed(owner);
 
-    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator DoFinalize owner %u", owner.GetGUID().GetCounter());
+    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator DoFinalize owner %u", owner.GetGUIDLow());
 }
 
 template<class T>
 void FollowMovementGenerator<T>::DoReset(T &owner)
 {
-    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator DoReset owner %u", owner.GetGUID().GetCounter());
+    //sLog->outDebug(LOG_FILTER_PETS, "FollowMovementGenerator DoReset owner %u", owner.GetGUIDLow());
     DoInitialize(owner);
 }
 
@@ -537,7 +537,7 @@ void FollowMovementGenerator<Creature>::MovementInform(Creature &unit)
 {
     // Pass back the GUIDLow of the target. If it is pet's owner then PetAI will handle
     if (unit.AI())
-        unit.AI()->MovementInform(FOLLOW_MOTION_TYPE, i_target.getTarget()->GetGUID().GetCounter());
+        unit.AI()->MovementInform(FOLLOW_MOTION_TYPE, i_target.getTarget()->GetGUIDLow());
 }
 
 //-----------------------------------------------//

@@ -465,7 +465,7 @@ void AnyPetAI::UpdateAI(uint32 diff)
                 continue;
 
             //sLog->outDebug(LOG_FILTER_PETS, "AnyPetAI::UpdateAI spellID %i, Cooldown %i IsPositive %i CanBeUsedInCombat %i GUID %u",
-            //spellID, me->HasSpellCooldown(spellID), spellInfo->IsPositive(), spellInfo->CanBeUsedInCombat(), me->GetGUID().GetCounter());
+            //spellID, me->HasSpellCooldown(spellID), spellInfo->IsPositive(), spellInfo->CanBeUsedInCombat(), me->GetGUIDLow());
 
             if (me->HasSpellCooldown(spellID))
                 continue;

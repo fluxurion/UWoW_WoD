@@ -458,7 +458,7 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     CellCoord cellCoord = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
     if (!cellCoord.IsCoordValid())
     {
-        sLog->outError(LOG_FILTER_MAPS, "Map::Add: Player (GUID: %u) has invalid coordinates X:%f Y:%f grid cell [%u:%u]", player->GetGUID().GetCounter(), player->GetPositionX(), player->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
+        sLog->outError(LOG_FILTER_MAPS, "Map::Add: Player (GUID: %u) has invalid coordinates X:%f Y:%f grid cell [%u:%u]", player->GetGUIDLow(), player->GetPositionX(), player->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
         return false;
     }
 
@@ -738,7 +738,7 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
     if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
     {
         #ifdef TRINITY_DEBUG
-            sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) added to moving list from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", creature->GetGUID().GetCounter(), creature->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+            sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) added to moving list from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", creature->GetGUIDLow(), creature->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
         #endif
         AddCreatureToMoveList(creature, x, y, z, ang);
         // in diffcell/diffgrid case notifiers called at finishing move creature in Map::MoveAllCreaturesInMoveList
@@ -812,7 +812,7 @@ void Map::MoveAllCreaturesInMoveList()
             {
                 // ... or unload (if respawn grid also not loaded)
                 #ifdef TRINITY_DEBUG
-                    sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) cannot be move to unloaded respawn grid.", c->GetGUID().GetCounter(), c->GetEntry());
+                    sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) cannot be move to unloaded respawn grid.", c->GetGUIDLow(), c->GetEntry());
                 #endif
                 //AddObjectToRemoveList(Pet*) should only be called in Pet::Remove
                 //This may happen when a player just logs in and a pet moves to a nearby unloaded cell
@@ -841,7 +841,7 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
         if (old_cell.DiffCell(new_cell))
         {
             #ifdef TRINITY_DEBUG
-                sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", c->GetGUID().GetCounter(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
+                sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
             #endif
 
             c->RemoveFromGrid();
@@ -850,7 +850,7 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
         else
         {
             #ifdef TRINITY_DEBUG
-                sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved in same grid[%u, %u]cell[%u, %u].", c->GetGUID().GetCounter(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
+                sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved in same grid[%u, %u]cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
             #endif
         }
 
@@ -863,7 +863,7 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
         EnsureGridLoadedForActiveObject(new_cell, c);
 
         #ifdef TRINITY_DEBUG
-            sLog->outDebug(LOG_FILTER_MAPS, "Active creature (GUID: %u Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", c->GetGUID().GetCounter(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+            sLog->outDebug(LOG_FILTER_MAPS, "Active creature (GUID: %u Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
         #endif
 
         c->RemoveFromGrid();
@@ -876,7 +876,7 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
     if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
     {
         #ifdef TRINITY_DEBUG
-            sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", c->GetGUID().GetCounter(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+            sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
         #endif
 
         c->RemoveFromGrid();
@@ -888,7 +888,7 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
 
     // fail to move: normal creature attempt move to unloaded grid
     #ifdef TRINITY_DEBUG
-        sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", c->GetGUID().GetCounter(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+        sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
     #endif
     return false;
 }
@@ -907,7 +907,7 @@ bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
     c->GetMotionMaster()->Clear();
 
     #ifdef TRINITY_DEBUG
-        sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved from grid[%u, %u]cell[%u, %u] to respawn grid[%u, %u]cell[%u, %u].", c->GetGUID().GetCounter(), c->GetEntry(), c->GetCurrentCell().GridX(), c->GetCurrentCell().GridY(), c->GetCurrentCell().CellX(), c->GetCurrentCell().CellY(), resp_cell.GridX(), resp_cell.GridY(), resp_cell.CellX(), resp_cell.CellY());
+        sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved from grid[%u, %u]cell[%u, %u] to respawn grid[%u, %u]cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), c->GetCurrentCell().GridX(), c->GetCurrentCell().GridY(), c->GetCurrentCell().CellX(), c->GetCurrentCell().CellY(), resp_cell.GridX(), resp_cell.GridY(), resp_cell.CellX(), resp_cell.CellY());
     #endif
 
     // teleport it to respawn point (like normal respawn if player see)
@@ -1982,7 +1982,7 @@ bool Map::CheckGridIntegrity(Creature* c, bool moved) const
     {
         #ifdef TRINITY_DEBUG
         sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u) X: %f Y: %f (%s) is in grid[%u, %u]cell[%u, %u] instead of grid[%u, %u]cell[%u, %u]",
-            c->GetGUID().GetCounter(),
+            c->GetGUIDLow(),
             c->GetPositionX(), c->GetPositionY(), (moved ? "final" : "original"),
             cur_cell.GridX(), cur_cell.GridY(), cur_cell.CellX(), cur_cell.CellY(),
             xy_cell.GridX(),  xy_cell.GridY(),  xy_cell.CellX(),  xy_cell.CellY());
@@ -2023,7 +2023,7 @@ void Map::UpdateObjectsVisibilityFor(Player* player, Cell cell, CellCoord cellpa
 void Map::SendInitSelf(Player* player)
 {
     #ifdef TRINITY_DEBUG
-    sLog->outInfo(LOG_FILTER_MAPS, "Creating player data for himself %u", player->GetGUID().GetCounter());
+    sLog->outInfo(LOG_FILTER_MAPS, "Creating player data for himself %u", player->GetGUIDLow());
     #endif
 
     UpdateData data(player->GetMapId());
@@ -2138,10 +2138,10 @@ void Map::AddObjectToRemoveList(WorldObject* obj)
 {
     ASSERT(obj->GetMapId() == GetId() && obj->GetInstanceId() == GetInstanceId());
 
-    obj->CleanupsBeforeDelete(false);                            // remove or simplify at least cross referenced links
+    //obj->CleanupsBeforeDelete(false);                            // remove or simplify at least cross referenced links
 
     i_objectsToRemove.insert(obj);
-    //sLog->outDebug(LOG_FILTER_MAPS, "Object (GUID: %u TypeId: %u) added to removing list.", obj->GetGUID().GetCounter(), obj->GetTypeId());
+    //sLog->outDebug(LOG_FILTER_MAPS, "Object (GUID: %u TypeId: %u) added to removing list.", obj->GetGUIDLow(), obj->GetTypeId());
 }
 
 void Map::AddObjectToSwitchList(WorldObject* obj, bool on)
@@ -2175,7 +2175,7 @@ void Map::RemoveAllObjectsInRemoveList()
     {
         std::set<WorldObject*>::iterator itr = i_objectsToRemove.begin();
         WorldObject* obj = *itr;
-        //volatile uint32 entryorguid = obj->GetTypeId() == TYPEID_PLAYER ? obj->GetGUID().GetCounter() : obj->GetEntry();
+        //volatile uint32 entryorguid = obj->GetTypeId() == TYPEID_PLAYER ? obj->GetGUIDLow() : obj->GetEntry();
         //volatile uint32 mapId = GetId();
         //volatile uint32 instanceId = GetInstanceId();
 
@@ -2185,7 +2185,7 @@ void Map::RemoveAllObjectsInRemoveList()
             {
                 Corpse* corpse = ObjectAccessor::GetCorpse(*obj, obj->GetGUID());
                 if (!corpse)
-                    sLog->outError(LOG_FILTER_MAPS, "Tried to delete corpse/bones %u that is not in map.", obj->GetGUID().GetCounter());
+                    sLog->outError(LOG_FILTER_MAPS, "Tried to delete corpse/bones %u that is not in map.", obj->GetGUIDLow());
                 else
                     RemoveFromMap(corpse, true);
                 break;
@@ -2204,6 +2204,7 @@ void Map::RemoveAllObjectsInRemoveList()
             break;
         case TYPEID_UNIT:
         {
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "RemoveAllObjectsInRemoveList %u", obj->GetEntry());
             // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
             // make sure that like sources auras/etc removed before destructor start
             obj->ToCreature()->CleanupsBeforeDelete();
@@ -2291,7 +2292,7 @@ void Map::AddToActive(Creature* c)
         {
             GridCoord p2 = Trinity::ComputeGridCoord(c->GetPositionX(), c->GetPositionY());
             sLog->outError(LOG_FILTER_MAPS, "Active creature (GUID: %u Entry: %u) added to grid[%u, %u] but spawn grid[%u, %u] was not loaded.",
-                c->GetGUID().GetCounter(), c->GetEntry(), p.x_coord, p.y_coord, p2.x_coord, p2.y_coord);
+                c->GetGUIDLow(), c->GetEntry(), p.x_coord, p.y_coord, p2.x_coord, p2.y_coord);
         }
     }
 }
@@ -2312,7 +2313,7 @@ void Map::RemoveFromActive(Creature* c)
         {
             GridCoord p2 = Trinity::ComputeGridCoord(c->GetPositionX(), c->GetPositionY());
             sLog->outError(LOG_FILTER_MAPS, "Active creature (GUID: %u Entry: %u) removed from grid[%u, %u] but spawn grid[%u, %u] was not loaded.",
-                c->GetGUID().GetCounter(), c->GetEntry(), p.x_coord, p.y_coord, p2.x_coord, p2.y_coord);
+                c->GetGUIDLow(), c->GetEntry(), p.x_coord, p.y_coord, p2.x_coord, p2.y_coord);
         }
     }
 }
@@ -2366,7 +2367,7 @@ bool InstanceMap::CanEnter(Player* player)
 {
     if (player->GetMapRef().getTarget() == this)
     {
-        sLog->outError(LOG_FILTER_MAPS, "InstanceMap::CanEnter - player %s(%u) already in map %d, %d, %d!", player->GetName(), player->GetGUID().GetCounter(), GetId(), GetInstanceId(), GetSpawnMode());
+        sLog->outError(LOG_FILTER_MAPS, "InstanceMap::CanEnter - player %s(%u) already in map %d, %d, %d!", player->GetName(), player->GetGUIDLow(), GetId(), GetInstanceId(), GetSpawnMode());
         //ASSERT(false);
         return false;
     }
@@ -2491,7 +2492,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
                 // cannot enter other instances if bound permanently
                 if (playerBind->save != mapSave)
                 {
-                    sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is permanently bound to instance %d, %d, %d, %d, %d, %d but he is being put into instance %d, %d, %d, %d, %d, %d", player->GetName(), player->GetGUID().GetCounter(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficultyID(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset());
+                    sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is permanently bound to instance %d, %d, %d, %d, %d, %d but he is being put into instance %d, %d, %d, %d, %d, %d", player->GetName(), player->GetGUIDLow(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficultyID(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset());
                     return false;
                 }
             }
@@ -2503,7 +2504,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
                     InstanceGroupBind* groupBind = group->GetBoundInstance(this);
                     if (playerBind && playerBind->save != mapSave)
                     {
-                        sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is being put into instance %d, %d, %d, %d, %d, %d but he is in group %d and is bound to instance %d, %d, %d, %d, %d, %d!", player->GetName(), player->GetGUID().GetCounter(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset(), group->GetLeaderGUID().GetCounter(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficultyID(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset());
+                        sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is being put into instance %d, %d, %d, %d, %d, %d but he is in group %d and is bound to instance %d, %d, %d, %d, %d, %d!", player->GetName(), player->GetGUIDLow(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset(), group->GetLeaderGUID().GetGUIDLow(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficultyID(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset());
                         if (groupBind)
                             sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: the group is bound to the instance %d, %d, %d, %d, %d, %d", groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), groupBind->save->GetDifficultyID(), groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount(), groupBind->save->CanReset());
                         //ASSERT(false);
@@ -2517,7 +2518,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
                         // cannot jump to a different instance without resetting it
                         if (groupBind->save != mapSave)
                         {
-                            sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is being put into instance %d, %d, %d but he is in group %d which is bound to instance %d, %d, %d!", player->GetName(), player->GetGUID().GetCounter(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), group->GetLeaderGUID().GetCounter(), groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), groupBind->save->GetDifficultyID());
+                            sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is being put into instance %d, %d, %d but he is in group %d which is bound to instance %d, %d, %d!", player->GetName(), player->GetGUIDLow(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), group->GetLeaderGUID().GetGUIDLow(), groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), groupBind->save->GetDifficultyID());
                             if (mapSave)
                                 sLog->outError(LOG_FILTER_MAPS, "MapSave players: %d, group count: %d", mapSave->GetPlayerCount(), mapSave->GetGroupCount());
                             else
@@ -2551,7 +2552,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
                     {
                         // cannot jump to a different instance without resetting it
                         //ASSERT(playerBind->save == mapSave);
-                        sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is permanently bound to instance %d, %d, %d, %d, %d, %d but he is being put into instance %d, %d, %d, %d, %d, %d", player->GetName(), player->GetGUID().GetCounter(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficultyID(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset());
+                        sLog->outError(LOG_FILTER_MAPS, "InstanceMap::Add: player %s(%d) is permanently bound to instance %d, %d, %d, %d, %d, %d but he is being put into instance %d, %d, %d, %d, %d, %d", player->GetName(), player->GetGUIDLow(), playerBind->save->GetMapId(), playerBind->save->GetInstanceId(), playerBind->save->GetDifficultyID(), playerBind->save->GetPlayerCount(), playerBind->save->GetGroupCount(), playerBind->save->CanReset(), mapSave->GetMapId(), mapSave->GetInstanceId(), mapSave->GetDifficultyID(), mapSave->GetPlayerCount(), mapSave->GetGroupCount(), mapSave->CanReset());
                         return false;
                     }
                 }
@@ -2692,7 +2693,7 @@ void InstanceMap::PermBindAllPlayers(Player* source)
     InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
     if (!save)
     {
-        sLog->outError(LOG_FILTER_MAPS, "Cannot bind player (GUID: %u, Name: %s), because no instance save is available for instance map (Name: %s, Entry: %u, InstanceId: %u)!", source->GetGUID().GetCounter(), source->GetName(), source->GetMap()->GetMapName(), source->GetMapId(), GetInstanceId());
+        sLog->outError(LOG_FILTER_MAPS, "Cannot bind player (GUID: %u, Name: %s), because no instance save is available for instance map (Name: %s, Entry: %u, InstanceId: %u)!", source->GetGUIDLow(), source->GetName(), source->GetMap()->GetMapName(), source->GetMapId(), GetInstanceId());
         return;
     }
 
@@ -2840,7 +2841,7 @@ bool BattlegroundMap::CanEnter(Player* player)
 {
     if (player->GetMapRef().getTarget() == this)
     {
-        sLog->outError(LOG_FILTER_MAPS, "BGMap::CanEnter - player %u is already in map!", player->GetGUID().GetCounter());
+        sLog->outError(LOG_FILTER_MAPS, "BGMap::CanEnter - player %u is already in map!", player->GetGUIDLow());
         ASSERT(false);
         return false;
     }

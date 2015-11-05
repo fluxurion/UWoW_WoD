@@ -2870,7 +2870,7 @@ BanReturn World::BanCharacter(std::string name, std::string duration, std::strin
         guid = (*resultCharacter)[0].GetUInt64();
     }
     else
-        guid = pBanned->GetGUID().GetCounter();
+        guid = pBanned->GetGUIDLow();
 
     // make sure there is only one active ban
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
@@ -2909,7 +2909,7 @@ bool World::RemoveBanCharacter(std::string name)
         guid = (*resultCharacter)[0].GetUInt64();
     }
     else
-        guid = pBanned->GetGUID().GetCounter();
+        guid = pBanned->GetGUIDLow();
 
     if (!guid)
         return false;
@@ -3763,17 +3763,17 @@ void World::ProcessMailboxQueue()
             CharacterDatabase.EscapeString(subject);
             CharacterDatabase.EscapeString(body);
             trans->PAppend("REPLACE INTO mail (id,messageType,stationery,mailTemplateId,sender,receiver,subject,body,has_items,expire_time,deliver_time,money,cod,checked) VALUES ('%u', '%u', '%u', '%u', '%u', '%u', '%s', '%s', '%u', '" UI64FMTD "','" UI64FMTD "', '%u', '%u', '%d')",
-                mailId, messageType, stationery, 0, sender_guid, receiver_guid.GetCounter(), subject.c_str(), body.c_str(), (attachment != NULL ? 1 : 0), (uint64)expire_time, (uint64)deliver_time, money, 0, 0);
+                mailId, messageType, stationery, 0, sender_guid, receiver_guid.GetGUIDLow(), subject.c_str(), body.c_str(), (attachment != NULL ? 1 : 0), (uint64)expire_time, (uint64)deliver_time, money, 0, 0);
          
             if(attachment != NULL)
             {
-                trans->PAppend("REPLACE INTO mail_items (mail_id,item_guid,receiver) VALUES ('%u', '%u', '%u')", mailId, attachment->GetGUID().GetCounter(), receiver_guid.GetCounter());
+                trans->PAppend("REPLACE INTO mail_items (mail_id,item_guid,receiver) VALUES ('%u', '%u', '%u')", mailId, attachment->GetGUIDLow(), receiver_guid.GetGUIDLow());
                 if(forefir)
                 {
-                    //trans->PAppend("REPLACE INTO character_donate (`owner_guid`, `itemguid`, `itemEntry`, `efircount`, `count`) VALUES ('%u', '%u', '%u', '%u', '%u')", receiver_guid.GetCounter(), attachment->GetGUID().GetCounter(), itemid, forefir, itemcount);
+                    //trans->PAppend("REPLACE INTO character_donate (`owner_guid`, `itemguid`, `itemEntry`, `efircount`, `count`) VALUES ('%u', '%u', '%u', '%u', '%u')", receiver_guid.GetGUIDLow(), attachment->GetGUIDLow(), itemid, forefir, itemcount);
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_ITEM_DONATE);
                     stmt->setUInt64(0, receiver_guid.GetCounter());
-                    stmt->setUInt64(1, attachment->GetGUID().GetCounter());
+                    stmt->setUInt64(1, attachment->GetGUIDLow());
                     stmt->setUInt32(2, itemid);
                     stmt->setUInt32(3, forefir);
                     stmt->setUInt32(4, itemcount);
@@ -3781,7 +3781,7 @@ void World::ProcessMailboxQueue()
                     trans->Append(stmt);
                 }
             }
-            sLog->outError(LOG_FILTER_REMOTECOMMAND,"Sending mail to %u, Item:%u , ItemCount:%u, %s", receiver_guid.GetCounter(), itemid,itemcount,body.c_str());
+            sLog->outError(LOG_FILTER_REMOTECOMMAND,"Sending mail to %u, Item:%u , ItemCount:%u, %s", receiver_guid.GetGUIDLow(), itemid,itemcount,body.c_str());
 
             CharacterDatabase.CommitTransaction(trans);
 
@@ -3798,12 +3798,12 @@ void World::ProcessMailboxQueue()
                     m->stationery = stationery;
                     m->mailTemplateId = 0;
                     m->sender = sender_guid;
-                    m->receiver = receiver->GetGUID().GetCounter();
+                    m->receiver = receiver->GetGUIDLow();
                     m->subject = subject;
                     m->body = body;
 
                     if(attachment)
-                        m->AddItem(attachment->GetGUID().GetCounter(),attachment->GetEntry());
+                        m->AddItem(attachment->GetGUIDLow(),attachment->GetEntry());
 
                     m->expire_time = expire_time;
                     m->deliver_time = deliver_time;

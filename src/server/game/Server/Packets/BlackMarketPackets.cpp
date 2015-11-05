@@ -41,7 +41,7 @@ void WorldPackets::BlackMarket::BlackMarketItem::Initialize(BlackMarketEntry* co
 
     CurrentBid = entry->GetCurrentBid();
     SecondsRemaining = entry->GetSecondsRemaining();
-    HighBid = (entry->GetBidder() == player->GetGUID().GetCounter());
+    HighBid = (entry->GetBidder() == player->GetGUIDLow());
     NumBids = entry->GetNumBids();
 }
 

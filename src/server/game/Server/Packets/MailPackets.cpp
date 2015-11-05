@@ -23,7 +23,7 @@
 WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8 pos)
 {
     Position = pos;
-    AttachID = item->GetGUID().GetCounter();
+    AttachID = item->GetGUIDLow();
     Item.Initialize(item);
     Count = item->GetCount();
     Charges = item->GetSpellCharges();

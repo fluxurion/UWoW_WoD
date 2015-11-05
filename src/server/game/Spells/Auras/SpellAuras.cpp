@@ -730,8 +730,8 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraA
     // TODO: Figure out why this happens
     if (itr == m_applications.end())
     {
-        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
-        target->GetGUID().GetCounter(), caster ? caster->GetGUID().GetCounter() : 0, auraApp->GetBase()->GetSpellInfo()->Id);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map! GetGUID %s",
+        target->GetGUIDLow(), caster ? caster->GetGUIDLow() : 0, auraApp->GetBase()->GetSpellInfo()->Id, target->GetGUID().ToString().c_str());
         //ASSERT(false);
         return;
     }

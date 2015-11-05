@@ -684,7 +684,7 @@ Creature * Transport::AddNPCPassengerCreature(ObjectGuid::LowType tguid, uint32 
 
     if(!pCreature->IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_TRANSPORTS, "Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)", pCreature->GetGUID().GetCounter(), pCreature->GetEntry(), pCreature->GetPositionX(), pCreature->GetPositionY());
+        sLog->outError(LOG_FILTER_TRANSPORTS, "Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)", pCreature->GetGUIDLow(), pCreature->GetEntry(), pCreature->GetPositionX(), pCreature->GetPositionY());
         delete pCreature;
         return NULL;
     }
@@ -736,7 +736,7 @@ ObjectGuid::LowType Transport::AddNPCPassenger(ObjectGuid::LowType tguid, uint32
 
     if (!creature->IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_TRANSPORTS, "Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)", creature->GetGUID().GetCounter(), creature->GetEntry(), creature->GetPositionX(), creature->GetPositionY());
+        sLog->outError(LOG_FILTER_TRANSPORTS, "Creature (guidlow %d, entry %d) not created. Suggested coordinates isn't valid (X: %f Y: %f)", creature->GetGUIDLow(), creature->GetEntry(), creature->GetPositionX(), creature->GetPositionY());
         delete creature;
         return 0;
     }

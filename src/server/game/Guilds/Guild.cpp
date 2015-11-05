@@ -486,7 +486,7 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* item)
         stmt->setUInt64(0, m_guildId);
         stmt->setUInt8 (1, m_tabId);
         stmt->setUInt8 (2, slotId);
-        stmt->setUInt64(3, item->GetGUID().GetCounter());
+        stmt->setUInt64(3, item->GetGUIDLow());
         CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
         item->SetGuidValue(ITEM_FIELD_CONTAINED_IN, ObjectGuid::Empty);
@@ -564,7 +564,7 @@ void Guild::Member::SaveStatsToDB(SQLTransaction* trans)
         stmt->setInt8(6 + i * 4, m_professionInfo[i].skillRank);
         stmt->setString(7 + i * 4, m_professionInfo[i].knownRecipes.GetMaskForSave());
     }
-    stmt->setUInt64(12, GetGUID().GetCounter());
+    stmt->setUInt64(12, GetGUID().GetGUIDLow());
 
     if (trans)
         (*trans)->Append(stmt);
@@ -683,7 +683,7 @@ bool Guild::Member::LoadFromDB(Field* fields)
 
     if (!m_zoneId)
     {
-        sLog->outError(LOG_FILTER_GUILD, "Player (GUID: %u) has broken zone-data", m_guid.GetCounter());
+        sLog->outError(LOG_FILTER_GUILD, "Player (GUID: %u) has broken zone-data", m_guid.GetGUIDLow());
         m_zoneId = Player::GetZoneIdFromDB(m_guid);
     }
     return true;
@@ -694,17 +694,17 @@ bool Guild::Member::CheckStats() const
 {
     if (m_level < 1)
     {
-        sLog->outError(LOG_FILTER_GUILD, "Player (GUID: %u) has a broken data in field `characters`.`level`, deleting him from guild!", m_guid.GetCounter());
+        sLog->outError(LOG_FILTER_GUILD, "Player (GUID: %u) has a broken data in field `characters`.`level`, deleting him from guild!", m_guid.GetGUIDLow());
         return false;
     }
     if (m_class < CLASS_WARRIOR || m_class >= MAX_CLASSES)
     {
-        sLog->outError(LOG_FILTER_GUILD, "Player (GUID: %u) has a broken data in field `characters`.`class`, deleting him from guild!", m_guid.GetCounter());
+        sLog->outError(LOG_FILTER_GUILD, "Player (GUID: %u) has a broken data in field `characters`.`class`, deleting him from guild!", m_guid.GetGUIDLow());
         return false;
     }
     if (m_gender != GENDER_FEMALE && m_gender != GENDER_MALE)
     {
-        sLog->outError(LOG_FILTER_GUILD, "Player (GUID: %u) has a broken data in field `characters`.`gender`, deleting him from guild!", m_guid.GetCounter());
+        sLog->outError(LOG_FILTER_GUILD, "Player (GUID: %u) has a broken data in field `characters`.`gender`, deleting him from guild!", m_guid.GetGUIDLow());
         return false;
     }
     return true;
@@ -919,7 +919,7 @@ void Guild::PlayerMoveItemData::LogBankEvent(SQLTransaction& trans, MoveItemData
 {
     ASSERT(pFrom);
     // Bank -> Char
-    m_pGuild->_LogBankEvent(trans, GUILD_BANK_LOG_WITHDRAW_ITEM, pFrom->GetContainer(), m_pPlayer->GetGUID().GetCounter(),
+    m_pGuild->_LogBankEvent(trans, GUILD_BANK_LOG_WITHDRAW_ITEM, pFrom->GetContainer(), m_pPlayer->GetGUIDLow(),
         pFrom->GetItem()->GetEntry(), count);
 }
 
@@ -1000,11 +1000,11 @@ void Guild::BankMoveItemData::LogBankEvent(SQLTransaction& trans, MoveItemData* 
     ASSERT(pFrom->GetItem());
     if (pFrom->IsBank())
         // Bank -> Bank
-        m_pGuild->_LogBankEvent(trans, GUILD_BANK_LOG_MOVE_ITEM, pFrom->GetContainer(), m_pPlayer->GetGUID().GetCounter(),
+        m_pGuild->_LogBankEvent(trans, GUILD_BANK_LOG_MOVE_ITEM, pFrom->GetContainer(), m_pPlayer->GetGUIDLow(),
             pFrom->GetItem()->GetEntry(), count, m_container);
     else
         // Char -> Bank
-        m_pGuild->_LogBankEvent(trans, GUILD_BANK_LOG_DEPOSIT_ITEM, m_container, m_pPlayer->GetGUID().GetCounter(),
+        m_pGuild->_LogBankEvent(trans, GUILD_BANK_LOG_DEPOSIT_ITEM, m_container, m_pPlayer->GetGUIDLow(),
             pFrom->GetItem()->GetEntry(), count);
 }
 
@@ -1675,7 +1675,7 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     sLog->outDebug(LOG_FILTER_GUILD, "Player %s invited %s to join his Guild", player->GetName(), name.c_str());
 
     pInvitee->SetGuildIdInvited(m_id, player->GetGUID());
-    _LogEvent(GUILD_EVENT_LOG_INVITE_PLAYER, player->GetGUID().GetCounter(), pInvitee->GetGUID().GetCounter());
+    _LogEvent(GUILD_EVENT_LOG_INVITE_PLAYER, player->GetGUIDLow(), pInvitee->GetGUIDLow());
 
     ObjectGuid oldGuildGuid;
     if (ObjectGuid::LowType oldId = pInvitee->GetGuildId())
@@ -1714,7 +1714,7 @@ void Guild::HandleAcceptMember(WorldSession* session)
 
     if (AddMember(player->GetGUID()))
     {
-        _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, player->GetGUID().GetCounter());
+        _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, player->GetGUIDLow());
         SendGuildEventJoinMember(player->GetGUID(), player->GetName());
         sGuildFinderMgr->RemoveMembershipRequest(player->GetGUID(), this->GetGUID());
         UpdateGuildRecipes();
@@ -1743,7 +1743,7 @@ void Guild::HandleLeaveMember(WorldSession* session)
 
         DeleteMember(player->GetGUID(), false, false);
 
-        _LogEvent(GUILD_EVENT_LOG_LEAVE_GUILD, player->GetGUID().GetCounter());
+        _LogEvent(GUILD_EVENT_LOG_LEAVE_GUILD, player->GetGUIDLow());
         UpdateGuildRecipes();
     }
 }
@@ -1769,7 +1769,7 @@ void Guild::HandleRemoveMember(WorldSession* session, ObjectGuid guid)
         else
         {
             // After call to DeleteMember pointer to member becomes invalid
-            _LogEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, player->GetGUID().GetCounter(), guid.GetCounter());
+            _LogEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, player->GetGUIDLow(), guid.GetCounter());
             SendGuildEventRemoveMember(member->GetGUID(), member->GetName(), player->GetGUID(), player->GetName());
             DeleteMember(guid, false, true);
         }
@@ -1827,7 +1827,7 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, ObjectGuid targetGuid,
 
         uint32 newRankId = member->GetRankId() + (demote ? 1 : -1);
         member->ChangeRank(newRankId);
-        _LogEvent(demote ? GUILD_EVENT_LOG_DEMOTE_PLAYER : GUILD_EVENT_LOG_PROMOTE_PLAYER, player->GetGUID().GetCounter(), member->GetGUID().GetCounter(), newRankId);
+        _LogEvent(demote ? GUILD_EVENT_LOG_DEMOTE_PLAYER : GUILD_EVENT_LOG_PROMOTE_PLAYER, player->GetGUIDLow(), member->GetGUID().GetGUIDLow(), newRankId);
         SendGuildRanksUpdate(player->GetGUID(), member->GetGUID(), newRankId);
     }
 }
@@ -1960,7 +1960,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool 
             player->GetName(), player->GetSession()->GetAccountId(), amount, m_id);
     }
     // Log guild bank event
-    _LogBankEvent(trans, cashFlow ? GUILD_BANK_LOG_CASH_FLOW_DEPOSIT : GUILD_BANK_LOG_DEPOSIT_MONEY, uint8(0), player->GetGUID().GetCounter(), amount);
+    _LogBankEvent(trans, cashFlow ? GUILD_BANK_LOG_CASH_FLOW_DEPOSIT : GUILD_BANK_LOG_DEPOSIT_MONEY, uint8(0), player->GetGUIDLow(), amount);
 
     CharacterDatabase.CommitTransaction(trans);
 
@@ -2001,7 +2001,7 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
         player->SaveGoldToDB(trans);
     }
     // Log guild bank event
-    _LogBankEvent(trans, repair ? GUILD_BANK_LOG_REPAIR_MONEY : GUILD_BANK_LOG_WITHDRAW_MONEY, uint8(0), player->GetGUID().GetCounter(), amount);
+    _LogBankEvent(trans, repair ? GUILD_BANK_LOG_REPAIR_MONEY : GUILD_BANK_LOG_WITHDRAW_MONEY, uint8(0), player->GetGUIDLow(), amount);
     CharacterDatabase.CommitTransaction(trans);
 
     SendMoneyInfo(session);
@@ -3075,7 +3075,7 @@ void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAm
     if (pItemSrc->GetCount() == 0)
     {
         sLog->outFatal(LOG_FILTER_GENERAL, "Guild::SwapItems: Player %s(GUIDLow: %u) tried to move item %u from tab %u slot %u to tab %u slot %u, but item %u has a stack of zero!",
-            player->GetName(), player->GetGUID().GetCounter(), pItemSrc->GetEntry(), tabId, slotId, destTabId, destSlotId, pItemSrc->GetEntry());
+            player->GetName(), player->GetGUIDLow(), pItemSrc->GetEntry(), tabId, slotId, destTabId, destSlotId, pItemSrc->GetEntry());
         //return; // Commented out for now, uncomment when it's verified that this causes a crash!!
     }
     // */

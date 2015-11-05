@@ -180,7 +180,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, ObjectGuid w
     CreatureTextHolder::const_iterator itr = textHolder.find(textGroup);
     if (itr == textHolder.end())
     {
-        sLog->outError(LOG_FILTER_SQL, "CreatureTextMgr: Could not find TextGroup %u for Creature(%s) GuidLow %u Entry %u. Ignoring.", uint32(textGroup), source->GetName(), source->GetGUID().GetCounter(), source->GetEntry());
+        sLog->outError(LOG_FILTER_SQL, "CreatureTextMgr: Could not find TextGroup %u for Creature(%s) GuidLow %u Entry %u. Ignoring.", uint32(textGroup), source->GetName(), source->GetGUIDLow(), source->GetEntry());
         return 0;
     }
 
@@ -194,7 +194,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, ObjectGuid w
 
     if (tempGroup.empty())
     {
-        CreatureTextRepeatMap::iterator mapItr = mTextRepeatMap.find(source->GetGUID().GetCounter());
+        CreatureTextRepeatMap::iterator mapItr = mTextRepeatMap.find(source->GetGUIDLow());
         if (mapItr != mTextRepeatMap.end())
         {
             CreatureTextRepeatGroup::iterator groupItr = mapItr->second.find(textGroup);
@@ -371,11 +371,11 @@ void CreatureTextMgr::SetRepeatId(Creature* source, uint8 textGroup, uint8 id)
     if (!source)
         return;
 
-    CreatureTextRepeatIds& repeats = mTextRepeatMap[source->GetGUID().GetCounter()][textGroup];
+    CreatureTextRepeatIds& repeats = mTextRepeatMap[source->GetGUIDLow()][textGroup];
     if (std::find(repeats.begin(), repeats.end(), id) == repeats.end())
         repeats.push_back(id);
     else
-        sLog->outError(LOG_FILTER_SQL, "CreatureTextMgr: TextGroup %u for Creature(%s) GuidLow %u Entry %u, id %u already added", uint32(textGroup), source->GetName(), source->GetGUID().GetCounter(), source->GetEntry(), uint32(id));
+        sLog->outError(LOG_FILTER_SQL, "CreatureTextMgr: TextGroup %u for Creature(%s) GuidLow %u Entry %u, id %u already added", uint32(textGroup), source->GetName(), source->GetGUIDLow(), source->GetEntry(), uint32(id));
 }
 
 CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 textGroup)
@@ -383,7 +383,7 @@ CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 te
     ASSERT(source);//should never happen
     CreatureTextRepeatIds ids;
 
-    CreatureTextRepeatMap::const_iterator mapItr = mTextRepeatMap.find(source->GetGUID().GetCounter());
+    CreatureTextRepeatMap::const_iterator mapItr = mTextRepeatMap.find(source->GetGUIDLow());
     if (mapItr != mTextRepeatMap.end())
     {
         CreatureTextRepeatGroup::const_iterator groupItr = (*mapItr).second.find(textGroup);

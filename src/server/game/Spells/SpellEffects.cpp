@@ -860,7 +860,7 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
         for (std::vector<SpellDummyTrigger>::const_iterator itr = spellTrigger->begin(); itr != spellTrigger->end(); ++itr)
         {
             #ifdef WIN32
-            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectDummy %u, 1<<effIndex %u, itr->effectmask %u, option %u, spell_trigger %i, target %u (%u ==> %u)", m_spellInfo->Id, 1<<effIndex, itr->effectmask, itr->option, itr->spell_trigger, itr->target, triggerTarget ? triggerTarget->GetGUID().GetCounter() : 0, triggerCaster ? triggerCaster->GetGUID().GetCounter() : 0);
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectDummy %u, 1<<effIndex %u, itr->effectmask %u, option %u, spell_trigger %i, target %u (%u ==> %u)", m_spellInfo->Id, 1<<effIndex, itr->effectmask, itr->option, itr->spell_trigger, itr->target, triggerTarget ? triggerTarget->GetGUIDLow() : 0, triggerCaster ? triggerCaster->GetGUIDLow() : 0);
             #endif
 
             if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH && itr->option != DUMMY_TRIGGER_CAST_DEST && itr->option != DUMMY_TRIGGER_CAST_OR_REMOVE)
@@ -870,7 +870,7 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
                 continue;
 
             #ifdef WIN32
-            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectDummy2: %u, 1<<effIndex %u, itr->effectmask %u, option %u, spell_trigger %i, target %u (%u ==> %u)", m_spellInfo->Id, 1<<effIndex, itr->effectmask, itr->option, itr->spell_trigger, itr->target, triggerTarget ? triggerTarget->GetGUID().GetCounter(): 0, triggerCaster ? triggerCaster->GetGUID().GetCounter(): 0);
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectDummy2: %u, 1<<effIndex %u, itr->effectmask %u, option %u, spell_trigger %i, target %u (%u ==> %u)", m_spellInfo->Id, 1<<effIndex, itr->effectmask, itr->option, itr->spell_trigger, itr->target, triggerTarget ? triggerTarget->GetGUIDLow(): 0, triggerCaster ? triggerCaster->GetGUIDLow(): 0);
             #endif
 
             if (itr->target == 1) //get target caster
@@ -1992,7 +1992,7 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     destTarget->GetPosition(x, y, z, orientation);
     if (!orientation && m_targets.GetUnitTarget())
         orientation = m_targets.GetUnitTarget()->GetOrientation();
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectTeleportUnits - teleport unit to %u %f %f %f %f targetGuid %u\n", mapid, x, y, z, orientation, unitTarget->GetGUID().GetCounter());
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectTeleportUnits - teleport unit to %u %f %f %f %f targetGuid %u\n", mapid, x, y, z, orientation, unitTarget->GetGUIDLow());
 
     if (mapid == unitTarget->GetMapId())
         unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
@@ -2190,7 +2190,7 @@ void Spell::EffectUnlearnSpecialization(SpellEffIndex effIndex)
 
     player->removeSpell(spellToUnlearn);
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell: Player %u has unlearned spell %u from NpcGUID: %u", player->GetGUID().GetCounter(), spellToUnlearn, m_caster->GetGUID().GetCounter());
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell: Player %u has unlearned spell %u from NpcGUID: %u", player->GetGUIDLow(), spellToUnlearn, m_caster->GetGUIDLow());
 }
 
 void Spell::EffectPowerDrain(SpellEffIndex effIndex)
@@ -2750,7 +2750,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, std::vector<int32> const
 
         // set the "Crafted by ..." property of the item
         if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
-            pItem->SetUInt32Value(ITEM_FIELD_CREATOR, player->GetGUID().GetCounter());
+            pItem->SetUInt32Value(ITEM_FIELD_CREATOR, player->GetGUIDLow());
 
         // send info to the client
         player->SendNewItem(pItem, num_to_add, true, bgType == 0);
@@ -3134,7 +3134,7 @@ void Spell::SendLoot(ObjectGuid const& guid, LootType loottype)
         if (!gameObjTarget->isSpawned() && !player->isGameMaster())
         {
             sLog->outError(LOG_FILTER_SPELLS_AURAS, "Possible hacking attempt: Player %s [guid: %u] tried to loot a gameobject [entry: %u id: %u] which is on respawn time without being in GM mode!",
-                           player->GetName(), player->GetGUID().GetCounter(), gameObjTarget->GetEntry(), gameObjTarget->GetGUID().GetCounter());
+                           player->GetName(), player->GetGUIDLow(), gameObjTarget->GetEntry(), gameObjTarget->GetGUIDLow());
             return;
         }
         // special case, already has GossipHello inside so return and avoid calling twice
@@ -3727,7 +3727,7 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : m_spellInfo->GetEffect(effIndex, m_diffMode)->TriggerSpell;
     player->learnSpell(spellToLearn, false);
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell: Player %u has learned spell %u from NpcGUID=%u", player->GetGUID().GetCounter(), spellToLearn, m_caster->GetGUID().GetCounter());
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell: Player %u has learned spell %u from NpcGUID=%u", player->GetGUIDLow(), spellToLearn, m_caster->GetGUIDLow());
 }
 
 typedef std::list< std::pair<uint32, ObjectGuid> > DispelList;
@@ -5870,7 +5870,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     Player* target = (Player*)m_caster;
 
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell Effect: Stuck");
-    sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "Player %s (guid %u) used auto-unstuck future at map %u (%f, %f, %f)", target->GetName(), target->GetGUID().GetCounter(), m_caster->GetMapId(), m_caster->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+    sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "Player %s (guid %u) used auto-unstuck future at map %u (%f, %f, %f)", target->GetName(), target->GetGUIDLow(), m_caster->GetMapId(), m_caster->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
     if (target->isInFlight())
         return;

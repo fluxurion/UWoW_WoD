@@ -203,7 +203,7 @@ void WorldSession::HandlePartyInviteResponse(WorldPackets::Party::PartyInviteRes
 
         if (group->GetLeaderGUID() == player->GetGUID())
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", player->GetName(), player->GetGUID().GetCounter());
+            sLog->outError(LOG_FILTER_NETWORKIO, "HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", player->GetName(), player->GetGUIDLow());
             return;
         }
 

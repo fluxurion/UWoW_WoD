@@ -351,13 +351,13 @@ void WorldSession::HandlePetCancelAura(WorldPackets::PetPackets::PetCancelAura& 
     Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, packet.PetGUID);
     if (!pet)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Attempt to cancel an aura for non-existant pet %u by player '%s'", uint32(packet.PetGUID.GetCounter()), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Attempt to cancel an aura for non-existant pet %u by player '%s'", uint32(packet.PetGUID.GetGUIDLow()), GetPlayer()->GetName());
         return;
     }
 
     if (pet != GetPlayer()->GetGuardianPet() && pet != GetPlayer()->GetCharm())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Pet %u is not a pet of player '%s'", uint32(packet.PetGUID.GetCounter()), GetPlayer()->GetName());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCancelAura: Pet %u is not a pet of player '%s'", uint32(packet.PetGUID.GetGUIDLow()), GetPlayer()->GetName());
         return;
     }
 
@@ -677,7 +677,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionBu
                 sLog->outInfo(LOG_FILTER_NETWORKIO, "MISC: Added Pet Spell %u into button %u", action, packet.Index);
                 break;
             default:
-                sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, packet.Index, _player->GetName(), _player->GetGUID().GetCounter());
+                sLog->outError(LOG_FILTER_NETWORKIO, "MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, packet.Index, _player->GetName(), _player->GetGUIDLow());
                 break;
         }
 

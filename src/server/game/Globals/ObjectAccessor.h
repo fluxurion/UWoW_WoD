@@ -171,7 +171,7 @@ class ObjectAccessor
             CellCoord q = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
             if (!q.IsCoordValid())
             {
-                sLog->outError(LOG_FILTER_GENERAL, "ObjectAccessor::GetObjecInWorld: object (GUID: %u TypeId: %u) has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID().GetCounter(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), q.x_coord, q.y_coord);
+                sLog->outError(LOG_FILTER_GENERAL, "ObjectAccessor::GetObjecInWorld: object (GUID: %u TypeId: %u) has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUIDLow(), obj->GetTypeId(), obj->GetPositionX(), obj->GetPositionY(), q.x_coord, q.y_coord);
                 return NULL;
             }
 

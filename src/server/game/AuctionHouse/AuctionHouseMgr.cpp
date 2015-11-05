@@ -140,7 +140,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
         // owner in `data` will set at mail receive and item extracting
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
         stmt->setUInt64(0, auction->bidder);
-        stmt->setUInt64(1, pItem->GetGUID().GetCounter());
+        stmt->setUInt64(1, pItem->GetGUIDLow());
         trans->Append(stmt);
 
         if (bidder)
@@ -208,7 +208,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
         stmt->setUInt64(0, auction->owner);
-        stmt->setUInt64(1, pItem->GetGUID().GetCounter());
+        stmt->setUInt64(1, pItem->GetGUIDLow());
         trans->Append(stmt);
 
         if (owner)
@@ -355,8 +355,8 @@ void AuctionHouseMgr::LoadAuctions()
 void AuctionHouseMgr::AddAItem(Item* it)
 {
     ASSERT(it);
-    ASSERT(mAitems.find(it->GetGUID().GetCounter()) == mAitems.end());
-    mAitems[it->GetGUID().GetCounter()] = it;
+    ASSERT(mAitems.find(it->GetGUIDLow()) == mAitems.end());
+    mAitems[it->GetGUIDLow()] = it;
 }
 
 bool AuctionHouseMgr::RemoveAItem(ObjectGuid::LowType const& id)
@@ -495,7 +495,7 @@ void AuctionHouseObject::BuildListBidderItems(WorldPackets::AuctionHouse::Auctio
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
         AuctionEntry* Aentry = itr->second;
-        if (Aentry && Aentry->bidder == player->GetGUID().GetCounter())
+        if (Aentry && Aentry->bidder == player->GetGUIDLow())
         {
             itr->second->BuildAuctionInfo(packet.Items, false);
             ++totalcount;
@@ -508,7 +508,7 @@ void AuctionHouseObject::BuildListOwnerItems(WorldPackets::AuctionHouse::Auction
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
         AuctionEntry* Aentry = itr->second;
-        if (Aentry && Aentry->owner == player->GetGUID().GetCounter())
+        if (Aentry && Aentry->owner == player->GetGUIDLow())
         {
             Aentry->BuildAuctionInfo(packet.Items, false);
             ++totalcount;

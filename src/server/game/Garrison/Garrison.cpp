@@ -185,10 +185,10 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
 
 void Garrison::SaveToDB(SQLTransaction trans)
 {
-    DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
+    DeleteFromDB(_owner->GetGUIDLow(), trans);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
-    stmt->setUInt64(0, _owner->GetGUID().GetCounter());
+    stmt->setUInt64(0, _owner->GetGUIDLow());
     stmt->setUInt32(1, _siteLevel->ID);
     stmt->setUInt32(2, _followerActivationsRemainingToday);
     stmt->setUInt32(3, _lastResTaken);
@@ -198,7 +198,7 @@ void Garrison::SaveToDB(SQLTransaction trans)
     for (uint32 building : _knownBuildings)
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_BLUEPRINTS);
-        stmt->setUInt64(0, _owner->GetGUID().GetCounter());
+        stmt->setUInt64(0, _owner->GetGUIDLow());
         stmt->setUInt32(1, building);
         trans->Append(stmt);
     }
@@ -209,7 +209,7 @@ void Garrison::SaveToDB(SQLTransaction trans)
         if (plot.BuildingInfo.PacketInfo)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_BUILDINGS);
-            stmt->setUInt64(0, _owner->GetGUID().GetCounter());
+            stmt->setUInt64(0, _owner->GetGUIDLow());
             stmt->setUInt32(1, plot.BuildingInfo.PacketInfo->GarrPlotInstanceID);
             stmt->setUInt32(2, plot.BuildingInfo.PacketInfo->GarrBuildingID);
             stmt->setUInt64(3, plot.BuildingInfo.PacketInfo->TimeBuilt);
@@ -224,7 +224,7 @@ void Garrison::SaveToDB(SQLTransaction trans)
         uint8 index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_FOLLOWERS);
         stmt->setUInt64(index++, follower.PacketInfo.DbID);
-        stmt->setUInt64(index++, _owner->GetGUID().GetCounter());
+        stmt->setUInt64(index++, _owner->GetGUIDLow());
         stmt->setUInt32(index++, follower.PacketInfo.GarrFollowerID);
         stmt->setUInt32(index++, follower.PacketInfo.Quality);
         stmt->setUInt32(index++, follower.PacketInfo.FollowerLevel);
@@ -260,7 +260,7 @@ void Garrison::SaveToDB(SQLTransaction trans)
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_MISSIONS);
         stmt->setUInt64(index++, mission.PacketInfo.DbID);
-        stmt->setUInt64(index++, _owner->GetGUID().GetCounter());
+        stmt->setUInt64(index++, _owner->GetGUIDLow());
         stmt->setUInt32(index++, mission.PacketInfo.MissionRecID);
         stmt->setUInt32(index++, mission.PacketInfo.OfferTime);
         stmt->setUInt32(index++, mission.PacketInfo.OfferDuration);
@@ -316,7 +316,7 @@ bool Garrison::Create(uint32 garrSiteId)
 void Garrison::Delete()
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
+    DeleteFromDB(_owner->GetGUIDLow(), trans);
     CharacterDatabase.CommitTransaction(trans);
 
     WorldPackets::Garrison::GarrisonDeleteResult garrisonDelete;
@@ -869,7 +869,7 @@ void Garrison::SendGarrisonUpgradebleResult(Player* receiver) const
 
 Map* Garrison::FindMap() const
 {
-    return sMapMgr->FindMap(_siteLevel->MapID, _owner->GetGUID().GetCounter());
+    return sMapMgr->FindMap(_siteLevel->MapID, _owner->GetGUIDLow());
 }
 
 GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32 garrBuildingId) const

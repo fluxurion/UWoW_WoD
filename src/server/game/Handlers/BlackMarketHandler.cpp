@@ -82,7 +82,7 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPackets::BlackMarket::BlackMa
         return;
     }
 
-    if (entry->GetBidder() == player->GetGUID().GetCounter())
+    if (entry->GetBidder() == player->GetGUIDLow())
     {
         SendBlackMarketBidOnItemResult(ERR_BMAH_ALREADY_BID, packet.MarketID, packet.Item);
         return;

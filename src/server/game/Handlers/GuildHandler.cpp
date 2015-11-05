@@ -275,7 +275,7 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
     {
         // "That's not an emblem vendor!"
         Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_INVALIDVENDOR);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSaveGuildEmblemOpcode - Unit (GUID: %u) not found or you can't interact with him.", vendorGuid.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSaveGuildEmblemOpcode - Unit (GUID: %u) not found or you can't interact with him.", vendorGuid.GetGUIDLow());
     }
 }
 

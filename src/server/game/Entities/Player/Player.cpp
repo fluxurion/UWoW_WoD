@@ -1051,46 +1051,46 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
         SQLTransaction cTrans = CharacterDatabase.BeginTransaction();
         if (getClass() == CLASS_WARLOCK)
         {
-            CharacterDatabase.PExecute("REPLACE INTO `character_pet` (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 416, %u, 4449, 0, 0, 1, 0, 0, 'Imp', 1, 36, 200, 1409586285, '7 2 7 1 7 4 129 3110 1 0 1 0 1 0 6 2 6 3 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+            CharacterDatabase.PExecute("REPLACE INTO `character_pet` (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 416, %u, 4449, 0, 0, 1, 0, 0, 'Imp', 1, 36, 200, 1409586285, '7 2 7 1 7 4 129 3110 1 0 1 0 1 0 6 2 6 3 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
         }else
         {
             switch (getRace())
             {
                 case RACE_HUMAN:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 299, %u, 903, 13481, 1, 1, 0, 0, 'Wolf', 0, 192, 0, 1295727347, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 299, %u, 903, 13481, 1, 1, 0, 0, 'Wolf', 0, 192, 0, 1295727347, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 case RACE_DWARF:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42713, %u, 822, 13481, 1, 1, 0, 0, 'Bear', 0, 212, 0, 1295727650, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42713, %u, 822, 13481, 1, 1, 0, 0, 'Bear', 0, 212, 0, 1295727650, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 case RACE_ORC:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42719, %u, 744, 13481, 1, 1, 0, 0, 'Boar', 0, 212, 0, 1295727175, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42719, %u, 744, 13481, 1, 1, 0, 0, 'Boar', 0, 212, 0, 1295727175, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 case RACE_NIGHTELF:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42718, %u,  17090, 13481, 1, 1, 0, 0, 'Cat', 0, 192, 0, 1295727501, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42718, %u,  17090, 13481, 1, 1, 0, 0, 'Cat', 0, 192, 0, 1295727501, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 case RACE_UNDEAD_PLAYER:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 51107, %u,  368, 13481, 1, 1, 0, 0, 'Spider', 0, 202, 0, 1295727821, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 51107, %u,  368, 13481, 1, 1, 0, 0, 'Spider', 0, 202, 0, 1295727821, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 case RACE_TAUREN:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42720, %u,  29057, 13481, 1, 1, 0, 0, 'Tallstrider', 0, 192, 0, 1295727912, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42720, %u,  29057, 13481, 1, 1, 0, 0, 'Tallstrider', 0, 192, 0, 1295727912, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 case RACE_TROLL:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42721, %u,  23518, 13481, 1, 1, 0, 0, 'Raptor', 0, 192, 0, 1295727987, '7 2 7 1 7 0 129 2649 129 50498 129 16827 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42721, %u,  23518, 13481, 1, 1, 0, 0, 'Raptor', 0, 192, 0, 1295727987, '7 2 7 1 7 0 129 2649 129 50498 129 16827 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 case RACE_GOBLIN:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42715, %u, 27692, 13481, 1, 1, 0, 0, 'Crab', 0, 212, 0, 1295720595, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42715, %u, 27692, 13481, 1, 1, 0, 0, 'Crab', 0, 212, 0, 1295720595, '7 2 7 1 7 0 129 2649 129 16827 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 case RACE_BLOODELF:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42710, %u, 23515, 13481, 1, 1, 0, 0, 'Dragonhawk', 0, 202, 0, 1295728068, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42710, %u, 23515, 13481, 1, 1, 0, 0, 'Dragonhawk', 0, 202, 0, 1295728068, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 case RACE_DRAENEI:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42712, %u, 29056, 13481, 1, 1, 0, 0, 'Moth', 0, 192, 0, 1295728128, '7 2 7 1 7 0 129 2649 129 49966 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42712, %u, 29056, 13481, 1, 1, 0, 0, 'Moth', 0, 192, 0, 1295728128, '7 2 7 1 7 0 129 2649 129 49966 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 case RACE_WORGEN:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42722, %u, 30221, 13481, 1, 1, 0, 0, 'Dog', 0, 192, 0, 1295728219, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 42722, %u, 30221, 13481, 1, 1, 0, 0, 'Dog', 0, 192, 0, 1295728219, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 case RACE_PANDAREN_NEUTRAL:
-                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 57239, %u, 42656, 13481, 1, 1, 0, 0, 'Turtle', 0, 192, 0, 1295728219, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUID().GetCounter());
+                    CharacterDatabase.PExecute("REPLACE INTO character_pet (`id`, `entry`, `owner`, `modelid`, `CreatedBySpell`, `PetType`, `level`, `exp`, `Reactstate`, `name`, `renamed`, `curhealth`, `curmana`, `savetime`, `abdata`, `specialization`) VALUES (%u, 57239, %u, 42656, 13481, 1, 1, 0, 0, 'Turtle', 0, 192, 0, 1295728219, '7 2 7 1 7 0 129 2649 129 17253 1 0 1 0 6 2 6 1 6 0 ', 0)", m_currentPetNumber, GetGUIDLow());
                     break;
                 default:
                     break;
@@ -1839,7 +1839,7 @@ void Player::Update(uint32 p_time)
         {
             // m_nextSave reseted in SaveToDB call
             SaveToDB();
-            sLog->outDebug(LOG_FILTER_PLAYER, "Player '%s' (GUID: %u) saved", GetName(), GetGUID().GetCounter());
+            sLog->outDebug(LOG_FILTER_PLAYER, "Player '%s' (GUID: %u) saved", GetName(), GetGUIDLow());
         }
         else
             m_nextSave -= p_time;
@@ -1972,7 +1972,7 @@ void Player::setDeathState(DeathState s)
     {
         if (!cur)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "setDeathState: attempt to kill a dead player %s(%d)", GetName(), GetGUID().GetCounter());
+            sLog->outError(LOG_FILTER_PLAYER, "setDeathState: attempt to kill a dead player %s(%d)", GetName(), GetGUIDLow());
             return;
         }
 
@@ -2050,13 +2050,13 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         sLog->outError(LOG_FILTER_MAPS, "TeleportTo: invalid map (%d) or invalid coordinates (X: %f, Y: %f, Z: %f, O: %f) given when teleporting player (GUID: %u, name: %s, map: %d, X: %f, Y: %f, Z: %f, O: %f).",
-            mapid, x, y, z, orientation, GetGUID().GetCounter(), GetName(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+            mapid, x, y, z, orientation, GetGUIDLow(), GetName(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         return false;
     }
 
     if (AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()) && DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, mapid, this))
     {
-        sLog->outError(LOG_FILTER_MAPS, "Player (GUID: %u, name: %s) tried to enter a forbidden map %u", GetGUID().GetCounter(), GetName(), mapid);
+        sLog->outError(LOG_FILTER_MAPS, "Player (GUID: %u, name: %s) tried to enter a forbidden map %u", GetGUIDLow(), GetName(), mapid);
         SendTransferAborted(mapid, TRANSFER_ABORT_MAP_NOT_ALLOWED);
         return false;
     }
@@ -3036,7 +3036,7 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid guid, GameobjectTy
                 return go;
 
             sLog->outDebug(LOG_FILTER_MAPS, "IsGameObjectOfTypeInRange: GameObject '%s' [GUID: %u] is too far away from player %s [GUID: %u] to be used by him (distance=%f, maximal 10 is allowed)", go->GetGOInfo()->name.c_str(),
-                go->GetGUID().GetCounter(), GetName(), GetGUID().GetCounter(), go->GetDistance(this));
+                go->GetGUIDLow(), GetName(), GetGUIDLow(), go->GetDistance(this));
         }
     }
     return NULL;
@@ -4160,14 +4160,14 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, spellId);
-                    stmt->setUInt64(1, GetGUID().GetCounter());
+                    stmt->setUInt64(1, GetGUIDLow());
                     CharacterDatabase.Execute(stmt);
                 }
                 else
                 {
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
                     stmt->setUInt32(0, spellId);
-                    stmt->setUInt64(1, GetGUID().GetCounter());
+                    stmt->setUInt64(1, GetGUIDLow());
                     CharacterDatabase.Execute(stmt);
                     return false;
                 }
@@ -4804,7 +4804,7 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
 {
     // some cooldowns can be already set at aura loading...
 
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT spell, item, time FROM character_spell_cooldown WHERE guid = '%u'", GetGUID().GetCounter());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT spell, item, time FROM character_spell_cooldown WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
     {
@@ -4819,7 +4819,7 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
 
             if (!sSpellMgr->GetSpellInfo(spell_id))
             {
-                sLog->outError(LOG_FILTER_PLAYER_LOADING, "Player %u has unknown spell %u in `character_spell_cooldown`, skipping.", GetGUID().GetCounter(), spell_id);
+                sLog->outError(LOG_FILTER_PLAYER_LOADING, "Player %u has unknown spell %u in `character_spell_cooldown`, skipping.", GetGUIDLow(), spell_id);
                 continue;
             }
 
@@ -4829,7 +4829,7 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
 
             AddSpellCooldown(spell_id, item_id, (double)db_time);
 
-            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) spell %u, item %u cooldown loaded (%u secs).", GetGUID().GetCounter(), spell_id, item_id, uint32(db_time-curTime));
+            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player (GUID: %u) spell %u, item %u cooldown loaded (%u secs).", GetGUIDLow(), spell_id, item_id, uint32(db_time-curTime));
         }
         while (result->NextRow());
     }
@@ -4838,7 +4838,7 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
 void Player::_SaveSpellCooldowns(SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_COOLDOWN);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     trans->Append(stmt);
 
     time_t curTime = time(NULL);
@@ -4862,7 +4862,7 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
             // next new/changed record prefix
             else
                 ss << ',';
-            ss << '(' << GetGUID().GetCounter() << ',' << itr->first << ',' << itr->second.itemid << ',' << uint64(itr->second.end) << ')';
+            ss << '(' << GetGUIDLow() << ',' << itr->first << ',' << itr->second.itemid << ',' << uint64(itr->second.end) << ')';
             ++itr;
         }
         else
@@ -5829,7 +5829,7 @@ void Player::BuildPlayerRepop()
     // the player cannot have a corpse already, only bones which are not returned by GetCorpse
     if (GetCorpse())
     {
-        sLog->outError(LOG_FILTER_PLAYER, "BuildPlayerRepop: player %s(%d) already has a corpse", GetName(), GetGUID().GetCounter());
+        sLog->outError(LOG_FILTER_PLAYER, "BuildPlayerRepop: player %s(%d) already has a corpse", GetName(), GetGUIDLow());
         return;
     }
 
@@ -5838,7 +5838,7 @@ void Player::BuildPlayerRepop()
     Corpse* corpse = GetCorpse();
     if (!corpse)
     {
-        sLog->outError(LOG_FILTER_PLAYER, "Error creating corpse for Player %s [%u]", GetName(), GetGUID().GetCounter());
+        sLog->outError(LOG_FILTER_PLAYER, "Error creating corpse for Player %s [%u]", GetName(), GetGUIDLow());
         return;
     }
     GetMap()->AddToMap(corpse);
@@ -6285,7 +6285,7 @@ void Player::RepopAtGraveyard()
     
     if (!zone)
     {
-        sLog->outInfo(LOG_FILTER_PLAYER, "Joueur %u dans une zone nulle; area id : %u", GetGUID().GetCounter(), GetAreaId());
+        sLog->outInfo(LOG_FILTER_PLAYER, "Joueur %u dans une zone nulle; area id : %u", GetGUIDLow(), GetAreaId());
         return;
     }
 
@@ -7257,7 +7257,7 @@ void Player::SendActionButtons(uint32 state) const
 
     SendDirectMessage(packet.Write());
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Action Buttons for '%u' spec '%u' Sent", GetGUID().GetCounter(), GetActiveSpec());
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), GetActiveSpec());
 }
 
 bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
@@ -7329,7 +7329,7 @@ ActionButton* Player::addActionButton(uint8 button, uint32 action, uint8 type)
 
     // set data and update to CHANGED if not NEW
     ab.SetActionAndType(action, ActionButtonType(type));
-    sLog->outInfo(LOG_FILTER_PLAYER_LOADING, "Player '%u' Added Action '%u' (type %u) to Button '%u'", GetGUID().GetCounter(), action, type, button);
+    sLog->outInfo(LOG_FILTER_PLAYER_LOADING, "Player '%u' Added Action '%u' (type %u) to Button '%u'", GetGUIDLow(), action, type, button);
     return &ab;
 }
 
@@ -7344,7 +7344,7 @@ void Player::removeActionButton(uint8 button)
     else
         buttonItr->second.uState = ACTIONBUTTON_DELETED;    // saved, will deleted at next save
 
-    sLog->outInfo(LOG_FILTER_PLAYER_LOADING, "Action Button '%u' Removed from Player '%u'", button, GetGUID().GetCounter());
+    sLog->outInfo(LOG_FILTER_PLAYER_LOADING, "Action Button '%u' Removed from Player '%u'", button, GetGUIDLow());
 }
 
 ActionButton const* Player::GetActionButton(uint8 button)
@@ -7554,7 +7554,7 @@ void Player::CheckAreaExploreAndOutdoor()
         AreaTableEntry const* areaEntry = GetAreaEntryByAreaFlagAndMap(areaFlag, GetMapId());
         if (!areaEntry)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player %u discovered unknown area (x: %f y: %f z: %f map: %u", GetGUID().GetCounter(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
+            sLog->outError(LOG_FILTER_PLAYER, "Player %u discovered unknown area (x: %f y: %f z: %f map: %u", GetGUIDLow(), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
             return;
         }
 
@@ -7598,7 +7598,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 GiveXP(XP, NULL);
                 SendExplorationExperience(area, XP);
             }
-            sLog->outInfo(LOG_FILTER_PLAYER, "Player %u discovered a new area: %u", GetGUID().GetCounter(), area);
+            sLog->outInfo(LOG_FILTER_PLAYER, "Player %u discovered a new area: %u", GetGUIDLow(), area);
             phaseMgr.RemoveUpdateFlag(PHASE_UPDATE_FLAG_ZONE_UPDATE);
         }
     }
@@ -9662,7 +9662,7 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             if (!spellInfo)
             {
                 sLog->outError(LOG_FILTER_PLAYER_ITEMS, "Player::CastItemCombatSpell(GUID: %u, name: %s, enchant: %i): unknown spell %i is casted, ignoring...",
-                    GetGUID().GetCounter(), GetName(), pEnchant->ID, pEnchant->EffectSpellID[s]);
+                    GetGUIDLow(), GetName(), pEnchant->ID, pEnchant->EffectSpellID[s]);
                 continue;
             }
 
@@ -12764,7 +12764,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
     if(pItem->IsCurrencyToken())
     {
         sLog->outError(LOG_FILTER_PLAYER, "Possible hacking attempt: Player %s [guid: %u] tried to move token [guid: %u, entry: %u] out of the currency bag!",
-                GetName(), GetGUID().GetCounter(), pItem->GetGUID().GetCounter(), pProto->ItemId);
+                GetName(), GetGUIDLow(), pItem->GetGUIDLow(), pProto->ItemId);
         return EQUIP_ERR_CANT_SWAP;
     }
 
@@ -13146,7 +13146,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
                 ss << ' ' << *itr;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_BOP_TRADE);
-            stmt->setUInt64(0, pItem->GetGUID().GetCounter());
+            stmt->setUInt64(0, pItem->GetGUIDLow());
             stmt->setString(1, ss.str());
             CharacterDatabase.Execute(stmt);
         }
@@ -13239,7 +13239,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
     uint8 bag = pos >> 8;
     uint8 slot = pos & 255;
 
-    sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: StoreItem bag = %u, slot = %u, item = %u, count = %u, guid = %u", bag, slot, pItem->GetEntry(), count, pItem->GetGUID().GetCounter());
+    sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: StoreItem bag = %u, slot = %u, item = %u, count = %u, guid = %u", bag, slot, pItem->GetEntry(), count, pItem->GetGUIDLow());
 
     Item* pItem2 = GetItemByPos(bag, slot);
 
@@ -13802,7 +13802,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
 
-            stmt->setUInt64(0, pItem->GetGUID().GetCounter());
+            stmt->setUInt64(0, pItem->GetGUIDLow());
 
             CharacterDatabase.Execute(stmt);
         }
@@ -14111,7 +14111,7 @@ void Player::DestroyItemCount(Item* pItem, uint32 &count, bool update)
     if (!pItem)
         return;
 
-    sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: DestroyItemCount item (GUID: %u, Entry: %u) count = %u", pItem->GetGUID().GetCounter(), pItem->GetEntry(), count);
+    sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: DestroyItemCount item (GUID: %u, Entry: %u) count = %u", pItem->GetGUIDLow(), pItem->GetEntry(), count);
 
     if (pItem->GetCount() <= count)
     {
@@ -15500,7 +15500,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     VendorItemData const* vendorItems = creature->GetVendorItems();
                     if (!vendorItems || vendorItems->Empty())
                     {
-                        sLog->outError(LOG_FILTER_SQL, "Creature %u (Entry: %u) have UNIT_NPC_FLAG_VENDOR but have empty trading item list.", creature->GetGUID().GetCounter(), creature->GetEntry());
+                        sLog->outError(LOG_FILTER_SQL, "Creature %u (Entry: %u) have UNIT_NPC_FLAG_VENDOR but have empty trading item list.", creature->GetGUIDLow(), creature->GetEntry());
                         canTalk = false;
                     }
                     break;
@@ -15646,7 +15646,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
     {
         if (gossipOptionId > GOSSIP_OPTION_QUESTGIVER)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player guid %u request invalid gossip option for GameObject entry %u", GetGUID().GetCounter(), source->GetEntry());
+            sLog->outError(LOG_FILTER_PLAYER, "Player guid %u request invalid gossip option for GameObject entry %u", GetGUIDLow(), source->GetEntry());
             return;
         }
     }
@@ -15750,7 +15750,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
 
             if (bgTypeId == BATTLEGROUND_TYPE_NONE)
             {
-                sLog->outError(LOG_FILTER_PLAYER, "a user (guid %u) requested battlegroundlist from a npc who is no battlemaster", GetGUID().GetCounter());
+                sLog->outError(LOG_FILTER_PLAYER, "a user (guid %u) requested battlegroundlist from a npc who is no battlemaster", GetGUIDLow());
                 return;
             }
 
@@ -18166,7 +18166,7 @@ void Player::SetHomebind(WorldLocation const& loc, uint32 area_id)
     stmt->setFloat (2, m_homebindX);
     stmt->setFloat (3, m_homebindY);
     stmt->setFloat (4, m_homebindZ);
-    stmt->setUInt64(5, GetGUID().GetCounter());
+    stmt->setUInt64(5, GetGUIDLow());
     CharacterDatabase.Execute(stmt);
 }
 
@@ -18480,7 +18480,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         {
             for (MapManager::TransportSet::iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
             {
-                if ((*iter)->GetGUID().GetCounter() == transGUID)
+                if ((*iter)->GetGUIDLow() == transGUID)
                 {
                     m_transport = *iter;
                     m_transport->AddPassenger(this);
@@ -18517,12 +18517,12 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
             if (!nodeEntry)                                      // don't know taxi start node, to homebind
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Character %u have wrong data in taxi destination list, teleport to homebind.", GetGUID().GetCounter());
+                sLog->outError(LOG_FILTER_PLAYER, "Character %u have wrong data in taxi destination list, teleport to homebind.", GetGUIDLow());
                 RelocateToHomebind();
             }
             else                                                // have start node, to it
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Character %u have too short taxi destination list, teleport to original node.", GetGUID().GetCounter());
+                sLog->outError(LOG_FILTER_PLAYER, "Character %u have too short taxi destination list, teleport to original node.", GetGUIDLow());
                 mapId = nodeEntry->MapID;
                 Relocate(nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z, 0.0f);
             }
@@ -18606,7 +18606,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
             Relocate(at->target_X, at->target_Y, at->target_Z, at->target_Orientation);
         else
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player %s(GUID: %u) logged in to a reset instance (map: %u) and there is no area-trigger leading to this map. Thus he can't be ported back to the entrance. This _might_ be an exploit attempt.", GetName(), GetGUID().GetCounter(), mapId);
+            sLog->outError(LOG_FILTER_PLAYER, "Player %s(GUID: %u) logged in to a reset instance (map: %u) and there is no area-trigger leading to this map. Thus he can't be ported back to the entrance. This _might_ be an exploit attempt.", GetName(), GetGUIDLow(), mapId);
             RelocateToHomebind();
         }
     }
@@ -18737,7 +18737,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     if (GetSpecsCount() > MAX_TALENT_SPECS || GetActiveSpec() > MAX_TALENT_SPEC || GetSpecsCount() < MIN_TALENT_SPECS)
     {
         SetActiveSpec(0);
-        sLog->outError(LOG_FILTER_PLAYER, "Player %s(GUID: %u) has SpecCount = %u and ActiveSpec = %u.", GetName(), GetGUID().GetCounter(), GetSpecsCount(), GetActiveSpec());
+        sLog->outError(LOG_FILTER_PLAYER, "Player %s(GUID: %u) has SpecCount = %u and ActiveSpec = %u.", GetName(), GetGUIDLow(), GetSpecsCount(), GetActiveSpec());
     }
 
     _LoadTalents(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADTALENTS));
@@ -19082,7 +19082,7 @@ void Player::_LoadActions(PreparedQueryResult result)
 
 void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEffect, uint32 timediff)
 {
-    sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Loading auras for player %u", GetGUID().GetCounter());
+    sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Loading auras for player %u", GetGUIDLow());
 
     std::list<auraEffectData> auraEffectList;
     if(resultEffect)
@@ -19103,7 +19103,7 @@ void Player::_LoadAuras(PreparedQueryResult result, PreparedQueryResult resultEf
     /*                                                           0       1        2         3                 4         5      6       7         8              9            10
     QueryResult* result = CharacterDatabase.PQuery("SELECT caster_guid, spell, effect_mask, recalculate_mask, stackcount, amount0, amount1, amount2, base_amount0, base_amount1, base_amount2,
                                                         11          12          13
-                                                    maxduration, remaintime, remaincharges FROM character_aura WHERE guid = '%u'", GetGUID().GetCounter());
+                                                    maxduration, remaintime, remaincharges FROM character_aura WHERE guid = '%u'", GetGUIDLow());
     */
 
     if (result)
@@ -19341,7 +19341,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                     else
                     {
                         sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) which doesnt have a valid bag (Bag GUID: %u, slot: %u). Possible cheat?",
-                            GetGUID().GetCounter(), GetName(), item->GetGUID().GetCounter(), item->GetEntry(), bagGuid, slot);
+                            GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry(), bagGuid, slot);
                         item->DeleteFromInventoryDB(trans);
                         RemoveItemDurations(item);
                         RemoveTradeableItem(item);
@@ -19357,7 +19357,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
                 else
                 {
                     sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) which can't be loaded into inventory (Bag GUID: %u, slot: %u) by reason %u. Item will be sent by mail.",
-                        GetGUID().GetCounter(), GetName(), item->GetGUID().GetCounter(), item->GetEntry(), bGUID, slot, err);
+                        GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry(), bGUID, slot, err);
                     item->DeleteFromInventoryDB(trans);
                     RemoveItemDurations(item);
                     RemoveTradeableItem(item);
@@ -19406,25 +19406,25 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 
         if (itemId.IsEmpty())
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid id (item id: %u, entry: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid id (item id: %u, entry: %u).", GetGUIDLow(), GetName(), itemId, itemEntry);
             continue;
         }
 
         if (!sObjectMgr->GetItemTemplate(itemEntry))
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid entry (item id: %u, entry: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid entry (item id: %u, entry: %u).", GetGUIDLow(), GetName(), itemId, itemEntry);
             continue;
         }
 
         if (slot >= VOID_STORAGE_MAX_SLOT)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid slot (item id: %u, entry: %u, slot: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry, slot);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid slot (item id: %u, entry: %u, slot: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, slot);
             continue;
         }
 
         if (!sObjectMgr->GetPlayerByLowGUID(creatorGuid.GetCounter()))
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: %u, entry: %u, creatorGuid: %u).", GetGUID().GetCounter(), GetName(), itemId, itemEntry, creatorGuid);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadVoidStorage - Player (GUID: %u, name: %s) has an item with an invalid creator guid, set to 0 (item id: %u, entry: %u, creatorGuid: %u).", GetGUIDLow(), GetName(), itemId, itemEntry, creatorGuid);
             creatorGuid.Clear();
         }
 
@@ -19452,14 +19452,14 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
             if (isAlive() && item->IsLimitedToAnotherMapOrZone(GetMapId(), zoneId))
             {
                 sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s', map: %u) has item (GUID: %u, entry: %u) limited to another map (%u). Deleting item.",
-                    GetGUID().GetCounter(), GetName(), GetMapId(), item->GetGUID().GetCounter(), item->GetEntry(), zoneId);
+                    GetGUIDLow(), GetName(), GetMapId(), item->GetGUIDLow(), item->GetEntry(), zoneId);
                 remove = true;
             }
             // "Conjured items disappear if you are logged out for more than 15 minutes"
             else if (timeDiff > 15 * MINUTE && proto->Flags & ITEM_PROTO_FLAG_CONJURED)
             {
                 sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s', diff: %u) has conjured item (GUID: %u, entry: %u) with expired lifetime (15 minutes). Deleting item.",
-                    GetGUID().GetCounter(), GetName(), timeDiff, item->GetGUID().GetCounter(), item->GetEntry());
+                    GetGUIDLow(), GetName(), timeDiff, item->GetGUIDLow(), item->GetEntry());
                 remove = true;
             }
             else if (item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE))
@@ -19467,10 +19467,10 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 if (item->GetPlayedTime() > (2 * HOUR))
                 {
                     sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with expired refund time (%u). Deleting refund data and removing refundable flag.",
-                        GetGUID().GetCounter(), GetName(), item->GetGUID().GetCounter(), item->GetEntry(), item->GetPlayedTime());
+                        GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry(), item->GetPlayedTime());
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
-                    stmt->setUInt64(0, item->GetGUID().GetCounter());
+                    stmt->setUInt64(0, item->GetGUIDLow());
                     trans->Append(stmt);
 
                     item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE);
@@ -19478,8 +19478,8 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 else
                 {
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_REFUNDS);
-                    stmt->setUInt64(0, item->GetGUID().GetCounter());
-                    stmt->setUInt64(1, GetGUID().GetCounter());
+                    stmt->setUInt64(0, item->GetGUIDLow());
+                    stmt->setUInt64(1, GetGUIDLow());
                     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                     {
                         item->SetRefundRecipient(GetGUID());
@@ -19490,7 +19490,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     else
                     {
                         sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with refundable flags, but without data in item_refund_instance. Removing flag.",
-                            GetGUID().GetCounter(), GetName(), item->GetGUID().GetCounter(), item->GetEntry());
+                            GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry());
                         item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_REFUNDABLE);
                     }
                 }
@@ -19498,7 +19498,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
             else if (item->HasFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
             {
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEM_BOP_TRADE);
-                stmt->setUInt64(0, item->GetGUID().GetCounter());
+                stmt->setUInt64(0, item->GetGUIDLow());
                 if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                 {
                     std::string strGUID = (*result)[0].GetString();
@@ -19512,7 +19512,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 else
                 {
                     sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with ITEM_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
-                        GetGUID().GetCounter(), GetName(), item->GetGUID().GetCounter(), item->GetEntry());
+                        GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry());
                     item->RemoveFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
                 }
             }
@@ -19534,7 +19534,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
         else
         {
             sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadInventory: player (GUID: %u, name: '%s') has broken item (GUID: %u, entry: %u) in inventory. Deleting item.",
-                GetGUID().GetCounter(), GetName(), itemGuid, itemEntry);
+                GetGUIDLow(), GetName(), itemGuid, itemEntry);
             remove = true;
         }
         // Remove item from inventory if necessary
@@ -19549,7 +19549,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
     else
     {
         sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadInventory: player (GUID: %u, name: '%s') has unknown item (entry: %u) in inventory. Deleting item.",
-            GetGUID().GetCounter(), GetName(), itemEntry);
+            GetGUIDLow(), GetName(), itemEntry);
 		/* Delete de cette foutue fonction, jamais tu ne delete des items !
 		Item::DeleteFromInventoryDB(trans, itemGuid);
 		Item::DeleteFromDB(trans, itemGuid);
@@ -19583,7 +19583,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         if (!proto)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player %u has unknown item_template (ProtoType) in mailed items(GUID: %u template: %u) in mail (%u), deleted.", GetGUID().GetCounter(), itemGuid, itemTemplate, mail->messageID);
+            sLog->outError(LOG_FILTER_PLAYER, "Player %u has unknown item_template (ProtoType) in mailed items(GUID: %u template: %u) in mail (%u), deleted.", GetGUIDLow(), itemGuid, itemTemplate, mail->messageID);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);
             stmt->setUInt64(0, itemGuid);
@@ -19712,7 +19712,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (quest)
             {
-                if(quest->GetQuestType() != QUEST_INFO_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
+                if(quest->GetQuestType() != QUEST_INFO_ACCOUNT && guid != GetGUIDLow()) //check account quest
                     continue;
 
                 // find or create
@@ -19725,7 +19725,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 {
                     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
                     sLog->outError(LOG_FILTER_PLAYER, "Player %s (GUID: %u) has invalid quest %d status (%u), replaced by QUEST_STATUS_INCOMPLETE(3).",
-                        GetName(), GetGUID().GetCounter(), quest_id, qstatus);
+                        GetName(), GetGUIDLow(), quest_id, qstatus);
                 }
 
                 time_t quest_time = time_t(fields[2].GetUInt32());
@@ -19755,7 +19755,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                     ++slot;
                 }
 
-                sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Quest status is {%u} for quest {%u} for player (GUID: %u)", questStatusData.Status, quest_id, GetGUID().GetCounter());
+                sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Quest status is {%u} for quest {%u} for player (GUID: %u)", questStatusData.Status, quest_id, GetGUIDLow());
             }
         }
         while (result->NextRow());
@@ -19771,7 +19771,7 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
     uint16 slot = 0;
 
     ////                                                       0        1       2
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, objective, data WHERE guid = '%u'", GetGUID().GetCounter());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, objective, data WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
     {
@@ -19831,7 +19831,7 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (quest)
             {
-                if(quest->GetQuestType() != QUEST_INFO_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
+                if(quest->GetQuestType() != QUEST_INFO_ACCOUNT && guid != GetGUIDLow()) //check account quest
                     continue;
 
                 // learn rewarded spell if unknown
@@ -19878,7 +19878,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
             if (!quest)
                 continue;
 
-            if(quest->GetQuestType() != QUEST_INFO_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
+            if(quest->GetQuestType() != QUEST_INFO_ACCOUNT && guid != GetGUIDLow()) //check account quest
                 continue;
 
             if (quest->IsDFQuest())
@@ -19898,7 +19898,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 
                 m_dailyquests.insert(quest_id);
 
-            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUID().GetCounter());
+            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
         while (result->NextRow());
     }
@@ -19922,7 +19922,7 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
             if (!quest)
                 continue;
 
-            if(quest->GetQuestType() != QUEST_INFO_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
+            if(quest->GetQuestType() != QUEST_INFO_ACCOUNT && guid != GetGUIDLow()) //check account quest
                 continue;
 
             if (m_weeklyquests.find(quest_id) != m_weeklyquests.end())
@@ -19933,7 +19933,7 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
                 SetQuestCompletedBit(questBit, true);
 
             m_weeklyquests.insert(quest_id);
-            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Weekly quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUID().GetCounter());
+            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Weekly quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
         while (result->NextRow());
     }
@@ -19958,7 +19958,7 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
             if (!quest)
                 continue;
 
-            if(quest->GetQuestType() != QUEST_INFO_ACCOUNT && guid != GetGUID().GetCounter()) //check account quest
+            if(quest->GetQuestType() != QUEST_INFO_ACCOUNT && guid != GetGUIDLow()) //check account quest
                 continue;
 
             if (m_seasonalquests.find(quest_id) != m_seasonalquests.end())
@@ -19969,7 +19969,7 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
                 SetQuestCompletedBit(questBit, true);
 
             m_seasonalquests[event_id].insert(quest_id);
-            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Seasonal quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUID().GetCounter());
+            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Seasonal quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
         while (result->NextRow());
     }
@@ -20004,7 +20004,7 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
 }*/
 void Player::_LoadSpells(PreparedQueryResult result)
 {
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT spell, active, disabled FROM character_spell WHERE guid = '%u'", GetGUID().GetCounter());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT spell, active, disabled FROM character_spell WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
     {
@@ -20016,7 +20016,7 @@ void Player::_LoadSpells(PreparedQueryResult result)
 
 void Player::_LoadAccountSpells(PreparedQueryResult result)
 {
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT spell, active, disabled FROM character_spell WHERE guid = '%u'", GetGUID().GetCounter());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT spell, active, disabled FROM character_spell WHERE guid = '%u'", GetGUIDLow());
 
     uint32 count = 0;
     uint32 spellID = 0;
@@ -20097,7 +20097,7 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
 
         if (id > MAX_CUF_PROFILES)
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadCUFProfiles - Player (GUID: %u, name: %s) has an CUF profile with invalid id (id: %u), max is %i.", GetGUID().GetCounter(), GetName(), id, MAX_CUF_PROFILES);
+            sLog->outError(LOG_FILTER_PLAYER, "Player::_LoadCUFProfiles - Player (GUID: %u, name: %s) has an CUF profile with invalid id (id: %u), max is %i.", GetGUIDLow(), GetName(), id, MAX_CUF_PROFILES);
             continue;
         }
 
@@ -20108,7 +20108,7 @@ void Player::_LoadCUFProfiles(PreparedQueryResult result)
 
 void Player::_LoadGroup(PreparedQueryResult result)
 {
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUID().GetCounter());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUIDLow());
     if (result)
     {
         if (Group* group = sGroupMgr->GetGroupByDbStoreId((*result)[0].GetUInt32()))
@@ -20128,7 +20128,7 @@ void Player::_LoadGroup(PreparedQueryResult result)
 
 void Player::_LoadLootCooldown(PreparedQueryResult result)
 {
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT entry, bonus, respawnTime FROM character_creature WHERE guid = %u", GetGUID().GetCounter());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT entry, bonus, respawnTime FROM character_creature WHERE guid = %u", GetGUIDLow());
     if (!result)
         return;
     do
@@ -20157,7 +20157,7 @@ void Player::_SaveLootCooldown(SQLTransaction& trans)
                 continue;
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_LOOTCOOLDOWN);
-            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUIDLow());
             stmt->setUInt32(1, itr->second.entry);
             stmt->setUInt32(2, itr->second.type);
             stmt->setUInt32(3, itr->second.difficultyMask);
@@ -20236,12 +20236,12 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
             if (!mapEntry || !mapEntry->IsDungeon())
             {
-                sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) has bind to not existed or not dungeon map %d", GetName(), GetGUID().GetCounter(), mapId);
+                sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) has bind to not existed or not dungeon map %d", GetName(), GetGUIDLow(), mapId);
                 deleteInstance = true;
             }
             else if (difficulty >= MAX_DIFFICULTY)
             {
-                sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) has bind to not existed difficulty %d instance for map %u", GetName(), GetGUID().GetCounter(), difficulty, mapId);
+                sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) has bind to not existed difficulty %d instance for map %u", GetName(), GetGUIDLow(), difficulty, mapId);
                 deleteInstance = true;
             }
             else
@@ -20249,12 +20249,12 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
                 MapDifficultyEntry const* mapDiff = GetMapDifficultyData(mapId, Difficulty(difficulty));
                 if (!mapDiff)
                 {
-                    sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) has bind to not existed difficulty %d instance for map %u", GetName(), GetGUID().GetCounter(), difficulty, mapId);
+                    sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) has bind to not existed difficulty %d instance for map %u", GetName(), GetGUIDLow(), difficulty, mapId);
                     deleteInstance = true;
                 }
                 else if (!perm && group)
                 {
-                    sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) is in group %d but has a non-permanent character bind to map %d, %d, %d", GetName(), GetGUID().GetCounter(), group->GetGUID().GetCounter(), mapId, instanceId, difficulty);
+                    sLog->outError(LOG_FILTER_PLAYER, "_LoadBoundInstances: player %s(%d) is in group %d but has a non-permanent character bind to map %d, %d, %d", GetName(), GetGUIDLow(), group->GetGUIDLow(), mapId, instanceId, difficulty);
                     deleteInstance = true;
                 }
             }
@@ -20263,7 +20263,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             {
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE_GUID);
 
-                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUIDLow());
                 stmt->setUInt32(1, instanceId);
 
                 CharacterDatabase.Execute(stmt);
@@ -20327,7 +20327,7 @@ void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficu
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE_GUID);
 
-            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUIDLow());
             stmt->setUInt32(1, itr->second.save->GetInstanceId());
 
             CharacterDatabase.Execute(stmt);
@@ -20361,7 +20361,7 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
 
                         stmt->setUInt32(0, save->GetInstanceId());
                         stmt->setBool(1, permanent);
-                        stmt->setUInt64(2, GetGUID().GetCounter());
+                        stmt->setUInt64(2, GetGUIDLow());
                         stmt->setUInt32(3, bind.save->GetInstanceId());
 
                         CharacterDatabase.Execute(stmt);
@@ -20372,7 +20372,7 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
                 {
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INSTANCE);
 
-                    stmt->setUInt64(0, GetGUID().GetCounter());
+                    stmt->setUInt64(0, GetGUIDLow());
                     stmt->setUInt32(1, save->GetInstanceId());
                     stmt->setBool(2, permanent);
 
@@ -20393,7 +20393,7 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, b
         bind.save = save;
         bind.perm = permanent;
         if (!load)
-            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUID().GetCounter(), save->GetMapId(), save->GetInstanceId(), save->GetDifficultyID());
+            sLog->outDebug(LOG_FILTER_MAPS, "Player::BindToInstance: %s(%d) is now bound to map %d, instance %d, difficulty %d", GetName(), GetGUIDLow(), save->GetMapId(), save->GetInstanceId(), save->GetDifficultyID());
         sScriptMgr->OnPlayerBindToInstance(this, save->GetDifficultyID(), save->GetMapId(), permanent);
         return &bind;
     }
@@ -20639,7 +20639,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
         else
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_HOMEBIND);
-            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUIDLow());
             CharacterDatabase.Execute(stmt);
         }
     }
@@ -20653,7 +20653,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
         m_homebindZ = info->positionZ;
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_HOMEBIND);
-        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, GetGUIDLow());
         stmt->setUInt16(1, m_homebindMapId);
         stmt->setUInt16(2, m_homebindAreaId);
         stmt->setFloat (3, m_homebindX);
@@ -20694,7 +20694,7 @@ void Player::SaveToDB(bool create /*=false*/)
     {
         std::ostringstream ps;
         ps << "REPLACE INTO character_visuals (guid, head, shoulders, chest, waist, legs, feet, wrists, hands, back, main, off, ranged, tabard, shirt) VALUES ("
-            << GetGUID().GetCounter() << ", "
+            << GetGUIDLow() << ", "
             << m_vis->m_visHead << ", "
             << m_vis->m_visShoulders << ", "
             << m_vis->m_visChest << ", "
@@ -20720,7 +20720,7 @@ void Player::SaveToDB(bool create /*=false*/)
         //! Insert query
         //! TO DO: Filter out more redundant fields that can take their default value at player create
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER);
-        stmt->setUInt64(index++, GetGUID().GetCounter());
+        stmt->setUInt64(index++, GetGUIDLow());
         stmt->setUInt32(index++, GetSession()->GetAccountId());
         stmt->setString(index++, GetName());
         stmt->setUInt8(index++, getRace());
@@ -20987,7 +20987,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetLfgBonusFaction());
 
         // Index
-        stmt->setUInt64(index++, GetGUID().GetCounter());
+        stmt->setUInt64(index++, GetGUIDLow());
     }
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -21190,7 +21190,7 @@ void Player::SaveGoldToDB(SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_MONEY);
     stmt->setUInt64(0, GetMoney());
-    stmt->setUInt64(1, GetGUID().GetCounter());
+    stmt->setUInt64(1, GetGUIDLow());
     trans->Append(stmt);
 }
 
@@ -21204,7 +21204,7 @@ void Player::_SaveActions(SQLTransaction& trans)
         {
             case ACTIONBUTTON_NEW:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACTION);
-                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUIDLow());
                 stmt->setUInt8(1, GetActiveSpec());
                 stmt->setUInt8(2, itr->first);
                 stmt->setUInt32(3, itr->second.GetAction());
@@ -21218,7 +21218,7 @@ void Player::_SaveActions(SQLTransaction& trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACTION);
                 stmt->setUInt32(0, itr->second.GetAction());
                 stmt->setUInt8(1, uint8(itr->second.GetType()));
-                stmt->setUInt64(2,  GetGUID().GetCounter());
+                stmt->setUInt64(2,  GetGUIDLow());
                 stmt->setUInt8(3, itr->first);
                 stmt->setUInt8(4, GetActiveSpec());
                 trans->Append(stmt);
@@ -21228,7 +21228,7 @@ void Player::_SaveActions(SQLTransaction& trans)
                 break;
             case ACTIONBUTTON_DELETED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION_BY_BUTTON_SPEC);
-                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUIDLow());
                 stmt->setUInt8(1, itr->first);
                 stmt->setUInt8(2, GetActiveSpec());
                 trans->Append(stmt);
@@ -21245,10 +21245,10 @@ void Player::_SaveActions(SQLTransaction& trans)
 void Player::_SaveAuras(SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     trans->Append(stmt);
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_EFFECT);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     trans->Append(stmt);
 
     for (AuraMap::const_iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end(); ++itr)
@@ -21273,7 +21273,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
             {
                 index = 0;
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA_EFFECT);
-                stmt->setUInt64(index++, GetGUID().GetCounter());
+                stmt->setUInt64(index++, GetGUIDLow());
                 stmt->setUInt8(index++, foundAura->GetSlot());
                 stmt->setUInt8(index++, i);
                 stmt->setInt32(index++, effect->GetBaseAmount());
@@ -21296,7 +21296,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
 
         index = 0;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
-        stmt->setUInt64(index++, GetGUID().GetCounter());
+        stmt->setUInt64(index++, GetGUIDLow());
         stmt->setUInt8(index++, foundAura->GetSlot());
         stmt->setBinary(index++, itr->second->GetCasterGUID().GetRawValue());
         stmt->setBinary(index++, itr->second->GetCastItemGUID().GetRawValue());
@@ -21329,11 +21329,11 @@ void Player::_SaveInventory(SQLTransaction& trans)
             continue;
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
-        stmt->setUInt64(0, item->GetGUID().GetCounter());
+        stmt->setUInt64(0, item->GetGUIDLow());
         trans->Append(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-        stmt->setUInt64(0, item->GetGUID().GetCounter());
+        stmt->setUInt64(0, item->GetGUIDLow());
         trans->Append(stmt);
         m_items[i]->FSetState(ITEM_NEW);
     }
@@ -21357,7 +21357,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
         }
         else
         {
-            sLog->outError(LOG_FILTER_PLAYER, "Can't find item guid %u but is in refundable storage for player %u ! Removing.", *itr, GetGUID().GetCounter());
+            sLog->outError(LOG_FILTER_PLAYER, "Can't find item guid %u but is in refundable storage for player %u ! Removing.", *itr, GetGUIDLow());
             m_refundableItems.erase(itr);
         }
     }
@@ -21370,7 +21370,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
     if (m_itemUpdateQueue.empty())
         return;
 
-    ObjectGuid::LowType lowGuid = GetGUID().GetCounter();
+    ObjectGuid::LowType lowGuid = GetGUIDLow();
     for (size_t i = 0; i < m_itemUpdateQueue.size(); ++i)
     {
         Item* item = m_itemUpdateQueue[i];
@@ -21378,7 +21378,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
             continue;
 
         Bag* container = item->GetContainer();
-        ObjectGuid::LowType bag_guid = container ? container->GetGUID().GetCounter() : UI64LIT(0);
+        ObjectGuid::LowType bag_guid = container ? container->GetGUIDLow() : UI64LIT(0);
 
         if (item->GetState() != ITEM_REMOVED)
         {
@@ -21387,8 +21387,8 @@ void Player::_SaveInventory(SQLTransaction& trans)
             {
                 ObjectGuid::LowType bagTestGUID = UI64LIT(0);
                 if (Item* test2 = GetItemByPos(INVENTORY_SLOT_BAG_0, item->GetBagSlot()))
-                    bagTestGUID = test2->GetGUID().GetCounter();
-                sLog->outError(LOG_FILTER_PLAYER, "Player(GUID: %u Name: %s)::_SaveInventory - the bag(%u) and slot(%u) values for the item with guid %u (state %d) are incorrect, the player doesn't have an item at that position!", lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUID().GetCounter(), (int32)item->GetState());
+                    bagTestGUID = test2->GetGUIDLow();
+                sLog->outError(LOG_FILTER_PLAYER, "Player(GUID: %u Name: %s)::_SaveInventory - the bag(%u) and slot(%u) values for the item with guid %u (state %d) are incorrect, the player doesn't have an item at that position!", lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), (int32)item->GetState());
                 // according to the test that was just performed nothing should be in this slot, delete
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_BAG_SLOT);
                 stmt->setUInt64(0, bagTestGUID);
@@ -21404,7 +21404,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
             }
             else if (test != item)
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Player(GUID: %u Name: %s)::_SaveInventory - the bag(%u) and slot(%u) values for the item with guid %u are incorrect, the item with guid %u is there instead!", lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUID().GetCounter(), test->GetGUID().GetCounter());
+                sLog->outError(LOG_FILTER_PLAYER, "Player(GUID: %u Name: %s)::_SaveInventory - the bag(%u) and slot(%u) values for the item with guid %u are incorrect, the item with guid %u is there instead!", lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), test->GetGUIDLow());
                 // save all changes to the item...
                 if (item->GetState() != ITEM_NEW) // only for existing items, no dupes
                     item->SaveToDB(trans);
@@ -21422,17 +21422,17 @@ void Player::_SaveInventory(SQLTransaction& trans)
                 stmt->setUInt64(0, lowGuid);
                 stmt->setUInt64(1, bag_guid);
                 stmt->setUInt8 (2, item->GetSlot());
-                stmt->setUInt64(3, item->GetGUID().GetCounter());
+                stmt->setUInt64(3, item->GetGUIDLow());
                 trans->Append(stmt);
                 if (sObjectMgr->IsPlayerInLogList(this))
                 {
                     sObjectMgr->DumpDupeConstant(this);
-                    sLog->outDebug(LOG_FILTER_DUPE, "---_SaveInventory item Guid %u Slot %u Entry %u State %u BagSlot %u", item->GetGUID().GetCounter(), item->GetSlot(), item->GetEntry(), item->GetState(), item->GetBagSlot());
+                    sLog->outDebug(LOG_FILTER_DUPE, "---_SaveInventory item Guid %u Slot %u Entry %u State %u BagSlot %u", item->GetGUIDLow(), item->GetSlot(), item->GetEntry(), item->GetState(), item->GetBagSlot());
                 }
                 break;
             case ITEM_REMOVED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
-                stmt->setUInt64(0, item->GetGUID().GetCounter());
+                stmt->setUInt64(0, item->GetGUIDLow());
                 trans->Append(stmt);
             case ITEM_UNCHANGED:
                 break;
@@ -21446,7 +21446,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
 void Player::_SaveVoidStorage(SQLTransaction& trans)
 {
     PreparedStatement* stmt = NULL;
-    ObjectGuid::LowType lowGuid = GetGUID().GetCounter();
+    ObjectGuid::LowType lowGuid = GetGUIDLow();
 
     for (uint32 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
     {
@@ -21572,7 +21572,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
         {
             statusItr = m_QuestStatus.find(saveItr->first);
 
-            ObjectGuid::LowType guid = GetGUID().GetCounter();
+            ObjectGuid::LowType guid = GetGUIDLow();
             Quest const* quest = sObjectMgr->GetQuestTemplate(saveItr->first);
             if (quest && quest->GetQuestType() == QUEST_INFO_ACCOUNT)
                 guid = 0;
@@ -21620,12 +21620,12 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
             else
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_BY_QUEST);
-                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUIDLow());
                 stmt->setUInt32(1, saveItr->first);
                 trans->Append(stmt);
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_BY_QUEST);
-                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUIDLow());
                 stmt->setUInt32(1, saveItr->first);
                 trans->Append(stmt);
             }
@@ -21652,7 +21652,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
             else
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_QUESTSTATUS);
-                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUIDLow());
                 stmt->setUInt32(1, saveItr->first);
                 stmt->setUInt32(2, GetSession()->GetAccountId());
                 trans->Append(stmt);
@@ -21671,7 +21671,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
             else
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_REWARDED_BY_QUEST);
-                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUIDLow());
                 stmt->setUInt32(1, saveItr->first);
                 trans->Append(stmt);
             }
@@ -21695,7 +21695,7 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
 
     // we don't need transactions here.
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY_CHAR);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     trans->Append(stmt);
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY_ACC);
     stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -21703,7 +21703,7 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
 
     for (QuestSet::iterator itr = m_dailyquests.begin(); itr != m_dailyquests.end(); ++itr)
     {
-        ObjectGuid::LowType guid = GetGUID().GetCounter();
+        ObjectGuid::LowType guid = GetGUIDLow();
         Quest const* quest = sObjectMgr->GetQuestTemplate((*itr));
         if (quest && quest->GetQuestType() == QUEST_INFO_ACCOUNT)
             guid = 0;
@@ -21720,7 +21720,7 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
     {
         for (DFQuestsDoneList::iterator itr = m_DFQuests.begin(); itr != m_DFQuests.end(); ++itr)
         {
-            ObjectGuid::LowType guid = GetGUID().GetCounter();
+            ObjectGuid::LowType guid = GetGUIDLow();
             Quest const* quest = sObjectMgr->GetQuestTemplate((*itr));
             if (quest && quest->GetQuestType() == QUEST_INFO_ACCOUNT)
                 guid = 0;
@@ -21742,7 +21742,7 @@ void Player::_SaveWeeklyQuestStatus(SQLTransaction& trans)
 
     // we don't need transactions here.
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY_CHAR);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     trans->Append(stmt);
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY_ACC);
     stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -21751,7 +21751,7 @@ void Player::_SaveWeeklyQuestStatus(SQLTransaction& trans)
     for (QuestSet::const_iterator iter = m_weeklyquests.begin(); iter != m_weeklyquests.end(); ++iter)
     {
         uint32 quest_id  = *iter;
-        ObjectGuid::LowType guid = GetGUID().GetCounter();
+        ObjectGuid::LowType guid = GetGUIDLow();
         Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
         if (quest && quest->GetQuestType() == QUEST_INFO_ACCOUNT)
             guid = 0;
@@ -21773,7 +21773,7 @@ void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
 
     // we don't need transactions here.
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL_CHAR);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     trans->Append(stmt);
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL_CHAR);
     stmt->setUInt32(0, GetSession()->GetAccountId());
@@ -21785,7 +21785,7 @@ void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
         for (SeasonalQuestSet::const_iterator itr = iter->second.begin(); itr != iter->second.end(); ++itr)
         {
             uint32 quest_id = (*itr);
-            ObjectGuid::LowType guid = GetGUID().GetCounter();
+            ObjectGuid::LowType guid = GetGUIDLow();
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (quest && quest->GetQuestType() == QUEST_INFO_ACCOUNT)
                 guid = 0;
@@ -21817,7 +21817,7 @@ void Player::_SaveSkills(SQLTransaction& trans)
         if (itr->second.uState == SKILL_DELETED)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SKILL_BY_SKILL);
-            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUIDLow());
             stmt->setUInt32(1, itr->first);
             trans->Append(stmt);
 
@@ -21835,7 +21835,7 @@ void Player::_SaveSkills(SQLTransaction& trans)
         {
             case SKILL_NEW:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SKILLS);
-                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUIDLow());
                 stmt->setUInt16(1, uint16(itr->first));
                 stmt->setUInt16(2, value);
                 stmt->setUInt16(3, max);
@@ -21845,7 +21845,7 @@ void Player::_SaveSkills(SQLTransaction& trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_SKILLS);
                 stmt->setUInt16(0, value);
                 stmt->setUInt16(1, max);
-                stmt->setUInt64(2, GetGUID().GetCounter());
+                stmt->setUInt64(2, GetGUIDLow());
                 stmt->setUInt16(3, uint16(itr->first));
                 trans->Append(stmt);
                 break;
@@ -21883,7 +21883,7 @@ void Player::_SaveSpells(SQLTransaction& trans)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
                 stmt->setUInt32(0, itr->first);
-                stmt->setUInt64(1, GetGUID().GetCounter());
+                stmt->setUInt64(1, GetGUIDLow());
                 trans->Append(stmt);
             }
         }
@@ -21902,7 +21902,7 @@ void Player::_SaveSpells(SQLTransaction& trans)
             else
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_SPELL);
-                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUIDLow());
                 stmt->setUInt32(1, itr->first);
                 stmt->setBool(2, itr->second->active);
                 stmt->setBool(3, itr->second->disabled);
@@ -21925,7 +21925,7 @@ void Player::_SaveSpells(SQLTransaction& trans)
 
 void Player::_SaveCUFProfiles(SQLTransaction& trans)
 {
-    ObjectGuid::LowType playerGuid = GetGUID().GetCounter();
+    ObjectGuid::LowType playerGuid = GetGUIDLow();
 
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
     {
@@ -21967,13 +21967,13 @@ void Player::_SaveStats(SQLTransaction& trans)
     PreparedStatement* stmt = NULL;
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_STATS);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     trans->Append(stmt);
 
     uint8 index = 0;
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_STATS);
-    stmt->setUInt64(index++, GetGUID().GetCounter());
+    stmt->setUInt64(index++, GetGUIDLow());
     stmt->setUInt32(index++, GetMaxHealth());
 
     for (uint8 i = 0; i < MAX_POWERS_PER_CLASS; ++i)
@@ -23319,7 +23319,7 @@ void Player::ContinueTaxiFlight()
     if (!sourceNode)
         return;
 
-    sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Restart character %u taxi flight", GetGUID().GetCounter());
+    sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Restart character %u taxi flight", GetGUIDLow());
 
     uint32 mountDisplayId = sObjectMgr->GetTaxiMountDisplayId(sourceNode, GetTeam(), true);
     if (!mountDisplayId)
@@ -23492,7 +23492,7 @@ void Player::InitDisplayIds()
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
     if (!info)
     {
-        sLog->outError(LOG_FILTER_PLAYER, "Player %u has incorrect race/class pair. Can't init display ids.", GetGUID().GetCounter());
+        sLog->outError(LOG_FILTER_PLAYER, "Player %u has incorrect race/class pair. Can't init display ids.", GetGUIDLow());
         return;
     }
 
@@ -23625,8 +23625,8 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
 
             uint8 index = 0;
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_ITEM_DONATE);
-            stmt->setUInt64(  index, GetGUID().GetCounter());
-            stmt->setUInt64(  ++index, it->GetGUID().GetCounter());
+            stmt->setUInt64(  index, GetGUIDLow());
+            stmt->setUInt64(  ++index, it->GetGUIDLow());
             stmt->setUInt32(  ++index, it->GetEntry());
             stmt->setUInt32(  ++index, uicount);
             stmt->setUInt32(  ++index, count);
@@ -23635,7 +23635,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
             CharacterDatabase.CommitTransaction(trans);
 
             //CharacterDatabase.PExecute("INSERT INTO character_donate (`owner_guid`, `itemguid`, `itemEntry`, `efircount`, `count`)"
-            //" VALUES('%u', '%u', '%u', '%u', '%u')", GetGUID().GetCounter(), it->GetGUID().GetCounter(), it->GetEntry(), uicount, count);
+            //" VALUES('%u', '%u', '%u', '%u', '%u')", GetGUIDLow(), it->GetGUIDLow(), it->GetEntry(), uicount, count);
         }
     }
     return true;
@@ -23659,7 +23659,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
     Creature* creature = GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: BuyCurrencyFromVendorSlot - Unit (GUID: %u) not found or you can't interact with him.", vendorGuid.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: BuyCurrencyFromVendorSlot - Unit (GUID: %u) not found or you can't interact with him.", vendorGuid.GetGUIDLow());
         SendBuyError(BUY_ERR_DISTANCE_TOO_FAR, NULL, currency, 0);
         return false;
     }
@@ -23791,7 +23791,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     Creature* creature = GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: BuyItemFromVendor - Unit (GUID: %u) not found or you can't interact with him.", uint32(vendorguid.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: BuyItemFromVendor - Unit (GUID: %u) not found or you can't interact with him.", uint32(vendorguid.GetGUIDLow()));
         SendBuyError(BUY_ERR_DISTANCE_TOO_FAR, NULL, item, 0);
         return false;
     }
@@ -24065,7 +24065,7 @@ void Player::UpdateHomebindTime(uint32 time)
         raidOnly.Reason = 1;
         GetSession()->SendPacket(raidOnly.Write());
 
-        sLog->outDebug(LOG_FILTER_MAPS, "PLAYER: Player '%s' (GUID: %u) will be teleported to homebind in 60 seconds", GetName(), GetGUID().GetCounter());
+        sLog->outDebug(LOG_FILTER_MAPS, "PLAYER: Player '%s' (GUID: %u) will be teleported to homebind in 60 seconds", GetName(), GetGUIDLow());
         RepopAtGraveyard();
     }
 }
@@ -24565,9 +24565,9 @@ void Player::ReportedAfkBy(Player* reporter)
     }
 
     // check if player has 'Idle' or 'Inactive' debuff
-    if (m_bgData.bgAfkReporter.find(reporter->GetGUID().GetCounter()) == m_bgData.bgAfkReporter.end() && !HasAura(43680) && !HasAura(SPELL_BG_AURA_PLAYER_INACTIVE) && reporter->CanReportAfkDueToLimit())
+    if (m_bgData.bgAfkReporter.find(reporter->GetGUIDLow()) == m_bgData.bgAfkReporter.end() && !HasAura(43680) && !HasAura(SPELL_BG_AURA_PLAYER_INACTIVE) && reporter->CanReportAfkDueToLimit())
     {
-        m_bgData.bgAfkReporter.insert(reporter->GetGUID().GetCounter());
+        m_bgData.bgAfkReporter.insert(reporter->GetGUIDLow());
         // 3 players have to complain to apply debuff
         if (m_bgData.bgAfkReporter.size() >= 3)
         {
@@ -24708,7 +24708,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             m_clientGUIDs.erase(target->GetGUID());
 
             #ifdef TRINITY_DEBUG
-                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u) out of range for player %u. Distance = %f", target->GetGUID().GetCounter(), target->GetTypeId(), GetGUID().GetCounter(), GetDistance(target));
+                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u) out of range for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), GetGUIDLow(), GetDistance(target));
             #endif
         }
     }
@@ -24724,7 +24724,7 @@ void Player::UpdateVisibilityOf(WorldObject* target)
             m_clientGUIDs.insert(target->GetGUID());
 
             #ifdef TRINITY_DEBUG
-                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u) is visible now for player %u. Distance = %f", target->GetGUID().GetCounter(), target->GetTypeId(), GetGUID().GetCounter(), GetDistance(target));
+                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u) is visible now for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), GetGUIDLow(), GetDistance(target));
             #endif
 
             // target aura duration for caster show only if target exist at caster client
@@ -24786,7 +24786,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
             m_clientGUIDs.erase(target->GetGUID());
             RemoveListner(target);
             #ifdef TRINITY_DEBUG
-                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f", target->GetGUID().GetCounter(), target->GetTypeId(), target->GetEntry(), GetGUID().GetCounter(), GetDistance(target));
+                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is out of range for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));
             #endif
         }
     }
@@ -24802,7 +24802,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& vi
             UpdateVisibilityOf_helper(m_clientGUIDs, target, visibleNow);
 
             #ifdef TRINITY_DEBUG
-                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f", target->GetGUID().GetCounter(), target->GetTypeId(), target->GetEntry(), GetGUID().GetCounter(), GetDistance(target));
+                sLog->outDebug(LOG_FILTER_MAPS, "Object %u (Type: %u, Entry: %u) is visible now for player %u. Distance = %f", target->GetGUIDLow(), target->GetTypeId(), target->GetEntry(), GetGUIDLow(), GetDistance(target));
             #endif
         }
     }
@@ -27428,7 +27428,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skill, getRace(), getClass());
             if (!rcEntry)
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u that does not exist.", GetGUID().GetCounter(), skill);
+                sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u that does not exist.", GetGUIDLow(), skill);
 
                 mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(0, SKILL_DELETED)));
                 continue;
@@ -27451,11 +27451,11 @@ void Player::_LoadSkills(PreparedQueryResult result)
 
             if (value == 0)
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u with value 0. Will be deleted.", GetGUID().GetCounter(), skill);
+                sLog->outError(LOG_FILTER_PLAYER, "Character %u has skill %u with value 0. Will be deleted.", GetGUIDLow(), skill);
 
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SKILL);
 
-                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt64(0, GetGUIDLow());
                 stmt->setUInt16(1, skill);
 
                 CharacterDatabase.Execute(stmt);
@@ -27498,7 +27498,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
 
             if (count >= PLAYER_MAX_SKILLS)                      // client limit
             {
-                sLog->outError(LOG_FILTER_PLAYER, "Character %u has more than %u skills.", GetGUID().GetCounter(), PLAYER_MAX_SKILLS);
+                sLog->outError(LOG_FILTER_PLAYER, "Character %u has more than %u skills.", GetGUIDLow(), PLAYER_MAX_SKILLS);
                 break;
             }
         }
@@ -27691,7 +27691,7 @@ void Player::CompletedAchievement(AchievementEntry const* entry)
 
 bool Player::HasAchieved(uint32 achievementId) const
 {
-    return GetAchievementMgr().HasAchieved(achievementId, GetGUID().GetCounter());
+    return GetAchievementMgr().HasAchieved(achievementId, GetGUIDLow());
 }
 
 uint32 Player::GetAchievementPoints() const
@@ -28037,7 +28037,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 stmt->setUInt32(j++, eqset.Data.IgnoreMask);
                 for (uint8 i=0; i<EQUIPMENT_SLOT_END; ++i)
                     stmt->setUInt64(j++, eqset.Data.Pieces[i].GetCounter());
-                stmt->setUInt64(j++, GetGUID().GetCounter());
+                stmt->setUInt64(j++, GetGUIDLow());
                 stmt->setUInt64(j++, eqset.Data.Guid);
                 stmt->setUInt32(j, index);
                 trans->Append(stmt);
@@ -28046,7 +28046,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 break;
             case EQUIPMENT_SET_NEW:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_EQUIP_SET);
-                stmt->setUInt64(j++, GetGUID().GetCounter());
+                stmt->setUInt64(j++, GetGUIDLow());
                 stmt->setUInt64(j++, eqset.Data.Guid);
                 stmt->setUInt32(j++, index);
                 stmt->setString(j++, eqset.Data.SetName.c_str());
@@ -28071,11 +28071,11 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
 void Player::_SaveBGData(SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     trans->Append(stmt);
     /* guid, bgInstanceID, bgTeam, x, y, z, o, map, taxi[0], taxi[1], mountSpell */
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_BGDATA);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     stmt->setUInt32(1, m_bgData.bgInstanceID);
     stmt->setUInt16(2, m_bgData.bgTeam);
     stmt->setFloat (3, m_bgData.joinPos.GetPositionX());
@@ -28113,7 +28113,7 @@ void Player::RemoveAtLoginFlag(AtLoginFlags flags, bool persist /*= false*/)
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_REM_AT_LOGIN_FLAG);
 
         stmt->setUInt16(0, uint16(flags));
-        stmt->setUInt64(1, GetGUID().GetCounter());
+        stmt->setUInt64(1, GetGUIDLow());
 
         CharacterDatabase.Execute(stmt);
     }
@@ -28169,7 +28169,7 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
 void Player::_SaveGlyphs(SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_GLYPHS);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     trans->Append(stmt);
 
 
@@ -28178,7 +28178,7 @@ void Player::_SaveGlyphs(SQLTransaction& trans)
         uint8 index = 0;
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GLYPHS);
-        stmt->setUInt64(index++, GetGUID().GetCounter());
+        stmt->setUInt64(index++, GetGUIDLow());
 
         stmt->setUInt8(index++, spec);
 
@@ -28203,7 +28203,7 @@ void Player::_LoadTalents(PreparedQueryResult result)
 void Player::_SaveTalents(SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_TALENT);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     trans->Append(stmt);
 
     PlayerTalentMap* talents = nullptr;
@@ -28219,7 +28219,7 @@ void Player::_SaveTalents(SQLTransaction& trans)
             }
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_TALENT);
-            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUIDLow());
             stmt->setUInt32(1, itr->first);
             stmt->setUInt8(2, group);
             trans->Append(stmt);
@@ -28247,7 +28247,7 @@ void Player::UpdateSpecCount(uint8 count)
         for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end(); ++itr)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACTION);
-            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt64(0, GetGUIDLow());
             stmt->setUInt8(1, 1);
             stmt->setUInt8(2, itr->first);
             stmt->setUInt32(3, itr->second.GetAction());
@@ -28262,7 +28262,7 @@ void Player::UpdateSpecCount(uint8 count)
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACTION_EXCEPT_SPEC);
         stmt->setUInt8(0, GetActiveSpec());
-        stmt->setUInt64(1, GetGUID().GetCounter());
+        stmt->setUInt64(1, GetGUIDLow());
         trans->Append(stmt);
 
     }
@@ -28428,7 +28428,7 @@ void Player::ActivateSpec(uint8 spec)
 
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_ACTIONS_SPEC);
-        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, GetGUIDLow());
         stmt->setUInt8(1, GetActiveSpec());
         if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
             _LoadActions(result);
@@ -28740,14 +28740,14 @@ void Player::SetRandomWinner(bool isWinner)
     if (m_IsBGRandomWinner)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BATTLEGROUND_RANDOM);
-        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, GetGUIDLow());
         CharacterDatabase.Execute(stmt);
     }
 }
 
 void Player::_LoadRandomBGStatus(PreparedQueryResult result)
 {
-    //QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM character_battleground_random WHERE guid = '%u'", GetGUID().GetCounter());
+    //QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM character_battleground_random WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
         m_IsBGRandomWinner = true;
@@ -28915,7 +28915,7 @@ void Player::ValidateMovementInfo(MovementInfo* mi)
         { \
             sLog->outDebug(LOG_FILTER_UNITS, "WorldSession::ValidateMovementInfo: Violation of MovementFlags found (%s). " \
                 "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Mask %u will be removed.", \
-                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetGUID().GetCounter(), maskToRemove); \
+                STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetGUIDLow(), maskToRemove); \
             mi->RemoveMovementFlag((maskToRemove)); \
         } \
     }
@@ -29070,13 +29070,13 @@ void Player::SetPersonnalXpRate(float PersonnalXpRate)
         if(PersonnalXpRate)
         {
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            trans->PAppend("REPLACE INTO character_rates VALUES ('%u', '%f');", GetGUID().GetCounter(), PersonnalXpRate);
+            trans->PAppend("REPLACE INTO character_rates VALUES ('%u', '%f');", GetGUIDLow(), PersonnalXpRate);
             CharacterDatabase.CommitTransaction(trans);
         }
         else // Rates normales
         {
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            trans->PAppend("DELETE FROM character_rates WHERE guid = '%u';", GetGUID().GetCounter());
+            trans->PAppend("DELETE FROM character_rates WHERE guid = '%u';", GetGUIDLow());
             CharacterDatabase.CommitTransaction(trans);
         }
     }
@@ -29160,7 +29160,7 @@ void Player::_LoadHonor(PreparedQueryResult result)
 {
     // kills in the DB are for one day always
     // so if the last was today then they all were
-    //QueryResult result = CharacterDatabase.PQuery("SELECT victim_guid, count FROM character_kill WHERE guid='%u'", GetGUID().GetCounter());
+    //QueryResult result = CharacterDatabase.PQuery("SELECT victim_guid, count FROM character_kill WHERE guid='%u'", GetGUIDLow());
     if (result)
     {
         do

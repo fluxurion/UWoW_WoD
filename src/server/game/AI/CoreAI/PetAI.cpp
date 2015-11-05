@@ -153,7 +153,7 @@ void PetAI::UpdateAI(uint32 diff)
     }
     else if (owner && me->GetCharmInfo()) //no victim
     {
-        //sLog->outDebug(LOG_FILTER_PETS, "PetAI::UpdateAI [guid=%u] no victim GetCasterPet %i", me->GetGUID().GetCounter(), me->GetCasterPet());
+        //sLog->outDebug(LOG_FILTER_PETS, "PetAI::UpdateAI [guid=%u] no victim GetCasterPet %i", me->GetGUIDLow(), me->GetCasterPet());
         // Only aggressive pets do target search every update.
         // Defensive pets do target search only in these cases:
         //  * Owner attacks something - handled by OwnerAttacked()
@@ -195,7 +195,7 @@ void PetAI::UpdateAI(uint32 diff)
                 continue;
 
             //sLog->outDebug(LOG_FILTER_PETS, "PetAI::UpdateAI spellID %i, Cooldown %i IsPositive %i CanBeUsedInCombat %i GUID %u",
-            //spellID, me->HasSpellCooldown(spellID), spellInfo->IsPositive(), spellInfo->CanBeUsedInCombat(), me->GetGUID().GetCounter());
+            //spellID, me->HasSpellCooldown(spellID), spellInfo->IsPositive(), spellInfo->CanBeUsedInCombat(), me->GetGUIDLow());
 
             if (me->GetCharmInfo() && me->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
                 continue;
@@ -450,7 +450,7 @@ Unit* PetAI::SelectNextTarget()
 void PetAI::HandleReturnMovement()
 {
     // Handles moving the pet back to stay or owner
-    //sLog->outDebug(LOG_FILTER_PETS, "PetAI::HandleReturnMovement [guid=%u] GetCommandState %i", me->GetGUID().GetCounter(), me->GetCharmInfo()->GetCommandState());
+    //sLog->outDebug(LOG_FILTER_PETS, "PetAI::HandleReturnMovement [guid=%u] GetCommandState %i", me->GetGUIDLow(), me->GetCharmInfo()->GetCommandState());
 
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
     {
@@ -464,7 +464,7 @@ void PetAI::HandleReturnMovement()
                 me->GetCharmInfo()->GetStayPosition(x, y, z);
                 me->GetCharmInfo()->SetIsReturning(true);
                 me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MovePoint(me->GetGUID().GetCounter(), x, y, z);
+                me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, z);
             }
         }
     }
@@ -552,7 +552,7 @@ void PetAI::MovementInform(uint32 moveType, uint32 data)
         {
             // If data is owner's GUIDLow then we've reached follow point,
             // otherwise we're probably chasing a creature
-            if (me->GetCharmerOrOwner() && me->GetCharmInfo() && data == me->GetCharmerOrOwner()->GetGUID().GetCounter() && me->GetCharmInfo()->IsReturning())
+            if (me->GetCharmerOrOwner() && me->GetCharmInfo() && data == me->GetCharmerOrOwner()->GetGUIDLow() && me->GetCharmInfo()->IsReturning())
             {
                 me->GetCharmInfo()->SetIsAtStay(false);
                 me->GetCharmInfo()->SetIsReturning(false);

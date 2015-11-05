@@ -44,7 +44,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     }
 
     sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u",
-    _player->GetGUID().GetCounter(), packet.Info.Attachments.size(), packet.Info.SendMoney, packet.Info.Cod, packet.Info.StationeryID, packet.Info.PackageID);
+    _player->GetGUIDLow(), packet.Info.Attachments.size(), packet.Info.SendMoney, packet.Info.Cod, packet.Info.StationeryID, packet.Info.PackageID);
 
     // packet read complete, now do check
 
@@ -86,12 +86,12 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     if (receiverGuid.IsEmpty())
     {
         sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: not existed!) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u",
-            player->GetGUID().GetCounter(), packet.Info.Target.c_str(), packet.Info.Subject.c_str(), packet.Info.Body.c_str(), packet.Info.Attachments.size(), packet.Info.SendMoney, packet.Info.Cod, packet.Info.StationeryID, packet.Info.PackageID);
+            player->GetGUIDLow(), packet.Info.Target.c_str(), packet.Info.Subject.c_str(), packet.Info.Body.c_str(), packet.Info.Attachments.size(), packet.Info.SendMoney, packet.Info.Cod, packet.Info.StationeryID, packet.Info.PackageID);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
         return;
     }
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u", player->GetGUID().GetCounter(), packet.Info.Target.c_str(), receiverGuid.GetCounter(), packet.Info.Subject.c_str(), packet.Info.Body.c_str(), packet.Info.Attachments.size(), packet.Info.SendMoney, packet.Info.Cod, packet.Info.StationeryID, packet.Info.PackageID);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with stationery = %u, package = %u", player->GetGUIDLow(), packet.Info.Target.c_str(), receiverGuid.GetGUIDLow(), packet.Info.Subject.c_str(), packet.Info.Body.c_str(), packet.Info.Attachments.size(), packet.Info.SendMoney, packet.Info.Cod, packet.Info.StationeryID, packet.Info.PackageID);
 
     if (player->GetGUID() == receiverGuid)
     {
@@ -483,7 +483,7 @@ void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& packet)
         m->COD = 0;
         m->state = MAIL_STATE_CHANGED;
         player->m_mailsUpdated = true;
-        player->RemoveMItem(item->GetGUID().GetCounter());
+        player->RemoveMItem(item->GetGUIDLow());
 
         uint32 count = item->GetCount();                      // save counts before store and possible merge with deleting
         item->SetState(ITEM_UNCHANGED);                       // need to set this state, otherwise item cannot be removed later, if neccessary

@@ -126,7 +126,7 @@ void Vehicle::Uninstall(bool uninstallBeforeDelete)
     if (_status == STATUS_UNINSTALLING && !GetBase()->HasUnitTypeMask(UNIT_MASK_MINION))
     {
         sLog->outError(LOG_FILTER_VEHICLES, "Vehicle GuidLow: %u, Entry: %u attempts to uninstall, but already has STATUS_UNINSTALLING! "
-            "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUID().GetCounter(), _me->GetEntry());
+            "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUIDLow(), _me->GetEntry());
         return;
     }
     _status = STATUS_UNINSTALLING;
@@ -134,7 +134,7 @@ void Vehicle::Uninstall(bool uninstallBeforeDelete)
     if (uninstallBeforeDelete)
         _isBeingDismissed = true;
 
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Uninstall Entry: %u, GuidLow: %u", _creatureEntry, _me->GetGUID().GetCounter());
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Uninstall Entry: %u, GuidLow: %u", _creatureEntry, _me->GetGUIDLow());
     RemoveAllPassengers();
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
@@ -163,7 +163,7 @@ void Vehicle::Reset(bool evading /*= false*/)
     if (GetBase()->GetTypeId() != TYPEID_UNIT)
         return;
 
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Reset (Entry: %u, GuidLow: %u, DBGuid: %u)", GetCreatureEntry(), _me->GetGUID().GetCounter(), _me->ToCreature()->GetDBTableGUIDLow());
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Reset (Entry: %u, GuidLow: %u, DBGuid: %u)", GetCreatureEntry(), _me->GetGUIDLow(), _me->ToCreature()->GetDBTableGUIDLow());
 
     ApplyAllImmunities();
     InstallAllAccessories(evading);
@@ -248,7 +248,7 @@ void Vehicle::ApplyAllImmunities()
 
 void Vehicle::RemoveAllPassengers()
 {
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::RemoveAllPassengers. Entry: %u, GuidLow: %u", _creatureEntry, _me->GetGUID().GetCounter());
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::RemoveAllPassengers. Entry: %u, GuidLow: %u", _creatureEntry, _me->GetGUIDLow());
 
     /// Setting to_Abort to true will cause @VehicleJoinEvent::Abort to be executed on next @Unit::UpdateEvents call
     /// This will properly "reset" the pending join process for the passenger.
@@ -393,13 +393,13 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     if (_status == STATUS_UNINSTALLING)
     {
         sLog->outError(LOG_FILTER_VEHICLES, "Vehicle (GuidLow: %u, DB GUID: %u, Entry: %u) attempts to install accessory (Entry: %u) on seat %d with STATUS_UNINSTALLING! "
-            "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUID().GetCounter(),
-            (_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetDBTableGUIDLow() : _me->GetGUID().GetCounter()), GetCreatureEntry(), entry, (int32)seatId);
+            "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUIDLow(),
+            (_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetDBTableGUIDLow() : _me->GetGUIDLow()), GetCreatureEntry(), entry, (int32)seatId);
         return;
     }
 
     sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle (GuidLow: %u, DB Guid: %u, Entry %u): installing accessory (Entry: %u) on seat: %d",
-        _me->GetGUID().GetCounter(), (_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetDBTableGUIDLow() : _me->GetGUID().GetCounter()), GetCreatureEntry(),
+        _me->GetGUIDLow(), (_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetDBTableGUIDLow() : _me->GetGUIDLow()), GetCreatureEntry(),
         entry, (int32)seatId);
 
     Map* map = _me->FindMap();
@@ -549,7 +549,7 @@ void Vehicle::RemovePassenger(Unit* unit)
     ASSERT(seat != Seats.end());
 
     sLog->outDebug(LOG_FILTER_VEHICLES, "Unit %s exit vehicle entry %u id %u dbguid %u seat %d", 
-        unit->GetName(), _me->GetEntry(), _vehicleInfo->ID, _me->GetGUID().GetCounter(), (int32)seat->first);
+        unit->GetName(), _me->GetEntry(), _vehicleInfo->ID, _me->GetGUIDLow(), (int32)seat->first);
 
     seat->second.Passenger.Clear();
     if (seat->second.SeatInfo->CanEnterOrExit() && ++UsableSeatNum)
@@ -971,7 +971,7 @@ void VehicleJoinEvent::Abort(uint64)
     if (Unit* targetBase = ObjectAccessor::GetUnit(*Passenger, targetGuid))
     {
         //sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on vehicle GuidLow: %u, Entry: %u SeatId: %d cancelled",
-            //Passenger->GetGUID().GetCounter(), Passenger->GetEntry(), Target->GetBase()->GetGUID().GetCounter(), Target->GetBase()->GetEntry(), (int32)Seat->first);
+            //Passenger->GetGUIDLow(), Passenger->GetEntry(), Target->GetBase()->GetGUIDLow(), Target->GetBase()->GetEntry(), (int32)Seat->first);
 
         /// @SPELL_AURA_CONTROL_VEHICLE auras can be applied even when the passenger is not (yet) on the vehicle.
         /// When this code is triggered it means that something went wrong in @Vehicle::AddPassenger, and we should remove
@@ -982,7 +982,7 @@ void VehicleJoinEvent::Abort(uint64)
     }
     else
         sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on uninstalled vehicle SeatId: %d cancelled",
-            Passenger->GetGUID().GetCounter(), Passenger->GetEntry(), (int32)Seat->first);
+            Passenger->GetGUIDLow(), Passenger->GetEntry(), (int32)Seat->first);
 
     if (Passenger->IsInWorld() && Passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
         Passenger->ToCreature()->DespawnOrUnsummon();

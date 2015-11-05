@@ -170,7 +170,7 @@ std::string WorldSession::GetPlayerName(bool simple /* = true */) const
     if (Player* player = GetPlayer())
     {
         name.append(player->GetName());
-        guidLow = player->GetGUID().GetCounter();
+        guidLow = player->GetGUIDLow();
     }
     else
         name.append("<none>");
@@ -189,7 +189,7 @@ std::string WorldSession::GetPlayerName(bool simple /* = true */) const
 /// Get player guid if available. Use for logging purposes only
 ObjectGuid::LowType WorldSession::GetGuidLow() const
 {
-    return GetPlayer() ? GetPlayer()->GetGUID().GetCounter() : 0;
+    return GetPlayer() ? GetPlayer()->GetGUIDLow() : 0;
 }
 
 /// Send a packet to the client
@@ -668,9 +668,9 @@ void WorldSession::LogoutPlayer(bool Save)
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map
         // calls to GetMap in this case may cause crashes
-        volatile uint32 guidDebug = _player->GetGUID().GetCounter();
+        volatile uint32 guidDebug = _player->GetGUIDLow();
         _player->CleanupsBeforeDelete();
-        sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUID().GetCounter(), _player->getLevel());
+        sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUIDLow(), _player->getLevel());
 
         sBattlenetServer.SendChangeToonOnlineState(GetBattlenetAccountId(), GetAccountId(), _player->GetGUID(), _player->GetName(), false);
 
@@ -1028,7 +1028,7 @@ void WorldSession::SetPlayer(Player* player)
 
     // set m_GUID that can be used while player loggined and later until m_playerRecentlyLogout not reset
     if (_player)
-        m_GUIDLow = _player->GetGUID().GetCounter();
+        m_GUIDLow = _player->GetGUIDLow();
 }
 
 void WorldSession::InitializeQueryCallbackParameters()

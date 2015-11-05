@@ -103,12 +103,12 @@ Group* GroupMgr::GetGroupByGUID(ObjectGuid const& groupId) const
 
 void GroupMgr::AddGroup(Group* group)
 {
-    GroupStore[group->GetGUID().GetCounter()] = group;
+    GroupStore[group->GetGUIDLow()] = group;
 }
 
 void GroupMgr::RemoveGroup(Group* group)
 {
-    GroupStore.erase(group->GetGUID().GetCounter());
+    GroupStore.erase(group->GetGUIDLow());
 }
 
 void GroupMgr::LoadGroups()

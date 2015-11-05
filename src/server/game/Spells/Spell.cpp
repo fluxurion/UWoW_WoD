@@ -4558,7 +4558,7 @@ void Spell::finish(bool ok)
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
         if (spellInfo && spellInfo->SpellIconID == 2056)
         {
-            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Statue %d is unsummoned in spell %d finish", m_caster->GetGUID().GetCounter(), m_spellInfo->Id);
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Statue %d is unsummoned in spell %d finish", m_caster->GetGUIDLow(), m_spellInfo->Id);
             m_caster->setDeathState(JUST_DIED);
             return;
         }
@@ -5419,7 +5419,7 @@ void Spell::TakeCastItem()
     {
         // This code is to avoid a crash
         // I'm not sure, if this is really an error, but I guess every item needs a prototype
-        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Cast item has no item prototype highId=%d, lowId=%d", m_CastItem->GetGUID().GetHigh(), m_CastItem->GetGUID().GetCounter());
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Cast item has no item prototype highId=%d, lowId=%d", m_CastItem->GetGUID().GetHigh(), m_CastItem->GetGUIDLow());
         return;
     }
 
@@ -8431,7 +8431,7 @@ SpellEvent::~SpellEvent()
     else
     {
         sLog->outError(LOG_FILTER_SPELLS_AURAS, "~SpellEvent: %s %u tried to delete non-deletable spell %u. Was not deleted, causes memory leak.",
-            (m_Spell->GetCaster()->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), m_Spell->GetCaster()->GetGUID().GetCounter(), m_Spell->m_spellInfo->Id);
+            (m_Spell->GetCaster()->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), m_Spell->GetCaster()->GetGUIDLow(), m_Spell->m_spellInfo->Id);
         //ASSERT(false);
     }
 }

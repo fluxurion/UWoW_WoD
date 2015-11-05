@@ -260,6 +260,7 @@ class Group
         inline bool IsHomeGroup() const { return !isLFGGroup() && (!isBGGroup() || isArenaGroup()) && !isBFGroup(); }
         ObjectGuid GetLeaderGUID() const;
         ObjectGuid GetGUID() const;
+        uint32 GetGUIDLow() const;
         const char * GetLeaderName() const;
         LootMethod GetLootMethod() const;
         ObjectGuid GetLooterGuid() const;

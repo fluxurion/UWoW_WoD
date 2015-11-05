@@ -190,7 +190,7 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
 
     if (!sSoundEntriesStore.LookupEntry(soundId))
     {
-        sLog->outError(LOG_FILTER_TSCR, "Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", soundId, source->GetTypeId(), source->GetGUID().GetCounter());
+        sLog->outError(LOG_FILTER_TSCR, "Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", soundId, source->GetTypeId(), source->GetGUIDLow());
         return;
     }
 

@@ -72,7 +72,7 @@ void WorldSession::HandleBattlemasterJoin(WorldPackets::Battleground::Join& pack
 
     if (!sBattlemasterListStore.LookupEntry(packet.QueueID))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Battleground: invalid bgtype (%u) received. possible cheater? player guid %u", packet.QueueID, _player->GetGUID().GetCounter());
+        sLog->outError(LOG_FILTER_NETWORKIO, "Battleground: invalid bgtype (%u) received. possible cheater? player guid %u", packet.QueueID, _player->GetGUIDLow());
         return;
     }
 
@@ -171,7 +171,7 @@ void WorldSession::HandleBattlemasterJoin(WorldPackets::Battleground::Join& pack
         sBattlegroundMgr->BuildBattlegroundStatusQueued(&queued, bg, player, queueSlot, ginfo->JoinTime, avgTime, ginfo->JoinType, false);
         SendPacket(queued.Write());
 
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s", bgQueueTypeId, bgTypeId, player->GetGUID().GetCounter(), player->GetName());
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s", bgQueueTypeId, bgTypeId, player->GetGUIDLow(), player->GetName());
     } else
     {
         Group* grp = grp = player->GetGroup();
@@ -220,7 +220,7 @@ void WorldSession::HandleBattlemasterJoin(WorldPackets::Battleground::Join& pack
             sBattlegroundMgr->BuildBattlegroundStatusQueued(&queued, bg, player, queueSlot, ginfo->JoinTime, avgTime, ginfo->JoinType, true);
             member->GetSession()->SendPacket(queued.Write());
 
-            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s", bgQueueTypeId, bgTypeId, member->GetGUID().GetCounter(), member->GetName());
+            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for bg queue type %u bg type %u: GUID %u, NAME %s", bgQueueTypeId, bgTypeId, member->GetGUIDLow(), member->GetName());
         }
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: group end");
 
@@ -338,13 +338,13 @@ void WorldSession::HandleBattleFieldPort(WorldPackets::Battleground::Port& packe
             SendPacket(battlefieldStatus.Write());
 
             packet.AcceptedInvite = false;
-            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) has a deserter debuff, do not port him to battleground!", player->GetName(), player->GetGUID().GetCounter());
+            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) has a deserter debuff, do not port him to battleground!", player->GetName(), player->GetGUIDLow());
         }
         //if player don't match battleground max level, then do not allow him to enter! (this might happen when player leveled up during his waiting in queue
         if (player->getLevel() > bg->GetMaxLevel())
         {
             sLog->outError(LOG_FILTER_NETWORKIO, "Battleground: Player %s (%u) has level (%u) higher than maxlevel (%u) of battleground (%u)! Do not port him to battleground!",
-                           player->GetName(), player->GetGUID().GetCounter(), player->getLevel(), bg->GetMaxLevel(), bg->GetTypeID());
+                           player->GetName(), player->GetGUIDLow(), player->getLevel(), bg->GetMaxLevel(), bg->GetTypeID());
             packet.AcceptedInvite = false;
         }
     }
@@ -390,7 +390,7 @@ void WorldSession::HandleBattleFieldPort(WorldPackets::Battleground::Port& packe
         // bg->AddPlayer(player, team);
         player->OnEnterPvPCombat();
 
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", _player->GetName(), _player->GetGUID().GetCounter(), bg->GetInstanceID(), bg->GetTypeID(), bgQueueTypeId);
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", _player->GetName(), _player->GetGUIDLow(), bg->GetInstanceID(), bg->GetTypeID(), bgQueueTypeId);
     } else // leave queue
     {
         WorldPackets::Battleground::BattlefieldStatusNone none;
@@ -411,7 +411,7 @@ void WorldSession::HandleBattleFieldPort(WorldPackets::Battleground::Port& packe
         if (!ginfo.JoinType)
             sBattlegroundMgr->ScheduleQueueUpdate(ginfo.MatchmakerRating, ginfo.JoinType, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) left queue for bgtype %u, queue type %u.", player->GetName(), player->GetGUID().GetCounter(), bg->GetTypeID(), bgQueueTypeId);
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) left queue for bgtype %u, queue type %u.", player->GetName(), player->GetGUIDLow(), bg->GetTypeID(), bgQueueTypeId);
     }
 }
 
@@ -593,7 +593,7 @@ void WorldSession::JoinBracket(uint8 slot)
         sBattlegroundMgr->BuildBattlegroundStatusQueued(&queued, bg, player, member->AddBattlegroundQueueId(bgQueueTypeId), ginfo->JoinTime, avgTime, ginfo->JoinType, true);
         member->GetSession()->SendPacket(queued.Write());
 
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for arena as group bg queue type %u bg type %u: GUID %u, NAME %s", bgQueueTypeId, bgTypeId, member->GetGUID().GetCounter(), member->GetName());
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for arena as group bg queue type %u bg type %u: GUID %u, NAME %s", bgQueueTypeId, bgTypeId, member->GetGUIDLow(), member->GetName());
     }
     sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, Jointype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }

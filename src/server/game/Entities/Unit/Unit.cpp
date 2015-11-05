@@ -642,7 +642,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     // Log damage > 1 000 000 on worldboss
     if (damage > 1000000 && GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->GetCreatureTemplate()->rank)
-        sLog->outWarn(LOG_FILTER_UNITS, "World Boss %u [%s] take more than 1M damage (%u) by player %u [%s] with spell %u", victim->GetEntry(), victim->GetName(), damage, GetGUID().GetCounter(), GetName(), spellProto ? spellProto->Id : 0);
+        sLog->outWarn(LOG_FILTER_UNITS, "World Boss %u [%s] take more than 1M damage (%u) by player %u [%s] with spell %u", victim->GetEntry(), victim->GetName(), damage, GetGUIDLow(), GetName(), spellProto ? spellProto->Id : 0);
 
     // Leeching Poison - 112961 each attack heal the player for 10% of the damage
     if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_ROGUE && damage != 0)
@@ -1210,7 +1210,7 @@ void Unit::CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo
 {
     if (!spellInfo)
     {
-        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell by caster: %s %u)", (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUID().GetCounter() : GetEntry()));
+        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell by caster: %s %u)", (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
         return;
     }
 
@@ -1240,7 +1240,7 @@ void Unit::CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
-        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUID().GetCounter() : GetEntry()));
+        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
         return;
     }
 
@@ -1301,7 +1301,7 @@ void Unit::CastCustomSpell(uint32 spellId, CustomSpellValues const& value, Unit*
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
-        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUID().GetCounter() : GetEntry()));
+        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
         return;
     }
     SpellCastTargets targets;
@@ -1315,7 +1315,7 @@ void Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
-        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUID().GetCounter() : GetEntry()));
+        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
         return;
     }
     SpellCastTargets targets;
@@ -1329,7 +1329,7 @@ void Unit::CastSpell(Position pos, uint32 spellId, bool triggered, Item* castIte
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
-        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUID().GetCounter() : GetEntry()));
+        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
         return;
     }
 
@@ -1343,7 +1343,7 @@ void Unit::CastSpell(float x, float y, float z, uint32 spellId, TriggerCastFlags
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
-        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUID().GetCounter() : GetEntry()));
+        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
         return;
     }
     SpellCastTargets targets;
@@ -1357,7 +1357,7 @@ void Unit::CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castI
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
-        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUID().GetCounter() : GetEntry()));
+        sLog->outError(LOG_FILTER_UNITS, "CastSpell: unknown spell id %u by caster: %s %u)", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
         return;
     }
     SpellCastTargets targets;
@@ -2542,10 +2542,10 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
 
             if (GetTypeId() == TYPEID_PLAYER)
                 sLog->outDebug(LOG_FILTER_UNITS, "AttackerStateUpdate: (Player) %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
-                    GetGUID().GetCounter(), redirectVictim->GetGUID().GetCounter(), redirectVictim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+                    GetGUIDLow(), redirectVictim->GetGUIDLow(), redirectVictim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
             else
                 sLog->outDebug(LOG_FILTER_UNITS, "AttackerStateUpdate: (NPC)    %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
-                    GetGUID().GetCounter(), redirectVictim->GetGUID().GetCounter(), redirectVictim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+                    GetGUIDLow(), redirectVictim->GetGUIDLow(), redirectVictim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
             if (replacementAttackAura)
                 RemoveAura(replacementAttackAura);
         }
@@ -2800,9 +2800,9 @@ void Unit::SendMeleeAttackStop(Unit* victim)
     SendMessageToSet(packet.Write(), true);
 
     if (victim)
-        sLog->outInfo(LOG_FILTER_UNITS, "%s %u stopped attacking %s %u", (GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), GetGUID().GetCounter(), (victim->GetTypeId() == TYPEID_PLAYER ? "player" : "creature"), victim->GetGUID().GetCounter());
+        sLog->outInfo(LOG_FILTER_UNITS, "%s %u stopped attacking %s %u", (GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), GetGUIDLow(), (victim->GetTypeId() == TYPEID_PLAYER ? "player" : "creature"), victim->GetGUIDLow());
     else
-        sLog->outInfo(LOG_FILTER_UNITS, "%s %u stopped attacking", (GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), GetGUID().GetCounter());
+        sLog->outInfo(LOG_FILTER_UNITS, "%s %u stopped attacking", (GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), GetGUIDLow());
 }
 
 bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType /*attackType*/)
@@ -3355,9 +3355,6 @@ void Unit::DestroyForPlayer(Player* target, bool onDeath /*= false*/) const
 
 void Unit::_UpdateSpells(uint32 time)
 {
-    if (!IsInWorld())
-        return;
-
     if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL])
         _UpdateAutoRepeatSpell();
 
@@ -4778,7 +4775,7 @@ void Unit::DelayOwnedAuras(uint32 spellId, ObjectGuid caster, int32 delaytime)
 
             // update for out of range group members (on 1 slot use)
             aura->SetNeedClientUpdateForTargets();
-            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura %u partially interrupted on unit %u, new duration: %u ms", aura->GetId(), GetGUID().GetCounter(), aura->GetDuration());
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura %u partially interrupted on unit %u, new duration: %u ms", aura->GetId(), GetGUIDLow(), aura->GetDuration());
         }
     }
 }
@@ -11172,7 +11169,7 @@ Minion *Unit::GetFirstMinion() const
             if (pet->HasUnitTypeMask(UNIT_MASK_MINION))
                 return (Minion*)pet;
 
-        sLog->outError(LOG_FILTER_UNITS, "Unit::GetFirstMinion: Minion %u not exist.", pet_guid.GetCounter());
+        sLog->outError(LOG_FILTER_UNITS, "Unit::GetFirstMinion: Minion %u not exist.", pet_guid.GetGUIDLow());
         const_cast<Unit*>(this)->SetMinionGUID(ObjectGuid::Empty);
     }
 
@@ -11201,7 +11198,7 @@ Unit* Unit::GetCharm() const
         if (Unit* pet = ObjectAccessor::GetUnit(*this, charm_guid))
             return pet;
 
-        sLog->outError(LOG_FILTER_UNITS, "Unit::GetCharm: Charmed creature %u not exist.", charm_guid.GetCounter());
+        sLog->outError(LOG_FILTER_UNITS, "Unit::GetCharm: Charmed creature %u not exist.", charm_guid.GetGUIDLow());
         const_cast<Unit*>(this)->SetGuidValue(UNIT_FIELD_CHARM, ObjectGuid::Empty);
     }
 
@@ -16007,7 +16004,7 @@ void Unit::SetLevel(uint8 lvl)
         ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_LEVEL);
 
     if (GetTypeId() == TYPEID_PLAYER)
-        sWorld->UpdateCharacterNameDataLevel(ToPlayer()->GetGUID().GetCounter(), lvl);
+        sWorld->UpdateCharacterNameDataLevel(ToPlayer()->GetGUIDLow(), lvl);
 }
 
 void Unit::SetHealth(uint32 val)
@@ -16414,6 +16411,7 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 {
     // This needs to be before RemoveFromWorld to make GetCaster() return a valid pointer on aura removal
     InterruptNonMeleeSpells(true);
+    RemoveAllAuras();
 
     if (IsInWorld())
         RemoveFromWorld();
@@ -16422,7 +16420,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 
     // A unit may be in removelist and not in world, but it is still in grid
     // and may have some references during delete
-    RemoveAllAuras();
     RemoveAllGameObjects();
 
     if (finalCleanup)
@@ -20873,14 +20870,14 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetTransport())
     {
-        sLog->outFatal(LOG_FILTER_UNITS, "Unit::SetCharmedBy: Player on transport is trying to charm %u (GUID %u)", GetEntry(), GetGUID().GetCounter());
+        sLog->outFatal(LOG_FILTER_UNITS, "Unit::SetCharmedBy: Player on transport is trying to charm %u (GUID %u)", GetEntry(), GetGUIDLow());
         return false;
     }
 
     // Already charmed
     if (GetCharmerGUID())
     {
-        sLog->outFatal(LOG_FILTER_UNITS, "Unit::SetCharmedBy: %u (GUID %u) has already been charmed but %u (GUID %u) is trying to charm it!", GetEntry(), GetGUID().GetCounter(), charmer->GetEntry(), charmer->GetGUID().GetCounter());
+        sLog->outFatal(LOG_FILTER_UNITS, "Unit::SetCharmedBy: %u (GUID %u) has already been charmed but %u (GUID %u) is trying to charm it!", GetEntry(), GetGUIDLow(), charmer->GetEntry(), charmer->GetGUIDLow());
         return false;
     }
 
@@ -20905,7 +20902,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     // StopCastingCharm may remove a possessed pet?
     if (!IsInWorld())
     {
-        sLog->outFatal(LOG_FILTER_UNITS, "Unit::SetCharmedBy: %u (GUID %u) is not in world but %u (GUID %u) is trying to charm it!", GetEntry(), GetGUID().GetCounter(), charmer->GetEntry(), charmer->GetGUID().GetCounter());
+        sLog->outFatal(LOG_FILTER_UNITS, "Unit::SetCharmedBy: %u (GUID %u) is not in world but %u (GUID %u) is trying to charm it!", GetEntry(), GetGUIDLow(), charmer->GetEntry(), charmer->GetGUIDLow());
         return false;
     }
 
@@ -21331,8 +21328,7 @@ Aura* Unit::AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target, It
             effMask &= ~(1<<i);
     }
 
-    Aura* aura = Aura::TryRefreshStackOrCreate(spellInfo, effMask, target, this, NULL, castItem, ObjectGuid::Empty, NULL, stackAmount);
-    if (aura != NULL)
+    if (Aura* aura = Aura::TryRefreshStackOrCreate(spellInfo, effMask, target, this, NULL, castItem, ObjectGuid::Empty, NULL, stackAmount))
     {
         aura->ApplyForTargets();
         return aura;

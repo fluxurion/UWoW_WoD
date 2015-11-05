@@ -141,11 +141,11 @@ void FormationMgr::LoadCreatureFormations()
 FormationInfo* FormationMgr::CreateCustomFormation(Creature* c)
 {
     FormationInfo* group_member         = new FormationInfo();
-    group_member->leaderGUID            = c->GetGUID().GetCounter();
+    group_member->leaderGUID            = c->GetGUIDLow();
     group_member->groupAI               = NULL;
     group_member->follow_dist           = 1.0f;
     group_member->follow_angle          = 45 * M_PI / 180;
-    sFormationMgr->AddCreatureToGroup(c->GetGUID().GetCounter(), c);
+    sFormationMgr->AddCreatureToGroup(c->GetGUIDLow(), c);
     if (CreatureGroup* f = c->GetFormation())
         f->AddMember(c, group_member);
     return group_member;
@@ -156,7 +156,7 @@ void CreatureGroup::AddMember(Creature* member, FormationInfo* f)
     sLog->outDebug(LOG_FILTER_UNITS, "CreatureGroup::AddMember: Adding unit GetDBTableGUIDLow %u GUID: %u", member->GetDBTableGUIDLow(), member->GetGUID().GetGUIDLow());
 
     //Check if it is a leader
-    if (member->GetDBTableGUIDLow() == m_groupID || member->GetGUID().GetCounter() == m_groupID)
+    if (member->GetDBTableGUIDLow() == m_groupID || member->GetGUIDLow() == m_groupID)
     {
         sLog->outDebug(LOG_FILTER_UNITS, "Unit GUID: %u is formation leader. Adding group.", member->GetGUID().GetGUIDLow());
         m_leader = member;
@@ -240,7 +240,7 @@ void CreatureGroup::FormationReset(bool dismiss)
                 itr->first->GetMotionMaster()->Initialize();
             else
                 itr->first->GetMotionMaster()->MoveIdle();
-            sLog->outDebug(LOG_FILTER_UNITS, "Set %s movement for member GUID: %u", dismiss ? "default" : "idle", itr->first->GetGUID().GetCounter());
+            sLog->outDebug(LOG_FILTER_UNITS, "Set %s movement for member GUID: %u", dismiss ? "default" : "idle", itr->first->GetGUIDLow());
         }
     }
     m_Formed = !dismiss;

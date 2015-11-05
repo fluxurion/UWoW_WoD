@@ -52,7 +52,7 @@ void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TABARDDESIGNER);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTabardVendorActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(guid.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTabardVendorActivateOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(guid.GetGUIDLow()));
         return;
     }
 
@@ -108,7 +108,7 @@ void WorldSession::SendTrainerList(ObjectGuid const& guid, const std::string& st
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - Unit (GUID: %u) not found or you can not interact with him.", uint32(guid.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - Unit (GUID: %u) not found or you can not interact with him.", uint32(guid.GetGUIDLow()));
         return;
     }
 
@@ -124,7 +124,7 @@ void WorldSession::SendTrainerList(ObjectGuid const& guid, const std::string& st
 
     if (!ci)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - (GUID: %u) NO CREATUREINFO!", guid.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - (GUID: %u) NO CREATUREINFO!", guid.GetGUIDLow());
         return;
     }
 
@@ -132,7 +132,7 @@ void WorldSession::SendTrainerList(ObjectGuid const& guid, const std::string& st
     if (!trainer_spells)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - Training spells not found for creature (GUID: %u Entry: %u)",
-            guid.GetCounter(), unit->GetEntry());
+            guid.GetGUIDLow(), unit->GetEntry());
         return;
     }
 
@@ -351,13 +351,13 @@ void WorldSession::HandleGossipSelectOption(WorldPackets::NPC::GossipSelectOptio
         go = player->GetMap()->GetGameObject(packet.GossipUnit);
         if (!go)
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOption - GameObject (GUID: %u) not found.", packet.GossipUnit.GetCounter());
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOption - GameObject (GUID: %u) not found.", packet.GossipUnit.GetGUIDLow());
             return;
         }
     }
     else
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOption - unsupported GUID type for highguid %u. lowpart %u.", packet.GossipUnit.GetHigh(), packet.GossipUnit.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleGossipSelectOption - unsupported GUID type for highguid %u. lowpart %u.", packet.GossipUnit.GetHigh(), packet.GossipUnit.GetGUIDLow());
         return;
     }
 
@@ -486,7 +486,7 @@ void WorldSession::SendBindPoint(Creature* npc)
     stmt->setFloat(2, _player->GetPositionX());
     stmt->setFloat(3, _player->GetPositionY());
     stmt->setFloat(4, _player->GetPositionZ());
-    stmt->setUInt64(5, _player->GetGUID().GetCounter());
+    stmt->setUInt64(5, _player->GetGUIDLow());
     CharacterDatabase.Execute(stmt);
 
     _player->m_homebindMapId = _player->GetMapId();

@@ -339,7 +339,7 @@ void Item::SaveToDB(SQLTransaction& trans)
     if (!isInTransaction)
         trans = CharacterDatabase.BeginTransaction();
 
-    ObjectGuid::LowType guid = GetGUID().GetCounter();
+    ObjectGuid::LowType guid = GetGUIDLow();
     switch (uState)
     {
         case ITEM_NEW:
@@ -566,7 +566,7 @@ void Item::DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid)
 
 void Item::DeleteFromDB(SQLTransaction& trans)
 {
-    DeleteFromDB(trans, GetGUID().GetCounter());
+    DeleteFromDB(trans, GetGUIDLow());
 }
 
 /*static*/
@@ -579,7 +579,7 @@ void Item::DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType item
 
 void Item::DeleteFromInventoryDB(SQLTransaction& trans)
 {
-    DeleteFromInventoryDB(trans, GetGUID().GetCounter());
+    DeleteFromInventoryDB(trans, GetGUIDLow());
 }
 
 ItemTemplate const* Item::GetTemplate() const
@@ -761,7 +761,7 @@ void Item::AddToUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
+        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GetOwnerGUID().GetGUIDLow(), player->GetGUIDLow());
         return;
     }
 
@@ -783,7 +783,7 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GetOwnerGUID().GetCounter(), player->GetGUID().GetCounter());
+        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GetOwnerGUID().GetGUIDLow(), player->GetGUIDLow());
         return;
     }
 
@@ -1241,11 +1241,11 @@ void Item::SaveRefundDataToDB()
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_REFUND_INSTANCE);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     stmt->setUInt64(1, GetRefundRecipient().GetCounter());
     stmt->setUInt32(2, GetPaidMoney());
     stmt->setUInt16(3, uint16(GetPaidExtendedCost()));
@@ -1259,7 +1259,7 @@ void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
     if (trans)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
-        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, GetGUIDLow());
         (*trans)->Append(stmt);
 
     }
@@ -1342,7 +1342,7 @@ void Item::ClearSoulboundTradeable(Player* currentOwner)
     allowedGUIDs.clear();
     SetState(ITEM_CHANGED, currentOwner);
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_BOP_TRADE);
-    stmt->setUInt64(0, GetGUID().GetCounter());
+    stmt->setUInt64(0, GetGUIDLow());
     CharacterDatabase.Execute(stmt);
 }
 

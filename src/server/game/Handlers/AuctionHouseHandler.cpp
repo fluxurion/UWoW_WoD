@@ -40,7 +40,7 @@ void WorldSession::HandleAuctionHelloRequest(WorldPackets::AuctionHouse::Auction
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!unit)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionHelloRequest - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Guid.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionHelloRequest - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Guid.GetGUIDLow()));
         return;
     }
 
@@ -135,14 +135,14 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionSellItem - Unit (GUID: %u) not found or you can't interact with him.", packet.Auctioneer.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionSellItem - Unit (GUID: %u) not found or you can't interact with him.", packet.Auctioneer.GetGUIDLow());
         return;
     }
 
     AuctionHouseEntry const* auctionHouseEntry = AuctionHouseMgr::GetAuctionHouseEntry(creature->getFaction());
     if (!auctionHouseEntry)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionSellItem - Unit (GUID: %u) has wrong faction.", packet.Auctioneer.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionSellItem - Unit (GUID: %u) has wrong faction.", packet.Auctioneer.GetGUIDLow());
         return;
     }
 
@@ -173,7 +173,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
             return;
         }
 
-        if (sAuctionMgr->GetAItem(item->GetGUID().GetCounter()) || !item->CanBeTraded() || item->IsNotEmptyBag() ||
+        if (sAuctionMgr->GetAItem(item->GetGUIDLow()) || !item->CanBeTraded() || item->IsNotEmptyBag() ||
             item->GetTemplate()->Flags & ITEM_PROTO_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_EXPIRATION) ||
             item->GetCount() < packetItem.UseCount || _player->GetItemCount(item->GetEntry(), false) < packetItem.UseCount)
         {
@@ -181,7 +181,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
             return;
         }
 
-        if (packet.Items.size() == 0 && (packetItem.Guid.GetEntry() != item->GetEntry() || packetItem.Guid.GetCounter() == item->GetGUID().GetCounter()))
+        if (packet.Items.size() == 0 && (packetItem.Guid.GetEntry() != item->GetEntry() || packetItem.Guid.GetGUIDLow() == item->GetGUIDLow()))
         {
             sWorld->BanAccount(BAN_CHARACTER, _player->GetName(), "45d", "Dupe Auction mop", "System");
             return;
@@ -247,7 +247,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
         if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
             AH->auctioneer = 174444;
         else
-            AH->auctioneer = packet.Auctioneer.GetCounter();
+            AH->auctioneer = packet.Auctioneer.GetGUIDLow();
 
         ASSERT(sObjectMgr->GetCreatureData(AH->auctioneer)); // Tentative de vendre un item a un pnj qui n'existe pas, mieux vaut crash ici sinon l'item en question risque de disparaitre tout simplement
 
@@ -260,10 +260,10 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
                     GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount());
             }
 
-            AH->itemGUIDLow = item->GetGUID().GetCounter();
+            AH->itemGUIDLow = item->GetGUIDLow();
             AH->itemEntry = item->GetEntry();
             AH->itemCount = item->GetCount();
-            AH->owner = _player->GetGUID().GetCounter();
+            AH->owner = _player->GetGUIDLow();
             AH->startbid = packet.MinBid;
             AH->bidder = 0;
             AH->bid = 0;
@@ -306,10 +306,10 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
                     GetPlayerName().c_str(), GetAccountId(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetCount());
             }
 
-            AH->itemGUIDLow = newItem->GetGUID().GetCounter();
+            AH->itemGUIDLow = newItem->GetGUIDLow();
             AH->itemEntry = newItem->GetEntry();
             AH->itemCount = newItem->GetCount();
-            AH->owner = _player->GetGUID().GetCounter();
+            AH->owner = _player->GetGUIDLow();
             AH->startbid = packet.MinBid;
             AH->bidder = 0;
             AH->bid = 0;
@@ -368,7 +368,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     Creature* creature = player->GetNPCIfCanInteractWith(packet.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionPlaceBid - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Auctioneer.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionPlaceBid - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Auctioneer.GetGUIDLow()));
         return;
     }
 
@@ -378,7 +378,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
     AuctionEntry* auction = auctionHouse->GetAuction(packet.AuctionItemID);
 
-    if (!auction || auction->owner == player->GetGUID().GetCounter())
+    if (!auction || auction->owner == player->GetGUIDLow())
     {
         //you cannot bid your own auction:
         SendAuctionCommandResult(NULL, AUCTION_PLACE_BID, ERR_AUCTION_BID_OWN);
@@ -420,7 +420,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     {
         if (auction->bidder > 0)
         {
-            if (auction->bidder == player->GetGUID().GetCounter())
+            if (auction->bidder == player->GetGUIDLow())
                 player->ModifyMoney(-int64(packet.BidAmount - auction->bid));
             else
             {
@@ -432,7 +432,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
         else
             player->ModifyMoney(-int64(packet.BidAmount));
 
-        auction->bidder = player->GetGUID().GetCounter();
+        auction->bidder = player->GetGUIDLow();
         auction->bid = packet.BidAmount;
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, packet.BidAmount);
 
@@ -447,7 +447,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     else
     {
         //buyout:
-        if (player->GetGUID().GetCounter() == auction->bidder)
+        if (player->GetGUIDLow() == auction->bidder)
             player->ModifyMoney(-int64(auction->buyout - auction->bid));
         else
         {
@@ -455,7 +455,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
             if (auction->bidder)                          //buyout for bidded auction ..
                 sAuctionMgr->SendAuctionOutbiddedMail(auction, auction->buyout, player, trans);
         }
-        auction->bidder = player->GetGUID().GetCounter();
+        auction->bidder = player->GetGUIDLow();
         auction->bid = auction->buyout;
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, auction->buyout);
 
@@ -483,7 +483,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
     Creature* creature = player->GetNPCIfCanInteractWith(packet.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionRemoveItem - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Auctioneer.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionRemoveItem - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Auctioneer.GetGUIDLow()));
         return;
     }
 
@@ -494,7 +494,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
     AuctionEntry* auction = auctionHouse->GetAuction(packet.AuctionItemID);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    if (auction && auction->owner == player->GetGUID().GetCounter())
+    if (auction && auction->owner == player->GetGUIDLow())
     {
         Item* pItem = sAuctionMgr->GetAItem(auction->itemGUIDLow);
         if (pItem)
@@ -524,7 +524,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
     {
         SendAuctionCommandResult(NULL, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
         //this code isn't possible ... maybe there should be assert
-        sLog->outError(LOG_FILTER_NETWORKIO, "CHEATER: %u tried to cancel auction (id: %u) of another player or auction is NULL", player->GetGUID().GetCounter(), packet.AuctionItemID);
+        sLog->outError(LOG_FILTER_NETWORKIO, "CHEATER: %u tried to cancel auction (id: %u) of another player or auction is NULL", player->GetGUIDLow(), packet.AuctionItemID);
         return;
     }
 
@@ -549,7 +549,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPackets::AuctionHouse::Auct
     Creature* creature = player->GetNPCIfCanInteractWith(packet.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionListBidderItems - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Auctioneer.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionListBidderItems - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Auctioneer.GetGUIDLow()));
         return;
     }
 
@@ -571,7 +571,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPackets::AuctionHouse::Aucti
     Creature* creature = player->GetNPCIfCanInteractWith(packet.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionListOwnerItems - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Auctioneer.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionListOwnerItems - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Auctioneer.GetGUIDLow()));
         return;
     }
 
@@ -593,7 +593,7 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
     Creature* creature = player->GetNPCIfCanInteractWith(packet.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionListItems - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Auctioneer.GetCounter()));
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionListItems - Unit (GUID: %u) not found or you can't interact with him.", uint32(packet.Auctioneer.GetGUIDLow()));
         return;
     }
 

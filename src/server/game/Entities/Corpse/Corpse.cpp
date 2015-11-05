@@ -108,7 +108,7 @@ void Corpse::SaveToDB()
 
     uint16 index = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE);
-    stmt->setUInt64(index++, GetGUID().GetCounter());                                           // corpseGuid
+    stmt->setUInt64(index++, GetGUIDLow());                                           // corpseGuid
     stmt->setUInt64(index++, GetOwnerGUID().GetCounter());                            // guid
     stmt->setFloat (index++, GetPositionX());                                         // posX
     stmt->setFloat (index++, GetPositionY());                                         // posY
@@ -137,7 +137,7 @@ void Corpse::DeleteBonesFromWorld()
 
     if (!corpse)
     {
-        sLog->outError(LOG_FILTER_PLAYER, "Bones %u not found in world.", GetGUID().GetCounter());
+        sLog->outError(LOG_FILTER_PLAYER, "Bones %u not found in world.", GetGUIDLow());
         return;
     }
 
@@ -151,7 +151,7 @@ void Corpse::DeleteFromDB(SQLTransaction& trans)
     {
         // Only specific bones
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
-        stmt->setUInt64(0, GetGUID().GetCounter());
+        stmt->setUInt64(0, GetGUIDLow());
     }
     else
     {
@@ -197,7 +197,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     if (!IsPositionValid())
     {
         sLog->outError(LOG_FILTER_PLAYER, "Corpse (guid: %u, owner: %u) is not created, given coordinates are not valid (X: %f, Y: %f, Z: %f)",
-            GetGUID().GetCounter(), GetOwnerGUID().GetCounter(), posX, posY, posZ);
+            GetGUIDLow(), GetOwnerGUID().GetCounter(), posX, posY, posZ);
         return false;
     }
 

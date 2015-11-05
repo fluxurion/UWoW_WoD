@@ -125,7 +125,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (myItems[i])
             {
                 // logging
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "partner storing: %u", myItems[i]->GetGUID().GetCounter());
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "partner storing: %u", myItems[i]->GetGUIDLow());
                 if (!AccountMgr::IsPlayerAccount(_player->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
                 {
                     sLog->outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
@@ -143,7 +143,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (hisItems[i])
             {
                 // logging
-                sLog->outDebug(LOG_FILTER_NETWORKIO, "player storing: %u", hisItems[i]->GetGUID().GetCounter());
+                sLog->outDebug(LOG_FILTER_NETWORKIO, "player storing: %u", hisItems[i]->GetGUIDLow());
                 if (!AccountMgr::IsPlayerAccount(trader->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
                 {
                     sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
@@ -166,21 +166,21 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (myItems[i])
             {
                 if (!traderCanTrade)
-                    sLog->outError(LOG_FILTER_NETWORKIO, "trader can't store item: %u", myItems[i]->GetGUID().GetCounter());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "trader can't store item: %u", myItems[i]->GetGUIDLow());
                 if (_player->CanStoreItem(NULL_BAG, NULL_SLOT, playerDst, myItems[i], false) == EQUIP_ERR_OK)
                     _player->MoveItemToInventory(playerDst, myItems[i], true, true);
                 else
-                    sLog->outError(LOG_FILTER_NETWORKIO, "player can't take item back: %u", myItems[i]->GetGUID().GetCounter());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "player can't take item back: %u", myItems[i]->GetGUIDLow());
             }
             // return the already removed items to the original owner
             if (hisItems[i])
             {
                 if (!playerCanTrade)
-                    sLog->outError(LOG_FILTER_NETWORKIO, "player can't store item: %u", hisItems[i]->GetGUID().GetCounter());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "player can't store item: %u", hisItems[i]->GetGUIDLow());
                 if (trader->CanStoreItem(NULL_BAG, NULL_SLOT, traderDst, hisItems[i], false) == EQUIP_ERR_OK)
                     trader->MoveItemToInventory(traderDst, hisItems[i], true, true);
                 else
-                    sLog->outError(LOG_FILTER_NETWORKIO, "trader can't take item back: %u", hisItems[i]->GetGUID().GetCounter());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "trader can't take item back: %u", hisItems[i]->GetGUIDLow());
             }
         }
     }
@@ -198,7 +198,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
     {
         if (Item* item = myTrade->GetItem(TradeSlots(i)))
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "player trade item %u bag: %u slot: %u", item->GetGUID().GetCounter(), item->GetBagSlot(), item->GetSlot());
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "player trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
             //Can return NULL
             myItems[i] = item;
             myItems[i]->SetInTrade();
@@ -206,7 +206,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
 
         if (Item* item = hisTrade->GetItem(TradeSlots(i)))
         {
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "partner trade item %u bag: %u slot: %u", item->GetGUID().GetCounter(), item->GetBagSlot(), item->GetSlot());
+            sLog->outDebug(LOG_FILTER_NETWORKIO, "partner trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
             hisItems[i] = item;
             hisItems[i]->SetInTrade();
         }

@@ -499,7 +499,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
     // Set initial reputations (so everything is nifty before DB data load)
     Initialize();
 
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT faction, standing, flags FROM character_reputation WHERE guid = '%u'", GetGUID().GetCounter());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT faction, standing, flags FROM character_reputation WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
     {
@@ -567,12 +567,12 @@ void ReputationMgr::SaveToDB(SQLTransaction& trans)
         if (itr->second.needSave)
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REPUTATION_BY_FACTION);
-            stmt->setUInt64(0, _player->GetGUID().GetCounter());
+            stmt->setUInt64(0, _player->GetGUIDLow());
             stmt->setUInt16(1, uint16(itr->second.ID));
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_REPUTATION_BY_FACTION);
-            stmt->setUInt64(0, _player->GetGUID().GetCounter());
+            stmt->setUInt64(0, _player->GetGUIDLow());
             stmt->setUInt16(1, uint16(itr->second.ID));
             stmt->setInt32(2, itr->second.Standing);
             stmt->setUInt16(3, uint16(itr->second.Flags));

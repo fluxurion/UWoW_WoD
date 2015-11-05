@@ -561,7 +561,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPackets::Item::BuyItem& packet)
     if (sObjectMgr->IsPlayerInLogList(GetPlayer()))
     {
         sObjectMgr->DumpDupeConstant(GetPlayer());
-        sLog->outDebug(LOG_FILTER_DUPE, "---HandleBuyItemOpcode; vendor: %llu; item: %u; count: %u;", packet.VendorGUID.GetCounter(), packet.Item.ItemID, packet.Quantity);
+        sLog->outDebug(LOG_FILTER_DUPE, "---HandleBuyItemOpcode; vendor: %llu; item: %u; count: %u;", packet.VendorGUID.GetGUIDLow(), packet.Item.ItemID, packet.Quantity);
     }
 
     if (packet.Item.ItemID == 38186)
@@ -821,7 +821,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recvData)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GIFT);
     stmt->setUInt64(0, item->GetOwnerGUID().GetCounter());
-    stmt->setUInt64(1, item->GetGUID().GetCounter());
+    stmt->setUInt64(1, item->GetGUIDLow());
     stmt->setUInt32(2, item->GetEntry());
     stmt->setUInt32(3, item->GetUInt32Value(ITEM_FIELD_DYNAMIC_FLAGS));
     trans->Append(stmt);
@@ -1139,7 +1139,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrigyItem&
         //    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(packet.Items[i].ItemID);
         //    if (!proto)
         //    {
-        //        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify to an invalid item (entry: %u).", player->GetGUID().GetCounter(), player->GetName(), newEntries[i]);
+        //        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) tried to transmogrify to an invalid item (entry: %u).", player->GetGUIDLow(), player->GetName(), newEntries[i]);
         //        return;
         //    }
 
@@ -1166,14 +1166,14 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrigyItem&
         //// has to be able to equip item transmogrified item
         //if (!player->CanEquipItem(packet.Slots[i], tempDest, itemTransmogrified, true, true))
         //{
-        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the item to be transmogrified (slot: %u, entry: %u).", player->GetGUID().GetCounter(), player->GetName(), packet.Slots[i], itemTransmogrified->GetEntry());
+        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the item to be transmogrified (slot: %u, entry: %u).", player->GetGUIDLow(), player->GetName(), packet.Slots[i], itemTransmogrified->GetEntry());
         //    return;
         //}
         //
         //// has to be able to equip item transmogrifier item
         //if (!player->CanEquipItem(packet.Slots[i], tempDest, itemTransmogrifier, true, true))
         //{
-        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the transmogrifier item (slot: %u, entry: %u).", player->GetGUID().GetCounter(), player->GetName(), packet.Slots[i], itemTransmogrifier->GetEntry());
+        //    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleTransmogrifyItems - Player (GUID: %u, name: %s) can't equip the transmogrifier item (slot: %u, entry: %u).", player->GetGUIDLow(), player->GetName(), packet.Slots[i], itemTransmogrifier->GetEntry());
         //    return;
         //}
 
@@ -1243,7 +1243,7 @@ void WorldSession::HandleOpenItem(WorldPackets::Spells::OpenItem& packet)
     {
         player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, nullptr);
         sLog->outError(LOG_FILTER_NETWORKIO, "Possible hacking attempt: Player %s [guid: %u] tried to open item [guid: %u, entry: %u] which is not openable!",
-                player->GetName(), player->GetGUID().GetCounter(), item->GetGUID().GetCounter(), proto->ItemId);
+                player->GetName(), player->GetGUIDLow(), item->GetGUIDLow(), proto->ItemId);
         return;
     }
 
@@ -1269,7 +1269,7 @@ void WorldSession::HandleOpenItem(WorldPackets::Spells::OpenItem& packet)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
 
-        stmt->setUInt64(0, item->GetGUID().GetCounter());
+        stmt->setUInt64(0, item->GetGUIDLow());
 
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -1286,14 +1286,14 @@ void WorldSession::HandleOpenItem(WorldPackets::Spells::OpenItem& packet)
         }
         else
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "Wrapped item %u don't have record in character_gifts table and will deleted", item->GetGUID().GetCounter());
+            sLog->outError(LOG_FILTER_NETWORKIO, "Wrapped item %u don't have record in character_gifts table and will deleted", item->GetGUIDLow());
             player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
             return;
         }
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
 
-        stmt->setUInt64(0, item->GetGUID().GetCounter());
+        stmt->setUInt64(0, item->GetGUIDLow());
 
         CharacterDatabase.Execute(stmt);
     }
@@ -1333,21 +1333,21 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
 
     if (!player->GetNPCIfCanInteractWith(npcGuid, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_UPGRADE_MASTER))
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Unit (GUID: %u) not found or player can't interact with it.", npcGuid.GetGUIDLow());
         return;
     }
 
     Item* item = player->GetItemByGuid(itemGuid);
     if (!item)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Can't find item (GUID: %u).", itemGuid.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Can't find item (GUID: %u).", itemGuid.GetGUIDLow());
         return;
     }
 
     ItemUpgradeData const* upgradeData = sDB2Manager.GetItemUpgradeData(item->GetEntry());
     if (!upgradeData)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Can't find item (GUID: %u).", itemGuid.GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Can't find item (GUID: %u).", itemGuid.GetGUIDLow());
         return;
     }
 
@@ -1368,14 +1368,14 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
     if (!newUpgrade)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Can't find upgrade id %u for item %u (GUID: %u).",
-            upgradeId, item->GetEntry(), itemGuid.GetCounter());
+            upgradeId, item->GetEntry(), itemGuid.GetGUIDLow());
         return;
     }
 
     if (item->GetUpgradeId() != newUpgrade->prevUpgradeId)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - Previous item upgrade id mismatch: %u should be %u. Item id %u (GUID: %u).",
-            item->GetUpgradeId(), newUpgrade->prevUpgradeId, item->GetEntry(), itemGuid.GetCounter());
+            item->GetUpgradeId(), newUpgrade->prevUpgradeId, item->GetEntry(), itemGuid.GetGUIDLow());
         return;
     }
 
@@ -1385,7 +1385,7 @@ void WorldSession::HandleUpgradeItem(WorldPacket& recvData)
         if (!player->HasCurrency(reqCur, newUpgrade->currencyReqAmt))
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleUpgradeItem - insufficient currency: upgrade id %u Item id %u (GUID: %u).",
-                upgradeId, item->GetEntry(), itemGuid.GetCounter());
+                upgradeId, item->GetEntry(), itemGuid.GetGUIDLow());
             player->SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, nullptr, nullptr);
             return;
         }

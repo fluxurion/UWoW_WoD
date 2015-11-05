@@ -1239,7 +1239,7 @@ namespace Trinity
                 if (!pLeft->IsInWorld() || !pRight->IsInWorld())
                     return false;
 
-                return m_ascending ? pLeft->GetGUID().GetCounter() < pRight->GetGUID().GetCounter() : pLeft->GetGUID().GetCounter() > pRight->GetGUID().GetCounter();
+                return m_ascending ? pLeft->GetGUIDLow() < pRight->GetGUIDLow() : pLeft->GetGUIDLow() > pRight->GetGUIDLow();
             }
         private:
             const bool m_ascending;

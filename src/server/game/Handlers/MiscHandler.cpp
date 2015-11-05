@@ -78,7 +78,7 @@ void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet)
     // release spirit after he's killed but before he is updated
     if (GetPlayer()->getDeathState() == JUST_DIED)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleRepopRequestOpcode: got request after player %s(%d) was killed and before he was updated", GetPlayer()->GetName(), GetPlayer()->GetGUID().GetCounter());
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleRepopRequestOpcode: got request after player %s(%d) was killed and before he was updated", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
         GetPlayer()->KillPlayer();
     }
 
@@ -343,7 +343,7 @@ void WorldSession::HandleAreaTrigger(WorldPackets::Misc::AreaTrigger& packet)
     if (player->isInFlight())
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTrigger: Player '%s' (GUID: %u) in flight, ignore Area Trigger ID:%u",
-            player->GetName(), player->GetGUID().GetCounter(), packet.AreaTriggerID);
+            player->GetName(), player->GetGUIDLow(), packet.AreaTriggerID);
         return;
     }
 
@@ -351,14 +351,14 @@ void WorldSession::HandleAreaTrigger(WorldPackets::Misc::AreaTrigger& packet)
     if (!atEntry)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTrigger: Player '%s' (GUID: %u) send unknown (by DBC) Area Trigger ID:%u",
-            player->GetName(), player->GetGUID().GetCounter(), packet.AreaTriggerID);
+            player->GetName(), player->GetGUIDLow(), packet.AreaTriggerID);
         return;
     }
 
     if (player->GetMapId() != atEntry->mapid)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTrigger: Player '%s' (GUID: %u) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
-            player->GetName(), atEntry->mapid, player->GetMapId(), player->GetGUID().GetCounter(), packet.AreaTriggerID);
+            player->GetName(), atEntry->mapid, player->GetMapId(), player->GetGUIDLow(), packet.AreaTriggerID);
         return;
     }
 
@@ -372,7 +372,7 @@ void WorldSession::HandleAreaTrigger(WorldPackets::Misc::AreaTrigger& packet)
         if (dist > atEntry->radius + delta)
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTrigger: Player '%s' (GUID: %u) too far (radius: %f distance: %f), ignore Area Trigger ID: %u",
-                player->GetName(), player->GetGUID().GetCounter(), atEntry->radius, dist, packet.AreaTriggerID);
+                player->GetName(), player->GetGUIDLow(), atEntry->radius, dist, packet.AreaTriggerID);
             return;
         }
     }
@@ -403,7 +403,7 @@ void WorldSession::HandleAreaTrigger(WorldPackets::Misc::AreaTrigger& packet)
             (fabs(dz) > atEntry->box_z / 2 + delta))
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleAreaTrigger: Player '%s' (GUID: %u) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
-                player->GetName(), player->GetGUID().GetCounter(), atEntry->box_x/2, atEntry->box_y/2, atEntry->box_z/2, rotPlayerX, rotPlayerY, dz, packet.AreaTriggerID);
+                player->GetName(), player->GetGUIDLow(), atEntry->box_x/2, atEntry->box_y/2, atEntry->box_z/2, rotPlayerX, rotPlayerY, dz, packet.AreaTriggerID);
             return;
         }
     }
@@ -523,7 +523,7 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
     data << uint8(0); // value 0xC generates a "CalendarError" in client.
     SendPacket(&data);
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "REPORT SPAM: type %u, guid %u, unk1 %u, unk2 %u, unk3 %u, unk4 %u, message %s", spam_type, spammer_guid.GetCounter(), unk1, unk2, unk3, unk4, description.c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "REPORT SPAM: type %u, guid %u, unk1 %u, unk2 %u, unk3 %u, unk4 %u, message %s", spam_type, spammer_guid.GetGUIDLow(), unk1, unk2, unk3, unk4, description.c_str());
 }
 
 //! 6.0.3

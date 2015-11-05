@@ -7978,7 +7978,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
     damage = caster->InterceptionOfDamage(target, dmg, DOT, m_spellInfo->GetSchoolMask(), m_spellInfo);
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) attacked %u (TypeId: %u) for %u dmg inflicted by %u abs is %u",
-        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), damage, GetId(), absorb);
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUIDLow(), target->GetTypeId(), damage, GetId(), absorb);
 
     caster->DealDamageMods(target, damage, &absorb);
 
@@ -8074,7 +8074,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster, S
         damage = uint32(target->GetHealth());
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) health leech of %u (TypeId: %u) for %u dmg inflicted by %u abs is %u",
-        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), damage, GetId(), absorb);
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUIDLow(), target->GetTypeId(), damage, GetId(), absorb);
 
     caster->SendSpellNonMeleeDamageLog(target, GetId(), damage, GetSpellInfo()->GetSchoolMask(), absorb, resist, false, 0, crit);
 
@@ -8251,7 +8251,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster, SpellEf
     }
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) heal of %u (TypeId: %u) for %u health inflicted by %u",
-        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), damage, GetId());
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUIDLow(), target->GetTypeId(), damage, GetId());
 
     GetBase()->CallScriptEffectChangeTickDamageHandlers(const_cast<AuraEffect const*>(this), damage, target);
 
@@ -8333,7 +8333,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster, Spe
     GetBase()->CallScriptEffectChangeTickDamageHandlers(const_cast<AuraEffect const*>(this), drainAmount, target);
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) power leech of %u (TypeId: %u) for %u dmg inflicted by %u",
-        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), drainAmount, GetId());
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUIDLow(), target->GetTypeId(), drainAmount, GetId());
 
     int32 drainedAmount = -target->ModifyPower(powerType, -drainAmount, true);
 
@@ -8393,7 +8393,7 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster, SpellEffI
     GetBase()->CallScriptEffectChangeTickDamageHandlers(const_cast<AuraEffect const*>(this), amount, target);
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
-        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), amount, GetId());
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUIDLow(), target->GetTypeId(), amount, GetId());
 
     SpellPeriodicAuraLogInfo pInfo(this, amount, 0, 0, 0, 0.0f, false);
     target->SendPeriodicAuraLog(&pInfo);
@@ -8433,7 +8433,7 @@ void AuraEffect::HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster, Spel
     target->SendPeriodicAuraLog(&pInfo);
 
     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %u (TypeId: %u) energize %u (TypeId: %u) for %u dmg inflicted by %u",
-        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUID().GetCounter(), target->GetTypeId(), amount, GetId());
+        GetCasterGUID().GetCounter(), GetCasterGUID().GetHigh(), target->GetGUIDLow(), target->GetTypeId(), amount, GetId());
 
     int32 gain = target->ModifyPower(powerType, amount);
 

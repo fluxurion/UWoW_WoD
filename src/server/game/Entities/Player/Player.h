@@ -2116,7 +2116,7 @@ class Player : public Unit, public GridObject<Player>
         {
             ASSERT(it);
             //ASSERT deleted, because items can be added before loading
-            mMitems[it->GetGUID().GetCounter()] = it;
+            mMitems[it->GetGUIDLow()] = it;
         }
 
         bool RemoveMItem(ObjectGuid::LowType id)

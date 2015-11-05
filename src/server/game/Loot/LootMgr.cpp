@@ -610,7 +610,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
 
 void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
 {
-    ObjectGuid::LowType plguid = player->GetGUID().GetCounter();
+    ObjectGuid::LowType plguid = player->GetGUIDLow();
 
     QuestItemMap::const_iterator qmapitr = PlayerCurrencies.find(plguid);
     if (qmapitr == PlayerCurrencies.end())
@@ -727,7 +727,7 @@ QuestItemList* Loot::FillCurrencyLoot(Player* player)
         return NULL;
     }
 
-    PlayerCurrencies[player->GetGUID().GetCounter()] = ql;
+    PlayerCurrencies[player->GetGUIDLow()] = ql;
     return ql;
 }
 
@@ -750,7 +750,7 @@ QuestItemList* Loot::FillFFALoot(Player* player)
         return NULL;
     }
 
-    PlayerFFAItems[player->GetGUID().GetCounter()] = ql;
+    PlayerFFAItems[player->GetGUIDLow()] = ql;
     return ql;
 }
 
@@ -788,7 +788,7 @@ QuestItemList* Loot::FillQuestLoot(Player* player)
         return NULL;
     }
 
-    PlayerQuestItems[player->GetGUID().GetCounter()] = ql;
+    PlayerQuestItems[player->GetGUIDLow()] = ql;
     return ql;
 }
 
@@ -820,7 +820,7 @@ QuestItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool pres
         return NULL;
     }
 
-    PlayerNonQuestNonFFANonCurrencyConditionalItems[player->GetGUID().GetCounter()] = ql;
+    PlayerNonQuestNonFFANonCurrencyConditionalItems[player->GetGUIDLow()] = ql;
     return ql;
 }
 
@@ -871,7 +871,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
         ++i_next;
         if (Player* player = ObjectAccessor::FindPlayer(*i))
         {
-            QuestItemMap::const_iterator pq = PlayerQuestItems.find(player->GetGUID().GetCounter());
+            QuestItemMap::const_iterator pq = PlayerQuestItems.find(player->GetGUIDLow());
             if (pq != PlayerQuestItems.end() && pq->second)
             {
                 // find where/if the player has the given item in it's vector
@@ -911,7 +911,7 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem* *qite
     if (lootSlot >= items.size())
     {
         uint32 questSlot = lootSlot - items.size();
-        QuestItemMap::const_iterator itr = PlayerQuestItems.find(player->GetGUID().GetCounter());
+        QuestItemMap::const_iterator itr = PlayerQuestItems.find(player->GetGUIDLow());
         if (itr != PlayerQuestItems.end() && questSlot < itr->second->size())
         {
             QuestItem* qitem2 = &itr->second->at(questSlot);
@@ -929,7 +929,7 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem* *qite
         is_looted = item->is_looted;
         if (item->currency)
         {
-            QuestItemMap::const_iterator itr = PlayerCurrencies.find(player->GetGUID().GetCounter());
+            QuestItemMap::const_iterator itr = PlayerCurrencies.find(player->GetGUIDLow());
             if (itr != PlayerCurrencies.end())
             {
                 for (QuestItemList::const_iterator iter = itr->second->begin(); iter != itr->second->end(); ++iter)
@@ -947,7 +947,7 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem* *qite
         }
         else if (item->freeforall)
         {
-            QuestItemMap::const_iterator itr = PlayerFFAItems.find(player->GetGUID().GetCounter());
+            QuestItemMap::const_iterator itr = PlayerFFAItems.find(player->GetGUIDLow());
             if (itr != PlayerFFAItems.end())
             {
                 for (QuestItemList::const_iterator iter=itr->second->begin(); iter!= itr->second->end(); ++iter)
@@ -963,7 +963,7 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem* *qite
         }
         else if (!item->conditions.empty())
         {
-            QuestItemMap::const_iterator itr = PlayerNonQuestNonFFANonCurrencyConditionalItems.find(player->GetGUID().GetCounter());
+            QuestItemMap::const_iterator itr = PlayerNonQuestNonFFANonCurrencyConditionalItems.find(player->GetGUIDLow());
             if (itr != PlayerNonQuestNonFFANonCurrencyConditionalItems.end())
             {
                 for (QuestItemList::const_iterator iter=itr->second->begin(); iter!= itr->second->end(); ++iter)
@@ -989,7 +989,7 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem* *qite
 
 uint32 Loot::GetMaxSlotInLootFor(Player* player) const
 {
-    QuestItemMap::const_iterator itr = PlayerQuestItems.find(player->GetGUID().GetCounter());
+    QuestItemMap::const_iterator itr = PlayerQuestItems.find(player->GetGUIDLow());
     return items.size() + (itr != PlayerQuestItems.end() ?  itr->second->size() : 0);
 }
 
@@ -997,7 +997,7 @@ uint32 Loot::GetMaxSlotInLootFor(Player* player) const
 bool Loot::hasItemFor(Player* player) const
 {
     QuestItemMap const& lootPlayerQuestItems = GetPlayerQuestItems();
-    QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(player->GetGUID().GetCounter());
+    QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(player->GetGUIDLow());
     if (q_itr != lootPlayerQuestItems.end())
     {
         QuestItemList* q_list = q_itr->second;
@@ -1010,7 +1010,7 @@ bool Loot::hasItemFor(Player* player) const
     }
 
     QuestItemMap const& lootPlayerFFAItems = GetPlayerFFAItems();
-    QuestItemMap::const_iterator ffa_itr = lootPlayerFFAItems.find(player->GetGUID().GetCounter());
+    QuestItemMap::const_iterator ffa_itr = lootPlayerFFAItems.find(player->GetGUIDLow());
     if (ffa_itr != lootPlayerFFAItems.end())
     {
         QuestItemList* ffa_list = ffa_itr->second;
@@ -1023,7 +1023,7 @@ bool Loot::hasItemFor(Player* player) const
     }
 
     QuestItemMap const& lootPlayerNonQuestNonFFAConditionalItems = GetPlayerNonQuestNonFFANonCurrencyConditionalItems();
-    QuestItemMap::const_iterator nn_itr = lootPlayerNonQuestNonFFAConditionalItems.find(player->GetGUID().GetCounter());
+    QuestItemMap::const_iterator nn_itr = lootPlayerNonQuestNonFFAConditionalItems.find(player->GetGUIDLow());
     if (nn_itr != lootPlayerNonQuestNonFFAConditionalItems.end())
     {
         QuestItemList* conditional_list = nn_itr->second;
@@ -1148,7 +1148,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
     }
 
     QuestItemMap const& lootPlayerFFAItems = GetPlayerFFAItems();
-    QuestItemMap::const_iterator ffa_itr = lootPlayerFFAItems.find(viewer->GetGUID().GetCounter());
+    QuestItemMap::const_iterator ffa_itr = lootPlayerFFAItems.find(viewer->GetGUIDLow());
     if (ffa_itr != lootPlayerFFAItems.end())
     {
         QuestItemList* ffa_list = ffa_itr->second;
@@ -1168,7 +1168,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
     }
 
     QuestItemMap const& lootPlayerNonQuestNonFFAConditionalItems = GetPlayerNonQuestNonFFANonCurrencyConditionalItems();
-    QuestItemMap::const_iterator nn_itr = lootPlayerNonQuestNonFFAConditionalItems.find(viewer->GetGUID().GetCounter());
+    QuestItemMap::const_iterator nn_itr = lootPlayerNonQuestNonFFAConditionalItems.find(viewer->GetGUIDLow());
     if (nn_itr != lootPlayerNonQuestNonFFAConditionalItems.end())
     {
         QuestItemList* conditional_list = nn_itr->second;
@@ -1213,7 +1213,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
     }
 
     QuestItemMap const& lootPlayerCurrencies = GetPlayerCurrencies();
-    QuestItemMap::const_iterator currency_itr = lootPlayerCurrencies.find(viewer->GetGUID().GetCounter());
+    QuestItemMap::const_iterator currency_itr = lootPlayerCurrencies.find(viewer->GetGUIDLow());
     if (currency_itr != lootPlayerCurrencies.end())
     {
         QuestItemList* currency_list = currency_itr->second;
@@ -1235,7 +1235,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
 
     LootSlotType slotType = permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
     QuestItemMap const& lootPlayerQuestItems = GetPlayerQuestItems();
-    QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(viewer->GetGUID().GetCounter());
+    QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(viewer->GetGUIDLow());
     if (q_itr != lootPlayerQuestItems.end())
     {
         QuestItemList* q_list = q_itr->second;
