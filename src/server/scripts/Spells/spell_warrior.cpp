@@ -1279,6 +1279,39 @@ public:
     }
 };
 
+// Ravager - 152277
+class spell_warr_ravager : public SpellScriptLoader
+{
+    public:
+        spell_warr_ravager() : SpellScriptLoader("spell_warr_ravager") { }
+
+        class spell_warr_ravager_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_ravager_AuraScript);
+
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->m_SummonSlot[13])
+                    {
+                        if (Creature* summon = caster->GetMap()->GetCreature(caster->m_SummonSlot[13]))
+                            caster->CastSpell(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), 156287, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_ravager_AuraScript::HandlePeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_ravager_AuraScript();
+        }
+};
 
 void AddSC_warrior_spell_scripts()
 {
@@ -1313,4 +1346,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_charge_drop_fire();
     new spell_warr_dragon_roar();
     new spell_warr_defensive_stance();
+    new spell_warr_ravager();
 }

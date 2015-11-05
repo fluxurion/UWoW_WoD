@@ -204,6 +204,7 @@ void TempSummon::InitStats(uint32 duration)
         switch (GetEntry())
         {
             case 69792: // Earth
+            case 76168: // Warrior: Ravager
                 slot = 13;
                 break;
             case 69680: // Storm
