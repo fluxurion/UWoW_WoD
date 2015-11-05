@@ -1253,9 +1253,9 @@ void Player::SendMirrorTimer(MirrorTimerType type, uint32 maxValue, uint32 curre
     }
 
     WorldPackets::Misc::StartMirrorTimer timer;
-    timer.Scale = type;
+    timer.Scale = regen;
     timer.MaxValue = maxValue;
-    timer.Timer = regen;
+    timer.Timer = type;
     timer.SpellID = 0;
     timer.Value = currentValue;
     timer.Paused = false;
@@ -1265,7 +1265,7 @@ void Player::SendMirrorTimer(MirrorTimerType type, uint32 maxValue, uint32 curre
 void Player::StopMirrorTimer(MirrorTimerType timer)
 {
     m_MirrorTimer[timer] = DISABLED_MIRROR_TIMER;
-    GetSession()->SendPacket(WorldPackets::Misc::PauseMirrorTimer(timer, false).Write());
+    GetSession()->SendPacket(WorldPackets::Misc::StopMirrorTimer(timer).Write());
 }
 
 bool Player::IsImmuneToEnvironmentalDamage()
@@ -1355,8 +1355,9 @@ void Player::UpdateMirrorTimers()
 
 void Player::HandleDrowning(uint32 time_diff)
 {
-    if (!m_MirrorTimerFlags)
-        return;
+    //! Why? We need remove state when where is no flag.
+    //if (!m_MirrorTimerFlags)
+    //    return;
 
     // In water
     if (m_MirrorTimerFlags & UNDERWATER_INWATER)
