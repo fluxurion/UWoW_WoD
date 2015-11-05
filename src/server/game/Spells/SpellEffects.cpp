@@ -6567,7 +6567,7 @@ void Spell::EffectCharge(SpellEffIndex effIndex)
         {
             case 100: // Charge
             {
-                uint32 stunspell = m_caster->HasAura(103828) ? 105771 : 7922;
+                uint32 stunspell = m_caster->HasAura(103828) ? 7922 : 105771;
                 m_caster->CastSpell(unitTarget, stunspell, true);
                 break;
             }
