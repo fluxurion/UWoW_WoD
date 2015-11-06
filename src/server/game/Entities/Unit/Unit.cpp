@@ -16313,9 +16313,15 @@ void Unit::RemoveFromWorld()
 
 void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 {
+    if (finalCleanup)
+        m_cleanupDone = true;
+
     // This needs to be before RemoveFromWorld to make GetCaster() return a valid pointer on aura removal
     InterruptNonMeleeSpells(true);
     RemoveAllAuras();
+
+    ASSERT(m_appliedAuras.empty());
+    ASSERT(m_ownedAuras.empty());
 
     if (IsInWorld())
         RemoveFromWorld();
@@ -16325,9 +16331,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     // A unit may be in removelist and not in world, but it is still in grid
     // and may have some references during delete
     RemoveAllGameObjects();
-
-    if (finalCleanup)
-        m_cleanupDone = true;
 
     m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();
