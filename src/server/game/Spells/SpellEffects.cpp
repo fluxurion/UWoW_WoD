@@ -895,6 +895,11 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
             if (itr->spell_trigger != 0)
                 spell_trigger = abs(itr->spell_trigger);
 
+            if(triggerCaster && !triggerCaster->IsInWorld())
+                return false;
+            if(triggerTarget && !triggerTarget->IsInWorld())
+                return false;
+
             switch (itr->option)
             {
                 case DUMMY_TRIGGER_BP: //0
