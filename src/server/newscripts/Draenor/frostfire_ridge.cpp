@@ -63,6 +63,9 @@ public:
         { 
             Reset();
             events.ScheduleEvent(TEXT_GENERIC_2, 1000);
+
+            go->m_invisibility.AddFlag(INVISIBILITY_UNK7);
+            go->m_invisibility.AddValue(INVISIBILITY_UNK7, 1000);
         }
 
         bool GossipUse(Player* player) override
@@ -247,6 +250,7 @@ public:
         }
     };
 };
+
 void AddSC_wod_frostfire_ridge()
 {
     new sceneTrigger_q33815();

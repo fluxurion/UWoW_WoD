@@ -56,6 +56,7 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 ('6720', '12', '0', '0', '1152', '0', '24', 'Draenor. FrostFireRidge. Garrison terrain lvl.1 '),                     -- comp. 34378     2406 2537 3007 3021 3023 3025 3026 3196 3213 3324 3364 3592 3962 4086 4177
 ('6720', '13', '0', '3364', '0', '0', '16', 'Draenor. FrostFireRidge. 34378 complete '),                     --
                                                                                                                      --                 2406 2537 3007 3021 3023 3025 3026 3196 3213 3324 3364 3592 3962 4086 4177
+('6720', '14', '0', '3311', '0', '0', '16', 'Draenor. Q34462'),
 ('6720', '100', '0', '2406 2537 3007 3021 3023 3025 3026 3427 3592 4086', '0', '0', '16', 'Draenor. FrostFireRidge.'); --
 
 -- Я не использую проверки по области подобно 7004 т.к. есть вопросы между уровнями гарнизонов.
@@ -84,7 +85,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 6720, 12, 0, 0, 28, 0, 34378, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. compl 34378'),
 (23, 6720, 12, 0, 1, 8, 0, 34378, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. rew 34378'),
 (23, 6720, 13, 0, 0, 28, 0, 34378, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. compl 34378'),
-(23, 6720, 13, 0, 1, 8, 0, 34378, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. rew 34378');
+(23, 6720, 13, 0, 1, 8, 0, 34378, 0, 0, 0, 0, '', 'Draenor. FrostFireRidge. rew 34378'),
+(23, 6720, 14, 0, 0, 14, 0, 34462, 0, 0, 1, 0, '', 'Draenor. FrostFireRidge. While has status 34462'),
+(23, 6720, 14, 0, 1, 8, 0, 34462, 0, 0, 1, 0, '', 'Draenor. FrostFireRidge. and not rew 34462');
 
 -- Сцены
 REPLACE INTO `spell_scene` (`SceneScriptPackageID`, `MiscValue`, `PlaybackFlags`, `trigerSpell`, MonsterCredit, ScriptName, `comment`) VALUES
@@ -116,9 +119,15 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34823', '34378', '0', '0'),
 ('34861', '34461', '0', '0'),
 ('34462', '34861', '0', '0'),
-('34775', '34462', '0', '0'),
+-- ('34775', '34462', '0', '0'), фикс ниже.
 
-('34379', '33816', '0', '0');
+('34736', '33828', '0', '0'), -- checked by sniff. possible need more correct.
+
+('36567', '32796', '0', '0'),
+('36706', '32796', '0', '0'),
+('37669', '32796', '0', '0'), -- Не совсем верно. появляется после изучения постройки - мастерская. Тут надо кондишны пилить.
+
+('34379', '34775', '0', '0');
 
 -- misc
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 28 AND SourceEntry = 344;
@@ -229,4 +238,4 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 (80582, 0, 0, 'Еще раз огромное спасибо тебе, командир. Кабы не ты, эти твари сожрали бы меня заживо. Увидимся в гарнизоне.', 12, 0, 100, 5, 0, 0, 'Оулин Бурошкур to Player');
 
 -- Q: 34775
-REPLACE INTO `quest_template_addon` (`ID`,  `SourceSpellID`) VALUES ('34775', '161438');
+REPLACE INTO `quest_template_addon` (`ID`,  `SourceSpellID`, `PrevQuestID`) VALUES ('34775', '161438', '34462');

@@ -1,4 +1,5 @@
 -- garrison maps: 1152, 1330, 1203
+update `creature` set `areaId` = 0, `zoneId` = 0 WHERE `zoneId` = 6662;
 
 DELETE FROM creature where map in (1152, 1330, 1203);
 DELETE FROM gameobject where map in (1152, 1330, 1203);
