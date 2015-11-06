@@ -10333,7 +10333,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
     if (permission != NONE_PERMISSION)
     {
         WorldPackets::Loot::LootResponse packet;
-        packet.LootObj = loot->GetGUID();
+        packet.LootObj = loot->personal ? GetGUID() : loot->GetGUID();
         packet.AcquireReason = loot_type;
         packet.Owner = guid;
         if (Group* group = GetGroup())
