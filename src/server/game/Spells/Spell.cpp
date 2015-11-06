@@ -3103,6 +3103,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (missInfo != SPELL_MISS_EVADE && m_caster->IsValidAttackTarget(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
     {
         m_caster->CombatStart(unit, !(AttributesCustomEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO) && !(AttributesCustomEx & SPELL_ATTR1_NOT_BREAK_STEALTH));
+        m_caster->UpdateVictim(unit);
 
         if (AttributesCustomCu & SPELL_ATTR0_CU_AURA_CC)
             if (!unit->IsStandState())

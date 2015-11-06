@@ -3418,20 +3418,14 @@ void Unit::_UpdateAutoRepeatSpell()
         if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->CheckCast(true) != SPELL_CAST_OK)
         {
             if (m_attacking)
-            {
-                m_attacking->_removeAttacker(this);
-                m_attacking = NULL;
-            }
+                UpdateVictim(NULL);
             InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
             return;
         }
 
         if (!m_attacking)
             if (Unit* curspellTarget = m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_targets.GetUnitTarget())
-            {
-                m_attacking = curspellTarget;
-                m_attacking->_addAttacker(this);
-            }
+                UpdateVictim(curspellTarget);
 
         // we want to shoot
         Spell* spell = new Spell(this, m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo, TRIGGERED_FULL_MASK);
@@ -10675,11 +10669,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
             ClearUnitState(UNIT_STATE_MELEE_ATTACKING);
     }
 
-    if (m_attacking)
-        m_attacking->_removeAttacker(this);
-
-    m_attacking = victim;
-    m_attacking->_addAttacker(this);
+    UpdateVictim(victim);
 
     // Set our target
     SetTarget(victim->GetGUID());
@@ -10730,8 +10720,7 @@ bool Unit::AttackStop()
 
     Unit* victim = m_attacking;
 
-    m_attacking->_removeAttacker(this);
-    m_attacking = NULL;
+    UpdateVictim(NULL);
 
     // Clear our target
     SetTarget(ObjectGuid::Empty);
@@ -10778,6 +10767,23 @@ void Unit::CombatStopWithPets(bool includingCast)
         next = itr;
         ++next;
         (*itr)->CombatStop(includingCast);
+    }
+}
+
+void Unit::UpdateVictim(Unit* victim)
+{
+    if(victim)
+    {
+        if (m_attacking)
+            m_attacking->_removeAttacker(this);
+
+        m_attacking = victim;
+        m_attacking->_addAttacker(this);
+    }
+    else
+    {
+        m_attacking->_removeAttacker(this);
+        m_attacking = NULL;
     }
 }
 

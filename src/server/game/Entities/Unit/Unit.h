@@ -1462,6 +1462,7 @@ class Unit : public WorldObject
         AttackerSet const& getAttackers() const { return m_attackers; }
         bool isAttackingPlayer() const;
         Unit* getVictim() const { return m_attacking; }
+        void UpdateVictim(Unit* victim);
 
         void CombatStop(bool includingCast = false);
         void CombatStopWithPets(bool includingCast = false);
