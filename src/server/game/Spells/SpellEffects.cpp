@@ -2948,10 +2948,6 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     {
         case 23922:  // Shield Slam
         {
-            if (!m_caster->HasAura(71))
-            {
-                damage = 0;
-            }
             m_caster->RemoveAura(50227);
             break;
         }

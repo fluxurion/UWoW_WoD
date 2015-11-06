@@ -2827,6 +2827,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         case FORM_BATTLESTANCE:                             // 0x11
         case FORM_DEFENSIVESTANCE:                          // 0x12
         case FORM_BERSERKERSTANCE:                          // 0x13
+        case FORM_GLADIATORSTANCE:                          // 0x21
             PowerType = POWER_RAGE;
             break;
 
