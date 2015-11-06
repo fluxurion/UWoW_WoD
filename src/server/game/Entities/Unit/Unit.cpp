@@ -11115,6 +11115,8 @@ void Unit::SetMinion(Minion *minion, bool apply, bool stampeded)
 
     if (apply)
     {
+        tempSummonList[minion->GetEntry()].push_back(minion->GetGUID());
+
         if (minion->GetSummonedByGUID())
             return;
 
@@ -11199,6 +11201,8 @@ void Unit::SetMinion(Minion *minion, bool apply, bool stampeded)
     }
     else
     {
+        tempSummonList[minion->GetEntry()].remove(minion->GetGUID());
+
         if (minion->GetOwnerGUID() != GetGUID())
         {
             sLog->outFatal(LOG_FILTER_UNITS, "SetMinion: Minion %u is not the minion of owner %u", minion->GetEntry(), GetEntry());
@@ -11232,16 +11236,16 @@ void Unit::SetMinion(Minion *minion, bool apply, bool stampeded)
                 }
             }
 
-            if (minion->GetEntry() == 15439 && minion->GetOwner())
+            if (minion->GetEntry() == 15439)
             {
-                if(minion->GetOwner()->HasAura(117013))
+                if(HasAura(117013))
                     RemoveAllMinionsByFilter(61029);
                 else
                     RemoveAllMinionsByFilter(15438);
             }
-            else if (minion->GetEntry() == 15430 && minion->GetOwner())
+            else if (minion->GetEntry() == 15430)
             {
-                if(minion->GetOwner()->HasAura(117013))
+                if(HasAura(117013))
                     RemoveAllMinionsByFilter(61056);
                 else
                     RemoveAllMinionsByFilter(15352);
@@ -11334,20 +11338,31 @@ void Unit::GetAllMinionsByEntry(std::list<Creature*>& Minions, uint32 entry)
 
 void Unit::RemoveAllMinionsByFilter(uint32 ID, uint8 filter /*=0*/) //0 - by entry, 1 - by spell 
 {
-    for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end();)
+    if(filter)
     {
-        Unit* unit = *itr;
-        ++itr;
+        for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end();)
+        {
+            Unit* unit = *itr;
+            ++itr;
 
-        if (!filter && unit->GetEntry() != ID)
-            continue;
-        else if (unit->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != ID)
-            continue;
+            if (unit->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL) != ID)
+                continue;
 
-        if (unit->GetTypeId() == TYPEID_UNIT
-            && unit->ToCreature()->isSummon()) // minion, actually
-            unit->ToTempSummon()->UnSummon();
-        // i think this is safe because i have never heard that a despawned minion will trigger a same minion
+            if (unit->ToCreature() && unit->ToCreature()->isSummon()) // minion, actually
+                unit->ToTempSummon()->UnSummon();
+            // i think this is safe because i have never heard that a despawned minion will trigger a same minion
+        }
+    }
+    else
+    {
+        if(!tempSummonList[ID].empty())
+        {
+            for (std::list<ObjectGuid>::const_iterator iter = tempSummonList[ID].begin(); iter != tempSummonList[ID].end(); ++iter)
+            {
+                if(Creature* temp = ObjectAccessor::GetCreature(*this, (*iter)))
+                    temp->DespawnOrUnsummon(500);
+            }
+        }
     }
 }
 
@@ -11488,7 +11503,7 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth, SpellInfo const* spellProto
 Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
 {
     // Patch 1.2 notes: Spell Reflection no longer reflects abilities
-    if (spellInfo->Attributes & SPELL_ATTR0_ABILITY || spellInfo->AttributesEx & SPELL_ATTR1_CANT_BE_REDIRECTED || spellInfo->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+    if (spellInfo->Attributes & SPELL_ATTR0_ABILITY || spellInfo->AttributesEx & SPELL_ATTR1_CANT_BE_REDIRECTED || spellInfo->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY || spellInfo->AttributesEx4 & SPELL_ATTR4_UNK15)
         return victim;
 
     Unit::AuraEffectList const& magnetAuras = victim->GetAuraEffectsByType(SPELL_AURA_SPELL_MAGNET);
@@ -11500,7 +11515,7 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
                 && _IsValidAttackTarget(magnet, spellInfo))
             {
                 // TODO: handle this charge drop by proc in cast phase on explicit target
-                (*itr)->GetBase()->DropCharge(AURA_REMOVE_BY_DROP_CHARGERS);
+                //(*itr)->GetBase()->DropCharge(AURA_REMOVE_BY_DROP_CHARGERS);
                 return magnet;
             }
     }
@@ -24312,6 +24327,14 @@ Unit* Unit::GetUnitForLinkedSpell(Unit* caster, Unit* target, uint8 type)
         case LINK_UNIT_TYPE_VICTIM: //6
             return getVictim();
             break;
+        case LINK_UNIT_TYPE_ATTACKER: //7
+        {
+            if (Unit* owner = caster->GetAnyOwner())
+                return owner->getAttackerForHelper();
+            else
+                return caster->getAttackerForHelper();
+            break;
+        }
     }
     return NULL;
 }

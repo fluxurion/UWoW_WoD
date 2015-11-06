@@ -7023,16 +7023,23 @@ bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effI
             if (!(itr->effectmask & (1 << effIndex)))
                 continue;
 
-            if(target)
+            //if(target)
             {
                 if (itr->target)
-                    triggerTarget = target->GetUnitForLinkedSpell(caster, target, itr->target);
-                if(itr->targetaura > 0 && !target->HasAura(itr->targetaura))
+                    triggerTarget = (target ? target : caster)->GetUnitForLinkedSpell(caster, target, itr->target);
+
+                if(!triggerTarget)
+                {
+                    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AuraEffect::AuraSpellTrigger: not exist triggerTarget");
+                    check = true;
+                    continue;
+                }
+                if(itr->targetaura > 0 && !triggerTarget->HasAura(itr->targetaura))
                 {
                     check = true;
                     continue;
                 }
-                else if(itr->targetaura < 0 && target->HasAura(abs(itr->targetaura)))
+                else if(itr->targetaura < 0 && triggerTarget->HasAura(abs(itr->targetaura)))
                 {
                     check = true;
                     continue;
@@ -7055,8 +7062,9 @@ bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effI
                 }
             }
 
-            if(!triggerCaster || !triggerTarget)
+            if(!triggerCaster)
             {
+                //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AuraEffect::AuraSpellTrigger: not exist triggerCaster");
                 check = true;
                 continue;
             }
@@ -7129,11 +7137,12 @@ bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effI
                     check = true;
                 }
                 break;
-                case AURA_TRIGGER_FROM_NPC: //6
+                case AURA_TRIGGER_FROM_SUMMON_SLOT: //6
                 {
-                    if(triggerCaster->m_SummonSlot[itr->slot])
-                        if(Creature* summon = triggerCaster->GetMap()->GetCreature(triggerCaster->m_SummonSlot[itr->slot]))
-                            summon->CastSpell(summon, spell_trigger, true, NULL, this, triggerCaster->GetGUID());
+                    if(itr->slot < MAX_SUMMON_SLOT)
+                        if(triggerCaster->m_SummonSlot[itr->slot])
+                            if(Creature* summon = triggerCaster->GetMap()->GetCreature(triggerCaster->m_SummonSlot[itr->slot]))
+                                summon->CastSpell(summon, spell_trigger, true, NULL, this, triggerCaster->GetGUID());
                     check = true;
                 }
                 break;
@@ -7153,11 +7162,23 @@ bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effI
                     check = true;
                 }
                 break;
-                case AURA_TRIGGER_FROM_NPC_DEST: //8
+                case AAURA_TRIGGER_FROM_SUMMON_SLOT_DEST: //8
                 {
-                    if(triggerCaster->m_SummonSlot[itr->slot])
-                        if(Creature* summon = triggerCaster->GetMap()->GetCreature(triggerCaster->m_SummonSlot[itr->slot]))
+                    if(itr->slot < MAX_SUMMON_SLOT)
+                        if(triggerCaster->m_SummonSlot[itr->slot])
+                            if(Creature* summon = triggerCaster->GetMap()->GetCreature(triggerCaster->m_SummonSlot[itr->slot]))
+                                triggerCaster->CastSpell(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), spell_trigger, true);
+                    check = true;
+                }
+                break;
+                case AURA_TRIGGER_FROM_SUMMON_DEST: //9
+                {
+                    GuidList* summonList = triggerCaster->GetSummonList(itr->slot);
+                    for (GuidList::const_iterator iter = summonList->begin(); iter != summonList->end(); ++iter)
+                    {
+                        if(Creature* summon = ObjectAccessor::GetCreature(*triggerCaster, (*iter)))
                             triggerCaster->CastSpell(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), spell_trigger, true);
+                    }
                     check = true;
                 }
                 break;

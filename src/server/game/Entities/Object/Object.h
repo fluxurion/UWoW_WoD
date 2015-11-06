@@ -126,6 +126,7 @@ private:
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 typedef std::map<TempSummonGroupKey, GuidList> TempSummonGroupMap;
+typedef std::unordered_map<uint32, GuidList> TempSummonMap;
 
 typedef cyber_ptr<Object> C_PTR;
 class Object
@@ -385,6 +386,7 @@ class Object
         C_PTR get_ptr();
 
         TempSummonGroupMap tempSummonGroupList;
+        TempSummonMap tempSummonList;
     protected:
         Object();
 

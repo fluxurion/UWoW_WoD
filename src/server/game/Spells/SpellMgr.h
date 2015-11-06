@@ -112,6 +112,7 @@ enum SpellLinkedUnitType
     LINK_UNIT_TYPE_SELECTED     = 4,
     LINK_UNIT_TYPE_TARGET       = 5,
     LINK_UNIT_TYPE_VICTIM       = 6,
+    LINK_UNIT_TYPE_ATTACKER     = 7,
 };
 
 enum SpellLinkedHasType
@@ -199,9 +200,10 @@ enum AuraTriggerType
     AURA_TRIGGER_CHECK_COMBAT                   = 3,            // cast spell in check combat
     AURA_TRIGGER_DEST                           = 4,            // cast spell on dest
     AURA_TRIGGER_DYNOBJECT                      = 5,            // cast spell on dest DynObject
-    AURA_TRIGGER_FROM_NPC                       = 6,            // cast spell from npc(totem or any)
+    AURA_TRIGGER_FROM_SUMMON_SLOT               = 6,            // cast spell from summon slot(totem or any)
     AURA_TRIGGER_AREATRIGGER                    = 7,            // cast spell on dest AreaTrigger
-    AURA_TRIGGER_FROM_NPC_DEST                  = 8,            // cast spell from npc(totem or any) to dest loc
+    AAURA_TRIGGER_FROM_SUMMON_SLOT_DEST         = 8,            // cast spell from summon slot(totem or any) to dest loc
+    AURA_TRIGGER_FROM_SUMMON_DEST               = 9,            // cast spell to summon dest loc
 };
 
 enum SpellAuraDummyOption
