@@ -64,14 +64,14 @@ namespace WorldPackets
 
             ObjectGuid LootObj;
             ObjectGuid Owner;
-            uint8 Threshold = 17; // Most common value
-            uint8 LootMethod = 0;
-            uint8 AcquireReason = 0;
-            uint8 FailureReason = 2; // Most common value
+            uint8 Threshold = ITEM_QUALITY_UNCOMMON; // Most common value
+            uint8 LootMethod = FREE_FOR_ALL;
+            uint8 AcquireReason = LOOT_NONE;
+            uint8 FailureReason = LOOT_ERROR_NO_LOOT; // Most common value
             uint32 Coins = 0;
             std::vector<LootItem> Items;
             std::vector<LootCurrency> Currencies;
-            bool PersonalLooting = false;
+            bool PersonalLooting = true;
             bool Acquired = false;
             bool AELooting = false;
         };

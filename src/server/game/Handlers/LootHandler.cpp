@@ -290,6 +290,8 @@ void WorldSession::LootCorps(ObjectGuid corpsGUID, WorldObject* lootedBy)
     if (!creature)
         return;
 
+    player->SetGuidValue(PLAYER_FIELD_LOOT_TARGET_GUID, corpsGUID);
+
     std::list<Creature*> corpesList;
     _looted->GetCorpseCreatureInGrid(corpesList, LOOT_DISTANCE);
 
@@ -338,6 +340,8 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
     player->DelAoeLootList(lguid);
     player->SetLootGUID(ObjectGuid::Empty);
     player->SendLootRelease(lguid);
+
+    player->SetGuidValue(PLAYER_FIELD_LOOT_TARGET_GUID, ObjectGuid::Empty);
 
     player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
 

@@ -10333,18 +10333,21 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
     if (permission != NONE_PERMISSION)
     {
         WorldPackets::Loot::LootResponse packet;
-        packet.LootObj = loot->personal ? GetGUID() : loot->GetGUID();
+        packet.LootObj = loot->GetGUID();
+        packet.AcquireReason = loot_type;
         packet.Owner = guid;
-        packet.LootMethod = loot_type;
-        if (!GetGroup())
-            packet.PersonalLooting = true;
-        else
+        if (Group* group = GetGroup())
+        {
+            packet.LootMethod = group->GetLootMethod();
+            packet.Threshold = group->GetLootThreshold();
             packet.PersonalLooting = false;
+        }
         packet.AELooting = pool;
         loot->BuildLootResponse(packet, this, permission, groupThreshold);
 
         SendDirectMessage(packet.Write());
-    }else
+    }
+    else
         SendLootError(guid, loot->GetGUID(), LOOT_ERROR_DIDNT_KILL);
 
     // add 'this' player as one of the players that are looting 'loot'
