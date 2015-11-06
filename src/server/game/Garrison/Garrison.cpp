@@ -562,8 +562,9 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
         GarrBuildingEntry const* building = sGarrBuildingStore.AssertEntry(garrBuildingId);
         if (map)
         {
-            if (InstanceMap* instance = map->ToInstanceMap())
-                instance->GetInstanceScript()->OnPlaceBuilding(_owner, this, garrBuildingId, garrPlotInstanceId, placeBuildingResult.BuildingInfo.TimeBuilt);
+            if (InstanceMap* m = map->ToInstanceMap())
+                if (InstanceScript* inst = m->GetInstanceScript())
+                    inst->OnPlaceBuilding(_owner, this, garrBuildingId, garrPlotInstanceId, placeBuildingResult.BuildingInfo.TimeBuilt);
 
             plot->DeleteGameObject(map);
         }
