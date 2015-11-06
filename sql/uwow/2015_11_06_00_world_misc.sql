@@ -26,3 +26,44 @@ insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `opt
 
 insert into `spell_aura_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `comment`) values
 ('170377','170379','0','6','0','0','0','0','0','7','0','0','Расплавленная земля');
+
+DELETE FROM spell_script_names WHERE spell_id IN (73680);
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `actiontype`, `comment`) values
+('73680','73681','0','0','0','0','0','0','0','0','0','0','0','0','Высвободить чары воздуха'),
+('73680','73683','0','0','0','0','0','0','0','0','0','0','0','0','Высвободить чары огня');
+
+update spell_dummy_trigger SET target = 3 where target = 1;
+update spell_dummy_trigger SET caster = 5 where caster = 1;
+update spell_dummy_trigger SET target = 1 where target = 2;
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `actiontype`, `comment`) values
+('60103','105792','6','0','0','0','-55444','1','8050','0','0','0','0','0','Вскипание лавы');
+insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values
+('105792','16','1','-8050','0','0','0','0','7','1','6','0','0','0','Вскипание лавы');
+insert into `spell_dummy_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `comment`) values
+('105792','8050','8','0','4','0','0','0','0','7','8050','0','Вскипание лавы');
+
+DELETE FROM spell_script_names WHERE spell_id IN (1535);
+insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values
+('1535','15','1','8050','0','0','0','0','7','1','6','0','0','0','Кольцо огня'),
+('8349','16','9','0','0','0','0','0','7','0','0','0','0','0','Кольцо огня');
+insert into `spell_dummy_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `comment`) values
+('1535','8349','0','0','0','0','0','0','0','7','0','0','Кольцо огня');
+
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('58877','58879','0','3','5','0','0','0','0','0','7','0','0','0','0','0','0','-1','0','0','0','Призрачная охота');
+insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
+('58879','63271','1','9','0','3','0','0','0','0','7','0','0','0','0','0','1','Символ духа дикого зверя (Совершенствование)');
+
+DELETE FROM spell_bonus_data WHERE entry IN (10444);
+insert into `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `damage_bonus`, `heal_bonus`, `comments`) values
+('10444','0','0','0.075','0','0','0','Flametongue Weapon');
+DELETE FROM spell_proc_event WHERE entry IN (33757);
+
+
+Высвободить чары стихий
+Вскипание лавы 
+Кольцо огня 
+Оружие Водоворота
+Дух дикого зверя
+Усиленное оружие 

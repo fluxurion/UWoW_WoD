@@ -659,23 +659,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             }
         }
     }
-    // Spirit Hunt - 58879 : Feral Spirit heal their owner for 150% of their damage
-    if (GetOwner() && GetTypeId() == TYPEID_UNIT && GetEntry() == 29264 && damage > 0)
-    {
-        int32 basepoints = 0;
-
-        // Glyph of Feral Spirit : +40% heal
-        if (GetOwner()->HasAura(63271))
-            basepoints = CalculatePct(damage, 190);
-        else
-            basepoints = CalculatePct(damage, 150);
-
-        CastCustomSpell(GetOwner(), 58879, &basepoints, NULL, NULL, true, 0, NULL, GetGUID());
-    }
-    // Searing Flames - 77657 : Fire Elemental attacks or Searing Totem attacks
-    if (GetOwner() && (GetTypeId() == TYPEID_UNIT && (GetEntry() == 15438 || GetEntry() == 61029) && !spellProto) || (isTotem() && GetEntry() == 2523))
-        if (GetOwner()->HasAura(77657))
-            GetOwner()->CastSpell(GetOwner(), 77661, true);
 
     if (victim->IsAIEnabled)
         victim->GetAI()->DamageTaken(this, damage);
@@ -8548,69 +8531,22 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     triggered_spell_id = 28850;
                     break;
                 }
-                // Windfury Weapon (Passive) 1-8 Ranks
+                // Windfury Weapon (Passive)
                 case 33757:
                 {
                     Player* player = ToPlayer();
-                    if (!player || !castItem || !castItem->IsEquipped() || !victim || !victim->isAlive())
+                    if (!player || !victim || !victim->isAlive())
                         return false;
-
-                    // custom cooldown processing case
-                    if (G3D::fuzzyGt(cooldown, 0.0) && player->HasSpellCooldown(dummySpell->Id))
-                        return false;
-
-                    if (triggeredByAura->GetBase() && castItem->GetGUID() != triggeredByAura->GetBase()->GetCastItemGUID())
-                        return false;
-
-                    WeaponAttackType attType = WeaponAttackType(player->GetAttackBySlot(castItem->GetSlot()));
-                    if ((attType != BASE_ATTACK && attType != OFF_ATTACK)
-                        || (attType == BASE_ATTACK && procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
-                        || (attType == OFF_ATTACK && procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK))
-                         return false;
-
-                    // Now compute real proc chance...
-                    uint32 chance = 20;
-                    player->ApplySpellMod(dummySpell->Id, SPELLMOD_CHANCE_OF_SUCCESS, chance);
-
-                    Item* addWeapon = player->GetWeaponForAttack(attType == BASE_ATTACK ? OFF_ATTACK : BASE_ATTACK, true);
-                    uint32 enchant_id_add = addWeapon ? addWeapon->GetEnchantmentId(EnchantmentSlot(TEMP_ENCHANTMENT_SLOT)) : 0;
-                    SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id_add);
-                    if (pEnchant && pEnchant->EffectSpellID[0] == dummySpell->Id)
-                        chance += 14;
-
-                    if (!roll_chance_i(chance))
-                        return false;
-
-                    // Now amount of extra power stored in 1 effect of Enchant spell
-                    uint32 spellId = 8232;
-                    SpellInfo const* windfurySpellInfo = sSpellMgr->GetSpellInfo(spellId);
-                    if (!windfurySpellInfo)
-                    {
-                        sLog->outError(LOG_FILTER_UNITS, "Unit::HandleDummyAuraProc: non-existing spell id: %u (Windfury)", spellId);
-                        return false;
-                    }
-
-                    int32 extra_attack_power = CalculateSpellDamage(victim, windfurySpellInfo, 1);
-
-                    // Value gained from additional AP
-                    basepoints0 = int32(extra_attack_power / 3.5f * GetAttackTime(attType) / 1000);
 
                     if (procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK)
                         triggered_spell_id = 25504;
 
-                    if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
-                        triggered_spell_id = 33750;
-
-                    // apply cooldown before cast to prevent processing itself
-                    if (G3D::fuzzyGt(cooldown, 0.0))
-                        player->AddSpellCooldown(dummySpell->Id, 0, getPreciseTime() + cooldown);
-
                     if (HasAura(138141)) //Item - Shaman T15 Enhancement 4P Bonus
                         player->ModifySpellCooldown(51533, -8000);
 
-                    // Attack Twice
+                    // Attack Thrice
                     for (uint32 i = 0; i < 3; ++i)
-                        CastCustomSpell(victim, triggered_spell_id, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
+                        CastSpell(victim, triggered_spell_id, true);
 
                     return true;
                 }
@@ -8752,38 +8688,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
             // Flametongue Weapon (Passive)
             if (dummySpell->Id == 10400)
             {
-                if (GetTypeId() != TYPEID_PLAYER  || !victim || !victim->isAlive() || !castItem || !castItem->IsEquipped())
+                if(triggeredByAura->GetEffIndex() != EFFECT_0)
                     return false;
 
-                WeaponAttackType attType = WeaponAttackType(Player::GetAttackBySlot(castItem->GetSlot()));
-                if ((attType != BASE_ATTACK && attType != OFF_ATTACK)
-                    || (attType == BASE_ATTACK && procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
-                    || (attType == OFF_ATTACK && procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK))
+                if (GetTypeId() != TYPEID_PLAYER  || !victim || !victim->isAlive())
                     return false;
-
-                SpellInfo const* _spellinfo = sSpellMgr->GetSpellInfo(8024);
-                int32 dmg = 8625;
-                float add_spellpower = GetSpellPowerDamage(SPELL_SCHOOL_MASK_FIRE) * _spellinfo->Effects[EFFECT_1].BonusCoefficient;
 
                 // Enchant on Off-Hand and ready?
-                if (castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
-                {
-                    float BaseWeaponSpeed = GetAttackTime(OFF_ATTACK) / 1000.0f;
-                    basepoints0 = dmg / (100 / BaseWeaponSpeed);
-                    basepoints0 += add_spellpower;
-                    AddPct(basepoints0, 50);
+                if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
                     triggered_spell_id = 10444;
-                }
-                // Enchant on Main-Hand and ready?
-                else if (castItem->GetSlot() == EQUIPMENT_SLOT_MAINHAND && procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK)
-                {
-                    float BaseWeaponSpeed = GetAttackTime(BASE_ATTACK) / 1000.0f;
-                    basepoints0 = dmg / (100 / BaseWeaponSpeed);
-                    basepoints0 += add_spellpower;
-                    AddPct(basepoints0, 50);
-                    triggered_spell_id = 10444;
-                }
-                // If not ready, we should  return, shouldn't we?!
                 else
                     return false;
 
@@ -10268,12 +10181,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
                 if (Aura const* maelstrom = GetAura(53817))
                     if ((maelstrom->GetStackAmount() == maelstrom->GetSpellInfo()->StackAmount - 1) && roll_chance_i(aurEff->GetAmount()))
                         CastSpell(this, 70831, true, castItem, triggeredByAura);
-
-            // Full Maelstrom Visual
-            if (Aura const* maelstrom = GetAura(53817))
-                if (maelstrom->GetStackAmount() >= 4)
-                    CastSpell(this, 60349, true);
-
             break;
         }
         // Glyph of Death's Embrace
@@ -24413,7 +24320,7 @@ bool Unit::HasAuraLinkedSpell(Unit* caster, Unit* target, uint8 type, int32 hast
 {
     switch (type)
     {
-        case LINK_HAS_AURA_ON_CASTER:
+        case LINK_HAS_AURA_ON_CASTER: // 0
         {
             if(!caster)
                 return true;
@@ -24422,14 +24329,14 @@ bool Unit::HasAuraLinkedSpell(Unit* caster, Unit* target, uint8 type, int32 hast
             else if(hastalent < 0)
                 return caster->HasAura(abs(hastalent));
         }
-        case LINK_HAS_AURA_ON_TARGET:
+        case LINK_HAS_AURA_ON_TARGET: // 1
         {
             if(hastalent > 0)
                 return target ? !target->HasAura(hastalent) : true ;
             else if(hastalent < 0)
                 return target ? target->HasAura(abs(hastalent)) : true ;
         }
-        case LINK_HAS_SPELL_ON_CASTER:
+        case LINK_HAS_SPELL_ON_CASTER: // 2
         {
             if(!caster)
                 return true;
@@ -24438,7 +24345,7 @@ bool Unit::HasAuraLinkedSpell(Unit* caster, Unit* target, uint8 type, int32 hast
             else if(hastalent < 0)
                 return caster->HasSpell(abs(hastalent));
         }
-        case LINK_HAS_AURA_ON_OWNER:
+        case LINK_HAS_AURA_ON_OWNER: // 3
         {
             if(!caster)
                 return true;
@@ -24447,7 +24354,7 @@ bool Unit::HasAuraLinkedSpell(Unit* caster, Unit* target, uint8 type, int32 hast
             else if(hastalent < 0)
                 return caster->GetOwner() ? caster->GetOwner()->HasAura(abs(hastalent)) : true;
         }
-        case LINK_HAS_AURATYPE:
+        case LINK_HAS_AURATYPE: // 4
             return target ? !target->HasAuraTypeWithCaster(AuraType(hastalent), caster ? caster->GetGUID() : ObjectGuid::Empty) : true;
     }
     return true;
