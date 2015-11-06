@@ -463,7 +463,7 @@ enum AuraType
     SPELL_AURA_ENABLE_POWER_TYPE                            = 402,
     SPELL_AURA_MOD_SPELL_VISUAL                             = 403,
     SPELL_AURA_OVERRIDE_AP_BY_SPELL_POWER_PCT               = 404,  // Sets attack power equal to % of spellpower, discarding all other bonuses (from gear and buffs)
-    SPELL_AURA_INCREASE_HASTE_FROM_ITEMS_BY_PCT             = 405,  // SPELL_AURA_INCREASE_STATS_FROM_ITEMS_BY_PCT
+    SPELL_AURA_INCREASE_RAITING_BY_PCT                      = 405,  // SPELL_AURA_INCREASE_STATS_FROM_ITEMS_BY_PCT
     SPELL_AURA_OVERRIDE_CLIENT_CONTROLS                     = 406,
     SPELL_AURA_MOD_FEAR_2                                   = 407,
     SPELL_AURA_PROC_SPELL_CHARGE                            = 408,

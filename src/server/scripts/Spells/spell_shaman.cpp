@@ -476,7 +476,6 @@ class spell_sha_rolling_thunder : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (roll_chance_i(60))
                         if (AuraEffect const* fulminationEff = _player->GetAuraEffect(88766, EFFECT_0))
                         {
                             if (Aura* lightningShield = _player->GetAura(324))
@@ -529,8 +528,8 @@ class spell_sha_fulmination : public SpellScriptLoader
             void HandleDamage(SpellEffIndex eff)
             {
                 // make caster cast a spell on a unit target of effect
-                Unit *target = GetHitUnit();
-                Unit *caster = GetCaster();
+                Unit* target = GetHitUnit();
+                Unit* caster = GetCaster();
                 if (!target || !caster)
                     return;
 
@@ -546,7 +545,7 @@ class spell_sha_fulmination : public SpellScriptLoader
 
                 if(SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SHA_LIGHTNING_SHIELD_ORB_DAMAGE))
                 {
-                    int32 damage = int32(usedCharges * GetHitDamage());
+                    int32 damage = int32(usedCharges * caster->SpellDamageBonusDone(target, spellInfo, caster->CalculateSpellDamage(target, spellInfo, 0), SPELL_DIRECT_DAMAGE, EFFECT_0));
                     if(Aura* aura = caster->GetAura(144998)) // Item - Shaman T16 Elemental 2P Bonus
                         aura->GetEffect(0)->SetAmount(4 * usedCharges);
 
@@ -688,73 +687,6 @@ class spell_sha_elemental_blast : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_elemental_blast_SpellScript();
-        }
-};
-
-// Earthquake : Ticks - 77478
-class spell_sha_earthquake_tick : public SpellScriptLoader
-{
-    public:
-        spell_sha_earthquake_tick() : SpellScriptLoader("spell_sha_earthquake_tick") { }
-
-        class spell_sha_earthquake_tick_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_earthquake_tick_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHA_EARTHQUAKE_TICK))
-                    return false;
-                return true;
-            }
-
-            void HandleOnHit()
-            {
-                // With a 10% chance of knocking down affected targets
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (roll_chance_i(10))
-                            _player->CastSpell(target, SPELL_SHA_EARTHQUAKE_KNOCKING_DOWN, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_sha_earthquake_tick_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_earthquake_tick_SpellScript();
-        }
-};
-
-// Earthquake - 61882
-class spell_sha_earthquake : public SpellScriptLoader
-{
-    public:
-        spell_sha_earthquake() : SpellScriptLoader("spell_sha_earthquake") { }
-
-        class spell_sha_earthquake_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_earthquake_AuraScript);
-
-            void OnTick(AuraEffect const* aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                    if (AreaTrigger* atObj = caster->GetAreaObject(SPELL_SHA_EARTHQUAKE))
-                        caster->CastSpell(atObj->GetPositionX(), atObj->GetPositionY(), atObj->GetPositionZ(), SPELL_SHA_EARTHQUAKE_TICK, true);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_earthquake_AuraScript();
         }
 };
 
@@ -1592,8 +1524,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_fulmination();
     new spell_sha_static_shock();
     new spell_sha_elemental_blast();
-    new spell_sha_earthquake_tick();
-    new spell_sha_earthquake();
     new spell_sha_healing_rain();
     new spell_sha_ascendance();
     new spell_sha_bloodlust();

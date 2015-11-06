@@ -199,6 +199,9 @@ enum AuraTriggerType
     AURA_TRIGGER_CHECK_COMBAT                   = 3,            // cast spell in check combat
     AURA_TRIGGER_DEST                           = 4,            // cast spell on dest
     AURA_TRIGGER_DYNOBJECT                      = 5,            // cast spell on dest DynObject
+    AURA_TRIGGER_FROM_NPC                       = 6,            // cast spell from npc(totem or any)
+    AURA_TRIGGER_AREATRIGGER                    = 7,            // cast spell on dest AreaTrigger
+    AURA_TRIGGER_FROM_NPC_DEST                  = 8,            // cast spell from npc(totem or any) to dest loc
 };
 
 enum SpellAuraDummyOption
@@ -785,6 +788,7 @@ struct SpellDummyTrigger
     int32 effectmask;
     int32 aura;
     int32 chance;
+    int32 slot;
 };
 
 struct SpellMountList

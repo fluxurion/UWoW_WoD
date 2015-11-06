@@ -8465,9 +8465,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                 // Resurgence
                 case 16196: // Resurgence
                 {
-                    if (!HasAura(52127))
-                        return false;
-
                     triggered_spell_id = 101033;
                     SpellInfo const* triggerEntry = sSpellMgr->GetSpellInfo(triggered_spell_id);
                     float coeff = 1.0f;
@@ -8677,12 +8674,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     return false;
 
                 triggered_spell_id = 63685;
-                break;
-            }
-            // Earth Shield
-            if (dummySpell->Id == 974)
-            {
-                triggered_spell_id = 379;
                 break;
             }
             // Flametongue Weapon (Passive)

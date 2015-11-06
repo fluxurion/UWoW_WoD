@@ -3049,8 +3049,8 @@ void SpellMgr::LoadSpellTriggered()
     } while (result->NextRow());
 
 
-    //                                        0             1             2         3         4          5          6      7      8         9          10       11
-    result = WorldDatabase.Query("SELECT `spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance` FROM `spell_aura_trigger`");
+    //                                        0             1             2         3         4          5          6      7      8         9          10       11       12
+    result = WorldDatabase.Query("SELECT `spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `slot` FROM `spell_aura_trigger`");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 triggered spells. DB table `spell_aura_trigger` is empty.");
@@ -3073,6 +3073,7 @@ void SpellMgr::LoadSpellTriggered()
         int32 effectmask = fields[9].GetInt32();
         int32 aura = fields[10].GetInt32();
         int32 chance = fields[11].GetInt32();
+        int32 slot = fields[12].GetInt32();
 
         SpellInfo const* spellInfo = GetSpellInfo(abs(spell_id));
         if (!spellInfo)
@@ -3095,6 +3096,7 @@ void SpellMgr::LoadSpellTriggered()
         tempAura.effectmask = effectmask;
         tempAura.aura = aura;
         tempAura.chance = chance;
+        tempAura.slot = slot;
         mSpellAuraTriggerMap[spell_id].push_back(tempAura);
 
         ++count;

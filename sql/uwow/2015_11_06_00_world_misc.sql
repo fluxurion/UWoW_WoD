@@ -61,9 +61,22 @@ insert into `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 DELETE FROM spell_proc_event WHERE entry IN (33757);
 
 
-Высвободить чары стихий
-Вскипание лавы 
-Кольцо огня 
-Оружие Водоворота
-Дух дикого зверя
-Усиленное оружие 
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('73685','0','0','61295','0','0','0','4','-1','-1','0','0','0','0','0','0','0','0','0','0','Высвободить чары жизни');
+insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
+('61295','73685','1','9','0','0','0','0','0','3','7','0','0','0','0','0','1','Высвободить чары жизни');
+
+DELETE FROM spell_script_names WHERE spell_id IN (61882, 77478);
+insert into `spell_aura_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `comment`) values
+('61882','77478','7','0','0','0','0','0','0','7','0','0','Землетрясение');
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `actiontype`, `comment`) values
+('77478','77505','1','0','0','0','0','0','0','0','0','0','0','0','Землетрясение');
+
+insert into `spell_aura_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `slot`, `comment`) values
+('108280','114942','6','0','0','0','0','0','0','7','0','0','2','Целительный прилив');
+
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('974','379','0','0','1','1','0','0','0','0','7','0','0','0','0','0','0','-1','0','0','0','Щит земли');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `actiontype`, `comment`) values
+('114051','17364 ','6','0','0','0','0','0','0','0','0','0','0','8','Перерождение');

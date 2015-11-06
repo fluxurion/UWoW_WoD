@@ -7009,6 +7009,8 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
 
 bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effIndex) const
 {
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AuraEffect::AuraSpellTrigger: Spell %u in Effect %d", GetId(), effIndex);
+
     if (std::vector<SpellDummyTrigger> const* spellTrigger = sSpellMgr->GetSpellAuraTrigger(m_spellInfo->Id))
     {
         bool check = false;
@@ -7124,6 +7126,38 @@ bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effI
                                 triggerCaster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), spell_trigger, true, NULL, this, owner ? owner->GetGUID() : ObjectGuid::Empty);
                         }
                     }
+                    check = true;
+                }
+                break;
+                case AURA_TRIGGER_FROM_NPC: //6
+                {
+                    if(triggerCaster->m_SummonSlot[itr->slot])
+                        if(Creature* summon = triggerCaster->GetMap()->GetCreature(triggerCaster->m_SummonSlot[itr->slot]))
+                            summon->CastSpell(summon, spell_trigger, true, NULL, this, triggerCaster->GetGUID());
+                    check = true;
+                }
+                break;
+                case AURA_TRIGGER_AREATRIGGER: //7
+                {
+                    std::list<AreaTrigger*> list;
+                    triggerCaster->GetAreaObjectList(list, GetId());
+                    if(!list.empty())
+                    {
+                        Unit* owner = triggerCaster->GetAnyOwner();
+                        for (std::list<AreaTrigger*>::iterator itr = list.begin(); itr != list.end(); ++itr)
+                        {
+                            if(AreaTrigger* areaObj = (*itr))
+                                triggerCaster->CastSpell(areaObj->GetPositionX(), areaObj->GetPositionY(), areaObj->GetPositionZ(), spell_trigger, true, NULL, this, owner ? owner->GetGUID() : ObjectGuid::Empty);
+                        }
+                    }
+                    check = true;
+                }
+                break;
+                case AURA_TRIGGER_FROM_NPC_DEST: //8
+                {
+                    if(triggerCaster->m_SummonSlot[itr->slot])
+                        if(Creature* summon = triggerCaster->GetMap()->GetCreature(triggerCaster->m_SummonSlot[itr->slot]))
+                            triggerCaster->CastSpell(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), spell_trigger, true);
                     check = true;
                 }
                 break;
