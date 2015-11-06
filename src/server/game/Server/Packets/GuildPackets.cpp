@@ -87,14 +87,14 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
         _worldPacket << item.EnchantmentID;
         _worldPacket << item.Charges;
         _worldPacket << item.OnUseEnchantmentID;
-        _worldPacket << uint32(item.SocketEnchant.size());
+        _worldPacket << uint32(/*item.SocketEnchant.size()*/0);
         _worldPacket << item.Flags;
 
-        for (GuildBankItemInfo::GuildBankSocketEnchant const& socketEnchant : item.SocketEnchant)
+        /*for (GuildBankItemInfo::GuildBankSocketEnchant const& socketEnchant : item.SocketEnchant)
         {
             _worldPacket << socketEnchant.SocketIndex;
             _worldPacket << socketEnchant.SocketEnchantID;
-        }
+        }*/
 
         _worldPacket.WriteBit(item.Locked);
         _worldPacket.FlushBits();

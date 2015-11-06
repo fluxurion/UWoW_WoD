@@ -3230,7 +3230,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
 
                 itemInfo.SocketEnchant.clear();
 
-                for (uint32 i = SOCK_ENCHANTMENT_SLOT, socketIndex = 0; i < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++i, ++socketIndex)
+                /*for (uint32 i = SOCK_ENCHANTMENT_SLOT, socketIndex = 0; i < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++i, ++socketIndex)
                 {
                     if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(i)))
                     {
@@ -3239,7 +3239,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
                         socketEnchant.SocketIndex = int32(socketIndex);
                         itemInfo.SocketEnchant.push_back(socketEnchant);
                     }
-                }
+                }*/
             }
 
             packet.ItemInfo.push_back(itemInfo);
