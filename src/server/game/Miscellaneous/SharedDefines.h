@@ -143,7 +143,8 @@ enum SpecIndex
     SPEC_WARLOCK_DESTRUCTION    = 267,
     SPEC_MONK_BREWMASTER        = 268,
     SPEC_MONK_WINDWALKER        = 269,
-    SPEC_MONK_MISTWEAVER        = 270
+    SPEC_MONK_MISTWEAVER        = 270,
+    SPEC_MAX_SPEC_INDEX         = 271
 };
 
 // used in script definitions

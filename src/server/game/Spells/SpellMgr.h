@@ -137,6 +137,12 @@ enum SpellLinkedActionType
     LINK_ACTION_REMOVE_COOLDOWN  = 8,
 };
 
+enum SpellLinkedTargetType
+{
+    LINK_TARGET_DEFAULT          = 0,
+    LINK_TARGET_FROM_EFFECT      = 1,
+};
+
 enum SpellTriggeredType
 {
     SPELL_TRIGGER_BP                            = 0,            // set basepoint to spell from amount
@@ -242,6 +248,12 @@ enum SpellTargetFilterType
     SPELL_FILTER_TARGET_IS_IN_BETWEEN_SHIFT     = 12,           // Select target is in between and shift
     SPELL_FILTER_BY_AURA_OR                     = 13,           // Remove target by any aura
     SPELL_FILTER_BY_ENTRY                       = 14,           // Remove target by any entry
+};
+
+enum SpellConcatenateAuraType
+{
+    CONCATENATE_DEFAULT                  = 0,            //
+    CONCATENATE_RECALCULATE              = 1,            // Recalculate amount on aura
 };
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
@@ -719,6 +731,8 @@ struct SpellLinked
     uint32 hitmask;
     int32 removeMask;
     uint8 actiontype;
+    int8 targetCount;
+    int8 targetCountType;
 };
 
 struct SpellTalentLinked
@@ -893,6 +907,7 @@ struct SpellConcatenateAura
     int32 effectSpell;
     int32 auraId;
     int32 effectAura;
+    int8 type;
 };
 
 typedef std::unordered_map<int32, std::vector<SpellTriggered> > SpellTriggeredMap;

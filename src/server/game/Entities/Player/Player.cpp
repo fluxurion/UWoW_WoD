@@ -3358,7 +3358,6 @@ void Player::GiveLevel(uint8 level)
     
     UpdateSkillsForLevel();
     LearnDefaultSkills();
-    LearnSpecializationSpells();
 
     // save base values (bonuses already included in stored stats
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
@@ -3370,6 +3369,8 @@ void Player::GiveLevel(uint8 level)
     InitTalentForLevel();
     InitTaxiNodesForLevel();
     InitGlyphsForLevel();
+
+    LearnSpecializationSpells();
 
     _ApplyAllLevelScaleItemMods(true); // Moved to above SetFullHealth so player will have full health from Heirlooms
     UpdateAllStats();
@@ -3513,24 +3514,17 @@ void Player::LearnSpecializationSpells()
         }
     }
 
-    uint32 const orderIndex[4] = {0, 1, 2, 3};
-    int32 currentIndex = -1;
+    if(level < 91)
+        return;
 
+    uint8 currentIndex = 1;
     switch (level)
     {
-        case 91:
-        case 92:
-            currentIndex = 0;
-            break;
-        case 93:
-        case 94:
-            currentIndex = 1;
-            break;
         case 95:
         case 96:
+        case 97:
             currentIndex = 2;
             break;
-        case 97:
         case 98:
         case 99:
             currentIndex = 3;
@@ -3540,18 +3534,24 @@ void Player::LearnSpecializationSpells()
             break;
     }
 
+    bool add = true;
     if (currentIndex < 4)
+        add = urand(0, 1);
+
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "LearnSpecializationSpells currentIndex %u add %i", currentIndex, add);
+
+    if(add)
     {
-        if (uint32 spellID = GetAvailableMinorTalent(specializationId, orderIndex[currentIndex]))
-            if (urand(0, 1))
-                if (!HasSpell(spellID))
-                    learnSpell(spellID, false);
+        for (uint8 i = 0; i < currentIndex; i++)
+        {
+            if (MinorTalentEntry const* minor = sMinorTalentByIndexStore[specializationId][i])
+            {
+                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "LearnSpecializationSpells currentIndex %u i %u SpellID %u", currentIndex, i, minor->SpellID);
+                if(!HasSpell(minor->SpellID))
+                    learnSpell(minor->SpellID, false);
+            }
+        }
     }
-    else if (currentIndex == 4)
-        for (uint8 i = 0; i < 3; i++)
-            if (uint32 spellID = GetAvailableMinorTalent(specializationId, orderIndex[i]))
-                if (!HasSpell(spellID))
-                    learnSpell(spellID, false);
 }
 
 void Player::RemoveSpecializationSpells()
@@ -3568,6 +3568,8 @@ void Player::RemoveSpecializationSpells()
                     removeSpell(specSpell->LearnSpell, true);
                     if (specSpell->OverrideSpell)
                         RemoveOverrideSpell(specSpell->OverrideSpell, specSpell->LearnSpell);
+                    if (MinorTalentEntry const* minor = sMinorTalentByIndexStore[specSpell->SpecializationEntry][i])
+                        removeSpell(minor->SpellID, true);
                 }
             }
 
@@ -3576,10 +3578,6 @@ void Player::RemoveSpecializationSpells()
                     RemoveAurasDueToSpell(mastery);
         }
     }
-
-    for (MinorTalentEntry const* entry : sMinorTalentStore)
-        if (HasSpell(entry->SpellID))
-            removeSpell(entry->SpellID, false);
 }
 
 void Player::InitStatsForLevel(bool reapplyMods)
@@ -18765,7 +18763,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     // after spell and quest load
     InitTalentForLevel();
-    LearnSpecializationSpells();
     LearnDefaultSkills();
 
     // must be before inventory (some items required reputation check)
@@ -25010,6 +25007,9 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     //SMSG_WEATHER done on UpdateZone
     SendCurrencies();
+
+    //load before vignet
+    LearnSpecializationSpells();
 
     // Reset Vignitte data
     GetSession()->SendPacket(WorldPackets::Update::VignetteUpdate(true).Write());

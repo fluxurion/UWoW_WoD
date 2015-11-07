@@ -5789,6 +5789,25 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
             if(!_caster)
                 continue;
 
+            if(i->targetCount != -1)
+            {
+                switch (i->targetCountType)
+                {
+                    case LINK_TARGET_DEFAULT:
+                    {
+                        if(GetTargetCount() < i->targetCount)
+                            continue;
+                        break;
+                    }
+                    case LINK_TARGET_FROM_EFFECT:
+                    {
+                        if(GetEffectTargets().size() < i->targetCount)
+                            continue;
+                        break;
+                    }
+                }
+            }
+
             if(i->hastalent)
                 if(m_caster->HasAuraLinkedSpell(_caster, _target, i->hastype, i->hastalent))
                     continue;

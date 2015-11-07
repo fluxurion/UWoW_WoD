@@ -26,8 +26,6 @@
 
 #include <list>
 
-uint32 GetAvailableMinorTalent(uint32 specID, int32 orderIndex);
-
 typedef std::list<uint32> SimpleFactionsList;
 SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 std::list<uint32> GetItemSpecsList(uint32 ItemID);
@@ -319,5 +317,8 @@ extern ChrSpecializationByIndexArray             sChrSpecializationByIndexStore;
 
 typedef std::vector<TalentEntry const*> TalentsByPosition[MAX_CLASSES][7][3];
 extern TalentsByPosition                         sTalentByPos;
+
+typedef MinorTalentEntry const* MinorTalentByIndexArray[SPEC_MAX_SPEC_INDEX][4];
+extern MinorTalentByIndexArray             sMinorTalentByIndexStore;
 
 #endif

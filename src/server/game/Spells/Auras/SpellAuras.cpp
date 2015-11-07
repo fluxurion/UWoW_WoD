@@ -3227,9 +3227,22 @@ void Aura::UpdateConcatenateAura(Unit* caster, int32 amount, int32 effIndex, boo
         {
             for (std::vector<SpellConcatenateAura>::const_iterator itr = spellConcatenateAura->begin(); itr != spellConcatenateAura->end(); ++itr)
             {
-                if (AuraEffect* effectSpell = caster->GetAuraEffect(itr->spellid, itr->effectSpell))
-                    if (AuraEffect* effectAura = GetEffect(itr->effectAura))
-                        effectAura->SetAmount(effectSpell->GetAmount());
+                switch (itr->type)
+                {
+                    case CONCATENATE_DEFAULT:
+                    {
+                        if (AuraEffect* effectSpell = caster->GetAuraEffect(itr->spellid, itr->effectSpell))
+                            if (AuraEffect* effectAura = GetEffect(itr->effectAura))
+                                effectAura->SetAmount(effectSpell->GetAmount());
+                        break;
+                    }
+                    case CONCATENATE_RECALCULATE:
+                    {
+                        if (Aura* auraSpell = caster->GetAura(itr->spellid))
+                            auraSpell->RecalculateAmountOfEffects(true);
+                        break;
+                    }
+                }
             }
         }
     }
@@ -3242,8 +3255,24 @@ void Aura::UpdateConcatenateAura(Unit* caster, int32 amount, int32 effIndex, boo
 
                 if(effIndex != itr->effectSpell)
                     continue;
-                if (AuraEffect* effect = caster->GetAuraEffect(itr->auraId, itr->effectAura))
-                    effect->SetAmount(amount);
+                switch (itr->type)
+                {
+                    case CONCATENATE_DEFAULT:
+                    {
+                        if (AuraEffect* effect = caster->GetAuraEffect(itr->auraId, itr->effectAura))
+                            effect->SetAmount(amount);
+                        break;
+                    }
+                    case CONCATENATE_RECALCULATE:
+                    {
+                        if (AuraEffect* effect = caster->GetAuraEffect(itr->auraId, itr->effectAura))
+                        {
+                            effect->SetCanBeRecalculated(true);
+                            effect->RecalculateAmount();
+                        }
+                        break;
+                    }
+                }
             }
         }
     }

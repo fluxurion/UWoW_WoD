@@ -463,28 +463,24 @@ class spell_sha_rolling_thunder : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sha_rolling_thunder_SpellScript)
 
-            bool Validate(SpellInfo const * /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(403) || !sSpellMgr->GetSpellInfo(421))
-                    return false;
-                return true;
-            }
-
             void HandleOnHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
+                    if(GetSpellInfo()->Id == 51505 && !caster->HasAura(157774)) // Improved Lightning Shield
+                        return;
+
                     if (Unit* target = GetHitUnit())
                     {
-                        if (AuraEffect const* fulminationEff = _player->GetAuraEffect(88766, EFFECT_0))
+                        if (AuraEffect const* fulminationEff = caster->GetAuraEffect(88766, EFFECT_0))
                         {
-                            if (Aura* lightningShield = _player->GetAura(324))
+                            if (Aura* lightningShield = caster->GetAura(324))
                             {
-                                _player->CastSpell(_player, SPELL_SHA_ROLLING_THUNDER_ENERGIZE, true);
+                                caster->CastSpell(caster, SPELL_SHA_ROLLING_THUNDER_ENERGIZE, true);
 
                                 uint8 maxCharges = fulminationEff->GetAmount();
                                 uint8 lsCharges = lightningShield->GetCharges();
-                                uint8 addCharges = _player->HasAura(SPELL_SHA_ITEM_T14_4P) ? ((lsCharges + 2) > maxCharges ? 1 : 2) : 1;
+                                uint8 addCharges = caster->HasAura(SPELL_SHA_ITEM_T14_4P) ? ((lsCharges + 2) > maxCharges ? 1 : 2) : 1;
 
                                 if (lsCharges < maxCharges)
                                 {
@@ -495,8 +491,8 @@ class spell_sha_rolling_thunder : public SpellScriptLoader
                                 // refresh to handle Fulmination visual
                                 lsCharges = lightningShield->GetCharges();
 
-                                if (lsCharges >= maxCharges && _player->HasAura(SPELL_SHA_FULMINATION))
-                                    _player->CastSpell(_player, SPELL_SHA_FULMINATION_INFO, true);
+                                if (lsCharges >= maxCharges && caster->HasAura(SPELL_SHA_FULMINATION))
+                                    caster->CastSpell(caster, SPELL_SHA_FULMINATION_INFO, true);
                             }
                         }
                     }
@@ -1033,18 +1029,19 @@ class spell_sha_chain_heal : public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
+                int32 heal = GetHitHeal();
                 if (firstHeal)
                 {
                     // Check if the target has Riptide
                     if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0, 0x10, GetCaster()->GetGUID()))
-                    {
                         riptide = true;
-                    }
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(157813, EFFECT_0)) // Improved Chain Heal
+                        heal += CalculatePct(heal, aurEff->GetAmount());
                     firstHeal = false;
                 }
                 // Riptide increases the Chain Heal effect by 25%
                 if (riptide)
-                    SetHitHeal(GetHitHeal() * 1.25f);
+                    SetHitHeal(heal * 1.25f);
             }
 
             void Register()

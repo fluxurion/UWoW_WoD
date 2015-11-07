@@ -89,6 +89,7 @@ TransportAnimationsByEntry                  sTransportAnimationsByEntry;
 SkillRaceClassInfoMap                       SkillRaceClassInfoBySkill;
 ChrSpecializationByIndexArray               sChrSpecializationByIndexStore;
 TalentsByPosition                           sTalentByPos;
+MinorTalentByIndexArray                     sMinorTalentByIndexStore;
 
 DBCStorage<AchievementEntry>                sAchievementStore(Achievementfmt);
 DBCStorage<AreaPOIEntry>                    sAreaPOIStore(AreaPOIEntryfmt);
@@ -794,6 +795,10 @@ void InitDBCCustomStores()
     memset(sChrSpecializationByIndexStore, 0, sizeof(sChrSpecializationByIndexStore));
     for (ChrSpecializationsEntry const* chrSpec : sChrSpecializationsStore)
         sChrSpecializationByIndexStore[chrSpec->ClassID][chrSpec->OrderIndex] = chrSpec;
+
+    memset(sMinorTalentByIndexStore, 0, sizeof(sMinorTalentByIndexStore));
+    for (MinorTalentEntry const* minotTal : sMinorTalentStore)
+        sMinorTalentByIndexStore[minotTal->SpecID][minotTal->OrderIndex] = minotTal;
 }
 
 std::string GetRandomCharacterName(uint8 race, uint8 gender)
@@ -1285,22 +1290,6 @@ DungeonEncounterEntry const* GetDungeonEncounterByDisplayID(uint32 displayID)
     if (data == sDungeonEncounterByDisplayID.end())
         return NULL;
     return data->second;
-}
-
-uint32 GetAvailableMinorTalent(uint32 specID, int32 orderIndex)
-{
-    for (MinorTalentEntry const* entry : sMinorTalentStore)
-    {
-        if (entry->SpecID != specID)
-            continue;
-
-        if (entry->OrderIndex != orderIndex)
-            continue;
-
-        return entry->SpellID;
-    }
-    
-    return 0;
 }
 
 void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId /*= nullptr*/, DBCPosition2D* newPos /*= nullptr*/)

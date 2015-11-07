@@ -98,9 +98,10 @@ insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `p
 
 DELETE FROM spell_target_filter WHERE spellId IN (114942);
 insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values
-('114942','31','0','0','0','0','0','0','7','1','5','12','0','0','Целительный прилив');
+('114942','31','0','0','0','0','0','0','7','0','0','0','0','2','Целительный прилив');
+
 
 UPDATE creature_template SET spell1 = 0 WHERE entry IN (5929);
-insert into `spell_aura_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `slot`, `comment`) values
-('8190','8187','6','0','0','0','0','0','0','7','0','0','3','Тотем магмы');
+replace into `spell_aura_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `slot`, `comment`) values
+('8190','8187','6','0','0','0','0','0','0','7','0','0','1','Тотем магмы');
 
