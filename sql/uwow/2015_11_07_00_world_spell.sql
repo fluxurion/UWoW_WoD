@@ -16,4 +16,5 @@ insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hast
 insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
 ('157804','60103','0','4','1','0','0','0','0','0','7','0','0','0','0','0','0','-1','0','0','0','Усиленный огненный шок');
 
-
+replace into `spell_aura_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `slot`, `comment`) values
+('170377','170379','0','4','0','0','0','0','0','7','0','0','0','Расплавленная земля');

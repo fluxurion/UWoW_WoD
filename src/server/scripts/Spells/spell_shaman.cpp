@@ -1035,7 +1035,7 @@ class spell_sha_chain_heal : public SpellScriptLoader
                     // Check if the target has Riptide
                     if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0, 0x10, GetCaster()->GetGUID()))
                         riptide = true;
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(157813, EFFECT_0)) // Improved Chain Heal
+                    if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(157813, EFFECT_0)) // Improved Chain Heal
                         heal += CalculatePct(heal, aurEff->GetAmount());
                     firstHeal = false;
                 }
