@@ -96,7 +96,7 @@ class spell_warr_stampeding_shout : public SpellScriptLoader
         }
 };
 
-// Shield Barrier - 112048
+// Shield Barrier - 112048, 174926
 class spell_warr_shield_barrier : public SpellScriptLoader
 {
     public:
@@ -129,18 +129,17 @@ class spell_warr_shield_barrier : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
-                if (Unit* caster = GetCaster())
+                if (Player* plr = GetCaster()->ToPlayer())
                 {
-                    int32 rage = int32(caster->GetPower(POWER_RAGE) / 10);
-                    int32 AP = int32(caster->GetTotalAttackPowerValue(BASE_ATTACK));
-                    int32 Strength = int32(caster->GetStat(STAT_STRENGTH));
-                    int32 Stamina = int32(caster->GetStat(STAT_STAMINA));
+                    int32 rage = int32(plr->GetPower(POWER_RAGE) / 10);
+                    int32 AP = int32(plr->GetTotalAttackPowerValue(BASE_ATTACK));
+                    float versality = (plr->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN) + plr->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE)) / 10;
 
-                    amount += std::max(int32(2 * (AP - 2 * (Strength - 10))), int32(Stamina * 2.5f)) * (std::min(60, rage) / 20);
+                    amount += int32(AP * 1.4 * (1 + versality)) * (std::min(40, rage)) / 20;
 
-                    caster->ModifyPower(POWER_RAGE, -(std::min(60, rage) * 10), true);
+                    plr->ModifyPower(POWER_RAGE, -(std::min(40, rage) * 10), true);
 
-                    amount = caster->CalcAbsorb(caster, GetSpellInfo(), amount);
+                    amount = plr->CalcAbsorb(plr, GetSpellInfo(), amount);
                 }
             }
 
@@ -154,6 +153,53 @@ class spell_warr_shield_barrier : public SpellScriptLoader
         {
             return new spell_warr_shield_barrier_AuraScript();
         }
+};
+
+//Arms Execute - 163201
+class spell_warr_execute : public SpellScriptLoader
+{
+public:
+    spell_warr_execute() : SpellScriptLoader("spell_warr_execute") { }
+
+    class spell_warr_execute_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_execute_SpellScript);
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                int32 rage = int32(caster->GetPower(POWER_RAGE) / 10);
+
+                if (rage >= 20)
+                    SetHitDamage(GetHitDamage() * 3);
+            }
+        }
+
+        void HandleEnergy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                int32 rage = int32(caster->GetPower(POWER_RAGE) / 10);
+
+                if (rage < 20)
+                    SetEffectValue(0);
+                else
+                    SetEffectValue(GetSpellInfo()->Effects[EFFECT_2].BasePoints * 10);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_warr_execute_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+            OnEffectHitTarget += SpellEffectFn(spell_warr_execute_SpellScript::HandleEnergy, EFFECT_2, SPELL_EFFECT_ENERGIZE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warr_execute_SpellScript();
+    }
 };
 
 // Shield Block - 2565
@@ -1347,4 +1393,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_dragon_roar();
     new spell_warr_defensive_stance();
     new spell_warr_ravager();
+    new spell_warr_execute();
 }
