@@ -13,8 +13,6 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `comment`) values
 ('73685','118473','6','0','0','0','165479','0','0','0','0','0','0','0','-1','0','Освобожденная ярость');
 
-insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `comment`) values
-('152256','157299','6','0','0','0','0','0','0','0','0','0','0','0','-1','0','Тотем элементаля бури');
 UPDATE creature_template SET spell1 = 157331, spell2 = 157348 WHERE entry IN (77936);
 UPDATE creature_template SET spell1 = 157331, spell2 = 157348, spell3 = 157375, spell4 = 157382 WHERE entry IN (77942);
 
@@ -44,4 +42,7 @@ insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hast
 insert into `spell_pet_auras` (`petEntry`, `spellId`, `option`, `target`, `targetaura`, `bp0`, `bp1`, `bp2`, `aura`, `casteraura`, `createdspell`, `fromspell`, `comment`) values
 ('77936','34967','0','0','0','0','0','0','0','0','0','0','Тотем стихий'),
 ('77936','157328','0','0','0','0','0','0','0','0','0','0','Элементаль бури');
+
+insert into `spell_talent_linked_spell` (`spellid`, `spelllink`, `type`, `target`, `caster`, `comment`) values
+('-88766','-324','0','0','0','Сверкание');
 

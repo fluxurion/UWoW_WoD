@@ -8828,7 +8828,7 @@ void Player::DuelComplete(DuelCompleteType type)
             ++i;
     }
 
-    AuraApplicationMap &myAuras = GetAppliedAuras();
+    /*AuraApplicationMap &myAuras = GetAppliedAuras();
     for (AuraApplicationMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
         Aura const* aura = i->second->GetBase();
@@ -8836,7 +8836,7 @@ void Player::DuelComplete(DuelCompleteType type)
             RemoveAura(i);
         else
             ++i;
-    }
+    }*/
 
     // cleanup combo points
     //ClearComboPoints();   //Need it?
