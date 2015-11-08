@@ -4330,8 +4330,11 @@ void ObjectMgr::LoadQuests()
                     if (!sSpellMgr->GetSpellInfo(obj.ObjectID))
                         sLog->outError(LOG_FILTER_SQL, "Quest %u has not exist SpellID: %u in ObjectID field ", qinfo->GetQuestId(), obj.ObjectID);
                     break;
-                case QUEST_OBJECTIVE_MONEY:
                 case QUEST_OBJECTIVE_AREATRIGGER:
+                    if (!qinfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT))
+                        const_cast<Quest*>(qinfo)->SetSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT);
+                    break;
+                case QUEST_OBJECTIVE_MONEY:
                 case QUEST_OBJECTIVE_PET_TRAINER_DEFEAT:
                 case QUEST_OBJECTIVE_DEFEATBATTLEPET:
                 case QUEST_OBJECTIVE_PET_BATTLE_VICTORIES:
