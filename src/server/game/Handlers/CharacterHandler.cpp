@@ -921,14 +921,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
         if (!data.empty())
         {
-            boost::regex xRegEx("ZONECHANNELS[ \f\n\r\t\v][1-9][0-9]+");
-            boost::smatch xResults;
-            std::string::const_iterator xItStart = data.begin();
-            std::string::const_iterator xItEnd = data.end();
+            boost::regex regEx("ZONECHANNELS[ \f\n\r\t\v][1-9][0-9]+");
+            boost::smatch res;
             bool replace = false;
-            if (boost::regex_search(xItStart, xItEnd, xResults, xRegEx))
+            if (boost::regex_search(data, res, regEx))
             {
-                std::string m = xResults[0];
+                std::string m = res[0];
                 std::string channel = m.substr(12, m.size());
                 int channelMask = std::stoi(channel);
 
@@ -941,7 +939,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             }
 
             if (replace)
-                aData->Data = boost::regex_replace(data, xRegEx, "ZONECHANNELS 35651587");
+                aData->Data = boost::regex_replace(data, regEx, "ZONECHANNELS 35651587");
         }
     }
 
