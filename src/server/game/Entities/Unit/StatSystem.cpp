@@ -595,6 +595,9 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
     value += GetRatingBonusValue(cr);
     value += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT, true);
     SetStatFloatValue(index, value);
+
+    if (HasAuraType(SPELL_AURA_CONVER_CRIT_RATING_PCT_TO_PARRY_RATING))
+        UpdateParryPercentage();
 }
 
 void Player::UpdateAllCritPercentages()
@@ -659,10 +662,10 @@ void Player::UpdateParryPercentage()
 
     // No parry
     float value = 0.0f;
+    int32 ParryValue = 0;
     uint32 pclass = getClass()-1;
     if (CanParry() && parry_cap[pclass] > 0.0f)
     {
-        uint32 pclass = getClass() - 1;
         float baseParry = 3.0f + GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT) + GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT2);
         float scaling = 951.158596f;
         float base_strength = GetCreateStat(STAT_STRENGTH) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_STRENGTH][BASE_PCT];
@@ -676,6 +679,15 @@ void Player::UpdateParryPercentage()
         value += baseParry + parryFromBaseStrength;
         value = value < 0.0f ? 0.0f : value;
     }
+
+    if (HasAuraType(SPELL_AURA_CONVER_CRIT_RATING_PCT_TO_PARRY_RATING))
+    {
+        float ParryByCrit = float(GetTotalAuraModifier(SPELL_AURA_CONVER_CRIT_RATING_PCT_TO_PARRY_RATING));
+        float CritValue = m_baseRatingValue[CR_CRIT_MELEE];
+        ParryValue += int32(ParryByCrit / 100.0f * CritValue);
+    }
+
+    SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_PARRY, uint32(ParryValue));
     SetStatFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE, value);
 }
 

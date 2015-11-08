@@ -521,7 +521,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //460 SPELL_AURA_RESET_COOLDOWNS_AT_DUEL_START
     &AuraEffect::HandleUnused,                                    //461
     &AuraEffect::HandleNULL,                                      //462
-    &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_CONVER_CRIT_RATING_PCT_TO_PARRY_RATING
+    &AuraEffect::HandleConverCritRatingPctToParryRating,          //463 SPELL_AURA_CONVER_CRIT_RATING_PCT_TO_PARRY_RATING
     &AuraEffect::HandleAttackPowerByBonusArmorPct,                //464 SPELL_AURA_MOD_ATTACK_POWER_BY_BONUS_ARMOR_PCT
     &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
@@ -5763,6 +5763,19 @@ void AuraEffect::HandleModRatingFromStat(AuraApplication const* aurApp, uint8 mo
             target->ToPlayer()->ApplyRatingMod(CombatRating(rating), 0, apply);
 }
 
+void AuraEffect::HandleConverCritRatingPctToParryRating(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    // Just recalculate ratings
+    target->ToPlayer()->UpdateParryPercentage();
+}
 /********************************/
 /***        ATTACK POWER      ***/
 /********************************/
