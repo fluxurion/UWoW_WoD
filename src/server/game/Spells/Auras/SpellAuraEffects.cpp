@@ -522,7 +522,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //461
     &AuraEffect::HandleNULL,                                      //462
     &AuraEffect::HandleNULL,                                      //463 SPELL_AURA_CONVER_CRIT_RATING_PCT_TO_PARRY_RATING
-    &AuraEffect::HandleNULL,                                      //464 SPELL_AURA_MOD_ATTACK_POWER_BY_BONUS_ARMOR_PCT
+    &AuraEffect::HandleAttackPowerByBonusArmorPct,                //464 SPELL_AURA_MOD_ATTACK_POWER_BY_BONUS_ARMOR_PCT
     &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
     &AuraEffect::HandleModStatBonusPercent,                       //467 SPELL_AURA_MOD_STAT_BONUS_PCT
@@ -5898,6 +5898,18 @@ void AuraEffect::HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 
             target->ApplyStatPercentBuffMod(Stats(i), float(m_amount), apply);
         }
     }
+}
+
+void AuraEffect::HandleAttackPowerByBonusArmorPct(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    // Recalculate bonus
+    if (target->GetTypeId() == TYPEID_PLAYER)
+        target->ToPlayer()->UpdateAttackPowerAndDamage(false);
 }
 
 /********************************/

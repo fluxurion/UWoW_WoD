@@ -392,6 +392,12 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 attPowerMod += int32(GetArmor() / (*iter)->GetAmount());
         }
 
+        if (!ranged && HasAuraType(SPELL_AURA_MOD_ATTACK_POWER_BY_BONUS_ARMOR_PCT))
+        {
+            float ApByArmor = float(GetTotalAuraModifier(SPELL_AURA_MOD_ATTACK_POWER_BY_BONUS_ARMOR_PCT));
+            base_attPower += int32(ApByArmor / 100.0f * GetArmor());
+        }
+
         float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
         SetFloatValue(PLAYER_FIELD_OVERRIDE_APBY_SPELL_POWER_PERCENT, 0.0f);
