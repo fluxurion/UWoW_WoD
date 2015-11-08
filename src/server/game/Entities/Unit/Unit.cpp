@@ -8224,7 +8224,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                 break;
             }
             // Light's Beacon - Beacon of Light
-            if (dummySpell->Id == 53651)
+            /*if (dummySpell->Id == 53651)
             {
                 // Get target of beacon of light
                 if (Unit* beaconTarget = triggeredByAura->GetBase()->GetCaster())
@@ -8245,7 +8245,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     }
                 }
                 return false;
-            }
+            }*/
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
             {
