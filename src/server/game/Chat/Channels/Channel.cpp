@@ -169,7 +169,7 @@ void Channel::CleanOldChannelsInDB()
     }
 }
 
-void Channel::JoinChannel(Player* player, const char *pass)
+void Channel::JoinChannel(Player* player, const char *pass, bool byClientRequest)
 {
     ObjectGuid const& guid = player->GetGUID();
 
@@ -249,7 +249,7 @@ void Channel::JoinChannel(Player* player, const char *pass)
     }
 }
 
-void Channel::LeaveChannel(Player* player, bool send)
+void Channel::LeaveChannel(Player* player, bool send, bool byClientRequest)
 {
     ObjectGuid const& guid = player->GetGUID();
 
@@ -275,7 +275,8 @@ void Channel::LeaveChannel(Player* player, bool send)
             WorldPackets::Channel::ChannelNotifyLeft notify;
             notify.Channel = m_name;
             notify.ChatChannelID = 0;
-            notify.Suspended = m_channelId == 2 ? true : false;
+            bool suspended = m_channelId == 2 && !byClientRequest;
+            notify.Suspended = suspended;
             player->SendDirectMessage(notify.Write());
 
             if (player)
