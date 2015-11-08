@@ -660,25 +660,7 @@ void Player::UpdateParryPercentage()
         false  // Druid
     };
 
-    // No parry
-    float value = 0.0f;
     int32 ParryValue = 0;
-    uint32 pclass = getClass()-1;
-    if (CanParry() && parry_cap[pclass] > 0.0f)
-    {
-        float baseParry = 3.0f + GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT) + GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT2);
-        float scaling = 951.158596f;
-        float base_strength = GetCreateStat(STAT_STRENGTH) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_STRENGTH][BASE_PCT];
-        float ratingParry = GetRatingBonusValue(CR_PARRY);
-        float total_strength = GetTotalStatValue(STAT_STRENGTH);
-
-        float parryFromStrength = mainStr[pclass] ? ((total_strength - base_strength) / scaling) : 0.0f;
-        float parryFromBaseStrength = mainStr[pclass] ? (base_strength / scaling) : 0.0f;
-
-        value = pow((1 / parry_cap[pclass]) + (m_diminishing_k[pclass] / (parryFromStrength + ratingParry)), -1);
-        value += baseParry + parryFromBaseStrength;
-        value = value < 0.0f ? 0.0f : value;
-    }
 
     if (HasAuraType(SPELL_AURA_CONVER_CRIT_RATING_PCT_TO_PARRY_RATING))
     {
@@ -688,6 +670,26 @@ void Player::UpdateParryPercentage()
     }
 
     SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_PARRY, uint32(ParryValue));
+
+    // No parry
+    float value = 0.0f;
+    uint32 pclass = getClass()-1;
+    if (CanParry() && parry_cap[pclass] > 0.0f)
+    {
+        float baseParry = 3.0f + GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT) + GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT2);
+        float ratingParry = GetRatingBonusValue(CR_PARRY);
+        float scaling = 951.158596f;
+        float base_strength = GetCreateStat(STAT_STRENGTH) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_STRENGTH][BASE_PCT];
+        float total_strength = GetModifierValue(UNIT_MOD_STAT_STRENGTH, BASE_VALUE);
+
+        float parryFromStrength = mainStr[pclass] ? ((total_strength - base_strength) / scaling) : 0.0f;
+        float parryFromBaseStrength = mainStr[pclass] ? (base_strength / scaling) : 0.0f;
+
+        value = pow((1 / parry_cap[pclass]) + (m_diminishing_k[pclass] / (parryFromStrength + ratingParry)), -1);
+        value += baseParry + parryFromBaseStrength;
+        value = value < 0.0f ? 0.0f : value;
+    }
+
     SetStatFloatValue(PLAYER_FIELD_PARRY_PERCENTAGE, value);
 }
 
