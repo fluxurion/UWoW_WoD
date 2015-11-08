@@ -111,34 +111,6 @@ enum HunterSpells
     HUNTER_SPELL_ICE_TRAP_TRIGGER                = 13810,
 };
 
-// Dash - 113073
-class spell_hun_dash : public SpellScriptLoader
-{
-    public:
-        spell_hun_dash() : SpellScriptLoader("spell_hun_dash") { }
-
-        class spell_hun_dash_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_dash_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    _player->RemoveMovementImpairingAuras();
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_hun_dash_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_dash_SpellScript();
-        }
-};
-
 // Stampede - 121818
 #define STAMPED_COUNT 5
 class spell_hun_stampede : public SpellScriptLoader
@@ -2224,7 +2196,6 @@ public:
 
 void AddSC_hunter_spell_scripts()
 {
-    new spell_hun_dash();
     new spell_hun_of_marked_for_die();
     new spell_hun_stampede();
     new spell_hun_dire_beast();

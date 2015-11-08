@@ -7680,16 +7680,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     basepoints0 = CalculatePct(int32(damage), triggerAmount) / tickcount;
                     break;
                 }
-                // Phantasm
-                case 47569:
-                case 47570:
-                {
-                    if (!roll_chance_i(triggerAmount))
-                        return false;
-
-                    RemoveMovementImpairingAuras();
-                    break;
-                }
                 // Glyph of Dispel Magic
                 case 55677:
                 {

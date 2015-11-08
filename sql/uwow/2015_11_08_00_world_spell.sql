@@ -46,3 +46,17 @@ insert into `spell_pet_auras` (`petEntry`, `spellId`, `option`, `target`, `targe
 insert into `spell_talent_linked_spell` (`spellid`, `spelllink`, `type`, `target`, `caster`, `comment`) values
 ('-88766','-324','0','0','0','Сверкание');
 
+delete from spell_script_names where spell_id IN (107574,122294,116841,108843,113073,97993,1850);
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `comment`) values
+('1850','-106898','1','0','0','0','0','0','0','0','0','0','0','0','-1','0','Порыв'),
+('1850','1850','0','0','0','0','0','0','0','0','0','0','0','0','-1','9','Порыв'),
+('20589','20589','0','0','0','0','0','0','0','0','0','0','0','0','-1','9','Мастер побега (Расовая)'),
+('97993','97993','1','0','0','0','0','0','0','0','0','0','0','0','-1','9','Тревожный рев'),
+('107574','107574','0','0','0','0','0','0','0','0','0','0','0','0','-1','9','Аватара'),
+('108843','108843','0','0','0','0','0','0','0','0','0','0','0','0','-1','9','Молниеносность'),
+('114029','114029','6','0','0','0','0','0','0','0','0','0','0','0','-1','9','Охрана'),
+('116841','116841','1','0','0','0','0','0','0','0','0','0','0','0','-1','9','Тигриное рвение');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `comment`) values
+('58875','58875','0','0','0','0','0','0','0','0','0','0','0','0','-1','9','Поступь духа');
+

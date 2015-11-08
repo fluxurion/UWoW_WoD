@@ -1307,42 +1307,6 @@ class spell_monk_spear_hand_strike : public SpellScriptLoader
         }
 };
 
-// Tiger's Lust - 116841
-class spell_monk_tigers_lust : public SpellScriptLoader
-{
-    public:
-        spell_monk_tigers_lust() : SpellScriptLoader("spell_monk_tigers_lust") { }
-
-        class spell_monk_tigers_lust_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_tigers_lust_SpellScript);
-
-            bool Validate(SpellInfo const * /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MONK_FLYING_SERPENT_KICK_NEW))
-                    return false;
-                return true;
-            }
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        target->RemoveMovementImpairingAuras();
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_monk_tigers_lust_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_tigers_lust_SpellScript();
-        }
-};
-
 // Flying Serpent Kick - 115057
 class spell_monk_flying_serpent_kick : public SpellScriptLoader
 {
@@ -3341,7 +3305,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_burst();
     new spell_monk_energizing_brew();
     new spell_monk_spear_hand_strike();
-    new spell_monk_tigers_lust();
     new spell_monk_flying_serpent_kick();
     new spell_monk_chi_torpedo();
     new spell_monk_purifying_brew();

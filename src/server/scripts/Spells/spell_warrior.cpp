@@ -65,35 +65,6 @@ enum WarriorSpells
     WARRIOR_SPELL_SHIELDWALL                    = 871,
 };
 
-// Stampeding Shout - 122294
-class spell_warr_stampeding_shout : public SpellScriptLoader
-{
-    public:
-        spell_warr_stampeding_shout() : SpellScriptLoader("spell_warr_stampeding_shout") { }
-
-        class spell_warr_stampeding_shout_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_stampeding_shout_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        target->RemoveMovementImpairingAuras();
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warr_stampeding_shout_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_stampeding_shout_SpellScript();
-        }
-};
-
 // Shield Barrier - 112048, 174926
 class spell_warr_shield_barrier : public SpellScriptLoader
 {
@@ -843,36 +814,6 @@ class spell_warr_deep_wounds : public SpellScriptLoader
         }
 };
 
-// Avatar - 107574
-class spell_war_avatar : public SpellScriptLoader
-{
-    public:
-        spell_war_avatar() : SpellScriptLoader("spell_war_avatar") { }
-
-        class spell_war_avatar_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_war_avatar_SpellScript);
-
-            void HandleOnCast()
-            {
-                if (Unit* player = GetCaster())
-                {
-                    player->RemoveMovementImpairingAuras();
-                }
-            }
-
-            void Register()
-            {
-                OnCast += SpellCastFn(spell_war_avatar_SpellScript::HandleOnCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_war_avatar_SpellScript();
-        }
-};
-
 // Glyph of Die by the Sword - 58386
 class spell_war_glyph_of_die_by_the_sword : public SpellScriptLoader
 {
@@ -1354,7 +1295,6 @@ class spell_warr_ravager : public SpellScriptLoader
 
 void AddSC_warrior_spell_scripts()
 {
-    new spell_warr_stampeding_shout();
     new spell_warr_shield_barrier();
     new spell_warr_shield_block();
     new spell_warr_storm_bolt();
@@ -1374,7 +1314,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_last_stand();
     new spell_warr_thunder_clap();
     new spell_warr_deep_wounds();
-    new spell_war_avatar();
     new spell_war_glyph_of_die_by_the_sword();
     new spell_glyph_of_gag_order();
     new spell_warr_t16_dps_2p();

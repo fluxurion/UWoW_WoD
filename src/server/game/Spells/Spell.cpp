@@ -5879,6 +5879,9 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
                         if (Player* _lplayer = _caster->ToPlayer())
                             _lplayer->RemoveSpellCooldown(i->effect, true);
                         break;
+                    case LINK_ACTION_REMOVE_MOVEMENT:
+                        (_target ? _target : _caster)->RemoveMovementImpairingAuras();
+                        break;
                 }
 
                 if(i->cooldown != 0 && _caster->GetTypeId() == TYPEID_PLAYER)
@@ -6772,10 +6775,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                 {
                     // Warbringer - can't be handled in proc system - should be done before checkcast root check and charge effect process
                     if (strict && m_caster->IsScriptOverriden(m_spellInfo, 6953))
-                        m_caster->RemoveMovementImpairingAuras();
-                        
-                    // Safeguard
-                    if (m_spellInfo->Id == 114029)
                         m_caster->RemoveMovementImpairingAuras();
                 }
                 if (m_caster->HasUnitState(UNIT_STATE_ROOT))

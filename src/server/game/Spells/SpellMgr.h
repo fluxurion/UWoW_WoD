@@ -136,6 +136,7 @@ enum SpellLinkedActionType
     LINK_ACTION_CASTINAURA       = 6,
     LINK_ACTION_CHANGE_STACK     = 7,
     LINK_ACTION_REMOVE_COOLDOWN  = 8,
+    LINK_ACTION_REMOVE_MOVEMENT  = 9, // RemoveMovementImpairingAuras
 };
 
 enum SpellLinkedTargetType
