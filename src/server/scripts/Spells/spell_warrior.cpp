@@ -35,9 +35,7 @@ enum WarriorSpells
     WARRIOR_SPELL_BLOODTHIRST                   = 23881,
     WARRIOR_SPELL_BLOODTHIRST_HEAL              = 117313,
     WARRIOR_SPELL_DEEP_WOUNDS                   = 115767,
-    WARRIOR_SPELL_THUNDER_CLAP                  = 6343,
     WARRIOR_SPELL_WEAKENED_BLOWS                = 115798,
-    WARRIOR_SPELL_BLOOD_AND_THUNDER             = 84615,
     WARRIOR_SPELL_SHOCKWAVE_STUN                = 132168,
     WARRIOR_SPELL_HEROIC_LEAP_DAMAGE            = 52174,
     WARRIOR_SPELL_RALLYING_CRY		            = 97463,
@@ -813,8 +811,7 @@ class spell_warr_thunder_clap : public SpellScriptLoader
         }
 };
 
-// Called By Thunder Clap - 6343, Mortal Strike - 12294, Bloodthirst - 23881 and Devastate - 20243
-// Deep Wounds - 115767
+// Called By Thunder Clap - 6343, Devastate - 20243
 class spell_warr_deep_wounds : public SpellScriptLoader
 {
     public:
@@ -826,15 +823,11 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Player* plr = GetCaster()->ToPlayer())
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (GetSpellInfo()->Id == WARRIOR_SPELL_THUNDER_CLAP && _player->HasAura(WARRIOR_SPELL_BLOOD_AND_THUNDER))
-                            _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
-                        else if (GetSpellInfo()->Id != WARRIOR_SPELL_THUNDER_CLAP)
-                            _player->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
-                    }
+                    if (plr->GetSpecializationId(plr->GetActiveSpec()) == SPEC_WARRIOR_PROTECTION)
+                        if (Unit* target = GetHitUnit())
+                            plr->CastSpell(target, WARRIOR_SPELL_DEEP_WOUNDS, true);
                 }
             }
 

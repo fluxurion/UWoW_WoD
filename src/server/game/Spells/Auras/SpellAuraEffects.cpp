@@ -7931,6 +7931,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
         {
             case 43093: case 31956: case 38801:  // Grievous Wound
             case 35321: case 38363: case 39215:  // Gushing Wound
+            case 115767:                         // Warrior: Deep Wounds
             {
                 if (target->IsFullHealth())
                 {
