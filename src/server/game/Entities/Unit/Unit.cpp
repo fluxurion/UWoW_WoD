@@ -16331,16 +16331,15 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     if (finalCleanup)
         m_cleanupDone = true;
 
+    if (IsInWorld())
+        RemoveFromWorld();
+
     // This needs to be before RemoveFromWorld to make GetCaster() return a valid pointer on aura removal
     InterruptNonMeleeSpells(true);
     RemoveAllAuras();
 
     ASSERT(m_appliedAuras.empty());
     ASSERT(m_ownedAuras.empty());
-
-    if (IsInWorld())
-        RemoveFromWorld();
-
     ASSERT(GetGUID());
 
     // A unit may be in removelist and not in world, but it is still in grid
