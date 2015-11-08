@@ -2597,7 +2597,6 @@ class Player : public Unit, public GridObject<Player>
         void LeftChannel(Channel* c);
         void CleanupChannels();
         void UpdateLocalChannels(uint32 newZone);
-        void AutojoinLFG();
         void LeaveLFGChannel();
 
         void SetSkill(uint16 id, uint16 step, uint16 currVal, uint16 maxVal);

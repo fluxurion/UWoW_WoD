@@ -247,8 +247,8 @@ class Channel
         uint8 GetFlags() const { return m_flags; }
         bool HasFlag(uint8 flag) const { return m_flags & flag; }
 
-        void JoinChannel(Player* player, const char *pass, bool byClientRequest = false);
-        void LeaveChannel(Player* player, bool send = true, bool byClientRequest = false);
+        void JoinChannel(Player* player, const char *pass, bool clientRequest = false);
+        void LeaveChannel(Player* player, bool send = true, bool clientRequest = false);
         void KickOrBan(Player const* player, const char *badname, bool ban);
         void Kick(Player const* player, const char *badname) { KickOrBan(player, badname, false); }
         void Ban(Player const* player, const char *badname) { KickOrBan(player, badname, true); }

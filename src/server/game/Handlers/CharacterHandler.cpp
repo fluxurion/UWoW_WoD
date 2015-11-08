@@ -44,6 +44,7 @@
 #include "DBCStores.h"
 #include "LFGMgr.h"
 #include "BattlenetServerManager.h"
+#include <boost/regex.hpp>
 
 #include "ClientConfigPackets.h"
 #include "CharacterPackets.h"
@@ -912,6 +913,36 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // load player specific part before send times
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA), PER_CHARACTER_CACHE_MASK);
+
+    // rewrite client channel mask if not valid
+    if (AccountData* aData = GetAccountData(PER_CHARACTER_CHAT_CACHE))
+    {
+        std::string data = aData->Data;
+        boost::regex xRegEx("ZONECHANNELS[ \f\n\r\t\v][1-9][0-9]+");
+        boost::smatch xResults;
+        std::string::const_iterator xItStart = data.begin();
+        std::string::const_iterator xItEnd = data.end();
+        bool replace = false;
+        while (boost::regex_search(xItStart, xItEnd, xResults, xRegEx))
+        {
+            std::string m = xResults[0];
+            std::string channel = m.substr(12, m.size());
+            int channelMask = std::stoi(channel);
+
+            if (channelMask != 0x2200003)
+            {
+                // set now time for invalidate cache on client and forced request
+                aData->Time = uint32(sWorld->GetGameTime());
+                replace = true;
+                break;
+            }
+
+            xItStart = xResults[1].second;
+        }
+
+        if (replace)
+            aData->Data = boost::regex_replace(data, xRegEx, "ZONECHANNELS 35651587");
+    }
 
     WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
     accountDataTimes.PlayerGuid = playerGuid;
