@@ -4866,19 +4866,13 @@ void Player::_SaveSpellCooldowns(SQLTransaction& trans)
 bool Player::HasChargesForSpell(SpellInfo const* spellInfo) const
 {
     SpellChargeDataMap::const_iterator itr = m_spellChargeData.find(spellInfo->ChargeRecoveryCategory);
-
     return itr == m_spellChargeData.end() || itr->second.charges > 0;
 }
 
 uint8 Player::GetMaxSpellCategoryCharges(SpellCategoryEntry const* categoryEntry) const
 {
     int count = categoryEntry->chargeCount;
-
-    AuraEffectList const& auraEffs = GetAuraEffectsByType(SPELL_AURA_MOD_CHARGES);
-    for (AuraEffectList::const_iterator itr = auraEffs.begin(); itr != auraEffs.end(); ++itr)
-        if ((*itr)->GetMiscValue() == categoryEntry->CategoryId)
-            count += (*itr)->GetAmount();
-
+    count += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_CHARGES, categoryEntry->CategoryId);
     return std::max(0, count);
 }
 
@@ -4886,15 +4880,8 @@ uint32 Player::GetSpellCategoryChargesTimer(SpellCategoryEntry const* categoryEn
 {
     uint32 regenTime = categoryEntry->chargeRegenTime;
 
-    AuraEffectList const& auraMods = GetAuraEffectsByType(SPELL_AURA_CHARGE_RECOVERY_MOD);
-    for (AuraEffectList::const_iterator itr = auraMods.begin(); itr != auraMods.end(); ++itr)
-        if ((*itr)->GetMiscValue() == categoryEntry->CategoryId)
-            regenTime += (*itr)->GetAmount();
-
-    AuraEffectList const& auraModMulti = GetAuraEffectsByType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER);
-    for (AuraEffectList::const_iterator itr = auraModMulti.begin(); itr != auraModMulti.end(); ++itr)
-        if ((*itr)->GetMiscValue() == categoryEntry->CategoryId)
-            AddPct(regenTime, (*itr)->GetAmount());
+    regenTime += GetTotalAuraModifierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MOD, categoryEntry->CategoryId);
+    regenTime *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, categoryEntry->CategoryId);
 
     return regenTime;
 }
@@ -4956,22 +4943,7 @@ void Player::RecalculateSpellCategoryCharges(uint32 category)
 {
     SpellChargeDataMap::iterator itr = m_spellChargeData.find(category);
     if (itr == m_spellChargeData.end())
-    {
-        SpellCategoryEntry const* categoryEntry = sSpellCategoryStores.LookupEntry(category);
-        if (!categoryEntry)
-            return;
-
-        uint8 maxCharges = GetMaxSpellCategoryCharges(categoryEntry);
-        if (!maxCharges)
-            return;
-
-        SpellChargeData& data = m_spellChargeData[category];
-        data.charges = data.maxCharges = maxCharges;
-        data.categoryEntry = categoryEntry;
-        data.timer = 0;
-        data.chargeRegenTime = GetSpellCategoryChargesTimer(categoryEntry);
         return;
-    }
 
     SpellChargeData& data = itr->second;
     uint8 maxCharges = GetMaxSpellCategoryCharges(data.categoryEntry);
@@ -4987,28 +4959,15 @@ void Player::RecalculateSpellCategoryCharges(uint32 category)
     data.maxCharges = maxCharges;
     if (data.charges > maxCharges)
         data.charges = maxCharges;
+
+    SendSpellChargeData();
 }
 
 void Player::RecalculateSpellCategoryRegenTime(uint32 category)
 {
     SpellChargeDataMap::iterator itr = m_spellChargeData.find(category);
     if (itr == m_spellChargeData.end())
-    {
-        SpellCategoryEntry const* categoryEntry = sSpellCategoryStores.LookupEntry(category);
-        if (!categoryEntry)
-            return;
-
-        uint8 maxCharges = GetMaxSpellCategoryCharges(categoryEntry);
-        if (!maxCharges)
-            return;
-
-        SpellChargeData& data = m_spellChargeData[category];
-        data.charges = data.maxCharges = maxCharges;
-        data.categoryEntry = categoryEntry;
-        data.timer = 0;
-        data.chargeRegenTime = GetSpellCategoryChargesTimer(categoryEntry);
         return;
-    }
 
     SpellChargeData& data = itr->second;
     data.chargeRegenTime = GetSpellCategoryChargesTimer(data.categoryEntry);

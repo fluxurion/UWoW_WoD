@@ -1576,6 +1576,8 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
     {
         for (std::vector<SpellAuraDummy>::const_iterator itr = spellAuraDummy->begin(); itr != spellAuraDummy->end(); ++itr)
         {
+            //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AuraEffect::CalculateFromDummyAmount start GetId %i, amount %i, mask %i type %u option %u", GetId(), amount, itr->effectmask, itr->type, itr->option);
+
             if(itr->type != SPELL_DUMMY_DEFAULT)
                 continue;
 
@@ -8886,7 +8888,6 @@ void AuraEffect::HandleAuraModCharges(AuraApplication const* aurApp, uint8 mode,
         return;
 
     target->RecalculateSpellCategoryCharges(GetMiscValue());
-    target->SendSpellChargeData();
 }
 
 void AuraEffect::HandleAuraModChargeRecoveryMod(AuraApplication const* aurApp, uint8 mode, bool apply) const

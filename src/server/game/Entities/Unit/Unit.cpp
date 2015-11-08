@@ -11250,6 +11250,13 @@ void Unit::SetMinion(Minion *minion, bool apply, bool stampeded)
                 else
                     RemoveAllMinionsByFilter(15352);
             }
+            else if (minion->GetEntry() == 77934)
+            {
+                if(HasAura(117013))
+                    RemoveAllMinionsByFilter(77942);
+                else
+                    RemoveAllMinionsByFilter(77936);
+            }
         }
 
         if (GetTypeId() == TYPEID_PLAYER)

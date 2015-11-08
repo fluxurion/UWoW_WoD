@@ -115,8 +115,9 @@ void AuraApplication::_Remove()
 
 void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
 {
+    Aura const* aura = GetBase();
     // mark as selfcasted if needed
-    _flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_NONE : AFLAG_NOCASTER;
+    _flags |= (aura->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_NONE : AFLAG_NOCASTER;
 
     // aura is casted by self or an enemy
     // one negative effect and we know aura is negative
@@ -125,7 +126,21 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         bool negativeFound = false;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (((1<<i) & effMask) && !GetBase()->GetSpellInfo()->IsPositiveEffect(i, IsSelfcasted()))
+            if (!(_flags & AFLAG_SCALABLE))
+            {
+                if (AuraEffect const* effect = aura->GetEffect(i))
+                {
+                    switch (effect->GetAuraType())
+                    {
+                        case SPELL_AURA_MOD_CHARGES:
+                        case SPELL_AURA_CHARGE_RECOVERY_MOD:
+                        case SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER:
+                            _flags |= AFLAG_SCALABLE;
+                            break;
+                    }
+                }
+            }
+            if (((1<<i) & effMask) && !aura->GetSpellInfo()->IsPositiveEffect(i, IsSelfcasted()))
             {
                 negativeFound = true;
                 break;
@@ -140,7 +155,21 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         bool positiveFound = false;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (((1<<i) & effMask) && GetBase()->GetSpellInfo()->IsPositiveEffect(i))
+            if (!(_flags & AFLAG_SCALABLE))
+            {
+                if (AuraEffect const* effect = aura->GetEffect(i))
+                {
+                    switch (effect->GetAuraType())
+                    {
+                        case SPELL_AURA_MOD_CHARGES:
+                        case SPELL_AURA_CHARGE_RECOVERY_MOD:
+                        case SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER:
+                            _flags |= AFLAG_SCALABLE;
+                            break;
+                    }
+                }
+            }
+            if (((1<<i) & effMask) && aura->GetSpellInfo()->IsPositiveEffect(i))
             {
                 positiveFound = true;
                 break;
@@ -149,7 +178,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         _flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
     }
 
-    if (GetBase()->GetSpellInfo()->AttributesEx8 & SPELL_ATTR8_AURA_SEND_AMOUNT)
+    if (aura->GetSpellInfo()->AttributesEx8 & SPELL_ATTR8_AURA_SEND_AMOUNT)
         _flags |= AFLAG_SCALABLE;
 }
 
@@ -193,7 +222,10 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         auraData.Flags |= AFLAG_DURATION;
 
-    auraData.ActiveFlags = GetEffectMask();
+    if (auraData.Flags & AFLAG_SCALABLE)
+        auraData.ActiveFlags = GetEffectMask();
+    else
+        auraData.ActiveFlags = 1;
     auraData.CastLevel = aura->GetCasterLevel();
 
     // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
@@ -214,27 +246,24 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
         bool nosendEffect = false;
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (aura->GetSpellInfo()->Effects[i].IsEffect())
+            if (AuraEffect const* effect = aura->GetEffect(i))
             {
-                if (AuraEffect const* effect = aura->GetEffect(i))
+                switch (effect->GetAuraType())
                 {
-                    switch (effect->GetAuraType())
-                    {
-                        case SPELL_AURA_DUMMY:
-                        case SPELL_AURA_SCHOOL_ABSORB:
-                        case SPELL_AURA_SCHOOL_HEAL_ABSORB:
-                        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
-                        case SPELL_AURA_ADD_FLAT_MODIFIER:
-                        case SPELL_AURA_ADD_PCT_MODIFIER:
-                            nosendEffect = true;
-                            break;
-                        default:
-                        {
-                            if (effect->GetAmount() != effect->GetBaseSendAmount())
-                                sendEffect = true;
-                        }
+                    case SPELL_AURA_DUMMY:
+                    case SPELL_AURA_SCHOOL_ABSORB:
+                    case SPELL_AURA_SCHOOL_HEAL_ABSORB:
+                    case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
+                    case SPELL_AURA_ADD_FLAT_MODIFIER:
+                    case SPELL_AURA_ADD_PCT_MODIFIER:
+                        nosendEffect = true;
                         break;
+                    default:
+                    {
+                        if (effect->GetAmount() != effect->GetBaseSendAmount())
+                            sendEffect = true;
                     }
+                    break;
                 }
             }
         }
@@ -1401,6 +1430,8 @@ bool Aura::CanBeSentToClient() const
     || HasEffectType(SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE)
     || HasEffectType(SPELL_AURA_WORGEN_ALTERED_FORM)
     || HasEffectType(SPELL_AURA_MOD_CHARGES)
+    || HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD)
+    || HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER)
     || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS)
     || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
     || HasEffectType(SPELL_AURA_MOD_SPELL_VISUAL);

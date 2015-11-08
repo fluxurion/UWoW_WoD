@@ -4134,6 +4134,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 81280: // Blood Burst
                 case 142890: //Blood Rage Dmg
                 case 143962: //Inferno Strike
+                case 157333: //Soothing Winds
                     // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                     break;
@@ -4352,7 +4353,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 144569:  // Bastion of Power
                 case 144871:  // Sage Mender
                 case 144595:  // Divine Crusader
-                case 157766:  // Enhanced Chain Lightning
                     spellInfo->ProcCharges = 1;
                     break;
                 case 89485:  // Inner Focus
