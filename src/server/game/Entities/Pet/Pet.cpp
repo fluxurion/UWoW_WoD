@@ -1628,7 +1628,7 @@ void TempSummon::CastPetAuras(bool apply, uint32 spellId)
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Pet::CastPetAuras guid %u, apply %u, GetEntry() %u", GetGUIDLow(), apply, GetEntry());
 
     Unit* owner = GetAnyOwner();
-    if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+    if (!owner || owner->GetTypeId() != TYPEID_PLAYER || !owner->IsInWorld())
         return;
 
     uint32 createdSpellId = GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
