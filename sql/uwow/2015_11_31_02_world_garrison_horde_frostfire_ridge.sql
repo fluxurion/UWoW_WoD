@@ -98,12 +98,13 @@ REPLACE INTO `spell_scene` (`SceneScriptPackageID`, `MiscValue`, `PlaybackFlags`
 
 
 -- Spell Area
-DELETE FROM `spell_area` WHERE area in (6720);
+DELETE FROM `spell_area` WHERE area in (6720, 7004);
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
 ('158228', '6720', '34402', '34402', '0', '0', '2', '1', '10', '64'),
 ('49416', '6720', '34375', '34375', '0', '0', '2', '1', '10', '64'),
 ('175536', '6720', '34378', '34378', '0', '0', '2', '0', '2', '64'),
-('161693', '6720', '34461', '0', '0', '0', '2', '1', '66', '64');
+('161693', '6720', '34461', '0', '0', '0', '2', '1', '66', '64'),
+('161693', '7004', '34461', '0', '0', '0', '2', '1', '66', '64');
 
 -- Quest chaine fixes.
 REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`) VALUES 

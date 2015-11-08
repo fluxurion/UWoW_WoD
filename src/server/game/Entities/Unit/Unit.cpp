@@ -16328,15 +16328,15 @@ void Unit::RemoveFromWorld()
 
 void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 {
-    if (finalCleanup)
-        m_cleanupDone = true;
-
     if (IsInWorld())
         RemoveFromWorld();
 
     // This needs to be before RemoveFromWorld to make GetCaster() return a valid pointer on aura removal
     InterruptNonMeleeSpells(true);
     RemoveAllAuras();
+
+    if (finalCleanup)
+        m_cleanupDone = true;
 
     ASSERT(m_appliedAuras.empty());
     ASSERT(m_ownedAuras.empty());
