@@ -9416,7 +9416,7 @@ void Player::ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply,
 {
     if (apply)
     {
-        if (!IsInWorld())
+        if (GetSession()->PlayerLogout())
             return;
 
         // Cannot be used in this stance/form
