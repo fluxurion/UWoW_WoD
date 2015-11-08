@@ -6335,7 +6335,11 @@ bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, Area
     if ((channel->Flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->Flags[0] & AREA_FLAG_SLAVE_CAPITAL)))
         return false;
 
-    if ((channel->Flags & CHANNEL_DBC_FLAG_GUILD_REQ) && GetGuildId())
+    //if ((channel->Flags & CHANNEL_DBC_FLAG_GUILD_REQ) && GetGuildId())
+        //return false;
+
+    // hack - don't joined in garbage channels
+    if (channel->ID > 26)
         return false;
 
     return true;
@@ -6442,6 +6446,21 @@ void Player::UpdateLocalChannels(uint32 newZone)
             cMgr->LeftChannel(name);                     // Delete if empty
         }
     }
+}
+
+void Player::AutojoinLFG()
+{
+    auto itr = std::find_if(m_channels.begin(), m_channels.end(), [](Channel* channel) { return channel->IsLFG(); });
+    if (itr != m_channels.end())
+        return;
+
+    ChannelMgr* cMgr = channelMgr(GetTeam());
+
+    if (!cMgr)
+        return;
+
+    if (Channel* channel = cMgr->GetJoinChannel("Looking for Group", 26))
+        channel->JoinChannel(this, "");
 }
 
 void Player::LeaveLFGChannel()
@@ -25149,6 +25168,8 @@ void Player::SendInitialPacketsAfterAddToMap()
             progress->SendStepUpdate(this, true);
 
     SetMover(this);
+
+    //AutojoinLFG();
 }
 
 void Player::SendSpellHistoryData()

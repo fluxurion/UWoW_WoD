@@ -85,30 +85,30 @@ enum ChannelFlags
     CHANNEL_FLAG_NONE       = 0x00,
     CHANNEL_FLAG_CUSTOM     = 0x01,
     // 0x02
-    CHANNEL_FLAG_TRADE      = 0x04,
+    CHANNEL_FLAG_UNK        = 0x04,
     CHANNEL_FLAG_NOT_LFG    = 0x08,
     CHANNEL_FLAG_GENERAL    = 0x10,
     CHANNEL_FLAG_CITY       = 0x20,
     CHANNEL_FLAG_LFG        = 0x40,
-    CHANNEL_FLAG_VOICE      = 0x80
-    // General                  0x18 = 0x10 | 0x08
-    // Trade                    0x3C = 0x20 | 0x10 | 0x08 | 0x04
-    // LocalDefence             0x18 = 0x10 | 0x08
-    // GuildRecruitment         0x38 = 0x20 | 0x10 | 0x08
-    // LookingForGroup          0x50 = 0x40 | 0x10
+    CHANNEL_FLAG_VOICE      = 0x80,
+    CHANNEL_FLAG_UNK2       = 0x100
+    // General                  0x11C = 0x04 | 0x08 | 0x10 | 0x100
+    // Trade                    0x13C = 0x04 | 0x08 | 0x10 | 0x20 | 0x100
+    // LocalDefence             0x11C = 0x04 | 0x08 | 0x10 | 0x100
+    // LookingForGroup          0x54  = 0x04 | 0x10 | 0x40
 };
 
 enum ChannelDBCFlags
 {
     CHANNEL_DBC_FLAG_NONE       = 0x00000,
     CHANNEL_DBC_FLAG_INITIAL    = 0x00001,              // General, Trade, LocalDefense, LFG
-    CHANNEL_DBC_FLAG_ZONE_DEP   = 0x00002,              // General, Trade, LocalDefense, GuildRecruitment
+    CHANNEL_DBC_FLAG_ZONE_DEP   = 0x00002,              // General, Trade, LocalDefense
     CHANNEL_DBC_FLAG_GLOBAL     = 0x00004,              // WorldDefense
-    CHANNEL_DBC_FLAG_TRADE      = 0x00008,              // Trade, LFG
-    CHANNEL_DBC_FLAG_CITY_ONLY  = 0x00010,              // Trade, GuildRecruitment, LFG
-    CHANNEL_DBC_FLAG_CITY_ONLY2 = 0x00020,              // Trade, GuildRecruitment, LFG
+    CHANNEL_DBC_FLAG_UNK        = 0x00008,              // General, Trade, LocalDefense, LFG
+    CHANNEL_DBC_FLAG_CITY_ONLY  = 0x00010,              // Trade, LFG
+    CHANNEL_DBC_FLAG_CITY_ONLY2 = 0x00020,              // Trade, LFG
     CHANNEL_DBC_FLAG_DEFENSE    = 0x10000,              // LocalDefense, WorldDefense
-    CHANNEL_DBC_FLAG_GUILD_REQ  = 0x20000,              // GuildRecruitment
+    //CHANNEL_DBC_FLAG_GUILD_REQ  = 0x20000,            // GuildRecruitment
     CHANNEL_DBC_FLAG_LFG        = 0x40000,              // LFG
     CHANNEL_DBC_FLAG_UNK1       = 0x80000,              // General
 };

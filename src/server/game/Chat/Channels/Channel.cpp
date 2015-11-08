@@ -43,8 +43,8 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
 
         m_flags |= CHANNEL_FLAG_GENERAL;                    // for all built-in channels
 
-        if (ch->Flags & CHANNEL_DBC_FLAG_TRADE)             // for trade channel
-            m_flags |= CHANNEL_FLAG_TRADE;
+        if (ch->Flags & CHANNEL_DBC_FLAG_UNK)               // unk channel flag, not trade
+            m_flags |= CHANNEL_FLAG_UNK;
 
         if (ch->Flags & CHANNEL_DBC_FLAG_CITY_ONLY2)        // for city only channels
             m_flags |= CHANNEL_FLAG_CITY;
@@ -52,7 +52,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
         if (ch->Flags & CHANNEL_DBC_FLAG_LFG)               // for LFG channel
             m_flags |= CHANNEL_FLAG_LFG;
         else                                                // for all other channels
-            m_flags |= CHANNEL_FLAG_NOT_LFG;
+            m_flags |= CHANNEL_FLAG_NOT_LFG | CHANNEL_FLAG_UNK2;
     }
     else if (!stricmp(m_name.c_str(), "world"))
     {
@@ -172,6 +172,7 @@ void Channel::CleanOldChannelsInDB()
 void Channel::JoinChannel(Player* player, const char *pass)
 {
     ObjectGuid const& guid = player->GetGUID();
+
     if (IsOn(guid))
     {
         if (!IsConstant())                                   // non send error message for built-in channels
@@ -222,21 +223,15 @@ void Channel::JoinChannel(Player* player, const char *pass)
     pinfo.flags = MEMBER_FLAG_NONE;
     players[guid] = pinfo;
 
-    /*
-    WorldPackets::Channel::ChannelNotify notify;
-    MakeYouJoined(notify);
-    SendToOne(notify.Write(), p);
-    */
-
     WorldPackets::Channel::ChannelNotifyJoined notify;
-    //notify.ChannelWelcomeMsg = "";
+    notify.ChannelWelcomeMsg = "";
     notify.ChatChannelID = m_channelId;
-    //notify.InstanceID = 0;
+    notify.InstanceID = 0;
     notify._ChannelFlags = m_flags;
     notify._Channel = m_name;
     player->SendDirectMessage(notify.Write());
 
-    JoinNotify(guid);
+    //JoinNotify(guid);
 
     // Custom channel handling
     if (!IsConstant())
@@ -257,6 +252,7 @@ void Channel::JoinChannel(Player* player, const char *pass)
 void Channel::LeaveChannel(Player* player, bool send)
 {
     ObjectGuid const& guid = player->GetGUID();
+
     if (!IsOn(guid))
     {
         if (send)
@@ -279,7 +275,7 @@ void Channel::LeaveChannel(Player* player, bool send)
             WorldPackets::Channel::ChannelNotifyLeft notify;
             notify.Channel = m_name;
             notify.ChatChannelID = 0;
-            //notify.Suspended = false;
+            notify.Suspended = m_channelId == 2 ? true : false;
             player->SendDirectMessage(notify.Write());
 
             if (player)
