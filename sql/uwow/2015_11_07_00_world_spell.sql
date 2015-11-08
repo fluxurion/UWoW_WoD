@@ -18,3 +18,5 @@ insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `opt
 
 replace into `spell_aura_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `slot`, `comment`) values
 ('170377','170379','0','4','0','0','0','0','0','7','0','0','0','Расплавленная земля');
+insert into `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `damage_bonus`, `heal_bonus`, `comments`) values
+('170379','0.24','0','0','0','0','0','Расплавленная земля');

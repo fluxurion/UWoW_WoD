@@ -7167,7 +7167,7 @@ bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effI
                     if(itr->slot < MAX_SUMMON_SLOT)
                         if(triggerCaster->m_SummonSlot[itr->slot])
                             if(Creature* summon = triggerCaster->GetMap()->GetCreature(triggerCaster->m_SummonSlot[itr->slot]))
-                                triggerCaster->CastSpell(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), spell_trigger, true);
+                                summon->CastSpell(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), spell_trigger, true, NULL, this, triggerCaster->GetGUID());
                     check = true;
                 }
                 break;
@@ -7177,7 +7177,7 @@ bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effI
                     for (GuidList::const_iterator iter = summonList->begin(); iter != summonList->end(); ++iter)
                     {
                         if(Creature* summon = ObjectAccessor::GetCreature(*triggerCaster, (*iter)))
-                            triggerCaster->CastSpell(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), spell_trigger, true);
+                            summon->CastSpell(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), spell_trigger, true, NULL, this, triggerCaster->GetGUID());
                     }
                     check = true;
                 }

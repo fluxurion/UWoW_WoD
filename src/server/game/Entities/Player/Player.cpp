@@ -3538,15 +3538,12 @@ void Player::LearnSpecializationSpells()
     if (currentIndex < 4)
         add = urand(0, 1);
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "LearnSpecializationSpells currentIndex %u add %i", currentIndex, add);
-
     if(add)
     {
         for (uint8 i = 0; i < currentIndex; i++)
         {
             if (MinorTalentEntry const* minor = sMinorTalentByIndexStore[specializationId][i])
             {
-                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "LearnSpecializationSpells currentIndex %u i %u SpellID %u", currentIndex, i, minor->SpellID);
                 if(!HasSpell(minor->SpellID))
                     learnSpell(minor->SpellID, false);
             }
@@ -3568,8 +3565,6 @@ void Player::RemoveSpecializationSpells()
                     removeSpell(specSpell->LearnSpell, true);
                     if (specSpell->OverrideSpell)
                         RemoveOverrideSpell(specSpell->OverrideSpell, specSpell->LearnSpell);
-                    if (MinorTalentEntry const* minor = sMinorTalentByIndexStore[specSpell->SpecializationEntry][i])
-                        removeSpell(minor->SpellID, true);
                 }
             }
 
@@ -3577,6 +3572,8 @@ void Player::RemoveSpecializationSpells()
                 if (uint32 mastery = specialization->MasterySpellID[j])
                     RemoveAurasDueToSpell(mastery);
         }
+        if (MinorTalentEntry const* minor = sMinorTalentByIndexStore[GetSpecializationId(GetActiveSpec())][i])
+            removeSpell(minor->SpellID, true);
     }
 }
 

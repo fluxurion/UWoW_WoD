@@ -230,7 +230,25 @@ void TempSummon::InitStats(uint32 duration)
                 if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
                 {
                     Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
-                    if (oldSummon && oldSummon->isSummon())
+                    // Totemic Restoration
+                    if (oldSummon && owner->HasAura(108284))
+                    {
+                        int32 slotRest = slot + 3; //new slots
+                        if (Creature* restSummon = GetMap()->GetCreature(owner->m_SummonSlot[slotRest]))
+                            if (restSummon->isSummon())
+                                restSummon->ToTempSummon()->UnSummon();
+
+                        std::swap(owner->m_SummonSlot[slot], owner->m_SummonSlot[slotRest]);
+                        if (Player* player = owner->ToPlayer())
+                        {
+                            WorldPackets::Totem::TotemMoved totemMoved;
+                            totemMoved.Totem = oldSummon->GetGUID();
+                            totemMoved.Slot = slot - 1;
+                            totemMoved.NewSlot = slotRest - 1;
+                            player->SendDirectMessage(totemMoved.Write());
+                        }
+                    }
+                    else if (oldSummon && oldSummon->isSummon())
                         oldSummon->ToTempSummon()->UnSummon();
                 }
                 owner->m_SummonSlot[slot] = GetGUID();
