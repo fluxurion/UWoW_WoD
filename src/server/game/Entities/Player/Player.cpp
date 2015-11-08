@@ -9416,6 +9416,9 @@ void Player::ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply,
 {
     if (apply)
     {
+        if (!IsInWorld())
+            return;
+
         // Cannot be used in this stance/form
         if (spellInfo->CheckShapeshift(GetShapeshiftForm()) != SPELL_CAST_OK)
             return;

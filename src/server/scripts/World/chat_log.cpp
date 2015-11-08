@@ -148,7 +148,7 @@ public:
     void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel)
     {
         bool isSystem = channel &&
-                        (channel->HasFlag(CHANNEL_FLAG_TRADE) ||
+                        (channel->HasFlag(CHANNEL_FLAG_UNK) ||
                          channel->HasFlag(CHANNEL_FLAG_GENERAL) ||
                          channel->HasFlag(CHANNEL_FLAG_CITY) ||
                          channel->HasFlag(CHANNEL_FLAG_LFG));
