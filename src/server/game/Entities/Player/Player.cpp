@@ -1762,6 +1762,24 @@ void Player::Update(uint32 p_time)
             uint32 newzone, newarea;
             GetZoneAndAreaId(newzone, newarea);
 
+            //! HardCore. Alliance
+            if (newzone == 6719)
+            {
+                if (Garrison *garr = GetGarrison())
+                {
+                    if (garr->GetGarrisonMapID() != -1)
+                    {
+                        Map* newMap = sMapMgr->CreateMap(garr->GetGarrisonMapID(), this);
+                        if (newMap && newMap->CanEnter(this))
+                        {
+                            uint32 const garArea = newMap->GetAreaId(GetPositionX(), GetPositionY(), GetPositionZ());
+                            if (m_areaUpdateId != garArea)
+                                newarea = garArea;
+                        }
+                    }
+                }
+            }
+
             if (m_zoneUpdateId != newzone)
                 UpdateZone(newzone, newarea);                // also update area
             else
@@ -2096,9 +2114,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         ExitVehicle();
 
     // reset movement flags at teleport, because player will continue move with these flags after teleport
-    SetUnitMovementFlags(0);
+    if (!(options & TELE_TO_SEAMLESS))
+        SetUnitMovementFlags(0);
     DisableSpline();
-    AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+    if (!(options & TELE_TO_SEAMLESS))
+        AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
 
     //hack for Stand of Acient for teleportation to the ships.
     if (m_movementInfo.transport.guid || mapid == 607)
@@ -8533,8 +8553,9 @@ void Player::UpdateArea(uint32 newArea)
 {
     AreaTableEntry const* oldArea = GetAreaEntryByAreaID(m_areaUpdateId);
     AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
-
-    if (oldArea && newArea != m_areaUpdateId && oldArea->ParentAreaID == Garrison::GetAreaIdForTeam(GetTeam()) && GetMap()->IsGarrison()) //Horde
+    
+    //! new area on garrison not has flag2 - 0x20
+    if (area && (area->Flags[1] & 0x20) == 0 && GetMap()->IsGarrison())
     {
         //remove from garrison
         TeleportTo(1116, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_SEAMLESS);
@@ -8587,12 +8608,24 @@ void Player::UpdateArea(uint32 newArea)
     }
 
     // Add to garrison.
-    if (newArea == Garrison::GetAreaIdForTeam(GetTeam()) && !GetMap()->IsGarrison()) //Horde
+    if (newArea == Garrison::GetAreaIdForTeam(GetTeam()) && !GetMap()->IsGarrison())
     {
         if (Garrison *garr = GetGarrison())
         {
             if (garr->GetGarrisonMapID() != -1)
-                TeleportTo(garr->GetGarrisonMapID(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_SEAMLESS);
+            {
+                // As some area in garrison not in same place.
+                Map* newMap = sMapMgr->CreateMap(garr->GetGarrisonMapID(), this);
+                if (newMap && newMap->CanEnter(this))
+                {
+                    uint32 _are = newMap->GetAreaId(GetPositionX(), GetPositionY(), GetPositionZ());
+                    if (AreaTableEntry const* _area = GetAreaEntryByAreaID(_are))
+                    {
+                        if (_area->Flags[1] & 0x20)
+                            TeleportTo(garr->GetGarrisonMapID(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_SEAMLESS);
+                    }
+                }
+            }
         }
     }
 
