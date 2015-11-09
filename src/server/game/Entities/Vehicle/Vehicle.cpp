@@ -740,7 +740,7 @@ void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
 
 void Vehicle::RemovePendingEvent(VehicleJoinEvent* /*e*/)
 {
-    _pendingJoinEvents.clear();
+    //_pendingJoinEvents.clear();
 }
 
 void Vehicle::AddPendingEvent(VehicleJoinEvent* e)
