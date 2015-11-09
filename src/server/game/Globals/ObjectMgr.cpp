@@ -709,7 +709,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*itr)));
-            if (!AdditionalSpellInfo)
+            if (!AdditionalSpellInfo || AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
             {
                 sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has wrong spell %u defined in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
                 continue;
@@ -1023,7 +1023,7 @@ void ObjectMgr::LoadCreatureAddons()
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*itr)));
-            if (!AdditionalSpellInfo)
+            if (!AdditionalSpellInfo || AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
             {
                 sLog->outError(LOG_FILTER_SQL, "Creature (GUID: " UI64FMTD ") has wrong spell %u defined in `auras` field in `creature_addon`.", guid, uint32(atol(*itr)));
                 continue;
