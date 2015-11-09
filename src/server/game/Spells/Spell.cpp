@@ -8711,10 +8711,7 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
             }
 
             if (m_applyMultiplierMask & (1 << i))
-            {
-                m_damage = int32(m_damage * m_damageMultipliers[i]);
-                m_damageMultipliers[i] *= multiplier[i];
-            }
+                m_damage = int32(m_damage * m_damageMultipliers[i] * multiplier[i]);
 
             targetInfo.damage += m_damage;
         }
