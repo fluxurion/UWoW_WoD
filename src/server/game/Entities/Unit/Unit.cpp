@@ -19326,6 +19326,22 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                     _caster->CastSpell(target, triggered_spell_id, true, castItem);
                     break;
                 }
+                case SPELL_TRIGGER_STACK_AMOUNT: //39
+                {
+                    if(itr->aura > 0 && !_targetAura->HasAura(itr->aura))
+                    {
+                        check = true;
+                        continue;
+                    }
+                    if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
+                    {
+                        check = true;
+                        continue;
+                    }
+                    triggeredByAura->SetAmount(triggerAmount + damage);
+                    check = true;
+                }
+                break;
             }
             if(itr->group != 0 && check)
                 groupList.push_back(itr->group);

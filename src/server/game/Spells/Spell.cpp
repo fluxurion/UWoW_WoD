@@ -5764,7 +5764,8 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
 {
     if (const std::vector<SpellLinked> *spell_triggered = sSpellMgr->GetSpellLinked(m_spellInfo->Id + type))
     {
-        std::set<uint32>  spellBanList;
+        std::set<uint32> spellBanList;
+        std::set<uint32> groupLock;
         for (std::vector<SpellLinked>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
         {
             if (i->hitmask)
@@ -5775,6 +5776,13 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
             {
                 std::set<uint32>::iterator itr = spellBanList.find(abs(i->effect));
                 if (itr != spellBanList.end())
+                    continue;
+            }
+
+            if(i->group != 0 && !groupLock.empty())
+            {
+                std::set<uint32>::iterator itr = groupLock.find(i->group);
+                if (itr != groupLock.end())
                     continue;
             }
 
@@ -5883,6 +5891,9 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
                         (_target ? _target : _caster)->RemoveMovementImpairingAuras();
                         break;
                 }
+
+                if(i->group != 0)
+                    groupLock.insert(i->group);
 
                 if(i->cooldown != 0 && _caster->GetTypeId() == TYPEID_PLAYER)
                     _caster->ToPlayer()->AddSpellCooldown(i->effect, 0, getPreciseTime() + (double)i->cooldown);

@@ -187,6 +187,7 @@ enum SpellTriggeredType
     SPELL_TRIGGER_HOLYPOWER_BONUS               = 36,           // Holypower bonus
     SPELL_TRIGGER_CAST_AFTER_MAX_STACK          = 37,           // Cast after max stack
     SPELL_TRIGGER_DAM_MAXHEALTH                 = 38,           // set basepoint to spell damage or max heal percent
+    SPELL_TRIGGER_STACK_AMOUNT                  = 39,           // stack damage in amount
 };
 
 enum DummyTriggerType
@@ -737,6 +738,7 @@ struct SpellLinked
     uint8 actiontype;
     int8 targetCount;
     int8 targetCountType;
+    int8 group;
 };
 
 struct SpellTalentLinked
@@ -912,6 +914,8 @@ struct SpellConcatenateAura
     int32 auraId;
     int32 effectAura;
     int8 type;
+    int8 caster;
+    int8 target;
 };
 
 typedef std::unordered_map<int32, std::vector<SpellTriggered> > SpellTriggeredMap;

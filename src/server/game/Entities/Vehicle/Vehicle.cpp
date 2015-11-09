@@ -738,11 +738,9 @@ void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
  * @param [in] e The VehicleJoinEvent* to remove from pending event store.
  */
 
-void Vehicle::RemovePendingEvent(VehicleJoinEvent* e)
+void Vehicle::RemovePendingEvent(VehicleJoinEvent* /*e*/)
 {
-    _lock.lock();
-    _pendingJoinEvents.remove(e);
-    _lock.unlock();
+    _pendingJoinEvents.clear();
 }
 
 void Vehicle::AddPendingEvent(VehicleJoinEvent* e)

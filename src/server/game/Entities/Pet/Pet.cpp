@@ -1692,6 +1692,7 @@ void TempSummon::CastPetAuras(bool apply, uint32 spellId)
                             break;
                         }
                         default:
+                            _target->RemoveAurasDueToSpell(itr->spellId);
                             break;
                     }
                     continue;

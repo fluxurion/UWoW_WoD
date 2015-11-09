@@ -1727,7 +1727,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
     }
 
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectTriggerMissileSpell spell %u trigger %u effectHandleMode %i unitTarget %i TargetMask %i TargetCount %i",
-    //m_spellInfo->Id, triggered_spell_id, effectHandleMode, unitTarget ? unitTarget->GetGUID() : 0, m_spellInfo->GetEffect(effIndex, m_diffMode)->GetProvidedTargetMask(), GetTargetCount());
+    //m_spellInfo->Id, triggered_spell_id, effectHandleMode, unitTarget ? unitTarget->GetGUIDLow() : 0, m_spellInfo->GetEffect(effIndex, m_diffMode)->GetProvidedTargetMask(), GetTargetCount());
 
     SpellCastTargets targets;
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)

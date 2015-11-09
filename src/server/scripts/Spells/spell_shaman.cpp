@@ -44,10 +44,6 @@ enum ShamanSpells
     SPELL_SHA_EARTHQUAKE                    = 61882,
     SPELL_SHA_EARTHQUAKE_TICK               = 77478,
     SPELL_SHA_EARTHQUAKE_KNOCKING_DOWN      = 77505,
-    SPELL_SHA_ELEMENTAL_BLAST               = 117014,
-    SPELL_SHA_ELEMENTAL_BLAST_RATING_BONUS  = 118522,
-    SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL = 118517,
-    SPELL_SHA_ELEMENTAL_BLAST_FROST_VISUAL  = 118515,
     SPELL_SHA_LAVA_LASH                     = 60103,
     SPELL_SHA_FLAME_SHOCK                   = 8050,
     SPELL_SHA_STORMSTRIKE                   = 17364,
@@ -619,70 +615,6 @@ class spell_sha_static_shock : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_static_shock_SpellScript();
-        }
-};
-
-// Elemental Blast - 117014
-class spell_sha_elemental_blast : public SpellScriptLoader
-{
-    public:
-        spell_sha_elemental_blast() : SpellScriptLoader("spell_sha_elemental_blast") { }
-
-        class spell_sha_elemental_blast_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_elemental_blast_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHA_ELEMENTAL_BLAST))
-                    return false;
-                return true;
-            }
-
-            void HandleOnCast()
-            {
-                if (Unit* caster = GetCaster())
-                    if (Player* _player = caster->ToPlayer())
-                    {
-                        _player->CastSpell(_player, SPELL_SHA_ELEMENTAL_BLAST_RATING_BONUS, true);
-
-                        if (AuraApplication* aura = _player->GetAuraApplication(SPELL_SHA_ELEMENTAL_BLAST_RATING_BONUS, _player->GetGUID()))
-                        {
-                            uint8 maxeffect = _player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_SHAMAN_ENHANCEMENT ? 3: 2;
-                            int32 randomEffect = irand(0, maxeffect);
-
-                            for (uint8 i = 0; i < 4; ++i)
-                                if (randomEffect != i)
-                                    if (Aura* auraBase = aura->GetBase())
-                                        if (AuraEffect* eff = auraBase->GetEffect(i))
-                                            eff->ChangeAmount(0);
-                        }
-                    }
-            }
-
-            void HandleAfterCast()
-            {
-                if (Unit* caster = GetCaster())
-                    if (Player* _player = caster->ToPlayer())
-                    {
-                        if (Unit* target = GetExplTargetUnit())
-                        {
-                            _player->CastSpell(target, SPELL_SHA_ELEMENTAL_BLAST_FROST_VISUAL, true);
-                            _player->CastSpell(target, SPELL_SHA_ELEMENTAL_BLAST_NATURE_VISUAL, true);
-                        }
-                    }
-            }
-
-            void Register()
-            {
-                OnCast += SpellCastFn(spell_sha_elemental_blast_SpellScript::HandleOnCast);
-                AfterCast += SpellCastFn(spell_sha_elemental_blast_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_elemental_blast_SpellScript();
         }
 };
 
@@ -1495,6 +1427,39 @@ class spell_sha_grounding_totem : public SpellScriptLoader
         }
 };
 
+// Cloudburst Totem - 157504
+class spell_sha_cloudburst_totem : public SpellScriptLoader
+{
+    public:
+        spell_sha_cloudburst_totem() : SpellScriptLoader("spell_sha_cloudburst_totem") { }
+
+        class spell_sha_cloudburst_totem_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_cloudburst_totem_AuraScript);
+
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetUnitOwner())
+                {
+                    if(caster->ToTotem())
+                        return;
+                    int32 heal = int32(aurEff->GetAmount() * 0.2f); //20%
+                    caster->CastCustomSpell(caster, 157503, &heal, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_sha_cloudburst_totem_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_cloudburst_totem_AuraScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_prowl();
@@ -1509,7 +1474,6 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_rolling_thunder();
     new spell_sha_fulmination();
     new spell_sha_static_shock();
-    new spell_sha_elemental_blast();
     new spell_sha_healing_rain();
     new spell_sha_ascendance();
     new spell_sha_bloodlust();
@@ -1529,4 +1493,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_elemental_familiars();
     new spell_sha_grounding_totem();
     new spell_shaman_totemic_projection();
+    new spell_sha_cloudburst_totem();
 }

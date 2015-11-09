@@ -2420,8 +2420,8 @@ void SpellMgr::LoadSpellLinked()
 
     mSpellLinkedMap.clear();    // need for reload case
 
-    //                                                0              1             2      3       4         5          6         7        8       9         10        11          12         13           14             15
-    QueryResult result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type, caster, target, hastalent, hastalent2, chance, cooldown, hastype, hitmask, removeMask, hastype2, actiontype, targetCount, targetCountType FROM spell_linked_spell");
+    //                                                0              1             2      3       4         5          6         7        8       9         10        11          12         13           14             15          16
+    QueryResult result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type, caster, target, hastalent, hastalent2, chance, cooldown, hastype, hitmask, removeMask, hastype2, actiontype, targetCount, targetCountType, `group` FROM spell_linked_spell");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 linked spells. DB table `spell_linked_spell` is empty.");
@@ -2449,6 +2449,7 @@ void SpellMgr::LoadSpellLinked()
         int32 actiontype = fields[13].GetInt32();
         int8 targetCount = fields[14].GetInt32();
         int8 targetCountType = fields[15].GetInt32();
+        int8 group = fields[16].GetInt32();
 
         SpellInfo const* spellInfo = GetSpellInfo(abs(trigger));
         if (!spellInfo)
@@ -2487,6 +2488,7 @@ void SpellMgr::LoadSpellLinked()
         templink.actiontype = actiontype;
         templink.targetCount = targetCount;
         templink.targetCountType = targetCountType;
+        templink.group = group;
         mSpellLinkedMap[trigger].push_back(templink);
 
         ++count;
@@ -2561,8 +2563,8 @@ void SpellMgr::LoadSpellConcatenateAura()
     mSpellConcatenateApplyMap.clear();    // need for reload case
     mSpellConcatenateUpdateMap.clear();    // need for reload case
 
-    //                                                   0            1           2            3         4
-    QueryResult result = WorldDatabase.Query("SELECT `spellid`, `effectSpell`, `auraId`, `effectAura`, `type` FROM spell_concatenate_aura");
+    //                                                   0            1           2            3         4        5         6
+    QueryResult result = WorldDatabase.Query("SELECT `spellid`, `effectSpell`, `auraId`, `effectAura`, `type`, `caster`, `target` FROM spell_concatenate_aura");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 concatenate auraspells. DB table `spell_concatenate_aura` is empty.");
@@ -2579,6 +2581,8 @@ void SpellMgr::LoadSpellConcatenateAura()
         int32 auraId   = fields[2].GetInt32();
         int32 effectAura = fields[3].GetUInt8();
         int8 type = fields[4].GetUInt8();
+        int8 caster = fields[5].GetUInt8();
+        int8 target = fields[6].GetUInt8();
 
         SpellInfo const* spellInfo = GetSpellInfo(spellid);
         if (!spellInfo)
@@ -2599,6 +2603,8 @@ void SpellMgr::LoadSpellConcatenateAura()
         tempAura.auraId   = auraId;
         tempAura.effectAura = effectAura;
         tempAura.type = type;
+        tempAura.caster = caster;
+        tempAura.target = target;
         mSpellConcatenateUpdateMap[spellid].push_back(tempAura);
         mSpellConcatenateApplyMap[auraId].push_back(tempAura);
 
@@ -4135,6 +4141,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 142890: //Blood Rage Dmg
                 case 143962: //Inferno Strike
                 case 157333: //Soothing Winds
+                case 157503: //Cloudburst
                     // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                     break;
@@ -4354,6 +4361,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 144569:  // Bastion of Power
                 case 144871:  // Sage Mender
                 case 144595:  // Divine Crusader
+                case 157174:  // Elemental Fusion
                     spellInfo->ProcCharges = 1;
                     break;
                 case 89485:  // Inner Focus
