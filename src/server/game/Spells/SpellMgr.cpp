@@ -5547,6 +5547,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 52042: // Healing Tide
                     spellInfo->AttributesEx &= ~SPELL_ATTR1_CANT_TARGET_SELF;
                     break;
+                case 157154:
+                    spellInfo->Effects[EFFECT_0].BasePoints = 0;
+                    break;
                 default:
                     break;
             }
