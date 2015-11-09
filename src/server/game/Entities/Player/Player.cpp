@@ -28725,7 +28725,7 @@ float Player::GetAverageItemLevel()
             continue;
 
         if (m_items[i] && m_items[i]->GetTemplate())
-            sum += m_items[i]->GetTemplate()->GetItemLevelIncludingQuality(m_items[i]->GetItemLevel());
+            sum += m_items[i]->GetItemLevel();
 
         ++count;
     }
