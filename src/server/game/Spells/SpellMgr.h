@@ -123,6 +123,8 @@ enum SpellLinkedHasType
     LINK_HAS_SPELL_ON_CASTER      = 2,
     LINK_HAS_AURA_ON_OWNER        = 3,
     LINK_HAS_AURATYPE             = 4,
+    LINK_HAS_MY_AURA_ON_CASTER    = 5,
+    LINK_HAS_MY_AURA_ON_TARGET    = 6,
 };
 
 enum SpellLinkedActionType

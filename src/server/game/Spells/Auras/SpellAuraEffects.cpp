@@ -1619,12 +1619,12 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                     if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                         continue;
 
-                    if(itr->spellDummyId > 0 && !_caster->HasAura(itr->spellDummyId))
+                    if(itr->spellDummyId > 0 && !_caster->HasAura(itr->spellDummyId, caster->GetGUID()))
                     {
                         amount = 0;
                         check = true;
                     }
-                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId)))
+                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId), caster->GetGUID()))
                     {
                         amount = 0;
                         check = true;
@@ -1638,7 +1638,7 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                     if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                         continue;
 
-                    if(itr->spellDummyId > 0 && _caster->HasAura(itr->spellDummyId))
+                    if(itr->spellDummyId > 0 && _caster->HasAura(itr->spellDummyId), caster->GetGUID())
                     {
                         if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(itr->spellDummyId))
                         {
@@ -1649,7 +1649,7 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                             check = true;
                         }
                     }
-                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId)))
+                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId), caster->GetGUID()))
                     {
                         if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(abs(itr->spellDummyId)))
                         {
@@ -1669,7 +1669,7 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                     if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                         continue;
 
-                    if(itr->spellDummyId > 0 && _caster->HasAura(itr->spellDummyId))
+                    if(itr->spellDummyId > 0 && _caster->HasAura(itr->spellDummyId), caster->GetGUID())
                     {
                         if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(itr->spellDummyId))
                         {
@@ -1680,7 +1680,7 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                             check = true;
                         }
                     }
-                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId)))
+                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId), caster->GetGUID()))
                     {
                         if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(abs(itr->spellDummyId)))
                         {
@@ -1700,7 +1700,7 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                     if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                         continue;
 
-                    if(itr->spellDummyId > 0 && _caster->HasAura(itr->spellDummyId))
+                    if(itr->spellDummyId > 0 && _caster->HasAura(itr->spellDummyId, caster->GetGUID()))
                     {
                         if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(itr->spellDummyId))
                         {
@@ -1713,7 +1713,7 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                             check = true;
                         }
                     }
-                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId)))
+                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId), caster->GetGUID()))
                     {
                         if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(abs(itr->spellDummyId)))
                         {

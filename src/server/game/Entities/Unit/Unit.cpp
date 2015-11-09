@@ -17297,7 +17297,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     case SPELL_AURA_SPELL_MAGNET:
                         // Skip Melee hits and targets with magnet aura
                         if (procSpell && (triggeredByAura->GetBase()->GetUnitOwner()->ToUnit() == ToUnit()))         // Magnet
+                        {
                             takeCharges = true;
+                            // Off-like kill totem for non damage spells
+                            if(!dmgInfoProc->GetDamage())
+                                CastSpell(this, 45254, true);
+                        }
                         break;
                     case SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT:
                     case SPELL_AURA_MOD_POWER_COST_SCHOOL:
@@ -19755,7 +19760,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
             if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                 continue;
 
-            Aura* _aura = _caster->GetAura(abs(itr->spellDummyId));
+            Aura* _aura = _caster->GetAura(abs(itr->spellDummyId), _caster->GetGUID());
 
             switch (itr->option)
             {
@@ -19925,7 +19930,7 @@ void Unit::CalculateCastTimeFromDummy(int32& castTime, SpellInfo const* spellPro
             if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                 continue;
 
-            Aura* _aura = _caster->GetAura(abs(itr->spellDummyId));
+            Aura* _aura = _caster->GetAura(abs(itr->spellDummyId), _caster->GetGUID());
 
             switch (itr->option)
             {
@@ -24418,6 +24423,24 @@ bool Unit::HasAuraLinkedSpell(Unit* caster, Unit* target, uint8 type, int32 hast
         }
         case LINK_HAS_AURATYPE: // 4
             return target ? !target->HasAuraTypeWithCaster(AuraType(hastalent), caster ? caster->GetGUID() : ObjectGuid::Empty) : true;
+        case LINK_HAS_MY_AURA_ON_CASTER: // 5
+        {
+            if(!caster)
+                return false;
+            if(hastalent > 0)
+                return !caster->HasAura(hastalent, caster->GetGUID());
+            else if(hastalent < 0)
+                return caster->HasAura(abs(hastalent), caster->GetGUID());
+        }
+        case LINK_HAS_MY_AURA_ON_TARGET: // 6
+        {
+            if(!caster)
+                return false;
+            if(hastalent > 0)
+                return target ? !target->HasAura(hastalent, caster->GetGUID()) : true ;
+            else if(hastalent < 0)
+                return target ? target->HasAura(abs(hastalent), caster->GetGUID()) : true ;
+        }
     }
     return true;
 }

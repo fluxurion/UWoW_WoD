@@ -1041,7 +1041,8 @@ class spell_sha_chain_heal : public SpellScriptLoader
                 }
                 // Riptide increases the Chain Heal effect by 25%
                 if (riptide)
-                    SetHitHeal(heal * 1.25f);
+                    heal += CalculatePct(heal, 25);
+                SetHitHeal(heal);
             }
 
             void Register()

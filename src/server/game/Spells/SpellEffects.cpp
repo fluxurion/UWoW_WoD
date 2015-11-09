@@ -854,6 +854,7 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
         bool check = false;
         Unit* triggerTarget = unitTarget;
         Unit* triggerCaster = m_caster;
+        Unit* targetAura = m_caster;
         int32 basepoints0 = damage;
         uint32 cooldown_spell_id = 0;
 
@@ -879,6 +880,9 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
             if (itr->caster)
                 triggerCaster = m_caster->GetUnitForLinkedSpell(m_caster, unitTarget, itr->caster);
 
+            if (itr->targetaura)
+                targetAura = m_caster->GetUnitForLinkedSpell(m_caster, unitTarget, itr->targetaura);
+
             cooldown_spell_id = abs(itr->spell_trigger);
             if (triggerCaster && triggerCaster->ToPlayer())
                 if (triggerCaster->ToPlayer()->HasSpellCooldown(cooldown_spell_id) && itr->option != DUMMY_TRIGGER_COOLDOWN)
@@ -899,6 +903,26 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
                 return false;
             if(triggerTarget && !triggerTarget->IsInWorld())
                 return false;
+
+            if(targetAura)
+            {
+                if (itr->aura > 0)
+                {
+                    if (!targetAura->HasAura(abs(itr->aura)))
+                    {
+                        check = true;
+                        continue;
+                    }
+                }
+                else if (itr->aura < 0)
+                {
+                    if (targetAura->HasAura(abs(itr->aura)))
+                    {
+                        check = true;
+                        continue;
+                    }
+                }
+            }
 
             switch (itr->option)
             {
@@ -974,23 +998,6 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
                 {
                     if(!triggerCaster || !triggerTarget)
                         break;
-                    if (itr->aura > 0)
-                    {
-                        if (!triggerCaster->HasAura(abs(itr->aura)))
-                        {
-                            check = true;
-                            continue;
-                        }
-                    }
-                    else if (itr->aura < 0)
-                    {
-                        if (triggerCaster->HasAura(abs(itr->aura)))
-                        {
-                            check = true;
-                            continue;
-                        }
-                    }
-
                     triggerCaster->CastSpell(triggerTarget, spell_trigger, false);
                     check = true;
                 }
@@ -999,23 +1006,6 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
                 {
                     if(!triggerCaster)
                         break;
-                    if (itr->aura > 0)
-                    {
-                        if (!triggerCaster->HasAura(abs(itr->aura)))
-                        {
-                            check = true;
-                            continue;
-                        }
-                    }
-                    else if (itr->aura < 0)
-                    {
-                        if (triggerCaster->HasAura(abs(itr->aura)))
-                        {
-                            check = true;
-                            continue;
-                        }
-                    }
-
                     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_trigger))
                     {
                         SpellCastTargets targets;
@@ -1031,14 +1021,7 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
                 break;
                 case DUMMY_TRIGGER_CAST_OR_REMOVE: // 6
                 {
-                    if (itr->aura)
-                    {
-                        if (m_caster->HasAura(itr->aura))
-                            m_caster->CastSpell(unitTarget, spell_trigger, true);
-                    }
-                    else
-                        m_caster->CastSpell(unitTarget, spell_trigger, true);
-
+                    m_caster->CastSpell(unitTarget, spell_trigger, true);
                     check = true;
                     break;
                 }

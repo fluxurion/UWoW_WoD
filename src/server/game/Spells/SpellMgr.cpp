@@ -4208,6 +4208,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].TargetB = 0;
                     break;
                 case 114942:// Healing Tide
+                    spellInfo->AttributesEx &= ~SPELL_ATTR1_CANT_TARGET_SELF;
                     spellInfo->SpellFamilyFlags[0] = 0x00002000;
                     break;
                 case 116943:// Earthgrab
@@ -5534,6 +5535,9 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 6196:  // Far Sight
                     spellInfo->Attributes |= SPELL_ATTR0_INDOORS_ONLY;
+                    break;
+                case 52042: // Healing Tide
+                    spellInfo->AttributesEx &= ~SPELL_ATTR1_CANT_TARGET_SELF;
                     break;
                 default:
                     break;
