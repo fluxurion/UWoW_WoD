@@ -10,8 +10,9 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 ('165462','118470','0','0','0','0','165477','0','0','0','0','0','0','0','-1','0','Освобожденная ярость');
 insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `comment`) values
 ('73680','118472','0','0','0','0','117012','0','0','0','0','0','0','0','-1','0','Освобожденная ярость');
-insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `comment`) values
-('73685','118473','6','0','0','0','165479','0','0','0','0','0','0','0','-1','0','Освобожденная ярость');
+DELETE FROM spell_linked_spell WHERE spell_trigger IN (73685);
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `comment`) VALUES
+('73685','118473','0','0','0','0','165479','0','0','0','0','0','0','0','-1','0','Освобожденная ярость');
 
 UPDATE creature_template SET spell1 = 157331, spell2 = 157348 WHERE entry IN (77936);
 UPDATE creature_template SET spell1 = 157331, spell2 = 157348, spell3 = 157375, spell4 = 157382 WHERE entry IN (77942);

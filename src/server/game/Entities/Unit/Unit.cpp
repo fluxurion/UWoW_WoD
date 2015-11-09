@@ -19776,7 +19776,7 @@ void Unit::CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spel
             if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                 continue;
 
-            Aura* _aura = _caster->GetAura(abs(itr->spellDummyId), _caster->GetGUID());
+            Aura* _aura = _caster->GetAura(abs(itr->spellDummyId), _targetAura->GetGUID());
 
             switch (itr->option)
             {
@@ -19946,7 +19946,7 @@ void Unit::CalculateCastTimeFromDummy(int32& castTime, SpellInfo const* spellPro
             if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                 continue;
 
-            Aura* _aura = _caster->GetAura(abs(itr->spellDummyId), _caster->GetGUID());
+            Aura* _aura = _caster->GetAura(abs(itr->spellDummyId), _targetAura->GetGUID());
 
             switch (itr->option)
             {
