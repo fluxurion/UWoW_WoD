@@ -828,31 +828,6 @@ struct ItemTemplate
         return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
     }
 
-    uint32 GetItemLevelIncludingQuality(uint32 level) const
-    {
-        uint32 itemLevel = level;
-
-        switch (Quality)
-        {
-            case ITEM_QUALITY_POOR:
-            case ITEM_QUALITY_NORMAL:
-            case ITEM_QUALITY_UNCOMMON:
-            case ITEM_QUALITY_ARTIFACT:
-            case ITEM_QUALITY_HEIRLOOM:
-                itemLevel -= 13; // leaving this as a separate statement since we do not know the real behavior in this case
-                break;
-            case ITEM_QUALITY_RARE:
-                itemLevel -= 13;
-                break;
-            case ITEM_QUALITY_EPIC:
-            case ITEM_QUALITY_LEGENDARY:
-            default:
-                break;
-        }
-
-        return itemLevel;
-    }
-
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
     bool IsVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_PROTO_FLAG_CONJURED); }

@@ -24,13 +24,13 @@ void WorldPackets::Loot::LootUnit::Read()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Loot::LootItem const& item)
 {
-    data.WriteBits(item.LootItemType, 2);
+    data.WriteBits(item.Type, 2);
     data.WriteBits(item.UIType, 3);
     data.WriteBit(item.CanTradeToTapList);
     data.FlushBits();
 
     data << item.Quantity;
-    data << item.Type;
+    data << item.LootItemType;
     data << item.LootListID;
     data << item.Loot;
 

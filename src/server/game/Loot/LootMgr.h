@@ -74,7 +74,8 @@ enum LootMethod
     ROUND_ROBIN       = 1,
     MASTER_LOOT       = 2,
     GROUP_LOOT        = 3,
-    NEED_BEFORE_GREED = 4
+    NEED_BEFORE_GREED = 4,
+    PERSONAL_LOOT     = 5
 };
 
 enum PermissionTypes
@@ -86,6 +87,31 @@ enum PermissionTypes
     ROUND_ROBIN_PERMISSION      = 4,
     OWNER_PERMISSION            = 5,
     NONE_PERMISSION             = 6
+};
+
+// type of Loot Item in Loot View
+enum LootItemUIType
+{
+    LOOT_ITEM_UI_LOCKED            = 0,                        // item is shown in red. player cannot loot.
+    LOOT_ITEM_UI_MASTER            = 1,                        // item can only be distributed by group loot master.
+    LOOT_ITEM_UI_NORMAL            = 2,                        // player can loot the item.
+    LOOT_ITEM_UI_OWNER             = 4,                        // ignore binding confirmation and etc, for single player looting
+    LOOT_ITEM_UI_ROLL              = 7,                        // roll is ongoing. player cannot loot.
+};
+
+enum LootSlotType
+{
+    LOOT_SLOT_TYPE_NONE     = 0,
+    LOOT_SLOT_TYPE_ITEM     = 1,
+    LOOT_SLOT_TYPE_MONEY    = 2,
+    LOOT_SLOT_TYPE_CURRENCY = 3
+};
+
+enum LootListItemType
+{
+    LOOT_LIST_ITEM           = 0,
+    LOOT_LIST_TRACKING_QUEST = 1,
+    LOOT_LIST_CURRENCY       = 2
 };
 
 enum LootItemType
@@ -128,17 +154,6 @@ enum LootError
     LOOT_ERROR_ALREADY_PICKPOCKETED     = 15,   // Your target has already had its pockets picked
     LOOT_ERROR_NOT_WHILE_SHAPESHIFTED   = 16,   // You can't do that while shapeshifted.
     LOOT_ERROR_NO_LOOT                  = 17
-};
-
-// type of Loot Item in Loot View
-enum LootSlotType
-{
-    LOOT_SLOT_TYPE_ALLOW_LOOT   = 0,                        // player can loot the item.
-    LOOT_SLOT_TYPE_ROLL_ONGOING = 1,                        // roll is ongoing. player cannot loot.
-    LOOT_SLOT_TYPE_OWNER        = 2,                        // ignore binding confirmation and etc, for single player looting
-    LOOT_SLOT_TYPE_LOCKED       = 3,                        // item is shown in red. player cannot loot.
-    LOOT_SLOT_TYPE_UNK          = 4,
-    LOOT_SLOT_TYPE_MASTER       = 6,                        // item can only be distributed by group loot master.
 };
 
 class Player;

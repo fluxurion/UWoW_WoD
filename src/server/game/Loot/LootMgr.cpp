@@ -1070,13 +1070,13 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                     uint8 slot_type;
 
                     if (items[i].is_blocked)
-                        slot_type = LOOT_SLOT_TYPE_ROLL_ONGOING;
+                        slot_type = LOOT_ITEM_UI_ROLL;
                     else if (!roundRobinPlayer || !items[i].is_underthreshold || viewer->GetGUID() == roundRobinPlayer)
                     {
                         // no round robin owner or he has released the loot
                         // or it IS the round robin group owner
                         // => item is lootable
-                        slot_type = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                        slot_type = LOOT_ITEM_UI_NORMAL;
                     }
                     else
                         // item shall not be displayed.
@@ -1084,7 +1084,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
 
                     WorldPackets::Loot::LootItem lootItem;
                     lootItem.LootListID = i+1;
-                    lootItem.LootItemType = slot_type;
+                    lootItem.UIType = slot_type;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(&items[i]);
                     packet.Items.push_back(lootItem);
@@ -1104,7 +1104,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
 
                     WorldPackets::Loot::LootItem lootItem;
                     lootItem.LootListID = i+1;
-                    lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                    lootItem.UIType = LOOT_ITEM_UI_NORMAL;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(&items[i]);
                     packet.Items.push_back(lootItem);
@@ -1116,14 +1116,14 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
         case MASTER_PERMISSION:
         case OWNER_PERMISSION:
         {
-            uint8 slot_type = LOOT_SLOT_TYPE_ALLOW_LOOT;
+            uint8 slot_type = LOOT_ITEM_UI_NORMAL;
             switch (permission)
             {
                 case MASTER_PERMISSION:
-                    slot_type = LOOT_SLOT_TYPE_MASTER;
+                    slot_type = LOOT_ITEM_UI_MASTER;
                     break;
                 case OWNER_PERMISSION:
-                    slot_type = LOOT_SLOT_TYPE_OWNER;
+                    slot_type = LOOT_ITEM_UI_OWNER;
                     break;
                 default:
                     break;
@@ -1135,7 +1135,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                 {
                     WorldPackets::Loot::LootItem lootItem;
                     lootItem.LootListID = i+1;
-                    lootItem.LootItemType = (permission == MASTER_PERMISSION && threshold > items[i].quality) ? LOOT_SLOT_TYPE_OWNER : slot_type/*LOOT_SLOT_TYPE_ALLOW_LOOT*/;
+                    lootItem.UIType = (permission == MASTER_PERMISSION && threshold > items[i].quality) ? LOOT_ITEM_UI_OWNER : slot_type/*LOOT_ITEM_UI_NORMAL*/;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(&items[i]);
                     packet.Items.push_back(lootItem);
@@ -1147,6 +1147,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             return;
     }
 
+    LootItemUIType slotType = permission == OWNER_PERMISSION ? LOOT_ITEM_UI_OWNER : LOOT_ITEM_UI_NORMAL;
     QuestItemMap const& lootPlayerFFAItems = GetPlayerFFAItems();
     QuestItemMap::const_iterator ffa_itr = lootPlayerFFAItems.find(viewer->GetGUIDLow());
     if (ffa_itr != lootPlayerFFAItems.end())
@@ -1159,7 +1160,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             {
                 WorldPackets::Loot::LootItem lootItem;
                 lootItem.LootListID = fi->index+1;
-                lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                lootItem.UIType = slotType;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(&item);
                 packet.Items.push_back(lootItem);
@@ -1187,25 +1188,25 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                     switch (permission)
                     {
                     case MASTER_PERMISSION:
-                        lootItem.LootItemType = LOOT_SLOT_TYPE_MASTER;
+                        lootItem.UIType = LOOT_ITEM_UI_MASTER;
                         break;
                     case RESTRICTED_PERMISSION:
-                        lootItem.LootItemType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
+                        lootItem.UIType = item.is_blocked ? LOOT_ITEM_UI_LOCKED : LOOT_ITEM_UI_NORMAL;
                         break;
                     case GROUP_PERMISSION:
                     case ROUND_ROBIN_PERMISSION:
                         if (!item.is_blocked)
-                            lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                            lootItem.UIType = LOOT_ITEM_UI_NORMAL;
                         else
-                            lootItem.LootItemType = LOOT_SLOT_TYPE_ROLL_ONGOING;
+                            lootItem.UIType = LOOT_ITEM_UI_ROLL;
                         break;
                     default:
-                        lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                        lootItem.UIType = LOOT_ITEM_UI_NORMAL;
                         break;
                     }
                 }
                 else
-                    lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                    lootItem.UIType = LOOT_ITEM_UI_NORMAL;
 
                 packet.Items.push_back(lootItem);
             }
@@ -1227,13 +1228,12 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                 lootCurrency.CurrencyID = item.item.ItemID;
                 lootCurrency.Quantity = item.count;
                 lootCurrency.LootListID = ci->index+1;
-                lootCurrency.UIType = LOOT_SLOT_TYPE_UNK;
+                lootCurrency.UIType = LOOT_ITEM_UI_NORMAL;
             }
             packet.Currencies.push_back(lootCurrency);
         }
     }
 
-    LootSlotType slotType = permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
     QuestItemMap const& lootPlayerQuestItems = GetPlayerQuestItems();
     QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(viewer->GetGUIDLow());
     if (q_itr != lootPlayerQuestItems.end())
@@ -1254,26 +1254,26 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                     switch (permission)
                     {
                         case MASTER_PERMISSION:
-                            lootItem.LootItemType = LOOT_SLOT_TYPE_MASTER;
+                            lootItem.UIType = LOOT_ITEM_UI_MASTER;
                             break;
                         case RESTRICTED_PERMISSION:
-                            lootItem.LootItemType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
+                            lootItem.UIType = item.is_blocked ? LOOT_ITEM_UI_LOCKED : LOOT_ITEM_UI_NORMAL;
                             break;
                         case GROUP_PERMISSION:
                         case ROUND_ROBIN_PERMISSION:
-                            lootItem.LootItemType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
+                            lootItem.UIType = item.is_blocked ? LOOT_ITEM_UI_LOCKED : LOOT_ITEM_UI_NORMAL;
                             if (!item.is_blocked)
-                                lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                                lootItem.UIType = LOOT_ITEM_UI_NORMAL;
                             else
-                                lootItem.LootItemType = LOOT_SLOT_TYPE_ROLL_ONGOING;
+                                lootItem.UIType = LOOT_ITEM_UI_ROLL;
                             break;
                         default:
-                            lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                            lootItem.UIType = LOOT_ITEM_UI_NORMAL;
                             break;
                     }
                 }
                 else
-                   lootItem.LootItemType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+                   lootItem.UIType = LOOT_ITEM_UI_NORMAL;
 
                 packet.Items.push_back(lootItem);
             }
