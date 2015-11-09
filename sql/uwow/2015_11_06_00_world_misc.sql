@@ -72,8 +72,9 @@ insert into `spell_aura_trigger` (`spell_id`, `spell_trigger`, `option`, `target
 insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `hitmask`, `removeMask`, `actiontype`, `comment`) values
 ('77478','77505','1','0','0','0','0','0','0','0','0','0','0','0','Землетрясение');
 
+DELETE FROM spell_aura_trigger WHERE spell_id IN (108280);
 insert into `spell_aura_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `slot`, `comment`) values
-('108280','114942','6','0','0','0','0','0','0','7','0','0','2','Целительный прилив');
+('108280','114942','8','0','0','0','0','0','0','7','0','0','3','Целительный прилив');
 
 insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
 ('974','379','0','0','1','1','0','0','0','0','7','0','0','0','0','0','0','-1','0','0','0','Щит земли');

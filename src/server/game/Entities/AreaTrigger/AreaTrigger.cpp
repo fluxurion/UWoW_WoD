@@ -435,10 +435,16 @@ void AreaTrigger::Update(uint32 p_time)
         {
             _duration -= p_time;
 
-            if (_activationDelay >= p_time)
-                _activationDelay -= p_time;
-            else
-                _activationDelay = 0;
+            if(_activationDelay)
+            {
+                if (_activationDelay > p_time)
+                    _activationDelay -= p_time;
+                else
+                {
+                    _activationDelay = 0;
+                    UpdateAffectedList(p_time, AT_ACTION_MOMENT_ON_ACTIVATE);
+                }
+            }
         }else
         {
             Remove(!_on_despawn); // expired

@@ -36,6 +36,7 @@ enum AreaTriggerActionMoment
     //range should be = distance.
     AT_ACTION_MOMENT_ON_THE_WAY   = 0x040, // when target is betwin source and dest points. For movement only. WARN! Should add AT_ACTION_MOMENT_ENTER flag too
     AT_ACTION_MOMENT_ON_STOP_MOVE = 0x080, // when target is betwin source and dest points. For movement only. WARN! Should add AT_ACTION_MOMENT_ENTER flag too
+    AT_ACTION_MOMENT_ON_ACTIVATE  = 0x100, // when areatrigger active
 };
 
 enum AreaTriggerActionType
