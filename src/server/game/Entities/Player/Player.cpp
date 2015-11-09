@@ -28715,7 +28715,7 @@ void Player::_LoadRandomBGStatus(PreparedQueryResult result)
 
 float Player::GetAverageItemLevel()
 {
-    float sum = 0;
+    uint32 sum = 0;
     uint32 count = 0;
 
     for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
@@ -28730,7 +28730,11 @@ float Player::GetAverageItemLevel()
         ++count;
     }
 
-    return ((float)sum) / count;
+    // impossible, but my ilvl with start items are -4
+    if (sum < 0)
+        sum = 0;
+
+    return (float)sum / count;
 }
 
 void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
