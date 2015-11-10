@@ -80,6 +80,92 @@ namespace WorldPackets
             Optional<GuildInfo> Info;
         };
 
+        class GuildGetRoster final : public ClientPacket
+        {
+        public:
+            GuildGetRoster(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_GET_ROSTER, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        struct GuildRosterProfessionData
+        {
+            int32 DbID = 0;
+            int32 Rank = 0;
+            int32 Step = 0;
+        };
+
+        struct GuildRosterMemberData
+        {
+            ObjectGuid Guid;
+            int64 WeeklyXP = 0;
+            int64 TotalXP = 0;
+            int32 RankID = 0;
+            int32 AreaID = 0;
+            int32 PersonalAchievementPoints = 0;
+            int32 GuildReputation = 0;
+            int32 GuildRepToCap = 0;
+            float LastSave = 0.0f;
+            std::string Name;
+            uint32 VirtualRealmAddress = 0;
+            std::string Note;
+            std::string OfficerNote;
+            uint8 Status = 0;
+            uint8 Level = 0;
+            uint8 ClassID = 0;
+            uint8 Gender = 0;
+            bool Authenticated = false;
+            bool SorEligible = false;
+            GuildRosterProfessionData ProfessionData[2];
+        };
+
+        class GuildRoster final : public ServerPacket
+        {
+        public:
+            GuildRoster() : ServerPacket(SMSG_GUILD_ROSTER) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildRosterMemberData> MemberData;
+            std::string WelcomeText;
+            std::string InfoText;
+            uint32 CreateDate = 0;
+            int32 NumAccounts = 0;
+            int32 GuildFlags = 0;
+        };
+
+        class GuildRosterUpdate final : public ServerPacket
+        {
+        public:
+            GuildRosterUpdate() : ServerPacket(SMSG_GUILD_ROSTER_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildRosterMemberData> MemberData;
+        };
+
+        class GuildUpdateMotdText final : public ClientPacket
+        {
+        public:
+            GuildUpdateMotdText(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_UPDATE_MOTD_TEXT, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string MotdText;
+        };
+
+        class GuildCommandResult final : public ServerPacket
+        {
+        public:
+            GuildCommandResult() : ServerPacket(SMSG_GUILD_COMMAND_RESULT) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+            int32 Result = 0;
+            int32 Command = 0;
+        };
+
         struct GuildBankItemInfo
         {
             struct GuildBankSocketEnchant
@@ -109,7 +195,7 @@ namespace WorldPackets
         class GuildBankQueryResults final : public ServerPacket
         {
         public:
-            GuildBankQueryResults() : ServerPacket(SMSG_GUILD_BANK_QUERY_RESULTS, 25) { }
+            GuildBankQueryResults() : ServerPacket(SMSG_GUILD_BANK_QUERY_RESULTS) { }
 
             WorldPacket const* Write() override;
 
@@ -140,7 +226,7 @@ namespace WorldPackets
         class LFGuildRecruits final : public ServerPacket
         {
         public:
-            LFGuildRecruits() : ServerPacket(SMSG_LF_GUILD_RECRUITS, 4 + 4) { }
+            LFGuildRecruits() : ServerPacket(SMSG_LF_GUILD_RECRUITS) { }
 
             WorldPacket const* Write() override;
 
@@ -336,7 +422,23 @@ namespace WorldPackets
 
             int64 RemainingWithdrawMoney = 0;
         };
+
+        class PlayerSaveGuildEmblem final : public ServerPacket
+        {
+        public:
+            PlayerSaveGuildEmblem() : ServerPacket(SMSG_PLAYER_SAVE_GUILD_EMBLEM, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Error = 0;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterProfessionData const& rosterProfessionData);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberData const& rosterMemberData);
+//ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRankData const& rankData);
+//ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRewardItem const& rewardItem);
+//ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildNewsEvent const& newsEvent);
 
 #endif // GuildPackets_h__

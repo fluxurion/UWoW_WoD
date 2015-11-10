@@ -184,6 +184,8 @@ namespace WorldPackets
         class LFGuildSetGuildPost;
         class GuildBankDepositMoney;
         class GuildBankWithdrawMoney;
+        class GuildGetRoster;
+        class GuildUpdateMotdText;
     }
 
     namespace Item
@@ -1184,7 +1186,7 @@ class WorldSession
         void HandleGuildAcceptOpcode(WorldPacket& recvPacket);
         void HandleGuildDeclineOpcode(WorldPacket& recvPacket);
         void HandleGuildEventLogQueryOpcode(WorldPacket& recvPacket);
-        void HandleGuildRosterOpcode(WorldPacket& recvPacket);
+        void HandleGuildRosterOpcode(WorldPackets::Guild::GuildGetRoster& packet);
         void HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildPromoteOpcode(WorldPacket& recvPacket);
         void HandleGuildDemoteOpcode(WorldPacket& recvPacket);
@@ -1192,7 +1194,7 @@ class WorldSession
         void HandleGuildLeaveOpcode(WorldPacket& recvPacket);
         void HandleGuildDisbandOpcode(WorldPacket& recvPacket);
         void HandleGuildLeaderOpcode(WorldPacket& recvPacket);
-        void HandleGuildMOTDOpcode(WorldPacket& recvPacket);
+        void HandleGuildMOTDOpcode(WorldPackets::Guild::GuildUpdateMotdText& packet);
         void HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket);
         void HandleGuildSetNoteOpcode(WorldPacket& recvPacket);
         void HandleGuildQueryRanksOpcode(WorldPacket& recvPacket);

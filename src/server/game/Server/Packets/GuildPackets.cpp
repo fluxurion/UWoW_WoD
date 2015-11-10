@@ -60,6 +60,96 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Guild::GuildRoster::Write()
+{
+    _worldPacket << NumAccounts;
+    _worldPacket.AppendPackedTime(CreateDate);
+    _worldPacket << GuildFlags;
+    _worldPacket << uint32(MemberData.size());
+
+    for (GuildRosterMemberData const& member : MemberData)
+        _worldPacket << member;
+
+    _worldPacket.WriteBits(WelcomeText.length(), 10);
+    _worldPacket.WriteBits(InfoText.length(), 10);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(WelcomeText);
+    _worldPacket.WriteString(InfoText);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildRosterUpdate::Write()
+{
+    _worldPacket << uint32(MemberData.size());
+
+    for (GuildRosterMemberData const& member : MemberData)
+        _worldPacket << member;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Guild::GuildUpdateMotdText::Read()
+{
+    uint32 textLen = _worldPacket.ReadBits(10);
+    MotdText = _worldPacket.ReadString(textLen);
+}
+
+WorldPacket const* WorldPackets::Guild::GuildCommandResult::Write()
+{
+    _worldPacket << Result;
+    _worldPacket << Command;
+
+    _worldPacket.WriteBits(Name.length(), 8);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(Name);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterProfessionData const& rosterProfessionData)
+{
+    data << rosterProfessionData.DbID;
+    data << rosterProfessionData.Rank;
+    data << rosterProfessionData.Step;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberData const& rosterMemberData)
+{
+    data << rosterMemberData.Guid;
+    data << rosterMemberData.RankID;
+    data << rosterMemberData.AreaID;
+    data << rosterMemberData.PersonalAchievementPoints;
+    data << rosterMemberData.GuildReputation;
+    data << rosterMemberData.LastSave;
+
+    for (uint8 i = 0; i < 2; i++)
+        data << rosterMemberData.ProfessionData[i];
+
+    data << rosterMemberData.VirtualRealmAddress;
+    data << rosterMemberData.Status;
+    data << rosterMemberData.Level;
+    data << rosterMemberData.ClassID;
+    data << rosterMemberData.Gender;
+
+    data.WriteBits(rosterMemberData.Name.length(), 6);
+    data.WriteBits(rosterMemberData.Note.length(), 8);
+    data.WriteBits(rosterMemberData.OfficerNote.length(), 8);
+    data.WriteBit(rosterMemberData.Authenticated);
+    data.WriteBit(rosterMemberData.SorEligible);
+    data.FlushBits();
+
+    data.WriteString(rosterMemberData.Name);
+    data.WriteString(rosterMemberData.Note);
+    data.WriteString(rosterMemberData.OfficerNote);
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
 {
     _worldPacket << Money;
@@ -293,6 +383,13 @@ WorldPacket const* WorldPackets::Guild::GuildPermissionsQueryResults::Write()
 WorldPacket const* WorldPackets::Guild::GuildBankRemainingWithdrawMoney::Write()
 {
     _worldPacket << RemainingWithdrawMoney;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::PlayerSaveGuildEmblem::Write()
+{
+    _worldPacket << int32(Error);
 
     return &_worldPacket;
 }

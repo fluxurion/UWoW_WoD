@@ -112,8 +112,7 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& recvPacket)
     GetPlayer()->SetInGuild(UI64LIT(0));
 }
 
-//! 6.0.3
-void WorldSession::HandleGuildRosterOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGuildRosterOpcode(WorldPackets::Guild::GuildGetRoster& /*packet*/)
 {
     if (Guild* guild = _GetPlayerGuild(this, true))
         guild->HandleRoster(this);
@@ -174,13 +173,10 @@ void WorldSession::HandleGuildLeaderOpcode(WorldPacket& recvPacket)
             guild->HandleSetLeader(this, name);
 }
 
-//! 6.0.3
-void WorldSession::HandleGuildMOTDOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildMOTDOpcode(WorldPackets::Guild::GuildUpdateMotdText& packet)
 {
-    std::string motd = recvPacket.ReadString(recvPacket.ReadBits(10));
-
     if (Guild* guild = _GetPlayerGuild(this, true))
-        guild->HandleSetMOTD(this, motd);
+        guild->HandleSetMOTD(this, packet.MotdText);
 }
 
 //! 6.0.3
