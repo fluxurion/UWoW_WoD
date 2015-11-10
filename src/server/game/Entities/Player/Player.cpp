@@ -4161,6 +4161,33 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
         if (spellInfo->IsMountOrCompanions())
         {
+            bool bPet = false;
+            // added battlepets
+            uint32 petEntry = spellInfo->GetBattlePetEntry();
+            if (petEntry)
+            {
+                if (BattlePetSpeciesEntry const* spEntry = sDB2Manager.GetBattlePetSpeciesEntry(petEntry))
+                {
+                    if (CreatureTemplate const* creature = sObjectMgr->GetCreatureTemplate(petEntry))
+                    {
+                        bPet = true;
+                        // check exist pet in journal
+                        ObjectGuid::LowType petguid = GetBattlePetMgr()->GetPetGUIDBySpell(spellInfo->Id);
+                        // hardcode hack check on pet count
+                        uint32 petCount = GetBattlePetMgr()->GetPetCount(creature->Entry);
+                        if (!petguid && petCount < 1)
+                        {
+                            uint8 quality = 2;
+                            uint8 level = 1;
+
+                            GetBattlePetMgr()->AddPet(spEntry->ID, GetBattlePetMgr()->GetRandomBreedID(spEntry->ID), quality, level);
+                            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ADD_BATTLE_PET_JOURNAL, petEntry);
+                            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OBTAIN_BATTLEPET, spEntry->ID);
+                            UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COLLECT_BATTLEPET);
+                        }
+                    }
+                }
+            }
             // added or replaced mounts
             mountReplace = sSpellMgr->GetMountListId(spellId, GetTeamId());
             if(charload)
@@ -4200,13 +4227,17 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
 
             mount = true;
 
-            //! 6.0.3
-            WorldPacket data(SMSG_ACCOUNT_MOUNT_UPDATE, 200);
-            data.WriteBit(0);
-            data << uint32(1);      //count
-            data << uint32(0);      //favorite count
-            data << spellId;
-            GetSession()->SendPacket(&data);
+            if (!charload && !bPet)
+            {
+                //! 6.0.3
+                WorldPacket data(SMSG_ACCOUNT_MOUNT_UPDATE, 200);
+                data.WriteBit(0);
+                data << uint32(1);      //count
+                data << uint32(1);      //favorite count
+                data << spellId;
+                data.WriteBit(0);
+                GetSession()->SendPacket(&data);
+            }
 
             if(mountReplace != 0)
                 AddSpellMountReplacelist(spellId, mountReplace);
@@ -20011,6 +20042,7 @@ void Player::_LoadAccountSpells(PreparedQueryResult result)
     uint32 count = 0;
     uint32 spellID = 0;
     bool active = false;
+    ByteBuffer buff;
 
     //! 6.0.3
     WorldPacket data(SMSG_ACCOUNT_MOUNT_UPDATE, 200);
@@ -20029,12 +20061,18 @@ void Player::_LoadAccountSpells(PreparedQueryResult result)
             {
                 ++count;
                 data << spellID;
+                buff.WriteBit(0);   //isFavorite
             }
         }
         while (result->NextRow());
     }
     data.put<uint32>(1, count);
-
+    data.put<uint32>(5, count);
+    if (count)
+    {
+        buff.FlushBits();
+        data.append(buff);
+    }
     GetSession()->SendPacket(&data);
 }
 
