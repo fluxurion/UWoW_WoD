@@ -1496,7 +1496,7 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, int32 
         SetPhaseId(data->PhaseID, false);
 
     if (vehId)
-        CreateVehicleKit(vehId, entry, true);
+        CreateVehicleKit(vehId, entry, 0, true);
 
     if(m_creatureInfo->WorldEffectID)
         SetUInt32Value(UNIT_FIELD_STATE_WORLD_EFFECT_ID, m_creatureInfo->WorldEffectID);
