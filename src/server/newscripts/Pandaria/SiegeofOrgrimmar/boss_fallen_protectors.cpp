@@ -340,6 +340,7 @@ class boss_rook_stonetoe : public CreatureScript
 
                 if (Creature* sun = instance->instance->GetCreature(instance->GetGuidData(NPC_SUN_TENDERHEART)))
                     sun->AI()->EnterEvadeMode();
+                boss_fallen_protectors::EnterEvadeMode();
             }
 
             enum local
@@ -448,6 +449,7 @@ class boss_he_softfoot : public CreatureScript
 
                 if (Creature* sun = instance->instance->GetCreature(instance->GetGuidData(NPC_SUN_TENDERHEART)))
                     sun->AI()->EnterEvadeMode();
+                boss_fallen_protectors::EnterEvadeMode();
             }
 
             enum local
