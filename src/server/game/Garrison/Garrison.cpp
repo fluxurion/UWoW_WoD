@@ -1515,17 +1515,23 @@ void Garrison::RewardMission(uint32 missionRecID)
 The Garrison Cache next to your Town Hall accumulates  Garrison Resources (GR) 
 at a rate of 1 GR every 10 minutes of real time (6 per hour),
 which works out to 144 GR every full day (6 x 24hrs = 144 GR).
+
+За 3-е суток и 10 часов будет достигнут лимит в 500 ресурсов.
+
+При покупке и использовании  Торговое соглашение: араккоа-изгои (продается в Танаанских джунглях) лимит склада становится равным 1000 ресурсов. = 6 суток 20 часов.
 */
 uint32 Garrison::GetResNumber() const
 {
     // ToDo: set get congig
     #define default_resource_num 50
+    #define limit_cap 500
     #define min_counter 10
 
     if (!_lastResTaken)
         return default_resource_num;
 
-    return (time(NULL) - _lastResTaken) / (min_counter * MINUTE);
+    uint32 res = (time(NULL) - _lastResTaken) / (min_counter * MINUTE);
+    return res > limit_cap ? limit_cap : res;
 }
 
 void Garrison::UpdateResTakenTime()
