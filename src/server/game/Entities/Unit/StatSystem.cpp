@@ -2037,6 +2037,8 @@ void Player::UpdateLifesteal()
     
     if (val)
         SetFloatValue(PLAYER_FIELD_LIFESTEAL, val);
+
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Player: UpdateLifesteal val %f", val);
 }
 
 void Player::UpdateAvoidance()

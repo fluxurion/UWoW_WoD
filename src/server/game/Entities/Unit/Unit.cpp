@@ -7476,29 +7476,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                 triggered_spell_id = 22858;
                 break;
             }
-            // Second Wind
-            if (dummySpell->SpellIconID == 1697)
-            {
-                // only for spells and hit/crit (trigger start always) and not start from self casted spells (5530 Mace Stun Effect for example)
-                if (procSpell == 0 || !(procEx & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) || this == victim)
-                    return false;
-                // Need stun or root mechanic
-                if (!(procSpell->GetAllEffectsMechanicMask() & ((1<<MECHANIC_ROOT)|(1<<MECHANIC_STUN))))
-                    return false;
-
-                switch (dummySpell->Id)
-                {
-                    case 29838: triggered_spell_id=29842; break;
-                    case 29834: triggered_spell_id=29841; break;
-                    case 42770: triggered_spell_id=42771; break;
-                    default:
-                        sLog->outError(LOG_FILTER_UNITS, "Unit::HandleDummyAuraProc: non handled spell id: %u (SW)", dummySpell->Id);
-                    return false;
-                }
-
-                target = this;
-                break;
-            }
             // Glyph of Sunder Armor
             if (dummySpell->Id == 58387)
             {
@@ -14655,6 +14632,51 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal)
                 RemoveAura(77487);
             break;
         }
+        case POWER_RAGE:
+        {
+            if (modVal < 0 && isInCombat())
+            {
+                if (Aura* angerManagement = GetAura(169680)) // Anger Management
+                {
+                    int32 count = angerManagement->GetCustomData() - modVal;
+                    if(count > 300)
+                    {
+                        int32 countMod = int32(count / 300);
+                        int32 modColdown = countMod * -1000;
+                        player->ModifySpellCooldown(46968, modColdown);
+                        player->ModifySpellCooldown(118000, modColdown);
+                        player->ModifySpellCooldown(107570, modColdown);
+                        player->ModifySpellCooldown(12292, modColdown);
+                        player->ModifySpellCooldown(107574, modColdown);
+                        player->ModifySpellCooldown(46924, modColdown);
+                        player->ModifySpellCooldown(6544, modColdown);
+                        switch(specId)
+                        {
+                            case SPEC_WARRIOR_ARMS:
+                            case SPEC_WARRIOR_FURY:
+                            {
+                                player->ModifySpellCooldown(1719, modColdown);
+                                player->ModifySpellCooldown(118038, modColdown);
+                                player->ModifySpellCooldown(114192, modColdown);
+                                break;
+                            }
+                            case SPEC_WARRIOR_PROTECTION:
+                            {
+                                player->ModifySpellCooldown(114192, modColdown);
+                                player->ModifySpellCooldown(871, modColdown);
+                                player->ModifySpellCooldown(1160, modColdown);
+                                player->ModifySpellCooldown(12975, modColdown);
+                                break;
+                            }
+                        }
+                        angerManagement->SetCustomData(count - (300 * countMod));
+                    }
+                    else
+                        angerManagement->SetCustomData(count);
+                }
+            }
+            break;
+        }
     }
 }
 
@@ -19395,6 +19417,9 @@ bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo c
                 if (Pet* pet = victim->ToPlayer()->GetPet())
                     _checkTarget = (Unit*)pet;
 
+            //sLog->outDebug(LOG_FILTER_PROC, "SpellProcCheck: spellProto->Id %i, hastalent %i, HasAura %i",
+            //spellProto->Id, itr->hastalent, itr->hastalent ? _checkTarget->HasAura(abs(itr->hastalent), casterGUID) : -1);
+
             //if this spell exist not proc
             if (itr->checkspell < 0)
             {
@@ -19408,7 +19433,7 @@ bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo c
                             procCheck = true;
                             break;
                         }
-                        else if(itr->hastalent < 0 && !_checkTarget->HasAura(-(itr->hastalent), casterGUID))
+                        else if(itr->hastalent < 0 && !_checkTarget->HasAura(abs(itr->hastalent), casterGUID))
                         {
                             procCheck = true;
                             break;
@@ -19510,7 +19535,7 @@ bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo c
                     procCheck = true;
                     continue;
                 }
-                else if(itr->hastalent < 0 && _checkTarget->HasAura(-(itr->hastalent), casterGUID))
+                else if(itr->hastalent < 0 && _checkTarget->HasAura(abs(itr->hastalent), casterGUID))
                 {
                     procCheck = true;
                     continue;
@@ -19609,7 +19634,7 @@ bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo c
                         procCheckSecond = true;
                         continue;
                     }
-                    else if(itr->hastalent < 0 && _checkTarget->HasAura(-(itr->hastalent), casterGUID))
+                    else if(itr->hastalent < 0 && _checkTarget->HasAura(abs(itr->hastalent), casterGUID))
                     {
                         procCheckSecond = true;
                         continue;

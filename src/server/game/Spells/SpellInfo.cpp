@@ -1934,6 +1934,8 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
         actAsShifted = !(shapeInfo->flags1 & 1);            // shapeshift acts as normal form for spells
     }
 
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellInfo::CheckShapeshift Id %i form %u stanceMask %i StancesNot %u Stances %u actAsShifted %u flags1 %u", Id, form, stanceMask, StancesNot, Stances, actAsShifted, shapeInfo->flags1);
+
     if (actAsShifted)
     {
         if (Attributes & SPELL_ATTR0_NOT_SHAPESHIFT) // not while shapeshifted
