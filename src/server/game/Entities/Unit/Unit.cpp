@@ -16371,15 +16371,17 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     InterruptNonMeleeSpells(true);
     RemoveAllAuras();
 
-    if (finalCleanup)
-        m_cleanupDone = true;
-
-    ASSERT(m_appliedAuras.empty());
-    ASSERT(m_ownedAuras.empty());
-
     if (IsInWorld())
         RemoveFromWorld();
 
+    if (finalCleanup)
+        m_cleanupDone = true;
+
+    //! ==-- DOUBLE DRAGON --==
+    RemoveAllAuras();   //remove auras witch was added while we where removing from world.
+
+    ASSERT(m_appliedAuras.empty());
+    ASSERT(m_ownedAuras.empty());
     ASSERT(GetGUID());
 
     // A unit may be in removelist and not in world, but it is still in grid
