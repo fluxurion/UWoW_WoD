@@ -1550,7 +1550,7 @@ class Unit : public WorldObject
         void InitialPowers(bool maxpower = false);
         void SetMaxPower(Powers power, int32 val);
         int32 GetPowerForReset(Powers power, bool maxpower = false) const;
-        void VisualForPower(Powers power, int32 curentVal, int32 modVal = 0);
+        void VisualForPower(Powers power, int32 curentVal, int32 modVal = 0, bool generate = false);
 
         // returns the change in power
         int32 ModifyPower(Powers power, int32 val, bool set = false);
@@ -2191,6 +2191,7 @@ class Unit : public WorldObject
         int32 m_baseSpellCritChance;
         LiquidData liquid_status;
         ZLiquidStatus Zliquid_status;
+        int32 m_everyPower[MAX_POWERS];
 
         float m_threatModifier[MAX_SPELL_SCHOOL];
         float m_modAttackSpeedPct[3];

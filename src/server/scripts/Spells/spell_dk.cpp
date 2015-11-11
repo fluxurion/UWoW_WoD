@@ -43,8 +43,6 @@ enum DeathKnightSpells
     DK_SPELL_GHOUL_AS_PET                       = 52150,
     DK_SPELL_ROILING_BLOOD                      = 108170,
     DK_SPELL_PESTILENCE                         = 50842,
-    DK_SPELL_CHILBLAINS                         = 50041,
-    DK_SPELL_CHAINS_OF_ICE_ROOT                 = 53534,
     DK_SPELL_PLAGUE_LEECH                       = 123693,
     DK_SPELL_PERDITION                          = 123981,
     DK_SPELL_SHROUD_OF_PURGATORY                = 116888,
@@ -98,85 +96,6 @@ class spell_dk_might_of_ursoc : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dk_might_of_ursoc_AuraScript();
-        }
-};
-
-// Wild Mushroom : Plague - 113517
-class spell_dk_wild_mushroom_plague : public SpellScriptLoader
-{
-    public:
-        spell_dk_wild_mushroom_plague() : SpellScriptLoader("spell_dk_wild_mushroom_plague") { }
-
-        class spell_dk_wild_mushroom_plague_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_wild_mushroom_plague_AuraScript);
-
-            void OnTick(AuraEffect const* aurEff)
-            {
-                if (!GetCaster())
-                    return;
-
-                std::list<Creature*> tempList;
-                std::list<Creature*> mushroomlist;
-                std::list<Unit*> tempUnitList;
-                std::list<Unit*> targetList;
-
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    _player->GetCreatureListWithEntryInGrid(tempList, DK_NPC_WILD_MUSHROOM, 500.0f);
-
-                    for (std::list<Creature*>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
-                        mushroomlist.push_back(*itr);
-
-                    // Remove other players mushrooms
-                    for (std::list<Creature*>::iterator i = tempList.begin(); i != tempList.end(); ++i)
-                    {
-                        Unit* owner = (*i)->GetOwner();
-                        if (owner && owner == _player && (*i)->isSummon())
-                            continue;
-
-                        mushroomlist.remove((*i));
-                    }
-
-                    if (!mushroomlist.empty())
-                    {
-                        for (std::list<Creature*>::const_iterator itr = mushroomlist.begin(); itr != mushroomlist.end(); ++itr)
-                        {
-                            (*itr)->GetAttackableUnitListInRange(tempUnitList, 10.0f);
-
-                            for (std::list<Unit*>::const_iterator itr2 = tempUnitList.begin(); itr2 != tempUnitList.end(); ++itr2)
-                            {
-                                if ((*itr2)->GetGUID() == _player->GetGUID())
-                                    continue;
-
-                                if ((*itr2)->GetGUID() == (*itr)->GetGUID())
-                                    continue;
-
-                                if (!_player->IsValidAttackTarget(*itr2))
-                                    continue;
-
-                                targetList.push_back(*itr2);
-                            }
-
-                            for (std::list<Unit*>::const_iterator itr2 = targetList.begin(); itr2 != targetList.end(); ++itr2)
-                            {
-                                _player->CastSpell(*itr2, DK_SPELL_BLOOD_PLAGUE, true);
-                                _player->CastSpell(*itr2, DK_SPELL_FROST_FEVER, true);
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_wild_mushroom_plague_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_dk_wild_mushroom_plague_AuraScript();
         }
 };
 
@@ -562,44 +481,6 @@ class spell_dk_pillar_of_frost : public SpellScriptLoader
         }
 };
 
-// Called by Death Coil - 47541, Rune Strike - 56815 and Frost Strike - 49143
-// Blood Charges - 114851 for Blood Tap - 45529
-class spell_dk_blood_charges : public SpellScriptLoader
-{
-    public:
-        spell_dk_blood_charges() : SpellScriptLoader("spell_dk_blood_charges") { }
-
-        class spell_dk_blood_charges_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_blood_charges_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Unit* _player = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (_player->HasSpell(45529))
-                        {
-                            _player->CastSpell(_player, DK_SPELL_BLOOD_CHARGE, true);
-                            _player->CastSpell(_player, DK_SPELL_BLOOD_CHARGE, true);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dk_blood_charges_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_blood_charges_SpellScript();
-        }
-};
-
 // Blood Tap - 45529
 class spell_dk_blood_tap : public SpellScriptLoader
 {
@@ -920,71 +801,6 @@ class spell_dk_plague_leech : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_plague_leech_SpellScript();
-        }
-};
-
-// Unholy Blight - 115994
-class spell_dk_unholy_blight : public SpellScriptLoader
-{
-    public:
-        spell_dk_unholy_blight() : SpellScriptLoader("spell_dk_unholy_blight") { }
-
-        class spell_dk_unholy_blight_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_unholy_blight_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        _player->CastSpell(target, DK_SPELL_BLOOD_PLAGUE, true);
-                        _player->CastSpell(target, DK_SPELL_FROST_FEVER, true);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dk_unholy_blight_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_unholy_blight_SpellScript();
-        }
-};
-
-// Called by Chains of Ice - 45524
-// Chilblains - 50041
-class spell_dk_chilblains : public SpellScriptLoader
-{
-    public:
-        spell_dk_chilblains() : SpellScriptLoader("spell_dk_chilblains") { }
-
-        class spell_dk_chilblains_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_chilblains_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(DK_SPELL_CHILBLAINS))
-                            _player->CastSpell(target, DK_SPELL_CHAINS_OF_ICE_ROOT, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dk_chilblains_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_chilblains_SpellScript();
         }
 };
 
@@ -1340,58 +1156,34 @@ class spell_dk_death_gate : public SpellScriptLoader
         }
 };
 
+// Death Pact - 48743
 class spell_dk_death_pact : public SpellScriptLoader
 {
     public:
         spell_dk_death_pact() : SpellScriptLoader("spell_dk_death_pact") { }
 
-        class spell_dk_death_pact_SpellScript : public SpellScript
+        class spell_dk_death_pact_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_dk_death_pact_SpellScript);
+            PrepareAuraScript(spell_dk_death_pact_AuraScript);
 
-            SpellCastResult CheckCast()
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
-                // Check if we have valid targets, otherwise skip spell casting here
-                if (Player* player = GetCaster()->ToPlayer())
-                    for (Unit::ControlList::const_iterator itr = player->m_Controlled.begin(); itr != player->m_Controlled.end(); ++itr)
-                        if (Creature* undeadPet = (*itr)->ToCreature())
-                            if (undeadPet->isAlive() &&
-                                undeadPet->GetOwnerGUID() == player->GetGUID() &&
-                                undeadPet->GetCreatureType() == CREATURE_TYPE_UNDEAD &&
-                                undeadPet->IsWithinDist(player, 100.0f, false))
-                                return SPELL_CAST_OK;
-
-                return SPELL_FAILED_NO_PET;
-            }
-
-            void FilterTargets(std::list<WorldObject*>& unitList)
-            {
-                Unit* unit_to_add = NULL;
-                for (std::list<WorldObject*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                if(Unit* caster = GetCaster())
                 {
-                    if (Unit* unit = (*itr)->ToUnit())
-                    if (unit->GetOwnerGUID() == GetCaster()->GetGUID() && unit->GetCreatureType() == CREATURE_TYPE_UNDEAD)
-                    {
-                        unit_to_add = unit;
-                        break;
-                    }
+                    amount = CalculatePct(caster->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_1].BasePoints);
+                    amount += aurEff->GetOldBaseAmount();
                 }
-
-                unitList.clear();
-                if (unit_to_add)
-                    unitList.push_back(unit_to_add);
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_dk_death_pact_SpellScript::CheckCast);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_death_pact_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_pact_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_HEAL_ABSORB);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        AuraScript* GetAuraScript() const
         {
-            return new spell_dk_death_pact_SpellScript();
+            return new spell_dk_death_pact_AuraScript();
         }
 };
 
@@ -1954,7 +1746,6 @@ public:
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_might_of_ursoc();
-    new spell_dk_wild_mushroom_plague();
     new spell_dk_dark_transformation_form();
     new spell_dk_asphyxiate();
     new spell_dk_desecrated_ground();
@@ -1965,14 +1756,11 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_remorseless_winter();
     new spell_dk_soul_reaper();
     new spell_dk_pillar_of_frost();
-    new spell_dk_blood_charges();
     new spell_dk_blood_tap();
     new spell_dk_death_siphon();
     new spell_dk_purgatory();
     new spell_dk_purgatory_absorb();
     new spell_dk_plague_leech();
-    new spell_dk_unholy_blight();
-    new spell_dk_chilblains();
     new spell_dk_outbreak();
     new spell_dk_raise_dead();
     new spell_dk_anti_magic_shell_raid();

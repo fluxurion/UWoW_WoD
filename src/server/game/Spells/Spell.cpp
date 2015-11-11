@@ -5858,38 +5858,57 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
 
                 switch (i->actiontype)
                 {
-                    case LINK_ACTION_DEFAULT:
+                    case LINK_ACTION_DEFAULT: //0
                     {
                         _caster->CastSpell(_target ? _target : _caster, i->effect, true);
                         spellBanList.insert(i->effect); // Triggered once for a cycle
                         break;
                     }
-                    case LINK_ACTION_LEARN:
+                    case LINK_ACTION_LEARN: //1
                     {
                         if (Player* _lplayer = _caster->ToPlayer())
                             _lplayer->learnSpell(i->effect, false);
                         break;
                     }
-                    case LINK_ACTION_SEND_COOLDOWN:
+                    case LINK_ACTION_SEND_COOLDOWN: // 3
                         _caster->SendSpellCooldown(i->effect, m_spellInfo->Id);
                         break;
-                    case LINK_ACTION_CAST_NO_TRIGGER:
+                    case LINK_ACTION_CAST_NO_TRIGGER: //4
                         _caster->CastSpell(_target ? _target : _caster, i->effect, false);
                         break;
-                    case LINK_ACTION_ADD_AURA:
+                    case LINK_ACTION_ADD_AURA: //5
                         _caster->AddAura(i->effect, _target ? _target : _caster);
                         break;
-                    case LINK_ACTION_CHANGE_STACK:
+                    case LINK_ACTION_CHANGE_STACK: //7
                         if (Aura* aura = (_target ? _target : _caster)->GetAura(i->effect))
                             aura->ModStackAmount(1);
+                        else
+                            _caster->CastSpell(_target ? _target : _caster, i->effect, true);
                         break;
-                    case LINK_ACTION_REMOVE_COOLDOWN:
+                    case LINK_ACTION_REMOVE_COOLDOWN: //8
                         if (Player* _lplayer = _caster->ToPlayer())
                             _lplayer->RemoveSpellCooldown(i->effect, true);
                         break;
-                    case LINK_ACTION_REMOVE_MOVEMENT:
+                    case LINK_ACTION_REMOVE_MOVEMENT: //9
                         (_target ? _target : _caster)->RemoveMovementImpairingAuras();
                         break;
+                    case LINK_ACTION_CHANGE_DURATION: //10
+                    {
+                        if(Aura* aura = (_target ? _target : _caster)->GetAura(i->effect, _caster->GetGUID()))
+                        {
+                            if (!i->duration)
+                                aura->SetDuration(aura->GetSpellInfo()->GetMaxDuration(), true);
+                            else
+                            {
+                                int32 _duration = int32(aura->GetDuration() + i->duration);
+                                if (_duration < aura->GetMaxDuration())
+                                    aura->SetDuration(_duration, true);
+                            }
+                        }
+                        else
+                            _caster->CastSpell(_target ? _target : _caster, i->effect, true);
+                        break;
+                    }
                 }
 
                 if(i->group != 0)

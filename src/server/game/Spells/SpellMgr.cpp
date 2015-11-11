@@ -2420,8 +2420,8 @@ void SpellMgr::LoadSpellLinked()
 
     mSpellLinkedMap.clear();    // need for reload case
 
-    //                                                0              1             2      3       4         5          6         7        8       9         10        11          12         13           14             15          16
-    QueryResult result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type, caster, target, hastalent, hastalent2, chance, cooldown, hastype, hitmask, removeMask, hastype2, actiontype, targetCount, targetCountType, `group` FROM spell_linked_spell");
+    //                                                0              1             2      3       4         5          6         7        8       9         10        11          12         13           14             15          16         17
+    QueryResult result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type, caster, target, hastalent, hastalent2, chance, cooldown, hastype, hitmask, removeMask, hastype2, actiontype, targetCount, targetCountType, `group`, `duration` FROM spell_linked_spell");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 linked spells. DB table `spell_linked_spell` is empty.");
@@ -2450,6 +2450,7 @@ void SpellMgr::LoadSpellLinked()
         int8 targetCount = fields[14].GetInt32();
         int8 targetCountType = fields[15].GetInt32();
         int8 group = fields[16].GetInt32();
+        int32 duration = fields[17].GetInt32();
 
         SpellInfo const* spellInfo = GetSpellInfo(abs(trigger));
         if (!spellInfo)
@@ -2489,6 +2490,7 @@ void SpellMgr::LoadSpellLinked()
         templink.targetCount = targetCount;
         templink.targetCountType = targetCountType;
         templink.group = group;
+        templink.duration = duration;
         mSpellLinkedMap[trigger].push_back(templink);
 
         ++count;
@@ -3919,7 +3921,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_OVERRIDE_AUTOATTACK;
                     break;
                 case 148008: // Essence of Yu'lon
-                case 48743:  // Death Pact
                     spellInfo->AttributesEx6 &= ~SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
                     break;
                 case 51640: // Taunt Flag Targeting

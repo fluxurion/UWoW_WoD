@@ -284,6 +284,9 @@ Unit::Unit(bool isWorldObject): WorldObject(isWorldObject)
 
     m_CombatTimer = 0;
 
+    for (uint32 i = 0; i < MAX_POWERS; ++i)
+        m_everyPower[i] = 0;
+
     for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         m_threatModifier[i] = 1.0f;
 
@@ -14391,7 +14394,7 @@ int32 Unit::GetHealthGain(int32 dVal)
     return gain;
 }
 
-void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal)
+void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal, bool generate)
 {
     Player* player = ToPlayer();
     if(!player)
@@ -14416,6 +14419,9 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal)
     }
     else
     {
+        if (!generate)
+            m_everyPower[power] -= modVal;
+
         AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(SPELL_AURA_PROC_ON_POWER_AMOUNT_2);
         for (AuraEffectList::const_iterator i = mTotalAuraList.begin(), next; i != mTotalAuraList.end(); i = next)
         {
@@ -14635,14 +14641,13 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal)
         }
         case POWER_RAGE:
         {
-            if (modVal < 0 && isInCombat())
+            if (modVal < 0 && !generate)
             {
-                if (Aura* angerManagement = GetAura(169680)) // Anger Management
+                if (HasAura(152278)) // Anger Management
                 {
-                    int32 count = angerManagement->GetCustomData() - modVal;
-                    if(count > 300)
+                    if(m_everyPower[power] > 300)
                     {
-                        int32 countMod = int32(count / 300);
+                        int32 countMod = int32(m_everyPower[power] / 300);
                         int32 modColdown = countMod * -1000;
                         player->ModifySpellCooldown(46968, modColdown);
                         player->ModifySpellCooldown(118000, modColdown);
@@ -14670,10 +14675,49 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal)
                                 break;
                             }
                         }
-                        angerManagement->SetCustomData(count - (300 * countMod));
+                        m_everyPower[power] -= (300 * countMod);
                     }
-                    else
-                        angerManagement->SetCustomData(count);
+                }
+            }
+            break;
+        }
+        case POWER_RUNIC_POWER:
+        {
+            if (modVal < 0 && !generate)
+            {
+                if (HasAura(51462)) // Runic Corruption
+                {
+                    int32 chance = abs(modVal * 0.15f);
+                    if (roll_chance_i(chance))
+                        CastSpell(this, 51460, true);
+                }
+                if (HasAura(81229)) // Runic Empowerment
+                {
+                    int32 chance = abs(modVal * 0.15f);
+                    if (roll_chance_i(chance))
+                    {
+                        int32 runesRestor = 0;
+                        for (int i = 0; i < MAX_RUNES ; i++)
+                        {
+                            if (player->GetRuneCooldown(i) == RUNE_BASE_COOLDOWN && runesRestor < 1)
+                            {
+                                runesRestor++;
+                                player->SetRuneCooldown(i, 0);
+                                player->AddRunePower(i);
+                            }
+                        }
+                    }
+                }
+                if (HasSpell(45529)) // Blood Tap
+                {
+                    if(m_everyPower[power] > 150)
+                    {
+                        int32 countMod = int32(m_everyPower[power] / 150);
+                        for (uint8 i = 0; i < countMod; ++i)
+                            CastSpell(this, 114851, true); // Blood Charge
+
+                        m_everyPower[power] -= (150 * countMod);
+                    }
                 }
             }
             break;

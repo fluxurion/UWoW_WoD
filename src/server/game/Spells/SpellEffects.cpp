@@ -5623,45 +5623,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
             }
             break;
         }
-        case SPELLFAMILY_DEATHKNIGHT:
-        {
-            // Pestilence
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x10000)
-            {
-                // Get diseases on target of spell
-                if (m_targets.GetUnitTarget() && m_targets.GetUnitTarget() != unitTarget)
-                {
-                    // And spread them on target
-                    // Blood Plague
-                    if (m_targets.GetUnitTarget()->GetAura(55078, m_caster->GetGUID()))
-                    {
-                        if (Aura* aura = unitTarget->GetAura(55078, m_caster->GetGUID())) // stop spamm update
-                        {
-                            if (aura->GetDuration() < aura->GetMaxDuration())
-                                m_caster->CastSpell(unitTarget, 55078, true);
-                        }
-                        else
-                            m_caster->CastSpell(unitTarget, 55078, true);
-                        m_caster->CastSpell(unitTarget, 63687, true); // Cosmetic - Pestilence State
-                        m_targets.GetUnitTarget()->CastSpell(unitTarget, 91939, true); // Cosmetic - Send Diseases on target
-                    }
-                    // Frost Fever
-                    if (m_targets.GetUnitTarget()->GetAura(55095, m_caster->GetGUID()))
-                    {
-                        if (Aura* aura = unitTarget->GetAura(55095, m_caster->GetGUID())) // stop spamm update
-                        {
-                            if (aura->GetDuration() < aura->GetMaxDuration())
-                                m_caster->CastSpell(unitTarget, 55078, true);
-                        }
-                        else
-                            m_caster->CastSpell(unitTarget, 55095, true);
-                        m_caster->CastSpell(unitTarget, 63687, true); // Cosmetic - Pestilence State
-                        m_targets.GetUnitTarget()->CastSpell(unitTarget, 91939, true); // Cosmetic - Send Diseases on target
-                    }
-                }
-            }
-            break;
-        }
         case SPELLFAMILY_WARRIOR:
         {
             // Shattering Throw

@@ -139,6 +139,7 @@ enum SpellLinkedActionType
     LINK_ACTION_CHANGE_STACK     = 7,
     LINK_ACTION_REMOVE_COOLDOWN  = 8,
     LINK_ACTION_REMOVE_MOVEMENT  = 9, // RemoveMovementImpairingAuras
+    LINK_ACTION_CHANGE_DURATION  = 10, // Mod Duration
 };
 
 enum SpellLinkedTargetType
@@ -739,6 +740,7 @@ struct SpellLinked
     int8 targetCount;
     int8 targetCountType;
     int8 group;
+    int32 duration;
 };
 
 struct SpellTalentLinked

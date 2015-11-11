@@ -2805,7 +2805,7 @@ void Player::Regenerate(Powers power, uint32 saveTimer)
         }
 
         //Visualization for power
-        VisualForPower(power, curValue, int32(integerValue)*-1);
+        VisualForPower(power, curValue, int32(integerValue)*-1, true);
     }
     else
     {
@@ -2820,7 +2820,7 @@ void Player::Regenerate(Powers power, uint32 saveTimer)
             m_powerFraction[powerIndex] = addvalue - integerValue;
 
         //Visualization for power
-        VisualForPower(power, curValue, integerValue);
+        VisualForPower(power, curValue, integerValue, true);
     }
 
     switch (power)
