@@ -9864,7 +9864,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
 
             if (procSpell->Id != 1680 && procSpell->Id != 44949)
                 return false;
-
+            if (HasAura(157473)) // Enhanced Whirlwind
+                CastSpell(this, trigger_spell_id, true);
             break;
         }
         // Glyph of Mind Blast
