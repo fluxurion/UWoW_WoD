@@ -18545,8 +18545,13 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
             else                                                // have start node, to it
             {
                 sLog->outError(LOG_FILTER_PLAYER, "Character %u have too short taxi destination list, teleport to original node.", GetGUIDLow());
-                mapId = nodeEntry->MapID;
-                Relocate(nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z, 0.0f);
+                if (MapManager::IsValidMapCoord(nodeEntry->MapID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z))
+                {
+                    mapId = nodeEntry->MapID;
+                    Relocate(nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z, 0.0f);
+                }
+                else
+                    RelocateToHomebind();
             }
             m_taxi.ClearTaxiDestinations();
         }
@@ -18558,8 +18563,13 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
             if (nodeEntry && nodeEntry->MapID == GetMapId())
             {
                 ASSERT(nodeEntry);                                  // checked in m_taxi.LoadTaxiDestinationsFromString
-                mapId = nodeEntry->MapID;
-                Relocate(nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z, 0.0f);
+                if (MapManager::IsValidMapCoord(nodeEntry->MapID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z))
+                {
+                    mapId = nodeEntry->MapID;
+                    Relocate(nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z, 0.0f);
+                }
+                else
+                    RelocateToHomebind();
             }
 
             // flight will started later
