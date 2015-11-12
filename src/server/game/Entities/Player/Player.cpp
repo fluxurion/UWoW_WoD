@@ -16526,9 +16526,6 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     else
         moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
 
-    if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-        guild->GiveXP(uint32(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_GUILD_MODIFIER)), this);
-
     // Give player extra money if GetRewMoney > 0 and get ReqMoney if negative
     if (quest->GetRewMoney())
         moneyRew += quest->GetRewMoney();
@@ -24049,9 +24046,9 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     if (crItem->maxcount != 0) // bought
     { 
         if (pProto->Quality > ITEM_QUALITY_EPIC || (pProto->Quality == ITEM_QUALITY_EPIC && pProto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
-            if (!pProto->IsAppearInGuildNews())
+            if (!pProto->IsNotAppearInGuildNews())
                 if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-                    guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_PURCHASED, time(NULL), GetGUID(), 0, item);
+                    guild->AddGuildNews(GUILD_NEWS_ITEM_PURCHASED, GetGUID(), 0, item);
 
         return true;
     }
@@ -27409,8 +27406,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         {
             if (proto->Quality > ITEM_QUALITY_EPIC || (proto->Quality == ITEM_QUALITY_EPIC && proto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
                 if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-                    if (!proto->IsAppearInGuildNews())
-                        guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->item.ItemID);
+                    if (!proto->IsNotAppearInGuildNews())
+                        guild->AddGuildNews(GUILD_NEWS_ITEM_LOOTED, GetGUID(), 0, item->item.ItemID);
 
             if (loot->personal && proto->Quality >= uint32(ITEM_QUALITY_UNCOMMON))
                 SendDisplayToast(item->item.ItemID, 1, 0/*loot->bonusLoot*/, item->count, 2, newitem);

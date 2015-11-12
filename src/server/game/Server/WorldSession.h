@@ -186,6 +186,14 @@ namespace WorldPackets
         class GuildBankWithdrawMoney;
         class GuildGetRoster;
         class GuildUpdateMotdText;
+        class GuildPermissionsQuery;
+        class GuildBankLogQuery;
+        class GuildEventLogQuery;
+        class GuildBankQueryTab;
+        class GuildBankRemainingWithdrawMoneyQuery;
+        class GuildBankTextQuery;
+        class GuildQueryNews;
+        class GuildNewsUpdateSticky;
     }
 
     namespace Item
@@ -1185,7 +1193,7 @@ class WorldSession
         void HandleGuildRemoveOpcode(WorldPacket& recvPacket);
         void HandleGuildAcceptOpcode(WorldPacket& recvPacket);
         void HandleGuildDeclineOpcode(WorldPacket& recvPacket);
-        void HandleGuildEventLogQueryOpcode(WorldPacket& recvPacket);
+        void HandleGuildEventLogQuery(WorldPackets::Guild::GuildEventLogQuery& /*packet*/);
         void HandleGuildRosterOpcode(WorldPackets::Guild::GuildGetRoster& packet);
         void HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildPromoteOpcode(WorldPacket& recvPacket);
@@ -1195,10 +1203,10 @@ class WorldSession
         void HandleGuildDisbandOpcode(WorldPacket& recvPacket);
         void HandleGuildLeaderOpcode(WorldPacket& recvPacket);
         void HandleGuildMOTDOpcode(WorldPackets::Guild::GuildUpdateMotdText& packet);
-        void HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket);
+        void HandleGuildNewsUpdateStickyOpcode(WorldPackets::Guild::GuildNewsUpdateSticky& packet);
         void HandleGuildSetNoteOpcode(WorldPacket& recvPacket);
         void HandleGuildQueryRanksOpcode(WorldPacket& recvPacket);
-        void HandleGuildQueryNewsOpcode(WorldPacket& recvPacket);
+        void HandleGuildQueryNews(WorldPackets::Guild::GuildQueryNews& packet);
         void HandleSwapRanks(WorldPacket& recvPacket);
         void HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket);
         void HandleGuildAddRankOpcode(WorldPacket& recvPacket);
@@ -1508,18 +1516,18 @@ class WorldSession
         void HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData);
 
         // Guild Bank
-        void HandleGuildPermissions(WorldPacket& recvData);
-        void HandleGuildBankMoneyWithdrawn(WorldPacket& recvData);
+        void HandleGuildPermissions(WorldPackets::Guild::GuildPermissionsQuery& packet);
+        void HandleGuildBankMoneyWithdrawn(WorldPackets::Guild::GuildBankRemainingWithdrawMoneyQuery& packet);
         void HandleGuildBankerActivate(WorldPacket& recvData);
-        void HandleGuildBankQueryTab(WorldPacket& recvData);
-        void HandleGuildBankLogQuery(WorldPacket& recvData);
+        void HandleGuildBankQueryTab(WorldPackets::Guild::GuildBankQueryTab& packet);
+        void HandleGuildBankLogQuery(WorldPackets::Guild::GuildBankLogQuery& packet);
         void HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet);
         void HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney& packet);
         void HandleGuildBankSwapItems(WorldPacket& recvData);
 
         void HandleGuildBankUpdateTab(WorldPacket& recvData);
         void HandleGuildBankBuyTab(WorldPacket& recvData);
-        void HandleQueryGuildBankTabText(WorldPacket& recvData);
+        void HandleGuildBankTextQuery(WorldPackets::Guild::GuildBankTextQuery& packet);
         void HandleSetGuildBankTabText(WorldPacket& recvData);
 
         void HandleGrantLevel(WorldPackets::ReferAFriend::GrantLevel& packet);

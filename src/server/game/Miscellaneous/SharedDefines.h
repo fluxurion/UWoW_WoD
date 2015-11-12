@@ -4468,6 +4468,7 @@ enum PetDiet
 
 #define GUILD_BANKLOG_MAX_RECORDS   25
 #define GUILD_EVENTLOG_MAX_RECORDS  100
+#define GUILD_NEWSLOG_MAX_RECORDS   250
 
 enum AiReaction
 {

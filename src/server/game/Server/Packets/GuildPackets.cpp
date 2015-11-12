@@ -23,10 +23,6 @@ void WorldPackets::Guild::QueryGuildInfo::Read()
     _worldPacket >> PlayerGuid;
 }
 
-WorldPackets::Guild::QueryGuildInfoResponse::QueryGuildInfoResponse()
-    : ServerPacket(SMSG_QUERY_GUILD_INFO_RESPONSE)
-{ }
-
 WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
 {
     _worldPacket << GuildGuid;
@@ -38,10 +34,10 @@ WorldPacket const* WorldPackets::Guild::QueryGuildInfoResponse::Write()
         _worldPacket << Info->GuildGUID;
         _worldPacket << uint32(Info->VirtualRealmAddress);
         _worldPacket << uint32(Info->Ranks.size());
-        _worldPacket << uint32(Info->EmblemStyle);
         _worldPacket << uint32(Info->EmblemColor);
-        _worldPacket << uint32(Info->BorderStyle);
+        _worldPacket << uint32(Info->EmblemStyle);
         _worldPacket << uint32(Info->BorderColor);
+        _worldPacket << uint32(Info->BorderStyle);
         _worldPacket << uint32(Info->BackgroundColor);
 
         for (GuildInfo::GuildInfoRank const& rank : Info->Ranks)
@@ -149,6 +145,15 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberD
 
     return data;
 }
+
+void WorldPackets::Guild::GuildBankQueryTab::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> TabId;
+
+    FullUpdate = _worldPacket.ReadBit();
+}
+
 
 WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
 {
@@ -380,11 +385,137 @@ WorldPacket const* WorldPackets::Guild::GuildPermissionsQueryResults::Write()
     return &_worldPacket;
 }
 
+void WorldPackets::Guild::GuildBankLogQuery::Read()
+{
+    _worldPacket >> TabId;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildBankLogQueryResults::Write()
+{
+    _worldPacket << TabId;
+    _worldPacket << uint32(Entry.size());
+
+    for (GuildBankLogEntry const& logEntry : Entry)
+    {
+        _worldPacket << logEntry.PlayerGUID;
+        _worldPacket << logEntry.TimeOffset;
+        _worldPacket << logEntry.EntryType;
+
+        _worldPacket.WriteBit(logEntry.Money.is_initialized());
+        _worldPacket.WriteBit(logEntry.ItemID.is_initialized());
+        _worldPacket.WriteBit(logEntry.Count.is_initialized());
+        _worldPacket.WriteBit(logEntry.OtherTab.is_initialized());
+        _worldPacket.FlushBits();
+
+        if (logEntry.Money.is_initialized())
+            _worldPacket << *logEntry.Money;
+
+        if (logEntry.ItemID.is_initialized())
+            _worldPacket << *logEntry.ItemID;
+
+        if (logEntry.Count.is_initialized())
+            _worldPacket << *logEntry.Count;
+
+        if (logEntry.OtherTab.is_initialized())
+            _worldPacket << *logEntry.OtherTab;
+    }
+
+    _worldPacket.WriteBit(WeeklyBonusMoney.is_initialized());
+    _worldPacket.FlushBits();
+
+    if (WeeklyBonusMoney)
+        _worldPacket << *WeeklyBonusMoney;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Guild::GuildBankTextQuery::Read()
+{
+    _worldPacket >> TabId;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildBankTextQueryResult::Write()
+{
+    _worldPacket << TabId;
+
+    _worldPacket.WriteBits(Text.length(), 14);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteString(Text);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Guild::GuildBankRemainingWithdrawMoney::Write()
 {
     _worldPacket << RemainingWithdrawMoney;
 
     return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildEventLogQueryResults::Write()
+{
+    _worldPacket.reserve(4 + Entry.size() * 38);
+
+    _worldPacket << uint32(Entry.size());
+
+    for (GuildEventEntry const& entry : Entry)
+    {
+        _worldPacket << entry.PlayerGUID;
+        _worldPacket << entry.OtherGUID;
+        _worldPacket << entry.TransactionType;
+        _worldPacket << entry.RankID;
+        _worldPacket << entry.TransactionDate;
+    }
+
+    return &_worldPacket;
+}
+
+// GuildNews
+
+void WorldPackets::Guild::GuildQueryNews::Read()
+{
+    _worldPacket >> GuildGUID;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildNewsEvent const& newsEvent)
+{
+    data << newsEvent.Id;
+    data.AppendPackedTime(newsEvent.CompletedDate);
+    data << newsEvent.Type;
+    data << newsEvent.Flags;
+
+    for (uint8 i = 0; i < 2; i++)
+        data << newsEvent.Data[i];
+
+    data << newsEvent.MemberGuid;
+    data << uint32(newsEvent.MemberList.size());
+
+    for (ObjectGuid memberGuid : newsEvent.MemberList)
+        data << memberGuid;
+
+    data.WriteBit(newsEvent.Item.is_initialized());
+    data.FlushBits();
+
+    if (newsEvent.Item)
+        data << *newsEvent.Item;  // WorldPackets::Item::ItemInstance
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildNews::Write()
+{
+    _worldPacket << NewsEvents;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Guild::GuildNewsUpdateSticky::Read()
+{
+    _worldPacket >> GuildGUID;
+    _worldPacket >> NewsID;
+
+    NewsID = _worldPacket.ReadBit();
 }
 
 WorldPacket const* WorldPackets::Guild::PlayerSaveGuildEmblem::Write()

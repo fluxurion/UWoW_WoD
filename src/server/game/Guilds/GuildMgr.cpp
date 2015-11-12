@@ -107,30 +107,6 @@ Guild* GuildMgr::GetGuildByLeader(ObjectGuid const& guid) const
     return NULL;
 }
 
-uint32 GuildMgr::GetXPForGuildLevel(uint8 level) const
-{
-    if (level < GuildXPperLevel.size())
-        return GuildXPperLevel[level];
-    return 0;
-}
-
-void GuildMgr::ResetExperienceCaps()
-{
-    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE));
-
-    for (GuildContainer::iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-        itr->second->ResetDailyExperience();
-}
-
-void GuildMgr::ResetReputationCaps()
-{
-    CharacterDatabase.Execute("UPDATE guild_member SET XpContribWeek = 0, RepWeek = 0");
-
-    for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-        if (Guild* guild = itr->second)
-            guild->ResetWeek();
-}
-
 void GuildMgr::LoadGuilds()
 {
     // 1. Load all guilds
@@ -140,8 +116,8 @@ void GuildMgr::LoadGuilds()
 
                                                      //          0          1       2             3              4              5              6
         QueryResult result = CharacterDatabase.Query("SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, "
-                                                      //   7                  8       9       10            11          12        13                14                 15
-                                                     "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, g.level, g.experience, g.todayExperience, COUNT(gbt.guildid) "
+                                                      //   7                  8       9       10            11          12       13 
+                                                     "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, g.level, COUNT(gbt.guildid) "
                                                      "FROM guild g LEFT JOIN guild_bank_tab gbt ON g.guildid = gbt.guildid GROUP BY g.guildid ORDER BY g.guildid ASC");
 
         if (!result)
@@ -162,6 +138,7 @@ void GuildMgr::LoadGuilds()
                     delete guild;
                     continue;
                 }
+
                 AddGuild(guild);
 
                 ++count;
@@ -353,7 +330,37 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 7. Load all guild bank tabs
+    // 7. Load all news event logs
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading guild news...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        CharacterDatabase.DirectPExecute("DELETE FROM guild_newslog WHERE LogGuid > %u", sWorld->getIntConfig(CONFIG_GUILD_NEWS_LOG_COUNT));
+
+        //      0        1        2          3           4      5      6
+        QueryResult result = CharacterDatabase.Query("SELECT guildid, LogGuid, EventType, PlayerGuid, Flags, Value, Timestamp FROM guild_newslog ORDER BY TimeStamp DESC, LogGuid DESC");
+
+        if (!result)
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild bank event logs. DB table `guild_newslog` is empty.");
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+                uint64 guildId = fields[0].GetUInt64();
+
+                if (Guild* guild = GetGuildById(guildId))
+                    guild->LoadGuildNewsLogFromDB(fields);
+
+                ++count;
+            } while (result->NextRow());
+
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild news logs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
+    // 8. Load all guild bank tabs
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading guild bank tabs...");
     {
         uint32 oldMSTime = getMSTime();
@@ -387,7 +394,7 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 8. Fill all guild bank tabs
+    // 9. Fill all guild bank tabs
     sLog->outInfo(LOG_FILTER_GUILD, "Filling bank tabs with items...");
     {
         uint32 oldMSTime = getMSTime();
@@ -423,7 +430,7 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 9. Load guild achievements
+    // 10. Load guild achievements
     {
         PreparedQueryResult achievementResult;
         PreparedQueryResult criteriaResult;
@@ -438,17 +445,6 @@ void GuildMgr::LoadGuilds()
 
             itr->second->GetAchievementMgr().LoadFromDB(achievementResult, criteriaResult);
         }
-    }
-
-    // 10. Loading Guild news
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Guild News");
-    {
-         for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_NEWS);
-            stmt->setInt64(0, itr->first);
-            itr->second->GetNewsLog().LoadFromDB(CharacterDatabase.Query(stmt));
-         }
     }
 
     // 11. Update Guild Known Recipes

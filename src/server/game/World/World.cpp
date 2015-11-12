@@ -1231,6 +1231,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] = sConfigMgr->GetIntDefault("Guild.BankEventLogRecordsCount", GUILD_BANKLOG_MAX_RECORDS);
     if (m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] > GUILD_BANKLOG_MAX_RECORDS)
         m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] = GUILD_BANKLOG_MAX_RECORDS;
+    m_int_configs[CONFIG_GUILD_NEWS_LOG_COUNT] = sConfigMgr->GetIntDefault("Guild.NewsLogRecordsCount", GUILD_NEWSLOG_MAX_RECORDS);
+    if (m_int_configs[CONFIG_GUILD_NEWS_LOG_COUNT] > GUILD_NEWSLOG_MAX_RECORDS)
+        m_int_configs[CONFIG_GUILD_NEWS_LOG_COUNT] = GUILD_NEWSLOG_MAX_RECORDS;
 
     //visibility on continents
     m_MaxVisibleDistanceOnContinents = sConfigMgr->GetFloatDefault("Visibility.Distance.Continents", DEFAULT_VISIBILITY_DISTANCE);
@@ -2327,14 +2330,10 @@ void World::Update(uint32 diff)
     {
         ResetDailyQuests();
         m_NextDailyQuestReset += DAY;
-        sGuildMgr->ResetExperienceCaps();
     }
 
     if (m_gameTime > m_NextWeeklyQuestReset)
-    {
         ResetWeeklyQuests();
-        sGuildMgr->ResetReputationCaps();
-    }
 
     if (m_gameTime > m_NextRandomBGReset)
         ResetRandomBG();

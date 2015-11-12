@@ -50,9 +50,6 @@ public:
 
     void SaveGuilds();
 
-    void ResetExperienceCaps();
-     void ResetReputationCaps();
-
     ObjectGuid::LowType GenerateGuildId();
     void SetNextGuildId(ObjectGuid::LowType Id) { NextGuildId = Id; }
 

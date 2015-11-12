@@ -275,22 +275,19 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
     }
 }
 
-//! 6.0.3
-void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
+void WorldSession::HandleGuildEventLogQuery(WorldPackets::Guild::GuildEventLogQuery& /*packet*/)
 {
     if (Guild* guild = _GetPlayerGuild(this))
         guild->SendEventLog(this);
 }
 
-//! 6.0.3
-void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket & /* recvData */)
+void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPackets::Guild::GuildBankRemainingWithdrawMoneyQuery& /* packet */)
 {
     if (Guild* guild = _GetPlayerGuild(this))
         guild->SendMoneyInfo(this);
 }
 
-//! 6.0.3
-void WorldSession::HandleGuildPermissions(WorldPacket& /* recvData */)
+void WorldSession::HandleGuildPermissions(WorldPackets::Guild::GuildPermissionsQuery& /* packet */)
 {
     if (Guild* guild = _GetPlayerGuild(this))
         guild->SendPermissions(this);
@@ -314,49 +311,43 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
 }
 
 // Called when opening guild bank tab only (first one)
-//! 6.0.3
-void WorldSession::HandleGuildBankQueryTab(WorldPacket & recvData)
+void WorldSession::HandleGuildBankQueryTab(WorldPackets::Guild::GuildBankQueryTab& packet)
 {
-    ObjectGuid GoGuid;
-    uint8 tabId;
-
-    recvData >> GoGuid>> tabId;
-    bool fullUpdate = recvData.ReadBit();  // fullUpdate
-
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
+    if (GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = _GetPlayerGuild(this))
-            guild->SendBankList(this, tabId, fullUpdate);
+            guild->SendBankList(this, packet.TabId, packet.FullUpdate);
 }
 
 void WorldSession::HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet)
 {
-    Player* player = GetPlayer();
-    if (!player)
-        return;
+    if (Player* player = GetPlayer())
+    {
+        if (!player->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+            return;
 
-    if (!player->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
-        return;
-
-    if (player->HasEnoughMoney(packet.Money))
-        if (Guild* guild = _GetPlayerGuild(this))
-            guild->HandleMemberDepositMoney(this, packet.Money);
+        if (player->HasEnoughMoney(packet.Money))
+            if (Guild* guild = _GetPlayerGuild(this))
+                guild->HandleMemberDepositMoney(this, packet.Money);
+    }
 }
 
 void WorldSession::HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney& packet)
 {
-    Player* player = GetPlayer();
-    if (player)
+    if (Player* player = GetPlayer())
+    {
         if (!player->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
             return;
 
-    if (Guild* guild = _GetPlayerGuild(this))
-        guild->HandleMemberWithdrawMoney(this, packet.Money);
+        if (Guild* guild = _GetPlayerGuild(this))
+            guild->HandleMemberWithdrawMoney(this, packet.Money);
+    }
 }
 
 //! 6.0.3 TODo: check it.
 void WorldSession::HandleGuildBankSwapItems(WorldPacket & recvData)
 {
     Guild* guild = _GetPlayerGuild(this);
+
     if (!guild)
     {
         recvData.rfinish();                   // Prevent additional spam at rejected packet
@@ -433,24 +424,16 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPacket & recvData)
                 guild->HandleSetBankTabInfo(this, tabId, name, icon);
 }
 
-//! 6.0.3
-void WorldSession::HandleGuildBankLogQuery(WorldPacket & recvData)
+void WorldSession::HandleGuildBankLogQuery(WorldPackets::Guild::GuildBankLogQuery& packet)
 {
-    uint32 tabId;
-    recvData >> tabId;
-
     if (Guild* guild = _GetPlayerGuild(this))
-        guild->SendBankLog(this, tabId);
+        guild->SendBankLog(this, packet.TabId);
 }
 
-//! 6.0.3
-void WorldSession::HandleQueryGuildBankTabText(WorldPacket &recvData)
+void WorldSession::HandleGuildBankTextQuery(WorldPackets::Guild::GuildBankTextQuery& packet)
 {
-    uint32 tabId;
-    recvData >> tabId;
-
     if (Guild* guild = _GetPlayerGuild(this))
-        guild->SendBankTabText(this, tabId);
+        guild->SendBankTabText(this, packet.TabId);
 }
 
 //! 6.0.3
@@ -550,41 +533,17 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
     }
 }
 
-//! 6.0.3
-void WorldSession::HandleGuildQueryNewsOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildQueryNews(WorldPackets::Guild::GuildQueryNews& packet)
 {
-    recvPacket.rfinish();   // guild guid
-
-    if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
-    {
-        WorldPacket data;
-        guild->GetNewsLog().BuildNewsData(data);
-        SendPacket(&data);
-    }
+    if (Guild* guild = _GetPlayerGuild(this))
+        if (guild->GetGUID() == packet.GuildGUID)
+            guild->SendNewsUpdate(this);
 }
 
-//! 6.0.3
-void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPackets::Guild::GuildNewsUpdateSticky& packet)
 {
-    uint32 newsId;
-    ObjectGuid guid;
-
-    recvPacket >> guid>> newsId;
-    bool sticky = recvPacket.ReadBit();
-
-    if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
-    {
-        if (GuildNewsEntry* newsEntry = guild->GetNewsLog().GetNewsById(newsId))
-        {
-            if (sticky)
-                newsEntry->Flags |= 1;
-            else
-                newsEntry->Flags &= ~1;
-            WorldPacket data;
-            guild->GetNewsLog().BuildNewsData(newsId, *newsEntry, data);
-            SendPacket(&data);
-        }
-    }
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->HandleNewsSetSticky(this, packet.NewsID, packet.Sticky);
 }
 
 //! 6.0.3

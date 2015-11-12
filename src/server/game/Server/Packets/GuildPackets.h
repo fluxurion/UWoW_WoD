@@ -25,6 +25,17 @@ namespace WorldPackets
 {
     namespace Guild
     {
+        struct GuildBankLogEntry
+        {
+            ObjectGuid PlayerGUID;
+            uint32 TimeOffset = 0;
+            int8 EntryType = 0;
+            Optional<uint64> Money;
+            Optional<int32> ItemID;
+            Optional<int32> Count;
+            Optional<int8> OtherTab;
+        };
+
         class QueryGuildInfo final : public ClientPacket
         {
         public:
@@ -39,12 +50,12 @@ namespace WorldPackets
         class QueryGuildInfoResponse final : public ServerPacket
         {
         public:
+            QueryGuildInfoResponse() : ServerPacket(SMSG_QUERY_GUILD_INFO_RESPONSE) {}
+
             struct GuildInfo
             {
                 ObjectGuid GuildGUID;
-
                 uint32 VirtualRealmAddress = 0;
-
                 std::string GuildName;
 
                 struct GuildInfoRank
@@ -71,8 +82,6 @@ namespace WorldPackets
                 uint32 BorderColor = 0;
                 uint32 BackgroundColor = 0;
             };
-
-            QueryGuildInfoResponse();
 
             WorldPacket const* Write() override;
 
@@ -190,6 +199,18 @@ namespace WorldPackets
             int32 TabIndex = 0;
             std::string Name;
             std::string Icon;
+        };
+
+        class GuildBankQueryTab final : public ClientPacket
+        {
+        public:
+            GuildBankQueryTab(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_QUERY_TAB, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint8 TabId = 0;
+            bool FullUpdate = false;
         };
 
         class GuildBankQueryResults final : public ServerPacket
@@ -393,6 +414,14 @@ namespace WorldPackets
             uint64 Money = 0;
         };
 
+        class GuildPermissionsQuery final : public ClientPacket
+        {
+        public:
+            GuildPermissionsQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_PERMISSIONS_QUERY, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class GuildPermissionsQueryResults final : public ServerPacket
         {
         public:
@@ -413,6 +442,57 @@ namespace WorldPackets
             std::vector<GuildRankTabPermissions> Tab;
         };
 
+        class GuildBankLogQuery final : public ClientPacket
+        {
+        public:
+            GuildBankLogQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_LOG_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 TabId = 0;
+        };
+
+        class GuildBankLogQueryResults final : public ServerPacket
+        {
+        public:
+            GuildBankLogQueryResults() : ServerPacket(SMSG_GUILD_BANK_LOG_QUERY_RESULTS, 25) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TabId = 0;
+            std::vector<GuildBankLogEntry> Entry;
+            Optional<uint64> WeeklyBonusMoney;
+        };
+
+        class GuildBankTextQuery final : public ClientPacket
+        {
+        public:
+            GuildBankTextQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_TEXT_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 TabId = 0;
+        };
+
+        class GuildBankTextQueryResult : public ServerPacket
+        {
+        public:
+            GuildBankTextQueryResult() : ServerPacket(SMSG_GUILD_BANK_TEXT_QUERY_RESULT, 5) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TabId = 0;
+            std::string Text;
+        };
+
+        class GuildBankRemainingWithdrawMoneyQuery final : public ClientPacket
+        {
+        public:
+            GuildBankRemainingWithdrawMoneyQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY_QUERY, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class GuildBankRemainingWithdrawMoney final : public ServerPacket
         {
         public:
@@ -421,6 +501,77 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int64 RemainingWithdrawMoney = 0;
+        };
+
+        struct GuildEventEntry
+        {
+            ObjectGuid PlayerGUID;
+            ObjectGuid OtherGUID;
+            uint8 TransactionType = 0;
+            uint8 RankID = 0;
+            uint32 TransactionDate = 0;
+        };
+
+        class GuildEventLogQuery final : public ClientPacket
+        {
+        public:
+            GuildEventLogQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_EVENT_LOG_QUERY, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GuildEventLogQueryResults final : public ServerPacket
+        {
+        public:
+            GuildEventLogQueryResults() : ServerPacket(SMSG_GUILD_EVENT_LOG_QUERY_RESULTS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildEventEntry> Entry;
+        };
+
+        class GuildQueryNews final : public ClientPacket
+        {
+        public:
+            GuildQueryNews(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_QUERY_NEWS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid GuildGUID;
+        };
+
+        struct GuildNewsEvent
+        {
+            int32 Id = 0;
+            uint32 CompletedDate = 0;
+            int32 Type = 0;
+            int32 Flags = 0;
+            int32 Data[2];
+            ObjectGuid MemberGuid;
+            GuidList MemberList;
+            Optional<Item::ItemInstance> Item;
+        };
+
+        class GuildNews final : public ServerPacket
+        {
+        public:
+            GuildNews() : ServerPacket(SMSG_GUILD_NEWS, 25) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildNewsEvent> NewsEvents;
+        };
+
+        class GuildNewsUpdateSticky final : public ClientPacket
+        {
+        public:
+            GuildNewsUpdateSticky(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_NEWS_UPDATE_STICKY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 NewsID = 0;
+            ObjectGuid GuildGUID;
+            bool Sticky = false;
         };
 
         class PlayerSaveGuildEmblem final : public ServerPacket
@@ -439,6 +590,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterProfess
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberData const& rosterMemberData);
 //ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRankData const& rankData);
 //ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRewardItem const& rewardItem);
-//ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildNewsEvent const& newsEvent);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildNewsEvent const& newsEvent);
 
 #endif // GuildPackets_h__
