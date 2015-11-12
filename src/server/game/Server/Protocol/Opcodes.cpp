@@ -357,7 +357,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_DF_TELEPORT,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::LFG::DFTeleport, &WorldSession::HandleDFTeleport);
     DEFINE_HANDLER(CMSG_DISCARDED_TIME_SYNC_ACKS,                           STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_DISMISS_CRITTER,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::PetPackets::DismissCritter, &WorldSession::HandleDismissCritter);
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_DO_MASTER_LOOT_ROLL,                     STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleDoMasterLootRoll          );
+    DEFINE_OPCODE_HANDLER_OLD(CMSG_DO_MASTER_LOOT_ROLL,                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleDoMasterLootRoll);//612
     DEFINE_HANDLER(CMSG_DO_READY_CHECK,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Party::DoReadyCheck, &WorldSession::HandleDoReadyCheck);
     DEFINE_HANDLER(CMSG_DUEL_RESPONSE,                                      STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Duel::DuelResponse, &WorldSession::HandleDuelResponse);
     DEFINE_HANDLER(CMSG_EJECT_PASSENGER,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Vehicle::EjectPassenger, &WorldSession::HandleEjectPassenger);

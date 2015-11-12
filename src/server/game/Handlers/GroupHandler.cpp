@@ -356,13 +356,13 @@ void WorldSession::HandleLeaveGroup(WorldPackets::Party::LeaveGroup& packet)
     player->RemoveFromGroup(GROUP_REMOVEMETHOD_LEAVE);
 }
 
-//! 5.4.1
+//! 6.1.2
 void WorldSession::HandleDoMasterLootRoll(WorldPacket& recvData)
 {
     ObjectGuid guid;
     uint8 slot = 0;
 
-    recvData >> slot;
+    recvData >> guid >> slot;
 
     if (!_player->GetGroup() || _player->GetGroup()->GetLooterGuid() != _player->GetGUID())
     {
