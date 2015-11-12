@@ -403,38 +403,21 @@ void WorldSession::HandleDoMasterLootRoll(WorldPacket& recvData)
     _player->GetGroup()->DoRollForAllMembers(guid, slot, _player->GetMapId(), loot, item, _player);
 }
 
-//! 5.4.1
+//! 6.1.2
 void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 {
     ObjectGuid target_playerguid;
+    ObjectGuid lootguid;
+    uint8 slotid = 0;
+    uint32 count = 0;
 
-    uint32 count = recvData.ReadBits(23);
-    GuidVector guids(count);
-    std::vector<uint8> types(count);
+    recvData >> count;
 
-    //recvData.ReadGuidMask<6, 2>(target_playerguid);
-    
     if (count > 100)
     {
         recvData.rfinish();
         return;
     }
-
-    for (uint32 i = 0; i < count; ++i)
-        //recvData.ReadGuidMask<1, 0, 5, 2, 3, 6, 7, 4>(guids[i]);
-
-    ///
-
-    //recvData.ReadGuidMask<5, 7, 0, 3, 1, 4>(target_playerguid);
-
-    for (uint32 i = 0; i < count; ++i)
-    {
-        //recvData.ReadGuidBytes<5, 2, 3, 0, 6, 7>(guids[i]);
-        recvData >> types[i];
-        //recvData.ReadGuidBytes<1, 4>(guids[i]);
-    }
-
-    //recvData.ReadGuidBytes<5, 3, 6, 7, 1, 2, 0, 4>(target_playerguid);
 
     Group* group = _player->GetGroup();
     if (!group || group->isLFGGroup() || group->GetLooterGuid() != _player->GetGUID())
@@ -445,14 +428,17 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 
     //target_playerguid = GUID_LOPART(target_playerguid); //WARNING! TMP! plr should have off-like hi-guid, as server not suport it  - cut.
 
-    Player* target = ObjectAccessor::FindPlayer(target_playerguid);
-    if (!target)
-        return;
 
     for (uint32 i = 0; i < count; ++i)
     {
-        ObjectGuid lootguid = guids[i];
-        uint8 slotid = types[i];
+        recvData >> target_playerguid;
+        recvData >> lootguid;
+        recvData >> slotid;
+
+        Player* target = ObjectAccessor::FindPlayer(target_playerguid);
+        if (!target)
+            continue;
+
         Loot* loot = NULL;
 
         if (lootguid.IsCreatureOrVehicle())
