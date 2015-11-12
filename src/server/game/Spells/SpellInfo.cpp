@@ -2447,6 +2447,46 @@ uint32 SpellInfo::GetDispelMask(DispelType type)
         return uint32(1 << type);
 }
 
+uint32 SpellInfo::GetMechanicMask(uint32 miscVal) const
+{
+    uint32 mechanic_immunity_list = 0;
+    switch (miscVal)
+    {
+        case 679:
+        case 1921:
+        {
+                mechanic_immunity_list = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
+                    | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
+                    | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
+                    | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
+                    | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
+                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
+            break;
+        }
+        case 1557:
+        {
+            if (Id == 64187)
+                mechanic_immunity_list = (1 << MECHANIC_STUN);
+            else
+            {
+                mechanic_immunity_list = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)
+                    | (1 << MECHANIC_FEAR) | (1 << MECHANIC_STUN)
+                    | (1 << MECHANIC_SLEEP) | (1 << MECHANIC_CHARM)
+                    | (1 << MECHANIC_SAPPED) | (1 << MECHANIC_HORROR)
+                    | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_DISORIENTED)
+                    | (1 << MECHANIC_FREEZE) | (1 << MECHANIC_TURN);
+
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellInfo::GetMechanicMask Id %u miscVal %u mechanic_immunity_list %u", Id, miscVal, mechanic_immunity_list);
+    return mechanic_immunity_list;
+}
+
 uint32 SpellInfo::GetSimilarEffectsMiscValueMask(SpellEffects effectName, Unit* caster) const
 {
     uint32 mask = 0;

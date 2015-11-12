@@ -24467,6 +24467,15 @@ Unit* Unit::GetUnitForLinkedSpell(Unit* caster, Unit* target, uint8 type)
                 return caster->getAttackerForHelper();
             break;
         }
+        case LINK_UNIT_TYPE_NEARBY: //8
+            return SelectNearbyTarget(target);
+            break;
+        case LINK_UNIT_TYPE_NEARBY_ALLY: //9
+            return SelectNearbyAlly(target);
+            break;
+        case LINK_UNIT_TYPE_ORIGINALCASTER: //10
+            return this;
+            break;
     }
     return NULL;
 }

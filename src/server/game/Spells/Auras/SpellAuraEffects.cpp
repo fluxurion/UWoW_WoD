@@ -7209,6 +7209,22 @@ bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effI
                     check = true;
                 }
                 break;
+                case AURA_TRIGGER_AREATRIGGER_CAST: //10
+                {
+                    std::list<AreaTrigger*> list;
+                    triggerCaster->GetAreaObjectList(list, GetId());
+                    if(!list.empty())
+                    {
+                        Unit* owner = triggerCaster->GetAnyOwner();
+                        for (std::list<AreaTrigger*>::iterator itr = list.begin(); itr != list.end(); ++itr)
+                        {
+                            if(AreaTrigger* areaObj = (*itr))
+                                areaObj->CastAction();
+                        }
+                    }
+                    check = true;
+                }
+                break;
             }
         }
         if (check)

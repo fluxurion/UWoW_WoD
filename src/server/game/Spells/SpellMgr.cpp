@@ -4302,7 +4302,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_FEARED;
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_STUNNED;
                     spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED;
-                    spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
                     break;
                 case 61336: // Survival Instincts
                     spellInfo->Effects[EFFECT_0].BasePoints = -50;

@@ -578,6 +578,7 @@ public:
     bool HasAnyEffectMechanic() const;
     uint32 GetDispelMask() const;
     static uint32 GetDispelMask(DispelType type);
+    uint32 GetMechanicMask(uint32 miscVal) const;
     uint32 GetSimilarEffectsMiscValueMask(SpellEffects effectName, Unit* caster = NULL) const;
     uint32 GetExplicitTargetMask() const;
     uint32 GetSpellTypeMask() const;

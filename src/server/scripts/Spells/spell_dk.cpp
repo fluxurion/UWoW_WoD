@@ -1175,9 +1175,19 @@ class spell_dk_death_pact : public SpellScriptLoader
                 }
             }
 
+            void Absorb(AuraEffect* /*AuraEffect**/, DamageInfo& dmgInfo, uint32& absorbAmount)
+            {
+                Unit* target = GetTarget();
+
+                if (SpellInfo const* spellInfo = dmgInfo.GetSpellInfo())
+                    if(spellInfo->Id == GetSpellInfo()->Id)
+                        absorbAmount = 0;
+            }
+
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_pact_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_HEAL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_death_pact_AuraScript::Absorb, EFFECT_1, SPELL_AURA_SCHOOL_HEAL_ABSORB);
             }
         };
 
@@ -1743,6 +1753,273 @@ public:
     }
 };
 
+//Necrotic Plague - 155159
+class spell_dk_necrotic_plague : public SpellScriptLoader
+{
+public:
+    spell_dk_necrotic_plague() : SpellScriptLoader("spell_dk_necrotic_plague") { }
+
+    class spell_dk_necrotic_plague_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_necrotic_plague_AuraScript);
+
+        void OnTick(AuraEffect const* aurEff)
+        {
+            Unit* caster = GetCaster();
+            if(!caster)
+                return;
+            Unit* target = GetTarget();
+            if(!target)
+                return;
+
+            target->CastCustomSpell(target, 155163, NULL, NULL, NULL, true, NULL, aurEff, caster->GetGUID());
+
+            std::list<Unit*> targets;
+            Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(target, caster, 8.0f);
+            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, targets, u_check);
+            target->VisitNearbyObject(8.0f, searcher);
+
+            // remove not LoS targets
+            for (std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end();)
+            {
+                if (!target->IsWithinLOSInMap(*tIter) || (*tIter)->isTotem() || (*tIter)->HasAura(155159) || !caster->_IsValidAttackTarget((*tIter), GetSpellInfo()))
+                    targets.erase(tIter++);
+                else
+                    ++tIter;
+            }
+
+            // no appropriate targets
+            if (targets.empty())
+                return;
+
+            // select random
+            Unit* newTarget = Trinity::Containers::SelectRandomContainerElement(targets);
+            target->CastCustomSpell(newTarget, 155163, NULL, NULL, NULL, true, NULL, aurEff, caster->GetGUID());
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_necrotic_plague_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dk_necrotic_plague_AuraScript();
+    }
+};
+
+//Necrotic Plague - 155163
+class spell_dk_necrotic_plague_cast : public SpellScriptLoader
+{
+    public:
+        spell_dk_necrotic_plague_cast() : SpellScriptLoader("spell_dk_necrotic_plague_cast") { }
+
+        class spell_dk_necrotic_plague_cast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_necrotic_plague_cast_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* caster = GetCaster();
+                if(!caster)
+                    return;
+                Unit* target = GetHitUnit();
+                if(!target)
+                    return;
+                Unit* originalCaster = GetOriginalCaster();
+
+                if(!originalCaster || originalCaster == caster)
+                {
+                    if (Aura* aura = target->GetAura(155159, (originalCaster ? originalCaster : caster)->GetGUID()))
+                        aura->ModStackAmount(1);
+                    else
+                        caster->CastSpell(target, 155159, true);
+                }
+                else if (originalCaster)
+                {
+                    if (Aura* aura = caster->GetAura(155159, originalCaster->GetGUID()))
+                        if(Aura* newAura = originalCaster->AddAura(155159, target))
+                        {
+                            newAura->SetDuration(aura->GetDuration());
+                            newAura->SetMaxDuration(aura->GetDuration());
+                        }
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dk_necrotic_plague_cast_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_necrotic_plague_cast_SpellScript();
+        }
+};
+
+// 152280 - Defile
+class spell_dk_defile : public SpellScriptLoader
+{
+    public:
+        spell_dk_defile() : SpellScriptLoader("spell_dk_defile") { }
+
+        class spell_dk_defile_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_defile_AuraScript);
+
+            uint32 absorbPct;
+            uint32 tickCount = 0;
+
+            bool Load()
+            {
+                absorbPct = GetSpellInfo()->Effects[EFFECT_3].CalcValue(GetCaster());
+                return true;
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                amount = 0;
+            }
+
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            {
+                absorbAmount = 0;
+                Unit* caster = GetCaster();
+                if(!caster)
+                    return;
+
+                if (Player* _player = caster->ToPlayer())
+                {
+                    if(_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_DK_BLOOD)
+                        absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
+                }
+            }
+
+            void OnTick(AuraEffect const* aurEff)
+            {
+                if(Unit* caster = GetCaster())
+                {
+                    if (AreaTrigger* dareaObj = caster->GetAreaObject(GetSpellInfo()->Id))
+                        dareaObj->CastAction();
+                    GuidList* summonList = caster->GetSummonList(82521);
+                    for (GuidList::const_iterator iter = summonList->begin(); iter != summonList->end(); ++iter)
+                    {
+                        if(Creature* summon = ObjectAccessor::GetCreature(*caster, (*iter)))
+                        {
+                            switch (tickCount)
+                            {
+                                case 0:
+                                    summon->SendPlaySpellVisualKit(46617, 0);
+                                    break;
+                                case 1:
+                                    summon->SendPlaySpellVisualKit(46618, 0);
+                                    break;
+                                case 2:
+                                    summon->SendPlaySpellVisualKit(46619, 0);
+                                    break;
+                                case 3:
+                                    summon->SendPlaySpellVisualKit(46629, 0);
+                                    break;
+                                case 4:
+                                    summon->SendPlaySpellVisualKit(46630, 0);
+                                    break;
+                                case 5:
+                                    summon->SendPlaySpellVisualKit(46631, 0);
+                                    break;
+                                case 6:
+                                    summon->SendPlaySpellVisualKit(46632, 0);
+                                    break;
+                                case 7:
+                                    summon->SendPlaySpellVisualKit(46633, 0);
+                                    break;
+                                case 8:
+                                    summon->SendPlaySpellVisualKit(46634, 0);
+                                    break;
+                                case 9:
+                                    summon->SendPlaySpellVisualKit(46635, 0);
+                                    break;
+                                case 10:
+                                    summon->SendPlaySpellVisualKit(46643, 0);
+                                    break;
+                            }
+                        }
+                    }
+                    tickCount++;
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_defile_AuraScript::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_defile_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_defile_AuraScript::Absorb, EFFECT_3, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_defile_AuraScript();
+        }
+};
+
+// Breath of Sindragosa - 155166
+class spell_dk_breath_of_sindragosa : public SpellScriptLoader
+{
+    public:
+        spell_dk_breath_of_sindragosa() : SpellScriptLoader("spell_dk_breath_of_sindragosa") { }
+
+        class spell_dk_breath_of_sindragosa_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_breath_of_sindragosa_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (!caster || !target)
+                    return;
+                Aura* aura = caster->GetAura(152279);
+                if (!aura)
+                    return;
+                int32 dam = GetHitDamage();
+                ObjectGuid mainTargetGuid = aura->GetEffectTargets().empty() ? ObjectGuid::Empty : aura->GetRndEffectTarget();
+                Unit* mainTarget = NULL;
+                if (mainTargetGuid)
+                    mainTarget = ObjectAccessor::GetUnit(*caster, mainTargetGuid);
+                if(!mainTarget)
+                {
+                    mainTarget = caster->getAttackerForHelper();
+                    if (!mainTarget && caster->ToPlayer())
+                    {
+                        mainTarget = caster->ToPlayer()->GetSelectedUnit();
+                        if(mainTarget && !caster->_IsValidAttackTarget(mainTarget, GetSpellInfo()))
+                            mainTarget = NULL;
+                    }
+                    if (!mainTarget)
+                        mainTarget = caster->SelectNearbyTarget(caster);
+                }
+                if(mainTarget && !mainTargetGuid)
+                    aura->AddEffectTarget(mainTarget->GetGUID());
+                if(target != mainTarget)
+                    SetHitDamage(GetHitDamage()/2);
+
+                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "spell_dk_breath_of_sindragosa mainTargetGuid %u dam %i GetHitDamage %i target %u", mainTargetGuid.GetGUIDLow(), dam, GetHitDamage(), target->GetGUIDLow());
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dk_breath_of_sindragosa_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_breath_of_sindragosa_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_might_of_ursoc();
@@ -1783,4 +2060,8 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_dancing_rune_weapon();
     new spell_dk_death_shroud();
     new spell_dk_blood_gorged();
+    new spell_dk_necrotic_plague();
+    new spell_dk_necrotic_plague_cast();
+    new spell_dk_defile();
+    new spell_dk_breath_of_sindragosa();
 }

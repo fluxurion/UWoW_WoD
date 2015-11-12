@@ -875,13 +875,13 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
             #endif
 
             if (itr->target)
-                triggerTarget = m_caster->GetUnitForLinkedSpell(m_caster, unitTarget, itr->target);
+                triggerTarget = (m_originalCaster ? m_originalCaster : m_caster)->GetUnitForLinkedSpell(m_caster, unitTarget, itr->target);
 
             if (itr->caster)
-                triggerCaster = m_caster->GetUnitForLinkedSpell(m_caster, unitTarget, itr->caster);
+                triggerCaster = (m_originalCaster ? m_originalCaster : m_caster)->GetUnitForLinkedSpell(m_caster, unitTarget, itr->caster);
 
             if (itr->targetaura)
-                targetAura = m_caster->GetUnitForLinkedSpell(m_caster, unitTarget, itr->targetaura);
+                targetAura = (m_originalCaster ? m_originalCaster : m_caster)->GetUnitForLinkedSpell(m_caster, unitTarget, itr->targetaura);
 
             cooldown_spell_id = abs(itr->spell_trigger);
             if (triggerCaster && triggerCaster->ToPlayer())

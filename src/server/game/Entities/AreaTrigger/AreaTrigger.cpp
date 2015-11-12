@@ -1060,3 +1060,8 @@ float AreaTrigger::CalculateRadius()
 
     return distance;
 }
+
+void AreaTrigger::CastAction()
+{
+    UpdateAffectedList(0, AT_ACTION_MOMENT_ON_CAST_ACTION);
+}

@@ -5791,10 +5791,10 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
             _caster = m_caster;
 
             if (i->target)
-                _target = m_caster->GetUnitForLinkedSpell(_caster, _target, i->target);
+                _target = (m_originalCaster ? m_originalCaster : m_caster)->GetUnitForLinkedSpell(_caster, _target, i->target);
 
             if (i->caster)
-                _caster = m_caster->GetUnitForLinkedSpell(_caster, _target, i->caster);
+                _caster = (m_originalCaster ? m_originalCaster : m_caster)->GetUnitForLinkedSpell(_caster, _target, i->caster);
 
             if(!_caster)
                 continue;
@@ -5907,6 +5907,15 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
                         }
                         else
                             _caster->CastSpell(_target ? _target : _caster, i->effect, true);
+                        break;
+                    }
+                    case LINK_UNIT_TYPE_CAST_DEST: //11
+                    {
+                        if (m_targets.HasDst())
+                        {
+                            Position pos = *m_targets.GetDstPos();
+                            _caster->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), i->effect, true);
+                        }
                         break;
                     }
                 }
@@ -7369,6 +7378,8 @@ SpellCastResult Spell::CheckCasterAuras() const
                 mechanic_immune |= 1 << uint32(m_spellInfo->GetEffect(i, m_diffMode)->MiscValue);
             else if (m_spellInfo->GetEffect(i, m_diffMode)->ApplyAuraName == SPELL_AURA_DISPEL_IMMUNITY)
                 dispel_immune |= SpellInfo::GetDispelMask(DispelType(m_spellInfo->GetEffect(i, m_diffMode)->MiscValue));
+            else if (m_spellInfo->GetEffect(i, m_diffMode)->ApplyAuraName == SPELL_AURA_MECHANIC_IMMUNITY_MASK)
+                mechanic_immune |= m_spellInfo->GetMechanicMask(m_spellInfo->GetEffect(i, m_diffMode)->MiscValue);
         }
         // immune movement impairment and loss of control
         if (m_spellInfo->Id == 42292 || m_spellInfo->Id == 59752)

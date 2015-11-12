@@ -106,14 +106,18 @@ enum SpellLinkedType
 
 enum SpellLinkedUnitType
 {
-    LINK_UNIT_TYPE_DEFAULT      = 0,
-    LINK_UNIT_TYPE_PET          = 1,
-    LINK_UNIT_TYPE_OWNER        = 2,
-    LINK_UNIT_TYPE_CASTER       = 3,
-    LINK_UNIT_TYPE_SELECTED     = 4,
-    LINK_UNIT_TYPE_TARGET       = 5,
-    LINK_UNIT_TYPE_VICTIM       = 6,
-    LINK_UNIT_TYPE_ATTACKER     = 7,
+    LINK_UNIT_TYPE_DEFAULT         = 0,
+    LINK_UNIT_TYPE_PET             = 1,
+    LINK_UNIT_TYPE_OWNER           = 2,
+    LINK_UNIT_TYPE_CASTER          = 3,
+    LINK_UNIT_TYPE_SELECTED        = 4,
+    LINK_UNIT_TYPE_TARGET          = 5,
+    LINK_UNIT_TYPE_VICTIM          = 6,
+    LINK_UNIT_TYPE_ATTACKER        = 7,
+    LINK_UNIT_TYPE_NEARBY          = 8,
+    LINK_UNIT_TYPE_NEARBY_ALLY     = 9,
+    LINK_UNIT_TYPE_ORIGINALCASTER  = 10,
+    LINK_UNIT_TYPE_CAST_DEST       = 11,
 };
 
 enum SpellLinkedHasType
@@ -216,6 +220,7 @@ enum AuraTriggerType
     AURA_TRIGGER_AREATRIGGER                    = 7,            // cast spell on dest AreaTrigger
     AAURA_TRIGGER_FROM_SUMMON_SLOT_DEST         = 8,            // cast spell from summon slot(totem or any) to dest loc
     AURA_TRIGGER_FROM_SUMMON_DEST               = 9,            // cast spell to summon dest loc
+    AURA_TRIGGER_AREATRIGGER_CAST               = 10,           // cast AreaTrigger
 };
 
 enum SpellAuraDummyOption

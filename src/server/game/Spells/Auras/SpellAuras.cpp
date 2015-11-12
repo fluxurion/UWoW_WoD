@@ -1097,7 +1097,10 @@ void Aura::SetDuration(int32 duration, bool withMods)
 
 void Aura::RefreshDuration(bool /*recalculate*/)
 {
-    SetDuration(GetMaxDuration());
+    if(GetId() == 155159) //Hack, may be use SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER and stackamount?
+        return;
+    else
+        SetDuration(GetMaxDuration());
 
     Unit* caster = GetCaster();
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)

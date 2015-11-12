@@ -27,16 +27,17 @@ class Spell;
 
 enum AreaTriggerActionMoment
 {
-    AT_ACTION_MOMENT_ENTER        = 0x001, // when unit enters areatrigger
-    AT_ACTION_MOMENT_LEAVE        = 0x002, // when unit exits areatrigger
-    AT_ACTION_MOMENT_UPDATE       = 0x004, // on areatrigger update
-    AT_ACTION_MOMENT_DESPAWN      = 0x008, // when areatrigger despawn
-    AT_ACTION_MOMENT_SPAWN        = 0x010, // when areatrigger spawn
-    AT_ACTION_MOMENT_REMOVE       = 0x020, // when areatrigger remove
+    AT_ACTION_MOMENT_ENTER          = 0x001, // when unit enters areatrigger
+    AT_ACTION_MOMENT_LEAVE          = 0x002, // when unit exits areatrigger
+    AT_ACTION_MOMENT_UPDATE         = 0x004, // on areatrigger update
+    AT_ACTION_MOMENT_DESPAWN        = 0x008, // when areatrigger despawn
+    AT_ACTION_MOMENT_SPAWN          = 0x010, // when areatrigger spawn
+    AT_ACTION_MOMENT_REMOVE         = 0x020, // when areatrigger remove
     //range should be = distance.
-    AT_ACTION_MOMENT_ON_THE_WAY   = 0x040, // when target is betwin source and dest points. For movement only. WARN! Should add AT_ACTION_MOMENT_ENTER flag too
-    AT_ACTION_MOMENT_ON_STOP_MOVE = 0x080, // when target is betwin source and dest points. For movement only. WARN! Should add AT_ACTION_MOMENT_ENTER flag too
-    AT_ACTION_MOMENT_ON_ACTIVATE  = 0x100, // when areatrigger active
+    AT_ACTION_MOMENT_ON_THE_WAY     = 0x040, // when target is betwin source and dest points. For movement only. WARN! Should add AT_ACTION_MOMENT_ENTER flag too
+    AT_ACTION_MOMENT_ON_STOP_MOVE   = 0x080, // when target is betwin source and dest points. For movement only. WARN! Should add AT_ACTION_MOMENT_ENTER flag too
+    AT_ACTION_MOMENT_ON_ACTIVATE    = 0x100, // when areatrigger active
+    AT_ACTION_MOMENT_ON_CAST_ACTION = 0x200, // when areatrigger cast from aura tick
 };
 
 enum AreaTriggerActionType
@@ -222,6 +223,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         bool HasTargetRollPitchYaw() const { return atInfo.TargetRollPitchYawX != 0.0f || atInfo.TargetRollPitchYawY != 0.0f; }
         bool isPolygon() const { return atInfo.polygon && !atInfo.verticesPoints.empty(); }
         AreaTriggerInfo GetAreaTriggerInfo() const { return atInfo; }
+        void CastAction();
 
         void BindToCaster();
         void UnbindFromCaster();
