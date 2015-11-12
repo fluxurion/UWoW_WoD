@@ -190,16 +190,16 @@ WorldPacket const* WorldPackets::Loot::LootList::Write()
 {
     _worldPacket << Owner;
 
-    _worldPacket.WriteBit(Master.is_initialized());
     _worldPacket.WriteBit(RoundRobinWinner.is_initialized());
+    _worldPacket.WriteBit(Master.is_initialized());
 
     _worldPacket.FlushBits();
 
-    if (Master)
-        _worldPacket << *Master;
-
     if (RoundRobinWinner)
         _worldPacket << *RoundRobinWinner;
+
+    if (Master)
+        _worldPacket << *Master;
 
     return &_worldPacket;
 }
