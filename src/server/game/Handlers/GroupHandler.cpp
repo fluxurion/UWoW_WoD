@@ -426,12 +426,9 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         return;
     }
 
-    //target_playerguid = GUID_LOPART(target_playerguid); //WARNING! TMP! plr should have off-like hi-guid, as server not suport it  - cut.
-
-
+    recvData >> target_playerguid;
     for (uint32 i = 0; i < count; ++i)
     {
-        recvData >> target_playerguid;
         recvData >> lootguid;
         recvData >> slotid;
 
@@ -440,27 +437,12 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
             continue;
 
         Loot* loot = NULL;
-
-        if (lootguid.IsCreatureOrVehicle())
-        {
-            Creature* creature = GetPlayer()->GetMap()->GetCreature(lootguid);
-            if (!creature)
-                return;
-
-            loot = &creature->loot;
-        }
-        else if (lootguid.IsGameObject())
-        {
-            GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(lootguid);
-            if (!pGO)
-                return;
-
-            loot = &pGO->loot;
-        }
+        loot = sLootMgr->GetLoot(lootguid);
 
         if (!loot)
             return;
 
+        slotid -= 1;    //restore slot index;
         if (slotid >= loot->items.size() + loot->quest_items.size())
         {
             sLog->outDebug(LOG_FILTER_LOOT, "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)", GetPlayer()->GetName(), slotid, (unsigned long)loot->items.size());
