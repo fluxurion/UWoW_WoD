@@ -894,6 +894,7 @@ void Group::SendLootStartRoll(uint32 mapID, Roll const& roll)
     lootRoll.Method = roll.rollVoteMask; // not sure
     // roll.aoeSlot ???
 
+    WorldPacket const* p = lootRoll.Write();
     for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
     {
         Player* player = ObjectAccessor::FindPlayer(itr->first);
@@ -901,7 +902,7 @@ void Group::SendLootStartRoll(uint32 mapID, Roll const& roll)
             continue;
 
         if (itr->second == NOT_EMITED_YET)
-            player->GetSession()->SendPacket(lootRoll.Write());
+            player->GetSession()->SendPacket(p);
     }
 }
 
@@ -949,6 +950,7 @@ void Group::SendLootRoll(ObjectGuid targetGuid, uint8 rollNumber, uint8 rollType
     response.RollType = rollType;
     response.Autopassed = false;
 
+    WorldPacket const* pdata = response.Write();
     for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
     {
         Player* p = ObjectAccessor::FindPlayer(itr->first);
@@ -956,7 +958,7 @@ void Group::SendLootRoll(ObjectGuid targetGuid, uint8 rollNumber, uint8 rollType
             continue;
 
         if (itr->second != NOT_VALID)
-            p->GetSession()->SendPacket(response.Write());
+            p->GetSession()->SendPacket(pdata);
     }
 }
 
@@ -985,6 +987,9 @@ void Group::SendLootRollWon(ObjectGuid targetGuid, uint8 rollNumber, uint8 rollT
     rollsComplete.LootListID = roll.itemSlot;
     rollsComplete.LootObj = roll.lootedGUID;
 
+    WorldPacket const* pwon = won.Write();
+    WorldPacket const* prollsComplete = rollsComplete.Write();
+
     for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
     {
         Player* p = ObjectAccessor::FindPlayer(itr->first);
@@ -993,8 +998,8 @@ void Group::SendLootRollWon(ObjectGuid targetGuid, uint8 rollNumber, uint8 rollT
 
         if (itr->second != NOT_VALID)
         {
-            p->GetSession()->SendPacket(won.Write());
-            p->GetSession()->SendPacket(rollsComplete.Write());
+            p->GetSession()->SendPacket(pwon);
+            p->GetSession()->SendPacket(prollsComplete);
         }
     }
 }
@@ -1016,6 +1021,8 @@ void Group::SendLootAllPassed(Roll const& roll)
     // roll.aoeSlot ???
     // roll.TotalEmited() ???
 
+    WorldPacket const* ppassed = passed.Write();
+
     for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
     {
         Player* player = ObjectAccessor::FindPlayer(itr->first);
@@ -1023,7 +1030,7 @@ void Group::SendLootAllPassed(Roll const& roll)
             continue;
 
         if (itr->second != NOT_VALID)
-            player->GetSession()->SendPacket(passed.Write());
+            player->GetSession()->SendPacket(ppassed);
     }
 }
 
@@ -1340,10 +1347,10 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
     }
 }
 
-void Group::MasterLoot(Loot* /*loot*/, WorldObject* lootObj)
+void Group::MasterLoot(Loot* loot, WorldObject* lootObj)
 {
     WorldPackets::Loot::MasterLootCandidateList list;
-    list.LootObj = lootObj->GetGUID();
+    list.LootObj = loot->GetGUID();
     for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
         Player* looter = itr->getSource();
@@ -1764,11 +1771,12 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     packet.Initialize(player);
 
     Player* member;
+    WorldPacket const* p = packet.Write();
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         member = itr->getSource();
         if (member && member != player && (!member->IsInMap(player) || !member->IsWithinDist(player, member->GetSightRange(), false)))
-            member->GetSession()->SendPacket(packet.Write());
+            member->GetSession()->SendPacket(p);
     }
 }
 
