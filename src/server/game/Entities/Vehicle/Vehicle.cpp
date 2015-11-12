@@ -810,8 +810,17 @@ void Vehicle::RemovePendingEventsForPassenger(Unit* passenger)
 
 VehicleJoinEvent::~VehicleJoinEvent()
 {
-    if (Target)
-        Target->RemovePendingEvent(this);
+    Object *obj = ptr.get();
+    if (!obj)
+        return;
+    Unit *unit = obj->ToUnit();
+    if (!unit)
+        return;
+    Vehicle *Target = unit->GetVehicleKit();
+    if (!Target)
+        return;
+
+    Target->RemovePendingEvent(this);
 }
 
 /**
@@ -835,10 +844,6 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     ASSERT(Target && Target->GetBase()->IsInWorld());
     ASSERT(Target->GetRecAura() || Target->GetBase()->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID()));
 
-    if (Passenger->GetEntry() == 71686)
-    {
-        sLog->outU(">>>>>>>>>>>>>>>>>>>>>>>>> OLOL1");
-    }
     Target->RemovePendingEventsForSeat(Seat->first);
     Target->RemovePendingEventsForPassenger(Passenger);
 
@@ -974,11 +979,13 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
 void VehicleJoinEvent::Abort(uint64)
 {
-    if(!Passenger)
-        return;
+    Object *obj = ptr.get();
+    Unit *targetBase = obj ? obj->ToUnit() : NULL; // Faster then ObjectAccessor::GetUnit
+
     /// Check if the Vehicle was already uninstalled, in which case all auras were removed already
     //if (Target)
-    if (Unit* targetBase = ObjectAccessor::GetUnit(*Passenger, targetGuid))
+    //if (Unit* targetBase = ObjectAccessor::GetUnit(*Passenger, targetGuid))
+    if (targetBase)
     {
         //sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on vehicle GuidLow: %u, Entry: %u SeatId: %d cancelled",
             //Passenger->GetGUIDLow(), Passenger->GetEntry(), Target->GetBase()->GetGUIDLow(), Target->GetBase()->GetEntry(), (int32)Seat->first);
@@ -990,10 +997,12 @@ void VehicleJoinEvent::Abort(uint64)
             //if (targetBase->IsInWorld())
                 targetBase->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID());
     }
-    else
+    else if (Passenger)
         sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on uninstalled vehicle SeatId: %d cancelled",
-            Passenger->GetGUIDLow(), Passenger->GetEntry(), (int32)Seat->first);
+        Passenger->GetGUIDLow(), Passenger->GetEntry(), (int32) Seat->first);
+    else
+        sLog->outError(LOG_FILTER_VEHICLES, " WARNING!!! VehicleJoinEvent Abort with non existen Passanger");
 
-    if (Passenger->IsInWorld() && Passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
+    if (Passenger && Passenger->IsInWorld() && Passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
         Passenger->ToCreature()->DespawnOrUnsummon();
 }
