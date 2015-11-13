@@ -181,19 +181,45 @@ namespace WorldPackets
     namespace Guild
     {
         class QueryGuildInfo;
-        class LFGuildSetGuildPost;
+        class GuildInviteByName;
+        class GuildOfficerRemoveMember;
+        class AcceptGuildInvite;
+        class GuildDeclineInvitation;
+        class GuildEventLogQuery;
+        class GuildGetRoster;
+        class GuildPromoteMember;
+        class GuildDemoteMember;
+        class GuildAssignMemberRank;
+        class GuildLeave;
+        class GuildDelete;
+        class GuildSetGuildMaster;
+        class GuildUpdateMotdText;
+        class GuildNewsUpdateSticky;
+        class GuildSetMemberNote;
+        class GuildGetRanks;
+        class GuildQueryNews;
+        class GuildShiftRank;
+        class GuildSetRankPermissions;
+        class GuildAddRank;
+        class GuildDeleteRank;
+        class GuildUpdateInfoText;
+        class RequestGuildPartyState;
+        class AutoDeclineGuildInvites;
+
+        class GuildPermissionsQuery;
+        class GuildBankRemainingWithdrawMoneyQuery;
+        class GuildBankActivate;
+        class GuildBankQueryTab;
+        class GuildBankLogQuery;
         class GuildBankDepositMoney;
         class GuildBankWithdrawMoney;
-        class GuildGetRoster;
-        class GuildUpdateMotdText;
-        class GuildPermissionsQuery;
-        class GuildBankLogQuery;
-        class GuildEventLogQuery;
-        class GuildBankQueryTab;
-        class GuildBankRemainingWithdrawMoneyQuery;
+        class GuildBankSwapItems;
+        class GuildBankUpdateTab;
+        class GuildBankBuyTab;
         class GuildBankTextQuery;
-        class GuildQueryNews;
-        class GuildNewsUpdateSticky;
+        class GuildBankSetTabText;
+
+        class LFGuildSetGuildPost;
     }
 
     namespace Item
@@ -1188,34 +1214,34 @@ class WorldSession
         void HandleOfferPetition(WorldPackets::Petition::OfferPetition& packet);
         void HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& packet);
 
-        void HandleGuildQueryOpcode(WorldPacket& recvPacket);
-        void HandleGuildInviteOpcode(WorldPacket& recvPacket);
-        void HandleGuildRemoveOpcode(WorldPacket& recvPacket);
-        void HandleGuildAcceptOpcode(WorldPacket& recvPacket);
-        void HandleGuildDeclineOpcode(WorldPacket& recvPacket);
+        void HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& packet);
+        void HandleGuildInviteByName(WorldPackets::Guild::GuildInviteByName& packet);
+        void HandleGuildOfficerRemoveMember(WorldPackets::Guild::GuildOfficerRemoveMember& packet);
+        void HandleGuildAcceptInvite(WorldPackets::Guild::AcceptGuildInvite& /*packet*/);
+        void HandleGuildDeclineInvitation(WorldPackets::Guild::GuildDeclineInvitation& /*decline*/);
         void HandleGuildEventLogQuery(WorldPackets::Guild::GuildEventLogQuery& /*packet*/);
         void HandleGuildRosterOpcode(WorldPackets::Guild::GuildGetRoster& packet);
         void HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket);
-        void HandleGuildPromoteOpcode(WorldPacket& recvPacket);
-        void HandleGuildDemoteOpcode(WorldPacket& recvPacket);
-        void HandleGuildAssignRankOpcode(WorldPacket& recvPacket);
-        void HandleGuildLeaveOpcode(WorldPacket& recvPacket);
-        void HandleGuildDisbandOpcode(WorldPacket& recvPacket);
-        void HandleGuildLeaderOpcode(WorldPacket& recvPacket);
-        void HandleGuildMOTDOpcode(WorldPackets::Guild::GuildUpdateMotdText& packet);
+        void HandleGuildPromoteMember(WorldPackets::Guild::GuildPromoteMember& packet);
+        void HandleGuildDemoteMember(WorldPackets::Guild::GuildDemoteMember& packet);
+        void HandleGuildAssignRank(WorldPackets::Guild::GuildAssignMemberRank& packet);
+        void HandleGuildLeave(WorldPackets::Guild::GuildLeave& /*packet*/);
+        void HandleGuildDisbandOpcode(WorldPackets::Guild::GuildDelete& packet);
+        void HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildMaster& packet);
+        void HandleGuildUpdateMotdText(WorldPackets::Guild::GuildUpdateMotdText& packet);
         void HandleGuildNewsUpdateStickyOpcode(WorldPackets::Guild::GuildNewsUpdateSticky& packet);
-        void HandleGuildSetNoteOpcode(WorldPacket& recvPacket);
-        void HandleGuildQueryRanksOpcode(WorldPacket& recvPacket);
+        void HandleGuildSetMemberNote(WorldPackets::Guild::GuildSetMemberNote& packet);
+        void HandleGuildGetRanks(WorldPackets::Guild::GuildGetRanks& packet);
         void HandleGuildQueryNews(WorldPackets::Guild::GuildQueryNews& packet);
-        void HandleSwapRanks(WorldPacket& recvPacket);
-        void HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket);
-        void HandleGuildAddRankOpcode(WorldPacket& recvPacket);
-        void HandleGuildDelRankOpcode(WorldPacket& recvPacket);
-        void HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket);
+        void HandleShiftRank(WorldPackets::Guild::GuildShiftRank& packet);
+        void HandleGuildSetRankPermissions(WorldPackets::Guild::GuildSetRankPermissions& packet);
+        void HandleGuildAddRank(WorldPackets::Guild::GuildAddRank& packet);
+        void HandleGuildDeleteRank(WorldPackets::Guild::GuildDeleteRank& packet);
+        void HandleGuildUpdateInfoText(WorldPackets::Guild::GuildUpdateInfoText& packet);
         void HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket);
-        void HandleGuildRequestPartyState(WorldPacket& recvPacket);
+        void HandleGuildRequestPartyState(WorldPackets::Guild::RequestGuildPartyState& packet);
         void HandleGuildSetFocusedAchievement(WorldPackets::Achievement::GuildSetFocusedAchievement& packet);
-        void HandleAutoDeclineGuildInvites(WorldPacket& recvPacket);
+        void HandleAutoDeclineGuildInvites(WorldPackets::Guild::AutoDeclineGuildInvites& packet);
         void HandleGuildQueryGuildRecipesOpcode(WorldPacket& recvPacket);
         void HandleGuildQueryGuildMembersForRecipe(WorldPacket& recvPacket);
         void HandleGuildQueryGuildMembersRecipes(WorldPacket& recvPacket);
@@ -1518,17 +1544,17 @@ class WorldSession
         // Guild Bank
         void HandleGuildPermissions(WorldPackets::Guild::GuildPermissionsQuery& packet);
         void HandleGuildBankMoneyWithdrawn(WorldPackets::Guild::GuildBankRemainingWithdrawMoneyQuery& packet);
-        void HandleGuildBankerActivate(WorldPacket& recvData);
+        void HandleGuildBankActivate(WorldPackets::Guild::GuildBankActivate& packet);
         void HandleGuildBankQueryTab(WorldPackets::Guild::GuildBankQueryTab& packet);
         void HandleGuildBankLogQuery(WorldPackets::Guild::GuildBankLogQuery& packet);
         void HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet);
         void HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney& packet);
-        void HandleGuildBankSwapItems(WorldPacket& recvData);
+        void HandleGuildBankSwapItems(WorldPackets::Guild::GuildBankSwapItems& packet);
 
-        void HandleGuildBankUpdateTab(WorldPacket& recvData);
-        void HandleGuildBankBuyTab(WorldPacket& recvData);
+        void HandleGuildBankUpdateTab(WorldPackets::Guild::GuildBankUpdateTab& packet);
+        void HandleGuildBankBuyTab(WorldPackets::Guild::GuildBankBuyTab& packet);
         void HandleGuildBankTextQuery(WorldPackets::Guild::GuildBankTextQuery& packet);
-        void HandleSetGuildBankTabText(WorldPacket& recvData);
+        void HandleGuildBankSetTabText(WorldPackets::Guild::GuildBankSetTabText& packet);
 
         void HandleGrantLevel(WorldPackets::ReferAFriend::GrantLevel& packet);
         void HandleAcceptGrantLevel(WorldPackets::ReferAFriend::AcceptLevelGrant& packet);

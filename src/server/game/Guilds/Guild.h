@@ -90,17 +90,19 @@ enum GuildRankRights
 
 enum GuildCommandType
 {
-    GUILD_CREATE_S  = 0x00,
-    GUILD_INVITE_S  = 0x01,
-    GUILD_QUIT_S    = 0x03,
-    GUILD_FOUNDER_S = 0x0E,
-    GUILD_UNK1      = 0x13,
-    GUILD_UNK2      = 0x14
+    GUILD_CREATE_S   = 0x00,
+    GUILD_INVITE_S   = 0x01,
+    GUILD_QUIT_S     = 0x03,
+    GUILD_PROMOTE_SS = 0x06,
+    GUILD_DEMOTE_SS  = 0x07,
+    GUILD_FOUNDER_S  = 0x0E,
+    GUILD_UNK1       = 0x13,
+    GUILD_UNK2       = 0x14
 };
 
 enum GuildCommandError
 {
-    ERR_PLAYER_NO_MORE_IN_GUILD         = 0x00,
+    ERR_GUILD_COMMAND_SUCCESS           = 0x00,
     ERR_GUILD_INTERNAL                  = 0x01,
     ERR_ALREADY_IN_GUILD                = 0x02,
     ERR_ALREADY_IN_GUILD_S              = 0x03,
@@ -862,15 +864,19 @@ public:
     const std::string& GetName() const { return m_name; }
     const std::string& GetMOTD() const { return m_motd; }
     const std::string& GetInfo() const { return m_info; }
+    uint32 GetMemberCount() const { return uint32(m_members.size()); }
+    time_t GetCreatedDate() const { return m_createdDate; }
+    uint64 GetBankMoney() const { return m_bankMoney; }
 
     // Handle client commands
-    void HandleRoster(WorldSession* session = NULL);          // NULL = broadcast
-    void HandleQuery(WorldSession* session);
-    void HandleGuildRanks(WorldSession* session) const;
+    void SendRoster(WorldSession* session = NULL);          // NULL = broadcast
+    void SendQueryResponse(WorldSession* session);
+    void SendGuildRankInfo(WorldSession* session) const;
+
     void HandleSetMOTD(WorldSession* session, const std::string& motd);
     void HandleSetInfo(WorldSession* session, const std::string& info);
     void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);
-    void HandleSetLeader(WorldSession* session, const std::string& name);
+    void HandleSetNewGuildMaster(WorldSession* session, std::string const& name);
     void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, const std::string& name, const std::string& icon);
     void HandleSetMemberNote(WorldSession* session, std::string const& note, ObjectGuid guid, bool isPublic);
     void HandleSetRankInfo(WorldSession* session, uint32 rankId, const std::string& name, uint32 rights, uint32 moneyPerDay, GuildBankRightsAndSlotsVec rightsAndSlots);
@@ -885,7 +891,7 @@ public:
     void HandleAddNewRank(WorldSession* session, const std::string& name);
     void HandleRemoveRank(WorldSession* session, uint32 rankId);
     void HandleChangeNameRank(WorldSession* session, uint32 id, std::string const& name);
-    void HandleSwapRanks(WorldSession* session, uint32 id, bool up);
+    void HandleShiftRank(WorldSession* session, uint32 id, bool up);
     void HandleMemberDepositMoney(WorldSession* session, uint64 amount, bool cashFlow = false);
     bool HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool repair = false);
     void HandleMemberLogout(WorldSession* session);
@@ -967,15 +973,20 @@ public:
 
     void AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value);
 
-    void SendMotd(WorldSession* session = NULL);
-    void SendGuildEventJoinMember(ObjectGuid const& guid, std::string name);
-    void SendGuildEventRemoveMember(ObjectGuid const& guid, std::string name, ObjectGuid kickerGuid = ObjectGuid::Empty, std::string kickerName = "");
-    void SendGuildEventLeader(ObjectGuid const& guid, std::string name, ObjectGuid const& oldGuid, std::string oldName);
+    // events
+    void SendGuildEventBankContentsChanged();
+    void SendEventBankMoneyChanged();
     void SendGuildEventDisbanded();
-    void SendGuildEventRankUpdate(uint32 rankId = 0);
-    void SendGuildEventOnline(ObjectGuid const& guid, std::string name, bool online, WorldSession* session = NULL);
-    void SendGuildEventTabTextChanged(uint32 tabId, WorldSession* session = NULL);
-    void SendGuildEventBankSlotChanged();
+    void SendGuildEventMOTD(WorldSession* session = NULL);
+    void SendGuildEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelfPromoted = false);
+    void SendGuildEventPlayerJoined(ObjectGuid const& guid, std::string name);
+    void SendGuildEventPlayerLeft(Member* leaver, Member* remover = nullptr, bool isRemoved = false);
+    void SendGuildEventPresenceChanged(ObjectGuid const& guid, std::string name, bool online, WorldSession* session = NULL);
+    void SendGuildEventRankChanged(uint32 rankId);
+    void SendGuildEventRanksUpdated();
+    void SendGuildEventTabAdded();
+    void SendGuildEventTabModified(uint8 tabId, std::string name, std::string icon);
+    void SendGuildEventTabTextChanged(uint32 tabId);
 
     KnownRecipesMap const& GetGuildRecipes() const { return _guildRecipes; }
     KnownRecipes& GetGuildRecipes(uint32 skillId) { return _guildRecipes[skillId]; }
