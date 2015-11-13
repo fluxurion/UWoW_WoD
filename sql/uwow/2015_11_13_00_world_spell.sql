@@ -13,11 +13,6 @@ insert into `spell_concatenate_aura` (`spellid`, `effectSpell`, `auraId`, `effec
 ('50385','0','48266','2','1','0','0','Великая власть льда'),
 ('50385','0','48266','2','0','0','0','Великая власть льда');
 
-insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
-('81164','0','0','0','-157335','0','0','7','-1','-1','0','0','0','0','0','-30','0','0','0','0','Захват рун');
-insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
-('171049','157335','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Захват рун');
-
 insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
 ('50842','50421','0','0','0','0','49509','0','0','0','0','0','0','0','0','-1','0','0','Запах крови'),
 ('114866','50421','0','0','0','0','49509','0','0','0','0','0','0','0','0','-1','0','0','Запах крови');
@@ -54,3 +49,22 @@ insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 DELETE FROM spell_proc_event WHERE entry IN (77616);
 insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `SpellFamilyMask3`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`, `effectmask`) values
 ('77616','0','0','0','0','0','0','87040','65536','0','0','0','7');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('47541','164047','0','0','0','0','157343','0','0','0','0','0','0','0','0','-1','0','0','Усиленный лик смерти');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('164047','spell_dk_enhanced_death_coil');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('49576','45524','1','0','0','0','157367','0','0','0','0','0','0','0','0','-1','0','0','Улучшенная хватка смерти');
+
+DELETE FROM conditions WHERE SourceEntry IN (50515);
+insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) values
+('13','1','50515','0','0','31','0','3','27829','0','0','0','','Освобождение горгульи');
+
+DELETE FROM spell_script_names WHERE spell_id IN (45470);
+
+DELETE FROM spell_linked_spell WHERE spell_trigger IN (171049);
+DELETE FROM spell_proc_check WHERE entry IN (81164);
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('81164','0','0','0','-157335','0','0','7','-1','-1','0','0','0','0','0','-31','0','0','0','0','Захват рун');
+

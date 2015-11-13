@@ -9630,6 +9630,11 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
     // Custom triggered spells
     switch (auraSpellInfo->Id)
     {
+        case 81164: // Will of the Necropolis
+        {
+            CastSpell(this, 157335, true);
+            break;
+        }
         case 122280: // Healing Elixirs (Talent)
         {
             trigger_spell_id = 0;

@@ -284,46 +284,6 @@ class spell_dk_festering_strike : public SpellScriptLoader
         }
 };
 
-// Death Strike heal - 45470
-class spell_dk_death_strike_heal : public SpellScriptLoader
-{
-    public:
-        spell_dk_death_strike_heal() : SpellScriptLoader("spell_dk_death_strike_heal") { }
-
-        class spell_dk_death_strike_heal_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_death_strike_heal_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (Aura* scentOfBlood = _player->GetAura(DK_SPELL_SCENT_OF_BLOOD_AURA))
-                        {
-                            uint8 chg = scentOfBlood->GetStackAmount();
-                            int32 hl = GetHitHeal() * 0.2 * chg;
-                            SetHitHeal(GetHitHeal() + hl);
-                            
-                            GetCaster()->RemoveAura(DK_SPELL_SCENT_OF_BLOOD_AURA);
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dk_death_strike_heal_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_death_strike_heal_SpellScript();
-        }
-};
-
 // Howling Blast - 49184
 class spell_dk_howling_blast : public SpellScriptLoader
 {
@@ -419,7 +379,7 @@ class spell_dk_soul_reaper : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* target = GetTarget())
-                        if (target->GetHealthPct() < 35.0f || (caster->HasAura(138347) && target->GetHealthPct() < 45.0f))
+                        if (target->GetHealthPct() < 35.0f || (caster->HasAura(138347) && target->GetHealthPct() < 45.0f) || (caster->HasAura(157342) && target->GetHealthPct() < 45.0f))
                             caster->CastSpell(target, DK_SPELL_SOUL_REAPER_DAMAGE, true);
             }
 
@@ -2109,6 +2069,33 @@ class spell_dk_rune_tap : public SpellScriptLoader
         }
 };
 
+// Enhanced Death Coil - 164047
+class spell_dk_enhanced_death_coil : public SpellScriptLoader
+{
+    public:
+        spell_dk_enhanced_death_coil() : SpellScriptLoader("spell_dk_enhanced_death_coil") { }
+
+        class spell_dk_enhanced_death_coil_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_enhanced_death_coil_AuraScript);
+
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                amount += aurEff->GetOldBaseAmount();
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_enhanced_death_coil_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_enhanced_death_coil_AuraScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_might_of_ursoc();
@@ -2117,7 +2104,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_desecrated_ground();
     new spell_dk_necrotic_strike();
     new spell_dk_festering_strike();
-    new spell_dk_death_strike_heal();
     new spell_dk_howling_blast();
     new spell_dk_remorseless_winter();
     new spell_dk_soul_reaper();
@@ -2154,4 +2140,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_breath_of_sindragosa();
     new spell_dk_defile_damage();
     new spell_dk_rune_tap();
+    new spell_dk_enhanced_death_coil();
 }

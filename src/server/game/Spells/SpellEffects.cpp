@@ -1420,7 +1420,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     }
                     else
                     {
-                        int32 bp = (damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.8f) * 3.5f;
+                        int32 bp = (damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.8f) * 5.0f;
                         m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, false);
                     }
                 }
