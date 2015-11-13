@@ -54,8 +54,9 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 ('47541','164047','0','0','0','0','157343','0','0','0','0','0','0','0','0','-1','0','0','Усиленный лик смерти');
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('164047','spell_dk_enhanced_death_coil');
 
+DELETE FROM spell_linked_spell WHERE spell_trigger IN (49576);
 insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
-('49576','45524','1','0','0','0','157367','0','0','0','0','0','0','0','0','-1','0','0','Улучшенная хватка смерти');
+('49576','45524','1','0','0','2','157367','0','0','0','0','0','0','0','0','-1','0','0','Улучшенная хватка смерти');
 
 DELETE FROM conditions WHERE SourceEntry IN (50515);
 insert into `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) values
