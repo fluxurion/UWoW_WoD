@@ -397,7 +397,8 @@ void AreaTrigger::UpdateAffectedList(uint32 p_time, AreaTriggerActionMoment acti
             }
 
             AffectUnit(unit, actionM);
-            affectedPlayers.erase(itr);
+            if (actionM == AT_ACTION_MOMENT_REMOVE)
+                affectedPlayers.erase(itr);
         }
         AffectOwner(actionM);
     }
@@ -782,12 +783,12 @@ void AreaTrigger::Remove(bool duration)
         if(_caster)
             _caster->SendSpellPlayOrphanVisual(m_spellInfo, false);
 
-        UpdateAffectedList(0, AT_ACTION_MOMENT_REMOVE);//any remove from world
-
         if(duration)
             UpdateAffectedList(0, AT_ACTION_MOMENT_DESPAWN);//remove from world with time
         else
             UpdateAffectedList(0, AT_ACTION_MOMENT_LEAVE);//remove from world in action
+
+        UpdateAffectedList(0, AT_ACTION_MOMENT_REMOVE);//any remove from world
 
         // Possibly this?
         if (!IsInWorld())
@@ -807,8 +808,8 @@ void AreaTrigger::Despawn()
 
     if (IsInWorld())
     {
-        UpdateAffectedList(0, AT_ACTION_MOMENT_REMOVE);//any remove from world
         UpdateAffectedList(0, AT_ACTION_MOMENT_DESPAWN);//remove from world with time
+        UpdateAffectedList(0, AT_ACTION_MOMENT_REMOVE);//any remove from world
 
         // Possibly this?
         if (!IsInWorld())

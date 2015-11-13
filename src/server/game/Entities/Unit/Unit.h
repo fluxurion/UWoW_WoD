@@ -2696,7 +2696,7 @@ class Unit : public WorldObject
 
         void DisableSpline();
     private:
-        bool SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo const* procSpell, uint8 effect);
+        bool SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo const* procSpell, uint8 effect, AuraEffect* triggeredByAura);
         bool SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, double cooldown);
         void CalculateFromDummy(Unit* victim, float &amount, SpellInfo const* spellProto = NULL, uint32 mask = 131071, SpellAuraDummyType type = SPELL_DUMMY_DAMAGE) const; //mask for all 16 effect
         void CalculateCastTimeFromDummy(int32& castTime, SpellInfo const* spellProto);

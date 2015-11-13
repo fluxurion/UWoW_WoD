@@ -9700,22 +9700,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
             }
             break;
         }
-        case 49509: // Scent of Blood
-        {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (getClass() != CLASS_DEATH_KNIGHT)
-                return false;
-
-            if (ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_DK_BLOOD)
-                return false;
-
-            if (!roll_chance_i(15))
-                return false;
-
-            break;
-        }
         // Arcane Missiles !
         case 79684:
         {
@@ -9970,23 +9954,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
 
             if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_WARLOCK || ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) != SPEC_WARLOCK_DESTRUCTION)
                 return false;
-
-            break;
-        }
-        // Will of the Necropolis
-        case 81164:
-        {
-            if (GetTypeId() != TYPEID_PLAYER || getClass() != CLASS_DEATH_KNIGHT)
-                return false;
-
-            if (GetHealthPct() > 30.0f)
-                return false;
-
-            if (ToPlayer()->HasSpellCooldown(81164))
-                return false;
-
-            ToPlayer()->AddSpellCooldown(81164, 0, getPreciseTime() + 30.0);
-            ToPlayer()->RemoveSpellCooldown(48982, true);
 
             break;
         }
@@ -11580,6 +11547,9 @@ void Unit::RemoveAllControlled()
     {
         Unit* target = *m_Controlled.begin();
         m_Controlled.erase(m_Controlled.begin());
+        if(!target->IsInWorld())
+            continue;
+
         if (target->GetCharmerGUID() == GetGUID())
             target->RemoveCharmAuras();
         else if (target->GetOwnerGUID() == GetGUID() && target->isSummon())
@@ -14683,6 +14653,13 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal, bool gene
         }
         case POWER_RUNIC_POWER:
         {
+            if (HasAura(50029)) // Veteran of the Third War
+            {
+                if(!isInCombat() && HasAura(174431))
+                    RemoveAura(174431);
+                else if(isInCombat() && !HasAura(174431))
+                    CastSpell(this, 174431, true);
+            }
             if (modVal < 0 && !generate)
             {
                 if (HasAura(51462)) // Runic Corruption
@@ -17085,7 +17062,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 // If not trigger by default and spellProcEvent == NULL - skip
                 if (!isTriggerAura[aurEff->GetAuraType()] && (triggerData.spellProcEvent == NULL || !(triggerData.spellProcEvent->effectMask & (1<<i))))
                     continue;
-                if (!SpellProcCheck(target, spellProto, procSpell, i))
+                if (!SpellProcCheck(target, spellProto, procSpell, i, aurEff))
                     continue;
                 // Some spells must always trigger
                 if (!triggered || isAlwaysTriggeredAura[aurEff->GetAuraType()])
@@ -19424,7 +19401,7 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
     return false;
 }
 
-bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo const* procSpell, uint8 effect)
+bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo const* procSpell, uint8 effect, AuraEffect* triggeredByAura)
 {
     bool procCheck = false;
     ObjectGuid casterGUID = GetGUID();
@@ -19461,6 +19438,8 @@ bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo c
             if(itr->target == 4 && victim && victim->ToPlayer()) //get target pet
                 if (Pet* pet = victim->ToPlayer()->GetPet())
                     _checkTarget = (Unit*)pet;
+            if(itr->target == 7) //get target self
+                _checkTarget = triggeredByAura->GetCaster();
 
             //sLog->outDebug(LOG_FILTER_PROC, "SpellProcCheck: spellProto->Id %i, hastalent %i, HasAura %i",
             //spellProto->Id, itr->hastalent, itr->hastalent ? _checkTarget->HasAura(abs(itr->hastalent), casterGUID) : -1);

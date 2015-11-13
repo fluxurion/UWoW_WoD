@@ -838,39 +838,6 @@ class spell_dk_outbreak : public SpellScriptLoader
         }
 };
 
-// Raise Dead - 46584
-class spell_dk_raise_dead : public SpellScriptLoader
-{
-    public:
-        spell_dk_raise_dead() : SpellScriptLoader("spell_dk_raise_dead") { }
-
-        class spell_dk_raise_dead_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_raise_dead_SpellScript);
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (_player->HasAura(DK_SPELL_MASTER_OF_GHOULS))
-                        _player->CastSpell(_player, DK_SPELL_GHOUL_AS_PET, true);
-                    else
-                        _player->CastSpell(_player, DK_SPELL_GHOUL_AS_GUARDIAN, true);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_raise_dead_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_raise_dead_SpellScript();
-        }
-};
-
 // 50462 - Anti-Magic Shell (on raid member)
 class spell_dk_anti_magic_shell_raid : public SpellScriptLoader
 {
@@ -1901,8 +1868,12 @@ class spell_dk_defile : public SpellScriptLoader
             {
                 if(Unit* caster = GetCaster())
                 {
-                    if (AreaTrigger* dareaObj = caster->GetAreaObject(GetSpellInfo()->Id))
-                        dareaObj->CastAction();
+                    if (AreaTrigger* areaObj = caster->GetAreaObject(GetSpellInfo()->Id))
+                    {
+                        float scale = areaObj->GetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE) + 0.025f;
+                        areaObj->SetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE, scale);
+                        areaObj->CastAction();
+                    }
                     GuidList* summonList = caster->GetSummonList(82521);
                     for (GuidList::const_iterator iter = summonList->begin(); iter != summonList->end(); ++iter)
                     {
@@ -2004,8 +1975,6 @@ class spell_dk_breath_of_sindragosa : public SpellScriptLoader
                     aura->AddEffectTarget(mainTarget->GetGUID());
                 if(target != mainTarget)
                     SetHitDamage(GetHitDamage()/2);
-
-                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "spell_dk_breath_of_sindragosa mainTargetGuid %u dam %i GetHitDamage %i target %u", mainTargetGuid.GetGUIDLow(), dam, GetHitDamage(), target->GetGUIDLow());
             }
 
             void Register()
@@ -2017,6 +1986,37 @@ class spell_dk_breath_of_sindragosa : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_breath_of_sindragosa_SpellScript();
+        }
+};
+
+// Defile Damage - 156000
+class spell_dk_defile_damage : public SpellScriptLoader
+{
+    public:
+        spell_dk_defile_damage() : SpellScriptLoader("spell_dk_defile_damage") { }
+
+        class spell_dk_defile_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_defile_damage_SpellScript);
+
+            void HandleOnHit()
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+                if (AreaTrigger* areaObj = caster->GetAreaObject(152280))
+                    SetHitDamage(int32(GetHitDamage() * areaObj->GetFloatValue(AREATRIGGER_FIELD_EXPLICIT_SCALE)));
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_dk_defile_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_defile_damage_SpellScript();
         }
 };
 
@@ -2039,7 +2039,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_purgatory_absorb();
     new spell_dk_plague_leech();
     new spell_dk_outbreak();
-    new spell_dk_raise_dead();
     new spell_dk_anti_magic_shell_raid();
     new spell_dk_anti_magic_shell_self();
     new spell_dk_anti_magic_zone();
@@ -2064,4 +2063,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_necrotic_plague_cast();
     new spell_dk_defile();
     new spell_dk_breath_of_sindragosa();
+    new spell_dk_defile_damage();
 }

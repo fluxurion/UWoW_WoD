@@ -34,3 +34,14 @@ insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hast
 insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
 ('155166','155522','0','4','0','0','0','0','0','0','1','0','0','0','0','0','1','Дыхание Синдрагосы');
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('155166','spell_dk_breath_of_sindragosa');
+
+DELETE FROM spell_bonus_data WHERE entry IN (49184);
+
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('165395','0','0','165395','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Отключаем прок некроза, до реализации многократной атаки');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('46584','52150','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Воскрешение мертвых');
+
+DELETE FROM spell_script_names WHERE spell_id IN (46584);
+
