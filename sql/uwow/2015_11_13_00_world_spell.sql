@@ -22,9 +22,35 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 ('50842','50421','0','0','0','0','49509','0','0','0','0','0','0','0','0','-1','0','0','Запах крови'),
 ('114866','50421','0','0','0','0','49509','0','0','0','0','0','0','0','0','-1','0','0','Запах крови');
 
-INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) VALUES
-('50842','55078','1','0','0','1','55078','0','49509','0','0','0','0','0','0','-1','10','0','Нечестивая порча'),
-('50842','55095','1','0','0','1','55095','0','49509','0','0','0','0','0','0','-1','10','0','Нечестивая порча'),
-('50842','155159','1','0','0','1','155159','0','49509','0','0','0','0','0','0','-1','0','0','Нечестивая порча');
-
 DELETE FROM spell_proc_check WHERE entry IN (81141);
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('152280','169018','6','0','0','0','0','0','0','0','0','0','0','0','0','-1','11','0','Осквернение');
+
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('163952','0','0','163952','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Отключаем прок Кровавый обряд, до реализации многократной атаки');
+
+DELETE FROM spell_bonus_data WHERE entry IN (50842);
+
+DELETE FROM spell_script_names WHERE spell_id IN (48721);
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('50842','spell_dk_blood_boil');
+DELETE FROM spell_linked_spell WHERE spell_trigger IN (50842,-50842) AND `type` = 1;
+
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('171049','spell_dk_rune_tap');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('45477','55095','1','0','0','0','-152281','0','0','0','0','0','0','0','0','-1','0','0','Ледяное прикосновение'),
+('45477','155163','1','0','0','0','152281','0','0','0','0','0','0','0','0','-1','0','0','Ледяное прикосновение');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('45462','55078','1','0','0','0','-152281','0','0','0','0','0','0','0','0','-1','0','0','Удар чумы'),
+('45462','155163','1','0','0','0','152281','0','0','0','0','0','0','0','0','-1','0','0','Удар чумы');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('49998','45470','6','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Удар смерти');
+
+insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `SpellFamilyMask3`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`, `effectmask`) values
+('77606','0','0','0','0','0','0','0','65536','0','0','0','7');
+DELETE FROM spell_proc_event WHERE entry IN (77616);
+insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `SpellFamilyMask3`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`, `effectmask`) values
+('77616','0','0','0','0','0','0','87040','65536','0','0','0','7');

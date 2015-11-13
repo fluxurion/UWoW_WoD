@@ -911,12 +911,16 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
 
             void Trigger(AuraEffect* aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
             {
-                Unit* target = GetTarget();
-                // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
-                // This, if I'm not mistaken, shows that we get back ~20% of the absorbed damage as runic power.
-                int32 bp = int32(absorbAmount / 1400) * 80;
-                if(bp > 0)
-                    target->CastCustomSpell(target, DK_SPELL_RUNIC_POWER_ENERGIZE, &bp, NULL, NULL, true, NULL, aurEff);
+                if (Unit* target = GetTarget()) // AMS generates 2 Runic Power for every percent of maximum health absorbed
+                {
+                    uint32 RPCap = target->CountPctFromMaxHealth(1) / 2;
+                    int32 bp = int32((container + absorbAmount) / RPCap);
+                    container = (container + absorbAmount) - (bp * RPCap);
+                    bp *= 10;
+
+                    if (bp >= 10)
+                        target->CastCustomSpell(target, DK_SPELL_RUNIC_POWER_ENERGIZE, &bp, NULL, NULL, true, NULL, aurEff);
+                }
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1164,7 +1168,7 @@ class spell_dk_death_pact : public SpellScriptLoader
         }
 };
 
-// Blood Boil - 48721
+// Blood Boil - 50842
 class spell_dk_blood_boil : public SpellScriptLoader
 {
     public:
@@ -1174,72 +1178,117 @@ class spell_dk_blood_boil : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_blood_boil_SpellScript);
 
-            void HandleOnHit()
+            int32 duration = 0;
+            int32 durationBlood = 0;
+            int32 durationFrost = 0;
+            int32 maxDuration = 0;
+            int32 maxDurationBlood = 0;
+            int32 maxDurationFrost = 0;
+            int32 stack = 0;
+            bool maxDur = false;
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if(Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        int32 damge = GetHitDamage();
-
-                        if (_player->HasAura(DK_SPELL_SCARLET_FEVER))
+                        if (Aura* aura = target->GetAura(DK_SPELL_BLOOD_PLAGUE, caster->GetGUID()))
                         {
-                            if (Aura* aura = target->GetAura(DK_SPELL_BLOOD_PLAGUE, _player->GetGUID()))
+                            if (maxDur)
                                 aura->SetDuration(aura->GetMaxDuration());
+                            else if (aura->GetDuration() < durationBlood)
+                                aura->SetDuration(durationBlood);
+                        }
+                        else if(durationBlood)
+                        {
+                            if(Aura* newAura = caster->AddAura(DK_SPELL_BLOOD_PLAGUE, target))
+                            if (!maxDur)
+                            {
+                                newAura->SetDuration(durationBlood);
+                                newAura->SetMaxDuration(maxDurationBlood);
+                            }
+                        }
+                            
 
-                            if (Aura* aura = target->GetAura(DK_SPELL_FROST_FEVER, _player->GetGUID()))
+                        if (Aura* aura = target->GetAura(DK_SPELL_FROST_FEVER, caster->GetGUID()))
+                        {
+                            if (maxDur)
                                 aura->SetDuration(aura->GetMaxDuration());
+                            else if (aura->GetDuration() < durationFrost)
+                                aura->SetDuration(durationFrost);
+                        }
+                        else if(durationFrost)
+                        {
+                            if(Aura* newAura = caster->AddAura(DK_SPELL_FROST_FEVER, target))
+                            if (!maxDur)
+                            {
+                                newAura->SetDuration(durationFrost);
+                                newAura->SetMaxDuration(maxDurationFrost);
+                            }
                         }
 
-                        // Deals 50% additional damage to targets infected with Blood Plague or Frost Fever
-                        if (target->HasAura(DK_SPELL_FROST_FEVER, _player->GetGUID()))
-                            SetHitDamage(int32(damge * 1.5f));
-                        else if (target->HasAura(DK_SPELL_BLOOD_PLAGUE, _player->GetGUID()))
-                            SetHitDamage(int32(damge * 1.5f));
-                        else if (_player->HasAura(146650, _player->GetGUID()))
-                            SetHitDamage(int32(damge * 1.5f));
+                        if (Aura* aura = target->GetAura(155159, caster->GetGUID()))
+                        {
+                            if (maxDur)
+                                aura->SetDuration(aura->GetMaxDuration());
+                            else if (aura->GetDuration() < duration)
+                                aura->SetDuration(duration);
+                            if (aura->GetStackAmount() < stack)
+                                aura->SetStackAmount(stack);
+                        }
+                        else if(duration)
+                        {
+                            if(Aura* newAura = caster->AddAura(155159, target))
+                            {
+                                if (!maxDur)
+                                {
+                                    newAura->SetDuration(duration);
+                                    newAura->SetMaxDuration(maxDuration);
+                                }
+                                newAura->SetStackAmount(stack);
+                            }
+                        }
                     }
                 }
             }
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            void HandleOnCast()
             {
                 Unit* caster = GetCaster();
-                if(!caster || !caster->HasAura(108170))
+                if(!caster)
                     return;
 
-                if (!unitList.empty())
-                    caster->CastSpell(caster, DK_SPELL_BLOOD_BOIL_TRIGGERED, true);
+                maxDur = bool(caster->HasAura(49509));
 
-                for (std::list<WorldObject*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                Unit* targetExpl = GetExplTargetUnit();
+                if (!targetExpl && caster->ToPlayer())
+                    targetExpl = caster->ToPlayer()->GetSelectedUnit();
+                if(targetExpl)
                 {
-                    if (Unit* unit = (*itr)->ToUnit())
-                        if (unit->HasAura(DK_SPELL_FROST_FEVER, caster->GetGUID()) || unit->HasAura(DK_SPELL_BLOOD_PLAGUE, caster->GetGUID()))
-                            GetSpell()->AddEffectTarget(unit->GetGUID());
-                }
-            }
-
-            void HandleAfterCast()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    // Roiling Blood
-                    if(ObjectGuid targetGuid = GetSpell()->GetRndEffectTarget())
+                    if (Aura* aura = targetExpl->GetAura(DK_SPELL_BLOOD_PLAGUE, caster->GetGUID()))
                     {
-                        if(Unit* target = ObjectAccessor::GetUnit(*_player, targetGuid))
-                        {
-                            _player->CastSpell(target, 116617, true);
-                            GetSpell()->ClearEffectTarget();
-                        }
+                        durationBlood = aura->GetDuration();
+                        maxDurationBlood = aura->GetMaxDuration();
+                    }
+                    if (Aura* aura = targetExpl->GetAura(DK_SPELL_FROST_FEVER, caster->GetGUID()))
+                    {
+                        durationFrost = aura->GetDuration();
+                        maxDurationFrost = aura->GetMaxDuration();
+                    }
+                    if (Aura* aura = targetExpl->GetAura(155159, caster->GetGUID()))
+                    {
+                        duration = aura->GetDuration();
+                        stack = aura->GetStackAmount();
+                        maxDuration = aura->GetMaxDuration();
                     }
                 }
             }
 
             void Register()
             {
-                AfterCast += SpellCastFn(spell_dk_blood_boil_SpellScript::HandleAfterCast);
-                OnHit += SpellHitFn(spell_dk_blood_boil_SpellScript::HandleOnHit);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_blood_boil_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_blood_boil_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnCast += SpellCastFn(spell_dk_blood_boil_SpellScript::HandleOnCast);
             }
         };
 
@@ -2020,6 +2069,45 @@ class spell_dk_defile_damage : public SpellScriptLoader
         }
 };
 
+// Rune Tap - 171049
+class spell_dk_rune_tap : public SpellScriptLoader
+{
+    public:
+        spell_dk_rune_tap() : SpellScriptLoader("spell_dk_rune_tap") { }
+
+        class spell_dk_rune_tap_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_rune_tap_SpellScript);
+
+            int32 duration = 0;
+
+            void HandleBeforeCast()
+            {
+                if(Unit* caster = GetCaster())
+                    if(Aura* aura = caster->GetAura(171049))
+                        duration = aura->GetDuration();
+            }
+
+            void HandleAfterCast()
+            {
+                if(Unit* caster = GetCaster())
+                    if(Aura* aura = caster->GetAura(171049))
+                        aura->SetDuration(aura->GetDuration() + duration);
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_dk_rune_tap_SpellScript::HandleBeforeCast);
+                AfterCast += SpellCastFn(spell_dk_rune_tap_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_rune_tap_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_might_of_ursoc();
@@ -2064,4 +2152,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_defile();
     new spell_dk_breath_of_sindragosa();
     new spell_dk_defile_damage();
+    new spell_dk_rune_tap();
 }

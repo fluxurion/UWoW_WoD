@@ -1415,18 +1415,18 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 {
                     if (unitTarget != m_caster && m_caster->HasAura(63333) && unitTarget->GetCreatureType() != CREATURE_TYPE_UNDEAD) // Glyph of Death Coil
                     {
-                        int32 bp = damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f;
+                        int32 bp = damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.8f;
                         m_caster->CastCustomSpell(unitTarget, 115635, &bp, NULL, NULL, false);
                     }
                     else
                     {
-                        int32 bp = (damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f) * 3.5f;
+                        int32 bp = (damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.8f) * 3.5f;
                         m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, false);
                     }
                 }
                 else
                 {
-                    int32 bp = damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.514f;
+                    int32 bp = damage + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.8f;
                     m_caster->CastCustomSpell(unitTarget, 47632, &bp, NULL, NULL, false);
                 }
                 return;
@@ -1441,33 +1441,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
             if (unitTarget->IsInPartyWith(m_caster))
                 spell_id = 117666;
-            break;
-        }
-        case 49998: // Death Strike
-        {
-            int32 countDamage = int32(m_caster->GetDamageCounterInPastSecs(5, DAMAGE_TAKEN_COUNTER) * 0.20f);
-            int32 countHealth = m_caster->CountPctFromMaxHealth(7);
-
-            if (countHealth > countDamage)
-                bp = countHealth;
-            else
-                bp = countDamage;
-
-            // Item - Death Knight T14 Blood 4P bonus
-            if (m_caster->HasAura(123080))
-                bp *= 1.1f;
-
-            // Glyph of Dark Succor
-            if (AuraEffect const* aurEff = m_caster->GetAuraEffect(101568, 0))
-                if (bp < int32(m_caster->CountPctFromMaxHealth(aurEff->GetAmount())))
-                    if (m_caster->HasAura(48265) || m_caster->HasAura(48266)) // Only in frost/unholy presence
-                        bp = m_caster->CountPctFromMaxHealth(aurEff->GetAmount());
-
-            if (Player* player = m_caster->ToPlayer())
-                if (player->InArena() || player->InRBG())
-                    bp /= 2;
-
-            m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, false);
             break;
         }
         case 145640: // Chi Brew
@@ -2408,10 +2381,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 int32 bp0 = int32(addhealth * float(aur->GetEffect(0)->GetAmount() / 100.0f));
                 if (Aura* aurShield = m_caster->GetAura(77535))
                     bp0 += aurShield->GetEffect(0)->GetAmount();
-
-                //Scent of Blood
-                if (Aura* aurBoold = m_caster->GetAura(50421))
-                    bp0 += CalculatePct(bp0, aurBoold->GetEffect(0)->GetAmount());
 
                 if (bp0 > int32(m_caster->GetMaxHealth()))
                     bp0 = int32(m_caster->GetMaxHealth());
