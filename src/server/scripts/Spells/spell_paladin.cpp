@@ -1318,9 +1318,7 @@ class spell_pal_pursuit_of_justice : public SpellScriptLoader
                     if(AuraEffect const* triggerBy = GetSpell()->GetTriggeredAuraEff())
                     {
                         amount += increment * triggerBy->GetAmount();
-
-                        if(amount > 15)
-                            caster->CastCustomSpell(caster, 114695, &amount, NULL, NULL, true);
+                        caster->CastCustomSpell(caster, 114695, &amount, NULL, NULL, true);
                     }
                 }
             }

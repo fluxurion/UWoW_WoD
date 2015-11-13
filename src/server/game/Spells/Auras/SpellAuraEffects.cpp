@@ -1151,12 +1151,11 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                 case 90361:
                     amount += int32((caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.6f) * 1.0504f);
                     break;
-                case 114163: // Eternal Flame
+                case 156322: // Eternal Flame
                 {
                     if (target == caster)
                     {
-                        int32 pct = m_spellInfo->Effects[EFFECT_2].BasePoints;
-
+                        int32 pct = 50;
                         if (Aura* Bastion_of_Glory = caster->GetAura(114637))
                         {
                             if (AuraEffect* eff = Bastion_of_Glory->GetEffect(EFFECT_0))
