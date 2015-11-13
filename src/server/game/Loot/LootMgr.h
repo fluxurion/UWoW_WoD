@@ -93,10 +93,10 @@ enum PermissionTypes
 enum LootItemUIType
 {
     LOOT_ITEM_UI_LOCKED            = 0,                        // item is shown in red. player cannot loot.
+    LOOT_ITEM_UI_ROLL              = 2,                        // roll is ongoing. player cannot loot. //checked. 6.1.2
     LOOT_ITEM_UI_MASTER            = 3,                        // item can only be distributed by group loot master. //checked. 6.1.2
     LOOT_ITEM_UI_OWNER             = 4,                        // ignore binding confirmation and etc, for single player looting
     LOOT_ITEM_UI_NORMAL            = 6,                        // player can loot the item. //checked. 6.1.2
-    LOOT_ITEM_UI_ROLL              = 7,                        // roll is ongoing. player cannot loot. //checked. 6.1.2
 };
 
 enum LootSlotType

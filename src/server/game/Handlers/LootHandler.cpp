@@ -229,6 +229,8 @@ void WorldSession::HandleLootMoney(WorldPackets::Loot::LootMoney& /*packet*/)
                 packet.Money = goldPerPlayer;
                 packet.SoleLooter = playersNear.size() <= 1 ? true : false;
   
+                WorldPacket const* p = packet.Write();
+
                 for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
                 {
                     (*i)->ModifyMoney(goldPerPlayer);
@@ -238,7 +240,7 @@ void WorldSession::HandleLootMoney(WorldPackets::Loot::LootMoney& /*packet*/)
                         if (uint32 guildGold = CalculatePct(goldPerPlayer, (*i)->GetTotalAuraModifier(SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT)))
                             guild->HandleMemberDepositMoney(this, guildGold, true);
 
-                    (*i)->GetSession()->SendPacket(packet.Write());
+                    (*i)->GetSession()->SendPacket(p);
                 }
             }
             else
