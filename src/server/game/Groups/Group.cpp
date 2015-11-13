@@ -40,6 +40,7 @@
 #include "LootPackets.h"
 #include "PartyPackets.h"
 #include "ItemPackets.h"
+#include "LootMgr.h"
 
 Roll::Roll(ObjectGuid _guid, LootItem const& li) : itemCount(li.count), totalPlayersRolling(0),
     totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0), rollVoteMask(ROLL_ALL_TYPE_NO_DISENCHANT), aoeSlot(0)
@@ -879,20 +880,19 @@ void Group::SendLootStartRoll(uint32 mapID, Roll const& roll)
     WorldPackets::Loot::StartLootRoll lootRoll;
     lootRoll.LootObj = roll.lootedGUID;
     lootRoll.MapID = mapID;
-    lootRoll.LootItems.Type = 0;
-    lootRoll.LootItems.UIType = 1;
-    lootRoll.LootItems.CanTradeToTapList = true; // not sure
+    lootRoll.LootItems.Type = LOOT_SLOT_TYPE_ITEM;
+    lootRoll.LootItems.UIType = LOOT_ITEM_UI_MASTER; // or LOOT_ITEM_UI_ROLL. same from SMSG_LOOT_RESPONSE but no metter that correct
+    lootRoll.LootItems.CanTradeToTapList = false;
     lootRoll.LootItems.Quantity = roll.itemCount;
     lootRoll.LootItems.LootItemType = 0; // always 0... wtf?
-    lootRoll.LootItems.LootListID = roll.totalPlayersRolling; // not sure... get 1-2-3-4-5 values at sniffs
+    lootRoll.LootItems.LootListID = roll.aoeSlot;
     //lootRoll.LootItems.Loot.Initialize(&roll);
     lootRoll.LootItems.Loot.ItemID = roll.item.ItemID;  
     lootRoll.LootItems.Loot.RandomPropertiesSeed = roll.item.RandomPropertiesSeed;
     lootRoll.LootItems.Loot.RandomPropertiesID = roll.item.RandomPropertiesID;
     lootRoll.RollTime = NORMAL_ROLL_TIMER;
-    lootRoll.ValidRolls = roll.TotalEmited();
-    lootRoll.Method = roll.rollVoteMask; // not sure
-    // roll.aoeSlot ???
+    lootRoll.ValidRolls = roll.totalPlayersRolling;
+    lootRoll.Method = roll.rollVoteMask;
 
     WorldPacket const* p = lootRoll.Write();
     for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
@@ -914,32 +914,30 @@ void Group::SendLootStartRollToPlayer(uint32 mapID, Player* player, bool canNeed
     WorldPackets::Loot::StartLootRoll lootRoll;
     lootRoll.LootObj = roll.lootedGUID;
     lootRoll.MapID = mapID;
-    lootRoll.LootItems.Type = canNeed;  // not sure
+    lootRoll.LootItems.Type = LOOT_SLOT_TYPE_ITEM;  // not sure
     lootRoll.LootItems.UIType = 1;
     lootRoll.LootItems.CanTradeToTapList = true; // not sure
     lootRoll.LootItems.Quantity = roll.itemCount;
     lootRoll.LootItems.LootItemType = 0; // always 0... wtf?
-    lootRoll.LootItems.LootListID = roll.totalPlayersRolling; // not sure... get 1-2-3-4-5 values at sniffs
+    lootRoll.LootItems.LootListID = roll.aoeSlot; // not sure... get 1-2-3-4-5 values at sniffs
     lootRoll.LootItems.Loot.ItemID = roll.item.ItemID;
     lootRoll.LootItems.Loot.RandomPropertiesSeed = roll.item.RandomPropertiesSeed;
     lootRoll.LootItems.Loot.RandomPropertiesID = roll.item.RandomPropertiesID;
     lootRoll.RollTime = NORMAL_ROLL_TIMER;
     lootRoll.ValidRolls = roll.TotalEmited();
     lootRoll.Method = roll.rollVoteMask; // not sure
-    // roll.aoeSlot ???
     player->GetSession()->SendPacket(lootRoll.Write());
 }
 
 void Group::SendLootRoll(ObjectGuid targetGuid, uint8 rollNumber, uint8 rollType, Roll const& roll)
 {
     WorldPackets::Loot::LootRollResponse response;
-    response.LootItems.Type = 1;  // not sure
-    response.LootItems.UIType = 1;
-    response.LootItems.CanTradeToTapList = true; // not sure
+    response.LootItems.Type = LOOT_SLOT_TYPE_ITEM;
+    response.LootItems.UIType = 2;
+    response.LootItems.CanTradeToTapList = false;
     response.LootItems.Quantity = roll.itemCount;
     response.LootItems.LootItemType = 0; // always 0... wtf?
-    response.LootItems.LootListID = roll.totalPlayersRolling; // not sure... get 1-2-3-4-5 values at sniffs
-    // roll.aoeSlot ???
+    response.LootItems.LootListID = roll.aoeSlot;
     // roll.TotalEmited()
     response.LootItems.Loot.ItemID = roll.item.ItemID;
     response.LootItems.Loot.RandomPropertiesSeed = roll.item.RandomPropertiesSeed;
@@ -969,18 +967,17 @@ void Group::SendLootRollWon(ObjectGuid targetGuid, uint8 rollNumber, uint8 rollT
     won.Player = targetGuid;
     won.Roll = rollNumber;
     won.RollType = rollType;
-    won.LootItems.Type = 1;  // not sure
+    won.LootItems.Type = LOOT_SLOT_TYPE_ITEM;
     won.LootItems.UIType = 1;
-    won.LootItems.CanTradeToTapList = true; // not sure
+    won.LootItems.CanTradeToTapList = false;
     won.LootItems.Quantity = roll.itemCount;
     won.LootItems.LootItemType = 0; // always 0... wtf?
-    won.LootItems.LootListID = roll.totalPlayersRolling; // not sure... get 1-2-3-4-5 values at sniffs
+    won.LootItems.LootListID = roll.aoeSlot;
     //won.LootItems.Loot.Initialize(&roll);
     won.LootItems.Loot.ItemID = roll.item.ItemID;  
     won.LootItems.Loot.RandomPropertiesSeed = roll.item.RandomPropertiesSeed;
     won.LootItems.Loot.RandomPropertiesID = roll.item.RandomPropertiesID;
 
-    // roll.aoeSlot ???
     // roll.TotalEmited()
 
     WorldPackets::Loot::LootRollsComplete rollsComplete;
@@ -1008,17 +1005,16 @@ void Group::SendLootAllPassed(Roll const& roll)
 {
     WorldPackets::Loot::LootAllPassed  passed;
     passed.LootObj = roll.lootedGUID;
-    passed.LootItems.Type = 1;  // not sure
+    passed.LootItems.Type = LOOT_SLOT_TYPE_ITEM;
     passed.LootItems.UIType = 1;
-    passed.LootItems.CanTradeToTapList = true; // not sure
+    passed.LootItems.CanTradeToTapList = false;
     passed.LootItems.Quantity = roll.itemCount;
     passed.LootItems.LootItemType = 0; // always 0... wtf?
-    passed.LootItems.LootListID = roll.totalPlayersRolling; // not sure... get 1-2-3-4-5 values at sniffs
+    passed.LootItems.LootListID = roll.aoeSlot;
     //passed.LootItems.Loot.Initialize(&roll);
     passed.LootItems.Loot.ItemID = roll.item.ItemID;  
     passed.LootItems.Loot.RandomPropertiesSeed = roll.item.RandomPropertiesSeed;
     passed.LootItems.Loot.RandomPropertiesID = roll.item.RandomPropertiesID;
-    // roll.aoeSlot ???
     // roll.TotalEmited() ???
 
     WorldPacket const* ppassed = passed.Write();
@@ -1376,6 +1372,9 @@ void Group::DoRollForAllMembers(ObjectGuid guid, uint8 slot, uint32 mapid, Loot*
     Roll* r = new Roll(newitemGUID, item);
     r->lootedGUID = loot->GetGUID();
     WorldObject* pLootedObject = NULL;
+
+    if (guid.IsLoot())
+        guid = loot->objGuid;
 
     if (guid.IsCreatureOrVehicle())
         pLootedObject = player->GetMap()->GetCreature(guid);

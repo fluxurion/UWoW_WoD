@@ -482,9 +482,9 @@ Loot::Loot(uint32 _gold)
     _difficultyBonusTreeMod = 0;
 }
 
-void Loot::GenerateLootGuid(ObjectGuid objGuid)
+void Loot::GenerateLootGuid(ObjectGuid __objGuid)
 {
-    m_guid = ObjectGuid::Create<HighGuid::LootObject>(objGuid.GetMapId(), 0, sObjectMgr->GetGenerator<HighGuid::LootObject>()->Generate());
+    m_guid = ObjectGuid::Create<HighGuid::LootObject>(__objGuid.GetMapId(), 0, sObjectMgr->GetGenerator<HighGuid::LootObject>()->Generate());
 }
 
 // Inserts the item into the loot (called by LootTemplate processors)
@@ -1056,7 +1056,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
         return;
 
     packet.Coins = gold;
-
+    packet.Acquired = permission != NONE_PERMISSION;
     switch (permission)
     {
         case GROUP_PERMISSION:
@@ -1084,6 +1084,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
 
                     WorldPackets::Loot::LootItem lootItem;
                     lootItem.LootListID = i+1;
+                    lootItem.Type = LOOT_SLOT_TYPE_ITEM;
                     lootItem.UIType = slot_type;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(&items[i]);
@@ -1104,6 +1105,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
 
                     WorldPackets::Loot::LootItem lootItem;
                     lootItem.LootListID = i+1;
+                    lootItem.Type = LOOT_SLOT_TYPE_ITEM;
                     lootItem.UIType = LOOT_ITEM_UI_NORMAL;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(&items[i]);
@@ -1135,7 +1137,8 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                 {
                     WorldPackets::Loot::LootItem lootItem;
                     lootItem.LootListID = i+1;
-                    lootItem.UIType = (permission == MASTER_PERMISSION && threshold > items[i].quality) ? LOOT_ITEM_UI_OWNER : slot_type/*LOOT_ITEM_UI_NORMAL*/;
+                    lootItem.Type = LOOT_SLOT_TYPE_ITEM;
+                    lootItem.UIType = (permission == MASTER_PERMISSION && threshold >= items[i].quality) ? slot_type : LOOT_ITEM_UI_OWNER;
                     lootItem.Quantity = items[i].count;
                     lootItem.Loot.Initialize(&items[i]);
                     packet.Items.push_back(lootItem);
@@ -1160,6 +1163,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             {
                 WorldPackets::Loot::LootItem lootItem;
                 lootItem.LootListID = fi->index+1;
+                lootItem.Type = LOOT_SLOT_TYPE_ITEM;
                 lootItem.UIType = slotType;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(&item);

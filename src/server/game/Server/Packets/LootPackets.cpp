@@ -61,9 +61,10 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
         _worldPacket.FlushBits();
     }
 
-    _worldPacket.WriteBit(PersonalLooting);
-    _worldPacket.WriteBit(AELooting);
     _worldPacket.WriteBit(Acquired);
+    _worldPacket.WriteBit(AELooting);
+    _worldPacket.WriteBit(PersonalLooting);
+
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -118,8 +119,8 @@ WorldPacket const* WorldPackets::Loot::StartLootRoll::Write()
     _worldPacket << MapID;
     _worldPacket << LootItems;
     _worldPacket << RollTime;
-    _worldPacket << ValidRolls;
     _worldPacket << Method;
+    _worldPacket << ValidRolls;
 
     return &_worldPacket;
 }

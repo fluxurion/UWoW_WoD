@@ -93,25 +93,19 @@ enum PermissionTypes
 enum LootItemUIType
 {
     LOOT_ITEM_UI_LOCKED            = 0,                        // item is shown in red. player cannot loot.
-    LOOT_ITEM_UI_MASTER            = 1,                        // item can only be distributed by group loot master.
-    LOOT_ITEM_UI_NORMAL            = 2,                        // player can loot the item.
+    LOOT_ITEM_UI_MASTER            = 3,                        // item can only be distributed by group loot master. //checked. 6.1.2
     LOOT_ITEM_UI_OWNER             = 4,                        // ignore binding confirmation and etc, for single player looting
-    LOOT_ITEM_UI_ROLL              = 7,                        // roll is ongoing. player cannot loot.
+    LOOT_ITEM_UI_NORMAL            = 6,                        // player can loot the item. //checked. 6.1.2
+    LOOT_ITEM_UI_ROLL              = 7,                        // roll is ongoing. player cannot loot. //checked. 6.1.2
 };
 
 enum LootSlotType
 {
     LOOT_SLOT_TYPE_NONE     = 0,
-    LOOT_SLOT_TYPE_ITEM     = 1,
+    LOOT_SLOT_TYPE_CURRENCY = 1, //6.1.2
     LOOT_SLOT_TYPE_MONEY    = 2,
-    LOOT_SLOT_TYPE_CURRENCY = 3
-};
+    LOOT_SLOT_TYPE_ITEM     = 3, //6.1.2
 
-enum LootListItemType
-{
-    LOOT_LIST_ITEM           = 0,
-    LOOT_LIST_TRACKING_QUEST = 1,
-    LOOT_LIST_CURRENCY       = 2
 };
 
 enum LootItemType
@@ -408,7 +402,7 @@ struct Loot
     void NotifyMoneyRemoved(uint64);
     void AddLooter(ObjectGuid GUID) { PlayersLooting.insert(GUID); }
     void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
-    void GenerateLootGuid(ObjectGuid objGuid);
+    void GenerateLootGuid(ObjectGuid __objGuid);
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool noGroup, bool noEmptyError = false, WorldObject const* lootFrom = NULL);

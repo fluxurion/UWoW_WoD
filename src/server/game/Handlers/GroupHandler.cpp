@@ -388,10 +388,14 @@ void WorldSession::HandleDoMasterLootRoll(WorldPacket& recvData)
 
         loot = &pGO->loot;
     }
+    else if (guid.IsLoot())
+    {
+        loot = sLootMgr->GetLoot(guid);
+        if (!loot)
+            return;
+    }
 
-    if (!loot)
-        return;
-
+    slot -= 1;    //restore slot index;
     if (slot >= loot->items.size() + loot->quest_items.size())
     {
         sLog->outDebug(LOG_FILTER_LOOT, "MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)", GetPlayer()->GetName(), slot, (unsigned long)loot->items.size());
@@ -422,7 +426,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     Group* group = _player->GetGroup();
     if (!group || group->isLFGGroup() || group->GetLooterGuid() != _player->GetGUID())
     {
-        _player->SendLootRelease(GetPlayer()->GetLootGUID());
+        _player->SendLootRelease(GetPlayer()->GetLootGUID(), lootguid);
         return;
     }
 
@@ -437,10 +441,31 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
             continue;
 
         Loot* loot = NULL;
-        loot = sLootMgr->GetLoot(lootguid);
+        if (lootguid.IsCreatureOrVehicle())
+        {
+            Creature* creature = GetPlayer()->GetMap()->GetCreature(lootguid);
+            if (!creature)
+                continue;
+
+            loot = &creature->loot;
+        }
+        else if (lootguid.IsGameObject())
+        {
+            GameObject* pGO = GetPlayer()->GetMap()->GetGameObject(lootguid);
+            if (!pGO)
+                continue;
+
+            loot = &pGO->loot;
+        }
+        else if (lootguid.IsLoot())
+        {
+            loot = sLootMgr->GetLoot(lootguid);
+            if (!loot)
+                continue;
+        }
 
         if (!loot)
-            return;
+            continue;
 
         slotid -= 1;    //restore slot index;
         if (slotid >= loot->items.size() + loot->quest_items.size())
