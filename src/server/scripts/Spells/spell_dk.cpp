@@ -890,10 +890,11 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript);
 
-            uint32 absorbPct, hpPct;
+            uint32 absorbPct, container;
             bool Load()
             {
                 absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+                container = 0;
                 return true;
             }
 
