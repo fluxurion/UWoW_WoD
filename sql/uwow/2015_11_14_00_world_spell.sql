@@ -44,3 +44,11 @@ insert into `spell_script_names` (`spell_id`, `ScriptName`) values('56563','spel
 insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `SpellFamilyMask3`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`, `effectmask`) values
 ('152261','0','0','0','0','0','0','0','64','0','0','0','7');
 
+insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
+('121129','157455','1','9','0','0','0','0','0','0','7','0','0','0','0','0','1','Улучшенный рассвет');
+
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('76672','0','0','158392','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Искусность: длань Света');
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('158392','138248','1','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Усиленный молот гнева ');
+

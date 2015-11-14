@@ -2987,6 +2987,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     switch (spell->Id)
     {
         case 24275: // Hammer of Wrath
+        case 158392: // Hammer of Wrath
         case 49998: // Death Strike
         {
             canParry = false;
