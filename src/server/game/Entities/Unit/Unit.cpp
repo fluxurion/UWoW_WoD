@@ -7546,7 +7546,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
 
                         if (basepoints0 > (int32)CountPctFromMaxHealth(15))
                             basepoints0 = CountPctFromMaxHealth(15);
-                    } 
+                    }
                     break;
                 }
                 case 108558: // Nightfall
@@ -18342,6 +18342,7 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
 
             Unit* _caster = this;
             Unit* _targetAura = this;
+            Unit* _targetAura2 = this;
 
             if(itr->caster == 1) //get caster aura
                 _caster = triggeredByAura->GetCaster();
@@ -18367,6 +18368,26 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                 if (Player* _player = ToPlayer())
                     if (Unit* _select = _player->GetSelectedUnit())
                         _targetAura = _select;
+
+            if(itr->targetaura2 == 1) //get caster aura
+                _targetAura2 = triggeredByAura->GetCaster();
+            if(itr->targetaura2 == 2) //get target aura
+                _targetAura2 = victim;
+            if(itr->targetaura2 == 3) //get target select
+                if (Player* _player = ToPlayer())
+                    if (Unit* _select = _player->GetSelectedUnit())
+                        _targetAura2 = _select;
+
+            if(itr->aura2 > 0 && !_targetAura2->HasAura(itr->aura2))
+            {
+                check = true;
+                continue;
+            }
+            if(itr->aura2 < 0 && _targetAura2->HasAura(abs(itr->aura2)))
+            {
+                check = true;
+                continue;
+            }
 
             int32 bp0 = int32(itr->bp0);
             int32 bp1 = int32(itr->bp1);
@@ -19393,6 +19414,13 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                         continue;
                     }
                     triggeredByAura->SetAmount(triggerAmount + damage);
+                    check = true;
+                }
+                break;
+                case SPELL_TRIGGER_BP_DURATION: //40
+                {
+                    basepoints0 = triggeredByAura->GetBase()->GetDuration();
+                    _caster->CastCustomSpell(target, triggered_spell_id, &basepoints0, &basepoints0, &basepoints0, true, castItem, triggeredByAura, originalCaster);
                     check = true;
                 }
                 break;

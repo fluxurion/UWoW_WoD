@@ -2929,8 +2929,8 @@ void SpellMgr::LoadSpellTriggered()
     mSpellTargetFilterMap.clear();    // need for reload case
 
     uint32 count = 0;
-    //                                                    0           1                    2           3         4          5          6      7      8         9          10       11        12         13        14          15             16            17           18          19           20
-    QueryResult result = WorldDatabase.Query("SELECT `spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect` FROM `spell_trigger`");
+    //                                                    0           1                    2           3         4          5          6          7      8      9         10         11       12       13         14          15            16            17           18          19           20              21          22
+    QueryResult result = WorldDatabase.Query("SELECT `spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `targetaura2`, `aura2` FROM `spell_trigger`");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 triggered spells. DB table `spell_trigger` is empty.");
@@ -2962,6 +2962,8 @@ void SpellMgr::LoadSpellTriggered()
         int32 schoolMask = fields[18].GetInt32();
         int32 dummyId = fields[19].GetInt32();
         int32 dummyEffect = fields[20].GetInt32();
+        int32 targetaura2 = fields[21].GetInt32();
+        int32 aura2 = fields[22].GetInt32();
 
         SpellInfo const* spellInfo = GetSpellInfo(abs(spell_id));
         if (!spellInfo)
@@ -3005,6 +3007,8 @@ void SpellMgr::LoadSpellTriggered()
         temptrigger.schoolMask = schoolMask;
         temptrigger.dummyId = dummyId;
         temptrigger.dummyEffect = dummyEffect;
+        temptrigger.targetaura2 = targetaura2;
+        temptrigger.aura2 = aura2;
         mSpellTriggeredMap[spell_id].push_back(temptrigger);
 
         ++count;
@@ -5279,9 +5283,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 53651: // Beacon of Light Trigger
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
-                    break;
-                case 53563: // Beacon of Light
-                    spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
                     break;
                 case 23035: // Battle Standard (Horde)
                 case 23034: // Battle Standard (Alliance)

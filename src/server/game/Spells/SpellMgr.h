@@ -193,6 +193,7 @@ enum SpellTriggeredType
     SPELL_TRIGGER_CAST_AFTER_MAX_STACK          = 37,           // Cast after max stack
     SPELL_TRIGGER_DAM_MAXHEALTH                 = 38,           // set basepoint to spell damage or max heal percent
     SPELL_TRIGGER_STACK_AMOUNT                  = 39,           // stack damage in amount
+    SPELL_TRIGGER_BP_DURATION                   = 40,           // damage is duration
 };
 
 enum DummyTriggerType
@@ -786,12 +787,14 @@ struct SpellTriggered
     int32 target;
     int32 caster;
     int32 targetaura;
+    int32 targetaura2;
     int32 option;
     float bp0;
     float bp1;
     float bp2;
     int32 effectmask;
     int32 aura;
+    int32 aura2;
     int32 chance;
     int32 group;
     int32 procFlags;

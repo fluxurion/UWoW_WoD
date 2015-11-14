@@ -18,3 +18,29 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
 ('76672','0','0','157048','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Искусность: длань Света');
 
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('152262','172320','0','0','0','0','165375','0','0','0','0','0','0','0','0','-1','0','0','Серафим - Защита'),
+('152262','172321','0','0','0','0','53503','0','0','0','0','0','0','0','0','-1','0','0','Серафим - Воздаяние');
+
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('53563','157128','0','20','1','1','1','1','0','0','0','7','157047','-157131','0','0','0','0','0','-1','0','0','0','Спасенный Светом');
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('157128','157131','1','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Недавно спасенный Светом');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('157128','spell_pal_saved_by_the_light');
+
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('157007','0','0','0','0','0','0','2','-1','-1','0','0','0','0','0','90','0','0','0','0','Частица озарения');
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('157007','157026','0','20','0','0','0','0','0','0','0','7','0','0','0','0','0','0','0','-1','0','0','0','Частица озарения');
+insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values
+('157026','31','0','0','0','0','0','0','7','1','1','0','0','-1','Частица озарения');
+insert into `spell_dummy_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `comment`) values
+('157026','157044','6','0','10','0','0','0','0','2','0','0','Частица озарения');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('157044','spell_pal_beacon_of_insight');
+
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('156910','spell_pal_beacon_of_faith');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('56563','spell_pal_beacon_of_faith');
+
+insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `SpellFamilyMask3`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`, `effectmask`) values
+('152261','0','0','0','0','0','0','0','64','0','0','0','7');
+

@@ -1603,6 +1603,136 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
         }
 };
 
+// Saved by the Light - 157128
+class spell_pal_saved_by_the_light : public SpellScriptLoader
+{
+    public:
+        spell_pal_saved_by_the_light() : SpellScriptLoader("spell_pal_saved_by_the_light") { }
+
+        class spell_pal_saved_by_the_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_saved_by_the_light_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                    amount = caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_saved_by_the_light_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_saved_by_the_light_AuraScript();
+        }
+};
+
+// Beacon of Insight - 157044
+class spell_pal_beacon_of_insight : public SpellScriptLoader
+{
+    public:
+        spell_pal_beacon_of_insight() : SpellScriptLoader("spell_pal_beacon_of_insight") { }
+
+        class spell_pal_beacon_of_insight_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_beacon_of_insight_SpellScript);
+
+            int32 duration = 0;
+            ObjectGuid GetCasterGUID;
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit();
+                Unit* caster = GetCaster();
+                if (!target || !caster || !GetCasterGUID || !duration)
+                    return;
+
+                if(Unit* casterOrig = ObjectAccessor::GetUnit(*caster, GetCasterGUID))
+                {
+                    if(Aura* newAura = casterOrig->AddAura(157007, target))
+                    {
+                        newAura->SetDuration(duration);
+                        newAura->SetMaxDuration(duration);
+                        newAura->SetCustomData(1);
+                    }
+                }
+            }
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (Aura* aura = caster->GetAura(157007))
+                {
+                    if(aura->GetCustomData())
+                    {
+                        aura->Remove();
+                        return SPELL_FAILED_DONT_REPORT;
+                    }
+
+                    duration = aura->GetDuration();
+                    GetCasterGUID = aura->GetCasterGUID();
+                    aura->Remove();
+                    return SPELL_CAST_OK;
+                }
+                return SPELL_FAILED_DONT_REPORT;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pal_beacon_of_insight_SpellScript::CheckCast);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_beacon_of_insight_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_beacon_of_insight_SpellScript();
+        }
+};
+
+// Beacon of Faith - 56563, 156910
+class spell_pal_beacon_of_faith : public SpellScriptLoader
+{
+    public:
+        spell_pal_beacon_of_faith() : SpellScriptLoader("spell_pal_beacon_of_faith") { }
+
+        class spell_pal_beacon_of_faith_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_beacon_of_faith_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (GetSpellInfo()->Id == 56563 && caster->HasAura(156910))
+                    return SPELL_FAILED_BAD_TARGETS;
+                if (GetSpellInfo()->Id == 156910 && caster->HasAura(56563))
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pal_beacon_of_faith_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_beacon_of_faith_SpellScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_glyph_of_avenging_wrath();
@@ -1641,4 +1771,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_exorcism();
     new spell_pal_shield_of_glory();
     new spell_gen_divine_storm_cd_reset();
+    new spell_pal_saved_by_the_light();
+    new spell_pal_beacon_of_insight();
+    new spell_pal_beacon_of_faith();
 }
