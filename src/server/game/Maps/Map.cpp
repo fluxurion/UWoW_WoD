@@ -493,7 +493,14 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     if (initPlayer)
         player->m_clientGUIDs.clear();
 
-    player->UpdateObjectVisibility(true);
+    //TMP check.
+    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
+    ASSERT(grid != NULL);
+    ASSERT(grid->GetGridState() == GRID_STATE_ACTIVE);
+
+    //TMP2. At adding to map plr need get gameobject list for correct enter in destructable buildings.
+    //- but by defauly was false. Possible crash issue?
+    player->UpdateObjectVisibility(false);
 
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
