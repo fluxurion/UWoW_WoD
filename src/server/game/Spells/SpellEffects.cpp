@@ -2420,8 +2420,20 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 {
                     int32 perc = 0;
 
-                    if (AuraEffect* eff = selflessHealer->GetEffect(EFFECT_1))
-                        perc = eff->GetAmount();
+                    Player* player = caster->ToPlayer();
+                    if (!player)
+                        break;
+
+                    if (player->GetSpecializationId(player->GetActiveSpec()) != SPEC_PALADIN_HOLY)
+                    {
+                        if (AuraEffect* eff = selflessHealer->GetEffect(EFFECT_1))
+                            perc = eff->GetAmount();
+                    }
+                    else if (player->GetSpecializationId(player->GetActiveSpec()) == SPEC_PALADIN_HOLY)
+                    {
+                        if (AuraEffect* eff = selflessHealer->GetEffect(EFFECT_3))
+                            perc = eff->GetAmount();
+                    }
 
                     if (perc && unitTarget->GetGUID() != caster->GetGUID())
                         AddPct(addhealth, perc);

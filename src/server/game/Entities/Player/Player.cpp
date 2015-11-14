@@ -6285,7 +6285,6 @@ void Player::RepopAtGraveyard()
     // for example from WorldSession::HandleMovementOpcodes
 
     AreaTableEntry const* zone = GetAreaEntryByAreaID(GetAreaId());
-    
     if (!zone)
     {
         sLog->outInfo(LOG_FILTER_PLAYER, "Joueur %u dans une zone nulle; area id : %u", GetGUIDLow(), GetAreaId());
@@ -6299,6 +6298,22 @@ void Player::RepopAtGraveyard()
         ClosestGrave = bg->GetClosestGraveYard(this);
     else
     {
+        if (InstanceMap* inst = GetMap()->ToInstanceMap())
+        {
+            if(WorldLocation const* _grave = inst->GetClosestGraveYard())
+            {
+                TeleportTo(_grave->GetMapId(), _grave->GetPositionX(), _grave->GetPositionY(), _grave->GetPositionZ(), _grave->GetOrientation());
+                UpdateObjectVisibility();
+                if (isDead())                                        // not send if alive, because it used in TeleportTo()
+                {
+                    WorldPackets::Misc::DeathReleaseLoc packet;
+                    packet.MapID = _grave->GetMapId();
+                    packet.Loc = G3D::Vector3(_grave->GetPositionX(), _grave->GetPositionY(), _grave->GetPositionZ());
+                    GetSession()->SendPacket(packet.Write());
+                }
+                return;
+            }
+        }
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
             ClosestGrave = bf->GetClosestGraveYard(this);
         else

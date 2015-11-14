@@ -6228,6 +6228,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
     uint32 oldMSTime = getMSTime();
 
     _areaTriggerStore.clear();                                  // need for reload case
+    _instanceGraveYardStore.clear();                            // need for reload case
 
     //                                                        0            1                  2                  3                  4                   5
     QueryResult result = WorldDatabase.Query("SELECT id,  target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
@@ -6254,6 +6255,9 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         at.target_Y                 = fields[3].GetFloat();
         at.target_Z                 = fields[4].GetFloat();
         at.target_Orientation       = fields[5].GetFloat();
+
+        WorldLocation loc = WorldLocation(at.target_mapId, at.target_X, at.target_Y, at.target_Z, at.target_Orientation);
+        _instanceGraveYardStore[at.target_mapId].push_back(loc);
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if (!atEntry)

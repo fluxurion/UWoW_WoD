@@ -4104,8 +4104,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 119072: // Holy Wrath
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
-                    spellInfo->Effects[EFFECT_1].Scaling.Coefficient = 0;
-                    spellInfo->Effects[EFFECT_1].Scaling.Variance = 0;
                     break;
                 case 24340: // Meteor
                 case 26558: // Meteor

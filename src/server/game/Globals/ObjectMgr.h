@@ -446,6 +446,7 @@ typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
 typedef std::unordered_map<ObjectGuid::LowType, CreatureData> CreatureDataContainer;
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectData> GameObjectDataContainer;
 typedef std::map<TempSummonGroupKey, std::vector<TempSummonData> > TempSummonDataContainer;
+typedef std::unordered_map<uint32, std::vector<WorldLocation> > InstanceGraveYardContainer;
 
 struct PersonalLootData
 {
@@ -1091,6 +1092,14 @@ class ObjectMgr
         {
             AreaTriggerContainer::const_iterator itr = _areaTriggerStore.find(trigger);
             if (itr != _areaTriggerStore.end())
+                return &itr->second;
+            return NULL;
+        }
+
+        std::vector<WorldLocation> const* GetInstanceGraveYard(uint32 mapId) const
+        {
+            InstanceGraveYardContainer::const_iterator itr = _instanceGraveYardStore.find(mapId);
+            if (itr != _instanceGraveYardStore.end())
                 return &itr->second;
             return NULL;
         }
@@ -1780,6 +1789,7 @@ class ObjectMgr
         AreaTriggerScriptContainer _areaTriggerScriptStore;
         AccessRequirementContainer _accessRequirementStore;
         DungeonEncounterContainer _dungeonEncounterStore;
+        InstanceGraveYardContainer _instanceGraveYardStore;
 
         RepRewardRateContainer _repRewardRateStore;
         RepOnKillContainer _repOnKillStore;
