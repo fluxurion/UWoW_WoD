@@ -18,3 +18,24 @@ insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `opt
 
 DELETE FROM spell_proc_event WHERE entry IN (53651);
 
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('157478','0','0','82326','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Усиленный шок небес'),
+('157478','0','0','19750','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Усиленный шок небес');
+
+DELETE FROM spell_aura_dummy WHERE spellId IN (121129,88819);
+insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
+('88819','157455','0','1','0','0','0','0','0','0','7','0','0','0','0','0','1','Улучшенный рассвет');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('114163','144595','0','0','0','0','174718','0','0','25','0','0','0','0','0','-1','0','0','cast Eternal Flame add aura Divine Purpose'),
+('85673','144595','0','0','0','0','174718','0','0','25','0','0','0','0','0','-1','0','0','cast Word of Glory add aura Divine Purpose'),
+('85256','144595','0','0','0','0','174718','0','0','25','0','0','0','0','0','-1','0','0','cast Templars Verdict add aura Divine Purpose'),
+('85222','144595','0','0','0','0','174718','0','0','25','0','0','0','0','0','-1','0','0','cast Light of Dawn add aura Divine Purpose'),
+('53600','144595','0','0','0','0','174718','0','0','25','0','0','0','0','0','-1','0','0','cast Shield of the Righteous add aura Divine Purpose'),
+('53385','144595','0','0','0','0','174718','0','0','25','0','0','0','0','0','-1','0','0','cast Divine Storm add aura Divine Purpose'),
+('136494','144595','0','0','0','0','174718','0','0','25','0','0','0','0','0','-1','0','0','cast Word of Glory add aura Divine Purpose'),
+('130552','144595','0','0','0','0','174718','0','0','25','0','0','0','0','0','-1','0','0','cast Harsh Word add aura Divine Purpose');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('20473','-160002','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Усиленный шок небес');
+

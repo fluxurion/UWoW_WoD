@@ -8242,7 +8242,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                 GuidList targets = triggeredByAura->GetBase()->GetEffectTargets();
                 if(targets.empty() || !damage)
                     return false;
-                basepoints0 = CalculatePct(damage, victim ? 50 : 15);
+
+                basepoints0 = CalculatePct(damage, victim ? (HasAura(157453) ? 60 : 50) : 15);
                 for (GuidList::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                 {
                     Unit* beaconTarget = ObjectAccessor::GetUnit(*this, (*itr));
@@ -12863,7 +12864,7 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
 
     AuraEffectList const& mHealingGet= GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_RECEIVED);
     for (AuraEffectList::const_iterator i = mHealingGet.begin(); i != mHealingGet.end(); ++i)
-    {
+   {
         if (caster->GetGUID() == (*i)->GetCasterGUID() && (*i)->IsAffectingSpell(spellProto))
             AddPct(TakenTotalMod, (*i)->GetAmount());
         else if ((*i)->GetBase()->GetId() == 974) // Hack fix for Earth Shield
@@ -14697,8 +14698,14 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal, bool gene
                     if(m_everyPower[power] > 150)
                     {
                         int32 countMod = int32(m_everyPower[power] / 150);
-                        for (uint8 i = 0; i < countMod; ++i)
-                            CastSpell(this, 114851, true); // Blood Charge
+
+                        if (Aura* aura = GetAura(114851)) // Blood Charge
+                            aura->ModStackAmount(countMod);
+                        else if (Aura* aura = AddAura(114851, this))
+                            aura->ModStackAmount(countMod - 1);
+
+                        //for (uint8 i = 0; i < countMod; ++i)
+                            //CastSpell(this, 114851, true); // Blood Charge
 
                         m_everyPower[power] -= (150 * countMod);
                     }
@@ -17469,6 +17476,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                     {
                         if (!triggeredByAura->IsAffectingSpell(procSpell) && !triggeredByAura->IsAffectingSpell(procAura))
                             break;
+
+                        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "ProcDamageAndSpell: SPELL_AURA_ADD_PCT(FLAT)_MODIFIER casting spell id %u (triggered by %s spell spell %u), procSpell %u",
+                        spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId(), (procSpell ? procSpell->Id : 0));
 
                         //take charges only if spell moded by this spell
                         if(procExtra & PROC_EX_ON_CAST)
