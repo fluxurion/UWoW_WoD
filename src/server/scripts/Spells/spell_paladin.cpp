@@ -1715,11 +1715,7 @@ class spell_pal_beacon_of_light : public SpellScriptLoader
                     return;
 
                 if (Aura* aura = caster->GetAura(53651))
-                {
-                    if(!aura->GetEffectTargets().empty())
-                        aura->RemoveEffectTarget(target->GetGUID());
                     aura->AddEffectTarget(target->GetGUID());
-                }
             }
 
             void Register()
@@ -1741,13 +1737,12 @@ class spell_pal_beacon_of_light : public SpellScriptLoader
 
                 if (Aura* aura = caster->GetAura(53651))
                 {
-                    if (GetSpellInfo()->Id == 56563 && target->HasAura(156910))
-                        return;
-                    if (GetSpellInfo()->Id == 156910 && target->HasAura(56563))
-                        return;
+                    bool recoveryTarget = false;
+                    if(aura->GetEffectTargets().size() > 1)
+                        recoveryTarget = true;
                     aura->RemoveEffectTarget(target->GetGUID());
-                    //if(aura->GetEffectTargets().empty())
-                        //aura->Remove();
+                    if(aura->GetEffectTargets().empty() && recoveryTarget)
+                        aura->AddEffectTarget(target->GetGUID());
                 }
             }
 
