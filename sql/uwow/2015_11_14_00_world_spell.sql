@@ -72,4 +72,6 @@ insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `p
 DELETE FROM spell_linked_spell WHERE spell_trigger IN (53563);
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('53651','spell_pal_beacon_of_light_proc');
 
+insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values
+('82327','31','4','0','0','0','0','0','7','1','6','0','0','0','Святое сияние');
 

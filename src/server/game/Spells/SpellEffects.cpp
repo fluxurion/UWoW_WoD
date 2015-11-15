@@ -2412,8 +2412,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
                 }
                 break;
             }
-            case 82327: // Holy Radiance
-            case 82326: // Divine Light
             case 19750: // Selfless Healer - Increases heal of Flash of Light if it heals an other player than you
             {
                 if (Aura* selflessHealer = caster->GetAura(114250))
