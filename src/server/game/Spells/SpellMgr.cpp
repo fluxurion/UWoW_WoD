@@ -5281,9 +5281,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 20066: // Repentance
                     spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                     break;
-                case 53651: // Beacon of Light Trigger
-                    spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
-                    break;
                 case 23035: // Battle Standard (Horde)
                 case 23034: // Battle Standard (Alliance)
                     spellInfo->Effects[EFFECT_0].MiscValueB = 3291;  //SUMMON_TYPE_BANNER

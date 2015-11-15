@@ -8237,28 +8237,24 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                 break;
             }
             // Light's Beacon - Beacon of Light
-            /*if (dummySpell->Id == 53651)
+            if (dummySpell->Id == 53651)
             {
-                // Get target of beacon of light
-                if (Unit* beaconTarget = triggeredByAura->GetBase()->GetCaster())
+                GuidList targets = triggeredByAura->GetBase()->GetEffectTargets();
+                if(targets.empty() || !damage)
+                    return false;
+                basepoints0 = CalculatePct(damage, victim ? 50 : 15);
+                for (GuidList::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                 {
-                    // do not proc when target of beacon of light is healed
-                    if (!victim || beaconTarget->GetGUID() == GetGUID())
-                        return false;
-
-                    // check if it was heal by paladin which casted this beacon of light
-                    if (beaconTarget->GetAura(53563, victim->GetGUID()))
+                    Unit* beaconTarget = ObjectAccessor::GetUnit(*this, (*itr));
+                    if (beaconTarget && beaconTarget->IsInWorld() && beaconTarget->IsWithinLOSInMap(this))
                     {
-                        if (beaconTarget->IsWithinLOSInMap(victim))
-                        {
-                            basepoints0 = CalculatePct(damage, 50);
-                            victim->CastCustomSpell(beaconTarget, 53652, &basepoints0, NULL, NULL, true);
-                            return true;
-                        }
+                        if (victim && victim->GetGUID() == beaconTarget->GetGUID())
+                            continue;
+                        CastCustomSpell(beaconTarget, 53652, &basepoints0, NULL, NULL, true);
                     }
                 }
                 return false;
-            }*/
+            }
             // Judgements of the Wise
             if (dummySpell->SpellIconID == 3017)
             {
@@ -12450,6 +12446,11 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                         }
                         break;
                     }
+                    case SPELLFAMILY_PALADIN:
+                        // Holy Shock
+                        if (spellProto->Id == 25912 || spellProto->Id == 25914)
+                            critChance *= 2;
+                    break;
                 }
             }
             break;
@@ -18466,8 +18467,7 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                         check = true;
                         continue;
                     }
-                    int32 cost = int32(procSpell->PowerCost + CalculatePct(GetCreateMana(), procSpell->PowerCostPercentage));
-                    basepoints0 = CalculatePct(cost, bp0);
+                    basepoints0 = CalculatePct(procSpell->CalcPowerCost(_caster, procSpell->GetSchoolMask()), bp0);
 
                     triggered_spell_id = abs(itr->spell_trigger);
                     _caster->CastCustomSpell(target, triggered_spell_id, &basepoints0, &bp1, &bp2, true, castItem, triggeredByAura, originalCaster);

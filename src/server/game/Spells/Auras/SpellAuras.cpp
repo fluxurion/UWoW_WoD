@@ -1151,7 +1151,7 @@ bool Aura::ModCharges(int32 num, AuraRemoveMode removeMode)
     if (IsUsingCharges() || (m_spellInfo->ProcFlags & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_POS_NEG)))
     {
         //if aura not modify and have stack and have charges aura use stack for drop stack visual
-        if(m_spellInfo->StackAmount > 1 && GetId() != 114637 && GetId() != 128863 && GetId() != 88819)
+        if(m_spellInfo->StackAmount > 1 && GetId() != 114637 && GetId() != 128863)
         {
             bool _useStack = true;
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)

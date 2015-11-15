@@ -1697,39 +1697,104 @@ class spell_pal_beacon_of_insight : public SpellScriptLoader
         }
 };
 
-// Beacon of Faith - 56563, 156910
-class spell_pal_beacon_of_faith : public SpellScriptLoader
+// Beacon of Light - 56563, 156910
+class spell_pal_beacon_of_light : public SpellScriptLoader
 {
     public:
-        spell_pal_beacon_of_faith() : SpellScriptLoader("spell_pal_beacon_of_faith") { }
+        spell_pal_beacon_of_light() : SpellScriptLoader("spell_pal_beacon_of_light") { }
 
-        class spell_pal_beacon_of_faith_SpellScript : public SpellScript
+        class spell_pal_beacon_of_light_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pal_beacon_of_faith_SpellScript);
+            PrepareSpellScript(spell_pal_beacon_of_light_SpellScript);
 
-            SpellCastResult CheckCast()
+            void HandleHit(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                if (!caster)
-                    return SPELL_FAILED_BAD_TARGETS;
+                Unit* target = GetHitUnit();
+                if (!target || !caster)
+                    return;
 
-                if (GetSpellInfo()->Id == 56563 && caster->HasAura(156910))
-                    return SPELL_FAILED_BAD_TARGETS;
-                if (GetSpellInfo()->Id == 156910 && caster->HasAura(56563))
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                return SPELL_CAST_OK;
+                if (Aura* aura = caster->GetAura(53651))
+                {
+                    if(!aura->GetEffectTargets().empty())
+                        aura->RemoveEffectTarget(target->GetGUID());
+                    aura->AddEffectTarget(target->GetGUID());
+                }
             }
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_pal_beacon_of_faith_SpellScript::CheckCast);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_beacon_of_light_SpellScript::HandleHit, EFFECT_2, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        class spell_pal_beacon_of_light_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_beacon_of_light_AuraScript);
+
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetTarget();
+                if (!target || !caster)
+                    return;
+
+                if (Aura* aura = caster->GetAura(53651))
+                {
+                    aura->RemoveEffectTarget(target->GetGUID());
+                    if(aura->GetEffectTargets().empty())
+                        aura->Remove();
+                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_pal_beacon_of_light_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_beacon_of_light_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_beacon_of_light_SpellScript();
+        }
+};
+
+// Beacon of Light - 53651
+class spell_pal_beacon_of_light_proc : public SpellScriptLoader
+{
+    public:
+        spell_pal_beacon_of_light_proc() : SpellScriptLoader("spell_pal_beacon_of_light_proc") { }
+
+        class spell_pal_beacon_of_light_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_beacon_of_light_proc_SpellScript);
+
+            void HandleBeforeCast()
+            {
+                if(Unit* caster = GetCaster())
+                {
+                    if (Aura* aura = caster->GetAura(53651))
+                    {
+                        GetSpell()->SetEffectTargets(aura->GetEffectTargets());
+                        aura->Remove();
+                    }
+                }
+            }
+
+            void Register()
+            {
+                BeforeCast += SpellCastFn(spell_pal_beacon_of_light_proc_SpellScript::HandleBeforeCast);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pal_beacon_of_faith_SpellScript();
+            return new spell_pal_beacon_of_light_proc_SpellScript();
         }
 };
 
@@ -1773,5 +1838,6 @@ void AddSC_paladin_spell_scripts()
     new spell_gen_divine_storm_cd_reset();
     new spell_pal_saved_by_the_light();
     new spell_pal_beacon_of_insight();
-    new spell_pal_beacon_of_faith();
+    new spell_pal_beacon_of_light();
+    new spell_pal_beacon_of_light_proc();
 }
