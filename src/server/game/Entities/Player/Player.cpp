@@ -2395,6 +2395,7 @@ void Player::ProcessDelayedOperations()
             CastSpell(this, aura, true, NULL, NULL, _resurrectionData->GUID);
 
         SpawnCorpseBones();
+        RemoveAurasDueToSpell(160029);
     }
 
     if (m_DelayedOperations & DELAYED_SAVE_PLAYER)

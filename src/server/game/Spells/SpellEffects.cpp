@@ -6276,6 +6276,8 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
 
     target->SetResurrectRequestData(m_caster, health, mana, 0);
     SendResurrectRequest(target);
+
+    m_caster->CastSpell(unitTarget, 160029, true);
 }
 
 void Spell::EffectAddExtraAttacks(SpellEffIndex effIndex)

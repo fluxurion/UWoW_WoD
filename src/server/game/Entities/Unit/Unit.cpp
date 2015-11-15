@@ -19485,8 +19485,8 @@ bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo c
             if(itr->target == 7) //get target self
                 _checkTarget = triggeredByAura->GetCaster();
 
-            //sLog->outDebug(LOG_FILTER_PROC, "SpellProcCheck: spellProto->Id %i, hastalent %i, HasAura %i",
-            //spellProto->Id, itr->hastalent, itr->hastalent ? _checkTarget->HasAura(abs(itr->hastalent), casterGUID) : -1);
+            //sLog->outDebug(LOG_FILTER_PROC, "SpellProcCheck: spellProto->Id %i, spelltypeMask %i, HasMask %i",
+            //spellProto->Id, itr->spelltypeMask, (SpellTypeMask & abs(itr->spelltypeMask)));
 
             //if this spell exist not proc
             if (itr->checkspell < 0)
@@ -19541,7 +19541,12 @@ bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo c
                             procCheck = true;
                             break;
                         }
-                        if(itr->spelltypeMask != 0 && !(SpellTypeMask & itr->spelltypeMask))
+                        if(itr->spelltypeMask > 0 && !(SpellTypeMask & itr->spelltypeMask))
+                        {
+                            procCheck = true;
+                            break;
+                        }
+                        else if(itr->spelltypeMask < 0 && (SpellTypeMask & abs(itr->spelltypeMask)))
                         {
                             procCheck = true;
                             break;
@@ -19648,7 +19653,12 @@ bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo c
                     procCheck = true;
                     continue;
                 }
-                if(itr->spelltypeMask != 0 && !(SpellTypeMask & itr->spelltypeMask))
+                if(itr->spelltypeMask > 0 && !(SpellTypeMask & itr->spelltypeMask))
+                {
+                    procCheck = true;
+                    continue;
+                }
+                else if(itr->spelltypeMask < 0 && (SpellTypeMask & abs(itr->spelltypeMask)))
                 {
                     procCheck = true;
                     continue;
@@ -19744,7 +19754,12 @@ bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo c
                     procCheckSecond = true;
                     continue;
                 }
-                if(itr->spelltypeMask != 0 && !(SpellTypeMask & itr->spelltypeMask))
+                if(itr->spelltypeMask > 0 && !(SpellTypeMask & itr->spelltypeMask))
+                {
+                    procCheckSecond = true;
+                    continue;
+                }
+                else if(itr->spelltypeMask < 0 && (SpellTypeMask & abs(itr->spelltypeMask)))
                 {
                     procCheckSecond = true;
                     continue;

@@ -7157,6 +7157,10 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_RESURRECT:
             {
+                Unit* unit = m_targets.GetUnitTarget();
+                if (!unit || unit->HasAura(160029))
+                    return SPELL_FAILED_TARGET_HAS_RESURRECT_PENDING;
+
                 if (AttributesCustomEx8 & SPELL_ATTR8_BATTLE_RESURRECTION)
                 {
                     if (InstanceScript* instance = m_caster->GetInstanceScript())
