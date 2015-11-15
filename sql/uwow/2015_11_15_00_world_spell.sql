@@ -44,10 +44,14 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 
 DELETE FROM spell_trigger WHERE spell_id IN (31801);
 insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
-('31801','31803','0','0','0','0','0','0','0','0','0','4','0','0','0','0','0','0','0','-1','0','0','0','Paladin - Seal of Truth - Dot Aura'),
+('31801','31803','0','20','0','0','0','0','0','0','0','4','0','0','0','0','0','0','0','-1','0','0','0','Paladin - Seal of Truth - Dot Aura'),
 ('31801','42463','0','1','0','0','0','0','12','0','0','1','0','0','0','0','0','0','0','-1','0','0','0','Paladin - Seal of Truth - Weapon Dmg');
 DELETE FROM spell_proc_check WHERE entry IN (31801);
 insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
 ('31801','0','0','-24275','0','0','0','1','-1','-1','0','0','0','0','0','0','0','0','0','0','Печать правды'),
 ('31801','0','0','0','0','0','0','4','-1','-1','0','0','0','0','0','0','-4','0','0','0','Печать правды');
 
+DELETE FROM spell_linked_spell WHERE spell_effect IN (-114250) AND spell_trigger IN (82326,82327);
+
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('128863','0','0','19750','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Самоотверженный целитель');
