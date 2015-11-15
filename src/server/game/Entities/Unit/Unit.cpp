@@ -9753,10 +9753,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, DamageInfo* dmgInfoProc, AuraEff
             if (!procSpell)
                 return false;
 
-            if (!HasAura(112859) && procSpell->Id != 20271) //Protection and Retribution spec
-                return false;
-
-            if (HasAura(112859) && !(procFlags & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)) //Holy spec
+            if (procSpell->Id != 20271)
                 return false;
 
             break;
