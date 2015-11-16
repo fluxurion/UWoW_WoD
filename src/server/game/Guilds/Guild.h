@@ -401,7 +401,7 @@ private:
             m_class(0),
             m_gender(GENDER_MALE),
             m_flags(GUILDMEMBER_STATUS_NONE),
-            m_logoutTime(::time(NULL)),
+            m_logoutTime(::time(nullptr)),
             m_accountId(0),
             m_rankId(rankId),
             m_achievementPoints(0),
@@ -460,7 +460,7 @@ private:
 
         void ChangeRank(uint8 newRank);
 
-        inline void UpdateLogoutTime() { m_logoutTime = ::time(NULL); }
+        inline void UpdateLogoutTime() { m_logoutTime = ::time(nullptr); }
         inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
         inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
         inline bool IsSamePlayer(ObjectGuid guid) const { return m_guid == guid; }
@@ -521,7 +521,7 @@ private:
             GuildNewsLogMap::iterator itr = _newsLog.find(id);
             if (itr != _newsLog.end())
                 return &itr->second;
-            return NULL;
+            return nullptr;
         }
 
         Guild* GetGuild() const { return _guild; }
@@ -740,7 +740,7 @@ private:
         std::string const& GetIcon() const { return m_icon; }
         std::string const& GetText() const { return m_text; }
 
-        inline Item* GetItem(uint8 slotId) const { return slotId < GUILD_BANK_MAX_SLOTS ?  m_items[slotId] : NULL; }
+        inline Item* GetItem(uint8 slotId) const { return slotId < GUILD_BANK_MAX_SLOTS ? m_items[slotId] : nullptr; }
         bool SetItem(SQLTransaction& trans, uint8 slotId, Item* item);
 
     private:
@@ -758,7 +758,7 @@ private:
     {
     public:
         MoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId) : m_pGuild(guild), m_pPlayer(player),
-            m_container(container), m_slotId(slotId), m_pItem(NULL), m_pClonedItem(NULL) { }
+            m_container(container), m_slotId(slotId), m_pItem(nullptr), m_pClonedItem(nullptr) { }
         virtual ~MoveItemData() { }
 
         virtual bool IsBank() const = 0;
@@ -869,7 +869,7 @@ public:
     uint64 GetBankMoney() const { return m_bankMoney; }
 
     // Handle client commands
-    void SendRoster(WorldSession* session = NULL);          // NULL = broadcast
+    void SendRoster(WorldSession* session = nullptr);          // NULL = broadcast
     void SendQueryResponse(WorldSession* session);
     void SendGuildRankInfo(WorldSession* session) const;
 
@@ -936,7 +936,7 @@ public:
     void MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank);
 
     template<class Do>
-    void BroadcastWorker(Do& _do, Player* except = NULL)
+    void BroadcastWorker(Do& _do, Player* except = nullptr)
     {
         for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player* player = itr->second->FindPlayer())
@@ -977,11 +977,11 @@ public:
     void SendGuildEventBankContentsChanged();
     void SendEventBankMoneyChanged();
     void SendGuildEventDisbanded();
-    void SendGuildEventMOTD(WorldSession* session = NULL);
+    void SendGuildEventMOTD(WorldSession* session = nullptr);
     void SendGuildEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelfPromoted = false);
     void SendGuildEventPlayerJoined(ObjectGuid const& guid, std::string name);
     void SendGuildEventPlayerLeft(Member* leaver, Member* remover = nullptr, bool isRemoved = false);
-    void SendGuildEventPresenceChanged(ObjectGuid const& guid, std::string name, bool online, WorldSession* session = NULL);
+    void SendGuildEventPresenceChanged(ObjectGuid const& guid, std::string name, bool online, WorldSession* session = nullptr);
     void SendGuildEventRankChanged(uint32 rankId);
     void SendGuildEventRanksUpdated();
     void SendGuildEventTabAdded();
@@ -1023,23 +1023,23 @@ protected:
 
 private:
     inline uint32 _GetRanksSize() const { return uint32(m_ranks.size()); }
-    inline const RankInfo* GetRankInfo(uint32 rankId) const { return rankId < _GetRanksSize() ? &m_ranks[rankId] : NULL; }
-    inline RankInfo* GetRankInfo(uint32 rankId) { return rankId < _GetRanksSize() ? &m_ranks[rankId] : NULL; }
+    inline const RankInfo* GetRankInfo(uint32 rankId) const { return rankId < _GetRanksSize() ? &m_ranks[rankId] : nullptr; }
+    inline RankInfo* GetRankInfo(uint32 rankId) { return rankId < _GetRanksSize() ? &m_ranks[rankId] : nullptr; }
     inline bool _HasRankRight(Player* player, uint32 right) const { return (_GetRankRights(player->GetRank()) & right) != GR_RIGHT_EMPTY; }
     inline uint32 _GetLowestRankId() const { return uint32(m_ranks.size() - 1); }
 
-    inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
-    inline const BankTab* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
+    inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : nullptr; }
+    inline const BankTab* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : nullptr; }
 
     inline const Member* GetMember(ObjectGuid guid) const
     {
         Members::const_iterator itr = m_members.find(guid);
-        return itr != m_members.end() ? itr->second : NULL;
+        return itr != m_members.end() ? itr->second : nullptr;
     }
     inline Member* GetMember(ObjectGuid guid)
     {
         Members::iterator itr = m_members.find(guid);
-        return itr != m_members.end() ? itr->second : NULL;
+        return itr != m_members.end() ? itr->second : nullptr;
     }
     inline Member* GetMember(WorldSession* session, const std::string& name)
     {
@@ -1048,7 +1048,7 @@ private:
                 return itr->second;
 
         SendCommandResult(session, GUILD_INVITE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD_S, name);
-        return NULL;
+        return nullptr;
     }
     inline void _DeleteMemberFromDB(ObjectGuid::LowType const& lowguid) const
     {
@@ -1096,6 +1096,6 @@ private:
     void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
     void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
 
-    void SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank);
+    void SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank, bool promote);
 };
 #endif

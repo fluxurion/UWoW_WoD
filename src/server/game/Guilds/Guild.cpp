@@ -1260,6 +1260,7 @@ bool Guild::Create(Player* pLeader, const std::string& name)
     stmt->setUInt32(++index, m_emblemInfo.GetBorderColor());
     stmt->setUInt32(++index, m_emblemInfo.GetBackgroundColor());
     stmt->setUInt64(++index, m_bankMoney);
+    stmt->setUInt32(++index, _level);
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
@@ -1512,6 +1513,7 @@ void Guild::HandleSetInfo(WorldSession* session, const std::string& info)
         SendCommandResult(session, GUILD_CREATE_S, ERR_GUILD_PERMISSIONS);
     else
     {
+        m_info = "";
         m_info = info;
 
         sScriptMgr->OnGuildInfoChanged(this, info);
@@ -1855,7 +1857,7 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, ObjectGuid targetGuid,
         uint32 newRankId = member->GetRankId() + (demote ? 1 : -1);
         member->ChangeRank(newRankId);
         _LogEvent(demote ? GUILD_EVENT_LOG_DEMOTE_PLAYER : GUILD_EVENT_LOG_PROMOTE_PLAYER, player->GetGUIDLow(), member->GetGUID().GetGUIDLow(), newRankId);
-        SendGuildRanksUpdate(player->GetGUID(), member->GetGUID(), newRankId);
+        SendGuildRanksUpdate(player->GetGUID(), member->GetGUID(), newRankId, !demote);
     }
 }
 
@@ -1875,6 +1877,8 @@ void Guild::HandleSetMemberRank(WorldSession* session, ObjectGuid targetGuid, Ob
             type = GUILD_DEMOTE_SS;
         }
 
+        bool demote = (type == GUILD_DEMOTE_SS) ? true : false;
+
         if (!_HasRankRight(player, rights))
         {
             SendCommandResult(session, type, ERR_GUILD_PERMISSIONS);
@@ -1888,32 +1892,54 @@ void Guild::HandleSetMemberRank(WorldSession* session, ObjectGuid targetGuid, Ob
             return;
         }
 
-        SendGuildRanksUpdate(setterGuid, targetGuid, rank);
+        if (demote)
+        {
+            // Player can demote only lower rank members
+            if (member->IsRankNotLower(player->GetRank()))
+            {
+                SendCommandResult(session, type, ERR_GUILD_RANK_TOO_HIGH_S, member->GetName());
+                return;
+            }
+            // Lowest rank cannot be demoted
+            if (member->GetRankId() >= _GetLowestRankId())
+            {
+                SendCommandResult(session, type, ERR_GUILD_RANK_TOO_LOW_S, member->GetName());
+                return;
+            }
+        }
+        else
+        {
+            // Allow to promote only to lower rank than member's rank
+            // member->GetRank() + 1 is the highest rank that current player can promote to
+            if (member->IsRankNotLower(player->GetRank() + 1))
+            {
+                SendCommandResult(session, type, ERR_GUILD_RANK_TOO_HIGH_S, member->GetName());
+                return;
+            }
+        }
+
+        member->ChangeRank(rank);
+        _LogEvent(demote ? GUILD_EVENT_LOG_DEMOTE_PLAYER : GUILD_EVENT_LOG_PROMOTE_PLAYER, player->GetGUIDLow(), member->GetGUID().GetGUIDLow(), rank);
+        SendGuildRanksUpdate(setterGuid, targetGuid, rank, !demote);
     }
 }
 
 void Guild::HandleShiftRank(WorldSession* session, uint32 id, bool up)
 {
-    RankInfo* rankinfo = nullptr;
-    RankInfo* rankinfo2 = nullptr;
-    uint32 id2 = id - (-1 + 2*uint8(up));
-    for (size_t i = 0; i < m_ranks.size(); ++i)
-    {
-        if (m_ranks[i].GetId() == id)
-            rankinfo = &m_ranks[i];
-        if (m_ranks[i].GetId() == id2)
-            rankinfo2 = &m_ranks[i];
-    }
+    uint32 nextID = up ? id - 1 : id + 1;
+
+    RankInfo* rankinfo = GetRankInfo(id);
+    RankInfo* rankinfo2 = GetRankInfo(nextID);
 
     if (!rankinfo || !rankinfo2)
         return;
 
-    RankInfo* tmp = nullptr;
-    tmp = rankinfo2;
+    RankInfo tmp = NULL;
+    tmp = *rankinfo2;
     rankinfo2->SetName(rankinfo->GetName());
     rankinfo2->SetRights(rankinfo->GetRights());
-    rankinfo->SetName(tmp->GetName());
-    rankinfo->SetRights(tmp->GetRights());
+    rankinfo->SetName(tmp.GetName());
+    rankinfo->SetRights(tmp.GetRights());
 
     SendGuildEventRanksUpdated();
 }
@@ -2351,7 +2377,7 @@ bool Guild::LoadFromDB(Field* fields)
     m_bankMoney     = fields[11].GetUInt64();
     _level          = fields[12].GetUInt32();
 
-    uint8 purchasedTabs = uint8(fields[15].GetUInt64());
+    uint8 purchasedTabs = uint8(fields[13].GetUInt64());
     if (purchasedTabs > GUILD_BANK_MAX_TABS)
         purchasedTabs = GUILD_BANK_MAX_TABS;
 
@@ -2467,23 +2493,27 @@ bool Guild::LoadBankEventLogFromDB(Field* fields)
 bool Guild::LoadBankTabFromDB(Field* fields)
 {
     uint8 tabId = fields[1].GetUInt8();
+
     if (tabId >= GetPurchasedTabsSize())
     {
         sLog->outError(LOG_FILTER_GUILD, "Invalid tab (tabId: %u) in guild bank, skipped.", tabId);
         return false;
     }
+
     return m_bankTabs[tabId]->LoadFromDB(fields);
 }
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
     uint8 tabId = fields[16].GetUInt8();
+
     if (tabId >= GetPurchasedTabsSize())
     {
         sLog->outError(LOG_FILTER_GUILD, "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
             fields[18].GetUInt32(), fields[19].GetUInt32());
         return false;
     }
+
     return m_bankTabs[tabId]->LoadItemFromDB(fields);
 }
 
@@ -3317,7 +3347,7 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
     }
 }
 
-void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank)
+void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, uint32 rank, bool promote)
 {
     Member* member = GetMember(targetGuid);
     ASSERT(member);
@@ -3326,10 +3356,8 @@ void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, u
     rankChange.Officer = setterGuid;
     rankChange.Other = targetGuid;
     rankChange.RankID = rank;
-    rankChange.Promote = (rank < member->GetRankId());
+    rankChange.Promote = promote;
     BroadcastPacket(rankChange.Write());
-
-    member->ChangeRank(rank);
 }
 
 uint32 Guild::RepGainedBy(Player* player, uint32 amount)
@@ -3451,11 +3479,9 @@ void Guild::SendGuildEventPlayerLeft(Member* leaver, Member* remover, bool isRem
 
 void Guild::SendGuildEventPresenceChanged(ObjectGuid const& guid, std::string name, bool online, WorldSession* session)
 {
-    Player* player = session->GetPlayer();
-
     WorldPackets::Guild::GuildEventPresenceChange eventPacket;
-    eventPacket.Guid = player->GetGUID();
-    eventPacket.Name = player->GetName();
+    eventPacket.Guid = guid;
+    eventPacket.Name = name;
     eventPacket.VirtualRealmAddress = GetVirtualRealmAddress();
     eventPacket.LoggedOn = online;
     eventPacket.Mobile = false;
