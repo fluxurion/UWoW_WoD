@@ -220,6 +220,8 @@ namespace WorldPackets
         class GuildBankSetTabText;
 
         class LFGuildSetGuildPost;
+
+        class GuildChallengeUpdateRequest;
     }
 
     namespace Item
@@ -1246,7 +1248,7 @@ class WorldSession
         void HandleGuildQueryGuildMembersForRecipe(WorldPacket& recvPacket);
         void HandleGuildQueryGuildMembersRecipes(WorldPacket& recvPacket);
 
-        void HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket);
+        void HandleGuildRequestChallengeUpdate(WorldPackets::Guild::GuildChallengeUpdateRequest& /*packet*/);
 
         void HandleGuildFinderAddRecruit(WorldPacket& recvPacket);
         void HandleGuildFinderBrowse(WorldPacket& recvPacket);

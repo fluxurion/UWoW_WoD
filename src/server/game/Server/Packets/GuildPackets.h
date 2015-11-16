@@ -578,6 +578,14 @@ namespace WorldPackets
             std::string GuildName;
         };
 
+        class GuildChallengeUpdateRequest final : public ClientPacket
+        {
+        public:
+            GuildChallengeUpdateRequest(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_CHALLENGE_UPDATE_REQUEST, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         class GuildChallengeUpdated final : public ServerPacket
         {
         public:
