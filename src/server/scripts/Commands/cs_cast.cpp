@@ -39,6 +39,7 @@ public:
             { "self",           SEC_ADMINISTRATOR,  false, &HandleCastSelfCommand,              "", NULL },
             { "target",         SEC_ADMINISTRATOR,  false, &HandleCastTargetCommad,             "", NULL },
             { "dest",           SEC_ADMINISTRATOR,  false, &HandleCastDestCommand,              "", NULL },
+            { "custom",         SEC_ADMINISTRATOR,  false, &HandleCastCustomCommand,            "", NULL },
             { "",               SEC_ADMINISTRATOR,  false, &HandleCastCommand,                  "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
@@ -299,6 +300,44 @@ public:
         bool triggered = (triggeredStr != NULL);
 
         caster->CastSpell(x, y, z, spellId, triggered);
+
+        return true;
+    }
+
+    static bool HandleCastCustomCommand(ChatHandler* handler, char const* args)
+    {
+        Unit* caster = handler->getSelectedUnit();
+        if (!caster)
+        {
+            handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+        uint32 spellId = handler->extractSpellIdFromLink((char*)args);
+        if (!spellId || !sSpellMgr->GetSpellInfo(spellId))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        char* bp0Str = strtok(NULL, " ");
+        char* bp1Str = strtok(NULL, " ");
+        char* bp2Str = strtok(NULL, " ");
+
+        int32 bp0 = 0;
+        int32 bp1 = 0;
+        int32 bp2 = 0;
+        if(bp0Str)
+            bp0 = int32(atof(bp0Str));
+        if(bp1Str)
+            bp1 = int32(atof(bp1Str));
+        if(bp2Str)
+            bp2 = int32(atof(bp2Str));
+
+        caster->CastCustomSpell(caster, spellId, &bp0, &bp1, &bp2, true);
 
         return true;
     }

@@ -1277,8 +1277,13 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
     ConditionList* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
     float coneAngle = M_PI/2;
 
-    if (m_spellInfo->GetEffect(effIndex, m_diffMode)->TargetA.GetTarget() == TARGET_UNIT_CONE_ENEMY_110)
-        coneAngle = M_PI/6;
+    switch (m_spellInfo->GetEffect(effIndex, m_diffMode)->TargetA.GetTarget())
+    {
+        case TARGET_UNIT_CONE_ENEMY_110:
+        case TARGET_UNIT_ALLY_CONE_CASTER:
+            coneAngle = M_PI/6;
+            break;
+    }
 
     switch (m_spellInfo->Id)
     {
@@ -4413,6 +4418,12 @@ void Spell::_handle_finish_phase()
                     m_caster->m_movedPlayer->AddComboPoints(target, count, this);
                 m_caster->m_movedPlayer->SaveAddComboPoints(-count);
             }
+        }
+        if (Aura* serenity = m_caster->GetAura(152173)) // Serenity
+        {
+            int32 bp = serenity->GetCustomData();
+            serenity->SetCustomData(0);
+            m_caster->CastCustomSpell(m_caster, 157558, &bp, NULL, NULL, false);
         }
 
         // Real add combo points from effects

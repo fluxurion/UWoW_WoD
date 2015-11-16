@@ -55,3 +55,9 @@ DELETE FROM spell_linked_spell WHERE spell_effect IN (-114250) AND spell_trigger
 
 insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
 ('128863','0','0','19750','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Самоотверженный целитель');
+
+DELETE FROM spell_proc_check WHERE entry IN (20154,20164);
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('20154','0','0','0','0','0','0','7','-1','-1','0','0','0','0','0','0','-4','0','0','0','Печать праведности'),
+('20164','20165','0','-24275','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Печати'),
+('20164','20165','0','-20271','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Печати');

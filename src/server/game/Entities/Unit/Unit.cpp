@@ -3225,7 +3225,7 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
 
 float Unit::GetUnitDodgeChance() const
 {
-    if (!HasAuraWithAttribute(10, SPELL_ATTR10_CAN_PARRY_DODGE_BLOCK) && (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED)))
+    if (!HasAuraWithAttribute(10, SPELL_ATTR10_CAN_DODGE_ON_CAST) && (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED)))
         return 0.0f;
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -3245,7 +3245,7 @@ float Unit::GetUnitDodgeChance() const
 
 float Unit::GetUnitParryChance() const
 {
-    if (!HasAuraWithAttribute(10, SPELL_ATTR10_CAN_PARRY_DODGE_BLOCK) && (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED)))
+    if (!HasAuraWithAttribute(10, SPELL_ATTR10_CAN_PARRY_ON_CAST) && (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED)))
         return 0.0f;
 
     float chance = 0.0f;
@@ -3277,7 +3277,7 @@ float Unit::GetUnitParryChance() const
 
 float Unit::GetUnitBlockChance() const
 {
-    if (!HasAuraWithAttribute(10, SPELL_ATTR10_CAN_PARRY_DODGE_BLOCK) && (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED)))
+    if (!HasAuraWithAttribute(10, SPELL_ATTR10_CAN_PARRY_ON_CAST) && (IsNonMeleeSpellCasted(false) || HasUnitState(UNIT_STATE_CONTROLLED)))
         return 0.0f;
 
     if (Player const* player = ToPlayer())
@@ -8228,12 +8228,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
             if (dummySpell->Id == 105361 &&  effIndex == 0)
             {
                 triggered_spell_id = 118215;
-                break;
-            }
-            // Seal of Righteousness
-            if (dummySpell->Id == 20154)
-            {
-                triggered_spell_id = 101423;
                 break;
             }
             // Light's Beacon - Beacon of Light
@@ -14494,6 +14488,9 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal, bool gene
                     tigereyeBrew->SetScriptData(0, -modVal);
                 else if (Aura* manaTea = GetAura(123766))
                     manaTea->SetScriptData(0, -modVal);
+                if(!generate && HasAura(152173)) // Serenity
+                if (Aura* serenity = GetAura(152173))
+                    serenity->SetCustomData(serenity->GetCustomData() - modVal);
             }
             break;
         }
@@ -19830,6 +19827,10 @@ bool Unit::SpellProcCheck(Unit* victim, SpellInfo const* spellProto, SpellInfo c
                 procCheck = true;
         }
     }
+
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellProcCheck: spellProto->Id %i, effect %i, spellProcId %i procCheck %i procCheckSecondActiveted %i procCheckSecond %i procCheckActiveted %i",
+    //spellProto->Id, effect, spellProcId, procCheck, procCheckSecondActiveted, procCheckSecond, procCheckActiveted);
+
     //if check true false proc
     if(procCheck && !procCheckSecondActiveted)
     {
@@ -24483,7 +24484,7 @@ Unit* Unit::GetUnitForLinkedSpell(Unit* caster, Unit* target, uint8 type)
             return (Unit*)(ToPlayer() ? ToPlayer()->GetPet() : NULL);
             break;
         case LINK_UNIT_TYPE_OWNER: //2
-            return GetOwner();
+            return GetAnyOwner();
             break;
         case LINK_UNIT_TYPE_CASTER: //3
             return caster;

@@ -2232,11 +2232,6 @@ public:
                 aura->SetStackAmount(aurEff->GetAmount());
         }
 
-        void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
-        {
-            amount = aurEff->GetBaseAmount();
-        }
-
         void OnTick(AuraEffect const* aurEff)
         {
             if (Unit* caster = GetCaster())
@@ -2247,8 +2242,7 @@ public:
                 if(GetAura()->GetStackAmount() > 1)
                 {
                     int32 setstack = GetAura()->GetStackAmount() - 1;
-                    int32 amount = aurEff->GetAmount();
-                    caster->CastCustomSpell(caster, SPELL_MONK_RENEWING_MIST_JUMP_AURA, &amount, &setstack, NULL, true, NULL, aurEff, caster->GetGUID());
+                    caster->CastCustomSpell(caster, SPELL_MONK_RENEWING_MIST_JUMP_AURA, NULL, &setstack, NULL, true, NULL, aurEff, caster->GetGUID());
                     GetAura()->SetStackAmount(1);
                 }
             }
@@ -2256,7 +2250,6 @@ public:
 
         void Register()
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_monk_renewing_mistAuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             OnEffectApply += AuraEffectApplyFn(spell_monk_renewing_mistAuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_renewing_mistAuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
         }
@@ -2298,10 +2291,9 @@ class spell_monk_renewing_mist_selector : public SpellScriptLoader
                 if(!caster || !spellValue || !target)
                     return;
 
-                int32 bp0 = spellValue->EffectBasePoints[0];
                 int32 bp1 = spellValue->EffectBasePoints[1];
                 caster->CastSpell(target, 119647, true);
-                caster->CastCustomSpell(target, SPELL_MONK_RENEWING_MIST_HOT, &bp0, &bp1, NULL, true, NULL, NULL, caster->GetGUID());
+                caster->CastCustomSpell(target, SPELL_MONK_RENEWING_MIST_HOT, NULL, &bp1, NULL, true, NULL, NULL, caster->GetGUID());
             }
 
             void Register()
@@ -2375,8 +2367,7 @@ class spell_monk_renewing_mist_start : public SpellScriptLoader
                 if(!caster || !target)
                     return;
 
-                int32 bp0 = GetHitHeal();
-                caster->CastCustomSpell(target, SPELL_MONK_RENEWING_MIST_HOT, &bp0, NULL, NULL, true, NULL, NULL, caster->GetGUID());
+                caster->CastCustomSpell(target, SPELL_MONK_RENEWING_MIST_HOT, NULL, NULL, NULL, true, NULL, NULL, caster->GetGUID());
             }
 
             void Register()
@@ -2990,7 +2981,7 @@ class spell_monk_chi_wave_filter : public SpellScriptLoader
                 targets.remove_if(OptionCheck(GetCaster()));
                 if (!GetCaster()->IsFriendlyTo(GetOriginalCaster()))
                 {
-                    targets.remove_if(FriendlyToOriginalCaster(GetOriginalCaster()));
+                    targets.remove_if(FriendlyToOriginalCaster(GetOriginalCaster(), GetSpellInfo()));
                     targets.sort(CheckHealthState());
                     if (targets.size() > 1)
                         targets.resize(1);
@@ -3049,16 +3040,17 @@ class spell_monk_chi_wave_filter : public SpellScriptLoader
             class FriendlyToOriginalCaster
             {
             public:
-                FriendlyToOriginalCaster(Unit* caster) : _caster(caster){}
+                FriendlyToOriginalCaster(Unit* caster, SpellInfo const* spellInfo) : _caster(caster), _spellInfo(spellInfo){}
 
                 Unit* _caster;
+                SpellInfo const* _spellInfo;
 
                 bool operator()(WorldObject* unit)
                 {
                     Unit* victim = unit->ToUnit();
                     if (!victim)
                         return true;
-                    if (!_caster->IsFriendlyTo(victim))
+                    if (!_caster->IsFriendlyTo(victim) || !_caster->_IsValidAssistTarget(victim, _spellInfo))
                         return true;
                     return false;
                 }
@@ -3164,11 +3156,28 @@ class spell_monk_chi_wave : public SpellScriptLoader
                 {
                     if (Unit* target = GetExplTargetUnit())
                     {
+                        uint32 spellId = 0;
                         int32 bp = 1;
+
                         if (target->IsFriendlyTo(caster))
-                            caster->CastCustomSpell(target, 132464, NULL, &bp, NULL, true, NULL, NULL, caster->GetGUID());
+                        {
+                            spellId = 132464;
+
+                            if (!caster->_IsValidAssistTarget(target, GetSpellInfo()))
+                                target = caster;
+                        }
                         else
-                            caster->CastCustomSpell(target, 132467, NULL, &bp, NULL, true, NULL, NULL, caster->GetGUID());
+                        {
+                            if (!caster->IsValidAttackTarget(target))
+                            {
+                                spellId = 132464;
+                                target = caster;
+                            }
+                            else
+                                spellId = 132467;
+                        }
+
+                        caster->CastCustomSpell(target, spellId, NULL, &bp, NULL, true, NULL, NULL, caster->GetGUID());
                     }
                 }
             }
@@ -3277,6 +3286,108 @@ class spell_monk_purified_healing : public SpellScriptLoader
         }
 };
 
+// Hurricane Strike - 152175
+class spell_monk_hurricane_strike : public SpellScriptLoader
+{
+    public:
+        spell_monk_hurricane_strike() : SpellScriptLoader("spell_monk_hurricane_strike") { }
+
+        class spell_monk_hurricane_strike_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_monk_hurricane_strike_AuraScript);
+
+            uint32 update = 0;
+
+            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), 158221, true);
+            }
+
+            void OnUpdate(uint32 diff, AuraEffect* aurEff)
+            {
+                update += diff;
+
+                if (update >= 140)
+                {
+                    if (Unit* caster = GetCaster())
+                        caster->CastSpell(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), 158221, true);
+                    update = 0;
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_monk_hurricane_strike_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_ALLOW_ONLY_ABILITY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectUpdate += AuraEffectUpdateFn(spell_monk_hurricane_strike_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_ALLOW_ONLY_ABILITY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_monk_hurricane_strike_AuraScript();
+        }
+};
+
+// Breath of the Serpent - 157535
+class spell_monk_breath_of_the_serpent : public SpellScriptLoader
+{
+    public:
+        spell_monk_breath_of_the_serpent() : SpellScriptLoader("spell_monk_breath_of_the_serpent") { }
+
+        class spell_monk_breath_of_the_serpent_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_breath_of_the_serpent_SpellScript);
+
+            SpellCastResult CheckTarget()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    GuidList* summonList = caster->GetSummonList(60849);
+                    for (GuidList::const_iterator iter = summonList->begin(); iter != summonList->end(); ++iter)
+                    {
+                        if(Creature* summon = ObjectAccessor::GetCreature(*caster, (*iter)))
+                            if(summon->GetExactDist2d(caster) <= 20.0f)
+                                return SPELL_CAST_OK;
+                    }
+                    if(!summonList->empty())
+                        SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_STATUE_OUT_OF_RANGE);
+                    else
+                        SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NO_STATUE_SUMMONED);
+                }
+                return SPELL_FAILED_CUSTOM_ERROR;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    GuidList* summonList = caster->GetSummonList(60849);
+                    for (GuidList::const_iterator iter = summonList->begin(); iter != summonList->end(); ++iter)
+                    {
+                        if(Creature* summon = ObjectAccessor::GetCreature(*caster, (*iter)))
+                            if(summon->GetExactDist2d(caster) <= 20.0f)
+                            {
+                                caster->CastSpell(summon, 157636, true);
+                                return;
+                            }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_monk_breath_of_the_serpent_SpellScript::CheckTarget);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_breath_of_the_serpent_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_breath_of_the_serpent_SpellScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_clone_cast();
@@ -3342,4 +3453,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_wave_dummy();
     new spell_monk_disable();
     new spell_monk_purified_healing();
+    new spell_monk_hurricane_strike();
+    new spell_monk_breath_of_the_serpent();
 }
