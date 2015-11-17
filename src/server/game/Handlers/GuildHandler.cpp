@@ -353,8 +353,9 @@ void WorldSession::HandleGuildSetRankPermissions(WorldPackets::Guild::GuildSetRa
 
 void WorldSession::HandleGuildRequestPartyState(WorldPackets::Guild::RequestGuildPartyState& packet)
 {
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(packet.GuildGUID))
-        guild->HandleGuildPartyRequest(this);
+    if (Guild* guild = _GetPlayerGuild(this))
+        if (guild->GetGUID() == packet.GuildGUID)
+            guild->HandleGuildPartyRequest(this);
 }
 
 void WorldSession::HandleAutoDeclineGuildInvites(WorldPackets::Guild::AutoDeclineGuildInvites& packet)
@@ -362,31 +363,42 @@ void WorldSession::HandleAutoDeclineGuildInvites(WorldPackets::Guild::AutoDeclin
     GetPlayer()->ApplyModFlag(PLAYER_FIELD_PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD, packet.Allow);
 }
 
-//! 6.0.3 ToDo: more research
-void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildRewardsQueryOpcode(WorldPackets::Guild::RequestGuildRewardsList& packet)
 {
-    recvPacket.read_skip<uint32>();         // CurrentVersion
+    // from sniffs, strange but testing
+    if (packet.CurrentVersion != 0)
+    {
+        WorldPackets::Guild::GuildRewardList resp;
+        resp.Version = packet.CurrentVersion;
+        resp.RewardItems.clear();
+
+        SendPacket(resp.Write());
+        return;
+    }
 
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
     {
         std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
-        WorldPacket data(SMSG_GUILD_REWARD_LIST, (3 + rewards.size() * (4 + 4 + 4 + 8 + 4 + 4)));
-        data << uint32(time(NULL));         // counter?
-        data << uint32(rewards.size());
+        WorldPackets::Guild::GuildRewardList rewardList;
+        rewardList.Version = time(nullptr);
+        rewardList.RewardItems.reserve(rewards.size());
 
-        for (size_t i = 0; i < rewards.size(); ++i)
+        for (uint32 i = 0; i < rewards.size(); i++)
         {
-            data << uint32(rewards[i].Entry);
-            data << uint32(0);                          //UNK V6_1_0_19678
-            data << uint32(0);                          //AchievementsRequiredCount
-            data << int32(rewards[i].Racemask);
-            data << uint32(rewards[i].Standing);        //MinGuildLevel should be on trinity
-            data << uint32(rewards[i].AchievementId);   //MinGuildRep should be on trinity
-            data << uint64(rewards[i].Price);
+            WorldPackets::Guild::GuildRewardItem rewardItem;
+            rewardItem.ItemID = rewards[i].Entry;
+            if (rewards[i].AchievementsRequired.size() >= 2)
+                rewardItem.Unk4 = 2;
+            rewardItem.RaceMask = rewards[i].Racemask;
+            rewardItem.MinGuildLevel = 0;
+            rewardItem.MinGuildRep = rewards[i].Standing;
+            rewardItem.AchievementsRequired = rewards[i].AchievementsRequired;
+            rewardItem.Cost = rewards[i].Price;
+            rewardList.RewardItems.push_back(rewardItem);
         }
 
-        SendPacket(&data);
+        SendPacket(rewardList.Write());
     }
 }
 

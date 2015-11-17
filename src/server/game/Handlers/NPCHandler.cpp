@@ -608,10 +608,14 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
                         break;
                     }
 
-                    if (reward->AchievementId && !guild->GetAchievementMgr().HasAchieved(reward->AchievementId))
+                    for (uint32 i = 0; i < reward->AchievementsRequired.size(); ++i)
                     {
-                        guildRewardCheckPassed = false;
-                        break;
+                        uint32 achievementID = reward->AchievementsRequired[i];
+                        if (achievementID && !guild->GetAchievementMgr().HasAchieved(achievementID))
+                        {
+                            guildRewardCheckPassed = false;
+                            break;
+                        }
                     }
 
                     if (reward->Racemask)

@@ -23976,25 +23976,32 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         }
 
         if (reward->Standing)
+        {
             if (this->GetReputationRank(REP_GUILD) < reward->Standing)
             {
                 SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
                 return false;
             }
+        }
 
-        if (reward->AchievementId)
-            if (!guild->GetAchievementMgr().HasAchieved(reward->AchievementId))
+        for (uint32 i = 0; i < reward->AchievementsRequired.size(); ++i)
+        {
+            uint32 achievementID = reward->AchievementsRequired[i];
+            if (achievementID && !guild->GetAchievementMgr().HasAchieved(achievementID))
             {
                 SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
                 return false;
             }
+        }
 
         if (reward->Racemask)
+        {
             if (!(this->getRaceMask() & reward->Racemask))
             {
                 SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
                 return false;
             }
+        }
     }
 
     uint64 price = 0;

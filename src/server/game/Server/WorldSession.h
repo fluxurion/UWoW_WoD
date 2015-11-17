@@ -205,6 +205,7 @@ namespace WorldPackets
         class GuildUpdateInfoText;
         class RequestGuildPartyState;
         class AutoDeclineGuildInvites;
+        class RequestGuildRewardsList;
 
         class GuildPermissionsQuery;
         class GuildBankRemainingWithdrawMoneyQuery;
@@ -1223,7 +1224,7 @@ class WorldSession
         void HandleGuildDeclineInvitation(WorldPackets::Guild::GuildDeclineInvitation& /*decline*/);
         void HandleGuildEventLogQuery(WorldPackets::Guild::GuildEventLogQuery& /*packet*/);
         void HandleGuildRosterOpcode(WorldPackets::Guild::GuildGetRoster& packet);
-        void HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket);
+        void HandleGuildRewardsQueryOpcode(WorldPackets::Guild::RequestGuildRewardsList& packet);
         void HandleGuildPromoteMember(WorldPackets::Guild::GuildPromoteMember& packet);
         void HandleGuildDemoteMember(WorldPackets::Guild::GuildDemoteMember& packet);
         void HandleGuildAssignRank(WorldPackets::Guild::GuildAssignMemberRank& packet);

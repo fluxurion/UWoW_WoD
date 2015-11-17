@@ -672,7 +672,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_REQUEST_CONQUEST_FORMULA_CONSTANTS,                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Battleground::NullCmsg, &WorldSession::HandlePersonalRatedInfoRequest);
     DEFINE_HANDLER(CMSG_REQUEST_FORCED_REACTIONS,                           STATUS_LOGGEDIN,  PROCESS_INPLACE,      WorldPackets::Reputation::RequestForcedReactions, &WorldSession::HandleForcedReactions);
     DEFINE_HANDLER(CMSG_REQUEST_GUILD_PARTY_STATE,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::RequestGuildPartyState, &WorldSession::HandleGuildRequestPartyState    );
-    DEFINE_OPCODE_HANDLER_OLD(CMSG_REQUEST_GUILD_REWARDS_LIST,              STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildRewardsQueryOpcode   );
+    DEFINE_HANDLER(CMSG_REQUEST_GUILD_REWARDS_LIST,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Guild::RequestGuildRewardsList, &WorldSession::HandleGuildRewardsQueryOpcode   );
     DEFINE_HANDLER(CMSG_REQUEST_HONOR_STATS,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Inspect::RequestHonorStats, &WorldSession::HandleRequestHonorStats);
     DEFINE_HANDLER(CMSG_REQUEST_LFG_LIST_BLACKLIST,                         STATUS_UNHANDLED, PROCESS_INPLACE,      WorldPackets::Null, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_REQUEST_PARTY_JOIN_UPDATES,                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, WorldPackets::Party::RequestPartyJoinUpdates, &WorldSession::HandleRequestPartyJoinUpdates);

@@ -541,8 +541,8 @@ void GuildMgr::LoadGuildRewards()
     GuildRewards.clear();
     uint32 oldMSTime = getMSTime();
 
-    //                                                  0      1         2        3        4
-    QueryResult result = WorldDatabase.Query("SELECT entry, standing, racemask, price, achievement FROM guild_rewards");
+    //                                                  0      1         2        3
+    QueryResult result = WorldDatabase.Query("SELECT entry, standing, racemask, price FROM guild_rewards");
 
     if (!result)
     {
@@ -560,7 +560,6 @@ void GuildMgr::LoadGuildRewards()
         reward.Standing = fields[1].GetUInt8();
         reward.Racemask = fields[2].GetInt32();
         reward.Price = fields[3].GetUInt64();
-        reward.AchievementId = fields[4].GetUInt32();
 
         if (!sObjectMgr->GetItemTemplate(reward.Entry))
         {
@@ -568,16 +567,29 @@ void GuildMgr::LoadGuildRewards()
             continue;
         }
 
-        if (reward.AchievementId != 0 && (!sAchievementStore.LookupEntry(reward.AchievementId)))
-        {
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards contains not existing achievement entry %u", reward.AchievementId);
-            continue;
-        }
-
         if (reward.Standing >= MAX_REPUTATION_RANK)
         {
             sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards contains wrong reputation standing %u, max is %u", uint32(reward.Standing), MAX_REPUTATION_RANK - 1);
             continue;
+        }
+
+        QueryResult reqAchievementResult = WorldDatabase.PQuery("SELECT achievement FROM guild_rewards WHERE Entry = %u", reward.Entry);
+        if (reqAchievementResult)
+        {
+            do
+            {
+                fields = reqAchievementResult->Fetch();
+
+                uint32 requiredAchievementId = fields[0].GetUInt32();
+
+                if (!sAchievementMgr->GetAchievement(requiredAchievementId))
+                {
+                    sLog->outError(LOG_FILTER_SERVER_LOADING, "Guild rewards contains not existing achievement entry %u", requiredAchievementId);
+                    continue;
+                }
+
+                reward.AchievementsRequired.push_back(requiredAchievementId);
+            } while (reqAchievementResult->NextRow());
         }
 
         GuildRewards.push_back(reward);

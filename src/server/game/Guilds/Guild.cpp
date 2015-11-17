@@ -2103,7 +2103,7 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
     Group* group = player->GetGroup();
 
     // Make sure player is a member of the guild and that he is in a group.
-    if (!IsMember(player->GetGUID()) || !group)
+    if (!IsMember(player->GetGUID()))
         return;
 
     WorldPackets::Guild::GuildPartyState partyStateResponse;
