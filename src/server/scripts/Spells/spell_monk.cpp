@@ -3404,7 +3404,7 @@ class spell_monk_chi_explosion_brewmaster : public SpellScriptLoader
 
             void HandleDamage1(SpellEffIndex effIndex)
             {
-                SetHitDamage(GetHitDamage() * chiCount);
+                SetHitDamage(GetHitDamage() * chiCount / 2);
 
                 Unit* caster = GetCaster();
                 Unit* target = GetHitUnit();
@@ -3421,7 +3421,9 @@ class spell_monk_chi_explosion_brewmaster : public SpellScriptLoader
                     return;
 
                 if(stagger)
-                    SetHitDamage(int32(stagger / targetCount));
+                    SetHitDamage(int32(((GetHitDamage() / 2) + stagger) / targetCount));
+                else
+                    SetHitDamage(int32((GetHitDamage() / 2) / targetCount));
             }
 
             void HandleOnCast()
@@ -3736,7 +3738,7 @@ class spell_monk_chi_explosion_windwalker : public SpellScriptLoader
 
             void HandleDamage(SpellEffIndex effIndex)
             {
-                SetHitDamage(GetHitDamage() * chiCount);
+                SetHitDamage(GetHitDamage() * chiCount / 2);
 
                 Unit* caster = GetCaster();
                 Unit* target = GetHitUnit();
@@ -3755,7 +3757,7 @@ class spell_monk_chi_explosion_windwalker : public SpellScriptLoader
                 if (!targetCount)
                     return;
 
-                SetHitDamage(int32(GetHitDamage() * chiCount / targetCount));
+                SetHitDamage(int32(GetHitDamage() / targetCount));
             }
 
             void HandleOnCast()
