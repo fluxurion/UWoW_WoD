@@ -2328,13 +2328,13 @@ void Guild::SendLoginInfo(WorldSession* session)
 
 void Guild::SendGuildChallengesInfo(WorldSession* session) const
 {
-    // Types: 1 - dungeon, 2 - raid, 3 - rated bg, 4 - scenario, 5 - challenge dungeon
+    // Types: 0 - null, 1 - dungeon, 2 - raid, 3 - rated bg, 4 - scenario, 5 - challenge dungeon
     if (Member const* member = GetMember(session->GetPlayer()->GetGUID()))
     {
-        uint32 gold[6] = { 250, 1000, 500, 100, 400, 0 };
-        uint32 goldMaxLevel[6] = { 0, 0, 0, 0, 0, 0 };
+        uint32 gold[6] = { 0, 125, 500, 250, 125, 250 };
+        uint32 goldMaxLevel[6] = { 0, 250, 1000, 500, 250, 500 };
         uint32 count[6] = { 0, 0, 0, 0, 0, 0 };
-        uint32 maxCount[6] = { 7, 1, 3, 15, 3, 0 };
+        uint32 maxCount[6] = { 0, 7, 1, 3, 0, 3 };
 
         WorldPackets::Guild::GuildChallengeUpdated update;
         for (uint8 i = 0; i < 6; ++i)

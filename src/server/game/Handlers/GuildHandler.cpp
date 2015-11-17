@@ -480,7 +480,7 @@ void WorldSession::HandleGuildQueryGuildMembersRecipes(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildRequestChallengeUpdate(WorldPackets::Guild::GuildChallengeUpdateRequest& /*packet*/)
 {
-    if (Guild* guild = _player->GetGuild())
+    if (Guild* guild = _GetPlayerGuild(this))
         guild->SendGuildChallengesInfo(this);
 }
 
