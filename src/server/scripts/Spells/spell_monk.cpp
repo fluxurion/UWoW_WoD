@@ -3581,6 +3581,7 @@ class spell_monk_chi_explosion_mistweaver_heal : public SpellScriptLoader
                         caster->CastSpell(target, 157687, true);
                         caster->CastSpell(target, 157688, true);
                         caster->CastSpell(target, 157689, true);
+                    case 3:
                     case 2:
                         caster->CastCustomSpell(target, 157681, &healPeriodic, NULL, NULL, true);
                 }
@@ -3622,6 +3623,186 @@ class spell_monk_chi_explosion_mistweaver_heal : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_chi_explosion_mistweaver_heal_SpellScript();
+        }
+};
+
+// Chi Explosion - 159620
+class spell_monk_chi_explosion_mistweaver_talent : public SpellScriptLoader
+{
+    public:
+        spell_monk_chi_explosion_mistweaver_talent() : SpellScriptLoader("spell_monk_chi_explosion_mistweaver_talent") { }
+
+        class spell_monk_chi_explosion_mistweaver_talent_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_chi_explosion_mistweaver_talent_SpellScript);
+
+            int32 chiCount = 0;
+            int32 targetCount = 0;
+
+            void HandleDamage(SpellEffIndex effIndex)
+            {
+                SetHitDamage(GetHitDamage() * chiCount);
+            }
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                if(chiCount < 2)
+                {
+                    SetHitHeal(0);
+                    return;
+                }
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (!caster || !target)
+                    return;
+
+                switch (chiCount)
+                {
+                    case 4:
+                        caster->CastSpell(target, 157682, true);
+                        caster->CastSpell(target, 157683, true);
+                        caster->CastSpell(target, 157684, true);
+                        caster->CastSpell(target, 157685, true);
+                        caster->CastSpell(target, 157686, true);
+                        caster->CastSpell(target, 157687, true);
+                        caster->CastSpell(target, 157688, true);
+                        caster->CastSpell(target, 157689, true);
+                }
+                SetHitHeal(GetHitHeal() * chiCount);
+            }
+
+            void HandleOnCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    chiCount = caster->GetPower(POWER_CHI);
+                    if (chiCount > 4)
+                        chiCount = 4;
+
+                    if (chiCount > 1)
+                        caster->ModifyPower(POWER_CHI, -(chiCount - 1), true);
+                }
+            }
+
+            void HandleHealAoe(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (!caster || !target || !targetCount)
+                    return;
+
+                SetHitHeal(int32(GetHitHeal() / targetCount));
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if(caster->GetPower(POWER_CHI) < 3)
+                        targets.clear();
+                    targets.remove(caster);
+                    targetCount = targets.size();
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_chi_explosion_mistweaver_talent_SpellScript::HandleOnCast);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_talent_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_talent_SpellScript::HandleHeal, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_talent_SpellScript::HandleHealAoe, EFFECT_2, SPELL_EFFECT_HEAL);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_chi_explosion_mistweaver_talent_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_chi_explosion_mistweaver_talent_SpellScript();
+        }
+};
+
+// Chi Explosion - 152174
+class spell_monk_chi_explosion_windwalker : public SpellScriptLoader
+{
+    public:
+        spell_monk_chi_explosion_windwalker() : SpellScriptLoader("spell_monk_chi_explosion_windwalker") { }
+
+        class spell_monk_chi_explosion_windwalker_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_chi_explosion_windwalker_SpellScript);
+
+            int32 chiCount = 0;
+            int32 targetCount = 0;
+
+            void HandleDamage(SpellEffIndex effIndex)
+            {
+                SetHitDamage(GetHitDamage() * chiCount);
+
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (!caster || !target)
+                    return;
+
+                if (chiCount > 1)
+                {
+                    int32 bp = int32(GetHitDamage() / 2);
+                    caster->CastCustomSpell(target, 157680, &bp, NULL, NULL, true);
+                }
+            }
+
+            void HandleDamageAoe(SpellEffIndex effIndex)
+            {
+                if (!targetCount)
+                    return;
+
+                SetHitDamage(int32(GetHitDamage() * chiCount / targetCount));
+            }
+
+            void HandleOnCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    chiCount = caster->GetPower(POWER_CHI);
+                    if (chiCount > 4)
+                        chiCount = 4;
+
+                    if (chiCount > 1)
+                        caster->ModifyPower(POWER_CHI, -(chiCount - 1), true);
+
+                    int32 duration = 0;
+                    switch (chiCount)
+                    {
+                        case 4:
+                        case 3:
+                            caster->CastSpell(caster, 125195, true);
+                    }
+                }
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if(caster->GetPower(POWER_CHI) < 4)
+                        targets.clear();
+                    else if(Unit* target = GetExplTargetUnit())
+                        targets.remove(target);
+                    targetCount = targets.size();
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_chi_explosion_windwalker_SpellScript::HandleOnCast);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_windwalker_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_windwalker_SpellScript::HandleDamageAoe, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_chi_explosion_windwalker_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_chi_explosion_windwalker_SpellScript();
         }
 };
 
@@ -3695,4 +3876,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_explosion_brewmaster();
     new spell_monk_chi_explosion_mistweaver();
     new spell_monk_chi_explosion_mistweaver_heal();
+    new spell_monk_chi_explosion_mistweaver_talent();
+    new spell_monk_chi_explosion_windwalker();
 }

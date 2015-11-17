@@ -35,6 +35,10 @@ DELETE FROM spell_script_names WHERE spell_id IN (157676);
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('157676','spell_monk_chi_explosion_brewmaster');
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('157675','spell_monk_chi_explosion_mistweaver');
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('182078','spell_monk_chi_explosion_mistweaver_heal');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('159620','spell_monk_chi_explosion_mistweaver_talent');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('152174','spell_monk_chi_explosion_windwalker');
 insert into `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `amount`, `comment`) values
 ('3220','0','1','0','1','182078','1','0','0','0','0','0','0','Взрыв ци');
 
+insert into `spell_aura_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `slot`, `comment`) values
+('157627','157590','0','2','0','0','0','0','0','7','0','0','0','Дыхание Змеи');
