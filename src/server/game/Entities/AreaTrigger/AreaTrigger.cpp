@@ -120,30 +120,30 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
         //SetOrientation(0.0f);
     // on some spells radius set on dummy aura, not on create effect.
     // overwrite by radius from spell if exist.
-    bool find = false;
     if(atInfo.polygon)
-    {
         _radius = CalculateRadius();
-        find = true;
-    }
     else
     {
-        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        bool find = false;
+        if(atInfo.Radius)
         {
-            if (float r = info->Effects[j].CalcRadius(caster))
+            _radius = atInfo.Radius;
+            find = true;
+        }
+        else if(atInfo.RadiusTarget)
+        {
+            _radius = atInfo.RadiusTarget;
+            find = true;
+        }
+
+        if(!find)
+        {
+            for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
             {
-                _radius = r * (spell ? spell->m_spellValue->RadiusMod : 1.0f);
-                find = true;
+                if (float r = info->Effects[j].CalcRadius(caster))
+                    _radius = r * (spell ? spell->m_spellValue->RadiusMod : 1.0f);
             }
         }
-    }
-
-    if (!find)
-    {
-        if(atInfo.Radius)
-            _radius = atInfo.Radius;
-        else if(atInfo.RadiusTarget)
-            _radius = atInfo.RadiusTarget;
     }
 
     if (atInfo.Height && !atInfo.polygon)

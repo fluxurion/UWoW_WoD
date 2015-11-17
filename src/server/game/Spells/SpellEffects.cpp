@@ -716,49 +716,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                 switch (m_spellInfo->Id)
                 {
-                    // Custom MoP script
-                    case 117418: // Fists of Fury
-                        damage = CalculateMonkSpellDamage(_caster, 6.0f, 0.477f, 7);
-                        break;
-                    case 100780: // Jab
-                        damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        break;
-                    case 108557: // Jab (Staff)
-                        damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        break;
-                    case 115698: // Jab (Polearm)
-                        damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        break;
-                    case 115687: // Jab (Axes)
-                        damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        break;
-                    case 115693: // Jab (Maces)
-                        damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        break;
-                    case 115695: // Jab (Swords)
-                        damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        break;
-                    case 100787: // Tiger Palm
-                        damage = CalculateMonkSpellDamage(_caster, 2.697f, 0.214f, 3);
-                        break;
-                    case 107270: // Spinning Crane Kick
-                        damage = CalculateMonkSpellDamage(_caster, 1.573f, 0.125f, 2);
-                        break;
-                    case 148187: // Rushing Jade Wind
-                        damage = CalculateMonkSpellDamage(_caster, 1.259f, 0.1f, 1);
-                        break;
                     case 107428: // Rising Sun Kick
-                        damage = CalculateMonkSpellDamage(_caster, 11.52f, 0.915f, 13);
                         m_caster->CastSpell(unitTarget, 130320, true);
-                        break;
-                    case 100784: // Blackout Kick
-                        damage = CalculateMonkSpellDamage(_caster, 6.4f, 0.509f, 7);
-                        break;
-                    case 124335: // Swift Reflexes
-                        damage = CalculateMonkSpellDamage(_caster, 2.022f, 0.161f, 2);
-                        break;
-                    case 121253: // Keg Smash
-                        damage = CalculateMonkSpellDamage(_caster, 8.989f, 0.714f, 10);
                         break;
                     default:
                         break;

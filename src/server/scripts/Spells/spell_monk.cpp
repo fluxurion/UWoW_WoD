@@ -3388,6 +3388,236 @@ class spell_monk_breath_of_the_serpent : public SpellScriptLoader
         }
 };
 
+// Chi Explosion - 157676
+class spell_monk_chi_explosion_brewmaster : public SpellScriptLoader
+{
+    public:
+        spell_monk_chi_explosion_brewmaster() : SpellScriptLoader("spell_monk_chi_explosion_brewmaster") { }
+
+        class spell_monk_chi_explosion_brewmaster_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_chi_explosion_brewmaster_SpellScript);
+
+            int32 chiCount = 0;
+            int32 stagger = 0;
+
+            void HandleDamage1(SpellEffIndex effIndex)
+            {
+                SetHitDamage(GetHitDamage() * chiCount);
+
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (!caster || !target)
+                    return;
+
+                if (chiCount >= 4 && caster->HasAura(124255))
+                    caster->CastSpell(target, 157679, true);
+            }
+
+            void HandleDamage2(SpellEffIndex effIndex)
+            {
+                if(stagger)
+                    SetHitDamage(int32(stagger / GetSpell()->GetTargetCount()));
+            }
+
+            void HandleOnCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    chiCount = caster->GetPower(POWER_CHI);
+                    if (chiCount > 4)
+                        chiCount = 4;
+
+                    if (chiCount > 1)
+                        caster->ModifyPower(POWER_CHI, -(chiCount - 1), true);
+
+                    int32 duration = 0;
+                    switch (chiCount)
+                    {
+                        case 4:
+                            duration += 2000;
+                            if (AuraEffect* effect = caster->GetAuraEffect(124255, EFFECT_1))
+                                stagger = effect->GetAmount() / 2;
+                        case 3:
+                            duration += 2000;
+                            caster->RemoveAura(124255);
+                            caster->RemoveAura(SPELL_MONK_MODERATE_STAGGER);
+                            caster->RemoveAura(SPELL_MONK_LIGHT_STAGGER);
+                            caster->RemoveAura(SPELL_MONK_HEAVY_STAGGER);
+                        case 2:
+                            duration += 6000;
+                    }
+                    if (duration)
+                    {
+                        if (Aura* aura = caster->GetAura(SPELL_MONK_SHUFFLE))
+                        {
+                            int32 _duration = int32(aura->GetDuration() + duration);
+                            aura->SetDuration(_duration);
+                            if (_duration > aura->GetMaxDuration())
+                                aura->SetMaxDuration(_duration);
+                        }
+                        else
+                        {
+                            if(Aura* aura = caster->AddAura(SPELL_MONK_SHUFFLE, caster))
+                            {
+                                aura->SetDuration(duration);
+                                aura->SetMaxDuration(duration);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if(caster->GetPower(POWER_CHI) < 4 || !caster->HasAura(124255))
+                        targets.clear();
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_chi_explosion_brewmaster_SpellScript::HandleOnCast);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_brewmaster_SpellScript::HandleDamage1, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_brewmaster_SpellScript::HandleDamage2, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_chi_explosion_brewmaster_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_chi_explosion_brewmaster_SpellScript();
+        }
+};
+
+// Chi Explosion - 157675
+class spell_monk_chi_explosion_mistweaver : public SpellScriptLoader
+{
+    public:
+        spell_monk_chi_explosion_mistweaver() : SpellScriptLoader("spell_monk_chi_explosion_mistweaver") { }
+
+        class spell_monk_chi_explosion_mistweaver_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_chi_explosion_mistweaver_SpellScript);
+
+            int32 chiCount = 0;
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (!caster || !target)
+                    return;
+
+                caster->CastCustomSpell(target, 182078, &chiCount, &chiCount, NULL, true);
+            }
+
+            void HandleOnCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    chiCount = caster->GetPower(POWER_CHI);
+                    if (chiCount > 4)
+                        chiCount = 4;
+
+                    if (chiCount > 1)
+                        caster->ModifyPower(POWER_CHI, -(chiCount - 1), true);
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_chi_explosion_mistweaver_SpellScript::HandleOnCast);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_chi_explosion_mistweaver_SpellScript();
+        }
+};
+
+// Chi Explosion - 182078
+class spell_monk_chi_explosion_mistweaver_heal : public SpellScriptLoader
+{
+    public:
+        spell_monk_chi_explosion_mistweaver_heal() : SpellScriptLoader("spell_monk_chi_explosion_mistweaver_heal") { }
+
+        class spell_monk_chi_explosion_mistweaver_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_chi_explosion_mistweaver_heal_SpellScript);
+
+            int32 baseHeal = 0;
+            int32 targetCount = 0;
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                SpellValue const* spellValue = GetSpellValue();
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (!caster || !target || !spellValue)
+                    return;
+
+                int32 bp0 = spellValue->EffectBasePoints[0];
+                baseHeal = GetHitHeal() * bp0;
+                int32 healPeriodic = int32(baseHeal / 12); // 50% for 6 tick
+                switch (bp0)
+                {
+                    case 4:
+                        caster->CastSpell(target, 157682, true);
+                        caster->CastSpell(target, 157683, true);
+                        caster->CastSpell(target, 157684, true);
+                        caster->CastSpell(target, 157685, true);
+                        caster->CastSpell(target, 157686, true);
+                        caster->CastSpell(target, 157687, true);
+                        caster->CastSpell(target, 157688, true);
+                        caster->CastSpell(target, 157689, true);
+                    case 2:
+                        caster->CastCustomSpell(target, 157681, &healPeriodic, NULL, NULL, true);
+                }
+                SetHitHeal(baseHeal);
+            }
+
+            void HandleHealAoe(SpellEffIndex /*effIndex*/)
+            {
+                SpellValue const* spellValue = GetSpellValue();
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (!caster || !target || !spellValue || !targetCount)
+                    return;
+
+                int32 heal = int32(baseHeal / targetCount);
+                SetHitHeal(heal);
+            }
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                if(SpellValue const* spellValue = GetSpellValue())
+                {
+                    if (spellValue->EffectBasePoints[1] < 3)
+                        targets.clear();
+                    else if(Unit* target = GetExplTargetUnit())
+                        targets.remove(target);
+                    targetCount = targets.size();
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnEffectHitTarget += SpellEffectFn(spell_monk_chi_explosion_mistweaver_heal_SpellScript::HandleHealAoe, EFFECT_1, SPELL_EFFECT_HEAL);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_chi_explosion_mistweaver_heal_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_chi_explosion_mistweaver_heal_SpellScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_clone_cast();
@@ -3455,4 +3685,7 @@ void AddSC_monk_spell_scripts()
     new spell_monk_purified_healing();
     new spell_monk_hurricane_strike();
     new spell_monk_breath_of_the_serpent();
+    new spell_monk_chi_explosion_brewmaster();
+    new spell_monk_chi_explosion_mistweaver();
+    new spell_monk_chi_explosion_mistweaver_heal();
 }

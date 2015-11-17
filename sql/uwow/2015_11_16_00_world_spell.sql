@@ -23,5 +23,18 @@ insert into `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('152175','spell_monk_hurricane_strike');
 
 insert into `spell_script_names` (`spell_id`, `ScriptName`) values('157535','spell_monk_breath_of_the_serpent');
+DELETE FROM spell_pet_auras WHERE petEntry IN (78065);
 insert into `spell_pet_auras` (`petEntry`, `spellId`, `option`, `target`, `targetaura`, `bp0`, `bp1`, `bp2`, `aura`, `casteraura`, `createdspell`, `fromspell`, `comment`) values
-('78065','157627','3','2','0','0','0','0','0','0','0','0','Дыхание Змеи');
+('78065','157627','3','1','0','0','0','0','0','0','0','0','Дыхание Змеи');
+
+insert into `spell_aura_trigger` (`spell_id`, `spell_trigger`, `option`, `target`, `caster`, `targetaura`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `chance`, `slot`, `comment`) values
+('101546','107270','0','0','0','0','0','0','0','7','0','0','0','Танцующий журавль'),
+('116847','148187','0','0','0','0','0','0','0','7','0','0','0','Порыв нефритового ветра');
+
+DELETE FROM spell_script_names WHERE spell_id IN (157676);
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('157676','spell_monk_chi_explosion_brewmaster');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('157675','spell_monk_chi_explosion_mistweaver');
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('182078','spell_monk_chi_explosion_mistweaver_heal');
+insert into `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `amount`, `comment`) values
+('3220','0','1','0','1','182078','1','0','0','0','0','0','0','Взрыв ци');
+

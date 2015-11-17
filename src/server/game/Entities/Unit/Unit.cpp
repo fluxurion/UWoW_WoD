@@ -976,8 +976,18 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
 uint32 Unit::CalcStaggerDamage(uint32 damage, SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo)
 {
-    if (GetTypeId() == TYPEID_PLAYER && damageSchoolMask == SPELL_SCHOOL_MASK_NORMAL && damage > 0)
+    if (GetTypeId() == TYPEID_PLAYER && damage > 0)
     {
+        uint32 magicStagger = 0;
+        if (damageSchoolMask & SPELL_SCHOOL_MASK_MAGIC)
+        {
+            if (!HasAura(157533)) // Soul Dance
+                return damage;
+            magicStagger = 30;
+        }
+        else if (damageSchoolMask != SPELL_SCHOOL_MASK_NORMAL)
+            return damage;
+
         uint32 staggerBleed  = 124255;
         uint32 staggerGreen  = 124275;
         uint32 staggerYellow = 124274;
@@ -1089,6 +1099,8 @@ uint32 Unit::CalcStaggerDamage(uint32 damage, SpellSchoolMask damageSchoolMask, 
                 if (stagger > 100.0f)
                     stagger = 100.0f;
 
+                if(magicStagger) // Soul Dance
+                    stagger = CalculatePct(stagger, magicStagger);
                 
                 bp0 = RoundingFloatValue(float(CalculatePct(damage, stagger) / 10.0f));
                 bp1 = bp0 * 10;
@@ -12019,7 +12031,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             ApCoeffMod = damagetype == DOT ? bonus->ap_dot_bonus : bonus->ap_bonus;
         }
 
-		bool calcSPDBonus = (SPDCoeffMod > 0) && getClass() != CLASS_MONK;
+        bool calcSPDBonus = SPDCoeffMod > 0;
 
         if (ApCoeffMod > 0)
         {

@@ -85,9 +85,23 @@ void Vehicle::Install()
         }
         else
         {
-            _me->setPowerType(POWER_ENERGY);
-            _me->SetMaxPower(POWER_ENERGY, _me->GetCreatePowers(POWER_ENERGY));
-            _me->SetPower(POWER_ENERGY, _me->GetCreatePowers(POWER_ENERGY));
+            Powers powerType = POWER_ENERGY;
+            for (uint32 i = 0; i < MAX_SPELL_CONTROL_BAR; ++i)
+            {
+                uint32 spellId = i < CREATURE_MAX_SPELLS ? creature->m_temlate_spells[i] : 0;
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+                if (!spellInfo)
+                    continue;
+
+                if (!spellInfo->IsPowerActive(0))
+                    continue;
+
+                SpellPowerEntry power = spellInfo->GetPowerInfo(0);
+                powerType = (Powers)power.powerType;
+            }
+            _me->setPowerType(powerType);
+            _me->SetMaxPower(powerType, _me->GetCreatePowers(powerType));
+            _me->SetPower(powerType, _me->GetCreatePowers(powerType));
         }
     }
 
