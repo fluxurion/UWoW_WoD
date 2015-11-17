@@ -3400,6 +3400,7 @@ class spell_monk_chi_explosion_brewmaster : public SpellScriptLoader
 
             int32 chiCount = 0;
             int32 stagger = 0;
+            int32 targetCount = 0;
 
             void HandleDamage1(SpellEffIndex effIndex)
             {
@@ -3416,8 +3417,11 @@ class spell_monk_chi_explosion_brewmaster : public SpellScriptLoader
 
             void HandleDamage2(SpellEffIndex effIndex)
             {
+                if (!targetCount)
+                    return;
+
                 if(stagger)
-                    SetHitDamage(int32(stagger / GetSpell()->GetTargetCount()));
+                    SetHitDamage(int32(stagger / targetCount));
             }
 
             void HandleOnCast()
@@ -3474,6 +3478,9 @@ class spell_monk_chi_explosion_brewmaster : public SpellScriptLoader
                 {
                     if(caster->GetPower(POWER_CHI) < 4 || !caster->HasAura(124255))
                         targets.clear();
+                    else if(Unit* target = GetExplTargetUnit())
+                        targets.remove(target);
+                    targetCount = targets.size();
                 }
             }
 
