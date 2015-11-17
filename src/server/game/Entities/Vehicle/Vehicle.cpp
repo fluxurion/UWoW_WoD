@@ -97,7 +97,7 @@ void Vehicle::Install()
                     continue;
 
                 SpellPowerEntry power = spellInfo->GetPowerInfo(0);
-                powerType = (Powers)power.powerType;
+                powerType = (Powers)power.PowerType;
             }
             _me->setPowerType(powerType);
             _me->SetMaxPower(powerType, _me->GetCreatePowers(powerType));
