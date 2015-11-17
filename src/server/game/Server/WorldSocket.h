@@ -20,6 +20,7 @@
 #define __WORLDSOCKET_H__
 
 #include "Common.h"
+#include "MessageBuffer.h"
 #include "WorldPacketCrypt.h"
 #include "ServerPktHeader.h"
 #include "Socket.h"
@@ -70,11 +71,12 @@ union ClientPktHeader
 class WorldSocket : public Socket<WorldSocket>
 {
     static std::string const ServerConnectionInitialize;
-
     static std::string const ClientConnectionInitialize;
+    static uint32 const MinSizeForCompression;
 
 public:
     WorldSocket(tcp::socket&& socket);
+    ~WorldSocket();
 
     WorldSocket(WorldSocket const& right) = delete;
     WorldSocket& operator=(WorldSocket const& right) = delete;
@@ -94,6 +96,9 @@ private:
     void SendAuthResponseError(uint8 code);
     void HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed);
 
+    void WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer);
+    uint32 CompressPacket(uint8* buffer, WorldPacket const& packet);
+
     void HandlePing(WorldPacket& recvPacket);
 
     void ExtractOpcodeAndSize(ClientPktHeader const* header, uint32& opcode, uint32& size) const;
@@ -110,6 +115,8 @@ private:
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
+
+    z_stream_s* _compressionStream;
 
     bool _initialized;
 };

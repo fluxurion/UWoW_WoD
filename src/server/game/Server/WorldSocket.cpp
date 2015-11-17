@@ -31,11 +31,22 @@
 #include <zlib.h>
 #include <memory>
 
+#pragma pack(push, 1)
+
+struct CompressedWorldPacket
+{
+    uint32 UncompressedSize;
+    uint32 UncompressedAdler;
+    uint32 CompressedAdler;
+};
+
+#pragma pack(pop)
+
 using boost::asio::ip::tcp;
 
 std::string const WorldSocket::ServerConnectionInitialize("WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT");
-
 std::string const WorldSocket::ClientConnectionInitialize("WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER");
+uint32 const WorldSocket::MinSizeForCompression = 0x400;
 
 uint32 const SizeOfClientHeader[2][2] =
 {
@@ -46,9 +57,18 @@ uint32 const SizeOfClientHeader[2][2] =
 uint32 const SizeOfServerHeader[2] = { sizeof(uint16) + sizeof(uint32), sizeof(uint32) };
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
-    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _initialized(false)
+    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _compressionStream(nullptr), _initialized(false)
 {
     _headerBuffer.Resize(SizeOfClientHeader[0][0]);
+}
+
+WorldSocket::~WorldSocket()
+{
+    if (_compressionStream)
+    {
+        deflateEnd(_compressionStream);
+        delete _compressionStream;
+    }
 }
 
 void WorldSocket::Start()
@@ -127,10 +147,11 @@ void WorldSocket::ReadHandler()
         }
 
         // just received fresh new payload
-        if (!ReadDataHandler())
-            return;
-
+        bool readOK = ReadDataHandler();
         _headerBuffer.Reset();
+
+        if (!readOK)
+            return;
     }
 
     AsyncRead();
@@ -323,6 +344,21 @@ bool WorldSocket::ReadDataHandler()
             return false;
         }
 
+        _compressionStream = new z_stream();
+        _compressionStream->zalloc = (alloc_func)NULL;
+        _compressionStream->zfree = (free_func)NULL;
+        _compressionStream->opaque = (voidpf)NULL;
+        _compressionStream->avail_in = 0;
+        _compressionStream->next_in = NULL;
+        int32 z_res = deflateInit2(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION), Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
+
+        if (z_res != Z_OK)
+        {
+            sLog->outError(LOG_FILTER_NETWORKIO, "Can't initialize packet compression (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
+            CloseSocket();
+            return false;
+        }
+
         _initialized = true;
         _headerBuffer.Resize(SizeOfClientHeader[1][0]);
         _packetBuffer.Reset();
@@ -345,42 +381,104 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
         sLog->outTrace(LOG_FILTER_NETWORKIO, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName().c_str() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
     }
 
-    //if (_worldSession && packet.size() > 0x400 && !packet.IsCompressed())
-    //    packet.Compress(_worldSession->GetCompressionStream());
+    ServerPktHeader header;
+    uint32 packetSize = packet.size();
+    uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
+
+    if (packetSize > MinSizeForCompression && _authCrypt.IsInitialized())
+        packetSize = compressBound(packetSize) + sizeof(CompressedWorldPacket);
 
     std::unique_lock<std::mutex> guard(_writeLock);
 
+#ifndef TC_SOCKET_USE_IOCP
+    if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= sizeOfHeader + packet.size())
+        WritePacketToBuffer(packet, _writeBuffer);
+    else
+#endif
+    {
+        MessageBuffer buffer(sizeOfHeader + packetSize);
+        WritePacketToBuffer(packet, buffer);
+        QueuePacket(std::move(buffer), guard);
+    }
+}
+
+void WorldSocket::WritePacketToBuffer(WorldPacket const& packet, MessageBuffer& buffer)
+{
     ServerPktHeader header;
     uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
+    uint32 opcode = packet.GetOpcode();
+    uint32 packetSize = packet.size();
+
+    // Reserve space for buffer
+    uint8* headerPos = buffer.GetWritePointer();
+    buffer.WriteCompleted(sizeOfHeader);
+
+    if (packetSize > MinSizeForCompression && _authCrypt.IsInitialized())
+    {
+        CompressedWorldPacket cmp;
+        cmp.UncompressedSize = packetSize + 4;
+        cmp.UncompressedAdler = adler32(adler32(0x9827D8F1, (Bytef*)&opcode, 4), packet.contents(), packetSize);
+
+        // Reserve space for compression info - uncompressed size and checksums
+        uint8* compressionInfo = buffer.GetWritePointer();
+        buffer.WriteCompleted(sizeof(CompressedWorldPacket));
+
+        uint32 compressedSize = CompressPacket(buffer.GetWritePointer(), packet);
+
+        cmp.CompressedAdler = adler32(0x9827D8F1, buffer.GetWritePointer(), compressedSize);
+
+        memcpy(compressionInfo, &cmp, sizeof(CompressedWorldPacket));
+        buffer.WriteCompleted(compressedSize);
+        packetSize = compressedSize + sizeof(CompressedWorldPacket);
+
+        opcode = SMSG_COMPRESSED_PACKET;
+    }
+    else if (!packet.empty())
+        buffer.Write(packet.contents(), packet.size());
+
     if (_authCrypt.IsInitialized())
     {
-        header.Normal.Size = packet.size();
-        header.Normal.Command = packet.GetOpcode();
+        header.Normal.Size = packetSize;
+        header.Normal.Command = opcode;
         _authCrypt.EncryptSend((uint8*)&header, sizeOfHeader);
     }
     else
     {
-        header.Setup.Size = packet.size() + 4;
-        header.Setup.Command = packet.GetOpcode();
+        header.Setup.Size = packetSize + 4;
+        header.Setup.Command = opcode;
     }
 
-#ifndef TC_SOCKET_USE_IOCP
-    if (_writeQueue.empty() && _writeBuffer.GetRemainingSpace() >= sizeOfHeader + packet.size())
-    {
-        _writeBuffer.Write((uint8*)&header, sizeOfHeader);
-        if (!packet.empty())
-            _writeBuffer.Write(packet.contents(), packet.size());
-    }
-    else
-#endif
-    {
-        MessageBuffer buffer(sizeOfHeader + packet.size());
-        buffer.Write((uint8*)&header, sizeOfHeader);
-        if (!packet.empty())
-            buffer.Write(packet.contents(), packet.size());
+    memcpy(headerPos, &header, sizeOfHeader);
+}
 
-        QueuePacket(std::move(buffer), guard);
+uint32 WorldSocket::CompressPacket(uint8* buffer, WorldPacket const& packet)
+{
+    uint32 opcode = packet.GetOpcode();
+    uint32 bufferSize = deflateBound(_compressionStream, packet.size() + sizeof(opcode));
+
+    _compressionStream->next_out = buffer;
+    _compressionStream->avail_out = bufferSize;
+    _compressionStream->next_in = (Bytef*)&opcode;
+    _compressionStream->avail_in = sizeof(uint32);
+
+    int32 z_res = deflate(_compressionStream, Z_NO_FLUSH);
+    if (z_res != Z_OK)
+    {
+        sLog->outError(LOG_FILTER_OPCODES, "Can't compress packet opcode (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
+        return 0;
     }
+
+    _compressionStream->next_in = (Bytef*)packet.contents();
+    _compressionStream->avail_in = packet.size();
+
+    z_res = deflate(_compressionStream, Z_SYNC_FLUSH);
+    if (z_res != Z_OK)
+    {
+        sLog->outError(LOG_FILTER_OPCODES, "Can't compress packet data (zlib: deflate) Error code: %i (%s, msg: %s)", z_res, zError(z_res), _compressionStream->msg);
+        return 0;
+    }
+
+    return bufferSize - _compressionStream->avail_out;
 }
 
 void WorldSocket::HandleAuthSession(WorldPackets::Auth::AuthSession& authSession)
