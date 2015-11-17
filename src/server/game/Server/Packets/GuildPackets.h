@@ -222,7 +222,7 @@ namespace WorldPackets
 
             ObjectGuid GuildGUID;
             ObjectGuid OldGuildGUID;
-            int32 Level = 0;
+            uint32 AchievementPoints = 0;
             uint32 EmblemColor = 0;
             uint32 EmblemStyle = 0;
             uint32 BorderStyle = 0;

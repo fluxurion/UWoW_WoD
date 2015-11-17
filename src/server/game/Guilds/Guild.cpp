@@ -1716,7 +1716,7 @@ void Guild::HandleInviteMember(WorldSession* session, const std::string& name)
     invite.BorderStyle = uint32(m_emblemInfo.GetBorderStyle());
     invite.BorderColor = uint32(m_emblemInfo.GetBorderColor());
     invite.Background = uint32(m_emblemInfo.GetBackgroundColor());
-    invite.Level = int32(GetLevel());
+    invite.AchievementPoints = uint32(GetAchievementMgr().GetAchievementPoints());
 
     invite.InviterName = player->GetName();
     invite.GuildName = GetName();
