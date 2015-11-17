@@ -1206,7 +1206,6 @@ class npc_hack_bank_controller : public CreatureScript
             events.Reset();
             _select = 0;
             _playerGUID.Clear();
-            me->setPowerType(POWER_ENERGY);
         }
 
         void generate()
