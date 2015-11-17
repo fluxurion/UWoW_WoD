@@ -1027,7 +1027,7 @@ void Aura::Update(uint32 diff, Unit* caster)
                     {
                         uint32 reqHealth = power.PowerCostPerSecond;
                         if (power.PowerCostPercentagePerSecond)
-                            reqHealth += caster->CountPctFromMaxHealth(power.PowerCostPercentagePerSecond);
+                            reqHealth += CalculatePct(caster->GetMaxHealth(), power.PowerCostPercentagePerSecond);
                         
                         if (reqHealth < caster->GetHealth())
                             caster->ModifyHealth(-1 * reqHealth);
@@ -1041,7 +1041,7 @@ void Aura::Update(uint32 diff, Unit* caster)
                     {
                         int32 reqPower = power.PowerCostPerSecond;
                         if (power.PowerCostPercentagePerSecond)
-                            reqPower += caster->CountPctFromMaxPower(power.PowerCostPercentagePerSecond, powertype);
+                            reqPower += CalculatePct(caster->GetMaxPower(powertype), power.PowerCostPercentagePerSecond);
 
                         if (reqPower <= caster->GetPower(powertype))
                             caster->ModifyPower(powertype, -1 * reqPower, true);

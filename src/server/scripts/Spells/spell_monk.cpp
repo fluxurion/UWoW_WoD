@@ -469,7 +469,7 @@ class spell_monk_guard : public SpellScriptLoader
 
                 if (Player* _plr = GetCaster()->ToPlayer())
                 {
-                    amount += int32(_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
+                    amount += _plr->GetTotalAttackPowerValue(BASE_ATTACK);
 
                     if (_plr->HasAura(ITEM_MONK_T14_TANK_4P))
                         amount = int32(amount * 1.2f);
@@ -479,7 +479,7 @@ class spell_monk_guard : public SpellScriptLoader
                 {
                     if (Player* _plr = GetCaster()->GetOwner()->ToPlayer())
                     {
-                        amount += int32(_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 1.971f);
+                        amount += _plr->GetTotalAttackPowerValue(BASE_ATTACK);
 
                         if (_plr->HasAura(ITEM_MONK_T14_TANK_4P))
                             amount = int32(amount * 1.2f);
@@ -723,7 +723,7 @@ class spell_monk_touch_of_karma : public SpellScriptLoader
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 if (GetCaster())
-                    amount = GetCaster()->GetMaxHealth();
+                    amount = CalculatePct(GetCaster()->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
             }
 
             void AfterAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
@@ -956,36 +956,6 @@ class spell_monk_thunder_focus_tea : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_monk_thunder_focus_tea_SpellScript();
-        }
-};
-
-// Called by Spinning Crane Kick - 107270
-// Teachings of the Monastery - 116645
-class spell_monk_teachings_of_the_monastery : public SpellScriptLoader
-{
-    public:
-        spell_monk_teachings_of_the_monastery() : SpellScriptLoader("spell_monk_teachings_of_the_monastery") { }
-
-        class spell_monk_teachings_of_the_monastery_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_teachings_of_the_monastery_SpellScript);
-
-            void HandleAfterCast()
-            {
-                if (GetCaster())
-                    if (GetCaster()->HasAura(118672))
-                        GetCaster()->CastSpell(GetCaster(), SPELL_MONK_SPINNING_CRANE_KICK_HEAL, true);
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_monk_teachings_of_the_monastery_SpellScript::HandleAfterCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_teachings_of_the_monastery_SpellScript();
         }
 };
 
@@ -1674,9 +1644,13 @@ class spell_monk_soothing_mist : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetTarget())
+                    {
                         // 25% to give 1 chi per tick
                         if (roll_chance_i(25))
                             caster->CastSpell(caster, SPELL_MONK_SOOTHING_MIST_ENERGIZE, true);
+
+                        caster->SendSpellCreateVisual(GetSpellInfo(), NULL, target, 1, 24208);
+                    }
                 }
             }
 
@@ -1868,7 +1842,7 @@ class spell_monk_provoke : public SpellScriptLoader
                     if (caster->getClass() == CLASS_MONK && caster->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (target->GetEntry() == 61146)
-                            caster->CastSpell(target, SPELL_MONK_PROVOKE_AOE, true);
+                            caster->CastSpell(target, SPELL_MONK_PROVOKE_AOE, true, NULL, NULL, target->GetGUID());
                         else
                             caster->CastSpell(target, SPELL_MONK_PROVOKE, true);
                     }
@@ -2367,7 +2341,13 @@ class spell_monk_renewing_mist_start : public SpellScriptLoader
                 if(!caster || !target)
                     return;
 
-                caster->CastCustomSpell(target, SPELL_MONK_RENEWING_MIST_HOT, NULL, NULL, NULL, true, NULL, NULL, caster->GetGUID());
+                int32 bp1 = 3;
+                if (Aura* aura = caster->GetAura(116680))
+                {
+                    bp1 +=2;
+                    aura->Remove();
+                }
+                caster->CastCustomSpell(target, SPELL_MONK_RENEWING_MIST_HOT, NULL, &bp1, NULL, true);
             }
 
             void Register()
@@ -3216,21 +3196,8 @@ class spell_monk_disable : public SpellScriptLoader
                     }
             }
 
-            void OnTick(AuraEffect const* aurEff)
-            {
-                Unit* caster = GetCaster();
-                Unit* target = GetUnitOwner();
-                if (caster && target)
-                {
-                    if (aurEff->GetTickNumber() == aurEff->GetTotalTicks())
-                        if (target->IsInRange(caster, 0, 10))
-                            GetAura()->RefreshTimers();
-                }
-            }
-
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_disable_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
                 DoCalcMaxDuration += AuraCalcMaxDurationFn(spell_monk_disable_AuraScript::CalculateMaxDuration);
             }
         };
@@ -3747,7 +3714,7 @@ class spell_monk_chi_explosion_windwalker : public SpellScriptLoader
 
                 if (chiCount > 1)
                 {
-                    int32 bp = int32(GetHitDamage() / 2);
+                    int32 bp = int32(GetHitDamage() / 12);
                     caster->CastCustomSpell(target, 157680, &bp, NULL, NULL, true);
                 }
             }
@@ -3756,6 +3723,13 @@ class spell_monk_chi_explosion_windwalker : public SpellScriptLoader
             {
                 if (!targetCount)
                     return;
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                if (!caster || !target)
+                    return;
+
+                int32 bp = int32(GetHitDamage() / 6);
+                caster->CastCustomSpell(target, 157680, &bp, NULL, NULL, true);
 
                 SetHitDamage(int32(GetHitDamage() / targetCount));
             }
@@ -3808,6 +3782,46 @@ class spell_monk_chi_explosion_windwalker : public SpellScriptLoader
         }
 };
 
+// Detonate Chi - 115460
+class spell_monk_detonate_chi : public SpellScriptLoader
+{
+    public:
+        spell_monk_detonate_chi() : SpellScriptLoader("spell_monk_detonate_chi") { }
+
+        class spell_monk_detonate_chi_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_detonate_chi_SpellScript);
+
+            void HandleOnCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    std::list<AreaTrigger*> list;
+                    caster->GetAreaObjectList(list, 119031);
+                    if(!list.empty())
+                    {
+                        for (std::list<AreaTrigger*>::iterator itr = list.begin(); itr != list.end(); ++itr)
+                        {
+                            if(AreaTrigger* areaObj = (*itr))
+                                if(areaObj->GetDuration() > 500)
+                                    areaObj->SetDuration(100);
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_monk_detonate_chi_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_detonate_chi_SpellScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_clone_cast();
@@ -3827,7 +3841,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_spinning_fire_blossom();
     new spell_monk_path_of_blossom();
     new spell_monk_thunder_focus_tea();
-    new spell_monk_teachings_of_the_monastery();
     new spell_monk_mana_tea();
     new spell_monk_mana_tea_stacks();
     new spell_monk_enveloping_mist();
@@ -3880,4 +3893,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_explosion_mistweaver_heal();
     new spell_monk_chi_explosion_mistweaver_talent();
     new spell_monk_chi_explosion_windwalker();
+    new spell_monk_detonate_chi();
 }

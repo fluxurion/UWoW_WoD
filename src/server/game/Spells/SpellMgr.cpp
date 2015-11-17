@@ -4414,7 +4414,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(29);
                     break;
                 case 121253:// Keg Smash
-                    spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(14);
                     spellInfo->CustomMaxAffectedTargets = 3;      //used if empty on dbc SpellTargetRestrictionsEntry
                     break;
                 case 115308: // Elusive Brew
