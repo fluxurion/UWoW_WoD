@@ -14511,9 +14511,14 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal, bool gene
                     tigereyeBrew->SetScriptData(0, -modVal);
                 else if (Aura* manaTea = GetAura(123766))
                     manaTea->SetScriptData(0, -modVal);
-                if(!generate && HasAura(152173)) // Serenity
-                if (Aura* serenity = GetAura(152173))
-                    serenity->SetCustomData(serenity->GetCustomData() - modVal);
+                if(!generate)
+                {
+                    if (Aura* serenity = GetAura(152173)) // Serenity
+                        serenity->SetCustomData(serenity->GetCustomData() - modVal);
+                    if (HasAura(154436))
+                        if (Aura* crane = GetAura(139598)) // Crane Style Techniques
+                            crane->SetCustomData(crane->GetCustomData() - modVal);
+                }
             }
             break;
         }

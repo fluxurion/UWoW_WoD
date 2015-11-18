@@ -4420,6 +4420,16 @@ void Spell::_handle_finish_phase()
             serenity->SetCustomData(0);
             m_caster->CastCustomSpell(m_caster, 157558, &bp, NULL, NULL, false);
         }
+        if (Aura* crane = m_caster->GetAura(139598)) // Crane Style Techniques
+        {
+            int32 count = crane->GetCustomData();
+            crane->SetCustomData(0);
+            if (count > 0)
+            {
+                for (uint8 i = 0; i < count; ++i)
+                    m_caster->CastSpell(m_caster, 118674, true);
+            }
+        }
 
         // Real add combo points from effects
         if (m_comboPointGain)
