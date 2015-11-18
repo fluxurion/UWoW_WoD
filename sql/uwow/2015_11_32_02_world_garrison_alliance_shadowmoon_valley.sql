@@ -1,6 +1,11 @@
 REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`) VALUES 
-('33815', '33868', '0', '0');
+('34584', '34583', '34585', '-34584'),
+('34616', '34583', '34585', '-34584'),
+('34586', '34585', '0', '0');
 
+DELETE FROM `spell_area` WHERE area in (6719);
+REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
+('158228', '6719', '34584', '34584', '0', '0', '2', '1', '10', '64');
 
 -- 4352 мир
 -- 3329 - фаза интро перед квестом.
@@ -36,3 +41,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 DELETE FROM `creature_text` WHERE entry = 82125;
 REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (82125, 0, 0, 'Я могу открыть портал в Штормград, но лишь ненадолго.', 12, 0, 100, 0, 0, 44990, 'Верховный маг Кадгар to Player');
+
+-- Q:34584
+REPLACE INTO `gameobject_quest_visual` (`goID`, `questID`, `incomplete_state_spell_visual`, `incomplete_state_world_effect`, `complete_state_spell_visual`, `complete_state_world_effect`, `Comment`) VALUES
+('230335', '34584', '37794', '2100', '0', '0', '');
+
+-- Q: 34586
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 79243;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(79243, 0, 0, 1, 62, 0, 100, 0, 16871, 0, 0, 0, 85, 156020, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'on gossip select - cast spell');

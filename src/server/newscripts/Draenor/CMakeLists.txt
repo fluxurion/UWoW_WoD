@@ -12,6 +12,7 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Draenor/dark_portal.cpp
   Draenor/frostfire_ridge.cpp
+  Draenor/shadowmoon_valley.cpp
   
   Draenor/garrison/garrison_general.cpp
   Draenor/garrison/instance_garr.cpp
