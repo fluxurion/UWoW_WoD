@@ -27,3 +27,14 @@ insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `p
 DELETE FROM spell_trigger WHERE spell_id IN (130324);
 insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
 ('130324','117895','0','3','0','0','1','0','50','0','0','7','154436','0','0','0','0','0','0','-1','0','0','0','Величие (статуя) - Монастырские знания');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('107428','130320','1','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Удар восходящего солнца');
+
+insert into `spell_script_names` (`spell_id`, `ScriptName`) values('117418','spell_monk_fists_of_fury');
+
+insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values
+('115129','16','0','0','0','0','0','0','7','1','1','0','0','0','Устранение вреда');
+
+DELETE FROM spell_bonus_data WHERE entry IN (115072);
+

@@ -4420,11 +4420,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 122300: // Psyfiend Visual
                     spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(1);
                     break;
-                case 115129:// Expel Harm - Damage to a nearby ennemy within 10 yards
-                    spellInfo->Effects[EFFECT_0].TargetA = TARGET_SRC_CASTER;
-                    spellInfo->Effects[EFFECT_0].TargetB = TARGET_UNIT_NEARBY_ENEMY;
-                    spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(13);
-                    break;
                 case 126892:// Zen Pilgrimage
                 case 126895:// Zen Pilgrimage : Return
                     spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_DUMMY;

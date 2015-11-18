@@ -707,23 +707,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
                 break;
             }
-            case SPELLFAMILY_MONK:
-            {
-                Unit* _caster = m_caster;
-
-                if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    _caster = m_caster->GetOwner();
-
-                switch (m_spellInfo->Id)
-                {
-                    case 107428: // Rising Sun Kick
-                        m_caster->CastSpell(unitTarget, 130320, true);
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            }
         }
 
         if (m_originalCaster)
@@ -2268,14 +2251,10 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             case 115072: // Expel Harm
             case 147489: // Expel Harm
             {
+                addhealth = m_caster->CalculateMonkSpellDamage(7.5f);
                 SpellInfo const* _triggerInfo = sSpellMgr->GetSpellInfo(115129);
-                Unit* target = m_caster->SelectNearbyTarget(m_caster, _triggerInfo->Effects[0].CalcRadius());
-
-                if (target && m_caster->IsValidAttackTarget(target))
-                {
-                    int32 bp = CalculatePct(addhealth, _triggerInfo->Effects[1].BasePoints);
-                    m_caster->CastCustomSpell(target, _triggerInfo->Id, &bp, NULL, NULL, true);
-                }
+                int32 bp = CalculatePct(addhealth, _triggerInfo->Effects[1].BasePoints);
+                m_caster->CastCustomSpell(unitTarget, 115129, &bp, NULL, NULL, true);
                 break;
             }
             case 52042: // Glyph of Healing Stream Totem

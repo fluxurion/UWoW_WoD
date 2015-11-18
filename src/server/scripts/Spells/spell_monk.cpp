@@ -3664,6 +3664,35 @@ class spell_monk_detonate_chi : public SpellScriptLoader
         }
 };
 
+// Fists of Fury - 117418
+class spell_monk_fists_of_fury : public SpellScriptLoader
+{
+    public:
+        spell_monk_fists_of_fury() : SpellScriptLoader("spell_monk_fists_of_fury") { }
+
+        class spell_monk_fists_of_fury_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_monk_fists_of_fury_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (GetHitUnit() != caster->getVictim() && GetSpell()->GetTargetCount() > 1)
+                        SetHitDamage(int32(GetHitDamage() / (GetSpell()->GetTargetCount() - 1)));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_monk_fists_of_fury_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_monk_fists_of_fury_SpellScript();
+        }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_clone_cast();
@@ -3733,4 +3762,5 @@ void AddSC_monk_spell_scripts()
     new spell_monk_chi_explosion_mistweaver_talent();
     new spell_monk_chi_explosion_windwalker();
     new spell_monk_detonate_chi();
+    new spell_monk_fists_of_fury();
 }
