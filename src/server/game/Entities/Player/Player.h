@@ -3297,6 +3297,7 @@ class Player : public Unit, public GridObject<Player>
         // client version server check and helpers
         void SendVersionMismatchWarinings();
 
+        uint32 GetGoVisualQuestData(GameObject* go, uint32 field);
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;

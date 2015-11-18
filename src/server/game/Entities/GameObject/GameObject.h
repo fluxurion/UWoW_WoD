@@ -37,6 +37,22 @@ class GameObjectAI;
 
 #define MAX_GAMEOBJECT_QUEST_ITEMS 6
 
+struct GoVisual
+{
+    uint32  WorldEffectID = 0;
+    uint32  SpellVisualID = 0;
+    uint32  SpellStateVisualID = 0;
+    uint32  SpellStateAnimID = 0;
+    uint32  SpellStateAnimKitID = 0;
+    uint32  StateWorldEffectID = 0;
+};
+
+enum GoVisualCounter
+{
+    GO_VISUAL_BEFORE_COMPLETE_QUEST = 0,
+    GO_VISUAL_AFTER_COMPLETEQUEST = 1,
+};
+
 // from `gameobject_template`
 struct GameObjectTemplate
 {
@@ -52,12 +68,10 @@ struct GameObjectTemplate
     float   size;
     uint32  questItems[MAX_GAMEOBJECT_QUEST_ITEMS];
     int32   unkInt32;
-    uint32  WorldEffectID;
-    uint32  SpellVisualID;
-    uint32  SpellStateVisualID;
-    uint32  SpellStateAnimID;
-    uint32  SpellStateAnimKitID;
-    uint32  StateWorldEffectID;
+
+    uint32   visualQuestID;                                 // after completion state changed.
+    GoVisual visualData[2];                                 // 0 - befor complete VisualQuest, 1 - after complete VisualQuest
+
     union                                                   // different GO types have different data field
     {
         // 0 GAMEOBJECT_TYPE_DOOR

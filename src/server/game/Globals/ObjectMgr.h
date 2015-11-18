@@ -977,6 +977,7 @@ class ObjectMgr
         int LoadReferenceVendor(int32 vendor, int32 item, uint8 type, std::set<uint32> *skip_vendors);
 
         void LoadGameObjectTemplate();
+        void LoadGameObjectQuestVisual();
         void AddGameobjectInfo(GameObjectTemplate* goinfo);
 
         const std::vector<CreatureDifficultyStat>* GetDifficultyStat(uint32 entry) const;

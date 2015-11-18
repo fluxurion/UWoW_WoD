@@ -30231,3 +30231,23 @@ void Player::SendVersionMismatchWarinings()
 
     GetSession()->SendNotification(LANG_CLIENT_VERSION_MISMATCH_MESSAGE_NOTIFY);
 }
+
+uint32 Player::GetGoVisualQuestData(GameObject* go, uint32 field)
+{
+    uint8 idx = GO_VISUAL_BEFORE_COMPLETE_QUEST;
+
+    if (go->GetGOInfo()->visualQuestID)
+    {
+        QuestStatus status = GetQuestStatus(go->GetGOInfo()->visualQuestID);
+        switch (status)
+        {
+            case QUEST_STATUS_COMPLETE:
+            case QUEST_STATUS_REWARDED:
+                idx = GO_VISUAL_AFTER_COMPLETEQUEST;
+                break;
+            default:
+                break;;
+        }
+    }
+    return field == GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID ? go->GetGOInfo()->visualData[idx].StateWorldEffectID : go->GetGOInfo()->visualData[idx].SpellStateVisualID;
+}

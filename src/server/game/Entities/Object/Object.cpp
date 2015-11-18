@@ -637,7 +637,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (HasGameObject)
     {
         if(GameObject const* go = ToGameObject())
-            *data << uint32(go->GetGOInfo()->WorldEffectID);
+            *data << uint32(go->GetGOInfo()->visualData[0].WorldEffectID);
         else
             *data << uint32(0);
 
@@ -1485,6 +1485,14 @@ void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* targ
                         fieldBuffer << uint32(m_uint32Values[index] | GO_STATE_TRANSPORT_SPEC);
                         continue; //skip by custom write
                     }                    
+                }
+                else if (index == GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID || index == GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID)
+                {
+                    if (((GameObject*)this)->GetGOInfo()->visualQuestID)
+                    {
+                        fieldBuffer << target->GetGoVisualQuestData((GameObject*)this, index);
+                        continue;
+                    }
                 }
             }
             else if (isType(TYPEMASK_DYNAMICOBJECT))                    // dynamiobject case

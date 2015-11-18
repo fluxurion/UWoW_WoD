@@ -219,18 +219,28 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     SetGoArtKit(artKit);
     SetAIAnimKitId(aid);
 
-    if(m_goInfo->WorldEffectID)
+    if (m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].WorldEffectID)
         m_updateFlag |= UPDATEFLAG_HAS_WORLDEFFECTID;
-    if(m_goInfo->SpellVisualID)
-        SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, m_goInfo->SpellVisualID);
-    if(m_goInfo->SpellStateVisualID)
-        SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, m_goInfo->SpellStateVisualID);
-    if(m_goInfo->SpellStateAnimID)
-        SetUInt32Value(GAMEOBJECT_FIELD_STATE_ANIM_ID, m_goInfo->SpellStateAnimID);
-    if(m_goInfo->SpellStateAnimKitID)
-        SetUInt32Value(GAMEOBJECT_FIELD_STATE_ANIM_KIT_ID, m_goInfo->SpellStateAnimKitID);
-    if(m_goInfo->StateWorldEffectID)
-        SetUInt32Value(GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID, m_goInfo->StateWorldEffectID);
+
+    if (!m_goInfo->visualQuestID)
+    {  
+        if (m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].StateWorldEffectID)
+            SetUInt32Value(GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID, m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].StateWorldEffectID);
+
+        if (m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateVisualID)
+            SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateVisualID);
+    }
+
+    if (m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellVisualID)
+        SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellVisualID);
+
+    if (m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateAnimID)
+        SetUInt32Value(GAMEOBJECT_FIELD_STATE_ANIM_ID, m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateAnimID);
+
+    if (m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateAnimKitID)
+        SetUInt32Value(GAMEOBJECT_FIELD_STATE_ANIM_KIT_ID, m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateAnimKitID);
+
+
 
     switch (goinfo->type)
     {
@@ -2126,20 +2136,29 @@ void GameObject::SetGoState(GOState state)
     switch (state)
     {
         case GO_STATE_READY:
-            if (m_goInfo->SpellStateVisualID)
-                SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, m_goInfo->SpellStateVisualID);
-            if(GetGOInfo()->SpellVisualID)
-                SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, GetGOInfo()->SpellVisualID);
-            if (m_goInfo->StateWorldEffectID)
-                SetUInt32Value(GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID, m_goInfo->StateWorldEffectID);
+            if (!m_goInfo->visualQuestID)
+            {
+                if (m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].StateWorldEffectID)
+                    SetUInt32Value(GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID, m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].StateWorldEffectID);
+                if (m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateVisualID)
+                    SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateVisualID);
+            }
+
+            if (GetGOInfo()->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellVisualID)
+                SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, GetGOInfo()->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellVisualID);
+
             break;
         default:
-            if (m_goInfo->SpellStateVisualID)
-                SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, m_goInfo->SpellStateVisualID);
-            if(GetGOInfo()->SpellVisualID)
+            if (!m_goInfo->visualQuestID)
+            {
+                if (m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].StateWorldEffectID)
+                    SetUInt32Value(GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID, 0);
+                if (m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateVisualID)
+                    SetUInt32Value(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, m_goInfo->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateVisualID);
+            }
+            if (GetGOInfo()->visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellVisualID)
                 SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, 0);
-            if (m_goInfo->StateWorldEffectID)
-                SetUInt32Value(GAMEOBJECT_FIELD_STATE_WORLD_EFFECT_ID, 0);
+
             break;
     }
 }

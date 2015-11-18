@@ -1741,6 +1741,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests...");
     sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Gameobject quest visual...");
+    sObjectMgr->LoadGameObjectQuestVisual();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Checking Quest Disables");
     DisableMgr::CheckQuestDisables();                           // must be after loading quests
 

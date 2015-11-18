@@ -6708,12 +6708,13 @@ void ObjectMgr::LoadGameObjectTemplate()
         got.unkInt32 = fields[49].GetInt32();
         got.AIName = fields[50].GetString();
         got.ScriptId = GetScriptId(fields[51].GetCString());
-        got.WorldEffectID = fields[52].GetInt32();
-        got.SpellVisualID = fields[53].GetInt32();
-        got.SpellStateVisualID = fields[54].GetInt32();
-        got.SpellStateAnimID = fields[55].GetInt32();
-        got.SpellStateAnimKitID = fields[56].GetInt32();
-        got.StateWorldEffectID = fields[57].GetInt32();
+        got.visualQuestID = 0;
+        got.visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].WorldEffectID = fields[52].GetInt32();
+        got.visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellVisualID = fields[53].GetInt32();
+        got.visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateVisualID = fields[54].GetInt32();
+        got.visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateAnimID = fields[55].GetInt32();
+        got.visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateAnimKitID = fields[56].GetInt32();
+        got.visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].StateWorldEffectID = fields[57].GetInt32();
 
         // Checks
 
@@ -6903,6 +6904,48 @@ void ObjectMgr::LoadGameObjectTemplate()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game object templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadGameObjectQuestVisual()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                                  0       1           2                                   3                               4                               5
+    QueryResult result = WorldDatabase.Query("SELECT `goID`, `questID`, `incomplete_state_spell_visual`, `incomplete_state_world_effect`, `complete_state_spell_visual`, `complete_state_world_effect` FROM gameobject_quest_visual");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 gameobject quest visual. DB table `gameobject_quest_visual` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 goID = fields[0].GetUInt32();
+        uint32 questID = fields[1].GetUInt32();
+        if (!GetGameObjectTemplate(goID))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Gameobject (Entry: %u) not exist on table `gameobject_quest_visual`", goID);
+            continue;
+        }
+        if (questID && !GetQuestTemplate(questID))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Quest (ID: %u) not exist on table `gameobject_quest_visual`", questID);
+            continue;
+        }
+        GameObjectTemplate& got = _gameObjectTemplateStore[goID];
+        got.visualQuestID = questID;
+        got.visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].SpellStateVisualID = fields[2].GetUInt32();
+        got.visualData[GO_VISUAL_BEFORE_COMPLETE_QUEST].StateWorldEffectID = fields[3].GetUInt32();
+        got.visualData[GO_VISUAL_AFTER_COMPLETEQUEST].SpellStateVisualID = fields[4].GetUInt32();
+        got.visualData[GO_VISUAL_AFTER_COMPLETEQUEST].StateWorldEffectID = fields[5].GetUInt32();
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u game object quest visual in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadExplorationBaseXP()
