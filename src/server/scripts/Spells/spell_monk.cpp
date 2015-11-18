@@ -469,20 +469,26 @@ class spell_monk_guard : public SpellScriptLoader
 
                 if (Player* _plr = GetCaster()->ToPlayer())
                 {
-                    amount += _plr->GetTotalAttackPowerValue(BASE_ATTACK);
+                    amount += int32((_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 18) * (1.0f + pPlayer->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS)));
 
                     if (_plr->HasAura(ITEM_MONK_T14_TANK_4P))
                         amount = int32(amount * 1.2f);
+
+                    if (_plr->HasAura(123401)) // Glyph of Guard
+                        amount = int32(amount * 1.1f);
                 }
                 // For Black Ox Statue
                 else if (GetCaster()->GetOwner())
                 {
                     if (Player* _plr = GetCaster()->GetOwner()->ToPlayer())
                     {
-                        amount += _plr->GetTotalAttackPowerValue(BASE_ATTACK);
+                        amount += int32((_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 18) * (1.0f + pPlayer->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS)));
 
                         if (_plr->HasAura(ITEM_MONK_T14_TANK_4P))
                             amount = int32(amount * 1.2f);
+
+                        if (_plr->HasAura(123401)) // Glyph of Guard
+                            amount = int32(amount * 1.1f);
                     }
                 }
             }
@@ -754,165 +760,6 @@ class spell_monk_touch_of_karma : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_monk_touch_of_karma_AuraScript();
-        }
-};
-
-// Spinning Fire Blossom - 123408
-class spell_monk_spinning_fire_blossom_damage : public SpellScriptLoader
-{
-    public:
-        spell_monk_spinning_fire_blossom_damage() : SpellScriptLoader("spell_monk_spinning_fire_blossom_damage") { }
-
-        class spell_monk_spinning_fire_blossom_damage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_spinning_fire_blossom_damage_SpellScript);
-
-            SpellCastResult CheckTarget()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetExplTargetUnit())
-                        if (_player->IsFriendlyTo(target))
-                            return SPELL_FAILED_BAD_TARGETS;
-
-                return SPELL_CAST_OK;
-            }
-
-            void HandleDamage(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        int32 damage = GetSpell()->CalculateMonkMeleeAttacks(caster, 1.5f, 6);
-                        if (target->GetExactDist2d(caster) > 10.0f)
-                            SetHitDamage(int32(damage * 1.5f));
-                        else
-                            SetHitDamage(damage);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_monk_spinning_fire_blossom_damage_SpellScript::CheckTarget);
-                OnEffectHitTarget += SpellEffectFn(spell_monk_spinning_fire_blossom_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_spinning_fire_blossom_damage_SpellScript();
-        }
-};
-
-// Spinning Fire Blossom - 115073
-class spell_monk_spinning_fire_blossom : public SpellScriptLoader
-{
-    public:
-        spell_monk_spinning_fire_blossom() : SpellScriptLoader("spell_monk_spinning_fire_blossom") { }
-
-        class spell_monk_spinning_fire_blossom_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_monk_spinning_fire_blossom_SpellScript)
-
-            bool find_target;
-
-            bool Load()
-            {
-                find_target = false;
-                return true;
-            }
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove(GetCaster());
-                targets.remove_if(DistanceCheck(GetCaster(), 50.0f));
-                if (targets.size() > 1)
-                    targets.resize(1);
-                if (!targets.empty())
-                    find_target = true;
-            }
-
-            void HandleDamage(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        int32 damage = GetSpell()->CalculateMonkMeleeAttacks(caster, 1.5f, 6);
-                         if (target->GetExactDist2d(caster) > 10.0f)
-                        {
-                            SetHitDamage(int32(damage * 1.5f));
-                            caster->CastSpell(target, SPELL_MONK_SPINNING_FIRE_BLOSSOM_ROOT, true);
-                        }
-                        else
-                            SetHitDamage(damage);
-                    }
-                }
-            }
-
-            void HandleAfterCast()
-            {
-                Unit* caster = GetCaster();
-                if(!find_target && caster)
-                    caster->CastSpell(caster, SPELL_MONK_SPINNING_FIRE_BLOSSOM_MISSILE, true);
-            }
-
-            void Register()
-            {
-                AfterCast += SpellCastFn(spell_monk_spinning_fire_blossom_SpellScript::HandleAfterCast);
-                OnEffectHitTarget += SpellEffectFn(spell_monk_spinning_fire_blossom_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_spinning_fire_blossom_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_ENEMY_BETWEEN_DEST);
-            }
-
-        private:
-            class DistanceCheck
-            {
-                public:
-                    DistanceCheck(Unit* caster, float dist) : _caster(caster), _dist(dist) {}
-
-                    bool operator()(WorldObject* unit)
-                    {
-                        return _caster->GetExactDist2d(unit) > _dist;
-                    }
-
-                private:
-                    Unit* _caster;
-                    float _dist;
-            };
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_monk_spinning_fire_blossom_SpellScript();
-        }
-};
-
-// Path of Blossom - 124336
-class spell_monk_path_of_blossom : public SpellScriptLoader
-{
-    public:
-        spell_monk_path_of_blossom() : SpellScriptLoader("spell_monk_path_of_blossom") { }
-
-        class spell_monk_path_of_blossom_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_monk_path_of_blossom_AuraScript);
-
-            void OnTick(AuraEffect const* aurEff)
-            {
-                if (GetCaster())
-                    GetCaster()->CastSpell(GetCaster(), SPELL_MONK_PATH_OF_BLOSSOM_AREATRIGGER, true);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_path_of_blossom_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_monk_path_of_blossom_AuraScript();
         }
 };
 
@@ -1649,7 +1496,7 @@ class spell_monk_soothing_mist : public SpellScriptLoader
                         if (roll_chance_i(25))
                             caster->CastSpell(caster, SPELL_MONK_SOOTHING_MIST_ENERGIZE, true);
 
-                        caster->SendSpellCreateVisual(GetSpellInfo(), NULL, target, 1, 24208);
+                        caster->SendSpellCreateVisual(GetSpellInfo(), target, target, 1, 24208);
                     }
                 }
             }
@@ -3837,9 +3684,6 @@ void AddSC_monk_spell_scripts()
     new spell_monk_power_strikes();
     new spell_monk_crackling_jade_lightning();
     new spell_monk_touch_of_karma();
-    new spell_monk_spinning_fire_blossom_damage();
-    new spell_monk_spinning_fire_blossom();
-    new spell_monk_path_of_blossom();
     new spell_monk_thunder_focus_tea();
     new spell_monk_mana_tea();
     new spell_monk_mana_tea_stacks();

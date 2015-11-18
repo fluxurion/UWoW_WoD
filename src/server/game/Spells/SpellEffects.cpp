@@ -716,46 +716,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                 switch (m_spellInfo->Id)
                 {
-                    // Custom MoP script
-                    case 117418: // Fists of Fury
-                        damage = CalculateMonkSpellDamage(_caster, 7.5f, 0.6f, 7);
-                        break;
-                    //case 100780: // Jab
-                        //damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        //break;
-                    //case 108557: // Jab (Staff)
-                        //damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        //break;
-                    //case 115698: // Jab (Polearm)
-                        //damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        //break;
-                    //case 115687: // Jab (Axes)
-                        //damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        //break;
-                    //case 115693: // Jab (Maces)
-                        //damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        //break;
-                    //case 115695: // Jab (Swords)
-                        //damage = CalculateMonkSpellDamage(_caster, 1.348f, 0.107f, 2);
-                        //break;
-                    //case 100787: // Tiger Palm
-                        //damage = CalculateMonkSpellDamage(_caster, 2.697f, 0.214f, 3);
-                        //break;
-                    //case 107270: // Spinning Crane Kick
-                        //damage = CalculateMonkSpellDamage(_caster, 1.573f, 0.125f, 2);
-                        //break;
-                    //case 148187: // Rushing Jade Wind
-                        //damage = CalculateMonkSpellDamage(_caster, 1.259f, 0.1f, 1);
-                        //break;
                     case 107428: // Rising Sun Kick
-                        damage = CalculateMonkSpellDamage(_caster, 14.4f, 1.0f, 13);
                         m_caster->CastSpell(unitTarget, 130320, true);
-                        break;
-                    case 100784: // Blackout Kick
-                        damage = CalculateMonkSpellDamage(_caster, 7.5f, 0.65f, 7);
-                        break;
-                    case 121253: // Keg Smash
-                        damage = CalculateMonkSpellDamage(_caster, 11.5f, 0.95f, 10);
                         break;
                     default:
                         break;
@@ -2312,7 +2274,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             case 147489: // Expel Harm
             {
                 SpellInfo const* _triggerInfo = sSpellMgr->GetSpellInfo(115129);
-                addhealth = CalculateMonkSpellDamage(m_caster, 7.0f / 1.1125f, 0.5f, 7);
                 Unit* target = m_caster->SelectNearbyTarget(m_caster, _triggerInfo->Effects[0].CalcRadius());
 
                 if (target && m_caster->IsValidAttackTarget(target))
@@ -7821,133 +7782,6 @@ void Spell::EffectCreateAreaTrigger(SpellEffIndex effIndex)
     AreaTrigger * areaTrigger = new AreaTrigger;
     if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GetGenerator<HighGuid::AreaTrigger>()->Generate(), triggerEntry, GetCaster(), GetSpellInfo(), pos, posMove, this))
         delete areaTrigger;
-}
-
-int32 Spell::CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultiplier)
-{
-    Player* pPlayer = caster->ToPlayer();
-    if (!pPlayer)
-        return 0.0f;
-
-    Item* mainItem = caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-    Item* offItem = caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-    float minDamage = 0;
-    float maxDamage = 0;
-    bool dualwield = (mainItem && offItem) ? 1 : 0;
-    int32 AP = caster->GetTotalAttackPowerValue(BASE_ATTACK);
-
-    // Main Hand
-    if (mainItem && coeff > 0)
-    {
-        ItemTemplate const* proto = mainItem->GetTemplate();
-        proto->GetDamage(mainItem->GetItemLevel(), minDamage, maxDamage);
-        minDamage /= m_caster->GetAttackTime(BASE_ATTACK) / 1000;
-        maxDamage /= m_caster->GetAttackTime(BASE_ATTACK) / 1000;
-    }
-
-    // Off Hand
-    if (offItem && coeff > 0)
-    {
-        ItemTemplate const* proto = offItem->GetTemplate();
-        proto->GetDamage(offItem->GetItemLevel(), minDamage, maxDamage);
-        // ToDo: Is IT NEED? /2 ???
-        minDamage /= m_caster->GetAttackTime(BASE_ATTACK) / 1000 / 2;
-        maxDamage /= m_caster->GetAttackTime(BASE_ATTACK) / 1000 / 2;
-    }
-
-    // DualWield coefficient
-    if (dualwield)
-    {
-        minDamage *= 0.898882275f;
-        maxDamage *= 0.898882275f;
-    }
-
-    minDamage += (AP / APmultiplier);
-    maxDamage += (AP / APmultiplier);
-
-    // Off Hand penalty reapplied if only equiped by an off hand weapon
-    if (offItem && !mainItem)
-    {
-        minDamage /= 2;
-        maxDamage /= 2;
-    }
-
-    return irand(int32(minDamage * coeff), int32(maxDamage * coeff));
-}
-
-int32 Spell::CalculateMonkSpellDamage(Unit* caster, float coeff, float APmultiplier, int32 base)
-{
-    Player* pPlayer = caster->ToPlayer();
-    if (!pPlayer)
-        return 0.0f;
-
-    Item* mainItem = pPlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-    Item* offItem = pPlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-
-    float MHmin = 0;
-    float MHmax = 0;
-    float OHmin = 0;
-    float OHmax = 0;
-
-    int32 AP = caster->GetTotalAttackPowerValue(BASE_ATTACK) * APmultiplier;
-    bool dualwield = mainItem && offItem;
-
-    // Main Hand
-    if (mainItem && coeff > 0)
-        if (ItemTemplate const* tempMain = mainItem->GetTemplate())
-        {
-            tempMain->GetDamage(mainItem->GetItemLevel(), MHmin, MHmax);
-
-            MHmin /= tempMain->Delay / 1000.0f;
-            MHmax /= tempMain->Delay / 1000.0f;
-
-            if (tempMain->GetInventoryType() == INVTYPE_2HWEAPON)
-            {
-                coeff *= 1.1125f;
-            }
-        }
-
-    // Off Hand
-    if (offItem && coeff > 0)
-        if (ItemTemplate const* temp = offItem->GetTemplate())
-        {
-            temp->GetDamage(offItem->GetItemLevel(), OHmin, OHmax);
-
-            if (OHmin && OHmax && temp->Delay)
-            {
-                OHmin /= 2;
-                OHmax /= 2;
-
-                OHmin /= temp->Delay / 1000.0f;
-                OHmax /= temp->Delay / 1000.0f;
-            }
-            else
-                dualwield = false;
-        }
-
-    // DualWield coefficient
-    if (dualwield)
-    {
-        MHmin += OHmin;
-        MHmax += OHmax;
-    }
-
-    if (caster->HasAuraType(SPELL_AURA_MOD_DISARM))
-    {
-        MHmin = 0;
-        MHmax = 0;
-    }
-
-    MHmin *= coeff;
-    MHmin += AP - base;
-
-    if (MHmin <= 0) MHmin = 1.0f;
-
-    MHmax *= coeff;
-    MHmax += AP + base;
-
-    return irand(int32(MHmin), int32(MHmax));
 }
 
 void Spell::EffectBuyGuilkBankTab(SpellEffIndex effIndex)

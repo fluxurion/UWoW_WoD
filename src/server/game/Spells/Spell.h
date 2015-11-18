@@ -483,8 +483,6 @@ class Spell
         void EffectDespawnDynamicObject(SpellEffIndex effIndex);
         void EffectBuyGuilkBankTab(SpellEffIndex effIndex);
         void EffectCreateAreaTrigger(SpellEffIndex effIndex);
-        int32 CalculateMonkMeleeAttacks(Unit* caster, float coeff, int32 APmultiplier);
-        int32 CalculateMonkSpellDamage(Unit* caster, float coeff, float APmultiplier, int32 base);
         void EffectResurrectWithAura(SpellEffIndex effIndex);
         void EffectSummonRaidMarker(SpellEffIndex effIndex);
         void EffectRandomizeDigsites(SpellEffIndex effIndex);

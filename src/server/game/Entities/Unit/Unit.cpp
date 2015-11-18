@@ -12032,6 +12032,17 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         }
 
         bool calcSPDBonus = SPDCoeffMod > 0;
+        if (getClass() == CLASS_MONK)
+        {
+            if(ApCoeffMod)
+            {
+                DoneTotal += CalculateMonkSpellDamage(ApCoeffMod);
+                ApCoeffMod = 0.0f;;
+            }
+            if(spellProto->GetEffect(effIndex, m_diffMode)->BonusCoefficient)
+                ApCoeffMod = spellProto->GetEffect(effIndex, m_diffMode)->BonusCoefficient;
+            calcSPDBonus = false;
+        }
 
         if (ApCoeffMod > 0)
         {
@@ -20035,7 +20046,7 @@ void Unit::CalculateCastTimeFromDummy(int32& castTime, SpellInfo const* spellPro
     {
         for (std::vector<SpellAuraDummy>::const_iterator itr = spellAuraDummy->begin(); itr != spellAuraDummy->end(); ++itr)
         {
-            if(itr->type != SPELL_DUMMY_TIME)
+            if(itr->type != SPELL_DUMMY_TIME) // type = 3
                 continue;
 
             Unit* _caster = this;
@@ -23901,7 +23912,7 @@ void Unit::SendSpellCreateVisual(SpellInfo const* spellInfo, Position const* pos
         else
             visual.TargetPosition = *position;
     }
-    
+
     SendMessageToSet(visual.Write(), true);
 }
 
@@ -24609,4 +24620,137 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
     }
 
     return spellInfo;
+}
+
+int32 Unit::CalculateMonkSpellDamage(float coeff)
+{
+    Player* pPlayer = ToPlayer();
+    if (!pPlayer)
+        return 0.0f;
+
+    Item* mainItem = pPlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    Item* offItem = pPlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+    float MHmin = 0;
+    float MHmax = 0;
+    float OHmin = 0;
+    float OHmax = 0;
+    float baseCoef = 0.857143f;
+
+    float versadmg = 1.0f + pPlayer->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS);
+    int32 AP = GetTotalAttackPowerValue(BASE_ATTACK) / 3.5;
+    bool dualwield = mainItem && offItem;
+
+    // Main Hand
+    if (mainItem)
+        if (ItemTemplate const* tempMain = mainItem->GetTemplate())
+        {
+            tempMain->GetDamage(mainItem->GetItemLevel(), MHmin, MHmax);
+
+            MHmin /= tempMain->Delay / 1000.0f;
+            MHmax /= tempMain->Delay / 1000.0f;
+
+            if (tempMain->GetInventoryType() == INVTYPE_2HWEAPON)
+                baseCoef = 1.0f;
+        }
+
+    // Off Hand
+    if (offItem)
+        if (ItemTemplate const* temp = offItem->GetTemplate())
+        {
+            temp->GetDamage(offItem->GetItemLevel(), OHmin, OHmax);
+
+            if (OHmin && OHmax && temp->Delay)
+            {
+                OHmin /= 2;
+                OHmax /= 2;
+
+                OHmin /= temp->Delay / 1000.0f;
+                OHmax /= temp->Delay / 1000.0f;
+            }
+            else
+                dualwield = false;
+        }
+
+    // DualWield coefficient
+    if (dualwield)
+    {
+        MHmin += OHmin;
+        MHmax += OHmax;
+    }
+
+    if (HasAuraType(SPELL_AURA_MOD_DISARM))
+    {
+        MHmin = 0;
+        MHmax = 0;
+    }
+
+    MHmin *= baseCoef;
+    MHmin += AP - 1;
+
+    if (MHmin <= 0) MHmin = 1.0f;
+
+    MHmax *= baseCoef;
+    MHmax += AP + 1;
+
+    MHmin *= versadmg;
+    MHmax *= versadmg;
+
+    MHmin *= coeff;
+    MHmax *= coeff;
+
+    return irand(int32(MHmin), int32(MHmax));
+}
+
+int32 Unit::CalculateMonkMeleeAttacks(float coeff)
+{
+    Player* pPlayer = ToPlayer();
+    if (!pPlayer)
+        return 0.0f;
+
+    Item* mainItem = pPlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+    Item* offItem = pPlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+
+    float minDamage = 0;
+    float maxDamage = 0;
+    bool dualwield = (mainItem && offItem) ? 1 : 0;
+    int32 AP = int32(GetTotalAttackPowerValue(BASE_ATTACK) / 3.5f);
+
+    // Main Hand
+    if (mainItem && coeff > 0)
+    {
+        ItemTemplate const* proto = mainItem->GetTemplate();
+        proto->GetDamage(mainItem->GetItemLevel(), minDamage, maxDamage);
+        minDamage /= GetAttackTime(BASE_ATTACK) / 1000;
+        maxDamage /= GetAttackTime(BASE_ATTACK) / 1000;
+    }
+
+    // Off Hand
+    if (offItem && coeff > 0)
+    {
+        ItemTemplate const* proto = offItem->GetTemplate();
+        proto->GetDamage(offItem->GetItemLevel(), minDamage, maxDamage);
+        // ToDo: Is IT NEED? /2 ???
+        minDamage /= GetAttackTime(BASE_ATTACK) / 1000 / 2;
+        maxDamage /= GetAttackTime(BASE_ATTACK) / 1000 / 2;
+    }
+
+    // DualWield coefficient
+    if (dualwield)
+    {
+        minDamage *= 0.898882275f;
+        maxDamage *= 0.898882275f;
+    }
+
+    minDamage += AP;
+    maxDamage += AP;
+
+    // Off Hand penalty reapplied if only equiped by an off hand weapon
+    if (offItem && !mainItem)
+    {
+        minDamage /= 2;
+        maxDamage /= 2;
+    }
+
+    return irand(int32(minDamage * coeff), int32(maxDamage * coeff));
 }
