@@ -2251,7 +2251,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
             case 115072: // Expel Harm
             case 147489: // Expel Harm
             {
-                addhealth = m_caster->CalculateMonkSpellDamage(7.5f);
                 SpellInfo const* _triggerInfo = sSpellMgr->GetSpellInfo(115129);
                 int32 bp = CalculatePct(addhealth, _triggerInfo->Effects[1].BasePoints);
                 m_caster->CastCustomSpell(unitTarget, 115129, &bp, NULL, NULL, true);

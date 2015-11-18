@@ -636,13 +636,6 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
-    if(spellProto)
-    {
-        SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
-        if(bonus && bonus->damage_bonus)
-            damage *= bonus->damage_bonus;
-    }
-
     // Log damage > 1 000 000 on worldboss
     if (damage > 1000000 && GetTypeId() == TYPEID_PLAYER && victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->GetCreatureTemplate()->rank)
         sLog->outWarn(LOG_FILTER_UNITS, "World Boss %u [%s] take more than 1M damage (%u) by player %u [%s] with spell %u", victim->GetEntry(), victim->GetName(), damage, GetGUIDLow(), GetName(), spellProto ? spellProto->Id : 0);
@@ -5954,13 +5947,6 @@ void Unit::RemoveAllGameObjects()
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
 {
     uint32 newDamage = log->damage;
-    if (log->SpellID)
-    {
-        SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(log->SpellID);
-        if (bonus && bonus->damage_bonus)
-            newDamage *= bonus->damage_bonus;
-    }
-
     WorldPackets::CombatLog::SpellNonMeleeDamageLog packet;
     packet.Me = log->target->GetGUID();
     packet.CasterGUID = log->attacker->GetGUID();
@@ -11709,10 +11695,6 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
 
     if (spellInfo)
     {
-        SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellInfo->Id);
-        if(bonus && bonus->heal_bonus)
-            addHealth *= bonus->heal_bonus;
-        
         gain = DealHeal(victim, addHealth, spellInfo);
         SendHealSpellLog(victim, spellInfo->Id, addHealth, uint32(addHealth - gain), absorb, critical);
     }
@@ -12032,11 +12014,11 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 
             calcSPDBonus = SPDCoeffMod > 0;
 
-            if (getClass() == CLASS_MONK)
+            if (getClass() == CLASS_MONK && bonus->damage_bonus)
             {
                 if(ApCoeffMod)
                 {
-                    DoneTotal += CalculateMonkSpellDamage(ApCoeffMod);
+                    DoneTotal += CalculateMonkSpellDamage(bonus->damage_bonus);
                     ApCoeffMod = 0.0f;;
                     calcSPDBonus = false;
                 }
@@ -12697,6 +12679,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     float dbccoeff = spellProto->GetEffect(effIndex, m_diffMode)->BonusCoefficient;
     float coeff = 0;
     float factorMod = 1.0f;
+    bool calcBonus = true;
 
     if (getClass() == CLASS_DRUID && spellProto->Id == 5185)
         if (HasAura(145162))
@@ -12705,31 +12688,40 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             dbccoeff = 0;
         }
 
-    if (bonus)
+    if (getClass() == CLASS_MONK && bonus->heal_bonus)
     {
-        if (damagetype == DOT)
+        DoneTotal += CalculateMonkSpellDamage(bonus->heal_bonus);
+        calcBonus = false;
+    }
+
+    if (calcBonus)
+    {
+        if (bonus)
         {
-            coeff = bonus->dot_damage;
-            if (bonus->ap_dot_bonus > 0)
-                DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
-                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+            if (damagetype == DOT)
+            {
+                coeff = bonus->dot_damage;
+                if (bonus->ap_dot_bonus > 0)
+                    DoneTotal += int32(bonus->ap_dot_bonus * stack * GetTotalAttackPowerValue(
+                        (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+            }
+            else
+            {
+                coeff = bonus->direct_damage;
+                if (bonus->ap_bonus > 0)
+                    DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(BASE_ATTACK));
+            }
         }
         else
         {
-            coeff = bonus->direct_damage;
-            if (bonus->ap_bonus > 0)
-                DoneTotal += int32(bonus->ap_bonus * stack * GetTotalAttackPowerValue(BASE_ATTACK));
-        }
-    }
-    else
-    {
-        if (dbccoeff/* && spellProto->SchoolMask & SPELL_SCHOOL_MASK_MAGIC*/)
-            coeff = dbccoeff; // 77478 use in SCHOOL_MASK_PHYSICAL
+            if (dbccoeff/* && spellProto->SchoolMask & SPELL_SCHOOL_MASK_MAGIC*/)
+                coeff = dbccoeff; // 77478 use in SCHOOL_MASK_PHYSICAL
 
-        if (ApCoeffMod)
-        {
-            DoneTotal += int32(ApCoeffMod * stack * GetTotalAttackPowerValue(
-                (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+            if (ApCoeffMod)
+            {
+                DoneTotal += int32(ApCoeffMod * stack * GetTotalAttackPowerValue(
+                    (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass !=SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK));
+            }
         }
     }
 
