@@ -328,10 +328,19 @@ enum Powers
     POWER_DEMONIC_FURY                  = 15,
     POWER_ARCANE_CHARGES                = 16,
     MAX_POWERS                          = 17,
-    POWER_TYPE_VAULT_CRACKING_PROGRESS  = 82,
     POWER_NULL                          = 126,
     POWER_ALL                           = 127,          // default for class?
     POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
+};
+
+// PowerDisplay.dbc
+enum PowerDisplay
+{
+    POWER_DISPLAY_NONE                 = 0,
+    POWER_TYPE_PYRITE                  = 41,
+    POWER_TYPE_STEAM                   = 61,
+    POWER_TYPE_VAULT_CRACKING_PROGRESS = 82,
+    POWER_TYPE_HEAT                    = 101,
 };
 
 enum PowerIndex

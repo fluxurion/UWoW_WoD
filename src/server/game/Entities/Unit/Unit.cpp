@@ -16152,8 +16152,67 @@ int32 Unit::GetMaxPower(Powers power) const
     return GetInt32Value(UNIT_FIELD_MAX_POWER + powerIndex);
 }
 
-int32 Unit::GetPowerForReset(Powers power, bool maxpower) const
+//! base max power for initiation
+int32 Unit::GetCreatePowers(Powers power, uint16 powerDisplay/* = 0*/) const
 {
+    switch (powerDisplay)
+    {
+        case POWER_TYPE_VAULT_CRACKING_PROGRESS:
+            return 100;
+        default:
+            break;
+    }
+
+    switch (power)
+    {
+        case POWER_MANA:
+            return GetCreateMana();
+        case POWER_RAGE:
+            return 1000;
+        case POWER_FOCUS:
+            if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_HUNTER)
+                return 100;
+            return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
+        case POWER_ENERGY:
+            return ((ToPet() && ToPet()->IsWarlockPet()) ? 200 : 100);
+        case POWER_RUNIC_POWER:
+            return 1000;
+        case POWER_RUNES:
+            return 0;
+        case POWER_SHADOW_ORBS:
+            return 3;
+        case POWER_BURNING_EMBERS:
+            return 40;
+        case POWER_DEMONIC_FURY:
+            return 1000;
+        case POWER_SOUL_SHARDS:
+            return 400;
+        case POWER_ECLIPSE:
+            return 100; // Should be -100 to 100 this needs the power to be int32 instead of uint32
+        case POWER_HOLY_POWER:
+            return HasAura(115675) ? 5 : 3;
+        case POWER_HEALTH:
+            return 0;
+        case POWER_CHI:
+            return 4;
+        case POWER_COMBO_POINTS:
+            return 5;
+        default:
+            break;
+    }
+
+    return 0;
+}
+
+int32 Unit::GetPowerForReset(Powers power, bool maxpower, uint16 powerDisplayID/* = 0*/) const
+{
+    switch (powerDisplayID)
+    {
+        case POWER_TYPE_VAULT_CRACKING_PROGRESS:
+            return 0;
+        default:break;
+    }
+
     switch (power)
     {
         case POWER_BURNING_EMBERS:
@@ -16288,52 +16347,6 @@ void Unit::SetMaxPower(Powers power, int32 val)
 
     // if (val < cur_power)
         // SetPower(power, val);
-}
-
-//! base max power for initiation
-int32 Unit::GetCreatePowers(Powers power) const
-{
-    switch (power)
-    {
-        case POWER_MANA:
-            return GetCreateMana();
-        case POWER_RAGE:
-            return 1000;
-        case POWER_FOCUS:
-            if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_HUNTER)
-                return 100;
-            return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
-        case POWER_ENERGY:
-            return ((ToPet() && ToPet()->IsWarlockPet()) ? 200 : 100);
-        case POWER_RUNIC_POWER:
-            return 1000;
-        case POWER_RUNES:
-            return 0;
-        case POWER_SHADOW_ORBS:
-            return 3;
-        case POWER_BURNING_EMBERS:
-            return 40;
-        case POWER_DEMONIC_FURY:
-            return 1000;
-        case POWER_SOUL_SHARDS:
-            return 400;
-        case POWER_ECLIPSE:
-            return 100; // Should be -100 to 100 this needs the power to be int32 instead of uint32
-        case POWER_HOLY_POWER:
-            return HasAura(115675) ? 5 : 3;
-        case POWER_HEALTH:
-            return 0;
-        case POWER_CHI:
-            return 4;
-        case POWER_COMBO_POINTS:
-            return 5;
-        case POWER_TYPE_VAULT_CRACKING_PROGRESS:
-            return 100;
-        default:
-            break;
-    }
-
-    return 0;
 }
 
 float Unit::OCTRegenMPPerSpirit()

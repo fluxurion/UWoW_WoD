@@ -1549,7 +1549,7 @@ class Unit : public WorldObject
         void SetPower(Powers power, int32 val, bool send = true);
         void InitialPowers(bool maxpower = false);
         void SetMaxPower(Powers power, int32 val);
-        int32 GetPowerForReset(Powers power, bool maxpower = false) const;
+        int32 GetPowerForReset(Powers power, bool maxpower = false, uint16 powerDisplayID = 0) const;
         void VisualForPower(Powers power, int32 curentVal, int32 modVal = 0, bool generate = false);
 
         // returns the change in power
@@ -2099,7 +2099,7 @@ class Unit : public WorldObject
         uint32 GetCreateHealth() const { return GetUInt32Value(UNIT_FIELD_BASE_HEALTH); }
         void SetCreateMana(uint32 val) { SetUInt32Value(UNIT_FIELD_BASE_MANA, val); }
         uint32 GetCreateMana() const { return GetUInt32Value(UNIT_FIELD_BASE_MANA); }
-        int32 GetCreatePowers(Powers power) const;
+        int32 GetCreatePowers(Powers power, uint16 powerDisplayID = 0) const;
         float GetPosStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_STAT_POS_BUFF+stat); }
         float GetNegStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_STAT_NEG_BUFF+stat); }
         float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
