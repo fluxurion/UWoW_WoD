@@ -1676,9 +1676,11 @@ uint32 Item::GetItemLevel() const
 int32 Item::GetItemStatValue(uint32 index) const
 {
     ASSERT(index < MAX_ITEM_PROTO_STATS);
-    if (uint32 randomPropPoints = GenerateEnchSuffixFactor(GetTemplate(), GetItemLevel()))
+
+    if (uint32 randomPropPoints = GetRandomPropertyPoints(GetItemLevel(), GetQuality(), GetTemplate()->GetInventoryType(), GetTemplate()->GetSubClass()))
     {
         float statValue = float(_bonusData.ItemStatAllocation[index] * randomPropPoints) * 0.0001f;
+
         if (GtItemSocketCostPerLevelEntry const* gtCost = sGtItemSocketCostPerLevelStore.EvaluateTable(GetItemLevel() - 1, 0))
             statValue -= float(int32(_bonusData.ItemStatSocketCostMultiplier[index] * gtCost->ratio));
 
@@ -1732,9 +1734,13 @@ void BonusData::Initialize(ItemTemplate const* proto, Player const* owner)
 {
     ItemLevel = proto->GetBaseItemLevel();
 
+    // scaling ilvl for heilrooms
     if (owner)
+    {
         if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(proto->GetScalingStatDistribution()))
-            ItemLevel = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel());
+            if (uint32 HeilroomItemLevel = sDB2Manager.GetHeirloomItemLevel(ssd->ItemLevelCurveID, owner->getLevel()))
+                ItemLevel = HeilroomItemLevel;
+    }
 
     Quality = proto->GetQuality();
     RequiredLevel = proto->GetBaseRequiredLevel();
