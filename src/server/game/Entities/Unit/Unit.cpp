@@ -18583,7 +18583,7 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
 
                     if (itr->spell_trigger > 0)
                     {
-                        if (Aura* aura = target->GetAura(abs(itr->spell_trigger), GetGUID()))
+                        if (Aura* aura = target->GetAura(abs(itr->spell_trigger), _caster->GetGUID()))
                             aura->RefreshTimers();
                     }
                     else
