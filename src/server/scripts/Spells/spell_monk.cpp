@@ -1420,7 +1420,7 @@ class spell_monk_breath_of_fire : public SpellScriptLoader
                         if (Unit* target = GetHitUnit())
                         {
                             // if Dizzying Haze is on the target, they will burn for an additionnal damage over 8s
-                            if (target->HasAura(SPELL_MONK_DIZZYING_HAZE))
+                            if (target->HasAura(SPELL_MONK_DIZZYING_HAZE) || caster->HasAura(157362))
                             {
                                 _player->CastSpell(target, SPELL_MONK_BREATH_OF_FIRE_DOT, true);
 
@@ -1973,7 +1973,7 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
                 return SPELL_FAILED_OUT_OF_RANGE;
             }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleOnCast()
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1992,8 +1992,8 @@ class spell_monk_transcendence_transfer : public SpellScriptLoader
 
             void Register()
             {
+                OnCast += SpellCastFn(spell_monk_transcendence_transfer_SpellScript::HandleOnCast);
                 OnCheckCast += SpellCheckCastFn(spell_monk_transcendence_transfer_SpellScript::CheckDist);
-                OnEffectHitTarget += SpellEffectFn(spell_monk_transcendence_transfer_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -2425,27 +2425,22 @@ class spell_monk_touch_of_death : public SpellScriptLoader
                     return SPELL_FAILED_BAD_TARGETS;
 
                 if (Creature* unit = target->ToCreature())
-                    if (unit->IsDungeonBoss())
+                    if (unit->IsDungeonBoss() && target->GetHealthPct() > 10)
                         return SPELL_FAILED_BAD_TARGETS;
 
                 if (target->GetHealth() > caster->GetMaxHealth())
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (caster->HasAura(124490))
-                {
-                    if (target->GetTypeId() == TYPEID_PLAYER || target->isPet())
-                        if (target->GetHealthPct() > 10)
-                            return SPELL_FAILED_BAD_TARGETS;
-                }
-                else
-                {
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                if (target->GetTypeId() == TYPEID_PLAYER || target->isPet())
+                    if (target->GetHealthPct() > 10)
                         return SPELL_FAILED_BAD_TARGETS;
 
-                    if (Unit* owner = target->GetAnyOwner())
-                        if (owner->GetTypeId() == TYPEID_PLAYER)
-                            return SPELL_FAILED_BAD_TARGETS;
-                }
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (Unit* owner = target->GetAnyOwner())
+                    if (owner->GetTypeId() == TYPEID_PLAYER)
+                        return SPELL_FAILED_BAD_TARGETS;
 
                 return SPELL_CAST_OK;
             }

@@ -24650,7 +24650,6 @@ int32 Unit::CalculateMonkSpellDamage(float coeff)
     float OHmax = 0;
     float baseCoef = 0.857143f;
 
-    float versadmg = 1.0f + pPlayer->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS);
     int32 AP = GetTotalAttackPowerValue(BASE_ATTACK) / 3.5;
     bool dualwield = mainItem && offItem;
 
@@ -24705,9 +24704,6 @@ int32 Unit::CalculateMonkSpellDamage(float coeff)
 
     MHmax *= baseCoef;
     MHmax += AP + 1;
-
-    MHmin *= versadmg;
-    MHmax *= versadmg;
 
     MHmin *= coeff;
     MHmax *= coeff;
