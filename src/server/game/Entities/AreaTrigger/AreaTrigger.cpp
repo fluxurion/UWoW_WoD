@@ -318,15 +318,10 @@ void AreaTrigger::FillCustomData(Unit* caster)
 
 void AreaTrigger::UpdateAffectedList(uint32 p_time, AreaTriggerActionMoment actionM)
 {
-    if (atInfo.actions.empty())
+    if (atInfo.actions.empty() || !IsInWorld())
         return;
 
     WorldObject const* searcher = this;
-    ObjectGuid targetGuid = GetTargetGuid();
-    if(!targetGuid.IsEmpty())
-        if(Unit* target = ObjectAccessor::GetUnit(*this, targetGuid))
-            if(_caster->GetMap() == target->GetMap())
-                searcher = target;
 
     if (actionM & AT_ACTION_MOMENT_ENTER)
     {
@@ -882,6 +877,17 @@ void AreaTrigger::PutObjectUpdateMovement(ByteBuffer* data) const
 
 void AreaTrigger::UpdateMovement(uint32 diff)
 {
+    ObjectGuid targetGuid = GetTargetGuid();
+    if(!targetGuid.IsEmpty())
+    {
+        if (!UpdatePosition(targetGuid))
+        {
+            if(GetDuration() > 100)
+                SetDuration(100);
+            return;
+        }
+    }
+
     if (!isMoving() || m_movePath.empty())
         return;
 
@@ -1065,4 +1071,46 @@ float AreaTrigger::CalculateRadius()
 void AreaTrigger::CastAction()
 {
     UpdateAffectedList(0, AT_ACTION_MOMENT_ON_CAST_ACTION);
+}
+
+bool AreaTrigger::UpdatePosition(ObjectGuid targetGuid)
+{
+    if(_caster->GetGUID() == targetGuid)
+    {
+        if(_caster->GetMap() == GetMap())
+        {
+            bool turn = (GetOrientation() != _caster->GetOrientation());
+            bool relocated = (GetPositionX() != _caster->GetPositionX() || GetPositionY() != _caster->GetPositionY() || GetPositionZ() != _caster->GetPositionZ());
+
+            if (relocated)
+                GetMap()->AreaTriggerRelocation(this, _caster->GetPositionX(), _caster->GetPositionY(), _caster->GetPositionZ(), _caster->GetOrientation());
+            else if (turn)
+                SetOrientation(_caster->GetOrientation());
+        }
+        else
+        {
+            GetMap()->RemoveFromMap(this, false);
+            Relocate(*_caster);
+            SetMap(_caster->GetMap());
+            GetMap()->AddToMap(this);
+        }
+        return true;
+    }
+    if(Unit* target = ObjectAccessor::GetUnit(*this, targetGuid))
+    {
+        if(GetMap() == target->GetMap())
+        {
+            bool turn = (GetOrientation() != target->GetOrientation());
+            bool relocated = (GetPositionX() != target->GetPositionX() || GetPositionY() != target->GetPositionY() || GetPositionZ() != target->GetPositionZ());
+
+            if (relocated)
+                GetMap()->AreaTriggerRelocation(this, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
+            else if (turn)
+                SetOrientation(target->GetOrientation());
+
+            return true;
+        }
+    }
+
+    return false;
 }

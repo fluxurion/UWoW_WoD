@@ -1353,6 +1353,9 @@ bool Aura::CanBeSaved() const
     if (HasEffectType(SPELL_AURA_MOD_NEXT_SPELL))
         return false;
 
+    if (HasEffectType(SPELL_AURA_CREATE_AREATRIGGER))
+        return false;
+
     // don't save auras casted by summons
     if (GetCaster() && GetCaster()->isAnySummons())
         return false;
@@ -1394,6 +1397,7 @@ bool Aura::CanBeSaved() const
         case 163530:
         case 159126:
         case 159127:
+        case 166646:
             return false;
         default:
             break;

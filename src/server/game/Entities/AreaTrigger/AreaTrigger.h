@@ -224,6 +224,7 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         bool isPolygon() const { return atInfo.polygon && !atInfo.verticesPoints.empty(); }
         AreaTriggerInfo GetAreaTriggerInfo() const { return atInfo; }
         void CastAction();
+        bool UpdatePosition(ObjectGuid targetGuid);
 
         void BindToCaster();
         void UnbindFromCaster();

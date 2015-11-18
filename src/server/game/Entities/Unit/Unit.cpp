@@ -12039,7 +12039,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                 DoneTotal += CalculateMonkSpellDamage(ApCoeffMod);
                 ApCoeffMod = 0.0f;;
             }
-            if(spellProto->GetEffect(effIndex, m_diffMode)->BonusCoefficient)
+            else if(spellProto->GetEffect(effIndex, m_diffMode)->BonusCoefficient)
                 ApCoeffMod = spellProto->GetEffect(effIndex, m_diffMode)->BonusCoefficient;
             calcSPDBonus = false;
         }

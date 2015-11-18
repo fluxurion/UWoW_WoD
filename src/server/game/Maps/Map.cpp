@@ -705,6 +705,28 @@ void Map::RemoveFromMap(T *obj, bool remove)
     }
 }
 
+void Map::AreaTriggerRelocation(AreaTrigger* at, float x, float y, float z, float orientation)
+{
+    ASSERT(at);
+
+    Cell old_cell(at->GetPositionX(), at->GetPositionY());
+    Cell new_cell(x, y);
+
+    at->Relocate(x, y, z, orientation);
+
+    if (old_cell.DiffGrid(new_cell) || old_cell.DiffCell(new_cell))
+    {
+        at->RemoveFromGrid();
+
+        if (old_cell.DiffGrid(new_cell))
+            EnsureGridLoadedForActiveObject(new_cell, at);
+
+        AddToGrid(at, new_cell);
+    }
+
+    at->UpdateObjectVisibility(false);
+}
+
 void Map::PlayerRelocation(Player* player, float x, float y, float z, float orientation)
 {
     ASSERT(player);
