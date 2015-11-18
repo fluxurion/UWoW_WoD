@@ -25,6 +25,28 @@
 #include "MiscPackets.h"
 #include "InstanceScript.h"
 
+uint32 getSiteLevelIdById(uint32 team, uint8 lvl)
+{
+    switch (lvl)
+    {
+        case 1:
+            return team == ALLIANCE ? 5 : 258;
+        case 2:
+            return team == ALLIANCE ? 444 : 445;
+        case 3:
+            return team == ALLIANCE ? 6 : 259;
+    }
+
+    ASSERT(false);
+    return 0;
+}
+
+enum SideiD
+{
+    SITE_ID_GARRISON_ALLIANCE = 2,
+    SITE_ID_GARRISON_HORDE = 71,
+};
+
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1), _lastResTaken(0)
 { }
 
@@ -41,6 +63,15 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
 
     if (!_siteLevel)
         return false;
+
+    if (_siteLevel->SiteID == SITE_ID_GARRISON_ALLIANCE && _owner->GetTeam() == HORDE ||
+        _siteLevel->SiteID == SITE_ID_GARRISON_HORDE && _owner->GetTeam() == ALLIANCE)
+    {
+        _siteLevel = sGarrSiteLevelStore.LookupEntry(getSiteLevelIdById(_owner->GetTeam(), _siteLevel->Level));
+
+        if (!_siteLevel)
+            return false;
+    }
 
     InitializePlots();
 
