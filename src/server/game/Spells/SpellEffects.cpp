@@ -738,11 +738,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
         switch (m_spellInfo->Id)
         {
-            case 117418: // Fists of Fury (damage)
-            {
-                m_damage /= m_UniqueTargetInfo.size();
-                break;
-            }
             case 51505:  // Lava Burst
             {
                 if (m_caster->HasAura(138144)) // Item - Shaman T15 Elemental 4P Bonus
