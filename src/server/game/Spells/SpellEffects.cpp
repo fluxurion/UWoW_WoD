@@ -2207,7 +2207,7 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
         damage = std::min(damage, maxDamage);
     }
 
-    int32 newDamage = -(unitTarget->ModifyPower(powerType, -damage));
+    int32 newDamage = -(unitTarget->ModifyPower(powerType, -damage, true));
 
     // NO - Not a typo - EffectPowerBurn uses effect value multiplier - not effect damage multiplier
     float dmgMultiplier = m_spellInfo->GetEffect(effIndex, m_diffMode)->CalcValueMultiplier(m_originalCaster, this);

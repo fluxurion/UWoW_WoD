@@ -13,16 +13,16 @@ set(scripts_STAT_SRCS
   Draenor/dark_portal.cpp
   Draenor/frostfire_ridge.cpp
   Draenor/shadowmoon_valley.cpp
-  
+
   Draenor/garrison/garrison_general.cpp
   Draenor/garrison/instance_garr.cpp
-  
+
   Draenor/IronDocks/instance_iron_docks.cpp
   Draenor/IronDocks/boss_fleshrender_nokgar.cpp
   Draenor/IronDocks/boss_grimrail_enforcers.cpp
   Draenor/IronDocks/boss_oshir.cpp
   Draenor/IronDocks/boss_skulloc.cpp
-  
+
   Draenor/BloodmaulSlagMines/bloodmaul_slag_mines.cpp
   Draenor/BloodmaulSlagMines/bloodmaul_slag_mines.h
   Draenor/BloodmaulSlagMines/bloodmaul_slag_mines_instance.cpp
@@ -49,6 +49,13 @@ set(scripts_STAT_SRCS
   Draenor/Skyreach/boss_araknath.cpp
   Draenor/Skyreach/boss_rukhran.cpp
   Draenor/Skyreach/boss_high_sage_viryx.cpp
+
+  Draenor/TheEverbloom/instance_the_everbloom.cpp
+  Draenor/TheEverbloom/boss_witherbark.cpp
+  Draenor/TheEverbloom/boss_ancient_protectors.cpp
+  Draenor/TheEverbloom/boss_xeritac.cpp
+  Draenor/TheEverbloom/boss_archmage_sol.cpp
+  Draenor/TheEverbloom/boss_yalnu.cpp
 )
 
 message("  -> Prepared: Draenor")

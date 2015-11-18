@@ -134,6 +134,13 @@ void AddSC_boss_araknath();
 void AddSC_boss_rukhran();
 void AddSC_boss_high_sage_viryx();
 
+void AddSC_instance_the_everbloom(); // The Everbloom
+void AddSC_boss_witherbark();
+void AddSC_boss_ancient_protectors();
+void AddSC_boss_xeritac();
+void AddSC_boss_archmage_sol();
+void AddSC_boss_yalnu();
+
 //world
 void AddSC_areatrigger_scripts();
 void AddSC_emerald_dragons();
@@ -1128,6 +1135,13 @@ void AddDraenorScripts()
     AddSC_boss_araknath();
     AddSC_boss_rukhran();
     AddSC_boss_high_sage_viryx();
+
+    AddSC_instance_the_everbloom(); // The Everbloom
+    AddSC_boss_witherbark();
+    AddSC_boss_ancient_protectors();
+    AddSC_boss_xeritac();
+    AddSC_boss_archmage_sol();
+    AddSC_boss_yalnu();
 
 #endif
 }
