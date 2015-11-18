@@ -8110,29 +8110,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
         {
             switch (dummySpell->SpellIconID)
             {
-                // Improved Steady Shot
-                case 3409:
-                {
-                    if (procSpell->Id != 56641) // not steady shot
-                    {
-                        if (!(procEx & (PROC_EX_INTERNAL_TRIGGERED | PROC_EX_INTERNAL_CANT_PROC))) // shitty procs
-                            triggeredByAura->GetBase()->SetCharges(0);
-                        return false;
-                    }
-
-                    // wtf bug
-                    if (this == target)
-                        return false;
-
-                    if (triggeredByAura->GetBase()->GetCharges() <= 1)
-                    {
-                        triggeredByAura->GetBase()->SetCharges(2);
-                        return true;
-                    }
-                    triggeredByAura->GetBase()->SetCharges(0);
-                    CastSpell(this, 53220, true);
-                    return true;
-                }
                 case 3560: // Rapid Recuperation
                 {
                     // This effect only from Rapid Killing (focus regen)
@@ -8148,6 +8125,28 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
 
             switch (dummySpell->Id)
             {
+                case 177667: // Steady Focus
+                {
+                    if (!procSpell)
+                        return false;
+
+                    if (procSpell->Id != 56641 && procSpell->Id != 77677 && procSpell->Id != 152245 && procSpell->Id != 163485)
+                    {
+                        triggeredByAura->GetBase()->SetCustomData(0);
+                        return false;
+                    }
+
+                    if (!triggeredByAura->GetBase()->GetCustomData())
+                    {
+                        triggeredByAura->GetBase()->SetCustomData(1);
+                        return false;
+                    }
+                    else
+                        triggeredByAura->GetBase()->SetCustomData(0);
+
+                    triggered_spell_id = 177668;
+                    break;
+                }
                 case 76659: // Mastery: Wild Quiver
                 {
                     if (triggeredByAura->GetEffIndex() != EFFECT_0 || !procSpell)
@@ -12024,24 +12023,24 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         float SPDCoeffMod = spellProto->GetEffect(effIndex, m_diffMode)->BonusCoefficient;
         float ApCoeffMod = spellProto->GetEffect(effIndex, m_diffMode)->SpellAPBonusMultiplier;
 
+        bool calcSPDBonus = SPDCoeffMod > 0;
         SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id);
         if (bonus)
         {
             SPDCoeffMod = damagetype == DOT ? bonus->dot_damage : bonus->direct_damage;
             ApCoeffMod = damagetype == DOT ? bonus->ap_dot_bonus : bonus->ap_bonus;
-        }
 
-        bool calcSPDBonus = SPDCoeffMod > 0;
-        if (getClass() == CLASS_MONK)
-        {
-            if(ApCoeffMod)
+            calcSPDBonus = SPDCoeffMod > 0;
+
+            if (getClass() == CLASS_MONK)
             {
-                DoneTotal += CalculateMonkSpellDamage(ApCoeffMod);
-                ApCoeffMod = 0.0f;;
+                if(ApCoeffMod)
+                {
+                    DoneTotal += CalculateMonkSpellDamage(ApCoeffMod);
+                    ApCoeffMod = 0.0f;;
+                    calcSPDBonus = false;
+                }
             }
-            else if(spellProto->GetEffect(effIndex, m_diffMode)->BonusCoefficient)
-                ApCoeffMod = spellProto->GetEffect(effIndex, m_diffMode)->BonusCoefficient;
-            calcSPDBonus = false;
         }
 
         if (ApCoeffMod > 0)

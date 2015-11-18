@@ -198,7 +198,7 @@ class spell_hun_stampede : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHit += SpellEffectFn(spell_hun_stampede_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_STAMPEDE);
+                OnEffectHit += SpellEffectFn(spell_hun_stampede_SpellScript::HandleOnHit, EFFECT_1, SPELL_EFFECT_STAMPEDE);
             }
         };
 
@@ -313,13 +313,10 @@ class spell_hun_a_murder_of_crows : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* target = GetTarget())
-                    if(target->GetHealthPct() < 20.0f && GetCaster())
-                        if (Player* caster = GetCaster()->ToPlayer())
-                        {
-                            double cd = 60000.0f - (GetAura()->GetMaxDuration() - GetAura()->GetDuration());
-                            caster->ModifySpellCooldown(GetSpellInfo()->Id, -cd);
-                        }
+                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                if (removeMode == AURA_REMOVE_BY_DEATH)
+                    if (Player* caster = GetCaster()->ToPlayer())
+                        caster->RemoveSpellCooldown(GetSpellInfo()->Id, true);
             }
 
             void Register()
@@ -703,123 +700,6 @@ class spell_hun_barrage : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_barrage_SpellScript();
-        }
-};
-
-// Binding Shot - 117405
-class spell_hun_binding_shot : public SpellScriptLoader
-{
-    public:
-        spell_hun_binding_shot() : SpellScriptLoader("spell_hun_binding_shot") { }
-
-        class spell_hun_binding_shot_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_binding_shot_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove_if(Trinity::UnitAuraCheck(true, HUNTER_SPELL_BINDING_SHOT_IMMUNE));
-                targets.remove(GetCaster());
-
-                if (targets.empty())
-                    return;
-
-                GuidList targetList;
-                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                    targetList.push_back((*itr)->GetGUID());
-
-                if(Unit* caster = GetCaster())
-                    if (Aura* aura = caster->GetAura(109248))
-                        aura->SetEffectTargets(targetList);
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_binding_shot_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_binding_shot_SpellScript();
-        }
-};
-
-// Binding Shot - 109248
-class spell_hun_binding_shot_zone : public SpellScriptLoader
-{
-    public:
-        spell_hun_binding_shot_zone() : SpellScriptLoader("spell_hun_binding_shot_zone") { }
-
-        class spell_hun_binding_shot_zone_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_binding_shot_zone_AuraScript);
-
-            void OnTick(AuraEffect const* aurEff)
-            {
-                if(Unit* caster = GetCaster())
-                {
-                    if (DynamicObject* dynObj = caster->GetDynObject(HUNTER_SPELL_BINDING_SHOT_AREA))
-                    {
-                        GuidList targets = GetAura()->GetEffectTargets();
-                        if(!targets.empty())
-                        {
-                            for (GuidList::iterator itr = targets.begin(); itr != targets.end();)
-                            {
-                                Unit* unit = ObjectAccessor::GetUnit(*caster, (*itr));
-                                if (unit && unit->IsInWorld() && unit->GetDistance(dynObj) > 5.0f)
-                                {
-                                    unit->CastSpell(unit, HUNTER_SPELL_BINDING_SHOT_STUN, true);
-                                    unit->CastSpell(unit, HUNTER_SPELL_BINDING_SHOT_IMMUNE, true);
-                                    targets.erase(itr++);
-                                }
-                                else
-                                    ++itr;
-                            }
-                            GetAura()->SetEffectTargets(targets);
-                        }
-
-                        caster->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), HUNTER_SPELL_BINDING_SHOT_LINK, true);
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_binding_shot_zone_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        class spell_hun_binding_shot_zone_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_binding_shot_zone_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                GuidList targetList;
-                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                    targetList.push_back((*itr)->GetGUID());
-
-                GetSpell()->SetEffectTargets(targetList);
-            }
-
-            void Register()
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_binding_shot_zone_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_binding_shot_zone_SpellScript();
-        }
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_binding_shot_zone_AuraScript();
         }
 };
 
@@ -2206,8 +2086,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_beast_cleave();
     new spell_hun_cobra_strikes();
     new spell_hun_barrage();
-    new spell_hun_binding_shot();
-    new spell_hun_binding_shot_zone();
     new spell_hun_improved_serpent_sting();
     new spell_hun_camouflage_visual();
     new spell_hun_serpent_spread();

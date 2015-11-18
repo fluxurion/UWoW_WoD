@@ -95,7 +95,6 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     {
         atInfo = *infoAt;
         _activationDelay = atInfo.activationDelay;
-        _updateDelay = atInfo.updateDelay;
 
         for (AreaTriggerActionList::const_iterator itr = atInfo.actions.begin(); itr != atInfo.actions.end(); ++itr)
             _actionInfo[itr->id] = ActionInfo(&*itr);
@@ -566,7 +565,7 @@ void AreaTrigger::DoAction(Unit* unit, ActionInfo& action)
             return;
     //action on self
     if (action.action->targetFlags & AT_TARGET_FLAG_TARGET_IS_CASTER)
-        unit = caster;
+        unit = _caster;
 
     if (action.action->targetFlags & AT_TARGET_FLAT_IN_FRONT)
         if (!HasInArc(static_cast<float>(M_PI), unit))
