@@ -587,7 +587,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
     Item* castItem = NULL;
 
     if(caster)
-    if (ObjectGuid itemGUID = GetBase()->GetCastItemGUID())
+        if (ObjectGuid itemGUID = GetBase()->GetCastItemGUID())
             if (Player* playerCaster = caster->ToPlayer())
                 castItem = playerCaster->GetItemByGuid(itemGUID);
 
@@ -597,11 +597,19 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
     m_send_baseAmount = m_spellInfo->GetEffect(m_effIndex, m_diffMode)->CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit(), castItem);
     amount = m_send_baseAmount;
 
-    if (GetBase()->InArenaNerf())
-        amount = CalculatePct(amount, 50);
+    // check player on BG or arena
+    if (Player* playerCaster = caster->ToPlayer())
+    {
+        if (playerCaster->InBattleground() || playerCaster->InArena())
+        {
+            if (GetBase()->InArenaNerf())
+                amount = CalculatePct(amount, 50);
+        }
+    }
 
     // check item enchant aura cast
     if (!amount && caster && castItem)
+    {
         if (castItem->GetItemSuffixFactor())
         {
             ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(castItem->GetItemRandomPropertyId()));
@@ -613,10 +621,12 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                     if (pEnchant)
                     {
                         for (int t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; t++)
-                            if (pEnchant->EffectSpellID[t] == m_spellInfo->Id)
                         {
-                            amount = uint32((item_rand_suffix->prefix[k]*castItem->GetItemSuffixFactor()) / 10000);
-                            break;
+                            if (pEnchant->EffectSpellID[t] == m_spellInfo->Id)
+                            {
+                                amount = uint32((item_rand_suffix->prefix[k] * castItem->GetItemSuffixFactor()) / 10000);
+                                break;
+                            }
                         }
                     }
 
@@ -625,6 +635,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                 }
             }
         }
+    }
 
     float DoneActualBenefit = 0.0f;
     bool CalcStack = bool(m_spellInfo->StackAmount) && !(m_spellInfo->ProcFlags & (PROC_FLAG_DONE_SPELL_MAGIC_DMG_POS_NEG)) && m_spellInfo->Id != 122355;
@@ -632,7 +643,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
     if (caster && caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->AttributesEx8 & SPELL_ATTR8_MASTERY_SPECIALIZATION))
     {
         m_canBeRecalculated = false;
-        amount += int32(caster->GetFloatValue(PLAYER_FIELD_MASTERY) * m_spellInfo->GetEffect(m_effIndex, m_diffMode)->BonusCoefficient + 0.5f);
+        amount += int32(ceil(caster->GetFloatValue(PLAYER_FIELD_MASTERY) * m_spellInfo->GetEffect(m_effIndex, m_diffMode)->BonusCoefficient));
     }
 
     GetBase()->CallScriptEffectBeforeCalcAmountHandlers(const_cast<AuraEffect const*>(this), amount, m_canBeRecalculated);

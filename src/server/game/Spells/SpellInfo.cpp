@@ -496,7 +496,10 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                         value = gtScaling->value;
                 }
                 else
-                    value = GetRandomPropertyPoints(level, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+                {
+                    if (m_castItem)
+                        value = GetRandomPropertyPoints(m_castItem->GetItemLevel(), ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
+                }
             }
             else
                 value = GetRandomPropertyPoints(_spellInfo->Scaling.ScalesFromItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
@@ -522,7 +525,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
                 *variance = valueVariance;
         }
 
-        basePoints = int32(value);
+        basePoints = int32(ceil(value));
 
         if (Scaling.ResourceCoefficient)
             comboDamage = Scaling.ResourceCoefficient * value;

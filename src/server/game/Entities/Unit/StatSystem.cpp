@@ -2003,8 +2003,10 @@ void Player::UpdateMultistrikeDamage()
 
     value *= GetTotalAuraModifier(SPELL_AURA_MULTISTRIKE_DAMAGE_PCT, true);
 
-    if (value)
-        SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, value);
+    if (value < 0.3f)
+        value = 0.3f;
+
+    SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, value);
 }
 
 void Player::UpdateReadiness()
