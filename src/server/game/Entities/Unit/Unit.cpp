@@ -12016,12 +12016,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 
             if (getClass() == CLASS_MONK && bonus->damage_bonus)
             {
-                if(ApCoeffMod)
-                {
-                    DoneTotal += CalculateMonkSpellDamage(bonus->damage_bonus);
-                    ApCoeffMod = 0.0f;;
-                    calcSPDBonus = false;
-                }
+                DoneTotal += CalculateMonkSpellDamage(bonus->damage_bonus);
+                ApCoeffMod = 0.0f;;
+                calcSPDBonus = false;
             }
         }
 
@@ -12688,7 +12685,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
             dbccoeff = 0;
         }
 
-    if (getClass() == CLASS_MONK && bonus->heal_bonus)
+    if (getClass() == CLASS_MONK && bonus && bonus->heal_bonus)
     {
         DoneTotal += CalculateMonkSpellDamage(bonus->heal_bonus);
         calcBonus = false;
