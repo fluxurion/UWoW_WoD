@@ -468,13 +468,13 @@ void GuildMgr::LoadGuilds()
             if (guild)
             {
                 guild->Validate();
-                /*if (!guild->Validate())
+                if (!guild->Validate())
                 {
                     volatile uint32 _guildId = guild->GetId();
                     GuildStore.erase(itr++);
                     delete guild;
                 }
-                else*/
+                else
                     ++itr;
             }
             else

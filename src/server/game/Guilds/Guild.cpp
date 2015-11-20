@@ -2558,8 +2558,7 @@ bool Guild::Validate()
 
     if (broken_ranks)
     {
-        if(!m_ranks.empty())
-            m_ranks.clear();
+        //m_ranks.clear();
         _CreateDefaultGuildRanks(DEFAULT_LOCALE);
     }
 
