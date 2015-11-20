@@ -2525,6 +2525,9 @@ bool Guild::Validate()
     // The lower rank id is considered higher rank - so promotion does rank-- and demotion does rank++
     // Between ranks in sequence cannot be gaps - so 0, 1, 2, 4 is impossible
     // Min ranks count is 5 and max is 10.
+    uint32 guildId = GetId();
+    uint32 _getRanksSize = _GetRanksSize();
+    uint32 brokenRankId = 0;
     bool broken_ranks = false;
     if (_GetRanksSize() < GUILD_RANKS_MIN_COUNT || _GetRanksSize() > GUILD_RANKS_MAX_COUNT)
     {
@@ -2539,6 +2542,7 @@ bool Guild::Validate()
             if (rankInfo->GetId() != rankId)
             {
                 sLog->outError(LOG_FILTER_GUILD, "Guild %u has broken rank id %u, creating default set of ranks...", m_id, rankId);
+                brokenRankId = rankId;
                 broken_ranks = true;
             }
             else
@@ -2552,7 +2556,8 @@ bool Guild::Validate()
 
     if (broken_ranks)
     {
-        m_ranks.clear();
+        if(!m_ranks.empty())
+            m_ranks.clear();
         _CreateDefaultGuildRanks(DEFAULT_LOCALE);
     }
 
