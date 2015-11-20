@@ -467,10 +467,15 @@ void GuildMgr::LoadGuilds()
             Guild* guild = itr->second;
             if (guild)
             {
-                guild->Validate();
+                volatile uint32 _guildId = guild->GetId();
+                if(!guild->GetMemberCount())
+                {
+                    //Delete guild without member
+                    CharacterDatabase.DirectPExecute("DELETE FROM guild WHERE `guildid` IN (%u)", _guildId);
+                }
+
                 if (!guild->Validate())
                 {
-                    volatile uint32 _guildId = guild->GetId();
                     GuildStore.erase(itr++);
                     delete guild;
                 }
