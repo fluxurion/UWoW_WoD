@@ -598,12 +598,15 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
     amount = m_send_baseAmount;
 
     // check player on BG or arena
-    if (Player* playerCaster = caster->ToPlayer())
+    if(caster)
     {
-        if (playerCaster->InBattleground() || playerCaster->InArena())
+        if (Player* playerCaster = caster->ToPlayer())
         {
-            if (GetBase()->InArenaNerf())
-                amount = CalculatePct(amount, 50);
+            if (playerCaster->InBattleground() || playerCaster->InArena())
+            {
+                if (GetBase()->InArenaNerf())
+                    amount = CalculatePct(amount, 50);
+            }
         }
     }
 
