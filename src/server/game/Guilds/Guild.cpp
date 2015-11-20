@@ -2733,7 +2733,8 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
 
     _UpdateAccountsNumber();
     _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, lowguid);
-    SendGuildEventPlayerJoined(player->GetGUID(), player->GetName());
+    if(player)
+        SendGuildEventPlayerJoined(player->GetGUID(), player->GetName());
     sGuildFinderMgr->RemoveAllMembershipRequestsFromPlayer(guid);
     UpdateGuildRecipes();
 
