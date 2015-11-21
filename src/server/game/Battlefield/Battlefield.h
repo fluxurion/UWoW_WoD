@@ -26,6 +26,7 @@
 #include "GameObject.h"
 #include "Battleground.h"
 #include "ObjectAccessor.h"
+#include "Packets/WorldStatePackets.h"
 
 enum BattlefieldTypes
 {
@@ -48,13 +49,6 @@ enum BattlefieldObjectiveStates
     BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE,
     BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE,
     BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE,
-};
-
-enum BattlefieldSounds
-{
-    BF_HORDE_WINS                                = 8454,
-    BF_ALLIANCE_WINS                             = 8455,
-    BF_START                                     = 3439
 };
 
 enum BattlefieldTimers
@@ -80,10 +74,11 @@ class BfCapturePoint
     public:
         BfCapturePoint(Battlefield* bf);
 
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // Send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
+        void SendUpdateWorldState(WorldStates field, uint32 value);
 
         // Send kill notify to players in the controlling faction
         void SendObjectiveComplete(uint32 id, ObjectGuid guid);
@@ -109,7 +104,7 @@ class BfCapturePoint
         bool DelCapturePoint();
 
         // active Players in the area of the objective, 0 - alliance, 1 - horde
-        GuidSet m_activePlayers[2];
+        GuidSet m_activePlayers[MAX_TEAMS];
 
         // Total shift needed to capture the objective
         float m_maxValue;
@@ -194,7 +189,7 @@ class BfGraveyard
         TeamId m_ControlTeam;
         uint32 m_GraveyardId;
         uint32 m_TypeId;
-        ObjectGuid m_SpiritGuide[2];
+        ObjectGuid m_SpiritGuide[MAX_TEAMS];
         GuidSet m_ResurrectQueue;
         Battlefield* m_Bf;
 };
@@ -216,11 +211,11 @@ class Battlefield : public ZoneScript
         virtual bool SetupBattlefield() { return true; }
 
         /// Generate packet which contain all worldstatedata of area
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         /// Update data of a worldstate to all players present in zone
         void SendUpdateWorldState(uint32 field, uint32 value);
-
+        void SendUpdateWorldState(WorldStates field, uint32 value);
         /**
          * \brief Called every time for update bf data and time
          * - Update timer for start/end battle
@@ -380,11 +375,11 @@ class Battlefield : public ZoneScript
         BfCapturePointMap m_capturePoints;
 
         // Players info maps
-        GuidSet m_players[BG_TEAMS_COUNT];                      // Players in zone
-        GuidSet m_PlayersInQueue[BG_TEAMS_COUNT];               // Players in the queue
-        GuidSet m_PlayersInWar[BG_TEAMS_COUNT];                 // Players in WG combat
-        PlayerTimerMap m_InvitedPlayers[BG_TEAMS_COUNT];
-        PlayerTimerMap m_PlayersWillBeKick[BG_TEAMS_COUNT];
+        GuidSet m_players[MAX_TEAMS];                      // Players in zone
+        GuidSet m_PlayersInQueue[MAX_TEAMS];               // Players in the queue
+        GuidSet m_PlayersInWar[MAX_TEAMS];                 // Players in WG combat
+        PlayerTimerMap m_InvitedPlayers[MAX_TEAMS];
+        PlayerTimerMap m_PlayersWillBeKick[MAX_TEAMS];
 
         // Variables that must exist for each battlefield
         uint32 m_TypeId;                                        // See enum BattlefieldTypes
@@ -410,7 +405,7 @@ class Battlefield : public ZoneScript
         uint32 m_StartGroupingTimer;                            // Timer for invite players in area 15 minute before start battle
         bool m_StartGrouping;                                   // bool for know if all players in area has been invited
 
-        GuidSet m_Groups[BG_TEAMS_COUNT];                       // Contain different raid group
+        GuidSet m_Groups[MAX_TEAMS];                       // Contain different raid group
 
         std::vector<uint64> m_Data64;
         std::vector<uint32> m_Data32;

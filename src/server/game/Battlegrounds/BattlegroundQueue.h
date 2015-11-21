@@ -83,7 +83,7 @@ class BattlegroundQueue
         bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint32 minPlayersPerTeam);
         GroupQueueInfo* AddGroup(Player* leader, Group* group, BattlegroundTypeId bgTypeId, PvPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, WorldPackets::Battleground::IgnorMapInfo ignore, uint32 mmr = 0);
         void RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount);
-        bool IsPlayerInvited(ObjectGuid pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime);
+        bool IsPlayerInvited(ObjectGuid pl_guid, uint32 const bgInstanceGuid, uint32 const removeTime);
         bool GetPlayerGroupInfoData(ObjectGuid guid, GroupQueueInfo* ginfo);
         void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id);
         uint32 GetAverageQueueWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id) const;
@@ -121,14 +121,14 @@ class BattlegroundQueue
         };
 
         //one selection pool for horde, other one for alliance
-        SelectionPool m_SelectionPools[BG_TEAMS_COUNT];
+        SelectionPool m_SelectionPools[MAX_TEAMS];
 
     private:
 
         bool InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, uint32 side);
-        uint32 m_WaitTimes[BG_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];
-        uint32 m_WaitTimeLastPlayer[BG_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS];
-        uint32 m_SumOfWaitTimes[BG_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS];
+        uint32 m_WaitTimes[MAX_TEAMS][MAX_BATTLEGROUND_BRACKETS][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];
+        uint32 m_WaitTimeLastPlayer[MAX_TEAMS][MAX_BATTLEGROUND_BRACKETS];
+        uint32 m_SumOfWaitTimes[MAX_TEAMS][MAX_BATTLEGROUND_BRACKETS];
 
         // Event handler
         EventProcessor m_events;

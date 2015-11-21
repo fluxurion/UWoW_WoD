@@ -46,19 +46,6 @@ const uint32 HP_CapturePointEvent_Enter[HP_TOWER_NUM] = {11404, 11396, 11388};
 
 const uint32 HP_CapturePointEvent_Leave[HP_TOWER_NUM] = {11403, 11395, 11387};
 
-enum OutdoorPvPHPWorldStates
-{
-    HP_UI_TOWER_DISPLAY_A           = 0x9ba,
-    HP_UI_TOWER_DISPLAY_H           = 0x9b9,
-
-    HP_UI_TOWER_COUNT_H             = 0x9ae,
-    HP_UI_TOWER_COUNT_A             = 0x9ac,
-
-    HP_UI_TOWER_SLIDER_N            = 2475,
-    HP_UI_TOWER_SLIDER_POS          = 2474,
-    HP_UI_TOWER_SLIDER_DISPLAY      = 2473
-};
-
 const uint32 HP_MAP_N[HP_TOWER_NUM] = {0x9b5, 0x9b2, 0x9a8};
 
 const uint32 HP_MAP_A[HP_TOWER_NUM] = {0x9b3, 0x9b0, 0x9a7};
@@ -94,8 +81,8 @@ class OPvPCapturePointHP : public OPvPCapturePoint
         void ChangeState();
 
         void SendChangePhase();
-
-        void FillInitialWorldStates(WorldPacket & data);
+        
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         // used when player is activated/inactivated in the area
         bool HandlePlayerEnter(Player* player);
@@ -119,7 +106,7 @@ class OutdoorPvPHP : public OutdoorPvP
 
         bool Update(uint32 diff);
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void SendRemoveWorldStates(Player* player);
 

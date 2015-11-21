@@ -23,11 +23,6 @@
 
 BattlegroundAA::BattlegroundAA()
 {
-    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = Minutes(1);
-    StartDelayTimes[BG_STARTING_EVENT_SECOND] = Seconds(30);
-    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = Seconds(15);
-    StartDelayTimes[BG_STARTING_EVENT_FOURTH] = Seconds(0);
-    //we must set messageIds
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
@@ -63,8 +58,9 @@ void BattlegroundAA::HandleKillPlayer(Player* player, Player* killer)
     Battleground::HandleKillPlayer(player, killer);
 }
 
-void BattlegroundAA::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
+void BattlegroundAA::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
+    Battleground::HandleAreaTrigger(player, trigger, entered);
 }
 
 bool BattlegroundAA::SetupBattleground()

@@ -227,7 +227,7 @@ typedef std::unordered_map<uint32, AchievementCriteriaDataSet> AchievementCriter
 
 struct AchievementReward
 {
-    uint32 titleId[2];
+    uint32 titleId[MAX_TEAMS];
     uint32 itemId;
     uint32 sender;
     std::string subject;

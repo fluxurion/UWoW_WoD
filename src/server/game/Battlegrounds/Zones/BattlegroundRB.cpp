@@ -37,10 +37,13 @@ BattlegroundRB::~BattlegroundRB()
 
 void BattlegroundRB::StartingEventCloseDoors()
 {
+    UpdateWorldState(static_cast<WorldStates>(8524), 0);
 }
 
 void BattlegroundRB::StartingEventOpenDoors()
 {
+    UpdateWorldState(static_cast<WorldStates>(8524), 1);
+    UpdateWorldState(static_cast<WorldStates>(8529), int32(time(nullptr) + 1200));
 }
 
 void BattlegroundRB::AddPlayer(Player* player)
@@ -54,11 +57,9 @@ void BattlegroundRB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint3
 {
 }
 
-void BattlegroundRB::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
+void BattlegroundRB::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    // this is wrong way to implement these things. On official it done by gameobject spell cast.
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
+    Battleground::HandleAreaTrigger(player, trigger, entered);
 }
 
 void BattlegroundRB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)

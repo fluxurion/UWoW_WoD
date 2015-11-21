@@ -40,7 +40,7 @@ class BattlegroundAA : public Battleground
         virtual void StartingEventOpenDoors();
 
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered);
         bool SetupBattleground();
         void HandleKillPlayer(Player* player, Player* killer);
 };

@@ -20,69 +20,22 @@
 
 class Battleground;
 
-enum BG_AB_WorldStates
-{
-    BG_AB_OP_OCCUPIED_BASES_HORDE       = 1778,
-    BG_AB_OP_OCCUPIED_BASES_ALLY        = 1779,
-    BG_AB_OP_RESOURCES_ALLY             = 1776,
-    BG_AB_OP_RESOURCES_HORDE            = 1777,
-    BG_AB_OP_RESOURCES_MAX              = 1780,
-    BG_AB_OP_RESOURCES_WARNING          = 1955
-/*
-    BG_AB_OP_STABLE_ICON                = 1842,             //Stable map icon (NONE)
-    BG_AB_OP_STABLE_STATE_ALIENCE       = 1767,             //Stable map state (ALIENCE)
-    BG_AB_OP_STABLE_STATE_HORDE         = 1768,             //Stable map state (HORDE)
-    BG_AB_OP_STABLE_STATE_CON_ALI       = 1769,             //Stable map state (CON ALIENCE)
-    BG_AB_OP_STABLE_STATE_CON_HOR       = 1770,             //Stable map state (CON HORDE)
-    BG_AB_OP_FARM_ICON                  = 1845,             //Farm map icon (NONE)
-    BG_AB_OP_FARM_STATE_ALIENCE         = 1772,             //Farm state (ALIENCE)
-    BG_AB_OP_FARM_STATE_HORDE           = 1773,             //Farm state (HORDE)
-    BG_AB_OP_FARM_STATE_CON_ALI         = 1774,             //Farm state (CON ALIENCE)
-    BG_AB_OP_FARM_STATE_CON_HOR         = 1775,             //Farm state (CON HORDE)
-
-    BG_AB_OP_BLACKSMITH_ICON            = 1846,             //Blacksmith map icon (NONE)
-    BG_AB_OP_BLACKSMITH_STATE_ALIENCE   = 1782,             //Blacksmith map state (ALIENCE)
-    BG_AB_OP_BLACKSMITH_STATE_HORDE     = 1783,             //Blacksmith map state (HORDE)
-    BG_AB_OP_BLACKSMITH_STATE_CON_ALI   = 1784,             //Blacksmith map state (CON ALIENCE)
-    BG_AB_OP_BLACKSMITH_STATE_CON_HOR   = 1785,             //Blacksmith map state (CON HORDE)
-    BG_AB_OP_LUMBERMILL_ICON            = 1844,             //Lumber Mill map icon (NONE)
-    BG_AB_OP_LUMBERMILL_STATE_ALIENCE   = 1792,             //Lumber Mill map state (ALIENCE)
-    BG_AB_OP_LUMBERMILL_STATE_HORDE     = 1793,             //Lumber Mill map state (HORDE)
-    BG_AB_OP_LUMBERMILL_STATE_CON_ALI   = 1794,             //Lumber Mill map state (CON ALIENCE)
-    BG_AB_OP_LUMBERMILL_STATE_CON_HOR   = 1795,             //Lumber Mill map state (CON HORDE)
-    BG_AB_OP_GOLDMINE_ICON              = 1843,             //Gold Mine map icon (NONE)
-    BG_AB_OP_GOLDMINE_STATE_ALIENCE     = 1787,             //Gold Mine map state (ALIENCE)
-    BG_AB_OP_GOLDMINE_STATE_HORDE       = 1788,             //Gold Mine map state (HORDE)
-    BG_AB_OP_GOLDMINE_STATE_CON_ALI     = 1789,             //Gold Mine map state (CON ALIENCE
-    BG_AB_OP_GOLDMINE_STATE_CON_HOR     = 1790,             //Gold Mine map state (CON HORDE)
-*/
-};
-
-const uint32 BG_AB_OP_NODESTATES[5] =    {1767, 1782, 1772, 1792, 1787};
-
-const uint32 BG_AB_OP_NODEICONS[5]  =    {1842, 1846, 1845, 1844, 1843};
-
-/* Note: code uses that these IDs follow each other */
 enum BG_AB_NodeObjectId
 {
-    BG_AB_OBJECTID_NODE_BANNER_0    = 180087,       // Stables banner
-    BG_AB_OBJECTID_NODE_BANNER_1    = 180088,       // Blacksmith banner
-    BG_AB_OBJECTID_NODE_BANNER_2    = 180089,       // Farm banner
-    BG_AB_OBJECTID_NODE_BANNER_3    = 180090,       // Lumber mill banner
-    BG_AB_OBJECTID_NODE_BANNER_4    = 180091        // Gold mine banner
+    BG_AB_OBJECTID_NODE_BANNER_0    = 227420,       // Stables banner
+    BG_AB_OBJECTID_NODE_BANNER_1    = 227522,       // Blacksmith banner
+    BG_AB_OBJECTID_NODE_BANNER_2    = 227536,       // Farm banner
+    BG_AB_OBJECTID_NODE_BANNER_3    = 227544,       // Lumber mill banner
+    BG_AB_OBJECTID_NODE_BANNER_4    = 227538        // Gold mine banner
 };
+
+uint32 const BgABNodes[] = {BG_AB_OBJECTID_NODE_BANNER_0, BG_AB_OBJECTID_NODE_BANNER_1, BG_AB_OBJECTID_NODE_BANNER_2, BG_AB_OBJECTID_NODE_BANNER_3, BG_AB_OBJECTID_NODE_BANNER_4};
 
 enum BG_AB_ObjectType
 {
     // for all 5 node points 8*5=40 objects
-    BG_AB_OBJECT_BANNER_NEUTRAL          = 0,
-    BG_AB_OBJECT_BANNER_CONT_A           = 1,
-    BG_AB_OBJECT_BANNER_CONT_H           = 2,
-    BG_AB_OBJECT_BANNER_ALLY             = 3,
-    BG_AB_OBJECT_BANNER_HORDE            = 4,
-    BG_AB_OBJECT_AURA_ALLY               = 5,
-    BG_AB_OBJECT_AURA_HORDE              = 6,
-    BG_AB_OBJECT_AURA_CONTESTED          = 7,
+    BG_AB_OBJECT_BANNER                  = 0,
+
     //gates
     BG_AB_OBJECT_GATE_A                  = 40,
     BG_AB_OBJECT_GATE_H                  = 41,
@@ -105,25 +58,10 @@ enum BG_AB_ObjectType
     BG_AB_OBJECT_MAX                     = 57,
 };
 
-/* Object id templates from DB */
 enum BG_AB_ObjectTypes
 {
-    BG_AB_OBJECTID_BANNER_A             = 180058,
-    BG_AB_OBJECTID_BANNER_CONT_A        = 180059,
-    BG_AB_OBJECTID_BANNER_H             = 180060,
-    BG_AB_OBJECTID_BANNER_CONT_H        = 180061,
-
-    BG_AB_OBJECTID_AURA_A               = 180100,
-    BG_AB_OBJECTID_AURA_H               = 180101,
-    BG_AB_OBJECTID_AURA_C               = 180102,
-
     BG_AB_OBJECTID_GATE_A               = 180255,
     BG_AB_OBJECTID_GATE_H               = 180256
-};
-
-enum BG_AB_Timers
-{
-    BG_AB_FLAG_CAPTURING_TIME           = 60000,
 };
 
 enum BG_AB_Score
@@ -149,150 +87,131 @@ enum BG_AB_BattlegroundNodes
     BG_AB_ALL_NODES_COUNT       = 7,                        // all nodes (dynamic and static)
 };
 
-enum BG_AB_NodeStatus
+
+WorldStates const AbNodeStatesWS[BG_AB_DYNAMIC_NODES_COUNT][5] =
 {
-    BG_AB_NODE_TYPE_NEUTRAL             = 0,
-    BG_AB_NODE_TYPE_CONTESTED           = 1,
-    BG_AB_NODE_STATUS_ALLY_CONTESTED    = 1,
-    BG_AB_NODE_STATUS_HORDE_CONTESTED   = 2,
-    BG_AB_NODE_TYPE_OCCUPIED            = 3,
-    BG_AB_NODE_STATUS_ALLY_OCCUPIED     = 3,
-    BG_AB_NODE_STATUS_HORDE_OCCUPIED    = 4
+    {WorldStates::BG_AB_OP_STABLE_STATE_ALIENCE,     WorldStates::BG_AB_OP_STABLE_STATE_HORDE,       WorldStates::BG_AB_OP_STABLE_STATE_CON_ALI,     WorldStates::BG_AB_OP_STABLE_STATE_CON_HOR},
+    {WorldStates::BG_AB_OP_BLACKSMITH_STATE_ALIENCE, WorldStates::BG_AB_OP_BLACKSMITH_STATE_HORDE,   WorldStates::BG_AB_OP_BLACKSMITH_STATE_CON_ALI, WorldStates::BG_AB_OP_BLACKSMITH_STATE_CON_HOR},
+    {WorldStates::BG_AB_OP_FARM_STATE_ALIENCE,       WorldStates::BG_AB_OP_FARM_STATE_HORDE,         WorldStates::BG_AB_OP_FARM_STATE_CON_ALI,       WorldStates::BG_AB_OP_FARM_STATE_CON_HOR},
+    {WorldStates::BG_AB_OP_LUMBERMILL_STATE_ALIENCE, WorldStates::BG_AB_OP_LUMBERMILL_STATE_HORDE,   WorldStates::BG_AB_OP_LUMBERMILL_STATE_CON_ALI, WorldStates::BG_AB_OP_LUMBERMILL_STATE_CON_HOR},
+    {WorldStates::BG_AB_OP_GOLDMINE_STATE_ALIENCE,   WorldStates::BG_AB_OP_GOLDMINE_STATE_HORDE,     WorldStates::BG_AB_OP_GOLDMINE_STATE_CON_ALI,   WorldStates::BG_AB_OP_GOLDMINE_STATE_CON_HOR}
 };
 
+WorldStates const AbNodeStatesIconsWS[5] =
+{
+    WorldStates::BG_AB_OP_STABLE_ICON,
+    WorldStates::BG_AB_OP_BLACKSMITH_ICON,
+    WorldStates::BG_AB_OP_FARM_ICON,
+    WorldStates::BG_AB_OP_LUMBERMILL_ICON,
+    WorldStates::BG_AB_OP_GOLDMINE_ICON
+};
+ 
 enum BG_AB_Objectives
 {
     AB_OBJECTIVE_ASSAULT_BASE           = 122,
     AB_OBJECTIVE_DEFEND_BASE            = 123
 };
 
-#define BG_AB_NotABBGWeekendHonorTicks      260
-#define BG_AB_ABBGWeekendHonorTicks         160
-#define BG_AB_NotABBGWeekendReputationTicks 160
-#define BG_AB_ABBGWeekendReputationTicks    120
-
 #define AB_EVENT_START_BATTLE               9158 // Achievement: Let's Get This Done
 
-// x, y, z, o
-const float BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
+Position const BgABNodePositions[BG_AB_DYNAMIC_NODES_COUNT][2] = ///< Position + Rotation
 {
-    {1166.785f, 1200.132f, -56.70859f, 0.9075713f},         // stables
-    {977.0156f, 1046.616f, -44.80923f, -2.600541f},         // blacksmith
-    {806.1821f, 874.2723f, -55.99371f, -2.303835f},         // farm
-    {856.1419f, 1148.902f, 11.18469f, -2.303835f},          // lumber mill
-    {1146.923f, 848.1782f, -110.917f, -0.7330382f}          // gold mine
+    {1166.856f, 1200.122f, -56.720f,  0.8860929f, 0.0f, 0.0f, 0.4286938f, 0.9034498f}, // BG_AB_OBJECTID_NODE_BANNER_0
+    {977.5052f, 1051.073f, -44.792f,  0.497109f,  0.0f, 0.0f, 0.2460032f, 0.969269f},  // BG_AB_OBJECTID_NODE_BANNER_1
+    {806.25f,   874.2795f, -56.0102f, 0.8182427f, 0.0f, 0.0f, 0.3978033f, 0.9174708f}, // BG_AB_OBJECTID_NODE_BANNER_2
+    {856.8663f, 1150.214f, 11.38484f, 0.9897078f, 0.0f, 0.0f, 0.4749031f, 0.8800381f}, // BG_AB_OBJECTID_NODE_BANNER_3
+    {1146.929f, 848.2274f, -110.917f, 2.417101f,  0.0f, 0.0f, 0.9351034f, 0.354375f}   // BG_AB_OBJECTID_NODE_BANNER_4
 };
 
-// x, y, z, o, rot0, rot1, rot2, rot3
-const float BG_AB_DoorPositions[2][8] =
+Position const BgABDoorPositions[2][2] =
 {
     {1284.597f, 1281.167f, -15.97792f, 0.7068594f, 0.012957f, -0.060288f, 0.344959f, 0.93659f},
     {708.0903f, 708.4479f, -17.8342f, -2.391099f, 0.050291f, 0.015127f, 0.929217f, -0.365784f}
 };
 
-// Tick intervals and given points: case 0, 1, 2, 3, 4, 5 captured nodes
-const uint32 BG_AB_TickIntervals[6] = {0, 12000, 9000, 6000, 3000, 1000};
-const uint32 BG_AB_TickPoints[6] = {0, 10, 10, 10, 10, 30};
+Milliseconds const BgABTickIntervals[6] = {Seconds(0), Seconds(12), Seconds(9), Seconds(6), Seconds(3), Seconds(1)};
+uint32 const BgABTickPoints[6] = {0, 10, 10, 10, 10, 30};
+uint32 const BgAbGraveyardIds[BG_AB_ALL_NODES_COUNT] = {895, 894, 893, 897, 896, 898, 899};
 
-// WorldSafeLocs ids for 5 nodes, and for ally, and horde starting location
-const uint32 BG_AB_GraveyardIds[BG_AB_ALL_NODES_COUNT] = {895, 894, 893, 897, 896, 898, 899};
-
-// x, y, z, o
-const float BG_AB_BuffPositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
+Position const BgAbBuffPositions[BG_AB_DYNAMIC_NODES_COUNT] =
 {
-    {1185.71f, 1185.24f, -56.36f, 2.56f},                   // stables
-    {990.75f, 1008.18f, -42.60f, 2.43f},                    // blacksmith
-    {817.66f, 843.34f, -56.54f, 3.01f},                     // farm
-    {807.46f, 1189.16f, 11.92f, 5.44f},                     // lumber mill
-    {1146.62f, 816.94f, -98.49f, 6.14f}                     // gold mine
+    {1185.71f, 1185.24f, -56.36f, 2.56f}, // stables
+    {990.75f,  1008.18f, -42.60f, 2.43f}, // blacksmith
+    {817.66f,  843.34f,  -56.54f, 3.01f}, // farm
+    {807.46f,  1189.16f, 11.92f,  5.44f}, // lumber mill
+    {1146.62f, 816.94f,  -98.49f, 6.14f}  // gold mine
 };
 
-// x, y, z, o
-const float BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT][4] =
+Position const BgAbSpiritsPos[BG_AB_ALL_NODES_COUNT] =
 {
-    {1200.03f, 1171.09f, -56.47f, 5.15f},                   // stables
-    {1017.43f, 960.61f, -42.95f, 4.88f},                    // blacksmith
-    {833.00f, 793.00f, -57.25f, 5.27f},                     // farm
-    {775.17f, 1206.40f, 15.79f, 1.90f},                     // lumber mill
-    {1207.48f, 787.00f, -83.36f, 5.51f},                    // gold mine
-    {1354.05f, 1275.48f, -11.30f, 4.77f},                   // alliance starting base
-    {714.61f, 646.15f, -10.87f, 4.34f}                      // horde starting base
-};
-
-struct BG_AB_BannerTimer
-{
-    uint32      timer;
-    uint8       type;
-    uint8       teamIndex;
+    {1200.03f, 1171.09f, -56.47f, 5.15f}, // stables
+    {1017.43f, 960.61f,  -42.95f, 4.88f}, // blacksmith
+    {833.00f,  793.00f,  -57.25f, 5.27f}, // farm
+    {775.17f,  1206.40f, 15.79f,  1.90f}, // lumber mill
+    {1207.48f, 787.00f,  -83.36f, 5.51f}, // gold mine
+    {1354.05f, 1275.48f, -11.30f, 4.77f}, // alliance starting base
+    {714.61f,  646.15f,  -10.87f, 4.34f}  // horde starting base
 };
 
 class BattlegroundABScore : public BattlegroundScore
 {
-    public:
-        BattlegroundABScore(): BasesAssaulted(0), BasesDefended(0) {};
-        virtual ~BattlegroundABScore() {};
-        uint32 BasesAssaulted;
-        uint32 BasesDefended;
+public:
+    BattlegroundABScore() : BasesAssaulted(0), BasesDefended(0) { };
+    virtual ~BattlegroundABScore() { };
+
+    uint32 BasesAssaulted;
+    uint32 BasesDefended;
 };
 
 class BattlegroundAB : public Battleground
 {
+    struct CapturePointInfo
+    {
+        GameObject* Point;
+        Milliseconds Timer;
+        BgNodeStatus Status;
+        BgNodeStatus PrevStatus;
+        TeamId TeamID;
+    };
+
     public:
         BattlegroundAB();
         ~BattlegroundAB();
 
-        void AddPlayer(Player* player);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
-        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        virtual bool SetupBattleground();
-        virtual void Reset();
-        void EndBattleground(uint32 winner);
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        void AddPlayer(Player* player) override;
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
+        bool SetupBattleground() override;
+        void Reset() override;
+        void EndBattleground(uint32 winner) override;
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
 
-        /* Scorekeeping */
-        virtual void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
+        void EventPlayerClickedOnFlag(Player* source, GameObject* object) override;
 
-        virtual void FillInitialWorldStates(WorldPacket& data);
+        bool IsAllNodesConrolledByTeam(uint32 team) const override;
+        void UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* node, Player const* player = nullptr, bool initial = false) override;
 
-        /* Nodes occupying */
-        virtual void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
-
-        /* achievement req. */
-        bool IsAllNodesConrolledByTeam(uint32 team) const;  // overwrited
-        bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
+        bool IsTeamScores500Disadvantage(uint32 team) const { return _teamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
     private:
-        virtual void PostUpdateImpl(uint32 diff);
-        /* Gameobject spawning/despawning */
-        void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
-        void _DelBanner(uint8 node, uint8 type, uint8 teamIndex);
-        void _SendNodeUpdate(uint8 node);
-
-        /* Creature spawning/despawning */
-        // TODO: working, scripted peons spawning
-        void _NodeOccupied(uint8 node, Team team);
+        void PostUpdateImpl(Milliseconds diff) override;
+        uint8 _GetCapturedNodesForTeam(TeamId teamID);
+        void _NodeOccupied(uint8 node, Team team); // TODO: working, scripted peons spawning
         void _NodeDeOccupied(uint8 node);
+        
+        Milliseconds _lastTick[MAX_TEAMS];
+        uint32 _honorScoreTics[MAX_TEAMS];
+        uint32 _reputationScoreTics[MAX_TEAMS];
+        bool _teamScores500Disadvantage[MAX_TEAMS];
 
-        int32 _GetNodeNameId(uint8 node);
+        CapturePointInfo _capturePoints[BG_AB_DYNAMIC_NODES_COUNT];
 
-        /* Nodes info:
-            0: neutral
-            1: ally contested
-            2: horde contested
-            3: ally occupied
-            4: horde occupied     */
-        uint8               m_Nodes[BG_AB_DYNAMIC_NODES_COUNT];
-        uint8               m_prevNodes[BG_AB_DYNAMIC_NODES_COUNT];
-        BG_AB_BannerTimer   m_BannerTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32              m_NodeTimers[BG_AB_DYNAMIC_NODES_COUNT];
-        uint32              m_lastTick[BG_TEAMS_COUNT];
-        uint32              m_HonorScoreTics[BG_TEAMS_COUNT];
-        uint32              m_ReputationScoreTics[BG_TEAMS_COUNT];
-        bool                m_IsInformedNearVictory;
-        uint32              m_HonorTics;
-        uint32              m_ReputationTics;
-        // need for achievements
-        bool                m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
+        uint32 _honorTics;
+        uint32 _reputationTics;
+        bool _isInformedNearVictory;
 };
+
 #endif

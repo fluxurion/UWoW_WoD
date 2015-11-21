@@ -139,20 +139,8 @@ enum WintergraspAchievements
     ACHIEVEMENTS_WG_MASTER_H                     = 2776, // todo
 };
 
-enum WintergraspWorldStates
-{
-    BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H         = 3490,
-    BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H     = 3491,
-    BATTLEFIELD_WG_WORLD_STATE_VEHICLE_A         = 3680,
-    BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_A     = 3681,
-    BATTLEFIELD_WG_WORLD_STATE_ACTIVE            = 3801,
-    BATTLEFIELD_WG_WORLD_STATE_DEFENDER          = 3802,
-    BATTLEFIELD_WG_WORLD_STATE_ATTACKER          = 3803,
-    BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE   = 3710,
-};
-
-uint32 const VehNumWorldState[2]        = { BATTLEFIELD_WG_WORLD_STATE_VEHICLE_A, BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H };
-uint32 const MaxVehNumWorldState[2]     = { BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_A, BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H };
+uint32 const VehNumWorldState[2]        = { (uint32)WorldStates::BATTLEFIELD_WG_WORLD_STATE_VEHICLE_A, (uint32)WorldStates::BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H };
+uint32 const MaxVehNumWorldState[2]     = { (uint32)WorldStates::BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_A, (uint32)WorldStates::BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H };
 
 enum WintergraspAreaIds
 {
@@ -419,7 +407,7 @@ class BattlefieldWG : public Battlefield
         void UpdateVehicleCountWG();
         void UpdateCounterVehicle(bool init);
 
-        void FillInitialWorldStates(WorldPacket &p);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void HandleKill(Player* killer, Unit* victim);
         void OnUnitDeath(Unit* unit);
@@ -441,13 +429,13 @@ class BattlefieldWG : public Battlefield
         Workshop WorkshopsList;
 
         GameObjectSet DefenderPortalList;
-        GameObjectSet m_KeepGameObject[2];
+        GameObjectSet m_KeepGameObject[MAX_TEAMS];
         GameObjectBuilding BuildingsInZone;
 
-        GuidSet m_vehicles[2];
+        GuidSet m_vehicles[MAX_TEAMS];
         GuidSet CanonList;
-        GuidSet KeepCreature[2];
-        GuidSet OutsideCreature[2];
+        GuidSet KeepCreature[MAX_TEAMS];
+        GuidSet OutsideCreature[MAX_TEAMS];
 
         uint32 m_tenacityStack;
         uint32 m_saveTimer;
@@ -985,7 +973,7 @@ struct WintergraspTowerCannonData
     Position TurretTop[5];
 };
 
-const uint8 WG_MAX_TOWER_CANNON = 7;
+uint8 const WG_MAX_TOWER_CANNON = 7;
 
 const WintergraspTowerCannonData TowerCannon[WG_MAX_TOWER_CANNON] =
 {
@@ -1192,11 +1180,11 @@ struct BfWGGameObjectBuilding
     uint32 m_NameId;
 
     // GameObject associations
-    GameObjectSet m_GameObjectList[2];
+    GameObjectSet m_GameObjectList[MAX_TEAMS];
 
     // Creature associations
-    GuidSet m_CreatureBottomList[2];
-    GuidSet m_CreatureTopList[2];
+    GuidSet m_CreatureBottomList[MAX_TEAMS];
+    GuidSet m_CreatureTopList[MAX_TEAMS];
     GuidSet m_TowerCannonBottomList;
     GuidSet m_TurretTopList;
 
@@ -1607,8 +1595,8 @@ struct WintergraspWorkshopData
     uint32 m_State;                                         // For worldstate
     uint32 m_WorldState;
     uint32 m_TeamControl;                                   // Team witch control the workshop
-    GuidSet m_CreatureOnPoint[2];                           // Contain all Creature associate to this point
-    GameObjectSet m_GameObjectOnPoint[2];                   // Contain all Gameobject associate to this point
+    GuidSet m_CreatureOnPoint[MAX_TEAMS];                           // Contain all Creature associate to this point
+    GameObjectSet m_GameObjectOnPoint[MAX_TEAMS];                   // Contain all Gameobject associate to this point
     uint32 m_NameId;                                        // Id of trinity_string witch contain name of this node, using for alert message
 
     WintergraspWorkshopData(BattlefieldWG* WG)

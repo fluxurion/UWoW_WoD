@@ -39,7 +39,7 @@ namespace WorldPackets
     }
 }
 
-const uint32 bgQuests[][2] = // for 100 lvl
+uint32 const bgQuests[][2] = // for 100 lvl
 {
     {38118, 38119}, //First bg week win
     {38129, 38130}, //First daily bg win
@@ -69,10 +69,7 @@ struct CreateBattlegroundData
     uint32 LevelMax;
     char* BattlegroundName;
     uint32 MapID;
-    Position Team1StartLoc;
-    Position Team2StartLoc;
-    float StartMaxDist;
-    uint32 holiday;
+    Position TeamStartLoc[MAX_TEAMS];
     uint32 scriptId;
 };
 
@@ -81,8 +78,8 @@ struct QueueSchedulerItem
     QueueSchedulerItem(uint32 MMRating, uint8 joinType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracketid)
         : _MMRating (MMRating), _joinType (joinType), _bgQueueTypeId (bgQueueTypeId), _bgTypeId (bgTypeId), _bracket_id (bracketid) { }
 
-    const uint32 _MMRating;
-    const uint8 _joinType;
+    uint32 const _MMRating;
+    uint8 const _joinType;
     const BattlegroundQueueTypeId _bgQueueTypeId;
     const BattlegroundTypeId _bgTypeId;
     const BattlegroundBracketId _bracket_id;
@@ -118,6 +115,7 @@ class BattlegroundMgr
         void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData, Battleground* bg);
 
         void BuildUpdateWorldStatePacket(WorldPacket* data, uint32 field, uint32 value);
+        void BuildUpdateWorldStatePacket(WorldPacket* data, WorldStates variableID, uint32 value);
         void BuildObjectivesBlock(std::vector<int32>& stats, Battleground* bg);
 
         /* Battlegrounds */
@@ -154,9 +152,6 @@ class BattlegroundMgr
         void ToggleArenaTesting();
         void ToggleTesting();
 
-        void SetHolidayWeekends(std::list<uint32> activeHolidayId);
-        void FillHolidayWorldStates(WorldPacket &data);
-        void SetHolidayWorldState(uint32 state) { holidayWS = state; }
         void LoadBattleMastersEntry();
         BattlegroundTypeId GetBattleMasterBG(uint32 entry) const
         {
@@ -180,7 +175,6 @@ class BattlegroundMgr
 
         static HolidayIds BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId);
         static BattlegroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday);
-        static bool IsBGWeekend(BattlegroundTypeId bgTypeId);
 
         BattlegroundSelectionWeightMap* GetArenaSelectionWeight() { return &m_ArenaSelectionWeights; }
         BattlegroundSelectionWeightMap* GetRBGSelectionWeight() { return &m_BGSelectionWeights; }
@@ -196,7 +190,6 @@ class BattlegroundMgr
         uint32 m_NextRatedArenaUpdate;
         bool   m_ArenaTesting;
         bool   m_Testing;
-        uint32 holidayWS;       //currend Call to Arms
 };
 
 #define sBattlegroundMgr BattlegroundMgr::instance()

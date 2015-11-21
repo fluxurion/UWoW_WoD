@@ -209,18 +209,18 @@ public:
             NorthTowerCount = 0;
         }
 
-        void FillInitialWorldStates(WorldPacket& data) override
-        {
-            data << uint32(ShowSouthTower == IN_PROGRESS)    << uint32(WS_SHOW_SOUTH_TOWER);
-            data << uint32(ShowNorthTower == IN_PROGRESS)    << uint32(WS_SHOW_NORTH_TOWER);
-            data << uint32(ShowSouthTower == SPECIAL)        << uint32(WS_SHOW_CAPTURE_SOUTH_TOWER);
-            data << uint32(ShowNorthTower == SPECIAL)        << uint32(WS_SHOW_CAPTURE_NORTH_TOWER);
-            data << uint32(SouthTowerCount)                  << uint32(WS_SOUTH_TOWER);
-            data << uint32(NorthTowerCount)                  << uint32(WS_NORTH_TOWER);
-            data << uint32(SouthTowerCount)                  << uint32(WS_CAPTURE_SOUTH_TOWER);
-            data << uint32(NorthTowerCount)                  << uint32(WS_CAPTURE_NORTH_TOWER);
-            data << uint32(ShowCannon == IN_PROGRESS)        << uint32(WS_SHOW_KORKRON_CANNON);
-            data << uint32(CannonCount)                      << uint32(WS_KORKRON_CANNON_COUNT);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
+        {   
+            packet.Worldstates.emplace_back(WorldStates::WS_SHOW_SOUTH_TOWER, ShowSouthTower == IN_PROGRESS);
+            packet.Worldstates.emplace_back(WorldStates::WS_SHOW_NORTH_TOWER, ShowNorthTower == IN_PROGRESS);
+            packet.Worldstates.emplace_back(WorldStates::WS_SHOW_CAPTURE_SOUTH_TOWER, ShowSouthTower == SPECIAL);
+            packet.Worldstates.emplace_back(WorldStates::WS_SHOW_CAPTURE_NORTH_TOWER, ShowNorthTower == SPECIAL);
+            packet.Worldstates.emplace_back(WorldStates::WS_SOUTH_TOWER, SouthTowerCount);
+            packet.Worldstates.emplace_back(WorldStates::WS_NORTH_TOWER, NorthTowerCount);
+            packet.Worldstates.emplace_back(WorldStates::WS_CAPTURE_SOUTH_TOWER, SouthTowerCount);
+            packet.Worldstates.emplace_back(WorldStates::WS_CAPTURE_NORTH_TOWER, NorthTowerCount);
+            packet.Worldstates.emplace_back(WorldStates::WS_SHOW_KORKRON_CANNON, ShowCannon == IN_PROGRESS);
+            packet.Worldstates.emplace_back(WorldStates::WS_KORKRON_CANNON_COUNT, CannonCount);
         }
 
         void OnPlayerEnter(Player* player) override
@@ -1099,12 +1099,12 @@ public:
                 {
                 case IN_PROGRESS:
                     ShowCannon = data;
-                    DoUpdateWorldState(WS_SHOW_KORKRON_CANNON, ShowCannon);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_KORKRON_CANNON, ShowCannon);
                     break;
                 case DONE:
                     ShowCannon = data;
-                    DoUpdateWorldState(WS_SHOW_KORKRON_CANNON, 0);
-                    DoUpdateWorldState(WS_KORKRON_CANNON_COUNT, 0);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_KORKRON_CANNON, 0);
+                    DoUpdateWorldState(WorldStates::WS_KORKRON_CANNON_COUNT, 0);
                     if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                         Galakras->AI()->DoAction(ACTION_PRE_EVENT_FINISH);
                     break;
@@ -1114,7 +1114,7 @@ public:
             case DATA_GALAKRAS_PRE_EVENT_COUNT:
             {
                 CannonCount = data;
-                DoUpdateWorldState(WS_KORKRON_CANNON_COUNT, CannonCount);
+                DoUpdateWorldState(WorldStates::WS_KORKRON_CANNON_COUNT, CannonCount);
 
                 if (CannonCount > 7)
                     CannonCount = 7;
@@ -1140,20 +1140,20 @@ public:
                 {
                 case IN_PROGRESS:
                     ShowSouthTower = data;
-                    DoUpdateWorldState(WS_SHOW_SOUTH_TOWER, 1);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_SOUTH_TOWER, 1);
                     if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                         Galakras->AI()->DoAction(ACTION_GRUNT_SOUTH);
                     break;
                 case NOT_STARTED:
                     ShowSouthTower = data;
-                    DoUpdateWorldState(WS_SHOW_SOUTH_TOWER, 0);
-                    DoUpdateWorldState(WS_SHOW_CAPTURE_SOUTH_TOWER, 0);
-                    DoUpdateWorldState(WS_SOUTH_TOWER, SouthTowerCount = 0);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_SOUTH_TOWER, 0);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_CAPTURE_SOUTH_TOWER, 0);
+                    DoUpdateWorldState(WorldStates::WS_SOUTH_TOWER, SouthTowerCount = 0);
                     break;
                 case SPECIAL:
                     ShowSouthTower = data;
-                    DoUpdateWorldState(WS_SHOW_SOUTH_TOWER, 0);
-                    DoUpdateWorldState(WS_SHOW_CAPTURE_SOUTH_TOWER, 1);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_SOUTH_TOWER, 0);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_CAPTURE_SOUTH_TOWER, 1);
                     if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                         Galakras->AI()->DoAction(ACTION_GRUNT_SOUTH_FINISH);
                     break;
@@ -1166,20 +1166,20 @@ public:
                 {
                 case IN_PROGRESS:
                     ShowNorthTower = data;
-                    DoUpdateWorldState(WS_SHOW_NORTH_TOWER, 1);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_NORTH_TOWER, 1);
                     if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                         Galakras->AI()->DoAction(ACTION_GRUNT_NORTH);
                     break;
                 case NOT_STARTED:
                     ShowNorthTower = data;
-                    DoUpdateWorldState(WS_SHOW_NORTH_TOWER, 0);
-                    DoUpdateWorldState(WS_SHOW_CAPTURE_NORTH_TOWER, 0);
-                    DoUpdateWorldState(WS_NORTH_TOWER, NorthTowerCount = 0);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_NORTH_TOWER, 0);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_CAPTURE_NORTH_TOWER, 0);
+                    DoUpdateWorldState(WorldStates::WS_NORTH_TOWER, NorthTowerCount = 0);
                     break;
                 case SPECIAL:
                     ShowNorthTower = data;
-                    DoUpdateWorldState(WS_SHOW_NORTH_TOWER, 0);
-                    DoUpdateWorldState(WS_SHOW_CAPTURE_NORTH_TOWER, 1);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_NORTH_TOWER, 0);
+                    DoUpdateWorldState(WorldStates::WS_SHOW_CAPTURE_NORTH_TOWER, 1);
                     if (Creature* Galakras = instance->GetCreature(GetGuidData(NPC_GALAKRAS)))
                         Galakras->AI()->DoAction(ACTION_GRUNT_NORTH_FINISH);
                     break;
@@ -1191,8 +1191,8 @@ public:
                 SouthTowerCount = data;
                 if (SouthTowerCount < 0)
                     SouthTowerCount = 0;
-                DoUpdateWorldState(WS_SOUTH_TOWER, SouthTowerCount);
-                DoUpdateWorldState(WS_CAPTURE_SOUTH_TOWER, SouthTowerCount);
+                DoUpdateWorldState(WorldStates::WS_SOUTH_TOWER, SouthTowerCount);
+                DoUpdateWorldState(WorldStates::WS_CAPTURE_SOUTH_TOWER, SouthTowerCount);
 
                 if (SouthTowerCount >= 100 && !STowerFull)
                 {
@@ -1222,8 +1222,8 @@ public:
                 NorthTowerCount = data;
                 if (NorthTowerCount < 0)
                     NorthTowerCount = 0;
-                DoUpdateWorldState(WS_NORTH_TOWER, NorthTowerCount);
-                DoUpdateWorldState(WS_CAPTURE_NORTH_TOWER, NorthTowerCount);
+                DoUpdateWorldState(WorldStates::WS_NORTH_TOWER, NorthTowerCount);
+                DoUpdateWorldState(WorldStates::WS_CAPTURE_NORTH_TOWER, NorthTowerCount);
 
                 if (NorthTowerCount >= 100 && !NTowerFull)
                 {

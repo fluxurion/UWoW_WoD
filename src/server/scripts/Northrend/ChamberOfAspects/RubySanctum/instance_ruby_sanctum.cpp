@@ -259,9 +259,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                     }
                     case DATA_HALION:
                     {
-                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
-                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, 0);
-                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, 0);
+                        DoUpdateWorldState(WorldStates::WORLDSTATE_CORPOREALITY_TOGGLE, 0);
+                        DoUpdateWorldState(WorldStates::WORLDSTATE_CORPOREALITY_TWILIGHT, 0);
+                        DoUpdateWorldState(WorldStates::WORLDSTATE_CORPOREALITY_MATERIAL, 0);
 
                         // Reopen rings on wipe or success
                         if (state == DONE || state == FAIL)
@@ -305,11 +305,11 @@ class instance_ruby_sanctum : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
             {
-                data << uint32(50) << uint32(WORLDSTATE_CORPOREALITY_MATERIAL);
-                data << uint32(50) << uint32(WORLDSTATE_CORPOREALITY_TWILIGHT);
-                data << uint32(0)  << uint32(WORLDSTATE_CORPOREALITY_TOGGLE);
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_CORPOREALITY_MATERIAL, 50);
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_CORPOREALITY_TWILIGHT, 50);
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_CORPOREALITY_TOGGLE, 0);
             }
 
             void Load(char const* str)

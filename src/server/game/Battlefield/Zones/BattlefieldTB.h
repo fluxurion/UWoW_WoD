@@ -14,7 +14,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 
-const uint32 ClockBTWorldState[2] = {BG_WS_BATTLE_TIMER, BG_WS_NEXT_BATTLE_TIMER};
+WorldStates const ClockBTWorldState[2] = {WorldStates::BG_WS_BATTLE_TIMER, WorldStates::BG_WS_NEXT_BATTLE_TIMER};
 
 #define POS_Z_TOWER 150.0f
 #define POS_X_START -900.0f
@@ -61,30 +61,6 @@ enum eBuildingsWSDiff
     BUILDING_ALLIANCE_DEFENCE,
     BUILDING_ALLIANCE_DEFENCE_DAMAGED,
     BUILDING_MAX_DIFF
-};
-
-enum eWorldStates
-{
-    WS_TB_BATTLE_TIMER_ENABLED                      = 5346,
-    WS_TB_COUNTER_BUILDINGS                         = 5348,
-    WS_TB_COUNTER_BUILDINGS_ENABLED                 = 5349,
-    WS_TB_HORDE_DEFENCE                             = 5384,
-    WS_TB_ALLIANCE_DEFENCE                          = 5385,
-    WS_TB_NEXT_BATTLE_TIMER_ENABLED                 = 5387,
-
-    WS_TB_SOUTH_CAPTURE_POINT                       = 5418,
-    WS_TB_EAST_CAPTURE_POINT                        = 5428,
-    WS_TB_WEST_CAPTURE_POINT                        = 5423,
-
-    WS_TB_EAST_SPIRE                                = 5433,
-    WS_TB_SOUTH_SPIRE                               = 5438,
-    WS_TB_WEST_SPIRE                                = 5443,
-    
-    WS_TB_KEEP_HORDE_DEFENCE                        = 5469,
-    WS_TB_KEEP_ALLIANCE_DEFENCE                     = 5470,
-    
-    WS_TB_ALLIANCE_ATTACK                           = 5546,
-    WS_TB_HORDE_ATTACK                              = 5547,
 };
 
 enum eTBpell
@@ -243,7 +219,7 @@ public:
     
     void UpdateVehicleCountTB();
 
-    void FillInitialWorldStates(WorldPacket &p);
+    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
     void HandleKill(Player *killer, Unit *victim);
 
@@ -271,7 +247,7 @@ protected:
     GuidSet questgiversA;
     GuidSet questgiversH;
     GuidSet goDoors;
-    GuidSet OutsideCreature[2];
+    GuidSet OutsideCreature[MAX_TEAMS];
     TbWorkShop WorkshopsList; 
     BfCapturePointSet CapturePoints;
     GuidSet m_PlayersIsSpellImu;  //Player is dead
@@ -416,7 +392,7 @@ enum eTBWorkShopType
 
 struct BfTBWorkShopDataBase
 {
-    uint32 worldstate;
+    WorldStates worldstate;
     uint32 type;
     uint32 nameid1;
     uint32 nameid2;
@@ -425,9 +401,9 @@ struct BfTBWorkShopDataBase
 
 const BfTBWorkShopDataBase TBWorkShopDataBase[TB_MAX_WORKSHOP]=
 {
-    {WS_TB_SOUTH_CAPTURE_POINT, BATTLEFIELD_TB_NOTH_CP, BATTLEFIELD_TB_TEXT_IRONCLAD_GARRION_1, BATTLEFIELD_TB_TEXT_IRONCLAD_GARRION_2, { -896.960000f, 979.497000f, 121.441000f, 3.124123f, GAMEOBJECT_TB_NORTH_CAPTURE_POINT_AD, GAMEOBJECT_TB_NORTH_CAPTURE_POINT_HD}},
-    {WS_TB_EAST_CAPTURE_POINT,  BATTLEFIELD_TB_EAST_CP, BATTLEFIELD_TB_TEXT_WARDENS_VIGIL_1,    BATTLEFIELD_TB_TEXT_WARDENS_VIGIL_2,    { -1492.34000f, 1309.87000f, 152.961000f, -0.82030f, GAMEOBJECT_TB_EAST_CAPTURE_POINT_AD, GAMEOBJECT_TB_EAST_CAPTURE_POINT_HD}},
-    {WS_TB_WEST_CAPTURE_POINT,  BATTLEFIELD_TB_WEST_CP, BATTLEFIELD_TB_TEXT_SLAGWORKS_1,        BATTLEFIELD_TB_TEXT_SLAGWORKS_2,        { -1437.00000f, 685.556000f, 123.421000f, 0.802851f, GAMEOBJECT_TB_WEST_CAPTURE_POINT_AD, GAMEOBJECT_TB_WEST_CAPTURE_POINT_HD}},
+    {WorldStates::WS_TB_SOUTH_CAPTURE_POINT, BATTLEFIELD_TB_NOTH_CP, BATTLEFIELD_TB_TEXT_IRONCLAD_GARRION_1, BATTLEFIELD_TB_TEXT_IRONCLAD_GARRION_2, { -896.960000f, 979.497000f, 121.441000f, 3.124123f, GAMEOBJECT_TB_NORTH_CAPTURE_POINT_AD, GAMEOBJECT_TB_NORTH_CAPTURE_POINT_HD}},
+    {WorldStates::WS_TB_EAST_CAPTURE_POINT,  BATTLEFIELD_TB_EAST_CP, BATTLEFIELD_TB_TEXT_WARDENS_VIGIL_1,    BATTLEFIELD_TB_TEXT_WARDENS_VIGIL_2,    { -1492.34000f, 1309.87000f, 152.961000f, -0.82030f, GAMEOBJECT_TB_EAST_CAPTURE_POINT_AD, GAMEOBJECT_TB_EAST_CAPTURE_POINT_HD}},
+    {WorldStates::WS_TB_WEST_CAPTURE_POINT,  BATTLEFIELD_TB_WEST_CP, BATTLEFIELD_TB_TEXT_SLAGWORKS_1,        BATTLEFIELD_TB_TEXT_SLAGWORKS_2,        { -1437.00000f, 685.556000f, 123.421000f, 0.802851f, GAMEOBJECT_TB_WEST_CAPTURE_POINT_AD, GAMEOBJECT_TB_WEST_CAPTURE_POINT_HD}},
 };
 
 //*********************************
@@ -525,7 +501,7 @@ struct BfTBGameObjectBuilding
         m_TB->OnDestroyed();
 
         m_TB->SetTimer(m_TB->GetTimer() + 5 * 60 * 1000);
-        m_TB->SendUpdateWorldState(BG_WS_BATTLE_TIMER, (time(NULL) + m_TB->GetTimer() / 1000));
+        m_TB->SendUpdateWorldState(WorldStates::BG_WS_BATTLE_TIMER, (time(NULL) + m_TB->GetTimer() / 1000));
 
         for (int i = 0; i < BUILDING_MAX_DIFF; i++)
         {

@@ -166,7 +166,7 @@ class instance_zulaman : public InstanceMapScript
                         {
                             if (id == DATA_AKILZON) QuestMinute += 15;
                             else if (id == DATA_NALORAKK) QuestMinute += 10;
-                            DoUpdateWorldState(3106, QuestMinute);
+                            DoUpdateWorldState(static_cast<WorldStates>(3106), QuestMinute);
 
                             if (_hostages[id].state == 0)
                             {
@@ -188,7 +188,7 @@ class instance_zulaman : public InstanceMapScript
                                     if (Creature* kasha = instance->GetCreature(uiKashaGUID))
                                         kasha->AI()->SetData(1, 1); // Run Smart Scripts
                                     QuestMinute = 0;
-                                    DoUpdateWorldState(3104, 0);
+                                    DoUpdateWorldState(static_cast<WorldStates>(3104), 0);
                                 }
                             }
                             break;
@@ -255,12 +255,12 @@ class instance_zulaman : public InstanceMapScript
                         QuestTimer += 60000;
                         if (QuestMinute)
                         {
-                            DoUpdateWorldState(3104, 1);
-                            DoUpdateWorldState(3106, QuestMinute);
+                            DoUpdateWorldState(static_cast<WorldStates>(3104), 1);
+                            DoUpdateWorldState(static_cast<WorldStates>(3106), QuestMinute);
                         } 
                         else
                         {
-                            DoUpdateWorldState(3104, 0);
+                            DoUpdateWorldState(static_cast<WorldStates>(3104), 0);
                             for (uint8 i = 0; i < 4; ++i)
                             {
                                 if (Creature* pHostage = instance->GetCreature(_hostages[i].realGUID))
@@ -320,7 +320,7 @@ class instance_zulaman : public InstanceMapScript
                     }
                     loadStream >> uiMainGate;
                     loadStream >> QuestMinute;
-                    DoUpdateWorldState(3104, QuestMinute);
+                    DoUpdateWorldState(static_cast<WorldStates>(3104), QuestMinute);
                     loadStream >> uiVendor1;
                     loadStream >> uiVendor2;
                     loadStream >> archaeologyQuestAura;

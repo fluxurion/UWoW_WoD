@@ -86,9 +86,6 @@ enum BattlegroundRVData
     BG_RV_FIRE_TO_PILLAR_TIMER                   = 20000,
     BG_RV_CLOSE_FIRE_TIMER                       =  5000,
     BG_RV_FIRST_TIMER                            = 20133,
-    BG_RV_WORLD_STATE_A                          = 0xe10,
-    BG_RV_WORLD_STATE_H                          = 0xe11,
-    BG_RV_WORLD_STATE                            = 0xe1a,
 };
 
 class BattlegroundRVScore : public BattlegroundScore
@@ -104,25 +101,24 @@ class BattlegroundRV : public Battleground
         BattlegroundRV();
         ~BattlegroundRV();
 
-        /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* player);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
-        virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPacket &d);
+        void AddPlayer(Player* player) override;
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
+        void Reset() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
-        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-        bool SetupBattleground();
-        void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* player);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
+        bool SetupBattleground() override;
+        void HandleKillPlayer(Player* player, Player* killer) override;
+        bool HandlePlayerUnderMap(Player* player) override;
 
     private:
         uint32 Timer;
         uint32 State;
         bool   PillarCollision;
 
-        virtual void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff) override;
 
     protected:
         uint32 getTimer() { return Timer; };

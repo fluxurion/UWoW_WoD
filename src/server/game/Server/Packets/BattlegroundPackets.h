@@ -160,9 +160,9 @@ namespace WorldPackets
 
             struct RatingData
             {
-                int32 Prematch[2] = { };
-                int32 Postmatch[2] = { };
-                int32 PrematchMMR[2] = { };
+                int32 Prematch[MAX_TEAMS] = { };
+                int32 Postmatch[MAX_TEAMS] = { };
+                int32 PrematchMMR[MAX_TEAMS] = { };
             };
 
             struct HonorData
@@ -193,7 +193,7 @@ namespace WorldPackets
             Optional<uint8> Winner;
             std::vector<PlayerData> Players;
             Optional<RatingData> Ratings;
-            int8 PlayerCount[2] = { };
+            int8 PlayerCount[MAX_TEAMS] = { };
         };
 
         class AreaSpiritHealerQuery final : public ClientPacket
@@ -384,18 +384,17 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint16 BgPoints = 0;
-            bool Team = false;
+            bool Team = false; // 0 - alliance; 1 - horde
         };
 
         class Init final : public ServerPacket
         {
         public:
-            Init() : ServerPacket(SMSG_BATTLEGROUND_INIT, 25) { }
+            Init(uint16 maxPoints) : ServerPacket(SMSG_BATTLEGROUND_INIT, 2), MaxPoints(maxPoints) { }
 
             WorldPacket const* Write() override;
 
             uint16 MaxPoints = 0;
-            bool Team = false;
         };
 
         class BFMgrEjected final : public ServerPacket
@@ -500,8 +499,8 @@ namespace WorldPackets
             BattlefieldStatusHeader Header;
             uint32 Mapid = 0;
             uint32 Timeout = 0;
-            uint8 TotalPlayers[2];
-            uint8 AwaitingPlayers[2];
+            uint8 TotalPlayers[MAX_TEAMS] = { };
+            uint8 AwaitingPlayers[MAX_TEAMS] = { };
         };
 
         class BFMgrDropTimerStarted final : public ServerPacket

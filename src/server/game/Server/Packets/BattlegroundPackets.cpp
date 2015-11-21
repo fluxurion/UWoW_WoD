@@ -450,7 +450,7 @@ WorldPacket const* WorldPackets::Battleground::StatusWaitForGroups::Write()
     _worldPacket << Mapid;
     _worldPacket << Timeout;
 
-    for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+    for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
     {
         _worldPacket << TotalPlayers[i];
         _worldPacket << AwaitingPlayers[i];

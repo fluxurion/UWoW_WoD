@@ -134,10 +134,8 @@ class GameEventMgr
         void GameEventUnspawn(int16 event_id);
         void ChangeEquipOrModel(int16 event_id, bool activate);
         void UpdateEventQuests(uint16 event_id, bool activate);
-        void UpdateWorldStates(uint16 event_id, bool Activate);
         void UpdateEventNPCFlags(uint16 event_id);
         void UpdateEventNPCVendor(uint16 event_id, bool activate);
-        void UpdateBattlegroundSettings();
         void RunSmartAIScripts(uint16 event_id, bool activate);    //! Runs SMART_EVENT_GAME_EVENT_START/_END SAI
         bool CheckOneGameEventConditions(uint16 event_id);
         void SaveWorldEventStateToDB(uint16 event_id);

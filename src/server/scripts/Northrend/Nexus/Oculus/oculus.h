@@ -64,12 +64,6 @@ enum CreatureActions
     ACTION_CALL_DRAGON_EVENT    = 1
 };
 
-enum OculusWorldStates
-{
-    WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW   = 3524,
-    WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT = 3486
-};
-
 enum OculusSpells
 {
     SPELL_CENTRIFUGE_SHIELD     = 50053,

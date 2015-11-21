@@ -29,11 +29,6 @@ BattlegroundDS::BattlegroundDS()
     BgObjects.resize(BG_DS_OBJECT_MAX);
     BgCreatures.resize(BG_DS_NPC_MAX);
 
-    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = Minutes(1);
-    StartDelayTimes[BG_STARTING_EVENT_SECOND] = Seconds(30);
-    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = Seconds(15);
-    StartDelayTimes[BG_STARTING_EVENT_FOURTH] = Seconds(0);
-    //we must set messageIds
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
@@ -114,6 +109,8 @@ void BattlegroundDS::StartingEventCloseDoors()
 {
     for (uint32 i = BG_DS_OBJECT_DOOR_1; i <= BG_DS_OBJECT_DOOR_2; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+
+    UpdateWorldState(static_cast<WorldStates>(8524), 0);
 }
 
 void BattlegroundDS::StartingEventOpenDoors()
@@ -142,6 +139,9 @@ void BattlegroundDS::StartingEventOpenDoors()
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             if (player->HasAura(48018))
                 player->RemoveAurasDueToSpell(48018);
+        
+    UpdateWorldState(static_cast<WorldStates>(8524), 1);
+    UpdateWorldState(static_cast<WorldStates>(8529), int32(time(nullptr) + 1200));
 }
 
 void BattlegroundDS::AddPlayer(Player* player)
@@ -178,20 +178,17 @@ void BattlegroundDS::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-void BattlegroundDS::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    switch (Trigger)
+    switch (trigger)
     {
         case 5347:
         case 5348:
         case 8534:
         case 8533:
             // Remove effects of Demonic Circle Summon
-            if (Source->HasAura(48018))
-                Source->RemoveAurasDueToSpell(48018);
+            if (player->HasAura(48018))
+                player->RemoveAurasDueToSpell(48018);
 
             // Someone has get back into the pipes and the knockback has already been performed,
             // so we reset the knockback count for kicking the player again into the arena.
@@ -199,8 +196,7 @@ void BattlegroundDS::HandleAreaTrigger(Player* Source, uint32 Trigger)
                 setPipeKnockBackCount(0);
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendNotification("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 }
@@ -211,9 +207,11 @@ bool BattlegroundDS::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
-void BattlegroundDS::FillInitialWorldStates(WorldPacket &data)
+void BattlegroundDS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    FillInitialWorldState(data, 3610, 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(3610), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(8524), (GetStatus() != STATUS_IN_PROGRESS ? 0 : 1));
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(8529), int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(20) - GetArenaMinutesElapsed()).count()));
     UpdateArenaWorldState();
 }
 

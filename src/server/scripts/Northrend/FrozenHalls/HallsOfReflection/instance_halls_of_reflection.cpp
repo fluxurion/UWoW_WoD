@@ -193,10 +193,10 @@ public:
             }
         }
 
-        void FillInitialWorldStates(WorldPacket& data)
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
         {
-            data << uint32(0) << uint32(WORLD_STATE_HOR_WAVES_ENABLED);
-            data << uint32(0) << uint32(WORLD_STATE_HOR_WAVE_COUNT);
+            packet.Worldstates.emplace_back(WorldStates::WORLD_STATE_HOR_WAVES_ENABLED, 0);
+            packet.Worldstates.emplace_back(WorldStates::WORLD_STATE_HOR_WAVE_COUNT, 0);
         }
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -218,7 +218,7 @@ public:
                     {
                         HandleGameObject(_entranceDoorGUID, true);
                         HandleGameObject(_frostwornDoorGUID, true);
-                        DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0);
+                        DoUpdateWorldState(WorldStates::WORLD_STATE_HOR_WAVES_ENABLED, 0);
                         if (Creature* general = instance->GetCreature(_frostwornGeneralGUID))
                             general->SetPhaseMask(1, true);
                     }
@@ -371,8 +371,8 @@ public:
                 // spawning all wave npcs at once
                 case EVENT_SPAWN_WAVES:
                     _waveCount = 1;
-                    DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
-                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
+                    DoUpdateWorldState(WorldStates::WORLD_STATE_HOR_WAVES_ENABLED, 1);
+                    DoUpdateWorldState(WorldStates::WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
                     {
                         std::list<uint32> possibilityList, tempList;
                         uint32 posIndex = 0;
@@ -413,8 +413,8 @@ public:
                     events.ScheduleEvent(EVENT_NEXT_WAVE, 5000);
                     break;
                 case EVENT_ADD_WAVE:
-                    DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
-                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
+                    DoUpdateWorldState(WorldStates::WORLD_STATE_HOR_WAVES_ENABLED, 1);
+                    DoUpdateWorldState(WorldStates::WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
                     HandleGameObject(_entranceDoorGUID, false);
 
                     if (_waveCount % 5)
@@ -448,8 +448,8 @@ public:
                 case EVENT_DO_WIPE:
                     _waveCount = 0;
                     events.Reset();
-                    DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
-                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
+                    DoUpdateWorldState(WorldStates::WORLD_STATE_HOR_WAVES_ENABLED, 1);
+                    DoUpdateWorldState(WorldStates::WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
                     HandleGameObject(_entranceDoorGUID, true);
 
                     if (Creature* falric = instance->GetCreature(_falricGUID))

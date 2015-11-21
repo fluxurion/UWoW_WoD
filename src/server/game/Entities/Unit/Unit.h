@@ -1816,6 +1816,8 @@ class Unit : public WorldObject
         void JumpTo(WorldObject* obj, float speedZ);
 
         void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false);
+        void MonsterSmothMoveWithSpeed(Position pos, float speed, bool generatePath = false, bool forceDestination = false);
+
         //void SetFacing(float ori, WorldObject* obj = NULL);
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
         void SendMovementFlagUpdate(bool self = false);

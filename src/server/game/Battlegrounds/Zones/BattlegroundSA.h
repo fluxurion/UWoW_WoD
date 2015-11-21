@@ -78,43 +78,6 @@ enum BG_SA_Timers
     BG_SA_ROUNDLENGTH   = 730 * IN_MILLISECONDS
 };
 
-enum BG_SA_WorldStates
-{
-    BG_SA_ALLY_ATTACKS              = 4352,
-    BG_SA_HORDE_ATTACKS             = 4353,
-    BG_SA_PURPLE_GATEWS             = 3614,
-    BG_SA_RED_GATEWS                = 3617,
-    BG_SA_BLUE_GATEWS               = 3620,
-    BG_SA_GREEN_GATEWS              = 3623,
-    BG_SA_YELLOW_GATEWS             = 3638,
-    BG_SA_ANCIENT_GATEWS            = 3849,
-    BG_SA_LEFT_GY_ALLIANCE          = 3635,
-    BG_SA_RIGHT_GY_ALLIANCE         = 3636,
-    BG_SA_CENTER_GY_ALLIANCE        = 3637,
-    BG_SA_RIGHT_ATT_TOKEN_ALL       = 3627,
-    BG_SA_LEFT_ATT_TOKEN_ALL        = 3626,
-    BG_SA_LEFT_ATT_TOKEN_HRD        = 3629,
-    BG_SA_RIGHT_ATT_TOKEN_HRD       = 3628,
-    BG_SA_HORDE_DEFENCE_TOKEN       = 3631,
-    BG_SA_ALLIANCE_DEFENCE_TOKEN    = 3630,
-    BG_SA_RIGHT_GY_HORDE            = 3632,
-    BG_SA_LEFT_GY_HORDE             = 3633,
-    BG_SA_CENTER_GY_HORDE           = 3634,
-    BG_SA_BONUS_TIMER               = 3571,
-    BG_SA_ENABLE_TIMER              = 3564, //3565 second round timer?
-    BG_SA_TIMER                     = 3557, //cur time? 1386402226 | 1386402896
-    //3547 val 100 | if alliance 3552
-    //3548 val 200 | if alliance 3551
-    //3568 val 600
-    //3549 val. 0.1.2
-    //3550 val 0
-    //BG_WS_NEXT_BATTLE_TIMER - 1386411356
-    //BG_WS_BATTLE_TIMER - 1386403256
-    //5344 - val1
-    //5684 - 0
-
-};
-
 enum npc
 {
     NPC_ANTI_PERSONNAL_CANNON       = 27894,
@@ -415,7 +378,7 @@ enum BG_SA_Graveyards
     BG_SA_MAX_GY
 };
 
-const uint32 BG_SA_GYEntries[BG_SA_MAX_GY] =
+uint32 const BG_SA_GYEntries[BG_SA_MAX_GY] =
 {
     1350,
     1349,
@@ -446,37 +409,19 @@ class BattlegroundSA : public Battleground
         BattlegroundSA();
         ~BattlegroundSA();
 
-        /**
-         * \brief Called every time for update battle data
-         * -Update timer
-         * -Round switch
-         */
-        void PostUpdateImpl(uint32 diff);
-
-        /* inherited from BattlegroundClass */
-        /// Called when a player join battle
-        virtual void AddPlayer(Player* player);
-        /// Called when battle start
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
-        /// Called for ini battleground, after that the first player be entered
-        virtual bool SetupBattleground();
-        virtual void Reset();
-        /// Called for generate packet contain worldstate data
-        virtual void FillInitialWorldStates(WorldPacket& data);
-        /// Called when a player deal damage to building (door)
-        virtual void EventPlayerDamagedGO(Player* player, GameObject* go, uint32 eventType);
-        /// Called when a player kill a unit in bg
-        virtual void HandleKillUnit(Creature* creature, Player* killer);
-        /// Return the nearest graveyard where player can respawn
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
-        /// Called when a player click on flag (graveyard flag)
-        virtual void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
-        /// Called when a player use a gamobject (relic)
-        virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
-        /// Called when a player tp to bg
-        virtual void GetTeamStartLoc(uint32 TeamID, Position& pos) const;
-        /// Return gate id, relative to bg data, according to gameobject id
+        void PostUpdateImpl(uint32 diff) override;
+        void AddPlayer(Player* player) override;
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
+        bool SetupBattleground() override;
+        void Reset() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
+        void EventPlayerDamagedGO(Player* player, GameObject* go, uint32 eventType) override;
+        void HandleKillUnit(Creature* creature, Player* killer) override;
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj) override;
+        void EventPlayerUsedGO(Player* Source, GameObject* object) override;
+        void GetTeamStartLoc(uint32 TeamID, Position& pos) const override;
         uint32 getGateIdFromDamagedOrDestroyEventId(uint32 id)
         {
             switch (id)
@@ -510,47 +455,36 @@ class BattlegroundSA : public Battleground
             }
             return 0;
         }
-        /// Return worldstate id, according to door id
-        uint32 getWorldStateFromGateId(uint32 id)
+        WorldStates getWorldStateFromGateId(uint32 id)
         {
             switch (id)
             {
                 case BG_SA_GREEN_GATE:
-                    return BG_SA_GREEN_GATEWS;
+                    return WorldStates::BG_SA_GREEN_GATEWS;
                 case BG_SA_YELLOW_GATE:
-                    return BG_SA_YELLOW_GATEWS;
+                    return WorldStates::BG_SA_YELLOW_GATEWS;
                 case BG_SA_BLUE_GATE:
-                    return BG_SA_BLUE_GATEWS;
+                    return WorldStates::BG_SA_BLUE_GATEWS;
                 case BG_SA_RED_GATE:
-                    return BG_SA_RED_GATEWS;
+                    return WorldStates::BG_SA_RED_GATEWS;
                 case BG_SA_PURPLE_GATE:
-                    return BG_SA_PURPLE_GATEWS;
+                    return WorldStates::BG_SA_PURPLE_GATEWS;
                 case BG_SA_ANCIENT_GATE:
-                    return BG_SA_ANCIENT_GATEWS;
+                    return WorldStates::BG_SA_ANCIENT_GATEWS;
                 default:
                     break;
             }
-            return 0;
+            return WorldStates::WS_NONE;
         }
+        void EndBattleground(uint32 winner) override;
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
 
-        /// Called on battleground ending
-        void EndBattleground(uint32 winner);
-
-        /// CAlled when a player leave battleground
-        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
-
-        /* Scorekeeping */
-        /// Update score board
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
-
-        // Achievement: Defense of the Ancients
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
+        
         bool gateDestroyed;
-
-        // Achievement: Not Even a Scratch
         bool notEvenAScratch(uint32 team) const { return _notEvenAScratch[GetTeamIndexByTeamId(team)]; }
 
-        /// Id of attacker team
         TeamId Attackers;
 
         void SendBasicWorldStateUpdate(Player* player);
@@ -618,7 +552,7 @@ class BattlegroundSA : public Battleground
         /// Team witch conntrol each graveyard
         TeamId GraveyardStatus[BG_SA_MAX_GY];
         /// Score of each round
-        BG_SA_RoundScore RoundScores[2];
+        BG_SA_RoundScore RoundScores[MAX_TEAMS];
         /// used for know we are in timer phase or not (used for worldstate update)
         bool TimerEnabled;
         /// 5secs before starting the 1min countdown for second round
@@ -632,6 +566,6 @@ class BattlegroundSA : public Battleground
         std::map<uint32/*id*/, uint32/*timer*/> DemoliserRespawnList;
 
         // Achievement: Not Even a Scratch
-        bool _notEvenAScratch[BG_TEAMS_COUNT];
+        bool _notEvenAScratch[MAX_TEAMS];
 };
 #endif

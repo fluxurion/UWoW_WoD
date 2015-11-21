@@ -32,10 +32,12 @@ enum BG_KT_Objects
 {
     BG_KT_OBJECT_A_DOOR         = 0,
     BG_KT_OBJECT_H_DOOR         = 1,
-    BG_KT_OBJECT_ORB_1          = 2,
-    BG_KT_OBJECT_ORB_2          = 3,
-    BG_KT_OBJECT_ORB_3          = 4,
-    BG_KT_OBJECT_ORB_4          = 5,
+
+    BG_KT_OBJECT_ORB_GREEN      = 2,
+    BG_KT_OBJECT_ORB_PURPLE     = 3,
+    BG_KT_OBJECT_ORB_ORANGE     = 4,
+    BG_KT_OBJECT_ORB_BLUE       = 5,
+
     BG_KT_OBJECT_BERSERKBUFF_1  = 6,
     BG_KT_OBJECT_BERSERKBUFF_2  = 7,
     
@@ -81,15 +83,6 @@ enum BG_KT_SpellId
     BG_KT_HORDE_INSIGNIA        = 131528
 };
 
-enum BG_KT_WorldStates
-{
-    BG_KT_ICON_A                = 6308,
-	BG_KT_ICON_H                = 6307,
-	BG_KT_ORB_POINTS_A          = 6303,
-	BG_KT_ORB_POINTS_H          = 6304,
-    BG_KT_ORB_STATE             = 6309,
-};
-
 enum BG_KT_Graveyards
 {
     KT_GRAVEYARD_RECTANGLEA1    = 3552,
@@ -105,7 +98,6 @@ enum BG_KT_ZONE
     KT_ZONE_MIDDLE              = 2,
     KT_ZONE_MAX                 = 3
 };
-
 
 class BattleGroundKTScore : public BattlegroundScore
 {
@@ -125,7 +117,7 @@ enum BG_TK_Events
 
 #define MAX_ORBS                    4
 
-const float BG_KT_DoorPositions[2][4] =
+const float BG_KT_DoorPositions[MAX_TEAMS][4] =
 {
     {1783.84f, 1100.66f, 20.60f, 1.625020f},
     {1780.15f, 1570.22f, 24.59f, 4.711630f}
@@ -145,7 +137,7 @@ const float BG_KT_SpiritPositions[MAX_ORBS][4] =
     {1672.40f, 1524.10f, 16.7387f, 6.032206f},
 };
 
-const uint32 BG_KT_ORBS_SPELLS[MAX_ORBS] =
+uint32 const BG_KT_ORBS_SPELLS[MAX_ORBS] =
 {
     BG_KT_SPELL_ORB_PICKED_UP_1,
     BG_KT_SPELL_ORB_PICKED_UP_2,
@@ -153,7 +145,7 @@ const uint32 BG_KT_ORBS_SPELLS[MAX_ORBS] =
     BG_KT_SPELL_ORB_PICKED_UP_4
 };
 
-const uint32 BG_KT_ORBS_AURA[MAX_ORBS] =
+uint32 const BG_KT_ORBS_AURA[MAX_ORBS] =
 {
     BG_KT_SPELL_ORB_AURA_1,
     BG_KT_SPELL_ORB_AURA_2,
@@ -177,71 +169,73 @@ const uint16 LANG_BG_KT_DROPPED[MAX_ORBS] =
     LANG_BG_KT_DROPPED_4
 };
 
-//tick point according to which zone
-const uint32 BG_KT_TickPoints[3] = {5, 10, 15};
+WorldStates const OrbsWS[MAX_ORBS][MAX_TEAMS] = 
+{
+    {WorldStates::BG_KT_PURPLE_ORB_C,   WorldStates::BG_KT_PURPLE_ORB_X},
+    {WorldStates::BG_KT_GREEN_ORB_C,    WorldStates::BG_KT_GREEN_ORB_X},
+    {WorldStates::BG_KT_ORANGE_ORB_C,   WorldStates::BG_KT_ORANGE_ORB_X},
+    {WorldStates::BG_KT_BLUE_ORB_C,     WorldStates::BG_KT_BLUE_ORB_X}
+};
+
+WorldStates const OrbsIcons[MAX_ORBS] = 
+{
+    {WorldStates::BG_KT_ICON_GREEN_ORB_ICON}, {WorldStates::BG_KT_ICON_PURPLE_ORB_ICON}, {WorldStates::BG_KT_ICON_ORANGE_ORB_ICON}, {WorldStates::BG_KT_ICON_BLUE_ORB_ICON}
+};
+
+uint32 const BG_KT_TickPoints[3] = {5, 10, 15};
 
 class BattlegroundKT : public Battleground
 {
     friend class BattleGroundMgr;
 
     public:
-        /* Construction */
         BattlegroundKT();
         ~BattlegroundKT();
-        void PostUpdateImpl(uint32 diff);
 
-        /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* plr);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void PostUpdateImpl(uint32 diff) override;
 
-        /* Battleground Events */
-        void EventPlayerDroppedFlag(Player* source);
+        void AddPlayer(Player* plr) override;
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
+        void GetPlayerPositionData(std::vector<WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition>* positions) const override;
+
+        void EventPlayerDroppedFlag(Player* source) override;
         
-        virtual void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj) { EventPlayerClickedOnOrb(source, target_obj); }
-        void EventPlayerClickedOnOrb(Player* source, GameObject* target_obj);
+        void EventPlayerClickedOnFlag(Player* source, GameObject* object) override;
 
-        void RemovePlayer(Player* player, ObjectGuid guid, uint32);
-        void HandleAreaTrigger(Player* source, uint32 trigger);
-        void HandleKillPlayer(Player* player, Player* killer);
-        bool SetupBattleground();
-        void Reset();
-        virtual void EndBattleground(uint32 winner);
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
-        uint32 GetRemainingTimeInMinutes() { return m_EndTimer ? (m_EndTimer-1) / (MINUTE * IN_MILLISECONDS) + 1 : 0; }
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
+        void HandleKillPlayer(Player* player, Player* killer) override;
+        bool SetupBattleground() override;
+        void Reset() override;
+        void EndBattleground(uint32 winner) override;
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
 
-        void UpdateOrbState(Team team, uint32 value);
-        void UpdateTeamScore(Team team);
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
-        virtual void FillInitialWorldStates(WorldPacket& data);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
-        /* Scorekeeping */
-        uint32 GetTeamScore(Team team) const            { return m_TeamScores[GetTeamIndexByTeamId(team)]; }
-        void AddPoint(Team team, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(team)] += Points; }
+        void AddPoint(Team team, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(team)] += Points; }
         void SetTeamPoint(Team team, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(team)] = Points; }
-        void RemovePoint(Team team, uint32 Points = 1)  { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
+        void RemovePoint(Team team, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
 
-        void AccumulateScore(uint32 team, BG_KT_ZONE zone);
+        void AccumulateScore(TeamId team, BG_KT_ZONE zone);
 
         ObjectGuid GetFlagPickerGUID(int32 index) const override
         {
             if (MAX_ORBS)
-                return m_OrbKeepers[index];
+                return _orbKeepers[index];
 
             return ObjectGuid::Empty;
         }
 
     private:
 
-        ObjectGuid m_OrbKeepers[MAX_ORBS];
-        std::map<ObjectGuid, BG_KT_ZONE> m_playersZone;
+        ObjectGuid _orbKeepers[MAX_ORBS];
+        std::map<ObjectGuid, BG_KT_ZONE> _playersZone;
 
-        uint32 m_ReputationCapture;
-        uint32 m_HonorWinKills;
-        uint32 m_HonorEndKills;
-        uint32 m_EndTimer;
-        uint32 m_UpdatePointsTimer;
-        Team   m_LastCapturedOrbTeam;
+        uint32 _reputationCapture;
+        uint32 _updatePointsTimer;
+        TeamId _lastCapturedOrbTeam;
 };
 
 #endif

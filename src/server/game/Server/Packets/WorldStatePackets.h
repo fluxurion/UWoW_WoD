@@ -29,11 +29,11 @@ namespace WorldPackets
         public:
             struct WorldStateInfo
             {
-                WorldStateInfo(uint32 variableID, int32 value)
+                WorldStateInfo(WorldStates variableID, int32 value)
                     : VariableID(variableID), Value(value)
                 { }
 
-                uint32 VariableID;
+                WorldStates VariableID;
                 int32 Value;
             };
 
@@ -57,7 +57,7 @@ namespace WorldPackets
 
             int32 Value = 0;
             bool Hidden = false;
-            uint32 VariableID = 0;
+            WorldStates VariableID = WorldStates::WS_NONE;
         };
     }
 }

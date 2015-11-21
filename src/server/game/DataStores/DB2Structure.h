@@ -879,11 +879,11 @@ struct TaxiNodesEntry
     uint32          MapID;                                  // 1
     DBCPosition3D   Pos;                                    // 2-4
     LocalizedString* Name_lang;                             // 5
-    uint32          MountCreatureID[2];                     // 6-7
+    uint32          MountCreatureID[MAX_TEAMS];           // 6-7
     uint32          ConditionID;                            // 8
     uint32          LearnableIndex;                         // 9 - some kind of index only for learnable nodes
     uint32          Flags;                                  // 10
-    float           MapOffset[2];                           // 11-12
+    float           MapOffset[MAX_TEAMS];                 // 11-12
 };
 
 struct TaxiPathEntry

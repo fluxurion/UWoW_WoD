@@ -402,9 +402,9 @@ void hyjalAI::Reset()
         if ((!instance->GetData(DATA_ALLIANCE_RETREAT) && me->GetEntry() == JAINA) || (instance->GetData(DATA_ALLIANCE_RETREAT) && me->GetEntry() == THRALL))
         {
             //Reset World States
-            instance->DoUpdateWorldState(WORLD_STATE_WAVES, 0);
-            instance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0);
-            instance->DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
+            instance->DoUpdateWorldState(WorldStates::WORLD_STATE_WAVES, 0);
+            instance->DoUpdateWorldState(WorldStates::WORLD_STATE_ENEMY, 0);
+            instance->DoUpdateWorldState(WorldStates::WORLD_STATE_ENEMYCOUNT, 0);
             instance->SetData(DATA_RESET_TRASH_COUNT, 0);
         }
     } else sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
@@ -559,9 +559,9 @@ void hyjalAI::SummonNextWave(const Wave wave[18], uint32 Count, float Base[4][3]
             stateValue -= 9;                                // Subtract 9 from it to give the proper wave number if we are greater than 8
 
         // Set world state to our current wave number
-        instance->DoUpdateWorldState(WORLD_STATE_WAVES, stateValue);    // Set world state to our current wave number
+        instance->DoUpdateWorldState(WorldStates::WORLD_STATE_WAVES, stateValue);    // Set world state to our current wave number
         // Enable world state
-        instance->DoUpdateWorldState(WORLD_STATE_ENEMY, 1);             // Enable world state
+        instance->DoUpdateWorldState(WorldStates::WORLD_STATE_ENEMY, 1);             // Enable world state
 
         instance->SetData(DATA_TRASH, EnemyCount);         // Send data for instance script to update count
 
@@ -576,11 +576,11 @@ void hyjalAI::SummonNextWave(const Wave wave[18], uint32 Count, float Base[4][3]
     else
     {
         // Set world state for waves to 0 to disable it.
-        instance->DoUpdateWorldState(WORLD_STATE_WAVES, 0);
-        instance->DoUpdateWorldState(WORLD_STATE_ENEMY, 1);
+        instance->DoUpdateWorldState(WorldStates::WORLD_STATE_WAVES, 0);
+        instance->DoUpdateWorldState(WorldStates::WORLD_STATE_ENEMY, 1);
 
         // Set World State for enemies invading to 1.
-        instance->DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, 1);
+        instance->DoUpdateWorldState(WorldStates::WORLD_STATE_ENEMYCOUNT, 1);
 
         Summon = false;
     }
@@ -603,9 +603,9 @@ void hyjalAI::StartEvent(Player* player)
 
     me->RemoveFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-    instance->DoUpdateWorldState(WORLD_STATE_WAVES, 0);
-    instance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0);
-    instance->DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
+    instance->DoUpdateWorldState(WorldStates::WORLD_STATE_WAVES, 0);
+    instance->DoUpdateWorldState(WorldStates::WORLD_STATE_ENEMY, 0);
+    instance->DoUpdateWorldState(WorldStates::WORLD_STATE_ENEMYCOUNT, 0);
 
     DeSpawnVeins();
 }
@@ -878,7 +878,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     me->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     BossGUID[i].Clear();
                     if (instance)
-                        instance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
+                        instance->DoUpdateWorldState(WorldStates::WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
                 }
             }
         }

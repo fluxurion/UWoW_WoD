@@ -67,7 +67,7 @@ enum BattlePetTeam
     TEAM_ALLY   = 0,
     TEAM_ENEMY  = 1,
 
-    MAX_TEAMS
+    MAX_PETBATTLE_TEAMS
 };
 
 enum BattlePetBreeds
@@ -450,11 +450,11 @@ protected:
     BattleInfo battleInfo;
 
     uint32 currentRoundID;      // CurRound             _initialInfo
-    ObjectGuid teamGuids[2];    // Players              _initialInfo
+    ObjectGuid teamGuids[MAX_TEAMS]; // Players              _initialInfo
     uint8 petBattleState;       // CurPetBattleState    _initialInfo
     bool nextRoundFinal;        // CurRound is next final check ? _initialInfo
 
-    uint8 winners[2];           // Winner               _finalRoundInfo
+    uint8 winners[MAX_TEAMS]; // Winner               _finalRoundInfo
     bool abandoned;             // Abandoned            _finalRoundInfo
 };
 

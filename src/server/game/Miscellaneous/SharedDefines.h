@@ -23,6 +23,8 @@
 #include "Define.h"
 #include <cassert>
 
+#include "WorldStates.h" // include it just in specific files and remove from here
+
 const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
 #define MMAP_VERSION 7
 
@@ -1077,16 +1079,19 @@ enum Language
     LANG_ADDON          = 0xFFFFFFFF                        // used by addons, in 2.4.0 not exist, replaced by messagetype?
 };
 
-enum TeamId
+enum TeamId : int8
 {
-    TEAM_ALLIANCE = 0,
-    TEAM_HORDE,
-    TEAM_NEUTRAL
+    TEAM_NONE       = -1,
+
+    TEAM_ALLIANCE   = 0,
+    TEAM_HORDE      = 1,
+
+    TEAM_NEUTRAL    = 2,
+    MAX_TEAMS       = 2,
 };
 
 enum Team
 {
-    TEAM_NONE           = 0,
     HORDE               = 67,
     ALLIANCE            = 469,
     //TEAM_STEAMWHEEDLE_CARTEL = 169,                     // not used in code
@@ -5066,6 +5071,18 @@ enum LfgTicketType
     TICKET_TYPE_BG_SYSTEM   = 1,
     TICKET_TYPE_LFD_SYSTEM  = 2,
     TICKET_TYPE_PET_BATTLE  = 5,
+};
+
+enum BattleGroundCapturePointState
+{
+    NODE_STATE_NONE                 = 0,
+    NODE_STATE_NEUTRAL              = 1,
+
+    NODE_STATE_HORDE_ASSAULT        = 2,
+    NODE_STATE_ALLIANCE_ASSAULT     = 3,
+
+    NODE_STATE_HORDE_CAPTURE        = 4,
+    NODE_STATE_ALLIANCE_CAPTURE     = 5
 };
 
 #endif

@@ -670,10 +670,10 @@ class npc_halion_controller : public CreatureScript
                         // Summon Twilight portals
                         DoCast(me, SPELL_SUMMON_EXIT_PORTALS);
 
-                        _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
+                        _instance->DoUpdateWorldState(WorldStates::WORLDSTATE_CORPOREALITY_TOGGLE, 1);
                         // Hardcoding doesn't really matter here.
-                        _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, 50);
-                        _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, 50);
+                        _instance->DoUpdateWorldState(WorldStates::WORLDSTATE_CORPOREALITY_MATERIAL, 50);
+                        _instance->DoUpdateWorldState(WorldStates::WORLDSTATE_CORPOREALITY_TWILIGHT, 50);
 
                         _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 7500);
                     }
@@ -840,8 +840,8 @@ class npc_halion_controller : public CreatureScript
                 _materialDamageTaken = 0;
                 _twilightDamageTaken = 0;
 
-                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, _materialCorporealityValue * 10);
-                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, 100 - _materialCorporealityValue * 10);
+                _instance->DoUpdateWorldState(WorldStates::WORLDSTATE_CORPOREALITY_MATERIAL, _materialCorporealityValue * 10);
+                _instance->DoUpdateWorldState(WorldStates::WORLDSTATE_CORPOREALITY_TWILIGHT, 100 - _materialCorporealityValue * 10);
 
                 for (uint8 itr = DATA_HALION; itr <= DATA_TWILIGHT_HALION; itr++)
                 {

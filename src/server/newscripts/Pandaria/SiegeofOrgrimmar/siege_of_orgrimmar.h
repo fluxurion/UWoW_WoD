@@ -505,20 +505,6 @@ enum GalakrasFinishEvent
     EVENT_FINISH_3_A                      = 6,
 };
 
-enum WorldStatesICC
-{
-    WS_SHOW_SOUTH_TOWER             = 8545,
-    WS_SHOW_NORTH_TOWER             = 8547,
-    WS_SHOW_CAPTURE_SOUTH_TOWER     = 8546,
-    WS_SHOW_CAPTURE_NORTH_TOWER     = 8548,
-    WS_SOUTH_TOWER                  = 8461,
-    WS_NORTH_TOWER                  = 8462,
-    WS_CAPTURE_SOUTH_TOWER          = 8468,
-    WS_CAPTURE_NORTH_TOWER          = 8469,
-    WS_SHOW_KORKRON_CANNON          = 8414,
-    WS_KORKRON_CANNON_COUNT         = 8373,
-};
-
 static uint8 vehSlotForMeasures(uint32 entry)
 {
     switch(entry)

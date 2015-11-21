@@ -168,13 +168,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                 BloodQuickeningMinutes = 0;
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
             {
-                data << uint32(BloodQuickeningState == IN_PROGRESS) << uint32(WORLDSTATE_SHOW_TIMER);
-                data << uint32(BloodQuickeningMinutes)              << uint32(WORLDSTATE_EXECUTION_TIME);
-                data << uint32(instance->IsHeroic())                << uint32(WORLDSTATE_SHOW_ATTEMPTS);
-                data << uint32(HeroicAttempts)                      << uint32(WORLDSTATE_ATTEMPTS_REMAINING);
-                data << uint32(MaxHeroicAttempts)                   << uint32(WORLDSTATE_ATTEMPTS_MAX);
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_SHOW_TIMER, BloodQuickeningState == IN_PROGRESS); // deprecated
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes); // deprecated
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_SHOW_ATTEMPTS, instance->IsHeroic()); // deprecated
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts); // deprecated
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_ATTEMPTS_MAX, MaxHeroicAttempts); // deprecated
             }
 
             void OnPlayerEnter(Player* player)
@@ -859,7 +859,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             if (state == FAIL && HeroicAttempts)
                             {
                                 --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
                                 if (!HeroicAttempts)
                                     if (Creature* putricide = instance->GetCreature(ProfessorPutricideGUID))
                                         putricide->DespawnOrUnsummon();
@@ -875,7 +875,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             if (state == FAIL && HeroicAttempts)
                             {
                                 --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
                                 if (!HeroicAttempts)
                                     if (Creature* bq = instance->GetCreature(BloodQueenLanaThelGUID))
                                         bq->DespawnOrUnsummon();
@@ -900,7 +900,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             if (state == FAIL && HeroicAttempts)
                             {
                                 --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
                                 if (!HeroicAttempts)
                                     if (Creature* sindra = instance->GetCreature(SindragosaGUID))
                                         sindra->DespawnOrUnsummon();
@@ -921,7 +921,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             if (state == FAIL && HeroicAttempts)
                             {
                                 --HeroicAttempts;
-                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
                                 if (!HeroicAttempts)
                                     if (Creature* theLichKing = instance->GetCreature(TheLichKingGUID))
                                         theLichKing->DespawnOrUnsummon();
@@ -989,13 +989,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                             case IN_PROGRESS:
                                 Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 60000);
                                 BloodQuickeningMinutes = 30;
-                                DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 1);
-                                DoUpdateWorldState(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_SHOW_TIMER, 1);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
                                 break;
                             case DONE:
                                 Events.CancelEvent(EVENT_UPDATE_EXECUTION_TIME);
                                 BloodQuickeningMinutes = 0;
-                                DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 0);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_SHOW_TIMER, 0);
                                 break;
                             default:
                                 break;
@@ -1292,13 +1292,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                             if (BloodQuickeningMinutes)
                             {
                                 Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 60000);
-                                DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 1);
-                                DoUpdateWorldState(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_SHOW_TIMER, 1);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
                             }
                             else
                             {
                                 BloodQuickeningState = DONE;
-                                DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 0);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_SHOW_TIMER, 0);
                                 if (Creature* bq = instance->GetCreature(BloodQueenLanaThelGUID))
                                     bq->AI()->DoAction(ACTION_KILL_MINCHAR);
                             }

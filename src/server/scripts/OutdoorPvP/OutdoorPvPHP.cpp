@@ -125,21 +125,21 @@ bool OutdoorPvPHP::Update(uint32 diff)
             TeamCastSpell(TEAM_ALLIANCE, -AllianceBuff);
             TeamCastSpell(TEAM_HORDE, -HordeBuff);
         }
-        SendUpdateWorldState(HP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
-        SendUpdateWorldState(HP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
+        SendUpdateWorldState(WorldStates::HP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
+        SendUpdateWorldState(WorldStates::HP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
     }
     return changed;
 }
 
 void OutdoorPvPHP::SendRemoveWorldStates(Player* player)
 {
-    player->SendUpdateWorldState(HP_UI_TOWER_DISPLAY_A, 0);
-    player->SendUpdateWorldState(HP_UI_TOWER_DISPLAY_H, 0);
-    player->SendUpdateWorldState(HP_UI_TOWER_COUNT_H, 0);
-    player->SendUpdateWorldState(HP_UI_TOWER_COUNT_A, 0);
-    player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, 0);
-    player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS, 0);
-    player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 0);
+    player->SendUpdateWorldState(WorldStates::HP_UI_TOWER_DISPLAY_A, 0);
+    player->SendUpdateWorldState(WorldStates::HP_UI_TOWER_DISPLAY_H, 0);
+    player->SendUpdateWorldState(WorldStates::HP_UI_TOWER_COUNT_H, 0);
+    player->SendUpdateWorldState(WorldStates::HP_UI_TOWER_COUNT_A, 0);
+    player->SendUpdateWorldState(WorldStates::HP_UI_TOWER_SLIDER_N, 0);
+    player->SendUpdateWorldState(WorldStates::HP_UI_TOWER_SLIDER_POS, 0);
+    player->SendUpdateWorldState(WorldStates::HP_UI_TOWER_SLIDER_DISPLAY, 0);
     for (int i = 0; i < HP_TOWER_NUM; ++i)
     {
         player->SendUpdateWorldState(HP_MAP_N[i], 0);
@@ -148,19 +148,18 @@ void OutdoorPvPHP::SendRemoveWorldStates(Player* player)
     }
 }
 
-void OutdoorPvPHP::FillInitialWorldStates(WorldPacket &data)
+void OutdoorPvPHP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    FillInitialWorldState(data, HP_UI_TOWER_DISPLAY_A, 1);
-    FillInitialWorldState(data, HP_UI_TOWER_DISPLAY_H, 1);
-    FillInitialWorldState(data, HP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
-    FillInitialWorldState(data, HP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
-    FillInitialWorldState(data, HP_UI_TOWER_SLIDER_DISPLAY, 0);
-    FillInitialWorldState(data, HP_UI_TOWER_SLIDER_POS, 50);
-    FillInitialWorldState(data, HP_UI_TOWER_SLIDER_N, 100);
+    packet.Worldstates.emplace_back(WorldStates::HP_UI_TOWER_DISPLAY_A, 1);
+    packet.Worldstates.emplace_back(WorldStates::HP_UI_TOWER_DISPLAY_H, 1);
+    packet.Worldstates.emplace_back(WorldStates::HP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
+    packet.Worldstates.emplace_back(WorldStates::HP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
+    packet.Worldstates.emplace_back(WorldStates::HP_UI_TOWER_SLIDER_DISPLAY, 0);
+    packet.Worldstates.emplace_back(WorldStates::HP_UI_TOWER_SLIDER_POS, 50);
+    packet.Worldstates.emplace_back(WorldStates::HP_UI_TOWER_SLIDER_N, 100);
+
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-    {
-        itr->second->FillInitialWorldStates(data);
-    }
+        itr->second->FillInitialWorldStates(packet);
 }
 
 void OPvPCapturePointHP::ChangeState()
@@ -272,37 +271,37 @@ void OPvPCapturePointHP::ChangeState()
 
 void OPvPCapturePointHP::SendChangePhase()
 {
-    SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, m_neutralValuePct);
+    SendUpdateWorldState(WorldStates::HP_UI_TOWER_SLIDER_N, m_neutralValuePct);
     // send these updates to only the ones in this objective
     uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
-    SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS, phase);
+    SendUpdateWorldState(WorldStates::HP_UI_TOWER_SLIDER_POS, phase);
     // send this too, sometimes the slider disappears, dunno why :(
-    SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
+    SendUpdateWorldState(WorldStates::HP_UI_TOWER_SLIDER_DISPLAY, 1);
 }
 
-void OPvPCapturePointHP::FillInitialWorldStates(WorldPacket &data)
+void OPvPCapturePointHP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
     switch (m_State)
     {
         case OBJECTIVESTATE_ALLIANCE:
         case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:
-            FillInitialWorldState(data, HP_MAP_N[m_TowerType], 0);
-            FillInitialWorldState(data, HP_MAP_A[m_TowerType], 1);
-            FillInitialWorldState(data, HP_MAP_H[m_TowerType], 0);
+            packet.Worldstates.emplace_back(static_cast<WorldStates>(HP_MAP_N[m_TowerType]), 0);
+            packet.Worldstates.emplace_back(static_cast<WorldStates>(HP_MAP_A[m_TowerType]), 1);
+            packet.Worldstates.emplace_back(static_cast<WorldStates>(HP_MAP_H[m_TowerType]), 0);
             break;
         case OBJECTIVESTATE_HORDE:
         case OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE:
-            FillInitialWorldState(data, HP_MAP_N[m_TowerType], 0);
-            FillInitialWorldState(data, HP_MAP_A[m_TowerType], 0);
-            FillInitialWorldState(data, HP_MAP_H[m_TowerType], 1);
+            packet.Worldstates.emplace_back(static_cast<WorldStates>(HP_MAP_N[m_TowerType]), 0);
+            packet.Worldstates.emplace_back(static_cast<WorldStates>(HP_MAP_A[m_TowerType]), 0);
+            packet.Worldstates.emplace_back(static_cast<WorldStates>(HP_MAP_H[m_TowerType]), 1);
             break;
         case OBJECTIVESTATE_NEUTRAL:
         case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
         case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
         default:
-            FillInitialWorldState(data, HP_MAP_N[m_TowerType], 1);
-            FillInitialWorldState(data, HP_MAP_A[m_TowerType], 0);
-            FillInitialWorldState(data, HP_MAP_H[m_TowerType], 0);
+            packet.Worldstates.emplace_back(static_cast<WorldStates>(HP_MAP_N[m_TowerType]), 1);
+            packet.Worldstates.emplace_back(static_cast<WorldStates>(HP_MAP_A[m_TowerType]), 0);
+            packet.Worldstates.emplace_back(static_cast<WorldStates>(HP_MAP_H[m_TowerType]), 0);
             break;
     }
 }
@@ -311,10 +310,9 @@ bool OPvPCapturePointHP::HandlePlayerEnter(Player* player)
 {
     if (OPvPCapturePoint::HandlePlayerEnter(player))
     {
-        player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 1);
-        uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
-        player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_POS, phase);
-        player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_N, m_neutralValuePct);
+        player->SendUpdateWorldState(WorldStates::HP_UI_TOWER_SLIDER_DISPLAY, 1);
+        player->SendUpdateWorldState(WorldStates::HP_UI_TOWER_SLIDER_POS, ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
+        player->SendUpdateWorldState(WorldStates::HP_UI_TOWER_SLIDER_N, m_neutralValuePct);
         return true;
     }
     return false;
@@ -322,7 +320,7 @@ bool OPvPCapturePointHP::HandlePlayerEnter(Player* player)
 
 void OPvPCapturePointHP::HandlePlayerLeave(Player* player)
 {
-    player->SendUpdateWorldState(HP_UI_TOWER_SLIDER_DISPLAY, 0);
+    player->SendUpdateWorldState(WorldStates::HP_UI_TOWER_SLIDER_DISPLAY, 0);
     OPvPCapturePoint::HandlePlayerLeave(player);
 }
 

@@ -21,6 +21,7 @@
 #include "Utilities/Util.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
+#include "Packets/WorldStatePackets.h"
 
 class GameObject;
 
@@ -94,10 +95,11 @@ class OPvPCapturePoint
 
         virtual ~OPvPCapturePoint() {}
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
+        void SendUpdateWorldState(WorldStates field, uint32 value);
 
         // send kill notify to players in the controlling faction
         void SendObjectiveComplete(uint32 id, ObjectGuid guid);
@@ -154,7 +156,7 @@ class OPvPCapturePoint
     protected:
 
         // active players in the area of the objective, 0 - alliance, 1 - horde
-        PlayerSet m_activePlayers[2];
+        PlayerSet m_activePlayers[MAX_TEAMS];
 
         // total shift needed to capture the objective
         float m_maxValue;
@@ -204,10 +206,10 @@ class OutdoorPvP : public ZoneScript
 
         typedef std::map<ObjectGuid/*lowguid*/, OPvPCapturePoint*> OPvPCapturePointMap;
 
-        virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // called when a player triggers an areatrigger
-        virtual bool HandleAreaTrigger(Player* player, uint32 trigger);
+        virtual void HandleAreaTrigger(Player* player, uint32 trigger, bool entered);
 
         // called on custom spell
         virtual bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
@@ -224,6 +226,7 @@ class OutdoorPvP : public ZoneScript
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
+        void SendUpdateWorldState(WorldStates field, uint32 value);
 
         // called by OutdoorPvPMgr, updates the objectives and if needed, sends new worldstateui information
         virtual bool Update(uint32 diff);
@@ -253,7 +256,7 @@ class OutdoorPvP : public ZoneScript
         // the map of the objectives belonging to this outdoorpvp
         OPvPCapturePointMap m_capturePoints;
 
-        PlayerSet m_players[2];
+        PlayerSet m_players[MAX_TEAMS];
 
         uint32 m_TypeId;
 

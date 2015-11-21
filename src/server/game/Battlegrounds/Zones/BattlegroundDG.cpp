@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundDG.h"
 #include "Language.h"
 #include "Object.h"
@@ -33,30 +32,30 @@ BattlegroundDG::BattlegroundDG()
     BgObjects.resize(BG_DG_OBJECT_MAX);
     BgCreatures.resize(BG_DG_UNIT_MAX);
 
-    m_goldUpdate = GOLD_UPDATE;
+    _goldUpdate = Seconds(5);
 
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_DG_START_TWO_MINUTES;
+    StartMessageIds[BG_STARTING_EVENT_FIRST] = LANG_BG_DG_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_DG_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_DG_START_HALF_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_BG_DG_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_DG_START_HAS_BEGUN;
 
-    for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
-        m_gold[i] = 0;
+    for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
+    {
+        _gold[i] = 0;
+        _carts[i] = nullptr;
+    }
 
-    for (uint8 i = 0; i < 3; ++i)
-        m_points[i] = NULL;
-
-    m_carts[TEAM_ALLIANCE] = NULL;
-    m_carts[TEAM_HORDE]    = NULL;
+    for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
+        _points[i] = nullptr;
 }
 
 BattlegroundDG::~BattlegroundDG()
 {
     for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
-        delete m_points[i];
+        delete _points[i];
 
-    for (uint8 i = 0; i < 2; ++i)
-        delete m_carts[i];
+    for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
+        delete _carts[i];
 }
 
 void BattlegroundDG::StartingEventCloseDoors()
@@ -71,13 +70,13 @@ void BattlegroundDG::StartingEventOpenDoors()
         DoorOpen(i);
 }
 
-void BattlegroundDG::UpdatePlayerScore(Player *player, uint32 type, uint32 addvalue, bool addHonor)
+void BattlegroundDG::UpdatePlayerScore(Player* player, uint32 type, uint32 addvalue, bool addHonor)
 {
     if (!player)
         return;
 
     BattlegroundScoreMap::iterator itr = PlayerScores.find(player->GetGUID());
-    if (itr == PlayerScores.end())                         // player not found...
+    if (itr == PlayerScores.end())
         return;
 
     switch (type)
@@ -96,13 +95,15 @@ void BattlegroundDG::UpdatePlayerScore(Player *player, uint32 type, uint32 addva
             ((BattlegroundDGScore*)itr->second)->pointsCaptured += addvalue;
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, DG_OBJECTIVE_DEFENDED_FLAG, 1);
             break;
+        default:
+            break;
     }
 }
 
-const WorldSafeLocsEntry *BattlegroundDG::GetClosestGraveYard(Player *player)
+const WorldSafeLocsEntry* BattlegroundDG::GetClosestGraveYard(Player* player)
 {
-    WorldSafeLocsEntry const* pGraveyard = NULL;
-    WorldSafeLocsEntry const* entry = NULL;
+    WorldSafeLocsEntry const* pGraveyard = nullptr;
+    WorldSafeLocsEntry const* entry = nullptr;
     float x, y;
 
     player->GetPosition(x, y);
@@ -129,7 +130,6 @@ const WorldSafeLocsEntry *BattlegroundDG::GetClosestGraveYard(Player *player)
 
 void BattlegroundDG::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
     AddPlayerScore(player->GetGUID(), new BattlegroundDGScore);
     Battleground::AddPlayer(player);
 }
@@ -139,7 +139,7 @@ void BattlegroundDG::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
 
-    if(player)
+    if (player)
         EventPlayerDroppedFlag(player);
 }
 
@@ -148,8 +148,8 @@ void BattlegroundDG::HandleKillPlayer(Player* player, Player* killer)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    for (uint8 i = 0; i < 2; ++i)
-        if (m_carts[i]->TakePlayerWhoDroppedFlag() == player->GetGUID())
+    for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
+        if (_carts[i]->TakePlayerWhoDroppedFlag() == player->GetGUID())
         {
             UpdatePlayerScore(killer, SCORE_CARTS_DEFENDED, 1, false);
             if (killer != player)
@@ -168,30 +168,30 @@ bool BattlegroundDG::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
-void BattlegroundDG::HandlePointCapturing(Player *player, Creature *creature)
+void BattlegroundDG::HandlePointCapturing(Player* player, Creature* creature)
 {
     for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
-        if (m_points[i]->GetCreaturePoint() == creature)
-            m_points[i]->PointClicked(player);
+        if (_points[i]->GetCreaturePoint() == creature)
+            _points[i]->PointClicked(player);
 }
 
-void BattlegroundDG::EventPlayerUsedGO(Player *player, GameObject *go)
+void BattlegroundDG::EventPlayerUsedGO(Player* player, GameObject* go)
 {
-    for (uint8 i = 0; i < 2; ++i)
-        if (m_carts[i]->GetGameObject() == go)
-            m_carts[i]->ToggleCaptured(player);
+    for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
+        if (_carts[i]->GetGameObject() == go)
+            _carts[i]->ToggleCaptured(player);
 }
 
-void BattlegroundDG::EventPlayerDroppedFlag(Player *Source)
+void BattlegroundDG::EventPlayerDroppedFlag(Player* Source)
 {
-    for (uint8 i = 0; i < 2; ++i)
-        if (m_carts[i]->ControlledByPlayerWithGuid() == Source->GetGUID())
-            m_carts[i]->CartDropped();
+    for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
+        if (_carts[i]->ControlledByPlayerWithGuid() == Source->GetGUID())
+            _carts[i]->CartDropped();
 }
 
 ObjectGuid BattlegroundDG::GetFlagPickerGUID(int32 team) const
 {
-    if (Player* player = m_carts[team == TEAM_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE]->ControlledBy())
+    if (Player* player = _carts[team == TEAM_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE]->ControlledBy())
         return player->GetGUID();
 
     return ObjectGuid::Empty;
@@ -204,9 +204,9 @@ void BattlegroundDG::UpdatePointsCountPerTeam()
 
     for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
     {
-        if (m_points[i]->GetState() == POINT_STATE_CAPTURED_ALLIANCE)
+        if (_points[i]->GetState() == POINT_STATE_CAPTURED_ALLIANCE)
             allincePoints++;
-        else if (m_points[i]->GetState() == POINT_STATE_CAPTURED_HORDE)
+        else if (_points[i]->GetState() == POINT_STATE_CAPTURED_HORDE)
             hordePoints++;
     }
 
@@ -216,23 +216,23 @@ void BattlegroundDG::UpdatePointsCountPerTeam()
 
 uint32 BattlegroundDG::ModGold(uint8 teamId, int32 val)
 {
-    m_gold[teamId] = (val < 0 && int32(int32(m_gold[teamId]) + val) < 0) ? 0 : m_gold[teamId] + val;
+    _gold[teamId] = (val < 0 && int32(int32(_gold[teamId]) + val) < 0) ? 0 : _gold[teamId] + val;
 
-    UpdateWorldState(teamId == TEAM_ALLIANCE ? 7880 : 7881, m_gold[teamId]);
+    UpdateWorldState(teamId == TEAM_ALLIANCE ? 7880 : 7881, _gold[teamId]);
 
-    return m_gold[teamId];
+    return _gold[teamId];
 }
 
-void BattlegroundDG::PostUpdateImpl(uint32 diff)
+void BattlegroundDG::PostUpdateImpl(Milliseconds diff)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
     for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
-        m_points[i]->Update(diff);
+        _points[i]->Update(diff);
 
 
-    if (m_goldUpdate < 0)
+    if (_goldUpdate < Milliseconds(0))
     {
         uint32 alliancemod = 0;
         uint32 hordemod = 0;
@@ -241,9 +241,9 @@ void BattlegroundDG::PostUpdateImpl(uint32 diff)
 
         for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
         {
-            if (m_points[i]->GetState() == POINT_STATE_CAPTURED_ALLIANCE)
+            if (_points[i]->GetState() == POINT_STATE_CAPTURED_ALLIANCE)
                 alliancemod += modPerPoint;
-            else if (m_points[i]->GetState() == POINT_STATE_CAPTURED_HORDE)
+            else if (_points[i]->GetState() == POINT_STATE_CAPTURED_HORDE)
                 hordemod += modPerPoint;
         }
 
@@ -253,98 +253,83 @@ void BattlegroundDG::PostUpdateImpl(uint32 diff)
         if (hordemod)
             ModGold(TEAM_HORDE, hordemod);
 
-        m_goldUpdate = GOLD_UPDATE;
+        _goldUpdate = Seconds(5);
     }
     else
-        m_goldUpdate -= diff;
+        _goldUpdate -= diff;
 
-    // Test win condition
-    if (GetCurrentGold(BG_TEAM_ALLIANCE) >= BG_DG_MAX_TEAM_SCORE)
+    if (GetCurrentGold(TEAM_ALLIANCE) >= BG_DG_MAX_TEAM_SCORE)
         EndBattleground(ALLIANCE);
-    if (GetCurrentGold(BG_TEAM_HORDE) >= BG_DG_MAX_TEAM_SCORE)
+    if (GetCurrentGold(TEAM_HORDE) >= BG_DG_MAX_TEAM_SCORE)
         EndBattleground(HORDE);
 }
 
-void BattlegroundDG::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattlegroundDG::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    switch (Trigger)
+    switch (trigger)
     {
         case 9013:                                          // near alliance cart
-        {
-            if (m_carts[BG_TEAM_ALLIANCE]->ControlledByPlayerWithGuid() == Source->GetGUID())
-                m_carts[BG_TEAM_ALLIANCE]->CartDelivered();
+            if (_carts[TEAM_ALLIANCE]->ControlledByPlayerWithGuid() == player->GetGUID())
+                _carts[TEAM_ALLIANCE]->CartDelivered();
             break;
-        }
         case 9012:                                          // near horde cart
-        {
-            if (m_carts[BG_TEAM_HORDE]->ControlledByPlayerWithGuid() == Source->GetGUID())
-                m_carts[BG_TEAM_HORDE]->CartDelivered();
+            if (_carts[TEAM_HORDE]->ControlledByPlayerWithGuid() == player->GetGUID())
+                _carts[TEAM_HORDE]->CartDelivered();
             break;
-        }
-//        default:
-//            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-//            Source->GetSession()->SendNotification("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
-//            break;
+        default:
+            Battleground::HandleAreaTrigger(player, trigger, entered);
+            break;
     }
-
 }
 
-void BattlegroundDG::FillInitialWorldStates(WorldPacket &data)
+void BattlegroundDG::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    FillInitialWorldState(data, 7939, 1);
-    FillInitialWorldState(data, 7938, 1);
-    FillInitialWorldState(data, 7935, 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7939), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7938), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7935), 1);
 
-    FillInitialWorldState(data, 7904, (m_carts[TEAM_HORDE] && !m_carts[TEAM_HORDE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
-    FillInitialWorldState(data, 7887, (m_carts[TEAM_ALLIANCE] && !m_carts[TEAM_ALLIANCE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7904), (_carts[TEAM_HORDE] && !_carts[TEAM_HORDE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7887), (_carts[TEAM_ALLIANCE] && !_carts[TEAM_ALLIANCE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
 
-    FillInitialWorldState(data, 7880, m_gold[TEAM_ALLIANCE]);
-    FillInitialWorldState(data, 7881, m_gold[TEAM_HORDE]);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7880), _gold[TEAM_ALLIANCE]);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7881), _gold[TEAM_HORDE]);
 
-    if (m_points[0])
+    if (_points[0])
         UpdatePointsCountPerTeam();
 }
 
 void BattlegroundDG::Reset()
 {
-    //call parent's class reset
     Battleground::Reset();
 }
 
 bool BattlegroundDG::SetupBattleground()
 {
-    m_points[0] = new BotPoint(this);
-    m_points[1] = new MiddlePoint(this);
-    m_points[2] = new TopPoint(this);
+    _points[0] = new BotPoint(this);
+    _points[1] = new MiddlePoint(this);
+    _points[2] = new TopPoint(this);
 
-    //gates
     if (!AddObject(BG_DG_DOOR_1, BG_DG_ENTRY_DOOR_1, -263.455f, 218.163f, 132.43f, 4.72984f, 0, 0, 1.43143f, 4.48416f, RESPAWN_IMMEDIATELY)
-            || !AddObject(BG_DG_DOOR_2, BG_DG_ENTRY_DOOR_2, -213.712f, 201.043f, 132.488f, 3.9619f, 0, 0, 1.43143f, 4.48416f, RESPAWN_IMMEDIATELY)
-            || !AddObject(BG_DG_DOOR_3, BG_DG_ENTRY_DOOR_3, -69.8785f, 781.837f, 132.43f, 1.58825f, 0, 0, 1.43143f, 4.48416f, RESPAWN_IMMEDIATELY)
-            || !AddObject(BG_DG_DOOR_4, BG_DG_ENTRY_DOOR_4, -119.621f, 798.957f, 132.488f, 0.820303f, 0, 0, 1.43143f, 4.48416f, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_DG_DOOR_2, BG_DG_ENTRY_DOOR_2, -213.712f, 201.043f, 132.488f, 3.9619f, 0, 0, 1.43143f, 4.48416f, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_DG_DOOR_3, BG_DG_ENTRY_DOOR_3, -69.8785f, 781.837f, 132.43f, 1.58825f, 0, 0, 1.43143f, 4.48416f, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_DG_DOOR_4, BG_DG_ENTRY_DOOR_4, -119.621f, 798.957f, 132.488f, 0.820303f, 0, 0, 1.43143f, 4.48416f, RESPAWN_IMMEDIATELY)
 
-            // carts
-            || !AddObject(BG_DG_CART_ALLIANCE, BG_DG_ENTRY_CART_ALLIANCE, -241.741f, 208.611f, 133.747f, 0.84278f, 0, 0, 1.93617f, 4.48416f, RESPAWN_IMMEDIATELY)
-            || !AddObject(BG_DG_CART_HORDE, BG_DG_ENTRY_CART_HORDE, -91.6163f, 791.361f, 133.747f, 4.02356f, 0, 0, 1.93617f, 4.48416f, RESPAWN_IMMEDIATELY)
-
-            )
+        || !AddObject(BG_DG_CART_ALLIANCE, BG_DG_ENTRY_CART_ALLIANCE, -241.741f, 208.611f, 133.747f, 0.84278f, 0, 0, 1.93617f, 4.48416f, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_DG_CART_HORDE, BG_DG_ENTRY_CART_HORDE, -91.6163f, 791.361f, 133.747f, 4.02356f, 0, 0, 1.93617f, 4.48416f, RESPAWN_IMMEDIATELY))
         return false;
 
-    m_carts[0] = new Cart(this);
-    m_carts[1] = new Cart(this);
+    for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
+    {
+        _carts[i] = new Cart(this);
+        _carts[i]->SetTeamId(i);
+    }
 
-    m_carts[0]->SetTeamId(BG_TEAM_ALLIANCE);
-    m_carts[1]->SetTeamId(BG_TEAM_HORDE);
-
-    m_carts[0]->SetGameObject(GetBgMap()->GetGameObject(BgObjects[BG_DG_CART_ALLIANCE]), BG_DG_CART_ALLIANCE);
-    m_carts[1]->SetGameObject(GetBgMap()->GetGameObject(BgObjects[BG_DG_CART_HORDE]), BG_DG_CART_HORDE);
+    _carts[0]->SetGameObject(GetBgMap()->GetGameObject(BgObjects[BG_DG_CART_ALLIANCE]), BG_DG_CART_ALLIANCE);
+    _carts[1]->SetGameObject(GetBgMap()->GetGameObject(BgObjects[BG_DG_CART_HORDE]), BG_DG_CART_HORDE);
 
     if (!AddCreature(BG_DG_ENTRY_FLAG, BG_DG_UNIT_FLAG_MID, TEAM_NEUTRAL, -167.5035f, 499.059f, 92.62903f, 1.249549f) ||
-            !AddCreature(BG_DG_ENTRY_FLAG, BG_DG_UNIT_FLAG_TOP, TEAM_NEUTRAL, 68.39236f, 431.1771f, 111.4928f, 1.229f) ||
-            !AddCreature(BG_DG_ENTRY_FLAG, BG_DG_UNIT_FLAG_BOT, TEAM_NEUTRAL, -397.7726f, 574.368f, 111.0529f, 1.437866f))
+        !AddCreature(BG_DG_ENTRY_FLAG, BG_DG_UNIT_FLAG_TOP, TEAM_NEUTRAL, 68.39236f, 431.1771f, 111.4928f, 1.229f) ||
+        !AddCreature(BG_DG_ENTRY_FLAG, BG_DG_UNIT_FLAG_BOT, TEAM_NEUTRAL, -397.7726f, 574.368f, 111.0529f, 1.437866f))
         return false;
 
     for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
@@ -353,8 +338,8 @@ bool BattlegroundDG::SetupBattleground()
             flag->AddUnitState(UNIT_STATE_CANNOT_TURN);
             flag->AddUnitState(UNIT_STATE_NOT_MOVE);
             flag->SetInt32Value(UNIT_FIELD_INTERACT_SPELL_ID, BG_DG_CAPTURE_SPELL);
-            m_points[i]->SetCreaturePoint(flag);
-            m_points[i]->UpdateState(POINT_STATE_NEUTRAL);
+            _points[i]->SetCreaturePoint(flag);
+            _points[i]->UpdateState(POINT_STATE_NEUTRAL);
         }
 
     WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(BG_DG_LOC_SPIRIT_ALLIANCE_BOT);
@@ -388,21 +373,17 @@ bool BattlegroundDG::SetupBattleground()
     return true;
 }
 
-BattlegroundDG::Point::Point(BattlegroundDG *bg) : m_bg(bg)
+BattlegroundDG::Point::Point(BattlegroundDG* bg) : m_bg(bg)
 {
-    m_state = 0;
-    m_timer = 0;
-
+    m_state = POINT_STATE_NEUTRAL;
+    m_timer = Milliseconds(0);
     m_goldCredit = 0;
-
     m_currentWorldState = std::make_pair(0, 0);
-
-    m_point = NULL;
+    m_point = nullptr;
 }
 
 BattlegroundDG::Point::~Point()
-{
-}
+{ }
 
 void BattlegroundDG::Point::UpdateState(PointStates state)
 {
@@ -415,60 +396,43 @@ void BattlegroundDG::Point::UpdateState(PointStates state)
     switch (state)
     {
         case POINT_STATE_CONTESTED_ALLIANCE:
-        {
             m_point->AddAura(BG_DG_AURA_ALLIANCE_CONTEST, m_point);
             m_prevAura = BG_DG_AURA_ALLIANCE_CONTEST;
-            m_timer = CAPTURE_TIME;
-
-            GetBg()->PlaySoundToAll(m_state == POINT_STATE_NEUTRAL ? BG_SOUND_FLAG_RESET : BG_SOUND_FLAG_PICKED_UP_ALLIANCE);
-
+            m_timer = Seconds(40);
+            GetBg()->PlaySoundToAll(m_state == POINT_STATE_NEUTRAL ? BG_SOUND_FLAG_RESET : BG_SOUND_CAPTURE_POINT_ASSAULT_HORDE);
             break;
-        }
         case POINT_STATE_CONTESTED_HORDE:
-        {
             m_point->AddAura(BG_DG_AURA_HORDE_CONTEST, m_point);
             m_prevAura = BG_DG_AURA_HORDE_CONTEST;
-            m_timer = CAPTURE_TIME;
-
-            GetBg()->PlaySoundToAll(m_state == POINT_STATE_NEUTRAL ? BG_SOUND_FLAG_RESET : BG_SOUND_FLAG_PICKED_UP_HORDE);
-
+            m_timer = Seconds(40);
+            GetBg()->PlaySoundToAll(m_state == POINT_STATE_NEUTRAL ? BG_SOUND_FLAG_RESET : BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
             break;
-        }
         case POINT_STATE_CAPTURED_ALLIANCE:
-        {
             m_point->AddAura(BG_DG_AURA_ALLIANCE_CATURED, m_point);
             m_prevAura = BG_DG_AURA_ALLIANCE_CATURED;
-
-            GetBg()->PlaySoundToAll(BG_SOUND_FLAG_CAPTURED_ALLIANCE);
-
+            GetBg()->PlaySoundToAll(BG_SOUND_CAPTURE_POINT_CAPTURED_ALLIANCE);
             break;
-        }
         case POINT_STATE_CAPTURED_HORDE:
-        {
             m_point->AddAura(BG_DG_AURA_HORDE_CAPTURED, m_point);
             m_prevAura = BG_DG_AURA_HORDE_CAPTURED;
-
-            GetBg()->PlaySoundToAll(BG_SOUND_FLAG_CAPTURED_HORDE);
-
+            GetBg()->PlaySoundToAll(BG_SOUND_CAPTURE_POINT_CAPTURED_HORDE);
             break;
-        }
         case POINT_STATE_NEUTRAL:
-        {
             m_point->AddAura(BG_DG_AURA_NEUTRAL, m_point);
             m_prevAura = BG_DG_AURA_NEUTRAL;
             break;
-        }
+        default:
+            break;
     }
 
     m_state = state;
 
-
     GetBg()->UpdatePointsCountPerTeam();
 }
 
-void BattlegroundDG::Point::PointClicked(Player *player)
+void BattlegroundDG::Point::PointClicked(Player* player)
 {
-    uint32 newState = (player->GetBGTeamId() == TEAM_ALLIANCE) ? POINT_STATE_CONTESTED_ALLIANCE : POINT_STATE_CONTESTED_HORDE;
+    PointStates newState = player->GetBGTeamId() == TEAM_ALLIANCE ? POINT_STATE_CONTESTED_ALLIANCE : POINT_STATE_CONTESTED_HORDE;
     if (newState == m_state || newState + 2 == m_state)
         return;
 
@@ -477,17 +441,17 @@ void BattlegroundDG::Point::PointClicked(Player *player)
     else
         GetBg()->UpdatePlayerScore(player, SCORE_POINTS_DEFENDED, 1, false);
 
-    UpdateState((PointStates)newState);
+    UpdateState(newState);
 }
 
-void BattlegroundDG::Point::Update(uint32 diff)
+void BattlegroundDG::Point::Update(Milliseconds diff)
 {
     if (m_state == POINT_STATE_CONTESTED_ALLIANCE || m_state == POINT_STATE_CONTESTED_HORDE)
     {
-        if (m_timer < 0)
+        if (m_timer < Milliseconds(0))
         {
-            m_timer = 0;
-            UpdateState(PointStates(m_state + 2));
+            m_timer = Milliseconds(0);
+            UpdateState(m_state == POINT_STATE_CONTESTED_ALLIANCE ? POINT_STATE_CAPTURED_ALLIANCE : POINT_STATE_CAPTURED_HORDE);
         }
         else
             m_timer -= diff;
@@ -496,7 +460,7 @@ void BattlegroundDG::Point::Update(uint32 diff)
 
 void BattlegroundDG::TopPoint::UpdateState(PointStates state)
 {
-    uint32 oldstate = m_state;
+    PointStates oldstate = m_state;
     Point::UpdateState(state);
 
     if (m_currentWorldState.first)
@@ -505,45 +469,35 @@ void BattlegroundDG::TopPoint::UpdateState(PointStates state)
     switch (state)
     {
         case POINT_STATE_CONTESTED_ALLIANCE:
-        {
             if (oldstate == POINT_STATE_NEUTRAL)
                 GetBg()->UpdateWorldState(7935, 0);
 
             GetBg()->UpdateWorldState(7857, 1);
             m_currentWorldState = std::make_pair(7857, 1);
-
             break;
-        }
         case POINT_STATE_CONTESTED_HORDE:
-        {
             if (oldstate == POINT_STATE_NEUTRAL)
                 GetBg()->UpdateWorldState(7935, 0);
 
             GetBg()->UpdateWorldState(7861, 1);
             m_currentWorldState = std::make_pair(7861, 1);
-
             break;
-        }
         case POINT_STATE_CAPTURED_ALLIANCE:
-        {
             GetBg()->UpdateWorldState(7855, 2);
             m_currentWorldState = std::make_pair(7855, 2);
-
             break;
-        }
         case POINT_STATE_CAPTURED_HORDE:
-        {
             GetBg()->UpdateWorldState(7855, 1);
             m_currentWorldState = std::make_pair(7855, 1);
-
             break;
-        }
+        default:
+            break;
     }
 }
 
 void BattlegroundDG::BotPoint::UpdateState(PointStates state)
 {
-    uint32 oldstate = m_state;
+    PointStates oldstate = m_state;
     Point::UpdateState(state);
 
     if (m_currentWorldState.first)
@@ -552,45 +506,35 @@ void BattlegroundDG::BotPoint::UpdateState(PointStates state)
     switch (state)
     {
         case POINT_STATE_CONTESTED_ALLIANCE:
-        {
             if (oldstate == POINT_STATE_NEUTRAL)
                 GetBg()->UpdateWorldState(7938, 0);
 
             GetBg()->UpdateWorldState(7864, 1);
             m_currentWorldState = std::make_pair(7864, 1);
-
             break;
-        }
         case POINT_STATE_CONTESTED_HORDE:
-        {
             if (oldstate == POINT_STATE_NEUTRAL)
                 GetBg()->UpdateWorldState(7938, 0);
 
             GetBg()->UpdateWorldState(7865, 1);
             m_currentWorldState = std::make_pair(7865, 1);
-
             break;
-        }
         case POINT_STATE_CAPTURED_ALLIANCE:
-        {
             GetBg()->UpdateWorldState(7856, 2);
             m_currentWorldState = std::make_pair(7856, 2);
-
             break;
-        }
         case POINT_STATE_CAPTURED_HORDE:
-        {
             GetBg()->UpdateWorldState(7856, 1);
             m_currentWorldState = std::make_pair(7856, 1);
-
             break;
-        }
+        default:
+            break;
     }
 }
 
 void BattlegroundDG::MiddlePoint::UpdateState(PointStates state)
 {
-    uint32 oldstate = m_state;
+    PointStates oldstate = m_state;
     Point::UpdateState(state);
 
     if (m_currentWorldState.first)
@@ -599,43 +543,33 @@ void BattlegroundDG::MiddlePoint::UpdateState(PointStates state)
     switch (state)
     {
         case POINT_STATE_CONTESTED_ALLIANCE:
-        {
             if (oldstate == POINT_STATE_NEUTRAL)
                 GetBg()->UpdateWorldState(7939, 0);
 
             GetBg()->UpdateWorldState(7934, 1);
             m_currentWorldState = std::make_pair(7934, 1);
-
             break;
-        }
         case POINT_STATE_CONTESTED_HORDE:
-        {
             if (oldstate == POINT_STATE_NEUTRAL)
                 GetBg()->UpdateWorldState(7939, 0);
 
             GetBg()->UpdateWorldState(7936, 1);
             m_currentWorldState = std::make_pair(7936, 1);
-
             break;
-        }
         case POINT_STATE_CAPTURED_ALLIANCE:
-        {
             GetBg()->UpdateWorldState(7932, 2);
             m_currentWorldState = std::make_pair(7932, 2);
-
             break;
-        }
         case POINT_STATE_CAPTURED_HORDE:
-        {
             GetBg()->UpdateWorldState(7932, 1);
             m_currentWorldState = std::make_pair(7932, 1);
-
             break;
-        }
+        default:
+            break;
     }
 }
 
-BattlegroundDG::Cart::Cart(BattlegroundDG *bg) : m_bg(bg)
+BattlegroundDG::Cart::Cart(BattlegroundDG* bg) : m_bg(bg)
 {
     m_controlledBy.Clear();
     m_team = 0;
@@ -644,15 +578,12 @@ BattlegroundDG::Cart::Cart(BattlegroundDG *bg) : m_bg(bg)
     m_stolenGold = 0;
 }
 
-void BattlegroundDG::Cart::ToggleCaptured(Player *player)
+void BattlegroundDG::Cart::ToggleCaptured(Player* player)
 {
     if (!m_controlledBy.IsEmpty())
         return;
 
-    uint32 summonSpellId;
-    uint32 cartEntry;
-    uint32 flagStateField;
-    uint32 cartAuraId;
+    uint32 summonSpellId, cartEntry, flagStateField, cartAuraId;
 
     if (player->GetBGTeamId() == TEAM_ALLIANCE)
     {
@@ -660,7 +591,7 @@ void BattlegroundDG::Cart::ToggleCaptured(Player *player)
         cartEntry = 71073;
         flagStateField = 7904;
         cartAuraId = BG_DG_AURA_CART_HORDE;
-        GetBg()->PlaySoundToAll(BG_SOUND_FLAG_PICKED_UP_ALLIANCE);
+        GetBg()->PlaySoundToAll(BG_SOUND_CAPTURE_POINT_ASSAULT_HORDE);
     }
     else
     {
@@ -669,7 +600,7 @@ void BattlegroundDG::Cart::ToggleCaptured(Player *player)
         flagStateField = 7887;
         cartAuraId = BG_DG_AURA_CART_ALLIANCE;
 
-        GetBg()->PlaySoundToAll(BG_SOUND_FLAG_PICKED_UP_HORDE);
+        GetBg()->PlaySoundToAll(BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
     }
 
     player->CastSpell(player, summonSpellId);
@@ -678,7 +609,7 @@ void BattlegroundDG::Cart::ToggleCaptured(Player *player)
     Cell cell(p);
     cell.SetNoCreate();
 
-    Creature* cart = NULL;
+    Creature* cart = nullptr;
     Trinity::AllCreaturesOfEntryInRange check(player, cartEntry, SIZE_OF_GRIDS);
     Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(player, cart, check);
     TypeContainerVisitor<Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
@@ -697,13 +628,11 @@ void BattlegroundDG::Cart::ToggleCaptured(Player *player)
         cart->setFaction(35);
         cart->SetSpeed(MOVE_RUN, 3.f);
 
-//        PlaySoundToAll(8174);
+        //PlaySoundToAll(BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
 
         GetBg()->UpdateWorldState(flagStateField, 2);
 
         m_controlledBy = player->GetGUID();
-
-        GetBg()->SendFlagsPositionsUpdate(FLAGS_UPDATE);
 
         uint32 goldBeffore = GetBg()->GetCurrentGold(TeamId());
         int32 takeGold = -200;
@@ -720,7 +649,7 @@ void BattlegroundDG::Cart::CartDropped()
     m_stolenGold = 0;
 }
 
-Player *BattlegroundDG::Cart::ControlledBy()
+Player* BattlegroundDG::Cart::ControlledBy()
 {
     return ObjectAccessor::FindPlayer(m_controlledBy);
 }
@@ -733,14 +662,13 @@ void BattlegroundDG::Cart::CartDelivered()
     m_stolenGold = 0;
     UnbindCartFromPlayer();
     player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, DG_OBJECTIVE_CAPTURE_CART, 1);
-
-    GetBg()->PlaySoundToAll(player->GetBGTeamId() == TEAM_ALLIANCE ? BG_SOUND_FLAG_CAPTURED_ALLIANCE : BG_SOUND_FLAG_CAPTURED_HORDE);
+    GetBg()->PlaySoundToAll(player->GetBGTeamId() == TEAM_ALLIANCE ? BG_SOUND_CAPTURE_POINT_CAPTURED_ALLIANCE : BG_SOUND_CAPTURE_POINT_CAPTURED_HORDE);
 }
 
 void BattlegroundDG::Cart::UnbindCartFromPlayer()
 {
-    Player* player = NULL;
-    Unit* cart = NULL;
+    Player* player = nullptr;
+    Unit* cart = nullptr;
     if (player = ControlledBy())
         if (Aura* aura = player->GetAura(BG_DG_AURA_CARTS_CHAINS))
             if (Unit* unit = aura->GetCaster())
@@ -750,16 +678,32 @@ void BattlegroundDG::Cart::UnbindCartFromPlayer()
     {
         player->RemoveAura(BG_DG_AURA_PLAYER_FLAG_HORDE);
         player->RemoveAura(BG_DG_AURA_PLAYER_FLAG_ALLIANCE);
-
         cart->ToCreature()->DespawnOrUnsummon();
-
         GetBg()->SpawnBGObject(m_goBgId, 0);
-
         m_controlledBy.Clear();
+        GetBg()->UpdateWorldState(player->GetBGTeamId() == TEAM_ALLIANCE ? 7904 : 7887, 1);
+    }
+}
 
-        uint32 statefield = (player->GetBGTeamId() == TEAM_ALLIANCE) ? 7904 : 7887;
-        GetBg()->UpdateWorldState(statefield, 1);
+void BattlegroundDG::GetPlayerPositionData(std::vector<WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition>* positions) const
+{
+    if (Player* player = _carts[TEAM_ALLIANCE]->ControlledBy())
+    {
+        WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition position;
+        position.Guid = player->GetGUID();
+        position.Pos = player->GetPosition();
+        position.IconID = PLAYER_POSITION_ICON_ALLIANCE_FLAG;
+        position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
+        positions->push_back(position);
+    }
 
-        GetBg()->SendFlagsPositionsUpdate(FLAGS_UPDATE);
+    if (Player* player = _carts[TEAM_HORDE]->ControlledBy())
+    {
+        WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition position;
+        position.Guid = player->GetGUID();
+        position.Pos = player->GetPosition();
+        position.IconID = PLAYER_POSITION_ICON_HORDE_FLAG;
+        position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
+        positions->push_back(position);
     }
 }

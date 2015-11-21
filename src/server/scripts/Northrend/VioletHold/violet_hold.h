@@ -96,13 +96,6 @@ enum CreaturesIds
     NPC_DEFENSE_SYSTEM                              = 30837
 };
 
-enum WorldStateIds
-{
-    WORLD_STATE_VH              = 3816,
-    WORLD_STATE_VH_PRISON_STATE = 3815,
-    WORLD_STATE_VH_WAVE_COUNT   = 3810,
-};
-
 enum Events
 {
     EVENT_ACTIVATE_CRYSTAL = 20001

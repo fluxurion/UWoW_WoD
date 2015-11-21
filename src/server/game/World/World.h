@@ -535,7 +535,7 @@ enum RealmZone
     REALM_ZONE_CN5_8         = 37                           // basic-Latin at create, any at login
 };
 
-enum WorldStates
+enum ServerWorldStates
 {
     WS_WEEKLY_QUEST_RESET_TIME          = 20002,                      // Next weekly reset time
     WS_BG_DAILY_RESET_TIME              = 20003,                      // Next daily BG reset time

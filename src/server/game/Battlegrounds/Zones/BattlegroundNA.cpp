@@ -28,11 +28,6 @@ BattlegroundNA::BattlegroundNA()
 {
     BgObjects.resize(BG_NA_OBJECT_MAX);
 
-    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = Minutes(1);
-    StartDelayTimes[BG_STARTING_EVENT_SECOND] = Seconds(30);
-    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = Seconds(15);
-    StartDelayTimes[BG_STARTING_EVENT_FOURTH] = Seconds(0);
-    //we must set messageIds
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
@@ -48,6 +43,8 @@ void BattlegroundNA::StartingEventCloseDoors()
 {
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_4; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+
+    UpdateWorldState(static_cast<WorldStates>(8524), 0);
 }
 
 void BattlegroundNA::StartingEventOpenDoors()
@@ -57,6 +54,9 @@ void BattlegroundNA::StartingEventOpenDoors()
 
     for (uint32 i = BG_NA_OBJECT_BUFF_1; i <= BG_NA_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
+        
+    UpdateWorldState(static_cast<WorldStates>(8524), 1);
+    UpdateWorldState(static_cast<WorldStates>(8529), int32(time(nullptr) + 1200));
 }
 
 void BattlegroundNA::AddPlayer(Player* player)
@@ -99,31 +99,25 @@ bool BattlegroundNA::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
-void BattlegroundNA::HandleAreaTrigger(Player* Source, uint32 Trigger)
+void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    //uint32 SpellId = 0;
-    //uint64 buff_guid = 0;
-    switch (Trigger)
+    switch (trigger)
     {
-        case 4536:                                          // buff trigger?
-        case 4537:                                          // buff trigger?
+        case 4536:
+        case 4537:
             break;
         default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendNotification("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
-
-    //if (buff_guid)
-    //    HandleTriggerBuff(buff_guid, Source);
 }
 
-void BattlegroundNA::FillInitialWorldStates(WorldPacket &data)
+void BattlegroundNA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    FillInitialWorldState(data, 0xa11, 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(0xa11), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(3610), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(8524), (GetStatus() != STATUS_IN_PROGRESS ? 0 : 1));
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(8529), int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(20) - GetArenaMinutesElapsed()).count()));
     UpdateArenaWorldState();
 }
 

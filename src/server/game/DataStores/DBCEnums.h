@@ -34,6 +34,14 @@ struct DBCPosition3D
     float Z;
 };
 
+struct DBCPosition4D
+{
+    float X;
+    float Y;
+    float Z;
+    float O;
+};
+
 enum LevelLimit
 {
     // Client expected level limitation, like as used in DBC item max levels for "until max player level"

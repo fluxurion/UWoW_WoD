@@ -1058,13 +1058,10 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
     ChangeEquipOrModel(event_id, false);
     // Remove quests that are events only to non event npc
     UpdateEventQuests(event_id, false);
-    UpdateWorldStates(event_id, false);
     // update npcflags in this event
     UpdateEventNPCFlags(event_id);
     // remove vendor items
     UpdateEventNPCVendor(event_id, false);
-    // update bg holiday
-    UpdateBattlegroundSettings();
 }
 
 void GameEventMgr::ApplyNewEvent(uint16 event_id)
@@ -1092,13 +1089,10 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     ChangeEquipOrModel(event_id, true);
     // Add quests that are events only to non event npc
     UpdateEventQuests(event_id, true);
-    UpdateWorldStates(event_id, true);
     // update npcflags in this event
     UpdateEventNPCFlags(event_id);
     // add vendor items
     UpdateEventNPCVendor(event_id, true);
-    // update bg holiday
-    UpdateBattlegroundSettings();
     // check for seasonal quest reset.
     sWorld->ResetEventSeasonalQuests(event_id);
 }
@@ -1125,18 +1119,6 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
             // if we didn't find it, then the npcflag will be updated when the creature is loaded
         }
     }
-}
-
-void GameEventMgr::UpdateBattlegroundSettings()
-{
-    std::list<uint32> activeHollidayList;
-    GameEventMgr::GameEventDataMap const events = sGameEventMgr->GetEventMap();
-
-    for (ActiveEvents::const_iterator itr = m_ActiveEvents.begin(); itr != m_ActiveEvents.end(); ++itr)
-        if (events[*itr].holiday_id)
-            activeHollidayList.push_back(events[*itr].holiday_id);
-
-    sBattlegroundMgr->SetHolidayWeekends(activeHollidayList);
 }
 
 void GameEventMgr::UpdateEventNPCVendor(uint16 event_id, bool activate)
@@ -1456,26 +1438,6 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
                         break;                                  // but we can exit loop since the element is found
                     }
                 }
-            }
-        }
-    }
-}
-
-void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
-{
-    GameEventData const& event = mGameEvent[event_id];
-    if (event.holiday_id != HOLIDAY_NONE)
-    {
-        BattlegroundTypeId bgTypeId = BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id);
-        if (bgTypeId != BATTLEGROUND_TYPE_NONE)
-        {
-            BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
-            if (bl && bl->HolidayWorldStateId)
-            {
-                WorldPacket data;
-                sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, bl->HolidayWorldStateId, Activate ? 1 : 0);
-                sWorld->SendGlobalMessage(&data);
-                sBattlegroundMgr->SetHolidayWorldState(Activate ? bl->HolidayWorldStateId : 0);
             }
         }
     }

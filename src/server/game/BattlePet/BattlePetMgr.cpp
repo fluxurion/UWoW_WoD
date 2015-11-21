@@ -984,7 +984,7 @@ void PetBattle::SetFrontPet(uint8 team, uint8 petNumber)
 
 void PetBattle::SetWinner(uint8 team)
 {
-    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    for (uint8 i = 0; i < MAX_PETBATTLE_TEAMS; ++i)
     {
         if (i == team)
             winners[i] = 1;
@@ -995,7 +995,7 @@ void PetBattle::SetWinner(uint8 team)
 
 uint8 PetBattle::GetWinner()
 {
-    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    for (uint8 i = 0; i < MAX_PETBATTLE_TEAMS; ++i)
     {
         if (winners[i] == 1)
             return i;
@@ -1064,7 +1064,7 @@ void PetBattle::InitializePetBattle(ObjectGuid opponentGuid)
         }
     }
 
-    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    for (uint8 i = 0; i < MAX_PETBATTLE_TEAMS; ++i)
     {
         initial.MsgData.Players[i].CharacterID = teamGuids[i];
         initial.MsgData.Players[i].TrapAbilityID = TrapSpells[0];
@@ -1198,7 +1198,7 @@ void PetBattle::SendFirstRound(RoundResults* roundResult)
     round.MsgData.NextPetBattleState = GetBattleState();
     round.MsgData.CurRound = roundResult->PacketInfo.CurRound;
 
-    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    for (uint8 i = 0; i < MAX_PETBATTLE_TEAMS; ++i)
     {
         round.MsgData.NextInputFlags[i] = roundResult->PacketInfo.NextInputFlags[i];
         round.MsgData.NextTrapStatus[i] = roundResult->PacketInfo.NextTrapStatus[i];
@@ -1248,7 +1248,7 @@ void PetBattle::SendForceReplacePet(RoundResults* roundResult)
     round.MsgData.NextPetBattleState = GetBattleState();
     round.MsgData.CurRound = roundResult->PacketInfo.CurRound;
 
-    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    for (uint8 i = 0; i < MAX_PETBATTLE_TEAMS; ++i)
     {
         round.MsgData.NextInputFlags[i] = roundResult->PacketInfo.NextInputFlags[i];
         round.MsgData.NextTrapStatus[i] = roundResult->PacketInfo.NextTrapStatus[i];
@@ -1587,7 +1587,7 @@ void PetBattle::CheckTrapStatuses(RoundResults* round)
 
 void PetBattle::CheckInputFlags(RoundResults* round)
 {
-    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    for (uint8 i = 0; i < MAX_PETBATTLE_TEAMS; ++i)
         round->PacketInfo.NextInputFlags[i] = 0;
 
     // check special state
@@ -1604,7 +1604,7 @@ void PetBattle::SendRoundResults(RoundResults* roundResult)
     round.MsgData.NextPetBattleState = GetBattleState();
     round.MsgData.CurRound = roundResult->PacketInfo.CurRound;
 
-    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    for (uint8 i = 0; i < MAX_PETBATTLE_TEAMS; ++i)
     {
         round.MsgData.NextInputFlags[i] = roundResult->PacketInfo.NextInputFlags[i];
         round.MsgData.NextTrapStatus[i] = roundResult->PacketInfo.NextTrapStatus[i];
@@ -1695,7 +1695,7 @@ void PetBattle::SendFinalRound(bool pvpBattle /*= false*/)
     WorldPackets::BattlePet::SceneObjectFinalRound round;
     round.MsgData.Abandoned = abandoned;
     round.MsgData.PvpBattle = pvpBattle;
-    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    for (uint8 i = 0; i < MAX_PETBATTLE_TEAMS; ++i)
     {
         for (auto const& x : battleInfo)
         {
@@ -1734,7 +1734,7 @@ void PetBattle::UpdatePetsAfterBattle()
     updates.clear();
     std::vector<BattlePetMgr::BattlePet> pets;
 
-    for (uint8 i = 0; i < MAX_TEAMS; ++i)
+    for (uint8 i = 0; i < MAX_PETBATTLE_TEAMS; ++i)
     {
         for (auto const& v : battleInfo)
         {

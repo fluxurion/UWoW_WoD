@@ -23,6 +23,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "CreatureAIImpl.h"
+#include "Packets/WorldStatePackets.h"
 //#include "GameObject.h"
 //#include "Map.h"
 
@@ -157,7 +158,7 @@ class InstanceScript : public ZoneScript
         void DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn = MINUTE);
 
         //sends world state update to all players in instance
-        void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
+        void DoUpdateWorldState(WorldStates variableID, uint32 value);
 
         // Send Notify to all players in instance
         void DoSendNotifyToInstance(char const* format, ...);
@@ -247,7 +248,7 @@ class InstanceScript : public ZoneScript
         // Check if all players are dead (except gamemasters)
         virtual bool IsWipe() const;
 
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         void UpdatePhasing();
         void SetBossNumber(uint32 number)

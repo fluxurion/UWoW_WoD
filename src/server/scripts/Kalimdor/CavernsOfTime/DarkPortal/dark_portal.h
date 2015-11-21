@@ -26,10 +26,6 @@
 #define DATA_PORTAL_COUNT       11
 #define DATA_SHIELD             12
 
-#define WORLD_STATE_BM          2541
-#define WORLD_STATE_BM_SHIELD   2540
-#define WORLD_STATE_BM_RIFT     2784
-
 #define QUEST_OPENING_PORTAL    10297
 #define QUEST_MASTER_TOUCH      9836
 

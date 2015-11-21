@@ -482,7 +482,7 @@ const float BG_AV_ObjectPos[AV_OPLACE_MAX][4] =
     {-951.394f, -193.695f, 67.634f, 0.802851f}
 };
 
-const float BG_AV_DoorPositons[2][4] =
+const float BG_AV_DoorPositons[MAX_TEAMS][4] =
 {
     {794.96f, -493.50f, 99.9553f, 2.979f},      //alliance
     {-1375.193f, -538.981f, 55.2824f, 0.72178f} //horde
@@ -996,7 +996,7 @@ enum BG_AV_CreatureIds
 
 //entry, team, minlevel, maxlevel
 //TODO this array should be removed, the only needed things are the entrys (for spawning(?) and handlekillunit)
-const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX][4] =
+uint32 const BG_AV_CreatureInfo[AV_NPC_INFO_MAX][4] =
 {
     { 12050, 1216, 58, 58 }, //Stormpike Defender
     { 13326, 1216, 59, 59 }, //Seasoned Defender
@@ -1186,7 +1186,7 @@ const float BG_AV_StaticCreaturePos[AV_STATICCPLACE_MAX][5] =
 
 };
 
-const uint32 BG_AV_StaticCreatureInfo[51][4] =
+uint32 const BG_AV_StaticCreatureInfo[51][4] =
 {
     { 2225, 1215, 55, 55 }, //Zora Guthrek
     { 3343, 1215, 55, 55 }, //Grelkor
@@ -1254,7 +1254,7 @@ enum BG_AV_Graveyards
     AV_GRAVE_MAIN_HORDE        = 610
 };
 
-const uint32 BG_AV_GraveyardIds[9]=
+uint32 const BG_AV_GraveyardIds[9]=
 {
     AV_GRAVE_STORM_AID,
     AV_GRAVE_STORM_GRAVE,
@@ -1281,129 +1281,15 @@ enum BG_AV_States
     POINT_CONTROLED            =  3
 };
 
-enum BG_AV_WorldStates
-{
-    AV_Alliance_Score               = 3127,
-    AV_Horde_Score                  = 3128,
-    AV_SHOW_H_SCORE                 = 3133,
-    AV_SHOW_A_SCORE                 = 3134,
-
-/*
-    //the comments behind the state shows which icon overlaps the other.. but is, until now, unused and maybe not a good solution (but give few performance (:)
-
-// Graves
-
-    // Alliance
-    //Stormpike first aid station
-    AV_AID_A_C                      = 1325,
-    AV_AID_A_A                      = 1326,
-    AV_AID_H_C                      = 1327,
-    AV_AID_H_A                      = 1328,
-    //Stormpike Graveyard
-    AV_PIKEGRAVE_A_C                = 1333,
-    AV_PIKEGRAVE_A_A                = 1335,
-    AV_PIKEGRAVE_H_C                = 1334,
-    AV_PIKEGRAVE_H_A                = 1336,
-    //Stoneheart Grave
-    AV_STONEHEART_A_C               = 1302,
-    AV_STONEHEART_A_A               = 1304, //over hc
-    AV_STONEHEART_H_C               = 1301, //over ac
-    AV_STONEHEART_H_A               = 1303, //over aa
-    //Neutral
-    //Snowfall Grave
-*/
-    AV_SNOWFALL_N                   = 1966, //over aa
-/*
-    AV_SNOWFALL_A_C                 = 1341, //over hc
-    AV_SNOWFALL_A_A                 = 1343, //over ha
-    AV_SNOWFALL_H_C                 = 1342,
-    AV_SNOWFALL_H_A                 = 1344, //over ac
-    //Horde
-    //Iceblood grave
-    AV_ICEBLOOD_A_C                 = 1346, //over hc
-    AV_ICEBLOOD_A_A                 = 1348, //over ac
-    AV_ICEBLOOD_H_C                 = 1347,
-    AV_ICEBLOOD_H_A                 = 1349, //over aa
-    //Frostwolf Grave
-    AV_FROSTWOLF_A_C                = 1337, //over hc
-    AV_FROSTWOLF_A_A                = 1339, //over ac
-    AV_FROSTWOLF_H_C                = 1338,
-    AV_FROSTWOLF_H_A                = 1340, //over aa
-    //Frostwolf Hut
-    AV_FROSTWOLFHUT_A_C             = 1329, //over hc
-    AV_FROSTWOLFHUT_A_A             = 1331, //over ha
-    AV_FROSTWOLFHUT_H_C             = 1330,
-    AV_FROSTWOLFHUT_H_A             = 1332, //over ac
-
-//Towers
-    //Alliance
-    //Dunbaldar South Bunker
-    AV_DUNS_CONTROLLED              = 1361,
-    AV_DUNS_DESTROYED               = 1370,
-    AV_DUNS_ASSAULTED               = 1378,
-    //Dunbaldar North Bunker
-    AV_DUNN_CONTROLLED              = 1362,
-    AV_DUNN_DESTROYED               = 1371,
-    AV_DUNN_ASSAULTED               = 1379,
-    //Icewing Bunker
-    AV_ICEWING_CONTROLLED           = 1363,
-    AV_ICEWING_DESTROYED            = 1372,
-    AV_ICEWING_ASSAULTED            = 1380,
-    //Stoneheart Bunker
-    AV_STONEH_CONTROLLED            = 1364,
-    AV_STONEH_DESTROYED             = 1373,
-    AV_STONEH_ASSAULTED             = 1381,
-    //Horde
-    //Iceblood Tower
-    AV_ICEBLOOD_CONTROLLED          = 1385,
-    AV_ICEBLOOD_DESTROYED           = 1368,
-    AV_ICEBLOOD_ASSAULTED           = 1390,
-    //Tower Point
-    AV_TOWERPOINT_CONTROLLED        = 1384,
-    AV_TOWERPOINT_DESTROYED         = 1367, //goes over controlled
-    AV_TOWERPOINT_ASSAULTED         = 1389, //goes over destroyed
-    //Frostwolf West
-    AV_FROSTWOLFW_CONTROLLED        = 1382,
-    AV_FROSTWOLFW_DESTROYED         = 1365, //over controlled
-    AV_FROSTWOLFW_ASSAULTED         = 1387, //over destroyed
-    //Frostwolf East
-    AV_FROSTWOLFE_CONTROLLED        = 1383,
-    AV_FROSTWOLFE_DESTROYED         = 1366,
-    AV_FROSTWOLFE_ASSAULTED         = 1388,
-
-//mines
-
-    AV_N_MINE_N              = 1360,
-    AV_N_MINE_A              = 1358,
-    AV_N_MINE_H              = 1359,
-
-    AV_S_MINE_N                     = 1357,
-    AV_S_MINE_A                     = 1355,
-    AV_S_MINE_H                     = 1356,
-
-//towers assaulted by own team (unused)
-    AV_STONEH_UNUSED                = 1377,
-    AV_ICEWING_UNUSED               = 1376,
-    AV_DUNS_UNUSED                  = 1375,
-    AV_DUNN_UNUSED                  = 1374,
-
-    AV_ICEBLOOD_UNUSED              = 1395,
-    AV_TOWERPOINT_UNUSED            = 1394,
-    AV_FROSTWOLFE_UNUSED            = 1393,
-    AV_FROSTWOLFW_UNUSED            = 1392
-*/
-
-};
-
 //alliance_control neutral_control horde_control
-const uint32 BG_AV_MineWorldStates[2][3] =
+uint32 const BG_AV_MineWorldStates[MAX_TEAMS][3] =
 {
     {1358, 1360, 1359},
     {1355, 1357, 1356}
 };
 
 //alliance_control alliance_assault h_control h_assault
-const uint32 BG_AV_NodeWorldStates[16][4] =
+uint32 const BG_AV_NodeWorldStates[16][4] =
 {
     //Stormpike first aid station
     {1325, 1326, 1327, 1328},
@@ -1510,7 +1396,7 @@ class BattlegroundAV : public Battleground
         virtual void StartingEventOpenDoors();
 
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered);
         bool SetupBattleground();
         virtual void ResetBGSubclass();
 
@@ -1558,7 +1444,7 @@ class BattlegroundAV : public Battleground
         void ChangeMineOwner(uint8 mine, uint32 team, bool initial=false);
 
         /*worldstates*/
-        void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
         uint8 GetWorldStateType(uint8 state, uint16 team);
         void SendMineWorldStates(uint32 mine);
         void UpdateNodeWorldState(BG_AV_Nodes node);
@@ -1568,20 +1454,20 @@ class BattlegroundAV : public Battleground
         uint16 GetBonusHonor(uint8 kills); //TODO remove this when the core handles this right
 
         /*variables */
-        int32 m_Team_Scores[2];
-        uint32 m_Team_QuestStatus[2][9]; //[x][y] x=team y=questcounter
+        int32 m_Team_Scores[MAX_TEAMS];
+        uint32 m_Team_QuestStatus[MAX_TEAMS][9]; //[x][y] x=team y=questcounter
 
         BG_AV_NodeInfo m_Nodes[BG_AV_NODES_MAX];
 
-        uint32 m_Mine_Owner[2];
-        uint32 m_Mine_PrevOwner[2]; //only for worldstates needed
+        uint32 m_Mine_Owner[MAX_TEAMS];
+        uint32 m_Mine_PrevOwner[MAX_TEAMS]; //only for worldstates needed
         int32 m_Mine_Timer; //ticks for both teams
-        uint32 m_Mine_Reclaim_Timer[2];
-        uint32 m_CaptainBuffTimer[2];
-        bool m_CaptainAlive[2];
+        uint32 m_Mine_Reclaim_Timer[MAX_TEAMS];
+        uint32 m_CaptainBuffTimer[MAX_TEAMS];
+        bool m_CaptainAlive[MAX_TEAMS];
 
         uint8 m_MaxLevel; //TODO remove this when battleground-getmaxlevel() returns something usefull
-        bool m_IsInformedNearVictory[2];
+        bool m_IsInformedNearVictory[MAX_TEAMS];
 
 };
 

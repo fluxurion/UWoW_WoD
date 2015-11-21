@@ -23,8 +23,6 @@
 #include "Common.h"
 #include "Player.h"
 
-#define WORLD_STATE_ENABLE_RATED_BG 5508
-
 enum BracketState
 {
     BRACKET_UNCHANGED   = 0,

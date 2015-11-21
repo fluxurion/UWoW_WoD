@@ -122,41 +122,6 @@ const go_type ZMCapturePoints[ZM_NUM_BEACONS] =
     {182522, 530, 336.466f, 7340.26f, 41.4984f, -1.58825f, 0.0f, 0.0f, 0.71325f, -0.700909f}
 };
 
-enum OutdoorPvPZMWorldStates
-{
-    ZM_UI_TOWER_SLIDER_N_W          = 2529,
-    ZM_UI_TOWER_SLIDER_POS_W        = 2528,
-    ZM_UI_TOWER_SLIDER_DISPLAY_W    = 2527,
-
-    ZM_UI_TOWER_SLIDER_N_E          = 2535,
-    ZM_UI_TOWER_SLIDER_POS_E        = 2534,
-    ZM_UI_TOWER_SLIDER_DISPLAY_E    = 2533,
-
-    ZM_WORLDSTATE_UNK_1             = 2653,
-
-    ZM_UI_TOWER_EAST_N              = 2560,
-    ZM_UI_TOWER_EAST_H              = 2559,
-    ZM_UI_TOWER_EAST_A              = 2558,
-    ZM_UI_TOWER_WEST_N              = 2557,
-    ZM_UI_TOWER_WEST_H              = 2556,
-    ZM_UI_TOWER_WEST_A              = 2555,
-
-    ZM_MAP_TOWER_EAST_N             = 2652,
-    ZM_MAP_TOWER_EAST_H             = 2651,
-    ZM_MAP_TOWER_EAST_A             = 2650,
-    ZM_MAP_GRAVEYARD_H              = 2649,
-    ZM_MAP_GRAVEYARD_A              = 2648,
-    ZM_MAP_GRAVEYARD_N              = 2647,
-    ZM_MAP_TOWER_WEST_N             = 2646,
-    ZM_MAP_TOWER_WEST_H             = 2645,
-    ZM_MAP_TOWER_WEST_A             = 2644,
-
-    ZM_MAP_HORDE_FLAG_READY         = 2658,
-    ZM_MAP_HORDE_FLAG_NOT_READY     = 2657,
-    ZM_MAP_ALLIANCE_FLAG_NOT_READY  = 2656,
-    ZM_MAP_ALLIANCE_FLAG_READY      = 2655
-};
-
 enum ZM_TowerStateMask
 {
     ZM_TOWERSTATE_N                 = 1,
@@ -176,7 +141,7 @@ class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
 
         void SendChangePhase();
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         // used when player is activated/inactivated in the area
         bool HandlePlayerEnter(Player* player);
@@ -207,7 +172,7 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         void ChangeState() {}
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void UpdateTowerState();
 
@@ -247,7 +212,7 @@ class OutdoorPvPZM : public OutdoorPvP
 
         bool Update(uint32 diff);
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void SendRemoveWorldStates(Player* player);
 

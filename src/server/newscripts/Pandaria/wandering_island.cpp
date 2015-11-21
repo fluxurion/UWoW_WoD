@@ -4695,9 +4695,6 @@ enum eEnums
     SPELL_HEALER_H          = 117932,
 
     SPELL_SCEAN_HEAL        = 117790,
-
-    WS_ENABLE               = 6489,
-    WS_HEALER_COUNT         = 6488,
 };
 
 class npc_ji_end_event : public CreatureScript
@@ -4771,24 +4768,24 @@ public:
         void SendState(Player* p, bool enable)
         {
             //! 6.1.2
-            WorldPacket data(SMSG_INIT_WORLD_STATES, 34);
-            data << uint32(860);                                    // mapid
-            data << uint32(5736);                                   // zone id
-            data << uint32(5833);                                   // area id
+            //WorldPacket data(SMSG_INIT_WORLD_STATES, 34); CRITICAL
+            //data << uint32(860);                                    // mapid
+            //data << uint32(5736);                                   // zone id
+            //data << uint32(5833);                                   // area id
 
-            data << uint32(2);                                      // count of ObjectGuid blocks
+            //data << uint32(2);                                      // count of ObjectGuid blocks
 
-            FillInitialWorldState(data, WS_ENABLE, enable);
-            FillInitialWorldState(data, WS_HEALER_COUNT, healerCount);
+            //packet.Worldstates.emplace_back(WS_ENABLE, enable);
+            //packet.Worldstates.emplace_back(WS_HEALER_COUNT, healerCount);
 
-            p->GetSession()->SendPacket(&data);            
+            //p->GetSession()->SendPacket(&data);            
         }
 
         void UpdateState()
         {
             for (GuidSet::iterator itr = m_player_for_event.begin(); itr != m_player_for_event.end(); ++itr)
                 if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                    player->SendUpdateWorldState(WS_HEALER_COUNT, healerCount);
+                    player->SendUpdateWorldState(WorldStates::WS_HEALER_COUNT, healerCount);
         }
 
         bool CheckPlayers()

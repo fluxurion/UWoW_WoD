@@ -139,7 +139,7 @@ public:
                             return;
 
                         ++mBarrelCount;
-                        DoUpdateWorldState(WORLD_STATE_OH, mBarrelCount);
+                        DoUpdateWorldState(static_cast<WorldStates>(WORLD_STATE_OH), mBarrelCount);
 
                         sLog->outDebug(LOG_FILTER_TSCR, "Instance Old Hillsbrad: go_barrel_old_hillsbrad count %u", mBarrelCount);
 

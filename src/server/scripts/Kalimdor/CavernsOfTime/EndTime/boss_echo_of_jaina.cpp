@@ -129,8 +129,8 @@ class boss_echo_of_jaina : public CreatureScript
                     }
 
                     instance->SetData(DATA_FRAGMENTS, uiFragments);
-                    instance->DoUpdateWorldState(WORLDSTATE_SHOW_FRAGMENTS, 1);
-                    instance->DoUpdateWorldState(WORLDSTATE_FRAGMENTS_COLLECTED, uiFragments);
+                    instance->DoUpdateWorldState(WorldStates::WORLDSTATE_SHOW_FRAGMENTS, 1);
+                    instance->DoUpdateWorldState(WorldStates::WORLDSTATE_FRAGMENTS_COLLECTED, uiFragments);
                 }
             }
 

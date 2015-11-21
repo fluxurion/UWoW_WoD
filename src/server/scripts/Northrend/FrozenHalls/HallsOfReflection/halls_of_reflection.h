@@ -107,12 +107,6 @@ enum Achievements
     SPELL_ACHIEV_CHECK                          = 72830
 };
 
-enum HorWorldStates
-{
-    WORLD_STATE_HOR_WAVES_ENABLED                 = 4884,
-    WORLD_STATE_HOR_WAVE_COUNT                    = 4882,
-};
-
 // Common actions from Instance Script to Boss Script
 enum Actions
 {

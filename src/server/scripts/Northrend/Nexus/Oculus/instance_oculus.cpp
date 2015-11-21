@@ -83,7 +83,7 @@ class instance_oculus : public InstanceMapScript
                         break;
                     case NPC_CENTRIFUGE_CONSTRUCT:
                         if (creature->isAlive())
-                            DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, ++CentrifugueConstructCounter);
+                            DoUpdateWorldState(WorldStates::WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, ++CentrifugueConstructCounter);
                         break;
                     case NPC_BELGARISTRASZ:
                         BelgaristraszGUID = creature->GetGUID();
@@ -157,7 +157,7 @@ class instance_oculus : public InstanceMapScript
 
                 if (creature->GetEntry() == NPC_CENTRIFUGE_CONSTRUCT)
                 {
-                     DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, --CentrifugueConstructCounter);
+                     DoUpdateWorldState(WorldStates::WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, --CentrifugueConstructCounter);
 
                      if (!CentrifugueConstructCounter)
                         if (Creature* varos = instance->GetCreature(VarosGUID))
@@ -165,17 +165,17 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
             {
                 if (GetBossState(DATA_DRAKOS) == DONE && GetBossState(DATA_VAROS) != DONE)
                 {
-                    data << uint32(1) << uint32(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW);
-                    data << uint32(CentrifugueConstructCounter) << uint32(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT);
+                    packet.Worldstates.emplace_back(WorldStates::WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 1);
+                    packet.Worldstates.emplace_back(WorldStates::WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, CentrifugueConstructCounter);
                 }
                 else
                 {
-                    data << uint32(0) << uint32(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW);
-                    data << uint32(0) << uint32(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT);
+                    packet.Worldstates.emplace_back(WorldStates::WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
+                    packet.Worldstates.emplace_back(WorldStates::WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, 0);
                 }
             }
 
@@ -199,8 +199,8 @@ class instance_oculus : public InstanceMapScript
                     case DATA_DRAKOS:
                         if (state == DONE)
                         {
-                            DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 1);
-                            DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, CentrifugueConstructCounter);
+                            DoUpdateWorldState(WorldStates::WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 1);
+                            DoUpdateWorldState(WorldStates::WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, CentrifugueConstructCounter);
                             FreeDragons();
                             if (Creature* varos = instance->GetCreature(VarosGUID))
                                 varos->SetPhaseMask(1, true);
@@ -208,7 +208,7 @@ class instance_oculus : public InstanceMapScript
                         break;
                     case DATA_VAROS:
                         if (state == DONE)
-                            DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
+                            DoUpdateWorldState(WorldStates::WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
                             if (Creature* urom = instance->GetCreature(UromGUID))
                                 urom->SetPhaseMask(1, true);
                         break;

@@ -76,13 +76,13 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 return false;
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
             {
-                data << uint32(1) << uint32(WORLDSTATE_SHOW_CRATES);
-                data << uint32(_crateCount) << uint32(WORLDSTATE_CRATES_REVEALED);
-                data << uint32(0) << uint32(WORLDSTATE_WAVE_COUNT);
-                data << uint32(25) << uint32(WORLDSTATE_TIME_GUARDIAN);
-                data << uint32(0) << uint32(WORLDSTATE_TIME_GUARDIAN_SHOW);
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_SHOW_CRATES, 1);
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_CRATES_REVEALED, _crateCount);
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_WAVE_COUNT, 0);
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_TIME_GUARDIAN, 25);
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_TIME_GUARDIAN_SHOW, 0);
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -187,7 +187,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                     if (Player* player = instance->GetPlayers().getFirst()->getSource())
                                         sCreatureTextMgr->SendChat(chromie, SAY_CRATES_COMPLETED, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
                         }
-                        DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
+                        DoUpdateWorldState(WorldStates::WORLDSTATE_CRATES_REVEALED, _crateCount);
                         break;
                 }
 

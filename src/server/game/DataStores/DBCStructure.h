@@ -726,22 +726,22 @@ struct BarberShopStyleEntry
 
 struct BattlemasterListEntry
 {
-    uint32  id;                                             // 0
-    int32   mapid[16];                                      // 1-16 mapid
-    uint32  type;                                           // 17 (3 - BG, 4 - arena) m_instanceType
-    //uint32 canJoinAsGroup;                                // 18 (0 or 1) m_groupsAllowed
-    char* name;                                             // 19
-    uint32 maxGroupSize;                                    // 20 maxGroupSize, used for checking if queue as group
-    uint32 HolidayWorldStateId;                             // 21 new 3.1
-    uint32 minLevel;                                        // 22, min level (sync with PvPDifficulty.dbc content)
-    uint32 maxLevel;                                        // 23, max level (sync with PvPDifficulty.dbc content)
-    uint32 maxGroupSizeRated;                               // 24 m_ratedPlayers 4.0.1
-    uint32 m_minPlayers;                                    // 25 m_minPlayers - 4.0.6.13596
-    uint32 maxPlayers;                                      // 26 m_maxPlayers 4.0.1
-    uint32 ReatedData;                                      // 27 m_flags 4.0.3, value 2 for Rated Battlegrounds
-    //uint32  m_iconFileDataID                              // 28 m_iconFileDataID 5.4.1
-    //char* m_gametype_lang                                 // 29 m_gametype_lang 5.4.1
-    //uint32    Unk1;                                       // 30
+    uint32      ID;
+    int32       MapID[16];
+    uint32      InstanceType;
+    //uint32      GroupsAllowed;
+    char*       NameLang;
+    uint32      MaxGroupSize;
+    uint32      HolidayWorldState;
+    uint32      Minlevel;
+    uint32      Maxlevel;
+    uint32      RatedPlayers;
+    uint32      MinPlayers;
+    uint32      MaxPlayers;
+    uint32      Flags;
+    //uint32      IconFileDataID
+    //char*       GametypeLang
+    //uint32      CritreriaID;
 };
 
 struct CharStartOutfitEntry
@@ -2556,8 +2556,7 @@ struct WorldSafeLocsEntry
 {
     uint32          ID;                                     // 0
     uint32          MapID;                                  // 1
-    DBCPosition3D   Loc;                                    // 2-4
-    float           Facing;                                 // 5 values are in degrees
+    DBCPosition4D   Loc;                                    // 2 - 5
     //char*         AreaName_lang;                          // 6
 };
 

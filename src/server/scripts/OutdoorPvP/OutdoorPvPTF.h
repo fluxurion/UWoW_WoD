@@ -96,24 +96,6 @@ const uint32 TFTowerPlayerLeaveEvents[TF_TOWER_NUM] =
     12500
 };
 
-enum TFWorldStates
-{
-    TF_UI_TOWER_SLIDER_POS                  = 0xa41,
-    TF_UI_TOWER_SLIDER_N                    = 0xa40,
-    TF_UI_TOWER_SLIDER_DISPLAY              = 0xa3f,
-
-    TF_UI_TOWER_COUNT_H                     = 0xa3e,
-    TF_UI_TOWER_COUNT_A                     = 0xa3d,
-    TF_UI_TOWERS_CONTROLLED_DISPLAY         = 0xa3c,
-
-    TF_UI_LOCKED_TIME_MINUTES_FIRST_DIGIT   = 0x9d0,
-    TF_UI_LOCKED_TIME_MINUTES_SECOND_DIGIT  = 0x9ce,
-    TF_UI_LOCKED_TIME_HOURS                 = 0x9cd,
-    TF_UI_LOCKED_DISPLAY_NEUTRAL            = 0x9cc,
-    TF_UI_LOCKED_DISPLAY_HORDE              = 0xad0,
-    TF_UI_LOCKED_DISPLAY_ALLIANCE           = 0xacf
-};
-
 enum TFTowerStates
 {
     TF_TOWERSTATE_N                         = 1,
@@ -133,7 +115,7 @@ class OPvPCapturePointTF : public OPvPCapturePoint
 
         void SendChangePhase();
 
-        void FillInitialWorldStates(WorldPacket & data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         // used when player is activated/inactivated in the area
         bool HandlePlayerEnter(Player* player);
@@ -161,7 +143,7 @@ class OutdoorPvPTF : public OutdoorPvP
 
         bool Update(uint32 diff);
 
-        void FillInitialWorldStates(WorldPacket &data);
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
         void SendRemoveWorldStates(Player* player);
 

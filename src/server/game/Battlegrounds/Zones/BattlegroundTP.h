@@ -84,7 +84,7 @@ enum BG_TP_Graveyards
     TP_MAX_GRAVEYARDS                       = 6
 };
 
-const uint32 BG_TP_GraveyardIds[TP_MAX_GRAVEYARDS] = {1726, 1727, 1729, 1728, 1749, 1750};
+uint32 const BG_TP_GraveyardIds[TP_MAX_GRAVEYARDS] = {1726, 1727, 1729, 1728, 1749, 1750};
 
 enum BG_TP_CreatureTypes
 {
@@ -120,55 +120,37 @@ class BattlegroundTP : public Battleground
     public:
         BattlegroundTP();
         ~BattlegroundTP();
-        /**
-         * \brief Called every time for update battle data
-         */
-        void PostUpdateImpl(uint32 diff);
 
-        /* Inherited from BattlegroundClass */
+        void PostUpdateImpl(uint32 diff) override;
 
-        /// Called when a player join battle
-        void AddPlayer(Player* player);
-        /// Called when a player leave battleground
-        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
+        void AddPlayer(Player* player) override;
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
 
-        /// Called when battle start
-        void StartingEventCloseDoors();
-        void StartingEventOpenDoors();
-        /// Called for initialize battleground, after that the first player be entered (Mainly used to generate NPCs)
-        bool SetupBattleground();
-        void Reset();
-        /// Called for generate packet contain worldstate data (Time + Score on the top of the screen)
-        void FillInitialWorldStates(WorldPacket& data);
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
+        bool SetupBattleground() override;
+        void Reset() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
-        /// Called on battleground ending
-        void EndBattleground(uint32 winner);
+        void EndBattleground(uint32 winner) override;
 
-        /// Return the nearest graveyard where player can respawn (Spirits in this Battle are: in Base, in Middle and if a player dies before battle start, to prevent cheating in main room(improbably to happen))
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
-        /// Called when a player is muredered by another player (If the killed player has the flag to drop it) (In this BG a player can murdered only by another player)
-        void HandleKillPlayer(Player *player, Player *killer);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        void HandleKillPlayer(Player *player, Player *killer) override;
 
-        /// Called in HandleBattlegroundPlayerPositionsOpcode for tracking player on map
-        ObjectGuid GetFlagPickerGUID(int32 team) const
+        ObjectGuid GetFlagPickerGUID(int32 team) const override
         {
             if (team == TEAM_ALLIANCE || team == TEAM_HORDE)
                 return _flagKeepers[team];
             return ObjectGuid::Empty;
         }
-        void SetAllianceFlagPicker(ObjectGuid const& guid)                 { _flagKeepers[TEAM_ALLIANCE] = guid; }
-        void SetHordeFlagPicker(ObjectGuid const& guid)                    { _flagKeepers[TEAM_HORDE] = guid; }
-        bool IsAllianceFlagPickedup() const                     { return !_flagKeepers[TEAM_ALLIANCE].IsEmpty(); }
-        bool IsHordeFlagPickedup() const                        { return !_flagKeepers[TEAM_HORDE].IsEmpty(); }
+        void SetAllianceFlagPicker(ObjectGuid const& guid) { _flagKeepers[TEAM_ALLIANCE] = guid; }
+        void SetHordeFlagPicker(ObjectGuid const& guid) { _flagKeepers[TEAM_HORDE] = guid; }
+        bool IsAllianceFlagPickedup() const { return !_flagKeepers[TEAM_ALLIANCE].IsEmpty(); }
+        bool IsHordeFlagPickedup() const { return !_flagKeepers[TEAM_HORDE].IsEmpty(); }
 
-        /// Called when a player hits an area. (Like when is within distance to capture the flag (mainly used for this))
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
 
-        /* Update Score */
-        /// Update score board
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
-        /// Update score on the top of screen by worldstates
-        void UpdateTeamScore(uint32 team);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
 
         void SetDroppedFlagGUID(ObjectGuid const& guid, int32 team)
         {
@@ -177,37 +159,25 @@ class BattlegroundTP : public Battleground
         }
 
 private:
-        /// Internal Battlegorund methods
-
-        /// Scorekeeping
-        /// Add 1 point after a team captures the flag
         void AddPoint(uint32 teamID)                            { ++m_TeamScores[GetTeamIndexByTeamId(teamID)]; }
 
-        /// Flag Events
-        /// Update Flag state of one team, if the flag is in base, is waitng for respawn, is on player or on ground(if a player droped it)
         void UpdateFlagState(uint32 team, uint32 value, ObjectGuid flagKeeperGUID = ObjectGuid::Empty);
-        /// Used to maintain the last team witch captured the flag (see def of _lastFlagCaptureTeam)
         void SetLastFlagCapture(uint32 teamID)                  { _lastFlagCaptureTeam = teamID; }
-        /// Respawn flag method
         void RespawnFlag(uint32 team, bool captured = false);
-        /// EVENT: Happened when a player drops the flag
         void EventPlayerDroppedFlag(Player* source);
-        /// EVENT: Happened when a player clicks on the flag
-        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
-        /// EVENT: Happened when a player captured(placed it in base) the flag
+        void EventPlayerClickedOnFlag(Player* source, GameObject* object);
         void EventPlayerCapturedFlag(Player* source);
 
-        /// Members:
-        ObjectGuid _flagKeepers[2];         ///< Maintains the flag picker GUID: 0 for ALLIANCE FLAG and 1 for HORDE FLAG (EX: _flagKeepers[TEAM_ALLIANCE] is guid for a horde player)
-        ObjectGuid _droppedFlagGUID[2];     ///< If the flag is on the ground(dropped by a player) we must maintain its guid to dispawn it when a player clicks on it. (else it will automatically dispawn)
-        uint8 _flagState[2];            ///< Show where flag is (in base / on ground / on player)
-        int32 _flagsTimer;              ///< Timer for flags that are unspawn after a capture
-        int32 _flagsDropTimer[2];       ///< Used for counting how much time have passed since the flag dropped
-        uint32 _lastFlagCaptureTeam;    ///< If the score is equal and the time expires the winer is based on witch team captured the last flag
-        int32 _flagSpellForceTimer;     ///< Used for counting how much time have passed since the both flags are kept
-        bool _bothFlagsKept;            ///< shows if both flags are kept
-        uint8 _flagDebuffState;         ///< This maintain the debuff state of the flag carrier. If the flag is on a player for more then X minutes, the player will be cursed with an debuff. (0 - No debuff, 1 - Focus assault, 2 - Brutal assault)
-        uint8 _minutesElapsed;          ///< Elapsed time since the beginning of the battleground (It counts as well the beginning time(when the doors are closed))
+        ObjectGuid _flagKeepers[MAX_TEAMS];       ///< Maintains the flag picker GUID: 0 for ALLIANCE FLAG and 1 for HORDE FLAG (EX: _flagKeepers[TEAM_ALLIANCE] is guid for a horde player)
+        ObjectGuid _droppedFlagGUID[MAX_TEAMS];   ///< If the flag is on the ground(dropped by a player) we must maintain its guid to dispawn it when a player clicks on it. (else it will automatically dispawn)
+        uint8 _flagState[MAX_TEAMS];              ///< Show where flag is (in base / on ground / on player)
+        int32 _flagsTimer;                          ///< Timer for flags that are unspawn after a capture
+        int32 _flagsDropTimer[MAX_TEAMS];         ///< Used for counting how much time have passed since the flag dropped
+        uint32 _lastFlagCaptureTeam;                ///< If the score is equal and the time expires the winer is based on witch team captured the last flag
+        int32 _flagSpellForceTimer;                 ///< Used for counting how much time have passed since the both flags are kept
+        bool _bothFlagsKept;                        ///< shows if both flags are kept
+        uint8 _flagDebuffState;                     ///< This maintain the debuff state of the flag carrier. If the flag is on a player for more then X minutes, the player will be cursed with an debuff. (0 - No debuff, 1 - Focus assault, 2 - Brutal assault)
+        uint8 _minutesElapsed;                      ///< Elapsed time since the beginning of the battleground (It counts as well the beginning time(when the doors are closed))
 };
 
 #endif

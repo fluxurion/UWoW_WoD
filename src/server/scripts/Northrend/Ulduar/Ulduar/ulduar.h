@@ -201,12 +201,6 @@ enum LeviathanData
     ACTION_MOVE_TO_CENTER_POSITION      = 10,
 };
 
-enum UlduarWorldStates
-{
-    WORLD_STATE_ALGALON_DESPAWN_TIMER   = 4131,
-    WORLD_STATE_ALGALON_TIMER_ENABLED   = 4132,
-};
-
 enum UlduarAchievementData
 {
     // FL Achievement boolean

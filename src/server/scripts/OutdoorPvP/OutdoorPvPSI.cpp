@@ -34,25 +34,25 @@ OutdoorPvPSI::OutdoorPvPSI()
     m_LastController = 0;
 }
 
-void OutdoorPvPSI::FillInitialWorldStates(WorldPacket &data)
+void OutdoorPvPSI::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    FillInitialWorldState(data, SI_GATHERED_A, m_Gathered_A);
-    FillInitialWorldState(data, SI_GATHERED_H, m_Gathered_H);
-    FillInitialWorldState(data, SI_SILITHYST_MAX, SI_MAX_RESOURCES);
+    packet.Worldstates.emplace_back(WorldStates::SI_GATHERED_A, m_Gathered_A);
+    packet.Worldstates.emplace_back(WorldStates::SI_GATHERED_H, m_Gathered_H);
+    packet.Worldstates.emplace_back(WorldStates::SI_SILITHYST_MAX, SI_MAX_RESOURCES);
 }
 
 void OutdoorPvPSI::SendRemoveWorldStates(Player* player)
 {
-    player->SendUpdateWorldState(SI_GATHERED_A, 0);
-    player->SendUpdateWorldState(SI_GATHERED_H, 0);
-    player->SendUpdateWorldState(SI_SILITHYST_MAX, 0);
+    player->SendUpdateWorldState(WorldStates::SI_GATHERED_A, 0);
+    player->SendUpdateWorldState(WorldStates::SI_GATHERED_H, 0);
+    player->SendUpdateWorldState(WorldStates::SI_SILITHYST_MAX, 0);
 }
 
 void OutdoorPvPSI::UpdateWorldState()
 {
-    SendUpdateWorldState(SI_GATHERED_A, m_Gathered_A);
-    SendUpdateWorldState(SI_GATHERED_H, m_Gathered_H);
-    SendUpdateWorldState(SI_SILITHYST_MAX, SI_MAX_RESOURCES);
+    SendUpdateWorldState(WorldStates::SI_GATHERED_A, m_Gathered_A);
+    SendUpdateWorldState(WorldStates::SI_GATHERED_H, m_Gathered_H);
+    SendUpdateWorldState(WorldStates::SI_SILITHYST_MAX, SI_MAX_RESOURCES);
 }
 
 bool OutdoorPvPSI::SetupOutdoorPvP()
@@ -81,7 +81,7 @@ void OutdoorPvPSI::HandlePlayerLeaveZone(Player* player, uint32 zone)
     OutdoorPvP::HandlePlayerLeaveZone(player, zone);
 }
 
-bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger)
+void OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     switch (trigger)
     {
@@ -109,7 +109,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger)
             // complete quest
             player->KilledMonsterCredit(SI_TURNIN_QUEST_CM_A, ObjectGuid::Empty);
         }
-        return true;
+        break;
     case SI_AREATRIGGER_H:
         if (player->GetTeam() == HORDE && player->HasAura(SI_SILITHYST_FLAG))
         {
@@ -134,9 +134,10 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger)
             // complete quest
             player->KilledMonsterCredit(SI_TURNIN_QUEST_CM_H, ObjectGuid::Empty);
         }
-        return true;
+        break;
+            default:
+        break;
     }
-    return false;
 }
 
 bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)

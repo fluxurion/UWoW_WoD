@@ -88,10 +88,10 @@ public:
             GemCount = 0;
         }
 
-        void FillInitialWorldStates(WorldPacket& data)
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
         {
-            data << uint32(JadeCount > 0 && JadeCount != 5)     << uint32(6761); // Show_Jade
-            data << uint32(JadeCount)                           << uint32(6748); // Jade_Count
+            packet.Worldstates.emplace_back(static_cast<WorldStates>(6761), JadeCount > 0 && JadeCount != 5); // Show_Jade
+            packet.Worldstates.emplace_back(static_cast<WorldStates>(6748), JadeCount); // Jade_Count
         }
 
         bool SetBossState(uint32 id, EncounterState state)
@@ -173,12 +173,12 @@ public:
                 case TYPE_JADECOUNT:
                 {
                     JadeCount = data;
-                    DoUpdateWorldState(6761, 1);
-                    DoUpdateWorldState(6748, JadeCount);
+                    DoUpdateWorldState(static_cast<WorldStates>(6761), 1);
+                    DoUpdateWorldState(static_cast<WorldStates>(6748), JadeCount);
                     if (JadeCount == 5)
                     {
                         DoCastSpellOnPlayers(SPELL_ACHIEV_JADE_QUILEN);
-                        DoUpdateWorldState(6761, 0);
+                        DoUpdateWorldState(static_cast<WorldStates>(6761), 0);
                     }
                     break;
                 }

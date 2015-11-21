@@ -1138,7 +1138,7 @@ public:
         if (InstanceScript* instance = me->GetInstanceScript())
         {
             uint32 OrbsCount = instance->GetData(DATA_ORB) + 1;
-            instance->DoUpdateWorldState(5649, OrbsCount);
+            instance->DoUpdateWorldState(static_cast<WorldStates>(5649), OrbsCount);
             instance->SetData(DATA_ORB, OrbsCount);
 
             if (OrbsCount == 5)

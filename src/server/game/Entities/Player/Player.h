@@ -1145,7 +1145,7 @@ struct BGData
     uint32 bgTeam;                          ///< What side the player will be added to
 
     uint32 mountSpell;
-    uint32 taxiPath[2];
+    uint32 taxiPath[MAX_TEAMS];
 
     WorldLocation joinPos;                  ///< From where player entered BG
 
@@ -2725,9 +2725,9 @@ class Player : public Unit, public GridObject<Player>
         void SendInitWorldTimers();
         void SendInitWorldStates(uint32 zone, uint32 area);
         void SendUpdateWorldState(uint32 Field, uint32 Value);
+        void SendUpdateWorldState(WorldStates Field, uint32 Value);
         void SendDirectMessage(WorldPacket const* data) const;
         void ScheduleMessageSend(WorldPacket* data, uint32 delay);
-        void SendBGWeekendWorldStates();
 
         void SendAurasForTarget(Unit* target);
         void SendSpellHistoryData();

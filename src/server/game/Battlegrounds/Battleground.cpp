@@ -22,12 +22,15 @@
 #include "Bracket.h"
 #include "BracketMgr.h"
 #include "Creature.h"
+#include "Duration.h"
 #include "Formulas.h"
+#include "GameObjectPackets.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "InstancePackets.h"
 #include "Language.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
@@ -39,8 +42,6 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "Duration.h"
-#include "InstancePackets.h"
 
 namespace Trinity
 {
@@ -143,15 +144,15 @@ Battleground::Battleground()
     m_BracketId         = BG_BRACKET_ID_FIRST;
     m_InvitedAlliance   = 0;
     m_InvitedHorde      = 0;
-    m_JoinType         = 0;
+    m_JoinType = JOIN_TYPE_NONE;
     m_IsArena           = false;
     m_needFirstUpdateVision  = true;
     m_needSecondUpdateVision = true;
     m_Winner            = 2;
     m_StartTime         = Milliseconds(0);
+    m_arenaMinutesElapsed = Milliseconds(0);
     m_CountdownTimer    = Milliseconds(0);
     m_ResetStatTimer    = 0;
-    m_ValidStartPositionTimer = 0;
     m_Events            = 0;
     m_IsRated           = false;
     m_BuffChange        = false;
@@ -170,32 +171,10 @@ Battleground::Battleground()
     m_MapId             = 0;
     m_Map               = nullptr;
 
-    m_TeamStartLoc[BG_TEAM_ALLIANCE]= { };
-    m_TeamStartLoc[BG_TEAM_HORDE] = { };
-
-    m_GroupIds[BG_TEAM_ALLIANCE]   = 0;
-    m_GroupIds[BG_TEAM_HORDE]      = 0;
-
-    m_StartMaxDist = 0.0f;
-    m_holiday = 0;
-
-    m_BgRaids[BG_TEAM_ALLIANCE]         = nullptr;
-    m_BgRaids[BG_TEAM_HORDE]            = nullptr;
-
-    m_PlayersCount[BG_TEAM_ALLIANCE]    = 0;
-    m_PlayersCount[BG_TEAM_HORDE]       = 0;
-
-    m_TeamScores[BG_TEAM_ALLIANCE]      = 0;
-    m_TeamScores[BG_TEAM_HORDE]         = 0;
-
     m_PrematureCountDown = false;
 
-    m_HonorMode = BG_NORMAL;
+    m_baseTickHonor = 9;
 
-    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = Minutes(2);
-    StartDelayTimes[BG_STARTING_EVENT_SECOND] = Minutes(1);
-    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = Seconds(30);
-    StartDelayTimes[BG_STARTING_EVENT_FOURTH] = Milliseconds(0);
     //we must set to some default existing values
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_WS_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
@@ -206,9 +185,18 @@ Battleground::Battleground()
 
     m_sameBgTeamId = false;
 
-    m_flagCarrierTime = FLAGS_UPDATE;
+    m_LastPlayerPositionBroadcast = PositionBroadcastUpdate;
 
     m_StartDelayTime = Milliseconds(0);
+
+    for (int8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
+    {
+        m_TeamStartLoc[i] = { };
+        m_GroupIds[i] = 0;
+        m_BgRaids[i] = nullptr;
+        m_PlayersCount[i] = 0;
+        m_TeamScores[i] = 0;
+    }
 }
 
 Battleground::~Battleground()
@@ -252,7 +240,7 @@ void Battleground::Update(uint32 diff)
         // [[   but if you use battleground object again (more battles possible to be played on 1 instance)
         //      then this condition should be removed and code:
         //      if (!GetInvitedCount(HORDE) && !GetInvitedCount(ALLIANCE))
-        //          this->AddToFreeBGObjectsQueue(); // not yet implemented
+        //          AddToFreeBGObjectsQueue(); // not yet implemented
         //      should be used instead of current
         // ]]
         // Battleground Template instance cannot be updated, because it would be deleted
@@ -271,13 +259,13 @@ void Battleground::Update(uint32 diff)
         }
         case STATUS_IN_PROGRESS:
         {
-            uint8 dumpeningTime = m_JoinType == 2 ? 6 : 11;
+            uint8 dumpeningTime = m_JoinType == JOIN_TYPE_ARENA_2v2 ? 6 : 11;
 
             _ProcessOfflineQueue();
-            // after 47 minutes without one team losing, the arena closes with no winner and no rating change
+            // after 20 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
-                if (m_StartTime >= Seconds(60) && m_needSecondUpdateVision)
+                if (m_StartTime >= Minutes(1) && m_needSecondUpdateVision)
                 {
                     UpdateArenaVision();
                     m_needSecondUpdateVision = false;
@@ -296,7 +284,13 @@ void Battleground::Update(uint32 diff)
                     return;
                     //! Patch 5.4: For Arena matches that last more than 10 minutes, all players in the Arena will begin to receive Dampening.
                     //! Patch 5.4.7: Dampening is now applied to an Arena match starting at the 5 minute mark (down from 10 minutes).
-                } else if (GetElapsedTime() >= Minutes(dumpeningTime))
+                }
+                else if (m_StartTime > m_arenaMinutesElapsed +  Minutes(2)) // 1 minutes wait
+                {
+                   ++m_arenaMinutesElapsed;
+                   UpdateWorldState(8529, int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(20) - m_arenaMinutesElapsed).count()));
+                }
+                else if (GetElapsedTime() >= Minutes(dumpeningTime))
                 {
                     ModifyStartDelayTime(Milliseconds(diff));
                     if (GetStartDelayTime() <= Seconds(0) || GetStartDelayTime() > Seconds(10))
@@ -308,9 +302,10 @@ void Battleground::Update(uint32 diff)
                                     player->CastSpell(player, SPELL_BG_ARENA_DUMPENING, true);
                     }
                 }
-            } else
+            }
+            else
             {
-                SendFlagsPositionsUpdate(diff);
+                _ProcessPlayerPositionBroadcast(Milliseconds(diff));
                 _ProcessRessurect(diff);
                 if (sBattlegroundMgr->GetPrematureFinishTime() && (GetPlayersCountByTeam(ALLIANCE) < GetMinPlayersPerTeam() || GetPlayersCountByTeam(HORDE) < GetMinPlayersPerTeam()))
                     _ProcessProgress(diff);
@@ -333,7 +328,6 @@ void Battleground::Update(uint32 diff)
         m_ResetStatTimer += diff;
         m_CountdownTimer += Milliseconds(diff);
     }
-    m_ValidStartPositionTimer += diff;
 
     PostUpdateImpl(diff);
     PostUpdateImpl(Milliseconds(diff));
@@ -507,24 +501,24 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         }
 
         StartingEventCloseDoors();
-        SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FIRST]);
+        SetStartDelayTime(isArena() ? m_messageTimer[0] / 2 : m_messageTimer[0]);
         // First start warning - 2 or 1 minute
         SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_FIRST], CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
     // After 1 minute or 30 seconds, warning is signaled
-    else if (GetStartDelayTime() <= StartDelayTimes[BG_STARTING_EVENT_SECOND] && !(m_Events & BG_STARTING_EVENT_2))
+    else if (GetStartDelayTime() <= (isArena() ? m_messageTimer[1] / 2 : m_messageTimer[1]) && !(m_Events & BG_STARTING_EVENT_2))
     {
         m_Events |= BG_STARTING_EVENT_2;
         SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_SECOND], CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
     // After 30 or 15 seconds, warning is signaled
-    else if (GetStartDelayTime() <= StartDelayTimes[BG_STARTING_EVENT_THIRD] && !(m_Events & BG_STARTING_EVENT_3))
+    else if (GetStartDelayTime() <= (isArena() ? m_messageTimer[2] / 2 : m_messageTimer[2]) && !(m_Events & BG_STARTING_EVENT_3))
     {
         m_Events |= BG_STARTING_EVENT_3;
         SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_THIRD], CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
     // Delay expired (after 2 or 1 minute)
-    else if (GetStartDelayTime() <= Milliseconds(0) && !(m_Events & BG_STARTING_EVENT_4))
+    else if (GetStartDelayTime() <= m_messageTimer[3] && !(m_Events & BG_STARTING_EVENT_4))
     {
         m_Events |= BG_STARTING_EVENT_4;
 
@@ -532,7 +526,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
         SendWarningToAll(StartMessageIds[BG_STARTING_EVENT_FOURTH]);
         SetStatus(STATUS_IN_PROGRESS);
-        SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FOURTH]);
+        SetStartDelayTime(m_messageTimer[3]);
 
         // Remove preparation
         if (isArena())
@@ -592,27 +586,6 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
     if (GetRemainingTime() > Milliseconds(0) && (m_EndTime -= Milliseconds(diff)) > Milliseconds(0))
         SetRemainingTime(GetRemainingTime() - Milliseconds(diff));
-
-
-    // Find if the player left our start zone; if so, teleport it back
-    if (m_ValidStartPositionTimer > 1000)
-    {
-        m_ValidStartPositionTimer = 0;
-        float maxDist = GetStartMaxDist();
-        if (maxDist > 0.0f)
-        {
-            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            {
-                if (Player* plr = ObjectAccessor::FindPlayer(itr->first))
-                {
-                    Position pos;
-                    GetTeamStartLoc(plr->GetBGTeam(), pos);
-                    if (plr->GetDistance(pos) >= maxDist)
-                        plr->TeleportTo(GetMapId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
-                }
-            }
-        }
-    }
 }
 
 inline void Battleground::_ProcessLeave(uint32 diff)
@@ -738,12 +711,12 @@ void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
             UpdatePlayerScore(player, SCORE_BONUS_HONOR, Honor);
 }
 
-void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID)
+void Battleground::RewardReputationToTeam(uint32 factionIDAlliance, uint32 factionIDHorde, uint32 reputation, uint32 teamID)
 {
-    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id))
+    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(teamID == ALLIANCE ? factionIDAlliance : factionIDHorde))
         for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-            if (Player* player = _GetPlayerForTeam(TeamID, itr, "RewardReputationToTeam"))
-                player->GetReputationMgr().ModifyReputation(factionEntry, Reputation);
+            if (Player* player = _GetPlayerForTeam(teamID, itr, "RewardReputationToTeam"))
+                player->GetReputationMgr().ModifyReputation(factionEntry, reputation);
 }
 
 void Battleground::UpdateWorldState(uint32 Field, uint32 Value)
@@ -753,11 +726,29 @@ void Battleground::UpdateWorldState(uint32 Field, uint32 Value)
     SendPacketToAll(&data);
 }
 
-void Battleground::UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* Source)
+void Battleground::UpdateWorldState(WorldStates variableID, uint32 value)
 {
     WorldPacket data;
-    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, Field, Value);
+    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, variableID, value);
+    SendPacketToAll(&data);
+}
+
+void Battleground::UpdateWorldStateForPlayer(WorldStates variableID, uint32 value, Player* Source)
+{
+    WorldPacket data;
+    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, variableID, value);
     Source->GetSession()->SendPacket(&data);
+}
+
+void Battleground::SendBattleGroundPoints(bool isHorde, int32 teamScores, bool broadcast /*= true*/, Player* player /*= nullptr*/)
+{
+    WorldPackets::Battleground::Points point;
+    point.BgPoints = teamScores;
+    point.Team = isHorde;
+    if (broadcast)
+        SendPacketToAll(point.Write());
+    else
+        player->SendDirectMessage(point.Write());
 }
 
 void Battleground::EndBattleground(uint32 winner)
@@ -771,13 +762,13 @@ void Battleground::EndBattleground(uint32 winner)
     if (winner == ALLIANCE)
     {
         winmsg_id = isBattleground() ? LANG_BG_A_WINS : LANG_ARENA_GOLD_WINS;
-        PlaySoundToAll(BG_SOUND_ALLIANCE_WINS);                // alliance wins sound
+        PlaySoundToAll(BG_SOUND_ALLIANCE_WIN);                // alliance wins sound
         SetWinner(WINNER_ALLIANCE);
     }
     else if (winner == HORDE)
     {
         winmsg_id = isBattleground() ? LANG_BG_H_WINS : LANG_ARENA_GREEN_WINS;
-        PlaySoundToAll(BG_SOUND_HORDE_WINS);                   // horde wins sound
+        PlaySoundToAll(BG_SOUND_HORDE_WIN);                   // horde wins sound
         SetWinner(WINNER_HORDE);
     }
     else
@@ -821,7 +812,7 @@ void Battleground::EndBattleground(uint32 winner)
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
         // Last standing - Rated 5v5 arena & be solely alive player
-        if (team == winner && isArena() && isRated() && GetJoinType() == ARENA_TYPE_5v5 && aliveWinners == 1 && player->isAlive())
+        if (team == winner && isArena() && isRated() && GetJoinType() == JOIN_TYPE_ARENA_5v5 && aliveWinners == 1 && player->isAlive())
             player->CastSpell(player, SPELL_BG_THE_LAST_STANDING, true);
 
         if (!player->isAlive())
@@ -854,9 +845,6 @@ void Battleground::EndBattleground(uint32 winner)
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA, GetMapId());
         }
 
-        uint32 winnerBonus = player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
-        uint32 loserBonus = player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
-
         // remove temporary currency bonus auras before rewarding player
         player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_25Y);
         player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_60Y);
@@ -866,9 +854,8 @@ void Battleground::EndBattleground(uint32 winner)
         // Reward winner team
         if (team == winner)
         {
-            if (isBattleground() && !IsRBG() && (IsRandom() || BattlegroundMgr::IsBGWeekend(GetTypeID())))
+            if (isBattleground() && !IsRBG() && (IsRandom()))
             {
-                UpdatePlayerScore(player, SCORE_BONUS_HONOR, winnerBonus);
                 if (!player->GetRandomWinner())
                     player->SetRandomWinner(true);
             }
@@ -888,11 +875,6 @@ void Battleground::EndBattleground(uint32 winner)
                         }
                     }
             }
-        }
-        else
-        {
-            if (IsRandom() || BattlegroundMgr::IsBGWeekend(GetTypeID()))
-                UpdatePlayerScore(player, SCORE_BONUS_HONOR, loserBonus);
         }
 
         player->ResetAllPowers();
@@ -1193,6 +1175,26 @@ void Battleground::Reset()
     ResetBGSubclass();
 }
 
+void Battleground::RelocateDeadPlayers(ObjectGuid guideGuid)
+{
+    GuidVector& ghostList = m_ReviveQueue[guideGuid];
+    if (!ghostList.empty())
+    {
+        WorldSafeLocsEntry const* closestGrave = nullptr;
+        for (auto const& v : ghostList)
+        {
+            Player* player = ObjectAccessor::FindPlayer(v);
+            if (!player)
+                continue;
+
+            closestGrave = GetClosestGraveYard(player);
+            if (closestGrave)
+                player->TeleportTo(GetMapId(), closestGrave->Loc.X, closestGrave->Loc.Y, closestGrave->Loc.Z, player->GetOrientation());
+        }
+        ghostList.clear();
+    }
+}
+
 void Battleground::StartBattleground()
 {
     SetElapsedTime(Milliseconds(0));
@@ -1336,6 +1338,99 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
     }
 }
 
+void Battleground::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* node, Player const* player /*= nullptr*/, bool initial /*= false*/)
+{
+    auto pointInfo = node->GetGOInfo()->capturePoint;
+    uint32 const spellVisualArray[] = {pointInfo.SpellVisual1, pointInfo.SpellVisual2, pointInfo.SpellVisual3, pointInfo.SpellVisual4, pointInfo.SpellVisual5};
+    auto nodeState = NODE_STATE_NONE;
+    auto broadcastID = 0, kitID = 0, visualID = 0;
+
+    switch (type)
+    {
+        case NODE_STATUS_NEUTRAL:
+            nodeState = NODE_STATE_NEUTRAL;
+            visualID = spellVisualArray[0];
+            break;
+        case NODE_STATUS_ASSAULT:
+            nodeState = teamID == TEAM_ALLIANCE ? NODE_STATE_ALLIANCE_ASSAULT : NODE_STATE_HORDE_ASSAULT;
+            broadcastID = teamID == TEAM_ALLIANCE ? pointInfo.AssaultBroadcastAlliance : pointInfo.AssaultBroadcastHorde;
+            kitID = 1;
+            visualID = spellVisualArray[teamID == TEAM_ALLIANCE ? 2 : 1];
+            break;
+        case NODE_STATUS_CAPTURE:
+            nodeState = teamID == TEAM_ALLIANCE ? NODE_STATE_ALLIANCE_CAPTURE : NODE_STATE_HORDE_CAPTURE;
+            broadcastID = teamID == TEAM_ALLIANCE ? pointInfo.CaptureBroadcastAlliance : pointInfo.CaptureBroadcastHorde;
+            kitID = teamID == TEAM_ALLIANCE ? 4 : 3;
+            visualID = spellVisualArray[3];
+            break;
+        case NODE_STATUS_DEFENDED:
+            nodeState = teamID == TEAM_ALLIANCE ? NODE_STATE_ALLIANCE_ASSAULT : NODE_STATE_HORDE_ASSAULT;
+            broadcastID = teamID == TEAM_ALLIANCE ? pointInfo.DefendedBroadcastAlliance : pointInfo.DefendedBroadcastHorde;
+            kitID = teamID == TEAM_ALLIANCE ? 4 : 3;
+            visualID = spellVisualArray[teamID == TEAM_ALLIANCE ? 3 : 4];
+            break;
+        default:
+            break;
+    }
+
+    if (!initial)
+    {
+        WorldPackets::GameObject::GoCustomAnim customAnim;
+        customAnim.ObjectGUID = node->GetGUID();
+        customAnim.CustomAnim = kitID;
+        SendPacketToAll(customAnim.Write());
+
+        WorldPackets::GameObject::GameObjectPlaySpellVisual objectSpellVisual;
+        objectSpellVisual.ObjectGUID = node->GetGUID();
+        objectSpellVisual.SpellVisualID = visualID;
+        SendPacketToAll(objectSpellVisual.Write());
+
+        auto lang = CHAT_MSG_BG_SYSTEM_NEUTRAL;
+        switch (teamID)
+        {
+            case TEAM_ALLIANCE:
+                lang = CHAT_MSG_BG_SYSTEM_ALLIANCE;
+                break;
+            case TEAM_HORDE:
+                lang = CHAT_MSG_BG_SYSTEM_HORDE;
+                break;
+            default:
+                break;
+        }
+
+        SendBroadcastTextToAll(broadcastID, lang, player);
+
+        switch (type)
+        {
+            case NODE_STATUS_ASSAULT:
+                PlaySoundToAll(teamID == TEAM_HORDE ? BG_SOUND_CAPTURE_POINT_ASSAULT_HORDE : BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
+                break;
+            case NODE_STATUS_CAPTURE:
+                PlaySoundToAll(teamID == TEAM_HORDE ? BG_SOUND_CAPTURE_POINT_CAPTURED_HORDE : BG_SOUND_CAPTURE_POINT_CAPTURED_ALLIANCE);
+                break;
+            case NODE_STATUS_DEFENDED:
+                break;
+            default:
+                break;
+        }
+    }
+
+    WorldPackets::Battleground::BattlegroundCapturePointInfo info;
+    info.Info.Guid = node->GetGUID();
+    info.Info.Pos = node->GetPosition();
+    info.Info.NodeState = nodeState;
+    if (type == NODE_STATUS_ASSAULT)
+    {
+        info.Info.CaptureTime = pointInfo.CaptureTime - 1;
+        info.Info.CaptureTotalDuration = pointInfo.CaptureTime;
+    }
+    SendPacketToAll(info.Write());
+    
+    UpdateWorldState(pointInfo.worldState1, nodeState);
+
+    node->SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, visualID);
+}
+
 // This method should be called when player logs into running battleground
 void Battleground::EventPlayerLoggedIn(Player* player)
 {
@@ -1411,18 +1506,10 @@ uint32 Battleground::GetFreeSlotsForTeam(uint32 Team) const
     // if BG is starting ... invite anyone
     if (GetStatus() == STATUS_WAIT_JOIN)
         return (GetInvitedCount(Team) < GetMaxPlayersPerTeam()) ? GetMaxPlayersPerTeam() - GetInvitedCount(Team) : 0;
-    // if BG is already started .. do not allow to join too much players of one faction
-    uint32 otherTeam;
-    uint32 otherIn;
-    if (Team == ALLIANCE)
-    {
-        otherTeam = GetInvitedCount(HORDE);
-        otherIn = GetPlayersCountByTeam(HORDE);
-    } else
-    {
-        otherTeam = GetInvitedCount(ALLIANCE);
-        otherIn = GetPlayersCountByTeam(ALLIANCE);
-    }
+
+    uint32 otherTeam = GetInvitedCount(Team == ALLIANCE ? HORDE : ALLIANCE);
+    uint32 otherIn = GetPlayersCountByTeam(Team == ALLIANCE ? HORDE : ALLIANCE);
+
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // difference based on ppl invited (not necessarily entered battle)
@@ -1607,6 +1694,19 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     }
     BgObjects[type] = go->GetGUID();
     return true;
+}
+
+
+void Battleground::DoorsOpen(uint32 type1, uint32 type2)
+{
+    DoorOpen(type1);
+    DoorOpen(type2);
+}
+
+void Battleground::DoorsClose(uint32 type1, uint32 type2)
+{
+    DoorClose(type1);
+    DoorClose(type2);
 }
 
 // Some doors aren't despawned so we cannot handle their closing in gameobject::update()
@@ -1863,8 +1963,8 @@ void Battleground::SendBroadcastTextToAll(int32 broadcastTextID, ChatMsg type, P
     c.chatType = type;
 
     for (auto const& v : m_Players)
-        if (Player* player = ObjectAccessor::FindPlayer(v.first))
-            if (WorldSession* session = player->GetSession())
+        if (Player* _player = ObjectAccessor::FindPlayer(v.first))
+            if (WorldSession* session = _player->GetSession())
             {
                 LocaleConstant locale = session->GetSessionDbLocaleIndex();
                 if (locale >= LOCALE_enUS)
@@ -1929,6 +2029,10 @@ void Battleground::HandleTriggerBuff(ObjectGuid go_guid)
     }
 
     SpawnBGObject(index, BUFF_RESPAWN_TIME);
+}
+void Battleground::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
+{
+    player->GetSession()->SendNotification("Warning: Unhandled AreaTrigger in Battleground: %u, Entered: %u", trigger, entered);
 }
 
 void Battleground::HandleKillPlayer(Player* victim, Player* killer)
@@ -2022,11 +2126,6 @@ uint32 Battleground::GetAlivePlayersCountByTeam(uint32 Team) const
     return count;
 }
 
-void Battleground::SetHoliday(bool is_holiday)
-{
-    m_HonorMode = is_holiday ? BG_HOLIDAY : BG_NORMAL;
-}
-
 int32 Battleground::GetObjectType(ObjectGuid guid)
 {
     for (size_t i = 0; i < BgObjects.size(); ++i)
@@ -2062,7 +2161,7 @@ void Battleground::UpdateArenaWorldState()
 
 void Battleground::SetBgRaid(uint32 TeamID, Group* bg_raid)
 {
-    Group*& old_raid = TeamID == ALLIANCE ? m_BgRaids[BG_TEAM_ALLIANCE] : m_BgRaids[BG_TEAM_HORDE];
+    Group*& old_raid = TeamID == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE];
     if (old_raid)
         old_raid->SetBattlegroundGroup(nullptr);
     if (bg_raid)
@@ -2077,7 +2176,7 @@ WorldSafeLocsEntry const* Battleground::GetClosestGraveYard(Player* player)
 
 bool Battleground::IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxScore) const
 {
-    BattlegroundTeamId teamIndex = GetTeamIndexByTeamId(team);
+    TeamId teamIndex = GetTeamIndexByTeamId(team);
     uint32 score = std::max(m_TeamScores[teamIndex], 0);
     return score >= minScore && score <= maxScore;
 }
@@ -2101,50 +2200,18 @@ void Battleground::RewardXPAtKill(Player* killer, Player* victim)
         killer->RewardPlayerAndGroupAtKill(victim, true);
 }
 
-void Battleground::SendFlagsPositionsUpdate(uint32 diff)
+void Battleground::_ProcessPlayerPositionBroadcast(Milliseconds diff)
 {
-    if (m_flagCarrierTime > int(diff))
+    if (m_LastPlayerPositionBroadcast > diff)
     {
-        m_flagCarrierTime -= diff;
+        m_LastPlayerPositionBroadcast -= diff;
         return;
     }
 
-    m_flagCarrierTime = FLAGS_UPDATE;
+    m_LastPlayerPositionBroadcast = PositionBroadcastUpdate;
 
     WorldPackets::Battleground::PlayerPositions playerPositions;
-    if (GetTypeID(true) == BATTLEGROUND_KT || GetTypeID(true) == BATTLEGROUND_RB && GetMapId() == 998)
-    {
-        for (uint8 i = 0; i < 3; ++i) // MAX_ORBS
-        {
-            Player* player = ObjectAccessor::FindPlayer(GetFlagPickerGUID(i));
-            if (!player)
-                continue;
-
-            WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition flagCarriers;
-            flagCarriers.Guid = player->GetGUID();
-            flagCarriers.Pos = player->GetPosition();
-            flagCarriers.IconID = player->GetBGTeam() == ALLIANCE ? 2 : 1;
-            flagCarriers.ArenaSlot = i + 2;
-            playerPositions.FlagCarriers.push_back(flagCarriers);
-        }
-    }
-    else
-    {
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
-        {
-            Player* player = ObjectAccessor::FindPlayer(GetFlagPickerGUID(i));
-            if (!player)
-                continue;
-
-            WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition flagCarriers;
-            flagCarriers.Pos = player->GetPosition();
-            flagCarriers.Guid = player->GetGUID();
-            flagCarriers.IconID = player->GetTeamId() == TEAM_ALLIANCE ? 1 : 2;
-            flagCarriers.ArenaSlot = player->GetTeamId() == TEAM_ALLIANCE ? 3 : 2;
-            playerPositions.FlagCarriers.push_back(flagCarriers);
-        }
-    }
-
+    GetPlayerPositionData(&playerPositions.FlagCarriers);
     SendPacketToAll(playerPositions.Write());
 }
 

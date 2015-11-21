@@ -235,7 +235,7 @@ public:
                         Trash = data;
                     else
                         Trash--;
-                    DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, Trash);
+                    DoUpdateWorldState(WorldStates::WORLD_STATE_ENEMYCOUNT, Trash);
                     break;
                 case TYPE_RETREAT:
                     if (data == SPECIAL)

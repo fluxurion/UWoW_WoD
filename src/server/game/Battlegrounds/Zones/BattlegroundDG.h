@@ -21,9 +21,6 @@
 
 #include "Battleground.h"
 
-#define CAPTURE_TIME 40000
-#define GOLD_UPDATE 5000
-
 #define BG_DG_MAX_TEAM_SCORE 1500
 
 enum BG_DG_ObjectTypes
@@ -144,34 +141,34 @@ public:
     BattlegroundDG();
     ~BattlegroundDG();
 
-    /* inherited from BattlegroundClass */
-    void AddPlayer(Player* player);
-    virtual void StartingEventCloseDoors();
-    virtual void StartingEventOpenDoors();
+    void AddPlayer(Player* player) override;
+    void StartingEventCloseDoors() override;
+    void StartingEventOpenDoors() override;
 
-    void UpdatePlayerScore(Player* player, uint32 type, uint32 addvalue, bool doAddHonor);
+    void UpdatePlayerScore(Player* player, uint32 type, uint32 addvalue, bool doAddHonor) override;
 
-    WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+    WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
 
-    void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
-    void HandleAreaTrigger(Player* Source, uint32 Trigger);
-    bool SetupBattleground();
-    virtual void Reset();
-    virtual void FillInitialWorldStates(WorldPacket &d);
-    void HandleKillPlayer(Player* player, Player* killer);
-    bool HandlePlayerUnderMap(Player* player);
+    void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
+    void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
+    bool SetupBattleground() override;
+    void Reset() override;
+    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
+    void HandleKillPlayer(Player* player, Player* killer) override;
+    bool HandlePlayerUnderMap(Player* player) override;
 
     void HandlePointCapturing(Player* player, Creature* creature);
 
-    void EventPlayerUsedGO(Player* player, GameObject* go);
-    void EventPlayerDroppedFlag(Player* Source);
+    void EventPlayerUsedGO(Player* player, GameObject* go) override;
+    void EventPlayerDroppedFlag(Player* Source) override;
 
     void UpdatePointsCountPerTeam();
 
     uint32 ModGold(uint8 teamId, int32 val);
-    uint32 GetCurrentGold(uint8 teamId) { return m_gold[teamId]; }
+    uint32 GetCurrentGold(uint8 teamId) { return _gold[teamId]; }
 
-    ObjectGuid GetFlagPickerGUID(int32 team) const;
+    ObjectGuid GetFlagPickerGUID(int32 team) const override;
+    void GetPlayerPositionData(std::vector<WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition>* positions) const override;
 
 private:
         class Point
@@ -184,10 +181,10 @@ private:
 
             virtual void UpdateState(PointStates state);
 
-            uint8 GetState() { return m_state; }
+            PointStates GetState() { return m_state; }
 
             void PointClicked(Player* player);
-            void Update(uint32 diff);
+            void Update(Milliseconds diff);
 
             uint32 TakeGoldCredit() { return m_goldCredit; }
 
@@ -198,13 +195,13 @@ private:
             typedef std::pair<uint32, uint32> WorldState;
             WorldState m_currentWorldState;
 
-            uint8 m_state;
+            PointStates m_state;
             uint32 m_prevAura;
 
             BattlegroundDG* m_bg;
             Creature* m_point;
 
-            int32 m_timer;
+            Milliseconds m_timer;
 
             uint32 m_goldCredit;
         };
@@ -237,7 +234,7 @@ private:
         {
         public:
             Cart(BattlegroundDG* bg);
-            ~Cart() {}
+            ~Cart() { }
 
             void ToggleCaptured(Player* player);
             void CartDropped();
@@ -270,15 +267,15 @@ private:
         };
 
 private:
-        virtual void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(Milliseconds diff) override;
 
-        Point* m_points[MAX_POINTS];
-        Cart*  m_carts[BG_TEAMS_COUNT];
+        Point* _points[MAX_POINTS];
+        Cart*  _carts[MAX_TEAMS];
 
-        int32 m_flagsUpdTimer;
-        int32 m_goldUpdate;
+        int32 _flagsUpdTimer;
+        Milliseconds _goldUpdate;
 
-        uint32 m_gold[BG_TEAMS_COUNT];
+        uint32 _gold[MAX_TEAMS];
 };
 
 #endif

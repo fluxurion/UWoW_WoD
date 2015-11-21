@@ -697,8 +697,7 @@ void WorldSession::HandleJoinSkirmish(WorldPackets::Battleground::JoinSkirmish& 
 
     Group* grp = nullptr;
     
-    uint8 arenatype = (packet.Bracket == BRACKET_TYPE_SKIRMISH_3 ? ARENA_TYPE_3v3 : ARENA_TYPE_2v2);
-      
+    uint8 arenatype = sBattlegroundMgr->GetJoinTypeByBracketSlot(packet.Bracket);
     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
     if (!bg)
         return;

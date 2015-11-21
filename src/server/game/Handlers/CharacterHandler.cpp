@@ -1779,7 +1779,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     uint32 used_loginFlag   = isFactionChange ? AT_LOGIN_CHANGE_FACTION : AT_LOGIN_CHANGE_RACE;
     char const* knownTitlesStr = fields[4].GetCString();
 
-    BattlegroundTeamId oldTeam = BG_TEAM_ALLIANCE;
+    TeamId oldTeam = TEAM_ALLIANCE;
 
     // Search each faction is targeted
     switch (oldRace)
@@ -1791,7 +1791,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         case RACE_TROLL:
         case RACE_BLOODELF:
         case RACE_PANDAREN_HORDE:
-        	oldTeam = BG_TEAM_HORDE;
+        	oldTeam = TEAM_HORDE;
             break;
         default:
             break;
@@ -1802,9 +1802,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     if (race == RACE_PANDAREN_NEUTRAL)
     {
     	if (used_loginFlag == AT_LOGIN_CHANGE_RACE)
-    		race = oldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_ALLIANCE : RACE_PANDAREN_HORDE;
+    		race = oldTeam == TEAM_ALLIANCE ? RACE_PANDAREN_ALLIANCE : RACE_PANDAREN_HORDE;
     	else
-    		race = oldTeam == BG_TEAM_ALLIANCE ? RACE_PANDAREN_HORDE : RACE_PANDAREN_ALLIANCE;
+    		race = oldTeam == TEAM_ALLIANCE ? RACE_PANDAREN_HORDE : RACE_PANDAREN_ALLIANCE;
     }
 
     if (!sObjectMgr->GetPlayerInfo(race, playerClass))
@@ -1913,7 +1913,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
     sWorld->UpdateCharacterNameData(guid.GetCounter(), newname, gender, race);
 
-    BattlegroundTeamId team = BG_TEAM_ALLIANCE;
+    TeamId team = TEAM_ALLIANCE;
 
     // Search each faction is targeted
     switch (race)
@@ -1925,7 +1925,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         case RACE_TROLL:
         case RACE_BLOODELF:
         case RACE_PANDAREN_HORDE:
-            team = BG_TEAM_HORDE;
+            team = TEAM_HORDE;
             break;
         default:
             break;
@@ -1942,7 +1942,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     stmt->setUInt64(0, lowGuid);
 
     // Faction specific languages
-    if (team == BG_TEAM_HORDE)
+    if (team == TEAM_HORDE)
         stmt->setUInt16(1, 109);
     else
         stmt->setUInt16(1, 98);
@@ -2053,7 +2053,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                         if (!requiredRaces)
                             continue;
 
-                        if (team == BG_TEAM_ALLIANCE)
+                        if (team == TEAM_ALLIANCE)
                         {
                             if (requiredRaces & RACEMASK_ALLIANCE && (requiredRaces & RACEMASK_HORDE) == 0)
                             {
@@ -2061,7 +2061,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                                 quests << ',';
                             }
                         }
-                        else // if (team == BG_TEAM_HORDE)
+                        else // if (team == TEAM_HORDE)
                         {
                             if (requiredRaces & RACEMASK_HORDE && (requiredRaces & RACEMASK_ALLIANCE) == 0)
                             {
@@ -2114,7 +2114,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PLAYER_HOMEBIND);
         stmt->setUInt64(0, lowGuid);
-        if (team == BG_TEAM_ALLIANCE)
+        if (team == TEAM_ALLIANCE)
         {
             stmt->setUInt16(1, 0);
             stmt->setUInt16(2, 1519);
@@ -2141,13 +2141,13 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             uint32 achiev_horde = it->second;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
-            stmt->setUInt16(0, uint16(team == BG_TEAM_ALLIANCE ? achiev_alliance : achiev_horde));
+            stmt->setUInt16(0, uint16(team == TEAM_ALLIANCE ? achiev_alliance : achiev_horde));
             stmt->setUInt64(1, lowGuid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ACHIEVEMENT);
-            stmt->setUInt16(0, uint16(team == BG_TEAM_ALLIANCE ? achiev_alliance : achiev_horde));
-            stmt->setUInt16(1, uint16(team == BG_TEAM_ALLIANCE ? achiev_horde : achiev_alliance));
+            stmt->setUInt16(0, uint16(team == TEAM_ALLIANCE ? achiev_alliance : achiev_horde));
+            stmt->setUInt16(1, uint16(team == TEAM_ALLIANCE ? achiev_horde : achiev_alliance));
             stmt->setUInt64(2, lowGuid);
             trans->Append(stmt);
         }
@@ -2159,8 +2159,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             uint32 item_horde = it->second;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INVENTORY_FACTION_CHANGE);
-            stmt->setUInt32(0, (team == BG_TEAM_ALLIANCE ? item_alliance : item_horde));
-            stmt->setUInt32(1, (team == BG_TEAM_ALLIANCE ? item_horde : item_alliance));
+            stmt->setUInt32(0, (team == TEAM_ALLIANCE ? item_alliance : item_horde));
+            stmt->setUInt32(1, (team == TEAM_ALLIANCE ? item_horde : item_alliance));
             stmt->setUInt64(2, lowGuid);
             trans->Append(stmt);
         }
@@ -2172,13 +2172,13 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             uint32 spell_horde = it->second;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
-            stmt->setUInt32(0, (team == BG_TEAM_ALLIANCE ? spell_alliance : spell_horde));
+            stmt->setUInt32(0, (team == TEAM_ALLIANCE ? spell_alliance : spell_horde));
             stmt->setUInt64(1, lowGuid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_SPELL_FACTION_CHANGE);
-            stmt->setUInt32(0, (team == BG_TEAM_ALLIANCE ? spell_alliance : spell_horde));
-            stmt->setUInt32(1, (team == BG_TEAM_ALLIANCE ? spell_horde : spell_alliance));
+            stmt->setUInt32(0, (team == TEAM_ALLIANCE ? spell_alliance : spell_horde));
+            stmt->setUInt32(1, (team == TEAM_ALLIANCE ? spell_horde : spell_alliance));
             stmt->setUInt64(2, lowGuid);
             trans->Append(stmt);
         }
@@ -2190,13 +2190,13 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             uint32 reputation_horde = it->second;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REP_BY_FACTION);
-            stmt->setUInt32(0, uint16(team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
+            stmt->setUInt32(0, uint16(team == TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
             stmt->setUInt64(1, lowGuid);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_REP_FACTION_CHANGE);
-            stmt->setUInt16(0, uint16(team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
-            stmt->setUInt16(1, uint16(team == BG_TEAM_ALLIANCE ? reputation_horde : reputation_alliance));
+            stmt->setUInt16(0, uint16(team == TEAM_ALLIANCE ? reputation_alliance : reputation_horde));
+            stmt->setUInt16(1, uint16(team == TEAM_ALLIANCE ? reputation_horde : reputation_alliance));
             stmt->setUInt64(2, lowGuid);
             trans->Append(stmt);
         }
@@ -2221,7 +2221,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 CharTitlesEntry const* atitleInfo = sCharTitlesStore.LookupEntry(title_alliance);
                 CharTitlesEntry const* htitleInfo = sCharTitlesStore.LookupEntry(title_horde);
                 // new team
-                if (team == BG_TEAM_ALLIANCE)
+                if (team == TEAM_ALLIANCE)
                 {
                     uint32 bitIndex = htitleInfo->MaskID;
                     uint32 index = bitIndex / 32;

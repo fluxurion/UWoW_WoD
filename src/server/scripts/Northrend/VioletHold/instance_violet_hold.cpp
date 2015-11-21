@@ -349,7 +349,7 @@ public:
                 case DATA_DOOR_INTEGRITY:
                     uiDoorIntegrity = data;
                     defenseless = false;
-                    DoUpdateWorldState(WORLD_STATE_VH_PRISON_STATE, uiDoorIntegrity);
+                    DoUpdateWorldState(WorldStates::WORLD_STATE_VH_PRISON_STATE, uiDoorIntegrity);
                     break;
                 case DATA_NPC_PRESENCE_AT_DOOR_ADD:
                     NpcAtDoorCastingList.push_back(data);
@@ -565,8 +565,8 @@ public:
 
         void AddWave()
         {
-            DoUpdateWorldState(WORLD_STATE_VH, 1);
-            DoUpdateWorldState(WORLD_STATE_VH_WAVE_COUNT, uiWaveCount);
+            DoUpdateWorldState(WorldStates::WORLD_STATE_VH, 1);
+            DoUpdateWorldState(WorldStates::WORLD_STATE_VH_WAVE_COUNT, uiWaveCount);
 
             switch (uiWaveCount)
             {
@@ -606,7 +606,7 @@ public:
                 {
                     if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
                         pMainDoor->SetGoState(GO_STATE_READY);
-                    DoUpdateWorldState(WORLD_STATE_VH_PRISON_STATE, 100);
+                    DoUpdateWorldState(WorldStates::WORLD_STATE_VH_PRISON_STATE, 100);
                     // no break
                 }
                 default:
@@ -690,7 +690,7 @@ public:
             StartBossEncounter(uiSecondBoss, false);
             SetData(DATA_MAIN_DOOR, GO_STATE_ACTIVE);
             SetData(DATA_WAVE_COUNT, 0);
-            DoUpdateWorldState(WORLD_STATE_VH, 0);
+            DoUpdateWorldState(WorldStates::WORLD_STATE_VH, 0);
 
             for (int i = 0; i < 4; ++i)
                 if (GameObject* crystal = instance->GetGameObject(uiActivationCrystal[i]))

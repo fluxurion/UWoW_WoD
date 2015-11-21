@@ -18,7 +18,7 @@
 #ifndef __BATTLEGROUNDTTP_H
 #define __BATTLEGROUNDTTP_H
 
-#include "Battleground.h"
+class Battleground;
 
 enum BattlegroundTTPObjectTypes
 {
@@ -26,19 +26,15 @@ enum BattlegroundTTPObjectTypes
     BG_TTP_OBJECT_DOOR_2         = 1,
     BG_TTP_OBJECT_BUFF_1         = 2,
     BG_TTP_OBJECT_BUFF_2         = 3,
-    BG_TTP_OBJECT_PORT_1         = 4,
-    BG_TTP_OBJECT_PORT_2         = 5,
-    BG_TTP_OBJECT_MAX            = 6
+    BG_TTP_OBJECT_MAX            = 4
 };
 
 enum BattlegroundTTPObjects
 {
-    BG_TTP_OBJECT_TYPE_BUFF_1     = 184664,
-    BG_TTP_OBJECT_TYPE_BUFF_2     = 184663,
-    BG_TTP_OBJECT_TYPE_DOOR_1     = 210866,     //HACK. ToDo: finde correct entry and positions
-    BG_TTP_OBJECT_TYPE_DOOR_2     = 210866,     //HACK.
-    BG_TTP_OBJECT_TYPE_PORTAL     = 181621
-
+    BG_TTP_OBJECT_TYPE_DOOR_1    = 219395,
+    BG_TTP_OBJECT_TYPE_DOOR_2    = 219396,
+    BG_TTP_OBJECT_TYPE_BUFF_1    = 184663,
+    BG_TTP_OBJECT_TYPE_BUFF_2    = 184664
 };
 
 class BattlegroundTTPScore : public BattlegroundScore
@@ -61,10 +57,10 @@ class BattlegroundTTP : public Battleground
         virtual void StartingEventOpenDoors();
 
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
-        void HandleAreaTrigger(Player* Source, uint32 Trigger);
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered);
         bool SetupBattleground();
         virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPacket &d);
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* player);
 };

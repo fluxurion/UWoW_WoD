@@ -111,10 +111,10 @@ class instance_end_time : public InstanceMapScript
                         switch (data)
                         {
                             case IN_PROGRESS:
-                                DoUpdateWorldState(WORLDSTATE_SHOW_FRAGMENTS, 1);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_SHOW_FRAGMENTS, 1);
                                 break;
                             case DONE:
-                                DoUpdateWorldState(WORLDSTATE_SHOW_FRAGMENTS, 0);
+                                DoUpdateWorldState(WorldStates::WORLDSTATE_SHOW_FRAGMENTS, 0);
                                 break;
                         }
                         jaina_event = data;
@@ -233,10 +233,10 @@ class instance_end_time : public InstanceMapScript
 			    return true;
             }
 
-            void FillInitialWorldStates(WorldPacket& data)
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
             {
-                data << uint32(jaina_event == IN_PROGRESS) << uint32(WORLDSTATE_SHOW_FRAGMENTS);
-                data << uint32(uiFragmentsCollected)       << uint32(WORLDSTATE_FRAGMENTS_COLLECTED);
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_SHOW_FRAGMENTS, jaina_event == IN_PROGRESS);
+                packet.Worldstates.emplace_back(WorldStates::WORLDSTATE_FRAGMENTS_COLLECTED, uiFragmentsCollected);
             }
 
             std::string GetSaveData()

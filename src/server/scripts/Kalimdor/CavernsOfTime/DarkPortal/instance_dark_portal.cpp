@@ -112,9 +112,9 @@ public:
 
         void InitWorldState(bool Enable = true)
         {
-            DoUpdateWorldState(WORLD_STATE_BM, Enable ? 1 : 0);
-            DoUpdateWorldState(WORLD_STATE_BM_SHIELD, 100);
-            DoUpdateWorldState(WORLD_STATE_BM_RIFT, 0);
+            DoUpdateWorldState(WorldStates::WORLD_STATE_BM, Enable ? 1 : 0);
+            DoUpdateWorldState(WorldStates::WORLD_STATE_BM_SHIELD, 100);
+            DoUpdateWorldState(WorldStates::WORLD_STATE_BM_RIFT, 0);
         }
 
         bool IsEncounterInProgress() const
@@ -130,7 +130,7 @@ public:
             if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 return;
 
-            player->SendUpdateWorldState(WORLD_STATE_BM, 0);
+            player->SendUpdateWorldState(WorldStates::WORLD_STATE_BM, 0);
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -174,7 +174,7 @@ public:
                 {
                     --mShieldPercent;
 
-                    DoUpdateWorldState(WORLD_STATE_BM_SHIELD, mShieldPercent);
+                    DoUpdateWorldState(WorldStates::WORLD_STATE_BM_SHIELD, mShieldPercent);
 
                     if (!mShieldPercent)
                     {
@@ -375,7 +375,7 @@ public:
                 {
                     ++mRiftPortalCount;
 
-                    DoUpdateWorldState(WORLD_STATE_BM_RIFT, mRiftPortalCount);
+                    DoUpdateWorldState(WorldStates::WORLD_STATE_BM_RIFT, mRiftPortalCount);
 
                     DoSpawnPortal();
                     NextPortal_Timer = RiftWaves[GetRiftWaveId()].NextPortalTime;

@@ -52,12 +52,6 @@ enum CreatureIds
     NPC_IMAGE_OF_NOZDORMU   = 54867,
 };
 
-enum WorldStatesET
-{
-    WORLDSTATE_SHOW_FRAGMENTS       = 6046,
-    WORLDSTATE_FRAGMENTS_COLLECTED  = 6025,
-};
-
 enum QuestSpells
 {
     SPELL_ARCHIVED_JAINA    = 109284,

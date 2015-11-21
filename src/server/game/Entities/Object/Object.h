@@ -467,16 +467,18 @@ struct Position
     float m_orientation;
 //public:
 
-    void Relocate(float x, float y)
-        { m_positionX = x; m_positionY = y;}
-    void Relocate(float x, float y, float z)
-        { m_positionX = x; m_positionY = y; m_positionZ = z; }
-    void Relocate(float x, float y, float z, float orientation)
-        { m_positionX = x; m_positionY = y; m_positionZ = z; SetOrientation(orientation); }
-    void Relocate(const Position &pos)
-        { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; SetOrientation(pos.m_orientation); }
-    void Relocate(const Position* pos)
-        { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; SetOrientation(pos->m_orientation); }
+    void Relocate(float x, float y) { m_positionX = x; m_positionY = y;}
+    void Relocate(float x, float y, float z) { m_positionX = x; m_positionY = y; m_positionZ = z; }
+    void Relocate(float x, float y, float z, float orientation) { m_positionX = x; m_positionY = y; m_positionZ = z; SetOrientation(orientation); }
+    
+    void SetPosition(DBCPosition2D pos) { m_positionX = pos.X; m_positionY = pos.Y;}
+    void SetPosition(DBCPosition3D pos) { m_positionX = pos.X; m_positionY = pos.Y; m_positionZ = pos.Z; }
+    void SetPosition(DBCPosition4D pos) { m_positionX = pos.X; m_positionY = pos.Y; m_positionZ = pos.Z; SetOrientation(pos.O); }
+
+    void Relocate(Position const& pos) { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; SetOrientation(pos.m_orientation); }
+    void Relocate(Position const* pos) { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; SetOrientation(pos->m_orientation); }
+
+
     void RelocateOffset(const Position &offset);
     void SetOrientation(float orientation)
     { m_orientation = NormalizeOrientation(orientation); }
@@ -688,6 +690,7 @@ struct MovementInfo
     bool HasMovementFlag(uint32 flag) const { return (flags & flag) != 0; }
 
     uint16 GetExtraMovementFlags() const { return flags2; }
+    void SetExtraMovementFlags(uint32 flag) { flags2 = flag; }
     void AddExtraMovementFlag(uint16 flag) { flags2 |= flag; }
     bool HasExtraMovementFlag(uint16 flag) const { return (flags2 & flag) != 0; }
 
