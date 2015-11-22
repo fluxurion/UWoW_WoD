@@ -155,9 +155,47 @@ public:
         return new spell_q34824_SpellScript();
     }
 };
+
+//161033 for the gord cast 160767 too
+//! HORDE Q: 34378, ALLIANCE Q: 34586
+class spell_161033 : public SpellScriptLoader
+{
+public:
+    spell_161033() : SpellScriptLoader("spell_161033") { }
+
+    class spell_161033_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_161033_SpellScript);
+
+#define __spell 160767
+        void Handle(SpellEffIndex effIndex)
+        {
+            Unit* caster = GetCaster();
+            if (!caster || !caster->ToPlayer())
+                return;
+
+            if (caster->ToPlayer()->GetTeam() == ALLIANCE)
+                return;
+
+            caster->CastSpell(caster, __spell, true);
+        }
+
+        void Register()
+        {
+            OnEffectLaunch += SpellEffectFn(spell_161033_SpellScript::Handle, 0, SPELL_EFFECT_KILL_CREDIT2);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_161033_SpellScript();
+    }
+};
+
 void AddSC_garrison_general()
 {
     new spell_garrison_hearthstone();
     new spell_garrison_cache_loot();
     new spell_q34824();
+    new spell_161033();
 }

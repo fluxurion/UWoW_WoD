@@ -162,10 +162,9 @@ UPDATE `creature_template` SET `ScriptName` = 'mob_wod_q34375' WHERE `creature_t
 UPDATE `gameobject_template` SET `ScriptName` = 'go_wod_q34375' WHERE `gameobject_template`.`entry` = 230527;
 REPLACE INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`, `ItemID3`) VALUES ('79526', '1', '109579', '0', '0');
 
--- Q: 34378
-REPLACE INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, actiontype, `comment`)
-VALUES ('161033', '160767', '0', '0', 'Q34378 link create garnisone');
-
+-- Q: 34378 by go cast 161033 use hardfix.
+DELETE FROM `spell_linked_spell` WHERE spell_trigger = 161033;
+REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('161033', 'spell_161033');
 
 -- Q: HORDE 34824 ALLIANCE Q: 35176 - only chest credit
 REPLACE INTO spell_script_names (`spell_id`, `ScriptName`) VALUES ('173847', 'spell_garrison_cache_loot'); -- go 237191

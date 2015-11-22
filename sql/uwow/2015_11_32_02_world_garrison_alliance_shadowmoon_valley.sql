@@ -4,14 +4,16 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('34586', '34585', '0', '0');
 
 DELETE FROM `spell_area` WHERE area in (6719);
-REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
-('158228', '6719', '34584', '34584', '0', '0', '2', '1', '10', '64');
+
 
 -- 4352 мир
 -- 3329 - фаза интро перед квестом.
 -- 3639 - 34582 - после взятие, прокнул на смене арреи.
 -- 3353 - while not complete 34582. Не увидел ничего подозрительного.
 -- 3695 - at SMSG_QUEST_UPDATE_ADD_CREDIT 34583 id 84778 remove 79242 для ивента порой прячет кадгара 79242. у нас пусть будет всегда.
+
+DELETE FROM `phase_definitions` WHERE `zoneId` = 7078;
+DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7078;
 
 REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `PreloadMapID`, `VisibleMapID`, `flags`, `comment`) VALUES
 -- 2877 2884 2988 3054 3055 3122 3184 3238 3244 3253 3329 3353 3420 3434 3695 3926 3934 4086 4318 4352
@@ -46,7 +48,8 @@ REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `languag
 REPLACE INTO `gameobject_quest_visual` (`goID`, `questID`, `incomplete_state_spell_visual`, `incomplete_state_world_effect`, `complete_state_spell_visual`, `complete_state_world_effect`, `Comment`) VALUES
 ('230335', '34584', '37794', '2100', '0', '0', '');
 
--- Q: 34586
+-- Q: 34586 original 161031 161033
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 79243;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(79243, 0, 0, 1, 62, 0, 100, 0, 16871, 0, 0, 0, 85, 156020, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'on gossip select - cast spell');
+(79243, 0, 0, 1, 62, 0, 100, 0, 16871, 0, 0, 0, 85, 161033, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'on gossip select - cast spell'),
+(79243, 0, 1, 1, 62, 0, 100, 0, 16871, 0, 0, 0, 85, 161031, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'on gossip select - cast spell');
