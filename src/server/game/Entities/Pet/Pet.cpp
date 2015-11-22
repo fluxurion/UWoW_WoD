@@ -356,6 +356,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool s
 
     CastPetAuras(true);
     m_loading = false;
+    //owner->SetFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_PET_ACTIVE);
+
     return true;
 }
 
@@ -1797,7 +1799,7 @@ void TempSummon::CastPetAuras(bool apply, uint32 spellId)
             Unit* _caster = this;
             Unit* _targetaura = this;
 
-            sLog->outDebug(LOG_FILTER_PETS, "CastPetAuras spellId %i", itr->spellId);
+            //sLog->outDebug(LOG_FILTER_PETS, "CastPetAuras spellId %i", itr->spellId);
 
             if(itr->target == 1 || itr->target == 4) //get target owner
                 _target = owner;

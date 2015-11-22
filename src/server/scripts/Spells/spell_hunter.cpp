@@ -362,7 +362,11 @@ class spell_hun_focus_fire : public SpellScriptLoader
                             {
                                 int32 stackAmount = frenzy->GetStackAmount();
 
-                                focusFire->GetEffect(0)->ChangeAmount(focusFire->GetEffect(0)->GetAmount() * stackAmount);
+                                if (AuraEffect * auraEffect = focusFire->GetEffect(0))
+                                    auraEffect->ChangeAmount(auraEffect->GetAmount() * stackAmount);
+                                if (_player->HasAura(157705))
+                                    if (AuraEffect * auraEffect = focusFire->GetEffect(2))
+                                        auraEffect->ChangeAmount(auraEffect->GetAmount() * stackAmount);
 
                                 if (pet->HasAura(HUNTER_SPELL_FRENZY_STACKS))
                                 {
@@ -616,9 +620,12 @@ class spell_hun_beast_cleave : public SpellScriptLoader
             void HandleAfterCast()
             {
                 if (Player* _player = GetCaster()->ToPlayer())
-                    if (_player->HasAura(HUNTER_SPELL_BEAST_CLEAVE_AURA))
+                    if (AuraEffect * auraEffect = _player->GetAuraEffect(HUNTER_SPELL_BEAST_CLEAVE_AURA, 0))
                         if (Pet* pet = _player->GetPet())
-                            _player->CastSpell(pet, HUNTER_SPELL_BEAST_CLEAVE_PROC, true);
+                        {
+                            int32 bp = auraEffect->GetAmount();
+                            _player->CastCustomSpell(pet, HUNTER_SPELL_BEAST_CLEAVE_PROC, &bp, NULL, NULL, true);
+                        }
             }
 
             void Register()
@@ -630,47 +637,6 @@ class spell_hun_beast_cleave : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_hun_beast_cleave_SpellScript();
-        }
-};
-
-// Called by Arcane Shot - 3044
-// Cobra Strikes - 53260
-class spell_hun_cobra_strikes : public SpellScriptLoader
-{
-    public:
-        spell_hun_cobra_strikes() : SpellScriptLoader("spell_hun_cobra_strikes") { }
-
-        class spell_hun_cobra_strikes_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_cobra_strikes_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (_player->GetSpecializationId(_player->GetActiveSpec()) == SPEC_HUNTER_BEASTMASTER)
-                    {    
-                        if (Unit* target = GetHitUnit())
-                        {
-                            if (roll_chance_i(15))
-                            {
-                                _player->CastSpell(_player, HUNTER_SPELL_COBRA_STRIKES_STACKS, true);
-                                _player->CastSpell(_player, HUNTER_SPELL_COBRA_STRIKES_STACKS, true);
-                            }
-                        }
-                    }
-                }
-            }
-
-            void Register()
-            {
-               OnHit += SpellHitFn(spell_hun_cobra_strikes_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_cobra_strikes_SpellScript();
         }
 };
 
@@ -780,37 +746,6 @@ class spell_hun_camouflage_visual : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_hun_camouflage_visual_AuraScript();
-        }
-};
-
-// Called by Multi Shot - 2643
-// Serpent Spread - 87935
-class spell_hun_serpent_spread : public SpellScriptLoader
-{
-    public:
-        spell_hun_serpent_spread() : SpellScriptLoader("spell_hun_serpent_spread") { }
-
-        class spell_hun_serpent_spread_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_serpent_spread_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                    if (Unit* target = GetHitUnit())
-                        if (_player->HasAura(HUNTER_SPELL_SERPENT_SPREAD))
-                            _player->CastSpell(target, HUNTER_SPELL_SERPENT_STING, true);
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_hun_serpent_spread_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_serpent_spread_SpellScript();
         }
 };
 
@@ -1060,7 +995,11 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                         if (serpentSting)
                             serpentSting->GetBase()->RefreshDuration();
 
-                        _player->CastSpell(_player, HUNTER_SPELL_CHIMERA_SHOT_HEAL, true);
+                        if (_player->HasAura(119447)) // Glyph of Chimaera Shot
+                        {
+                            int32 bp = 2;
+                            _player->CastCustomSpell(_player, HUNTER_SPELL_CHIMERA_SHOT_HEAL, &bp, NULL, NULL, true);
+                        }
                     }
                 }
             }
@@ -2074,6 +2013,102 @@ public:
     }
 };
 
+// Lone Wolf - 155228
+class spell_hun_lone_wolf : public SpellScriptLoader
+{
+    public:
+        spell_hun_lone_wolf() : SpellScriptLoader("spell_hun_lone_wolf") { }
+
+        class spell_hun_lone_wolf_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_lone_wolf_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (!GetCaster()->HasAura(164273))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                return SPELL_CAST_OK;
+            }
+
+            void HandleOnCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    caster->RemoveAura(160198);
+                    caster->RemoveAura(160199);
+                    caster->RemoveAura(160200);
+                    caster->RemoveAura(160203);
+                    caster->RemoveAura(160205);
+                    caster->RemoveAura(160206);
+                    caster->RemoveAura(172967);
+                    caster->RemoveAura(172968);
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_hun_lone_wolf_SpellScript::HandleOnCast);
+                OnCheckCast += SpellCheckCastFn(spell_hun_lone_wolf_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_lone_wolf_SpellScript();
+        }
+};
+
+// Mastery: Wild Quiver - 76659
+class spell_hun_mastery_wild_quiver : public SpellScriptLoader
+{
+    public:
+        spell_hun_mastery_wild_quiver() : SpellScriptLoader("spell_hun_mastery_wild_quiver") { }
+
+        class spell_hun_mastery_wild_quiver_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_mastery_wild_quiver_AuraScript);
+
+            uint32 update = 0;
+
+            void OnUpdate(uint32 diff, AuraEffect* aurEff)
+            {
+                update += diff;
+
+                if (update >= 1000)
+                {
+                    if (Unit* caster = GetCaster())
+                    {
+                        if (caster->isMoving())
+                        {
+                            if (caster->HasAura(168809))
+                                caster->RemoveAura(168809);
+                            if (Aura* aura = caster->GetAura(168811))
+                                if(aura->GetDuration() < 0)
+                                {
+                                    aura->SetMaxDuration(6000);
+                                    aura->SetDuration(6000);
+                                }
+                        }
+                        else if (!caster->HasAura(168809) && !caster->HasAura(168811))
+                            caster->CastSpell(caster, 168809, true);
+                    }
+                    update = 0;
+                }
+            }
+
+            void Register()
+            {
+                OnEffectUpdate += AuraEffectUpdateFn(spell_hun_mastery_wild_quiver_AuraScript::OnUpdate, EFFECT_2, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_mastery_wild_quiver_AuraScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_of_marked_for_die();
@@ -2084,11 +2119,9 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_frenzy();
     new spell_hun_lynx_rush();
     new spell_hun_beast_cleave();
-    new spell_hun_cobra_strikes();
     new spell_hun_barrage();
     new spell_hun_improved_serpent_sting();
     new spell_hun_camouflage_visual();
-    new spell_hun_serpent_spread();
     new spell_hun_ancient_hysteria();
     new spell_hun_kill_command();
     new spell_hun_cobra_shot();
@@ -2114,4 +2147,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_toss_damage();
     new spell_hun_widow_venom();
     new spell_hun_explosive_shot();
+    new spell_hun_lone_wolf();
+    new spell_hun_mastery_wild_quiver();
 }

@@ -4642,7 +4642,11 @@ void Spell::finish(bool ok)
     switch (m_spellInfo->Id)
     {
         case 53351: // Kill Shot
+        case 157708: // Kill Shot
         {
+            if (unitTarget && !unitTarget->isAlive())
+                m_caster->CastSpell(m_caster, 164851, true);
+
             if (!unitTarget || !unitTarget->isAlive() || unitTarget->GetHealthPct() >= 20.0f || m_caster->HasAura(90967))
                 break;
 

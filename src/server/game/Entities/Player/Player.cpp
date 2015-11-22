@@ -22374,6 +22374,8 @@ void Player::RemovePet(Pet* pet, bool isDelete)
     if (!pet || pet->GetOwnerGUID() != GetGUID())
         return;
 
+    pet->CastPetAuras(false);
+
     if (isDelete && !pet->m_Stampeded)
         m_currentPetNumber = pet->GetCharmInfo()->GetPetNumber();   //just protection.
 
@@ -22393,6 +22395,8 @@ void Player::RemovePet(Pet* pet, bool isDelete)
         if (GetGroup())
             SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET);
     }
+
+    //RemoveFlag(PLAYER_FIELD_LOCAL_FLAGS, PLAYER_LOCAL_FLAG_PET_ACTIVE);
 }
 
 void Player::StopCastingCharm()
@@ -27890,7 +27894,6 @@ void Player::UnsummonPetTemporaryIfAny()
         m_oldpetspell = pet->GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);
     }
 
-    pet->CastPetAuras(false);
     RemovePet(pet);
 }
 

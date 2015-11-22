@@ -230,7 +230,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
 
     // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
     // stack amount has priority over charges (checked on retail with spell 50262)
-    auraData.Applications = uint8((aura->GetStackAmount() > 1 || !aura->GetSpellInfo()->ProcCharges) ? aura->GetStackAmount() : aura->GetCharges());
+    auraData.Applications = uint8((aura->GetStackAmount() > 1 || !aura->GetSpellInfo()->ProcCharges) ? ((!aura->GetStackAmount() && aura->GetCharges()) ? aura->GetCharges() : aura->GetStackAmount()) : aura->GetCharges());
     if (auraData.Flags & AFLAG_NOCASTER)
         auraData.CastUnit = aura->GetCasterGUID();
 
@@ -695,7 +695,7 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
         else
             m_effects[i] = NULL;
     }
-    UpdateConcatenateAura(caster, 0, 0, true);
+    UpdateConcatenateAura(caster, 0, 0, CONCATENATE_ON_APPLY_AURA);
 }
 
 Aura::~Aura()
@@ -794,6 +794,7 @@ void Aura::_Remove(AuraRemoveMode removeMode)
         target->_UnapplyAura(aurApp, removeMode);
         appItr = m_applications.begin();
     }
+    UpdateConcatenateAura(GetCaster(), 0, 0, CONCATENATE_ON_REMOVE_AURA);
 }
 
 void Aura::UpdateTargetMap(Unit* caster, bool apply)
@@ -3254,76 +3255,117 @@ uint32 Aura::CalcAgonyTickDamage(uint32 damage)
     return damage;
 }
 
-void Aura::UpdateConcatenateAura(Unit* caster, int32 amount, int32 effIndex, bool apply)
+void Aura::UpdateConcatenateAura(Unit* caster, int32 amount, int32 effIndex, int8 type)
 {
     if(!caster)
         return;
 
-    if(apply)
+    switch (type)
     {
-        if (std::vector<SpellConcatenateAura> const* spellConcatenateAura = sSpellMgr->GetSpellConcatenateApply(GetId()))
+        case CONCATENATE_ON_UPDATE_AMOUNT: // 0
         {
-            for (std::vector<SpellConcatenateAura>::const_iterator itr = spellConcatenateAura->begin(); itr != spellConcatenateAura->end(); ++itr)
+            if (std::vector<SpellConcatenateAura> const* spellConcatenateAura = sSpellMgr->GetSpellConcatenateUpdate(GetId()))
             {
-                Unit* _caster = caster;
-                if (itr->caster)
-                    _caster = caster->GetUnitForLinkedSpell(caster, caster, itr->caster);
-                if(!_caster)
-                    continue;
-
-                switch (itr->type)
+                for (std::vector<SpellConcatenateAura>::const_iterator itr = spellConcatenateAura->begin(); itr != spellConcatenateAura->end(); ++itr)
                 {
-                    case CONCATENATE_DEFAULT:
+                    if(effIndex != itr->effectSpell)
+                        continue;
+
+                    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura::UpdateConcatenateAura CONCATENATE_ON_UPDATE_AMOUNT Id %i amount %i effIndex %i type %i option %i", GetId(), amount, effIndex, type, itr->option);
+
+                    Unit* _target = caster;
+                    if (itr->target)
+                        _target = caster->GetUnitForLinkedSpell(caster, caster, itr->target);
+                    if(!_target)
+                        continue;
+                    AuraEffect* effectAura = _target->GetAuraEffect(itr->auraId, itr->effectAura);
+                    if(!effectAura)
+                        continue;
+
+                    if (itr->option & CONCATENATE_CHANGE_AMOUNT) // 0x001 auraId set amount from spellid
+                        effectAura->ChangeAmount(amount);
+
+                    if (itr->option & CONCATENATE_RECALCULATE_AURA) // 0x002 auraId recalculate amount when spellid change amount
                     {
+                        effectAura->SetCanBeRecalculated(true);
+                        effectAura->RecalculateAmount();
+                    }
+                    if (itr->option & CONCATENATE_RECALCULATE_SPELL) // 0x002 when auraId is apply spellid is recalculate amount
+                        RecalculateAmountOfEffects(true);
+
+                    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura::UpdateConcatenateAura CONCATENATE_ON_UPDATE_AMOUNT end Id %i amount %i effIndex %i type %i option %i GetAmount %i", GetId(), amount, effIndex, type, itr->option, effectAura->GetAmount());
+                }
+            }
+        }
+        break;
+        case CONCATENATE_ON_APPLY_AURA: // 1 
+        {
+            if (std::vector<SpellConcatenateAura> const* spellConcatenateAura = sSpellMgr->GetSpellConcatenateApply(GetId()))
+            {
+                for (std::vector<SpellConcatenateAura>::const_iterator itr = spellConcatenateAura->begin(); itr != spellConcatenateAura->end(); ++itr)
+                {
+                    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura::UpdateConcatenateAura CONCATENATE_ON_APPLY_AURA start Id %i amount %i effIndex %i type %i option %i", GetId(), amount, effIndex, type, itr->option);
+
+                    Unit* _caster = caster;
+                    if (itr->caster)
+                        _caster = caster->GetUnitForLinkedSpell(caster, caster, itr->caster);
+                    if(!_caster)
+                        continue;
+                    AuraEffect* effectAura = GetEffect(itr->effectAura);
+                    if(!effectAura)
+                        continue;
+
+                    if (itr->option & CONCATENATE_CHANGE_AMOUNT) // 0x001 auraId set amount when auraId is apply
                         if (AuraEffect* effectSpell = _caster->GetAuraEffect(itr->spellid, itr->effectSpell))
-                            if (AuraEffect* effectAura = GetEffect(itr->effectAura))
-                                effectAura->SetAmount(effectSpell->GetAmount());
-                        break;
-                    }
-                    case CONCATENATE_RECALCULATE:
-                    {
+                            effectAura->ChangeAmount(effectSpell->GetAmount());
+                        else
+                            effectAura->ChangeAmount(0);
+
+                    if (itr->option & CONCATENATE_RECALCULATE_AURA) // 0x002 when auraId is apply spellid is recalculate amount
+                        RecalculateAmountOfEffects(true);
+
+                    if (itr->option & CONCATENATE_RECALCULATE_SPELL) // 0x002 when auraId is apply spellid is recalculate amount
                         if (Aura* auraSpell = _caster->GetAura(itr->spellid))
-                            auraSpell->RecalculateAmountOfEffects(true);
-                        break;
-                    }
+                            RecalculateAmountOfEffects(true);
+
+                    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura::UpdateConcatenateAura CONCATENATE_ON_APPLY_AURA end Id %i amount %i effIndex %i type %i option %i GetAmount %i", GetId(), amount, effIndex, type, itr->option, effectAura->GetAmount());
                 }
             }
         }
-    }
-    else
-    {
-        if (std::vector<SpellConcatenateAura> const* spellConcatenateAura = sSpellMgr->GetSpellConcatenateUpdate(GetId()))
+        break;
+        case CONCATENATE_ON_REMOVE_AURA: // 2
         {
-            for (std::vector<SpellConcatenateAura>::const_iterator itr = spellConcatenateAura->begin(); itr != spellConcatenateAura->end(); ++itr)
+            if (std::vector<SpellConcatenateAura> const* spellConcatenateAura = sSpellMgr->GetSpellConcatenateUpdate(-GetId()))
             {
-                if(effIndex != itr->effectSpell)
-                    continue;
-
-                Unit* _target = caster;
-                if (itr->target)
-                    _target = caster->GetUnitForLinkedSpell(caster, caster, itr->target);
-                if(!_target)
-                    continue;
-
-                switch (itr->type)
+                for (std::vector<SpellConcatenateAura>::const_iterator itr = spellConcatenateAura->begin(); itr != spellConcatenateAura->end(); ++itr)
                 {
-                    case CONCATENATE_DEFAULT:
+                    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura::UpdateConcatenateAura CONCATENATE_ON_REMOVE_AURA start Id %i amount %i effIndex %i type %i option %i", GetId(), amount, effIndex, type, itr->option);
+
+                    Unit* _target = caster;
+                    if (itr->target)
+                        _target = caster->GetUnitForLinkedSpell(caster, caster, itr->target);
+                    if(!_target)
+                        continue;
+                    AuraEffect* effectAura = _target->GetAuraEffect(itr->auraId, itr->effectAura);
+                    if(!effectAura)
+                        continue;
+
+                    if (itr->option & CONCATENATE_CHANGE_AMOUNT) // 0x001 auraId set amount to 0 when spellid remove
+                        effectAura->ChangeAmount(0);
+
+                    if (itr->option & CONCATENATE_RECALCULATE_AURA) // 0x002 auraId recalculate amount when spellid remove
                     {
-                        if (AuraEffect* effect = _target->GetAuraEffect(itr->auraId, itr->effectAura))
-                            effect->SetAmount(amount);
-                        break;
+                        effectAura->SetCanBeRecalculated(true);
+                        effectAura->RecalculateAmount();
                     }
-                    case CONCATENATE_RECALCULATE:
-                    {
-                        if (AuraEffect* effect = _target->GetAuraEffect(itr->auraId, itr->effectAura))
-                        {
-                            effect->SetCanBeRecalculated(true);
-                            effect->RecalculateAmount();
-                        }
-                        break;
-                    }
+
+                    if (itr->option & CONCATENATE_RECALCULATE_SPELL) // 0x002 when auraId is apply spellid is recalculate amount
+                        RecalculateAmountOfEffects(true);
+
+                    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura::UpdateConcatenateAura CONCATENATE_ON_REMOVE_AURA end Id %i amount %i effIndex %i type %i option %i GetAmount %i", GetId(), amount, effIndex, type, itr->option, effectAura->GetAmount());
                 }
             }
         }
+        break;
     }
 }

@@ -1745,6 +1745,7 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
             if(check && itr->removeAura)
                 _caster->RemoveAurasDueToSpell(itr->removeAura);
         }
+        //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AuraEffect::CalculateFromDummyAmount end GetId %i, amount %i m_effIndex %u", GetId(), amount, m_effIndex);
     }
 }
 
@@ -6191,28 +6192,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (caster)
                         caster->CastSpell(caster, 13138, true, NULL, this);
                     break;
-                case 34026:   // kill command
-                {
-                    Unit* pet = target->GetGuardianPet();
-                    if (!pet)
-                        break;
-
-                    target->CastSpell(target, 34027, true, NULL, this);
-
-                    // set 3 stacks and 3 charges (to make all auras not disappear at once)
-                    Aura* owner_aura = target->GetAura(34027, GetCasterGUID());
-                    Aura* pet_aura  = pet->GetAura(58914, GetCasterGUID());
-                    if (owner_aura != NULL)
-                    {
-                        owner_aura->SetStackAmount(owner_aura->GetSpellInfo()->StackAmount);
-                        if (pet_aura != NULL)
-                        {
-                            pet_aura->SetCharges(0);
-                            pet_aura->SetStackAmount(owner_aura->GetSpellInfo()->StackAmount);
-                        }
-                    }
-                    break;
-                }
                 case 37096:                                     // Blood Elf Illusion
                 {
                     if (caster)

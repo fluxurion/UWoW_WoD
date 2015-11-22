@@ -262,10 +262,19 @@ enum SpellTargetFilterType
     SPELL_FILTER_BY_ENTRY                       = 14,           // Remove target by any entry
 };
 
+enum SpellConcatenateAuraOption
+{
+    CONCATENATE_NONE                     = 0x000,            //
+    CONCATENATE_CHANGE_AMOUNT            = 0x001,            // change amount
+    CONCATENATE_RECALCULATE_AURA         = 0x002,            // Recalculate amount on aura
+    CONCATENATE_RECALCULATE_SPELL        = 0x004,            // Recalculate amount on spell
+};
+
 enum SpellConcatenateAuraType
 {
-    CONCATENATE_DEFAULT                  = 0,            //
-    CONCATENATE_RECALCULATE              = 1,            // Recalculate amount on aura
+    CONCATENATE_ON_UPDATE_AMOUNT  = 0,            //
+    CONCATENATE_ON_APPLY_AURA     = 1,            // Recalculate amount on aura
+    CONCATENATE_ON_REMOVE_AURA    = 2,            // Recalculate amount on aura
 };
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
@@ -923,7 +932,7 @@ struct SpellConcatenateAura
     int32 effectSpell;
     int32 auraId;
     int32 effectAura;
-    int8 type;
+    uint32 option;
     int8 caster;
     int8 target;
 };

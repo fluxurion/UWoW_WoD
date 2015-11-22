@@ -2565,8 +2565,8 @@ void SpellMgr::LoadSpellConcatenateAura()
     mSpellConcatenateApplyMap.clear();    // need for reload case
     mSpellConcatenateUpdateMap.clear();    // need for reload case
 
-    //                                                   0            1           2            3         4        5         6
-    QueryResult result = WorldDatabase.Query("SELECT `spellid`, `effectSpell`, `auraId`, `effectAura`, `type`, `caster`, `target` FROM spell_concatenate_aura");
+    //                                                   0            1           2            3          4         5         6
+    QueryResult result = WorldDatabase.Query("SELECT `spellid`, `effectSpell`, `auraId`, `effectAura`, `caster`, `target`, `option` FROM spell_concatenate_aura");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 concatenate auraspells. DB table `spell_concatenate_aura` is empty.");
@@ -2582,20 +2582,20 @@ void SpellMgr::LoadSpellConcatenateAura()
         int32 effectSpell = fields[1].GetUInt8();
         int32 auraId   = fields[2].GetInt32();
         int32 effectAura = fields[3].GetUInt8();
-        int8 type = fields[4].GetUInt8();
-        int8 caster = fields[5].GetUInt8();
-        int8 target = fields[6].GetUInt8();
+        int8 caster = fields[4].GetUInt8();
+        int8 target = fields[5].GetUInt8();
+        uint32 option = fields[6].GetUInt8();
 
-        SpellInfo const* spellInfo = GetSpellInfo(spellid);
+        SpellInfo const* spellInfo = GetSpellInfo(abs(spellid));
         if (!spellInfo)
         {
-            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_concatenate_aura` does not exist", spellid);
+            sLog->outError(LOG_FILTER_SQL, "Spell %i listed in `spell_concatenate_aura` does not exist", spellid);
             continue;
         }
-        spellInfo = GetSpellInfo(auraId);
+        spellInfo = GetSpellInfo(abs(auraId));
         if (!spellInfo)
         {
-            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_concatenate_aura` does not exist", auraId);
+            sLog->outError(LOG_FILTER_SQL, "Spell %i listed in `spell_concatenate_aura` does not exist", auraId);
             continue;
         }
 
@@ -2604,9 +2604,9 @@ void SpellMgr::LoadSpellConcatenateAura()
         tempAura.effectSpell = effectSpell;
         tempAura.auraId   = auraId;
         tempAura.effectAura = effectAura;
-        tempAura.type = type;
         tempAura.caster = caster;
         tempAura.target = target;
+        tempAura.option = option;
         mSpellConcatenateUpdateMap[spellid].push_back(tempAura);
         mSpellConcatenateApplyMap[auraId].push_back(tempAura);
 
@@ -4258,11 +4258,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_TARGET_ENEMY;
                     spellInfo->Effects[EFFECT_0].TargetB = 0;
                     break;
-                case 87935: // Serpent Spread
-                    spellInfo->Effects[EFFECT_0].Effect = SPELL_EFFECT_APPLY_AURA;
-                    spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
-                    spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // -1s
-                    break;
                 case 1459:  // Arcane Illumination
                 case 109773:// Dark Intent
                     spellInfo->Effects[EFFECT_0].TargetA = TARGET_UNIT_CASTER_AREA_RAID;
@@ -4745,7 +4740,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(4);
                     break;
                 case 136769: //Horridon charge
-                case 53260:  // Cobra Strikes trigger
                 case 88764:  // Rolling Thunder
                 case 144278: //Generate rage
                 case 143462: //Sha pool

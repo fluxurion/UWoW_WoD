@@ -8116,7 +8116,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     if (!procSpell)
                         return false;
 
-                    if (procSpell->Id != 56641 && procSpell->Id != 77677 && procSpell->Id != 152245 && procSpell->Id != 163485)
+                    if (procSpell->Id != 56641 && procSpell->Id != 77767 && procSpell->Id != 152245 && procSpell->Id != 163485)
                     {
                         triggeredByAura->GetBase()->SetCustomData(0);
                         return false;
@@ -8131,17 +8131,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                         triggeredByAura->GetBase()->SetCustomData(0);
 
                     triggered_spell_id = 177668;
-                    break;
-                }
-                case 76659: // Mastery: Wild Quiver
-                {
-                    if (triggeredByAura->GetEffIndex() != EFFECT_0 || !procSpell)
-                        return false;
-
-                    if (!roll_chance_i(triggerAmount))
-                        return false;
-
-                    triggered_spell_id = 76663;
                     break;
                 }
                 case 82661: // Aspect of the Fox
@@ -17049,20 +17038,15 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 active = true;
         }
 
-        // Custom MoP Script
-        // Breath of Fire DoT shoudn't remove Breath of Fire disorientation - Hack Fix
-        if (procSpell && procSpell->Id == 123725 && itr->first == 123393)
-            continue;
-
         if (procSpell && !(procSpell->AuraInterruptFlags & (AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))
             // time for hardcode! Some spells can proc on absorb
-            if (triggerData.aura && triggerData.aura->GetSpellInfo() && (triggerData.aura->GetSpellInfo()->Id == 33757 || triggerData.aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL ||
-                triggerData.aura->GetSpellInfo()->HasAura(SPELL_AURA_MOD_STEALTH) || triggerData.aura->GetSpellInfo()->HasAura(SPELL_AURA_MOD_INVISIBILITY)))
+            if (spellProto->Id == 33757 || spellProto->GetSpellSpecific() == SPELL_SPECIFIC_SEAL ||
+                spellProto->HasAura(SPELL_AURA_MOD_STEALTH) || spellProto->HasAura(SPELL_AURA_MOD_INVISIBILITY))
                 active = true;
 
         if (isVictim)
         {
-            if (triggerData.aura->GetSpellInfo()->HasAura(SPELL_AURA_MOD_STEALTH))
+            if (spellProto->HasAura(SPELL_AURA_MOD_STEALTH))
             {
                 if (procSpell && procSpell->IsPositive())
                     continue;
@@ -20262,7 +20246,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit* victim, SpellInfo const* spellProto
         if (spellProto->EquippedItemClass == ITEM_CLASS_WEAPON)
         {
             Item* item = NULL;
-            if (attType == BASE_ATTACK)
+            if (attType == BASE_ATTACK || attType == RANGED_ATTACK)
                 item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
             else if (attType == OFF_ATTACK)
                 item = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
