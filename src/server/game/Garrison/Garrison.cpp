@@ -1006,6 +1006,8 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         if (std::list<GameObjectData> const* goList = sGarrisonMgr.GetGoSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo ? BuildingInfo.PacketInfo->GarrBuildingID : 0))
         for (std::list<GameObjectData>::const_iterator data = goList->begin(); data != goList->end(); ++data)
         {
+            if (map->GetId() != data->mapid)
+                continue;
             GameObject* linkGO = new GameObject();
             if (!linkGO->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), data->id, map, 1, data->posX, data->posY, data->posZ, data->orientation,
                 data->rotation0, data->rotation1, data->rotation2, data->rotation3, 255, GO_STATE_READY) ||
@@ -1020,6 +1022,8 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         if (std::list<CreatureData> const* npcList = sGarrisonMgr.GetNpcSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo ?  BuildingInfo.PacketInfo->GarrBuildingID : 0))
         for (std::list<CreatureData>::const_iterator data = npcList->begin(); data != npcList->end(); ++data)
         {
+            if (map->GetId() != data->mapid)
+                continue;
             Creature* linkNPC = new Creature();
             if (!linkNPC->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), map, 1, data->id, 0, 0, data->posX, data->posY, data->posZ, data->orientation) ||
                 !linkNPC->IsPositionValid() || !map->AddToMap(linkNPC))
