@@ -8,12 +8,18 @@
 #include "ScriptedCreature.h"
 #include "the_everbloom.h"
 
-/* enum Says
+enum Says
 {
-    SAY_AGGRO           = ,
-    SAY_DEATH           = ,
-    SAY_EVADE           = ,
-}; */
+    //Gola
+    SAY_GOLA_AGGRO         = 1,
+    SAY_GOLA_REVITALIZING  = 2,
+    SAY_GOLA_RAPID_TIDES   = 3,
+    SAY_GOLA_DEATH         = 6,
+
+    //Telu
+    SAY_TELU_BRAMBLE       = 2,
+    SAY_TELU_DEATH         = 4,
+};
 
 enum Spells
 {
@@ -21,12 +27,21 @@ enum Spells
     SPELL_WATER_COSMETIC_CHANNEL    = 173380,
     SPELL_WATER_BOLT                = 168092,
     SPELL_REVITALIZING_WATERS       = 168082,
+    SPELL_RAPID_TIDES               = 168105,
 
     //Earthshaper Telu
     SPELL_NATURE_COSMETIC_CHANNEL   = 172325,
+    SPELL_NATURE_WRATH              = 168040,
+    SPELL_BRAMBLE_PATCH             = 177497,
+    SPELL_BRIARSKIN                 = 168041,
 
     //Dulhu
-    //SPELL_    = ,
+    SPELL_RENDING_CHARGE            = 168186,
+    SPELL_NOXIOUS_ERUPTION          = 175997,
+    SPELL_GRASPING_VINE             = 168375,
+    SPELL_GRASPING_VINE_VISUAL      = 168376,
+    SPELL_GRASPING_VINE_LEAP        = 168378,
+    SPELL_SLASH                     = 168383,
 };
 
 enum eEvents
@@ -34,9 +49,17 @@ enum eEvents
     //Life Warden Gola
     EVENT_WATER_BOLT        = 1,
     EVENT_HEAL_PCT          = 2,
-    //EVENT_    = 3,
-    //EVENT_    = 4,
-    //EVENT_    = 5,
+    EVENT_RAPID_TIDES       = 3,
+
+    //Earthshaper Telu
+    EVENT_NATURE_WRATH      = 1,
+    EVENT_BRAMBLE_PATCH     = 2,
+    EVENT_BRIARSKIN         = 3,
+
+    //Dulhu
+    EVENT_RENDING_CHARGE    = 1,
+    EVENT_NOXIOUS_ERUPTION  = 2,
+    EVENT_GRASPING_VINE     = 3,
 };
 
 uint32 const protectors[3] = { NPC_LIFE_WARDEN_GOLA, NPC_EARTHSHAPER_TELU, NPC_DULHU};
@@ -93,14 +116,25 @@ public:
         void EnterCombat(Unit* who)
         {
             boss_encounter_ancient_protectors::EnterCombat(who);
+            Talk(SAY_GOLA_AGGRO);
             events.ScheduleEvent(EVENT_WATER_BOLT, 0); //38:00
             events.ScheduleEvent(EVENT_HEAL_PCT, 18000);
+            events.ScheduleEvent(EVENT_RAPID_TIDES, 22000);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             boss_encounter_ancient_protectors::JustDied(NULL);
+            Talk(SAY_GOLA_DEATH);
+        }
+
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+        {
+            if (spell->Id == SPELL_RAPID_TIDES)
+            {
+                events.ScheduleEvent(EVENT_HEAL_PCT, 2000);
+                events.ScheduleEvent(EVENT_RAPID_TIDES, 2000);
+            }
         }
 
         void UpdateAI(uint32 diff)
@@ -118,28 +152,51 @@ public:
                 switch (eventId)
                 {
                     case EVENT_WATER_BOLT:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 90, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
                             DoResetThreat();
                             me->AddThreat(pTarget, 10000.0f);
-                            DoCast(SPELL_WATER_BOLT);
+                            DoCast(pTarget, SPELL_WATER_BOLT);
                         }
-                        events.ScheduleEvent(EVENT_WATER_BOLT, 3000);
+                        events.ScheduleEvent(EVENT_WATER_BOLT, 3100);
                         break;
                     case EVENT_HEAL_PCT:
-                        Creature* targetA = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_EARTHSHAPER_TELU))
-                        if (!targetA)
-                            return;
-                        Creature* targetB = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_DULHU))
-                        if (!targetB)
+                    {
+                        Creature* targetA = instance->instance->GetCreature(instance->GetGuidData(NPC_EARTHSHAPER_TELU));
+                        Creature* targetB = instance->instance->GetCreature(instance->GetGuidData(NPC_DULHU));
+                        if (!targetA || !targetB)
                             return;
 
-                        if (targetA->GetHealthPct() > targetB->GetHealthPct())
-                            DoCast(targetB, SPELL_REVITALIZING_WATERS);
+                        Unit* target = NULL;
+                        if (targetA->isAlive() && targetB->isAlive())
+                            target = targetA->GetHealthPct() < targetB->GetHealthPct() ? targetA : targetB;
+
+                        else if (!targetA->isAlive() && !targetB->isAlive())
+                            target = me;
+                        else if (!targetA->isAlive() || !targetB->isAlive())
+                            target = targetA->isAlive() ? targetA : targetB;
+
+                        if (target)
+                            DoCast(target, SPELL_REVITALIZING_WATERS);
+
+                        if (me->HasAura(SPELL_RAPID_TIDES))
+                            events.ScheduleEvent(EVENT_HEAL_PCT, 2000);
                         else
-                            DoCast(targetA, SPELL_REVITALIZING_WATERS);
-
-                        events.ScheduleEvent(EVENT_HEAL_PCT, 22000);
+                        {
+                            Talk(SAY_GOLA_REVITALIZING);
+                            events.ScheduleEvent(EVENT_HEAL_PCT, 22000);
+                        }
+                        break;
+                    }
+                    case EVENT_RAPID_TIDES:
+                        DoCast(SPELL_RAPID_TIDES);
+                        if (me->HasAura(SPELL_RAPID_TIDES))
+                            events.ScheduleEvent(EVENT_RAPID_TIDES, 2000);
+                        else
+                        {
+                            Talk(SAY_GOLA_RAPID_TIDES);
+                            events.ScheduleEvent(EVENT_RAPID_TIDES, 22000);
+                        }
                         break;
                 }
             }
@@ -172,11 +229,24 @@ public:
         void EnterCombat(Unit* who)
         {
             boss_encounter_ancient_protectors::EnterCombat(who);
+            events.ScheduleEvent(EVENT_NATURE_WRATH, 0); //38:00
+            events.ScheduleEvent(EVENT_BRAMBLE_PATCH, 12000);
+            events.ScheduleEvent(EVENT_BRIARSKIN, 26000);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             boss_encounter_ancient_protectors::JustDied(NULL);
+            Talk(SAY_TELU_DEATH);
+        }
+
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+        {
+            if (spell->Id == SPELL_RAPID_TIDES)
+            {
+                events.ScheduleEvent(EVENT_BRAMBLE_PATCH, 2000);
+                events.ScheduleEvent(EVENT_BRIARSKIN, 2000);
+            }
         }
 
         void UpdateAI(uint32 diff)
@@ -190,7 +260,47 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_1:
+                    case EVENT_NATURE_WRATH:
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        {
+                            DoResetThreat();
+                            me->AddThreat(pTarget, 10000.0f);
+                            DoCast(pTarget, SPELL_NATURE_WRATH);
+                        }
+                        events.ScheduleEvent(EVENT_NATURE_WRATH, 3100);
+                        break;
+                    case EVENT_BRAMBLE_PATCH:
+                        DoCast(SPELL_BRAMBLE_PATCH);
+                        if (me->HasAura(SPELL_RAPID_TIDES))
+                            events.ScheduleEvent(EVENT_BRAMBLE_PATCH, 2000);
+                        else
+                        {
+                            Talk(SAY_TELU_BRAMBLE);
+                            events.ScheduleEvent(EVENT_BRAMBLE_PATCH, 20000);
+                        }
+                        break;
+                    case EVENT_BRIARSKIN:
+                        Creature* targetA = instance->instance->GetCreature(instance->GetGuidData(NPC_LIFE_WARDEN_GOLA));
+                        Creature* targetB = instance->instance->GetCreature(instance->GetGuidData(NPC_DULHU));
+                        if (!targetA || !targetB)
+                            return;
+
+                        Unit* target = NULL;
+                        if (targetA->isAlive() && targetB->isAlive())
+                            target = targetA->GetHealthPct() < targetB->GetHealthPct() ? targetA : targetB;
+
+                        else if (!targetA->isAlive() && !targetB->isAlive())
+                            target = me;
+                        else if (!targetA->isAlive() || !targetB->isAlive())
+                            target = targetA->isAlive() ? targetA : targetB;
+
+                        if (target)
+                            DoCast(target, SPELL_BRIARSKIN);
+
+                        if (me->HasAura(SPELL_RAPID_TIDES))
+                            events.ScheduleEvent(EVENT_BRIARSKIN, 2000);
+                        else
+                            events.ScheduleEvent(EVENT_BRIARSKIN, 22000);
                         break;
                 }
             }
@@ -222,12 +332,33 @@ public:
         void EnterCombat(Unit* who)
         {
             boss_encounter_ancient_protectors::EnterCombat(who);
-            //events.ScheduleEvent(EVENT_, 30000); //
+            events.ScheduleEvent(EVENT_RENDING_CHARGE, 6000); //38:00
+            events.ScheduleEvent(EVENT_NOXIOUS_ERUPTION, 7000);
+            events.ScheduleEvent(EVENT_GRASPING_VINE, 22000);
         }
 
         void JustDied(Unit* /*killer*/)
         {
+            me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             boss_encounter_ancient_protectors::JustDied(NULL);
+        }
+
+        void SpellHit(Unit* caster, SpellInfo const* spell)
+        {
+            if (spell->Id == SPELL_RAPID_TIDES)
+            {
+                events.ScheduleEvent(EVENT_NOXIOUS_ERUPTION, 2000);
+                events.ScheduleEvent(EVENT_GRASPING_VINE, 2000);
+            }
+        }
+
+        void SpellHitTarget(Unit* target, SpellInfo const* spell)
+        {
+            if (spell->Id == SPELL_GRASPING_VINE_VISUAL)
+            {
+                target->CastSpell(me, SPELL_GRASPING_VINE_LEAP, true);
+                DoCast(target, SPELL_SLASH);
+            }
         }
 
         void UpdateAI(uint32 diff)
@@ -244,7 +375,24 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_1:
+                    case EVENT_RENDING_CHARGE:
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
+                            DoCast(pTarget, SPELL_RENDING_CHARGE);
+                        events.ScheduleEvent(EVENT_RENDING_CHARGE, 20000);
+                        break;
+                    case EVENT_NOXIOUS_ERUPTION:
+                        DoCast(SPELL_NOXIOUS_ERUPTION);
+                        if (me->HasAura(SPELL_RAPID_TIDES))
+                            events.ScheduleEvent(EVENT_NOXIOUS_ERUPTION, 2000);
+                        else
+                            events.ScheduleEvent(EVENT_NOXIOUS_ERUPTION, 18000);
+                        break;
+                    case EVENT_GRASPING_VINE:
+                        DoCast(SPELL_GRASPING_VINE);
+                        if (me->HasAura(SPELL_RAPID_TIDES))
+                            events.ScheduleEvent(EVENT_GRASPING_VINE, 2000);
+                        else
+                            events.ScheduleEvent(EVENT_GRASPING_VINE, 22000);
                         break;
                 }
             }

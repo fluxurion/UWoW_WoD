@@ -5535,6 +5535,14 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 157154:
                     spellInfo->Effects[EFFECT_0].BasePoints = 0;
                     break;
+                case 168082: // Revitalizing Waters
+                case 168105: // Rapid Tides
+                case 177497: // Bramble Patch
+                case 168041: // Briarskin
+                case 168375: // Grasping Vine
+                case 175997: // Noxious Eruption
+                    spellInfo->CasterAuraSpell = 0;
+                    break;
                 default:
                     break;
             }

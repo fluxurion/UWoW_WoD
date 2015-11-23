@@ -11,6 +11,7 @@ DoorData const doorData[] =
 {
     {GO_WITHERBARK_DOOR_1,       DATA_WITHERBARK,         DOOR_TYPE_ROOM,       BOUNDARY_NONE},
     {GO_WITHERBARK_DOOR_2,       DATA_WITHERBARK,         DOOR_TYPE_ROOM,       BOUNDARY_NONE},
+    {GO_YALNU_DOOR,              DATA_ARCHMAGE_SOL,       DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
 };
 
 class instance_the_everbloom : public InstanceMapScript
@@ -31,10 +32,13 @@ public:
         }
 
         std::map<uint32, ObjectGuid> protectorsGUIDconteiner;
+        std::list<ObjectGuid> yalnuGUIDconteiner;
+        ObjectGuid yalnuGUIDdoor;
 
         void Initialize()
         {
             LoadDoorData(doorData);
+            yalnuGUIDdoor.Clear();
         }
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -65,6 +69,31 @@ public:
                     }
                     break;
                 }
+                case DATA_ARCHMAGE_SOL:
+                {
+                    switch (state)
+                    {
+                        case DONE:
+                            if (GameObject* go = instance->GetGameObject(yalnuGUIDdoor))
+                                go->UseDoorOrButton();
+                            break;
+                    }
+                    break;
+                }
+                case DATA_YALNU:
+                {
+                    switch (state)
+                    {
+                        case NOT_STARTED:
+                        {
+                            for (std::list<ObjectGuid>::iterator itr = yalnuGUIDconteiner.begin(); itr != yalnuGUIDconteiner.end(); ++itr)
+                                if (Creature* yalnuTrash = instance->GetCreature(*itr))
+                                    yalnuTrash->DespawnOrUnsummon();
+                            break;
+                        }
+                    }
+                    break;
+                }
             }
 
             return true;
@@ -79,6 +108,14 @@ public:
                 case NPC_DULHU:
                     protectorsGUIDconteiner[creature->GetEntry()] = creature->GetGUID();
                     break;
+                case NPC_COLOSSAL_BLOW:
+                case NPC_VICIOUS_MANDRAGORA:
+                case NPC_GNARLED_ANCIENT:
+                case NPC_SWIFT_SPROUTLING:
+                case NPC_ENTANGLEMENT:
+                case NPC_ENTANGLEMENT_PLR:
+                    yalnuGUIDconteiner.push_back(creature->GetGUID());
+                    break;
             }
         }
 
@@ -88,7 +125,11 @@ public:
             {
                 case GO_WITHERBARK_DOOR_1:
                 case GO_WITHERBARK_DOOR_2:
+                case GO_YALNU_DOOR:
                     AddDoor(go, true);
+                    break;
+                case GO_YALNU_VISUAL_DOOR:
+                    yalnuGUIDdoor = go->GetGUID();
                     break;
                 default:
                     break;

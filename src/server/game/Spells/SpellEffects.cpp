@@ -4736,6 +4736,10 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
                     unitTarget->ProhibitSpellSchool(curSpellInfo->GetSchoolMask(), unitTarget->ModSpellDuration(m_spellInfo, unitTarget, duration, false, 1 << effIndex, m_originalCaster));
                 }
 
+                if (Creature* creature = unitTarget->ToCreature())
+                    if (creature->IsAIEnabled)
+                        creature->AI()->OnInterruptCast(m_caster, m_spellInfo->Id, curSpellInfo->Id, curSpellInfo->GetSchoolMask());
+
                 ExecuteLogEffectInterruptCast(effIndex, unitTarget, curSpellInfo->Id);
                 unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
                 unitTarget->SendLossOfControl(m_caster, m_spellInfo->Id, m_spellInfo->GetDuration(), m_spellInfo->GetDuration(), m_spellInfo->GetEffectMechanic(effIndex), curSpellInfo->GetSchoolMask(), LOC_SCHOOL_INTERRUPT, true);

@@ -2356,8 +2356,9 @@ void World::Update(uint32 diff)
         ResetLootCooldown();
     }
 
-    if (m_gameTime > m_NextServerRestart)
-        AutoRestartServer();
+    if (m_bool_configs[CONFIG_DISABLE_RESTART])
+        if (m_gameTime > m_NextServerRestart)
+            AutoRestartServer();
 
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())

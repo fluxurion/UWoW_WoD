@@ -51,6 +51,7 @@ public:
         {
             //Talk(SAY_AGGRO);
             _EnterCombat();
+            //events.ScheduleEvent(EVENT_, ); //
         }
 
         void EnterEvadeMode()

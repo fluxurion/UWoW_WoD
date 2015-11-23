@@ -196,6 +196,8 @@ class CreatureAI : public UnitAI
 
         virtual void OnQuestReward(Player* /*player*/, Quest const* /*quest*/) {}
         virtual void OnStartQuest(Player* /*player*/, Quest const* /*quest*/) {}
+
+        virtual void OnInterruptCast(Unit* /*caster*/, uint32 /*spellId*/, uint32 /*curSpellID*/, uint32 /*schoolMask*/) {}
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);
 
