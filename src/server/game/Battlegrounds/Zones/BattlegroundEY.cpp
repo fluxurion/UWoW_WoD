@@ -335,9 +335,9 @@ void BattlegroundEY::UpdatePointsIcons(uint32 Team, uint32 Point)
 
 void BattlegroundEY::AddPlayer(Player* player)
 {
-    //create score and add it to map
-    AddPlayerScore(player->GetGUID(), new BattlegroundEYScore);
     Battleground::AddPlayer(player);
+    PlayerScores[player->GetGUID()] = new BattlegroundEYScore(player->GetGUID(), player->GetTeamId());
+
     _playersNearPoint[EY_POINTS_MAX].push_back(player->GetGUID());
 }
 
@@ -402,11 +402,7 @@ void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 4531: // Alliance start loc
         case 4530: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-            {
-                Position startPos;
-                GetTeamStartLoc(player->GetTeamId(), startPos);
-                player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
-            }
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -511,7 +507,6 @@ bool BattlegroundEY::SetupBattleground()
 
 void BattlegroundEY::Reset()
 {
-    //call parent's class reset
     Battleground::Reset();
 
     for (int8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
@@ -621,19 +616,14 @@ void BattlegroundEY::EventPlayerClickedOnFlag(Player* Source, GameObject* target
     if (GetStatus() != STATUS_IN_PROGRESS || IsFlagPickedup() || !Source->IsWithinDistInMap(target_obj, 10))
         return;
 
-    if (Source->GetTeamId() == TEAM_ALLIANCE)
-    {
-        UpdateWorldState(WorldStates::NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_ON_PLAYER);
-        PlaySoundToAll(BG_SOUND_CAPTURE_POINT_ASSAULT_HORDE);
-    }
-    else
-    {
-        UpdateWorldState(WorldStates::NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_ON_PLAYER);
-        PlaySoundToAll(BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
-    }
+    TeamId teamID = Source->GetTeamId();
+
+    UpdateWorldState(teamID == TEAM_ALLIANCE ? WorldStates::NETHERSTORM_FLAG_STATE_ALLIANCE : WorldStates::NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_ON_PLAYER);
+    PlayeCapturePointSound(NODE_STATUS_ASSAULT, teamID);
 
     if (m_FlagState == BG_EY_FLAG_STATE_ON_BASE)
         UpdateWorldState(WorldStates::NETHERSTORM_FLAG, 0);
+
     m_FlagState = BG_EY_FLAG_STATE_ON_PLAYER;
 
     SpawnBGObject(BG_EY_OBJECT_FLAG_NETHERSTORM, RESPAWN_ONE_DAY);
@@ -642,7 +632,7 @@ void BattlegroundEY::EventPlayerClickedOnFlag(Player* Source, GameObject* target
     Source->CastSpell(Source, BG_EY_NETHERSTORM_FLAG_SPELL, true);
     Source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 
-    SendBroadcastTextToAll(18375, Source->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, Source);
+    SendBroadcastTextToAll(18375, teamID == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, Source);
 }
 
 void BattlegroundEY::EventTeamLostPoint(Player* Source, uint32 Point)
@@ -772,13 +762,12 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* source, uint32 BgObjectType
     source->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 
-    PlaySoundToAll(teamId == TEAM_ALLIANCE ? BG_SOUND_CAPTURE_POINT_CAPTURED_ALLIANCE : BG_SOUND_CAPTURE_POINT_CAPTURED_HORDE);
-
     SpawnBGObject(BgObjectType, RESPAWN_IMMEDIATELY);
 
     m_FlagsTimer = BG_EY_FLAG_RESPAWN_TIME;
     m_FlagCapturedBgObjectType = BgObjectType;
 
+    PlayeCapturePointSound(NODE_STATUS_CAPTURE, teamId);
     if (teamId == TEAM_ALLIANCE)
         SendBroadcastTextToAll(63158, CHAT_MSG_BG_SYSTEM_ALLIANCE, source);
     else
@@ -790,22 +779,20 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* source, uint32 BgObjectType
     UpdatePlayerScore(source, SCORE_FLAG_CAPTURES, 1);
 }
 
-void BattlegroundEY::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+bool BattlegroundEY::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor /*= true*/)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())                         // player not found
-        return;
+    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
+        return false;
 
     switch (type)
     {
-        case SCORE_FLAG_CAPTURES:                           // flags captured
-            ((BattlegroundEYScore*)itr->second)->FlagCaptures += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, EY_OBJECTIVE_CAPTURE_FLAG, 1);
+        case SCORE_FLAG_CAPTURES:
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, EY_OBJECTIVE_CAPTURE_FLAG, 1);
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
+    return true;
 }
 
 void BattlegroundEY::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)

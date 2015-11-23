@@ -70,34 +70,24 @@ void BattlegroundDG::StartingEventOpenDoors()
         DoorOpen(i);
 }
 
-void BattlegroundDG::UpdatePlayerScore(Player* player, uint32 type, uint32 addvalue, bool addHonor)
+bool BattlegroundDG::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor /*= true*/)
 {
-    if (!player)
-        return;
-
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(player->GetGUID());
-    if (itr == PlayerScores.end())
-        return;
+    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
+        return false;
 
     switch (type)
     {
-        case SCORE_CARTS_CAPTURED:
-            ((BattlegroundDGScore*)itr->second)->cartsCaptured += addvalue;
-            break;
-        case SCORE_CARTS_DEFENDED:
-            ((BattlegroundDGScore*)itr->second)->cartsDefended += addvalue;
-            break;
         case SCORE_POINTS_CAPTURED:
-            ((BattlegroundDGScore*)itr->second)->pointsCaptured += addvalue;
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, DG_OBJECTIVE_CAPTURE_FLAG, 1);
             break;
         case SCORE_POINTS_DEFENDED:
-            ((BattlegroundDGScore*)itr->second)->pointsCaptured += addvalue;
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, DG_OBJECTIVE_DEFENDED_FLAG, 1);
             break;
         default:
             break;
     }
+
+    return true;
 }
 
 const WorldSafeLocsEntry* BattlegroundDG::GetClosestGraveYard(Player* player)
@@ -130,8 +120,8 @@ const WorldSafeLocsEntry* BattlegroundDG::GetClosestGraveYard(Player* player)
 
 void BattlegroundDG::AddPlayer(Player* player)
 {
-    AddPlayerScore(player->GetGUID(), new BattlegroundDGScore);
     Battleground::AddPlayer(player);
+    PlayerScores[player->GetGUID()] = new BattlegroundDGScore(player->GetGUID(), player->GetTeamId());
 }
 
 void BattlegroundDG::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
@@ -160,12 +150,6 @@ void BattlegroundDG::HandleKillPlayer(Player* player, Player* killer)
         EventPlayerDroppedFlag(player);
 
     Battleground::HandleKillPlayer(player, killer);
-}
-
-bool BattlegroundDG::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), -218.7987f, 198.7388f, 133.0327f, player->GetOrientation(), false);
-    return true;
 }
 
 void BattlegroundDG::HandlePointCapturing(Player* player, Creature* creature)
@@ -584,14 +568,14 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
         return;
 
     uint32 summonSpellId, cartEntry, flagStateField, cartAuraId;
+    auto teamID = player->GetTeamId();
 
-    if (player->GetBGTeamId() == TEAM_ALLIANCE)
+    if (teamID == TEAM_ALLIANCE)
     {
         summonSpellId = BG_DG_SPELL_SPAWN_HORDE_CART;
         cartEntry = 71073;
         flagStateField = 7904;
         cartAuraId = BG_DG_AURA_CART_HORDE;
-        GetBg()->PlaySoundToAll(BG_SOUND_CAPTURE_POINT_ASSAULT_HORDE);
     }
     else
     {
@@ -599,9 +583,9 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
         cartEntry = 71071;
         flagStateField = 7887;
         cartAuraId = BG_DG_AURA_CART_ALLIANCE;
-
-        GetBg()->PlaySoundToAll(BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
     }
+
+    GetBg()->PlayeCapturePointSound(NODE_STATUS_ASSAULT, teamID);
 
     player->CastSpell(player, summonSpellId);
 
@@ -627,8 +611,6 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
         cart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
         cart->setFaction(35);
         cart->SetSpeed(MOVE_RUN, 3.f);
-
-        //PlaySoundToAll(BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
 
         GetBg()->UpdateWorldState(flagStateField, 2);
 
@@ -657,12 +639,15 @@ Player* BattlegroundDG::Cart::ControlledBy()
 void BattlegroundDG::Cart::CartDelivered()
 {
     Player* player = ControlledBy();
+    auto teamID = player->GetBGTeamId();
+
     GetBg()->UpdatePlayerScore(player, SCORE_CARTS_CAPTURED, 1, false);
-    GetBg()->ModGold(player->GetBGTeamId(), m_stolenGold);
+    GetBg()->ModGold(teamID, m_stolenGold);
     m_stolenGold = 0;
     UnbindCartFromPlayer();
+
     player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, DG_OBJECTIVE_CAPTURE_CART, 1);
-    GetBg()->PlaySoundToAll(player->GetBGTeamId() == TEAM_ALLIANCE ? BG_SOUND_CAPTURE_POINT_CAPTURED_ALLIANCE : BG_SOUND_CAPTURE_POINT_CAPTURED_HORDE);
+    GetBg()->PlayeCapturePointSound(NODE_STATUS_CAPTURE, teamID);
 }
 
 void BattlegroundDG::Cart::UnbindCartFromPlayer()

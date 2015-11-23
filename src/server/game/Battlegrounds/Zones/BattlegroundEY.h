@@ -20,8 +20,8 @@
 #define __BATTLEGROUNDEY_H
 
 #include "Language.h"
-
-class Battleground;
+#include "Battleground.h"
+#include "BattlegroundScore.h"
 
 enum BG_EY_Misc
 {
@@ -285,11 +285,31 @@ const BattlegroundEYCapturingPointStruct m_CapturingPointTypes[EY_POINTS_MAX] =
     BattlegroundEYCapturingPointStruct(BG_EY_OBJECT_N_BANNER_MAGE_TOWER_CENTER, BG_EY_OBJECT_A_BANNER_MAGE_TOWER_CENTER, LANG_BG_EY_HAS_TAKEN_A_M_TOWER, BG_EY_OBJECT_H_BANNER_MAGE_TOWER_CENTER, LANG_BG_EY_HAS_TAKEN_H_M_TOWER, EY_GRAVEYARD_MAGE_TOWER)
 };
 
-class BattlegroundEYScore : public BattlegroundScore
+struct BattlegroundEYScore final : public BattlegroundScore
 {
-    public:
-        BattlegroundEYScore() : FlagCaptures(0) {};
-        virtual ~BattlegroundEYScore() {};
+    friend class BattlegroundEY;
+
+    protected:
+        BattlegroundEYScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), FlagCaptures(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_FLAG_CAPTURES:
+                    FlagCaptures += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        {
+            stats.push_back(FlagCaptures);
+        }
+
         uint32 FlagCaptures;
 };
 
@@ -319,7 +339,7 @@ class BattlegroundEY : public Battleground
         void Reset() override;
         void UpdateTeamScore(TeamId teamID);
         void EndBattleground(uint32 winner) override;
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void SetDroppedFlagGUID(ObjectGuid guid) { m_DroppedFlagGUID = guid; }
         ObjectGuid GetDroppedFlagGUID() const { return m_DroppedFlagGUID; }
@@ -329,7 +349,7 @@ class BattlegroundEY : public Battleground
 
         bool IsAllNodesConrolledByTeam(uint32 team) const;
     private:
-        virtual void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff) override;
 
         void EventPlayerCapturedFlag(Player* Source, uint32 BgObjectType);
         void EventTeamCapturedPoint(Player* Source, uint32 Point);

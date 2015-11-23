@@ -182,11 +182,9 @@ void BattlegroundTP::PostUpdateImpl(uint32 diff)
 
 void BattlegroundTP::AddPlayer(Player* player)
 {
-    ///Create score for player
-    AddPlayerScore(player->GetGUID(), new BattlegroundTPScore);
     Battleground::AddPlayer(player);
+    PlayerScores[player->GetGUID()] = new BattlegroundTPScore(player->GetGUID(), player->GetTeamId());
 }
-
 
 void BattlegroundTP::StartingEventCloseDoors()
 {
@@ -402,11 +400,7 @@ void BattlegroundTP::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 8967: // Alliance start loc
         case 8968: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-            {
-                Position startPos;
-                GetTeamStartLoc(player->GetTeamId(), startPos);
-                player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
-            }
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -414,28 +408,24 @@ void BattlegroundTP::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
     }
 }
 
-void BattlegroundTP::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
+bool BattlegroundTP::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor /*= true*/)
 {
-    /// Find player in map
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(player->GetGUID());
-    if (itr == PlayerScores.end()) ///< Player not found
-        return;
+    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
+        return false;
 
-    /// Update Achievements + scores
     switch (type)
     {
         case SCORE_FLAG_CAPTURES:
-            ((BattlegroundTPScore*)itr->second)->FlagCaptures += value;
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, TP_OBJECTIVE_CAPTURE_FLAG, 1);
             break;
         case SCORE_FLAG_RETURNS:
-            ((BattlegroundTPScore*)itr->second)->FlagReturns += value;
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, TP_OBJECTIVE_RETURN_FLAG, 1);
             break;
-        default: ///< else only count another kill
-            Battleground::UpdatePlayerScore(player, type, value, doAddHonor);
+        default:
             break;
     }
+
+    return true;
 }
 
 /**
@@ -575,9 +565,8 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* source, GameObject* object
                     if (!_flagKeepers[team].IsEmpty())
                         _bothFlagsKept = true;
 
-                    /// Send message to all players + Play sound
+                    PlayeCapturePointSound(NODE_STATUS_ASSAULT, team);
                     SendBroadcastTextToAll(team == TEAM_ALLIANCE ? 9807 : 9804, team == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
-                    PlaySoundToAll(team == TEAM_ALLIANCE ? BG_SOUND_CAPTURE_POINT_ASSAULT_HORDE : BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
                 }
                 break;
             }
@@ -600,8 +589,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* source, GameObject* object
                     /// Reset flag on the ground counter
                     _flagsDropTimer[team ^ 1] = 0;
 
-                    /// Announce players
-                    PlaySoundToAll(team == TEAM_ALLIANCE ? BG_SOUND_CAPTURE_POINT_ASSAULT_HORDE : BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
+                    PlayeCapturePointSound(NODE_STATUS_ASSAULT, team);
                     SendBroadcastTextToAll(team == TEAM_ALLIANCE ? 9807 : 9804, team == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
                 }
                 break;
@@ -666,8 +654,7 @@ void BattlegroundTP::EventPlayerCapturedFlag(Player* source)
     /// Set last team that captured flag
     _lastFlagCaptureTeam = source->GetTeam();
 
-    /// Play sound + Send message to all
-    PlaySoundToAll(team == TEAM_ALLIANCE ? BG_SOUND_CAPTURE_POINT_CAPTURED_ALLIANCE : BG_SOUND_CAPTURE_POINT_CAPTURED_HORDE);
+    PlayeCapturePointSound(NODE_STATUS_CAPTURE, team);
     SendBroadcastTextToAll(team == TEAM_ALLIANCE ? 9801 : 9802, team == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
 
     /// IMPORTANT: Do not remove aura before flag update! Makes the flag spawn like is dropped
@@ -734,7 +721,7 @@ void BattlegroundTP::RespawnFlag(uint32 team, bool captured)
         SendBroadcastTextToAll(team == TEAM_ALLIANCE ? 24891 : 24892, CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
 
-    PlaySoundToAll(BG_SOUND_FLAG_PLACED_ALLIANCE);
+    PlayeCapturePointSound(NODE_STATUS_NEUTRAL, static_cast<TeamId>(team));
 
     UpdateFlagState(team, BG_TP_FLAG_STATE_ON_BASE);
 }

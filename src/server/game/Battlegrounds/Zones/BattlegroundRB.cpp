@@ -48,8 +48,6 @@ void BattlegroundRB::StartingEventOpenDoors()
 
 void BattlegroundRB::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattlegroundRBScore);
     Battleground::AddPlayer(player);
 }
 
@@ -60,13 +58,4 @@ void BattlegroundRB::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint3
 void BattlegroundRB::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     Battleground::HandleAreaTrigger(player, trigger, entered);
-}
-
-void BattlegroundRB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
-{
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())                         // player not found...
-        return;
-
-    Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
 }

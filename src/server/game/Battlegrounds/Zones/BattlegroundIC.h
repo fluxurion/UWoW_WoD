@@ -19,7 +19,8 @@
 #ifndef __BATTLEGROUNDIC_H
 #define __BATTLEGROUNDIC_H
 
-class Battleground;
+#include "Battleground.h"
+#include "BattlegroundScore.h"
 
 enum creaturesIC
 {
@@ -714,7 +715,6 @@ enum ICNodeState
 uint32 const BG_IC_GraveyardIds[MAX_NODE_TYPES+2] = {0, 0, 1480, 1481, 1482, 1485, 1486, 1483, 1484};
 
 const Position TransportMovementInfo = {7.305609f, -0.095246f, 34.51022f, 0.0f};
-const Position TeleportToTransportPosition = {661.0f, -1244.0f, 288.0f, 0.0f};
 
 const float BG_IC_SpiritGuidePos[MAX_NODE_TYPES+2][4] =
 {
@@ -780,11 +780,35 @@ enum HonorRewards
     WINNER_HONOR_AMOUNT = 500
 };
 
-class BattlegroundICScore : public BattlegroundScore
+struct BattlegroundICScore final : public BattlegroundScore
 {
-    public:
-        BattlegroundICScore() : BasesAssaulted(0), BasesDefended(0) {};
-        virtual ~BattlegroundICScore() {};
+    friend class BattlegroundIC;
+
+    protected:
+        BattlegroundICScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_BASES_ASSAULTED:
+                    BasesAssaulted += value;
+                    break;
+                case SCORE_BASES_DEFENDED:
+                    BasesDefended += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        {
+            stats.push_back(BasesAssaulted);
+            stats.push_back(BasesDefended);
+        }
+
         uint32 BasesAssaulted;
         uint32 BasesDefended;
 };
@@ -813,7 +837,7 @@ class BattlegroundIC : public Battleground
         void DestroyGate(Player* player, GameObject* go);
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void DoAction(uint32 action, ObjectGuid var) override;
         void HandlePlayerResurrect(Player* player) override;

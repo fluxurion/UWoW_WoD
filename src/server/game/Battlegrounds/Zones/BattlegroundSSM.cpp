@@ -142,11 +142,7 @@ void BattlegroundSSM::HandleAreaTrigger(Player* player, uint32 trigger, bool ent
         case 8493: // Alliance start loc
         case 8494: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-            {
-                Position startPos;
-                GetTeamStartLoc(player->GetTeamId(), startPos);
-                player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
-            }
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -320,14 +316,14 @@ void BattlegroundSSM::_CheckPlayersAtCars()
 
 void BattlegroundSSM::AddPlayer(Player* player)
 {
-    AddPlayerScore(player->GetGUID(), new BattleGroundSSMScore);
     Battleground::AddPlayer(player);
-
-    _playersNearPoint[BG_SSM_MAX_CARTS].push_back(player->GetGUID());
+    PlayerScores[player->GetGUID()] = new BattleGroundSSMScore(player->GetGUID(), player->GetTeamId());
 
     player->SendDirectMessage(WorldPackets::Battleground::Init(SSM_MAX_TEAM_POINTS).Write());
 
     Battleground::SendBattleGroundPoints(player->GetBGTeamId() != TEAM_ALLIANCE, m_TeamScores[player->GetBGTeamId()], false, player);
+
+    _playersNearPoint[BG_SSM_MAX_CARTS].push_back(player->GetGUID());
 }
 
 void BattlegroundSSM::_UpdateScore()
@@ -403,8 +399,8 @@ void BattlegroundSSM::_UpdatePoints()
                 for (size_t i = 0; i < _playersNearPoint[point].size(); ++i)
                 {
                     Player* player = ObjectAccessor::FindPlayer(_playersNearPoint[point][i]);
-                    if (player && player->GetBGTeam() == ALLIANCE)
-                        ((BattleGroundSSMScore*)PlayerScores[player->GetGUID()])->CartsTaken++;
+                    if (player && player->GetBGTeamId() == TEAM_ALLIANCE)
+                        UpdatePlayerScore(player, SCORE_CARTS_HELPED, 1);
                 }
 
                 _cartsState[point] = SSM_CONTROL_ALLIANCE;
@@ -418,8 +414,8 @@ void BattlegroundSSM::_UpdatePoints()
                 for (size_t i = 0; i < _playersNearPoint[point].size(); ++i)
                 {
                     Player* player = ObjectAccessor::FindPlayer(_playersNearPoint[point][i]);
-                    if (player && player->GetBGTeam() == HORDE)
-                        ((BattleGroundSSMScore*)PlayerScores[player->GetGUID()])->CartsTaken++;
+                    if (player && player->GetBGTeamId() == TEAM_HORDE)
+                        UpdatePlayerScore(player, SCORE_CARTS_HELPED, 1);
                 }
 
                 _cartsState[point] = SSM_CONTROL_HORDE;

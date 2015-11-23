@@ -88,13 +88,6 @@ enum BattlegroundRVData
     BG_RV_FIRST_TIMER                            = 20133,
 };
 
-class BattlegroundRVScore : public BattlegroundScore
-{
-    public:
-        BattlegroundRVScore() {};
-        virtual ~BattlegroundRVScore() {};
-};
-
 class BattlegroundRV : public Battleground
 {
     public:
@@ -111,7 +104,6 @@ class BattlegroundRV : public Battleground
         void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
         void HandleKillPlayer(Player* player, Player* killer) override;
-        bool HandlePlayerUnderMap(Player* player) override;
 
     private:
         uint32 Timer;

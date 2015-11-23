@@ -3145,7 +3145,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
             // in battleground check
             if (Battleground* bg = player->GetBattleground())
             {
-                if (bg->GetTypeID(true) == BATTLEGROUND_EY)
+                if (bg->GetTypeID(true) == BATTLEGROUND_EY || bg->GetTypeID(true) == BATTLEGROUND_EY_RATED)
                     bg->EventPlayerClickedOnFlag(player, gameObjTarget);
                 return;
             }
@@ -4818,7 +4818,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
             }
             case 566:                                       //EY
             {
-                if (bg && bg->GetTypeID(true) == BATTLEGROUND_EY && bg->GetStatus() == STATUS_IN_PROGRESS)
+                if (bg && (bg->GetTypeID(true) == BATTLEGROUND_EY || bg->GetTypeID(true) == BATTLEGROUND_EY_RATED) && bg->GetStatus() == STATUS_IN_PROGRESS)
                 {
                     ((BattlegroundEY*)bg)->SetDroppedFlagGUID(pGameObj->GetGUID());
                 }

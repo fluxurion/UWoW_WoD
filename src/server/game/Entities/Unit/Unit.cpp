@@ -62,6 +62,7 @@
 #include <math.h>
 #include <cwctype>
 
+#include "BattlegroundScore.h"
 #include "CombatPackets.h"
 #include "MovementPackets.h"
 #include "MiscPackets.h"

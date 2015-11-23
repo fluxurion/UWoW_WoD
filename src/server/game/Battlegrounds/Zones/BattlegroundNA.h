@@ -41,14 +41,6 @@ enum BattlegroundNAObjects
     BG_NA_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class BattlegroundNAScore : public BattlegroundScore
-{
-    public:
-        BattlegroundNAScore() {};
-        virtual ~BattlegroundNAScore() {};
-        //TODO fix me
-};
-
 class BattlegroundNA : public Battleground
 {
     public:
@@ -65,6 +57,5 @@ class BattlegroundNA : public Battleground
         void Reset() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
-        bool HandlePlayerUnderMap(Player* player) override;
 };
 #endif

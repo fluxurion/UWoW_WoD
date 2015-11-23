@@ -243,7 +243,7 @@ void WorldSession::HandlePVPLogData(WorldPackets::Battleground::NullCmsg& /*pack
         return;
 
     WorldPackets::Battleground::PVPLogData pvpLogData;
-    sBattlegroundMgr->BuildPvPLogDataPacket(pvpLogData, bg);
+    bg->BuildPvPLogDataPacket(pvpLogData);
     SendPacket(pvpLogData.Write());
 }
 

@@ -49,14 +49,32 @@ void BattlegroundKT::PostUpdateImpl(uint32 diff)
             for (uint8 i = 0; i < MAX_ORBS; ++i)
             {
                 ObjectGuid guid = _orbKeepers[i];
+
                 if (guid.IsEmpty() || _playersZone.find(guid) == _playersZone.end())
                     continue;
 
+                auto playerZone = _playersZone[guid];
                 if (Player* player = ObjectAccessor::FindPlayer(guid))
                 {
-                    AccumulateScore(player->GetTeamId(), _playersZone[guid]);
-                    UpdatePlayerScore(player, SCORE_ORB_SCORE, BG_KT_TickPoints[_playersZone[guid]]);
-                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_KT_OBJECTIVE_ORB_COUNT, _playersZone[guid] + 3);
+                    if (playerZone > KT_ZONE_MAX)
+                        continue;
+                        
+                    TeamId teamID = player->GetTeamId();
+                    if (teamID >= TEAM_NEUTRAL)
+                        continue;
+
+                    m_TeamScores[teamID] += BG_KT_TickPoints[playerZone];
+
+                    if (m_TeamScores[teamID] > BG_KT_MAX_TEAM_SCORE)
+                        m_TeamScores[teamID] = BG_KT_MAX_TEAM_SCORE;
+
+                    UpdateWorldState(teamID == TEAM_ALLIANCE ? WorldStates::BG_KT_ORB_POINTS_A : WorldStates::BG_KT_ORB_POINTS_H, m_TeamScores[teamID]);
+
+                    if (m_TeamScores[teamID] == BG_KT_MAX_TEAM_SCORE)
+                        EndBattleground(GetTeamByTeamId(teamID));
+
+                    UpdatePlayerScore(player, SCORE_ORB_SCORE, BG_KT_TickPoints[playerZone]);
+                    player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_KT_OBJECTIVE_ORB_COUNT, playerZone + 3);
                     Battleground::SendBattleGroundPoints(player->GetBGTeamId() != TEAM_ALLIANCE, m_TeamScores[player->GetBGTeamId()]);
                 }
             }
@@ -93,14 +111,13 @@ void BattlegroundKT::StartingEventOpenDoors()
 
 void BattlegroundKT::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattleGroundKTScore);
     Battleground::AddPlayer(player);
-    _playersZone[player->GetGUID()] = KT_ZONE_OUT;
+    PlayerScores[player->GetGUID()] = new BattleGroundKTScore(player->GetGUID(), player->GetTeamId());
 
     player->SendDirectMessage(WorldPackets::Battleground::Init(BG_KT_MAX_TEAM_SCORE).Write());
-
     Battleground::SendBattleGroundPoints(player->GetBGTeamId() != TEAM_ALLIANCE, m_TeamScores[player->GetBGTeamId()], false, player);
+    
+    _playersZone[player->GetGUID()] = KT_ZONE_OUT;
 }
 
 void BattlegroundKT::GetPlayerPositionData(std::vector<WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition>* positions) const
@@ -139,21 +156,23 @@ void BattlegroundKT::EventPlayerClickedOnFlag(Player* source, GameObject* object
         if (_orbKeepers[i] == source->GetGUID())
             return;
 
-    PlaySoundToAll(source->GetTeamId() == TEAM_ALLIANCE ? BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE : BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
+    TeamId teamID = source->GetTeamId();
+
     source->CastSpell(source, BG_KT_ORBS_SPELLS[index], true);
-    source->CastSpell(source, source->GetTeamId() == TEAM_ALLIANCE ? BG_KT_ALLIANCE_INSIGNIA : BG_KT_HORDE_INSIGNIA, true);
+    source->CastSpell(source, teamID == TEAM_ALLIANCE ? BG_KT_ALLIANCE_INSIGNIA : BG_KT_HORDE_INSIGNIA, true);
 
     UpdatePlayerScore(source, SCORE_ORB_HANDLES, 1);
 
     _orbKeepers[index] = source->GetGUID();
-    UpdateWorldState(OrbsWS[index][source->GetTeamId()], 1);
+    UpdateWorldState(OrbsWS[index][teamID], 1);
     UpdateWorldState(OrbsIcons[index], 0);
     SpawnBGObject(BG_KT_OBJECT_ORB_GREEN + index, RESPAWN_ONE_DAY);
 
     if (Creature* aura = GetBGCreature(BG_KT_CREATURE_ORB_AURA_1 + index))
         aura->RemoveAllAuras();
 
-    SendBroadcastTextToAll(BgKtBroadCastTextOrbPickedUp[index], source->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
+    PlayeCapturePointSound(NODE_STATUS_ASSAULT, teamID);
+    SendBroadcastTextToAll(BgKtBroadCastTextOrbPickedUp[index], teamID == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
@@ -172,8 +191,9 @@ void BattlegroundKT::EventPlayerDroppedFlag(Player* source)
         if (_orbKeepers[index] == source->GetGUID())
             break;
     }
+    
+    TeamId teamID = source->GetTeamId();
 
-    PlaySoundToAll(source->GetTeamId() == TEAM_ALLIANCE ? BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE : BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
     source->RemoveAurasDueToSpell(BG_KT_ORBS_SPELLS[index]);
     source->RemoveAurasDueToSpell(BG_KT_ALLIANCE_INSIGNIA);
     source->RemoveAurasDueToSpell(BG_KT_HORDE_INSIGNIA);
@@ -184,10 +204,11 @@ void BattlegroundKT::EventPlayerDroppedFlag(Player* source)
     if (Creature* aura = GetBGCreature(BG_KT_CREATURE_ORB_AURA_1 + index))
         aura->AddAura(BG_KT_ORBS_AURA[index], aura);
 
-    UpdateWorldState(OrbsWS[index][source->GetTeamId()], 0);
+    UpdateWorldState(OrbsWS[index][teamID], 0);
     UpdateWorldState(OrbsIcons[index], 1);
-
-    SendBroadcastTextToAll(BgKtBroadCastTextOrbDropped[index], source->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
+    
+    PlayeCapturePointSound(NODE_STATUS_ASSAULT, teamID);
+    SendBroadcastTextToAll(BgKtBroadCastTextOrbDropped[index], teamID == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
@@ -230,11 +251,7 @@ void BattlegroundKT::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 8378: // Alliance start loc
         case 8377: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-            {
-                Position startPos;
-                GetTeamStartLoc(player->GetTeamId(), startPos);
-                player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
-            }
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -310,51 +327,12 @@ void BattlegroundKT::HandleKillPlayer(Player *player, Player *killer)
     Battleground::HandleKillPlayer(player, killer);
 }
 
-void BattlegroundKT::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
-{
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())
-        return;
-
-    switch (type)
-    {
-        case SCORE_ORB_HANDLES:
-            ((BattleGroundKTScore*)itr->second)->OrbHandles += value;
-            break;
-        case SCORE_ORB_SCORE:
-            ((BattleGroundKTScore*)itr->second)->Score += value;
-            break;
-        default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
-            break;
-    }
-}
-
 WorldSafeLocsEntry const* BattlegroundKT::GetClosestGraveYard(Player* player)
 {
     if (player->GetTeamId() == TEAM_ALLIANCE)
         return sWorldSafeLocsStore.LookupEntry(GetStatus() == STATUS_IN_PROGRESS ? KT_GRAVEYARD_RECTANGLEA1 : KT_GRAVEYARD_RECTANGLEA2);
     else
         return sWorldSafeLocsStore.LookupEntry(GetStatus() == STATUS_IN_PROGRESS ? KT_GRAVEYARD_RECTANGLEH1 : KT_GRAVEYARD_RECTANGLEH2);
-}
-
-void BattlegroundKT::AccumulateScore(TeamId team, BG_KT_ZONE zone)
-{
-    if (zone > KT_ZONE_MAX)
-        return;
-
-    if (team >= TEAM_NEUTRAL)
-        return;
-
-    m_TeamScores[team] += BG_KT_TickPoints[zone];
-
-    if (m_TeamScores[team] > BG_KT_MAX_TEAM_SCORE)
-        m_TeamScores[team] = BG_KT_MAX_TEAM_SCORE;
-
-    UpdateWorldState(team == TEAM_ALLIANCE ? WorldStates::BG_KT_ORB_POINTS_A : WorldStates::BG_KT_ORB_POINTS_H, m_TeamScores[team]);
-
-    if (m_TeamScores[team] == BG_KT_MAX_TEAM_SCORE)
-        EndBattleground(GetTeamByTeamId(team));
 }
 
 void BattlegroundKT::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)

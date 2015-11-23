@@ -23,35 +23,28 @@
 
 BattlegroundAA::BattlegroundAA()
 {
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_FIRST] = LANG_ARENA_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
+    StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_ARENA_FIFTEEN_SECONDS;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
 }
 
 BattlegroundAA::~BattlegroundAA()
-{
-
-}
+{ }
 
 void BattlegroundAA::StartingEventCloseDoors()
-{
-}
+{ }
 
 void BattlegroundAA::StartingEventOpenDoors()
-{
-}
+{ }
 
 void BattlegroundAA::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattlegroundAAScore);
     Battleground::AddPlayer(player);
 }
 
 void BattlegroundAA::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
-{
-}
+{ }
 
 void BattlegroundAA::HandleKillPlayer(Player* player, Player* killer)
 {

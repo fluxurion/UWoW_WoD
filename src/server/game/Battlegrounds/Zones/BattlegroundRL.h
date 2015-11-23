@@ -37,31 +37,21 @@ enum BattlegroundRLObjects
     BG_RL_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class BattlegroundRLScore : public BattlegroundScore
-{
-    public:
-        BattlegroundRLScore() {};
-        virtual ~BattlegroundRLScore() {};
-        //TODO fix me
-};
-
 class BattlegroundRL : public Battleground
 {
     public:
         BattlegroundRL();
         ~BattlegroundRL();
 
-        /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* player);
-        virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void AddPlayer(Player* player) override;
+        void Reset() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
-        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
-        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered);
-        bool SetupBattleground();
-        void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* player);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
+        bool SetupBattleground() override;
+        void HandleKillPlayer(Player* player, Player* killer) override;
 };
 #endif

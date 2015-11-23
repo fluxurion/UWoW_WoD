@@ -37,31 +37,21 @@ enum BattlegroundTTPObjects
     BG_TTP_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class BattlegroundTTPScore : public BattlegroundScore
-{
-    public:
-        BattlegroundTTPScore() {};
-        virtual ~BattlegroundTTPScore() {};
-        //TODO fix me
-};
-
 class BattlegroundTTP : public Battleground
 {
     public:
         BattlegroundTTP();
         ~BattlegroundTTP();
 
-        /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* player);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void AddPlayer(Player* player) override;
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
-        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
-        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered);
-        bool SetupBattleground();
-        virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
-        void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* player);
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
+        bool SetupBattleground() override;
+        void Reset() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
+        void HandleKillPlayer(Player* player, Player* killer) override;
 };
 #endif

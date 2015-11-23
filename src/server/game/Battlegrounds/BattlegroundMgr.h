@@ -112,11 +112,9 @@ class BattlegroundMgr
         void BuildBattlegroundStatusQueued(WorldPackets::Battleground::BattlefieldStatusQueued* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 avgWaitTime, uint32 arenaType, bool asGroup);
         void BuildBattlegroundStatusFailed(WorldPackets::Battleground::BattlefieldStatusFailed* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, GroupJoinBattlegroundResult result, ObjectGuid const* errorGuid = nullptr);
         void SendAreaSpiritHealerQuery(Player* player, Battleground* bg, ObjectGuid const& guid);
-        void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData, Battleground* bg);
 
         void BuildUpdateWorldStatePacket(WorldPacket* data, uint32 field, uint32 value);
         void BuildUpdateWorldStatePacket(WorldPacket* data, WorldStates variableID, uint32 value);
-        void BuildObjectivesBlock(std::vector<int32>& stats, Battleground* bg);
 
         /* Battlegrounds */
         Battleground* GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId);
@@ -172,9 +170,6 @@ class BattlegroundMgr
         static BattlegroundQueueTypeId BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 arenaType);
         static BattlegroundTypeId BGTemplateId(BattlegroundQueueTypeId bgQueueTypeId);
         static uint8 BGJoinType(BattlegroundQueueTypeId bgQueueTypeId);
-
-        static HolidayIds BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId);
-        static BattlegroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday);
 
         BattlegroundSelectionWeightMap* GetArenaSelectionWeight() { return &m_ArenaSelectionWeights; }
         BattlegroundSelectionWeightMap* GetRBGSelectionWeight() { return &m_BGSelectionWeights; }

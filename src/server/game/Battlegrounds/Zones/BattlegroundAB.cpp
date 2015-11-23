@@ -170,8 +170,8 @@ void BattlegroundAB::StartingEventOpenDoors()
 
 void BattlegroundAB::AddPlayer(Player* player)
 {
-    AddPlayerScore(player->GetGUID(), new BattlegroundABScore);
     Battleground::AddPlayer(player);
+    PlayerScores[player->GetGUID()] = new BattlegroundABScore(player->GetGUID(), player->GetTeamId());
 
     player->SendDirectMessage(WorldPackets::Battleground::Init(BG_AB_MAX_TEAM_SCORE).Write());
 
@@ -209,11 +209,7 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 6635: // Horde Start loc
         case 6634: // Alliance Start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-            {
-                Position startPos;
-                GetTeamStartLoc(player->GetTeamId(), startPos);
-                player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
-            }
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -471,26 +467,23 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
     return safeLockEntry;
 }
 
-void BattlegroundAB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+bool BattlegroundAB::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor /*= true*/)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())
-        return;
+    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
+        return false;
 
     switch (type)
     {
         case SCORE_BASES_ASSAULTED:
-            ((BattlegroundABScore*)itr->second)->BasesAssaulted += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_ASSAULT_BASE, 1);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_ASSAULT_BASE, 1);
             break;
         case SCORE_BASES_DEFENDED:
-            ((BattlegroundABScore*)itr->second)->BasesDefended += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_DEFEND_BASE, 1);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AB_OBJECTIVE_DEFEND_BASE, 1);
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
+    return true;
 }
 
 bool BattlegroundAB::IsAllNodesConrolledByTeam(uint32 teamID) const

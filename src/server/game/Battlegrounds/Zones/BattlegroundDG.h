@@ -20,6 +20,7 @@
 #define __BATTLEGROUNDDG_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 
 #define BG_DG_MAX_TEAM_SCORE 1500
 
@@ -119,11 +120,42 @@ enum BG_DG_Objectives
     DG_OBJECTIVE_DEFENDED_FLAG              = 460,
 };
 
-class BattlegroundDGScore : public BattlegroundScore
+struct BattlegroundDGScore final : public BattlegroundScore
 {
-    public:
-        BattlegroundDGScore() : cartsCaptured(0), cartsDefended(0), pointsCaptured(0), pointsDefended(0) {}
-        virtual ~BattlegroundDGScore() {}
+    friend class BattlegroundDG;
+
+    protected:
+        BattlegroundDGScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), cartsCaptured(0), cartsDefended(0), pointsCaptured(0), pointsDefended(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_CARTS_CAPTURED:
+                    cartsCaptured += value;
+                    break;
+                case SCORE_CARTS_DEFENDED:
+                    cartsDefended += value;
+                    break;
+                case SCORE_POINTS_CAPTURED:
+                    pointsCaptured += value;
+                    break;
+                case SCORE_POINTS_DEFENDED:
+                    pointsCaptured += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        {
+            stats.push_back(cartsCaptured);
+            stats.push_back(cartsDefended);
+            stats.push_back(pointsCaptured);
+            stats.push_back(pointsDefended);
+        }
 
         uint32 cartsCaptured;
         uint32 cartsDefended;
@@ -145,7 +177,7 @@ public:
     void StartingEventCloseDoors() override;
     void StartingEventOpenDoors() override;
 
-    void UpdatePlayerScore(Player* player, uint32 type, uint32 addvalue, bool doAddHonor) override;
+    bool UpdatePlayerScore(Player* player, uint32 type, uint32 addvalue, bool doAddHonor) override;
 
     WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
 
@@ -155,7 +187,6 @@ public:
     void Reset() override;
     void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
     void HandleKillPlayer(Player* player, Player* killer) override;
-    bool HandlePlayerUnderMap(Player* player) override;
 
     void HandlePointCapturing(Player* player, Creature* creature);
 
@@ -179,7 +210,7 @@ private:
 
             BattlegroundDG* GetBg() { return m_bg; }
 
-            virtual void UpdateState(PointStates state);
+            void UpdateState(PointStates state);
 
             PointStates GetState() { return m_state; }
 

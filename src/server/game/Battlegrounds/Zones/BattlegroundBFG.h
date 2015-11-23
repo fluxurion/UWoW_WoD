@@ -26,9 +26,8 @@
 #include "Player.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
+#include "BattlegroundScore.h"
 #include "Language.h"
-
-class Battleground;
 
 enum GILNEAS_BG_ObjectType
 {
@@ -126,11 +125,34 @@ Position const BgBFGBuffsPos[GILNEAS_BG_DYNAMIC_NODES_COUNT] =
     { 1193.09f, 1017.46f, 7.98f, 0.24f },        // Mine
 };
 
-class BattlegroundBFGScore : public BattlegroundScore
+class BattlegroundBFGScore final : public BattlegroundScore
 {
-    public:
-        BattlegroundBFGScore(): BasesAssaulted(0), BasesDefended(0) { };
-        virtual ~BattlegroundBFGScore() { };
+    friend class BattlegroundBFG;
+
+    protected:
+        BattlegroundBFGScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_BASES_ASSAULTED:
+                    BasesAssaulted += value;
+                    break;
+                case SCORE_BASES_DEFENDED:
+                    BasesDefended += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        {
+            stats.push_back(BasesAssaulted);
+            stats.push_back(BasesDefended);
+        }
 
         uint32 BasesAssaulted;
         uint32 BasesDefended;
@@ -164,7 +186,7 @@ class BattlegroundBFG : public Battleground
         bool SetupBattleground() override;
         void EndBattleground(uint32 winner) override;
 
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         void EventPlayerClickedOnFlag(Player* source, GameObject* /*object*/) override;

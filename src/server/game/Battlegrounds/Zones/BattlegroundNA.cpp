@@ -61,8 +61,6 @@ void BattlegroundNA::StartingEventOpenDoors()
 
 void BattlegroundNA::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattlegroundNAScore);
     Battleground::AddPlayer(player);
     UpdateArenaWorldState();
 }
@@ -93,12 +91,6 @@ void BattlegroundNA::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-bool BattlegroundNA::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), 4055.504395f, 2919.660645f, 13.611241f, player->GetOrientation(), false);
-    return true;
-}
-
 void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     switch (trigger)
@@ -123,7 +115,6 @@ void BattlegroundNA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 
 void BattlegroundNA::Reset()
 {
-    //call parent's class reset
     Battleground::Reset();
 }
 

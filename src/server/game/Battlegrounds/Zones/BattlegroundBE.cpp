@@ -64,8 +64,6 @@ void BattlegroundBE::StartingEventOpenDoors()
 
 void BattlegroundBE::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattlegroundBEScore);
     Battleground::AddPlayer(player);
     UpdateArenaWorldState();
 }
@@ -96,12 +94,6 @@ void BattlegroundBE::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-bool BattlegroundBE::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), 6238.930176f, 262.963470f, 0.889519f, player->GetOrientation(), false);
-    return true;
-}
-
 void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     switch (trigger)
@@ -126,7 +118,6 @@ void BattlegroundBE::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 
 void BattlegroundBE::Reset()
 {
-    //call parent's class reset
     Battleground::Reset();
 }
 
@@ -146,16 +137,4 @@ bool BattlegroundBE::SetupBattleground()
     }
 
     return true;
-}
-
-void BattlegroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
-{
-
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())                         // player not found...
-        return;
-
-    //there is nothing special in this score
-    Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
-
 }

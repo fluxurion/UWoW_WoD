@@ -19,6 +19,7 @@
 #define __BattleGroundKT_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 
 enum BG_KT_NPC
 {
@@ -99,11 +100,35 @@ enum BG_KT_ZONE
     KT_ZONE_MAX                 = 3
 };
 
-class BattleGroundKTScore : public BattlegroundScore
+struct BattleGroundKTScore final : public BattlegroundScore
 {
-    public:
-        BattleGroundKTScore() : OrbHandles(0), Score(0) {}
-        virtual ~BattleGroundKTScore() {}
+    friend class BattlegroundKT;
+
+    protected:
+        BattleGroundKTScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), OrbHandles(0), Score(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_ORB_HANDLES:
+                    OrbHandles += value;
+                    break;
+                case SCORE_ORB_SCORE:
+                    Score += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        {
+            stats.push_back(OrbHandles);
+            stats.push_back(Score);
+        }
+
         uint32 OrbHandles;
         uint32 Score;
 };
@@ -198,13 +223,10 @@ class BattlegroundKT : public Battleground
         void EndBattleground(uint32 winner) override;
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
 
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         void SetTeamPoint(Team team, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(team)] = Points; }
         void RemovePoint(Team team, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
-
-        void AccumulateScore(TeamId team, BG_KT_ZONE zone);
 
         ObjectGuid GetFlagPickerGUID(int32 index) const override
         {

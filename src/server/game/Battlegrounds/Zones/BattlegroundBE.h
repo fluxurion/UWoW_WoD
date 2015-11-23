@@ -41,13 +41,6 @@ enum BattlegroundBEObjects
     BG_BE_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class BattlegroundBEScore : public BattlegroundScore
-{
-    public:
-        BattlegroundBEScore() {};
-        virtual ~BattlegroundBEScore() {};
-};
-
 class BattlegroundBE : public Battleground
 {
     public:
@@ -64,8 +57,5 @@ class BattlegroundBE : public Battleground
         void Reset() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
-        bool HandlePlayerUnderMap(Player* player) override;
-
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
 };
 #endif

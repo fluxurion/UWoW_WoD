@@ -106,7 +106,7 @@ void BattlegroundIC::DoAction(uint32 action, ObjectGuid var)
     player->m_movementInfo.transport.pos.m_positionZ = TransportMovementInfo.GetPositionZ();
     player->m_movementInfo.transport.guid = (player->GetTeamId() == TEAM_ALLIANCE ? gunshipAlliance : gunshipHorde)->GetGUID();
 
-    player->TeleportTo(GetMapId(), TeleportToTransportPosition.GetPositionX(), TeleportToTransportPosition.GetPositionY(), TeleportToTransportPosition.GetPositionZ(), TeleportToTransportPosition.GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+    player->TeleportTo(GetMapId(), 661.0f, -1244.0f, 288.0f, 0.0f, TELE_TO_NOT_LEAVE_TRANSPORT);
 }
 
 void BattlegroundIC::PostUpdateImpl(uint32 diff)
@@ -291,9 +291,8 @@ bool BattlegroundIC::IsAllNodesConrolledByTeam(uint32 team) const
 
 void BattlegroundIC::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattlegroundICScore);
     Battleground::AddPlayer(player);
+    PlayerScores[player->GetGUID()] = new BattlegroundICScore(player->GetGUID(), player->GetTeamId());
 
     if (nodePoint[NODE_TYPE_QUARRY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_QUARRY, true);
@@ -330,11 +329,7 @@ void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 9178: // Alliance start loc
         case 9176: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-            {
-                Position startPos;
-                GetTeamStartLoc(player->GetTeamId(), startPos);
-                player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
-            }
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -342,26 +337,24 @@ void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
     }
 }
 
-void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+bool BattlegroundIC::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor /*= true*/)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())                         // player not found...
-        return;
+    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
+        return false;
 
     switch (type)
     {
         case SCORE_BASES_ASSAULTED:
-            ((BattlegroundICScore*)itr->second)->BasesAssaulted += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, IC_OBJECTIVE_ASSAULT_BASE, 1);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, IC_OBJECTIVE_ASSAULT_BASE, 1);
             break;
         case SCORE_BASES_DEFENDED:
-            ((BattlegroundICScore*)itr->second)->BasesDefended += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, IC_OBJECTIVE_DEFEND_BASE, 1);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, IC_OBJECTIVE_DEFEND_BASE, 1);
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
+    
+    return true;
 }
 
 void BattlegroundIC::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)

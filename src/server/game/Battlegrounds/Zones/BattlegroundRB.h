@@ -21,13 +21,6 @@
 
 class Battleground;
 
-class BattlegroundRBScore : public BattlegroundScore
-{
-    public:
-        BattlegroundRBScore() {};
-        virtual ~BattlegroundRBScore() {};
-};
-
 class BattlegroundRB : public Battleground
 {
     public:
@@ -40,8 +33,6 @@ class BattlegroundRB : public Battleground
 
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
-
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
 };
 
 #endif

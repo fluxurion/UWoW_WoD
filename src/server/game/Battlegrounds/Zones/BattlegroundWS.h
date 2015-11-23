@@ -19,7 +19,7 @@
 #define __BATTLEGROUNDWS_H
 
 #include "Battleground.h"
-
+#include "BattlegroundScore.h"
 
 enum BG_WS_TimerOrScore
 {
@@ -101,11 +101,35 @@ enum BG_WS_Objectives
     WS_OBJECTIVE_RETURN_FLAG    = 44
 };
 
-class BattlegroundWGScore : public BattlegroundScore
+struct BattlegroundWGScore final : public BattlegroundScore
 {
-    public:
-        BattlegroundWGScore() : FlagCaptures(0), FlagReturns(0) {};
-        virtual ~BattlegroundWGScore() {};
+    friend class BattlegroundWS;
+
+    protected:
+        BattlegroundWGScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), FlagCaptures(0), FlagReturns(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_FLAG_CAPTURES:
+                    FlagCaptures += value;
+                    break;
+                case SCORE_FLAG_RETURNS:
+                    FlagReturns += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        {
+            stats.push_back(FlagCaptures);
+            stats.push_back(FlagReturns);
+        }
+
         uint32 FlagCaptures;
         uint32 FlagReturns;
 };
@@ -149,7 +173,7 @@ class BattlegroundWS : public Battleground
         bool IsHordeFlagPickedup() const { return !_flagKeepers[TEAM_HORDE].IsEmpty(); }
         void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         uint8 GetFlagState(uint32 team) { return _flagState[GetTeamIndexByTeamId(team)]; }
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
         void SetDroppedFlagGUID(ObjectGuid guid, uint32 TeamID) { _droppedFlagGUID[GetTeamIndexByTeamId(TeamID)] = guid; }
 
 private:

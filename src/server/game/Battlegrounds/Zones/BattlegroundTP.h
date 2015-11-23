@@ -19,6 +19,7 @@
 #define __BATTLEGROUNDTP_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 
 enum BG_TP_TimerOrScore
 {
@@ -100,12 +101,34 @@ enum BG_TP_Objectives
     TP_OBJECTIVE_RETURN_FLAG                = 291
 };
 
-// Class for scorekeeping
-class BattlegroundTPScore : public BattlegroundScore
+class BattlegroundTPScore final : public BattlegroundScore
 {
-    public:
-        BattlegroundTPScore() : FlagCaptures(0), FlagReturns(0) {};
-        virtual ~BattlegroundTPScore() {};
+    friend class BattlegroundTP;
+
+    protected:
+        BattlegroundTPScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), FlagCaptures(0), FlagReturns(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_FLAG_CAPTURES:
+                    FlagCaptures += value;
+                    break;
+                case SCORE_FLAG_RETURNS:
+                    FlagReturns += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        {
+            stats.push_back(FlagCaptures);
+            stats.push_back(FlagReturns);
+        }
 
         uint32 FlagCaptures;
         uint32 FlagReturns;
@@ -115,7 +138,6 @@ class BattlegroundTPScore : public BattlegroundScore
 class BattlegroundTP : public Battleground
 {
     friend class BattlegroundMgr;
-
 
     public:
         BattlegroundTP();
@@ -150,7 +172,7 @@ class BattlegroundTP : public Battleground
 
         void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
 
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
 
         void SetDroppedFlagGUID(ObjectGuid const& guid, int32 team)
         {

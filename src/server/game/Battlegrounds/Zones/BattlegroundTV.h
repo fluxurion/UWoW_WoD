@@ -33,15 +33,6 @@ enum BattlegroundTVObjects
     BG_TV_OBJECT_TYPE_DOOR_2    = 213197
 };
 
-
-class BattlegroundTVScore : public BattlegroundScore
-{
-    public:
-        BattlegroundTVScore() {};
-        virtual ~BattlegroundTVScore() {};
-        //TODO fix me
-};
-
 class BattlegroundTV : public Battleground
 {
     public:
@@ -58,6 +49,5 @@ class BattlegroundTV : public Battleground
         void Reset() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
-        bool HandlePlayerUnderMap(Player* player) override;
 };
 #endif

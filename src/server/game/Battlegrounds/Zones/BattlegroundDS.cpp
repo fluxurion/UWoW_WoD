@@ -146,8 +146,6 @@ void BattlegroundDS::StartingEventOpenDoors()
 
 void BattlegroundDS::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattlegroundDSScore);
     Battleground::AddPlayer(player);
     UpdateArenaWorldState();
 }
@@ -201,12 +199,6 @@ void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
     }
 }
 
-bool BattlegroundDS::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), 1299.046f, 784.825f, 9.338f, 2.422f, false);
-    return true;
-}
-
 void BattlegroundDS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
     packet.Worldstates.emplace_back(static_cast<WorldStates>(3610), 1);
@@ -217,7 +209,6 @@ void BattlegroundDS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 
 void BattlegroundDS::Reset()
 {
-    //call parent's class reset
     Battleground::Reset();
 }
 

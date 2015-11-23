@@ -44,7 +44,7 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-
+#include "BattlegroundScore.h"
 #include "AchievementPackets.h"
 
 namespace Trinity

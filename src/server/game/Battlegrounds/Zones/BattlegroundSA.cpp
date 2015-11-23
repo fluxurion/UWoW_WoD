@@ -69,7 +69,7 @@ bool BattlegroundSA::SetupBattleground()
     return ResetObjs();
 }
 
-void BattlegroundSA::GetTeamStartLoc(uint32 TeamID, Position& pos) const
+void BattlegroundSA::GetTeamStartPosition(uint32 TeamID, Position& pos) const
 {
     TeamId idx = GetTeamIndexByTeamId(TeamID);
     if (idx == Attackers)
@@ -478,9 +478,9 @@ void BattlegroundSA::SendBasicWorldStateUpdate(Player* player)
 
 void BattlegroundSA::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattlegroundSAScore);
     Battleground::AddPlayer(player);
+    PlayerScores[player->GetGUID()] = new BattlegroundSAScore(player->GetGUID(), player->GetTeamId());
+
     if (!ShipsStarted)
     {
         if (player->GetTeamId() == Attackers)
@@ -497,20 +497,6 @@ void BattlegroundSA::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint3
 void BattlegroundSA::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     Battleground::HandleAreaTrigger(player, trigger, entered);
-}
-
-void BattlegroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
-{
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())                         // player not found...
-        return;
-
-    if (type == SCORE_DESTROYED_DEMOLISHER)
-        ((BattlegroundSAScore*)itr->second)->demolishers_destroyed += value;
-    else if (type == SCORE_DESTROYED_WALL)
-        ((BattlegroundSAScore*)itr->second)->gates_destroyed += value;
-    else
-        Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
 }
 
 void BattlegroundSA::TeleportPlayers()

@@ -19,15 +19,34 @@
 #define __BATTLEGROUNDSSM_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 
-class BattleGroundSSMScore : public BattlegroundScore
+struct BattleGroundSSMScore final : public BattlegroundScore
 {
-public:
-    BattleGroundSSMScore() : CartsTaken(0) { }
+    friend class BattlegroundSSM;
 
-    virtual ~BattleGroundSSMScore() { }
+    protected:
+        BattleGroundSSMScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), CartsTaken(0) { }
 
-    uint8 CartsTaken;
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_CARTS_HELPED:
+                    CartsTaken += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        {
+            stats.push_back(CartsTaken);
+        }
+
+        uint32 CartsTaken;
 };
 
 enum BG_SSM_ObjectTypes

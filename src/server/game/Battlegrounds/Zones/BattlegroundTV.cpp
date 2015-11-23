@@ -58,10 +58,8 @@ void BattlegroundTV::StartingEventOpenDoors()
 
 void BattlegroundTV::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattlegroundTVScore);
-
     Battleground::AddPlayer(player);
+
     UpdateArenaWorldState();
 }
 
@@ -91,12 +89,6 @@ void BattlegroundTV::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-bool BattlegroundTV::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), -10717.29f, 430.12f, 24.411f, player->GetOrientation(), false);
-    return true;
-}
-
 void BattlegroundTV::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     switch (trigger)
@@ -121,7 +113,6 @@ void BattlegroundTV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 
 void BattlegroundTV::Reset()
 {
-    //call parent's class reset
     Battleground::Reset();
 }
 

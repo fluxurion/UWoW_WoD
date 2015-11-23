@@ -18,7 +18,8 @@
 #ifndef __BATTLEGROUNDAB_H
 #define __BATTLEGROUNDAB_H
 
-class Battleground;
+#include "Battleground.h"
+#include "BattlegroundScore.h"
 
 enum BG_AB_NodeObjectId
 {
@@ -153,14 +154,37 @@ Position const BgAbSpiritsPos[BG_AB_ALL_NODES_COUNT] =
     {714.61f,  646.15f,  -10.87f, 4.34f}  // horde starting base
 };
 
-class BattlegroundABScore : public BattlegroundScore
+struct BattlegroundABScore final : public BattlegroundScore
 {
-public:
-    BattlegroundABScore() : BasesAssaulted(0), BasesDefended(0) { };
-    virtual ~BattlegroundABScore() { };
+    friend class BattlegroundAB;
 
-    uint32 BasesAssaulted;
-    uint32 BasesDefended;
+    protected:
+        BattlegroundABScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_BASES_ASSAULTED:
+                    BasesAssaulted += value;
+                    break;
+                case SCORE_BASES_DEFENDED:
+                    BasesDefended += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        {
+            stats.push_back(BasesAssaulted);
+            stats.push_back(BasesDefended);
+        }
+
+        uint32 BasesAssaulted;
+        uint32 BasesDefended;
 };
 
 class BattlegroundAB : public Battleground
@@ -188,7 +212,7 @@ class BattlegroundAB : public Battleground
         void EndBattleground(uint32 winner) override;
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
 
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void EventPlayerClickedOnFlag(Player* source, GameObject* object) override;
 

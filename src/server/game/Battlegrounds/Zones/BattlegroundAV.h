@@ -20,6 +20,7 @@
 #define __BATTLEGROUNDAV_H
 
 #include "Battleground.h"
+#include "BattlegroundScore.h"
 
 #define LANG_BG_AV_A_CAPTAIN_BUFF       "Begone. Uncouth scum! The Alliance shall prevail in Alterac Valley!"
 #define LANG_BG_AV_H_CAPTAIN_BUFF       "Now is the time to attack! For the Horde!"
@@ -1370,11 +1371,55 @@ struct BG_AV_NodeInfo
 
 inline BG_AV_Nodes &operator++(BG_AV_Nodes &i){ return i = BG_AV_Nodes(i + 1); }
 
-class BattlegroundAVScore : public BattlegroundScore
+struct BattlegroundAVScore final : public BattlegroundScore
 {
-    public:
-        BattlegroundAVScore() : GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0), LeadersKilled(0), SecondaryObjectives(0) {};
-        virtual ~BattlegroundAVScore() {};
+    friend class BattlegroundAV;
+
+    protected:
+        BattlegroundAVScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0), LeadersKilled(0), SecondaryObjectives(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_GRAVEYARDS_ASSAULTED:
+                    GraveyardsAssaulted += value;
+                    break;
+                case SCORE_GRAVEYARDS_DEFENDED:
+                    GraveyardsDefended += value;
+                    break;
+                case SCORE_TOWERS_ASSAULTED:
+                    TowersAssaulted += value;
+                    break;
+                case SCORE_TOWERS_DEFENDED:
+                    TowersDefended += value;
+                    break;
+                case SCORE_MINES_CAPTURED:
+                    MinesCaptured += value;
+                    break;
+                case SCORE_LEADERS_KILLED:
+                    LeadersKilled += value;
+                    break;
+                case SCORE_SECONDARY_OBJECTIVES:
+                    SecondaryObjectives += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        {
+            stats.push_back(GraveyardsAssaulted);
+            stats.push_back(GraveyardsDefended);
+            stats.push_back(TowersAssaulted);
+            stats.push_back(TowersDefended);
+            stats.push_back(MinesCaptured);
+            stats.push_back(LeadersKilled);
+            stats.push_back(SecondaryObjectives);
+        }
+
         uint32 GraveyardsAssaulted;
         uint32 GraveyardsDefended;
         uint32 TowersAssaulted;
@@ -1390,39 +1435,34 @@ class BattlegroundAV : public Battleground
         BattlegroundAV();
         ~BattlegroundAV();
 
-        /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* player);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void AddPlayer(Player* player) override;
+        void StartingEventCloseDoors() override;
+        void StartingEventOpenDoors() override;
 
-        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team);
-        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered);
-        bool SetupBattleground();
-        virtual void ResetBGSubclass();
+        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
+        bool SetupBattleground() override;
+        void ResetBGSubclass() override;
 
-        /*general stuff*/
         void UpdateScore(uint16 team, int16 points);
-       void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
 
-        /*handlestuff*/ //these are functions which get called from extern
-        virtual void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
-        void HandleKillPlayer(Player* player, Player* killer);
-        void HandleKillUnit(Creature* unit, Player* killer);
+        void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj) override;
+        void HandleKillPlayer(Player* player, Player* killer) override;
+        void HandleKillUnit(Creature* unit, Player* killer) override;
         void HandleQuestComplete(uint32 questid, Player* player);
         bool PlayerCanDoMineQuest(int32 GOId, uint32 team);
 
-        void EndBattleground(uint32 winner);
+        void EndBattleground(uint32 winner) override;
 
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
 
-        /* achievement req. */
         bool IsBothMinesControlledByTeam(uint32 team) const;
         bool IsAllTowersControlledAndCaptainAlive(uint32 team) const;
 
     private:
-        virtual void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff) override;
 
-        /* Nodes occupying */
         void EventPlayerAssaultsPoint(Player* player, uint32 object);
         void EventPlayerDefendsPoint(Player* player, uint32 object);
         void EventPlayerDestroyedPoint(BG_AV_Nodes node);

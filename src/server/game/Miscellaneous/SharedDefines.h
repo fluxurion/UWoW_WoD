@@ -3863,8 +3863,8 @@ enum CreatureEliteType
     CREATURE_WEAK                  = 6
 };
 
-// values based at Holidays.dbc
-enum HolidayIds
+// values based at Holidays.dbc 
+enum HolidayIds //< 6.2.2
 {
     HOLIDAY_NONE                     = 0,
 
@@ -3872,39 +3872,29 @@ enum HolidayIds
     HOLIDAY_FEAST_OF_WINTER_VEIL     = 141,
     HOLIDAY_NOBLEGARDEN              = 181,
     HOLIDAY_CHILDRENS_WEEK           = 201,
-    HOLIDAY_CALL_TO_ARMS_AV          = 283,
-    HOLIDAY_CALL_TO_ARMS_WS          = 284,
-    HOLIDAY_CALL_TO_ARMS_AB          = 285,
     HOLIDAY_FISHING_EXTRAVAGANZA     = 301,
     HOLIDAY_HARVEST_FESTIVAL         = 321,
     HOLIDAY_HALLOWS_END              = 324,
     HOLIDAY_LUNAR_FESTIVAL           = 327,
-    // HOLIDAY_LOVE_IS_IN_THE_AIR    = 335, unused/duplicated
+    HOLIDAY_LOVE_IS_IN_THE_AIR_OLD   = 335,
     HOLIDAY_FIRE_FESTIVAL            = 341,
-    HOLIDAY_CALL_TO_ARMS_EY          = 353,
     HOLIDAY_BREWFEST                 = 372,
-    HOLIDAY_DARKMOON_FAIRE_ELWYNN    = 374,
-    HOLIDAY_DARKMOON_FAIRE_THUNDER   = 375,
-    HOLIDAY_DARKMOON_FAIRE_SHATTRATH = 376,
     HOLIDAY_PIRATES_DAY              = 398,
-    HOLIDAY_CALL_TO_ARMS_SA          = 400,
     HOLIDAY_PILGRIMS_BOUNTY          = 404,
     HOLIDAY_WOTLK_LAUNCH             = 406,
     HOLIDAY_DAY_OF_DEAD              = 409,
-    HOLIDAY_CALL_TO_ARMS_IC          = 420,
     HOLIDAY_LOVE_IS_IN_THE_AIR       = 423,
     HOLIDAY_KALU_AK_FISHING_DERBY    = 424,
-    HOLIDAY_CALL_TO_ARMS_BFG         = 435,
-    HOLIDAY_CALL_TO_ARMS_TP          = 436,
-    HOLIDAY_RATED_BG_15_VS_15        = 442,
-    HOLIDAY_RATED_BG_25_VS_25        = 443,
-    HOLIDAY_ANNIVERSARY_7_YEARS      = 467,
     HOLIDAY_DARKMOON_FAIRE_TEROKKAR  = 479,
-    HOLIDAY_ANNIVERSARY_8_YEARS      = 484,
-    HOLIDAY_CALL_TO_ARMS_SSM         = 488,
-    HOLIDAY_ANNIVERSARY_9_YEARS      = 509,
     HOLIDAY_ANNIVERSARY_10_YEARS     = 514,
-    HOLIDAY_CALL_TO_ARMS_DG          = 515,
+    
+    HOLIDAY_WEEKEND_BURNINGCRUSADE   = 559,
+    HOLIDAY_WEEKEND_APEXIS           = 560,
+    HOLIDAY_WEEKEND_PVP_SKIRMISH     = 561,
+    HOLIDAY_WEEKEND_WOTLK            = 562,
+    HOLIDAY_WEEKEND_BATTLEGROUNDS    = 563,
+    HOLIDAY_WEEKEND_WOD              = 564,
+    HOLIDAY_WEEKEND_PET_BATTLES      = 565
 };
 
 // QuestInfo.dbc (6.0.2.18988)
@@ -4735,9 +4725,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_RATED_25_VS_25     = 102, // Rated BG 25 vs 25
     BATTLEGROUND_TP                 = 108, // Twin Peaks
     BATTLEGROUND_BFG                = 120, // Battle For Gilneas
-    // 441 = "Icecrown Citadel"
-    // 443 = "The Ruby Sanctum"
-    // 656 = "Rated Eye of the Storm"
+    BATTLEGROUND_EY_RATED           = 656, // Eye of the Storm rated
     BATTLEGROUND_KT                 = 699, // Valley of Power
     BATTLEGROUND_CTF3               = 706,
     BATTLEGROUND_SSM                = 708, // Silvershard Mines

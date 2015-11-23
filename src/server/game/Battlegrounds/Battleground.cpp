@@ -196,7 +196,7 @@ Battleground::Battleground()
 
     for (int8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
     {
-        m_TeamStartLoc[i] = { };
+        m_TeamStartPos[i] = { };
         m_GroupIds[i] = 0;
         m_BgRaids[i] = nullptr;
         m_PlayersCount[i] = 0;
@@ -354,7 +354,6 @@ inline void Battleground::_ProcessOfflineQueue()
             }
         }
     }
-
 }
 
 inline void Battleground::_ProcessRessurect(uint32 diff)
@@ -665,9 +664,16 @@ inline Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayer
     return player;
 }
 
-void Battleground::SetTeamStartLoc(uint32 TeamID, Position pos)
+void Battleground::SetTeamStartPosition(TeamId teamId, Position const& pos)
 {
-    m_TeamStartLoc[GetTeamIndexByTeamId(TeamID)] = pos;
+    ASSERT(teamId < TEAM_NEUTRAL);
+    m_TeamStartPos[teamId] = pos;
+}
+
+Position const* Battleground::GetTeamStartPosition(TeamId teamId) const
+{
+    ASSERT(teamId < TEAM_NEUTRAL);
+    return &m_TeamStartPos[teamId];
 }
 
 void Battleground::SendPacketToAll(WorldPacket const* packet)
@@ -856,11 +862,20 @@ void Battleground::EndBattleground(uint32 winner)
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, 1);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
                 player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_ARENA_META, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
+
+                _arenaTeamScores[team == winner].Assign(bracket->getRating(), bracket->getRating() + gain, bracket->getLastMMRChange());
             }
             else
                 player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA, GetMapId());
+        }
+        else
+        {
+            _arenaTeamScores[TEAM_ALLIANCE].Assign(bracket->getRating(), bracket->getRating() + -16, bracket->getLastMMRChange());
+            _arenaTeamScores[TEAM_HORDE].Assign(bracket->getRating(), bracket->getRating() + -16, bracket->getLastMMRChange());
+
+            bracket->FinishGame(false, -16);
         }
 
         // remove temporary currency bonus auras before rewarding player
@@ -983,7 +998,7 @@ void Battleground::EndBattleground(uint32 winner)
     }
 
     WorldPackets::Battleground::PVPLogData pvpLogData;
-    sBattlegroundMgr->BuildPvPLogDataPacket(pvpLogData, this);
+    BuildPvPLogDataPacket(pvpLogData);
     SendPacketToAll(pvpLogData.Write());
 
     if (broadcastID)
@@ -1189,6 +1204,9 @@ void Battleground::Reset()
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
     PlayerScores.clear();
+    
+    for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
+        _arenaTeamScores[i].Reset();
 
     ResetBGSubclass();
 }
@@ -1244,7 +1262,7 @@ void Battleground::AddPlayer(Player* player)
     // Add to list/maps
     m_Players[guid] = bp;
     ASSERT(PlayerScores[guid]);                             //not add bg score???? First add score after add to bg
-    PlayerScores[guid]->Team = team;
+    PlayerScores[guid]->TeamID = GetTeamIndexByTeamId(team);
 
     UpdatePlayersCountByTeam(team, false);                  // +1 player
     SendPacketToTeam(team, WorldPackets::Battleground::PlayerJoined(guid).Write(), player, false);
@@ -1272,6 +1290,8 @@ void Battleground::AddPlayer(Player* player)
     // add arena specific auras
     if (isArena())
     {
+        PlayerScores[player->GetGUID()] = new ArenaScore(player->GetGUID(), player->GetTeamId());
+
         player->ResummonPetTemporaryUnSummonedIfAny();
 
         // Removing pet's buffs and debuffs which are not permanent on Arena enter
@@ -1379,7 +1399,7 @@ void Battleground::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* nod
             nodeState = teamID == TEAM_ALLIANCE ? NODE_STATE_ALLIANCE_CAPTURE : NODE_STATE_HORDE_CAPTURE;
             broadcastID = teamID == TEAM_ALLIANCE ? pointInfo.CaptureBroadcastAlliance : pointInfo.CaptureBroadcastHorde;
             kitID = teamID == TEAM_ALLIANCE ? 4 : 3;
-            visualID = spellVisualArray[3];
+            visualID = spellVisualArray[3]; // ehm shouldnot be here ```spellVisualArray[TEAM_ALLIANCE ? 3 : 4]``` - recheck with more sniffs
             break;
         default:
             break;
@@ -1409,20 +1429,9 @@ void Battleground::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* nod
             default:
                 break;
         }
-
+        
+        PlayeCapturePointSound(type, teamID);
         SendBroadcastTextToAll(broadcastID, lang, player);
-
-        switch (type)
-        {
-            case NODE_STATUS_ASSAULT:
-                PlaySoundToAll(teamID == TEAM_HORDE ? BG_SOUND_CAPTURE_POINT_ASSAULT_HORDE : BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
-                break;
-            case NODE_STATUS_CAPTURE:
-                PlaySoundToAll(teamID == TEAM_HORDE ? BG_SOUND_CAPTURE_POINT_CAPTURED_HORDE : BG_SOUND_CAPTURE_POINT_CAPTURED_ALLIANCE);
-                break;
-            default:
-                break;
-        }
     }
 
     WorldPackets::Battleground::BattlegroundCapturePointInfo info;
@@ -1439,6 +1448,24 @@ void Battleground::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* nod
     UpdateWorldState(pointInfo.worldState1, nodeState);
 
     node->SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, visualID);
+}
+
+void Battleground::PlayeCapturePointSound(uint8 type, TeamId teamID)
+{
+    switch (type)
+    {
+        case NODE_STATUS_NEUTRAL:
+            PlaySoundToAll(teamID == TEAM_HORDE ? BG_SOUND_FLAG_PLACED_HORDE : BG_SOUND_FLAG_PLACED_ALLIANCE);
+            break;
+        case NODE_STATUS_ASSAULT:
+            PlaySoundToAll(teamID == TEAM_HORDE ? BG_SOUND_CAPTURE_POINT_ASSAULT_HORDE : BG_SOUND_CAPTURE_POINT_ASSAULT_ALLIANCE);
+            break;
+        case NODE_STATUS_CAPTURE:
+            PlaySoundToAll(teamID == TEAM_HORDE ? BG_SOUND_CAPTURE_POINT_CAPTURED_HORDE : BG_SOUND_CAPTURE_POINT_CAPTURED_ALLIANCE);
+            break;
+        default:
+            break;
+    }
 }
 
 // This method should be called when player logs into running battleground
@@ -1562,55 +1589,88 @@ bool Battleground::HasFreeSlots() const
     return GetPlayersSize() < GetMaxPlayers();
 }
 
-void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& packet)
 {
-    //this procedure is called from virtual function implemented in bg subclass
-    BattlegroundScoreMap::const_iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())                         // player not found...
-        return;
+    BracketType bType = BattlegroundMgr::BracketByJoinType(GetJoinType());
 
-    switch (type)
+    if (GetStatus() == STATUS_WAIT_LEAVE)
+        packet.Winner = GetWinner();
+
+    packet.Players.reserve(GetPlayerScoresSize());
+    for (auto const& score : PlayerScores)
     {
-        case SCORE_KILLING_BLOWS:                           // Killing blows
-            itr->second->KillingBlows += value;
-            break;
-        case SCORE_DEATHS:                                  // Deaths
-            itr->second->Deaths += value;
-            break;
-        case SCORE_HONORABLE_KILLS:                         // Honorable kills
-            itr->second->HonorableKills += value;
-            break;
-        case SCORE_BONUS_HONOR:                             // Honor bonus
-            // do not add honor in arenas
-            if (isBattleground())
+        if (!IsPlayerInBattleground(score.first))
+            continue;
+
+        WorldPackets::Battleground::PVPLogData::PlayerData playerData;
+
+        playerData.PlayerGUID = score.second->PlayerGuid;
+        playerData.Kills = score.second->KillingBlows;
+        playerData.Faction = score.second->TeamID;
+        if (score.second->HonorableKills || score.second->Deaths || score.second->BonusHonor)
+        {
+            playerData.Honor = boost::in_place();
+            playerData.Honor->HonorKills = score.second->HonorableKills;
+            playerData.Honor->Deaths = score.second->Deaths;
+            playerData.Honor->ContributionPoints = score.second->BonusHonor;
+        }
+
+        playerData.DamageDone = score.second->DamageDone;
+        playerData.HealingDone = score.second->HealingDone;
+        score.second->BuildObjectivesBlock(playerData.Stats);
+
+        if (Player* player = ObjectAccessor::FindPlayer(playerData.PlayerGUID))
+        {
+            playerData.IsInWorld = true;
+            playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+
+            if (isRated())
             {
-                // reward honor instantly
-                if (doAddHonor)
-                    Source->RewardHonor(nullptr, 1, value);    // RewardHonor calls UpdatePlayerScore with doAddHonor = false
-                else
-                    itr->second->BonusHonor += value;
+                Bracket* bracket = player->getBracket(bType);
+                if (!bracket)
+                    bracket = sBracketMgr->TryGetOrCreateBracket(score.first, bType);
+            
+                if (bracket)
+                {
+                    playerData.PreMatchRating = bracket->getRatingLastChange();
+                    playerData.RatingChange = bracket->getRating();
+                    playerData.PreMatchMMR = bracket->getLastMMRChange();
+                    playerData.MmrChange = bracket->getMMV() - bracket->getLastMMRChange();
+                }
             }
-            break;
-            // used only in EY, but in MSG_PVP_LOG_DATA opcode
-        case SCORE_DAMAGE_DONE:                             // Damage Done
-            itr->second->DamageDone += value;
-            break;
-        case SCORE_HEALING_DONE:                            // Healing Done
-            itr->second->HealingDone += value;
-            break;
-        /** World of Warcraft Armory **/
-        case SCORE_DAMAGE_TAKEN:
-            itr->second->DamageTaken += value;              // Damage Taken
-            break;
-        case SCORE_HEALING_TAKEN:
-            itr->second->HealingTaken += value;             // Healing Taken
-            break;
-        /** World of Warcraft Armory **/
-        default:
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::UpdatePlayerScore: unknown score type (%u) for BG (map: %u, instance id: %u)!",
-                           type, m_MapId, m_InstanceID);
-            break;
+        }
+
+        packet.Players.push_back(playerData);
     }
+
+    if (isRated())
+    {
+        packet.Ratings = boost::in_place();
+
+        for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
+        {
+            packet.Ratings->Postmatch[i] = _arenaTeamScores[i].NewRating;
+            packet.Ratings->Prematch[i] = _arenaTeamScores[i].OldRating;
+            packet.Ratings->PrematchMMR[i] = _arenaTeamScores[i].MatchmakerRating;
+        }
+    }
+
+    packet.PlayerCount[0] = int8(GetPlayersCountByTeam(HORDE));
+    packet.PlayerCount[1] = int8(GetPlayersCountByTeam(ALLIANCE));
+}
+
+bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor /*= true*/)
+{
+    BattlegroundScoreMap::const_iterator itr = PlayerScores.find(player->GetGUID());
+    if (itr == PlayerScores.end())
+        return false;
+
+    if (type == SCORE_BONUS_HONOR && doAddHonor && isBattleground())
+        player->RewardHonor(nullptr, 1, value);
+    else
+        itr->second->UpdateScore(type, value);
+
+    return true;
 }
 
 void Battleground::AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid)
@@ -1993,6 +2053,12 @@ void Battleground::EndNow()
     SetRemainingTime(Milliseconds(0));
 }
 
+bool Battleground::HandlePlayerUnderMap(Player* player)
+{
+    player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()), TELE_TO_NOT_LEAVE_COMBAT);
+    return true;
+}
+
 // To be removed
 const char* Battleground::GetTrinityString(int32 entry)
 {
@@ -2113,7 +2179,7 @@ void Battleground::PlayerAddedToBGCheckIfBGIsRunning(Player* player)
     BlockMovement(player);
 
     WorldPackets::Battleground::PVPLogData pvpLogData;
-    sBattlegroundMgr->BuildPvPLogDataPacket(pvpLogData, this);
+    BuildPvPLogDataPacket(pvpLogData);
     player->GetSession()->SendPacket(pvpLogData.Write());
 
     WorldPackets::Battleground::BattlefieldStatusActive battlefieldStatus;
@@ -2165,8 +2231,8 @@ void Battleground::CheckArenaWinConditions()
 
 void Battleground::UpdateArenaWorldState()
 {
-    UpdateWorldState(0xe10, GetAlivePlayersCountByTeam(HORDE));
-    UpdateWorldState(0xe11, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(3600, GetAlivePlayersCountByTeam(HORDE));
+    UpdateWorldState(3601, GetAlivePlayersCountByTeam(ALLIANCE));
 }
 
 void Battleground::SetBgRaid(uint32 TeamID, Group* bg_raid)

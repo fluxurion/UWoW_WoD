@@ -269,200 +269,6 @@ void BattlegroundMgr::BuildBattlegroundStatusFailed(WorldPackets::Battleground::
         battlefieldStatus->ClientID = *errorGuid;
 }
 
-void BattlegroundMgr::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& packet, Battleground* bg)
-{
-    BracketType bType = BracketByJoinType(bg->GetJoinType());
-
-    if (bg->GetStatus() == STATUS_WAIT_LEAVE)
-        packet.Winner = bg->GetWinner();
-
-    packet.Players.reserve(bg->GetPlayerScoresSize());
-    Battleground::BattlegroundScoreMap::const_iterator itr2 = bg->GetPlayerScoresBegin();
-    for (Battleground::BattlegroundScoreMap::const_iterator itr = itr2; itr != bg->GetPlayerScoresEnd();)
-    {
-        itr2 = itr++;
-
-        if (!bg->IsPlayerInBattleground(itr2->first))
-            continue;
-
-        WorldPackets::Battleground::PVPLogData::PlayerData playerData;
-
-        playerData.PlayerGUID = itr2->first;
-        playerData.Kills = itr2->second->KillingBlows;
-        playerData.Faction = itr2->second->Team == ALLIANCE ? 1 : 0;
-        if (itr2->second->HonorableKills || itr2->second->Deaths || itr2->second->BonusHonor)
-        {
-            playerData.Honor = boost::in_place();
-            playerData.Honor->HonorKills = itr2->second->HonorableKills;
-            playerData.Honor->Deaths = itr2->second->Deaths;
-            playerData.Honor->ContributionPoints = itr2->second->BonusHonor;
-        }
-
-        playerData.DamageDone = itr2->second->DamageDone;
-        playerData.HealingDone = itr2->second->HealingDone;
-        BuildObjectivesBlock(playerData.Stats, bg);
-
-        if (Player* player = ObjectAccessor::FindPlayer(playerData.PlayerGUID))
-        {
-            playerData.IsInWorld = true;
-            playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
-
-            if (bg->isRated())
-            {
-                Bracket* bracket = player->getBracket(bType);
-                if (!bracket)
-                    bracket = sBracketMgr->TryGetOrCreateBracket(itr2->first, bType);
-            
-                if (bracket)
-                {
-                    playerData.PreMatchRating = bracket->getRatingLastChange();
-                    playerData.RatingChange = bracket->getRating();
-                    playerData.PreMatchMMR = bracket->getLastMMRChange();
-                    playerData.MmrChange = bracket->getMMV() - bracket->getLastMMRChange();
-                }
-            }
-        }
-
-        packet.Players.push_back(playerData);
-    }
-
-    if (bg->isRated())
-    {
-        //packet.Ratings = boost::in_place();
-
-        //for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
-        //{
-        //    oh god... we dont have support for this
-        //    packet.Ratings->Postmatch[i] = _arenaTeamScores[i].NewRating;
-        //    packet.Ratings->Prematch[i] = _arenaTeamScores[i].OldRating;
-        //    packet.Ratings->PrematchMMR[i] = _arenaTeamScores[i].MatchmakerRating;
-        //}
-    }
-
-    packet.PlayerCount[0] = int8(bg->GetPlayersCountByTeam(HORDE));
-    packet.PlayerCount[1] = int8(bg->GetPlayersCountByTeam(ALLIANCE));
-}
-
-void BattlegroundMgr::BuildObjectivesBlock(std::vector<int32>& stats, Battleground* bg)
-{
-    Battleground::BattlegroundScoreMap::const_iterator itr2 = bg->GetPlayerScoresBegin();
-    for (Battleground::BattlegroundScoreMap::const_iterator itr = itr2; itr != bg->GetPlayerScoresEnd();)
-    {
-        itr2 = itr++;
-
-        if (!bg->IsPlayerInBattleground(itr2->first))
-            continue;
-
-        switch (bg->GetTypeID(true))
-        {
-            case BATTLEGROUND_RB:
-                switch (bg->GetMapId())
-                {
-                    case 489:
-                        stats.push_back(((BattlegroundWGScore*)itr2->second)->FlagCaptures);
-                        stats.push_back(((BattlegroundWGScore*)itr2->second)->FlagReturns);
-                        break;
-                    case 566:
-                        stats.push_back(((BattlegroundEYScore*)itr2->second)->FlagCaptures);
-                        break;
-                    case 529:
-                        stats.push_back(((BattlegroundABScore*)itr2->second)->BasesAssaulted);
-                        stats.push_back(((BattlegroundABScore*)itr2->second)->BasesDefended);
-                        break;
-                    case 30:
-                        stats.push_back(((BattlegroundAVScore*)itr2->second)->GraveyardsAssaulted);
-                        stats.push_back(((BattlegroundAVScore*)itr2->second)->GraveyardsDefended);
-                        stats.push_back(((BattlegroundAVScore*)itr2->second)->TowersAssaulted);
-                        stats.push_back(((BattlegroundAVScore*)itr2->second)->TowersDefended);
-                        stats.push_back(((BattlegroundAVScore*)itr2->second)->MinesCaptured);
-                        break;
-                    case 607:
-                        stats.push_back(((BattlegroundSAScore*)itr2->second)->demolishers_destroyed);
-                        stats.push_back(((BattlegroundSAScore*)itr2->second)->gates_destroyed);
-                        break;
-                    case 628:
-                        stats.push_back(((BattlegroundICScore*)itr2->second)->BasesAssaulted);
-                        stats.push_back(((BattlegroundICScore*)itr2->second)->BasesDefended);
-                        break;
-                    case 726:
-                        stats.push_back(((BattlegroundTPScore*)itr2->second)->FlagCaptures);
-                        stats.push_back(((BattlegroundTPScore*)itr2->second)->FlagReturns);
-                        break;
-                    case 761:
-                        stats.push_back(((BattlegroundBFGScore*)itr2->second)->BasesAssaulted);
-                        stats.push_back(((BattlegroundBFGScore*)itr2->second)->BasesDefended);
-                        break;
-                    case 998:
-                        stats.push_back(uint32(((BattleGroundKTScore*)itr2->second)->OrbHandles));
-                        stats.push_back(uint32(((BattleGroundKTScore*)itr2->second)->Score));
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case BATTLEGROUND_AV:
-                stats.push_back(((BattlegroundAVScore*)itr2->second)->GraveyardsAssaulted);
-                stats.push_back(((BattlegroundAVScore*)itr2->second)->GraveyardsDefended);
-                stats.push_back(((BattlegroundAVScore*)itr2->second)->TowersAssaulted);
-                stats.push_back(((BattlegroundAVScore*)itr2->second)->TowersDefended);
-                stats.push_back(((BattlegroundAVScore*)itr2->second)->MinesCaptured);
-                break;
-            case BATTLEGROUND_WS:
-                stats.push_back(((BattlegroundWGScore*)itr2->second)->FlagCaptures);
-                stats.push_back(((BattlegroundWGScore*)itr2->second)->FlagReturns);
-                break;
-            case BATTLEGROUND_AB:
-                stats.push_back(((BattlegroundABScore*)itr2->second)->BasesAssaulted);
-                stats.push_back(((BattlegroundABScore*)itr2->second)->BasesDefended);
-                break;
-            case BATTLEGROUND_EY:
-                stats.push_back(((BattlegroundEYScore*)itr2->second)->FlagCaptures);
-                break;
-            case BATTLEGROUND_SA:
-                stats.push_back(((BattlegroundSAScore*)itr2->second)->demolishers_destroyed);
-                stats.push_back(((BattlegroundSAScore*)itr2->second)->gates_destroyed);
-                break;
-            case BATTLEGROUND_IC:
-                stats.push_back(((BattlegroundICScore*)itr2->second)->BasesAssaulted);
-                stats.push_back(((BattlegroundICScore*)itr2->second)->BasesDefended);
-                break;
-            case BATTLEGROUND_TP:
-                stats.push_back(((BattlegroundTPScore*)itr2->second)->FlagCaptures);
-                stats.push_back(((BattlegroundTPScore*)itr2->second)->FlagReturns);
-                break;
-            case BATTLEGROUND_BFG:
-                stats.push_back(((BattlegroundBFGScore*)itr2->second)->BasesAssaulted);
-                stats.push_back(((BattlegroundBFGScore*)itr2->second)->BasesDefended);
-                break;
-            case BATTLEGROUND_KT:
-                stats.push_back(((BattleGroundKTScore*)itr2->second)->OrbHandles);
-                stats.push_back(((BattleGroundKTScore*)itr2->second)->Score);
-                break;
-            case BATTLEGROUND_SSM:
-                stats.push_back(((BattleGroundSSMScore*)itr2->second)->CartsTaken);
-                break;
-            case BATTLEGROUND_DG:
-                stats.push_back(((BattlegroundDGScore*)itr2->second)->cartsCaptured);
-                stats.push_back(((BattlegroundDGScore*)itr2->second)->cartsDefended);
-                stats.push_back(((BattlegroundDGScore*)itr2->second)->pointsCaptured);
-                stats.push_back(((BattlegroundDGScore*)itr2->second)->pointsDefended);
-                break;
-            case BATTLEGROUND_SS_VS_TM: //@TODO
-                break;
-            case BATTLEGROUND_NA:
-            case BATTLEGROUND_TV:
-            case BATTLEGROUND_TTP:
-            case BATTLEGROUND_BE:
-            case BATTLEGROUND_AA:
-            case BATTLEGROUND_RL:
-            case BATTLEGROUND_DS:
-            case BATTLEGROUND_RV:
-            default:
-                break;
-        }
-    }
-}
-
 //! 6.0.3
 void BattlegroundMgr::BuildUpdateWorldStatePacket(WorldPacket* data, uint32 field, uint32 value)
 {
@@ -630,6 +436,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId
             bg = new BattlegroundAA(*(BattlegroundAA*)bg_template);
             break;
         case BATTLEGROUND_EY:
+        case BATTLEGROUND_EY_RATED:
             bg = new BattlegroundEY(*(BattlegroundEY*)bg_template);
             break;
         case BATTLEGROUND_RL:
@@ -710,7 +517,7 @@ uint32 BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
         case BATTLEGROUND_TV: bg = new BattlegroundTV; break;
         case BATTLEGROUND_BE: bg = new BattlegroundBE; break;
         case BATTLEGROUND_AA: bg = new BattlegroundAA; break;
-        case BATTLEGROUND_EY: bg = new BattlegroundEY; break;
+        case BATTLEGROUND_EY: case BATTLEGROUND_EY_RATED: bg = new BattlegroundEY; break;
         case BATTLEGROUND_RL: bg = new BattlegroundRL; break;
         case BATTLEGROUND_SA: bg = new BattlegroundSA; break;
         case BATTLEGROUND_DS: bg = new BattlegroundDS; break;
@@ -737,8 +544,8 @@ uint32 BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
     bg->SetMinPlayers(data.MinPlayersPerTeam * 2);
     bg->SetMaxPlayers(data.MaxPlayersPerTeam * 2);
     bg->SetName(data.BattlegroundName);
-    bg->SetTeamStartLoc(ALLIANCE, data.TeamStartLoc[TEAM_ALLIANCE]);
-    bg->SetTeamStartLoc(HORDE, data.TeamStartLoc[TEAM_HORDE]);
+    bg->SetTeamStartPosition(TEAM_ALLIANCE, data.TeamStartLoc[TEAM_ALLIANCE]);
+    bg->SetTeamStartPosition(TEAM_HORDE, data.TeamStartLoc[TEAM_HORDE]);
     bg->SetLevelRange(data.LevelMin, data.LevelMax);
     bg->SetScriptId(data.scriptId);
     bg->SetQueueID(uint64(data.bgTypeId) | UI64LIT(0x1F10000000000000));
@@ -836,15 +643,7 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 {
     Battleground* bg = GetBattleground(instanceId, bgTypeId);
     if (bg)
-    {
-        uint32 team = player->GetBGTeam();
-        if (team == 0)
-            team = player->GetTeam();
-
-        Position pos;
-        bg->GetTeamStartLoc(team, pos);
-        player->TeleportTo(bg->GetMapId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
-    }
+        player->TeleportTo(bg->GetMapId(), bg->GetTeamStartPosition(player->GetBGTeamId()));
     else
         sLog->outError(LOG_FILTER_BATTLEGROUND, "player %u is trying to port to non-existent bg instance %u", player->GetGUID().GetCounter(), instanceId);
 }
@@ -924,6 +723,7 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
         case BATTLEGROUND_AV:
             return BATTLEGROUND_QUEUE_AV;
         case BATTLEGROUND_EY:
+        case BATTLEGROUND_EY_RATED:
             return BATTLEGROUND_QUEUE_EY;
         case BATTLEGROUND_SA:
             return BATTLEGROUND_QUEUE_SA;
@@ -978,7 +778,7 @@ BattlegroundTypeId BattlegroundMgr::BGTemplateId(BattlegroundQueueTypeId bgQueue
         case BATTLEGROUND_QUEUE_AV:
             return BATTLEGROUND_AV;
         case BATTLEGROUND_QUEUE_EY:
-            return BATTLEGROUND_EY;
+            return BATTLEGROUND_EY; // BATTLEGROUND_EY_RATED?
         case BATTLEGROUND_QUEUE_SA:
             return BATTLEGROUND_SA;
         case BATTLEGROUND_QUEUE_IC:
@@ -1121,36 +921,4 @@ void BattlegroundMgr::LoadBattleMastersEntry()
     } while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlemaster entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId)
-{
-    switch (bgTypeId)
-    {
-        case BATTLEGROUND_AV: return HOLIDAY_CALL_TO_ARMS_AV;
-        case BATTLEGROUND_EY: return HOLIDAY_CALL_TO_ARMS_EY;
-        case BATTLEGROUND_WS: return HOLIDAY_CALL_TO_ARMS_WS;
-        case BATTLEGROUND_SA: return HOLIDAY_CALL_TO_ARMS_SA;
-        case BATTLEGROUND_AB: return HOLIDAY_CALL_TO_ARMS_AB;
-        case BATTLEGROUND_IC: return HOLIDAY_CALL_TO_ARMS_IC;
-        case BATTLEGROUND_TP: return HOLIDAY_CALL_TO_ARMS_TP;
-        case BATTLEGROUND_BFG: return HOLIDAY_CALL_TO_ARMS_BFG;
-        default: return HOLIDAY_NONE;
-    }
-}
-
-BattlegroundTypeId BattlegroundMgr::WeekendHolidayIdToBGType(HolidayIds holiday)
-{
-    switch (holiday)
-    {
-        case HOLIDAY_CALL_TO_ARMS_AV: return BATTLEGROUND_AV;
-        case HOLIDAY_CALL_TO_ARMS_EY: return BATTLEGROUND_EY;
-        case HOLIDAY_CALL_TO_ARMS_WS: return BATTLEGROUND_WS;
-        case HOLIDAY_CALL_TO_ARMS_SA: return BATTLEGROUND_SA;
-        case HOLIDAY_CALL_TO_ARMS_AB: return BATTLEGROUND_AB;
-        case HOLIDAY_CALL_TO_ARMS_IC: return BATTLEGROUND_IC;
-        case HOLIDAY_CALL_TO_ARMS_TP: return BATTLEGROUND_TP;
-        case HOLIDAY_CALL_TO_ARMS_BFG: return BATTLEGROUND_BFG;
-        default: return BATTLEGROUND_TYPE_NONE;
-    }
 }

@@ -27,6 +27,7 @@
 #include "Duration.h"
 #include "Packets/WorldStatePackets.h"
 #include "Packets/BattlegroundPackets.h"
+#include "ArenaScore.h"
 
 class Creature;
 class GameObject;
@@ -225,48 +226,6 @@ enum BattlegroundQueueTypeId
     MAX_BATTLEGROUND_QUEUE_TYPES
 };
 
-enum ScoreType
-{
-    SCORE_KILLING_BLOWS         = 1,
-    SCORE_DEATHS                = 2,
-    SCORE_HONORABLE_KILLS       = 3,
-    SCORE_BONUS_HONOR           = 4,
-    //EY, but in MSG_PVP_LOG_DATA opcode!
-    SCORE_DAMAGE_DONE           = 5,
-    SCORE_HEALING_DONE          = 6,
-    //WS
-    SCORE_FLAG_CAPTURES         = 7,
-    SCORE_FLAG_RETURNS          = 8,
-    //AB and IC
-    SCORE_BASES_ASSAULTED       = 9,
-    SCORE_BASES_DEFENDED        = 10,
-    //AV
-    SCORE_GRAVEYARDS_ASSAULTED  = 11,
-    SCORE_GRAVEYARDS_DEFENDED   = 12,
-    SCORE_TOWERS_ASSAULTED      = 13,
-    SCORE_TOWERS_DEFENDED       = 14,
-    SCORE_MINES_CAPTURED        = 15,
-    SCORE_LEADERS_KILLED        = 16,
-    SCORE_SECONDARY_OBJECTIVES  = 17,
-    //SOTA
-    SCORE_DESTROYED_DEMOLISHER  = 18,
-    SCORE_DESTROYED_WALL        = 19,
-    //SM
-    SCORE_CARTS_HELPED          = 20,
-    //TK
-    SCORE_ORB_HANDLES           = 21,
-    SCORE_ORB_SCORE             = 22,
-    /** World of Warcraft Armory **/
-    SCORE_DAMAGE_TAKEN          = 23,
-    SCORE_HEALING_TAKEN         = 24,
-    /** World of Warcraft Armory **/
-    //DG
-    SCORE_CARTS_CAPTURED        = 25,
-    SCORE_CARTS_DEFENDED        = 26,
-    SCORE_POINTS_CAPTURED       = 27,
-    SCORE_POINTS_DEFENDED       = 28,
-};
-
 enum JoinType : int8
 {
     JOIN_TYPE_NONE              = 0,
@@ -377,27 +336,6 @@ enum BattlegroundPlayerPositionConstants
     PLAYER_POSITION_ARENA_SLOT_5        = 6
 };
 
-class BattlegroundScore
-{
-    public:
-        BattlegroundScore() : KillingBlows(0), Deaths(0), HonorableKills(0),
-            BonusHonor(0), DamageDone(0), HealingDone(0), DamageTaken(0), HealingTaken(0), Team(0) { }
-        virtual ~BattlegroundScore() { }                     //virtual destructor is used when deleting score from scores map
-
-        uint32 KillingBlows;
-        uint32 Deaths;
-        uint32 HonorableKills;
-        uint32 BonusHonor;
-        uint32 DamageDone;
-        uint32 HealingDone;
-        uint32 Team;
-
-        /** World of Warcraft Armory **/
-        uint32 DamageTaken;
-        uint32 HealingTaken;
-        /** World of Warcraft Armory **/
-};
-
 /*
 This class is used to:
 1. Add player to battleground
@@ -503,22 +441,7 @@ class Battleground
 
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
         uint32 GetPlayersSize() const { return m_Players.size(); }
-
-        BattlegroundScoreMap::const_iterator GetPlayerScoresBegin() const { return PlayerScores.begin(); }
-        BattlegroundScoreMap::const_iterator GetPlayerScoresEnd() const { return PlayerScores.end(); }
         uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
-
-        void AddPlayerScore(ObjectGuid guid, BattlegroundScore* s)
-        {
-            BattlegroundScoreMap::const_iterator itr =  PlayerScores.find(guid);
-            if (itr != PlayerScores.end())
-            {
-                delete s;
-                return;
-            }
-            PlayerScores[guid] = s;
-        }
-
         uint32 GetReviveQueueSize() const { return m_ReviveQueue.size(); }
 
         void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
@@ -539,8 +462,8 @@ class Battleground
         BattlegroundMap* GetBgMap() const { if(m_Map) return m_Map; else return nullptr; }
         BattlegroundMap* FindBgMap() const { return m_Map; }
 
-        void SetTeamStartLoc(uint32 TeamID, Position pos);
-        virtual void GetTeamStartLoc(uint32 TeamID, Position& pos) const { pos = m_TeamStartLoc[GetTeamIndexByTeamId(TeamID)]; }
+        void SetTeamStartPosition(TeamId teamId, Position const& pos);
+        Position const* GetTeamStartPosition(TeamId teamId) const;
 
         // Packet Transfer
         // method that should fill worldpacket with actual world states (not yet implemented for all battlegrounds!)
@@ -580,7 +503,8 @@ class Battleground
         Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE]; }
         void SetBgRaid(uint32 TeamID, Group* bg_raid);
 
-        virtual void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData);
+        virtual bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
 
         static TeamId GetTeamIndexByTeamId(uint32 team) { return team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         static Team GetTeamByTeamId(uint32 teamID) { return teamID == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
@@ -624,6 +548,8 @@ class Battleground
         void EventPlayerLoggedOut(Player* player);
         virtual void EventPlayerDamagedGO(Player* /*player*/, GameObject* /*go*/, uint32 /*eventType*/) { }
         virtual void EventPlayerUsedGO(Player* /*player*/, GameObject* /*go*/){ }
+
+        void PlayeCapturePointSound(uint8 type, TeamId teamID);
 
         // this function can be used by spell to interact with the BG map
         virtual void DoAction(uint32 /*action*/, ObjectGuid /*var*/) { }
@@ -669,7 +595,7 @@ class Battleground
         //to be removed
         const char* GetTrinityString(int32 entry);
 
-        virtual bool HandlePlayerUnderMap(Player* /*player*/) { return false; }
+        bool HandlePlayerUnderMap(Player* player);
 
         // since arenas can be AvA or Hvh, we have to get the "temporary" team of a player
         uint32 GetPlayerTeam(ObjectGuid guid) const;
@@ -681,6 +607,7 @@ class Battleground
 
         // virtual score-array - get's used in bg-subclasses
         int32 m_TeamScores[MAX_TEAMS];
+        ArenaTeamScore _arenaTeamScores[MAX_TEAMS];
 
         void RewardXPAtKill(Player* killer, Player* victim);
 
@@ -826,7 +753,7 @@ class Battleground
         // Start location
         uint32 m_MapId;
         BattlegroundMap* m_Map;
-        Position m_TeamStartLoc[MAX_TEAMS];
+        Position m_TeamStartPos[MAX_TEAMS];
         uint32 ScriptId;
 
         bool m_IsRBG;

@@ -61,8 +61,6 @@ void BattlegroundTTP::StartingEventOpenDoors()
 
 void BattlegroundTTP::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattlegroundTTPScore);
     Battleground::AddPlayer(player);
     UpdateArenaWorldState();
 }
@@ -93,12 +91,6 @@ void BattlegroundTTP::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-bool BattlegroundTTP::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), 4055.504395f, 2919.660645f, 13.611241f, player->GetOrientation(), false);
-    return true;
-}
-
 void BattlegroundTTP::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     switch (trigger)
@@ -123,7 +115,6 @@ void BattlegroundTTP::FillInitialWorldStates(WorldPackets::WorldState::InitWorld
 
 void BattlegroundTTP::Reset()
 {
-    //call parent's class reset
     Battleground::Reset();
 }
 

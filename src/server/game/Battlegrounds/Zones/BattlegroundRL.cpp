@@ -61,9 +61,8 @@ void BattlegroundRL::StartingEventOpenDoors()
 
 void BattlegroundRL::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattlegroundRLScore);
     Battleground::AddPlayer(player);
+
     UpdateArenaWorldState();
 }
 
@@ -93,12 +92,6 @@ void BattlegroundRL::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-bool BattlegroundRL::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), 1285.810547f, 1667.896851f, 39.957642f, player->GetOrientation(), false);
-    return true;
-}
-
 void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     switch (trigger)
@@ -123,7 +116,6 @@ void BattlegroundRL::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 
 void BattlegroundRL::Reset()
 {
-    //call parent's reset
     Battleground::Reset();
 }
 

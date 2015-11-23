@@ -19,15 +19,40 @@
 #ifndef __BATTLEGROUNDSA_H
 #define __BATTLEGROUNDSA_H
 
-class Battleground;
+#include "Battleground.h"
+#include "BattlegroundScore.h"
 
-class BattlegroundSAScore : public BattlegroundScore
+struct BattlegroundSAScore final : public BattlegroundScore
 {
-    public:
-        BattlegroundSAScore(): demolishers_destroyed(0), gates_destroyed(0) {};
-        virtual ~BattlegroundSAScore() {};
-    uint8 demolishers_destroyed;
-    uint8 gates_destroyed;
+    friend class BattlegroundSA;
+
+    protected:
+        BattlegroundSAScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), DemolishersDestroyed(0), GatesDestroyed(0) { }
+
+        void UpdateScore(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case SCORE_DESTROYED_DEMOLISHER:
+                    DemolishersDestroyed += value;
+                    break;
+                case SCORE_DESTROYED_WALL:
+                    GatesDestroyed += value;
+                    break;
+                default:
+                    BattlegroundScore::UpdateScore(type, value);
+                    break;
+            }
+        }
+
+        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        {
+            stats.push_back(DemolishersDestroyed);
+            stats.push_back(GatesDestroyed);
+        }
+
+        uint32 DemolishersDestroyed;
+        uint32 GatesDestroyed;
 };
 
 #define BG_SA_FLAG_AMOUNT           3
@@ -421,7 +446,7 @@ class BattlegroundSA : public Battleground
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
         void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj) override;
         void EventPlayerUsedGO(Player* Source, GameObject* object) override;
-        void GetTeamStartLoc(uint32 TeamID, Position& pos) const override;
+        void GetTeamStartPosition(uint32 TeamID, Position& pos) const;
         uint32 getGateIdFromDamagedOrDestroyEventId(uint32 id)
         {
             switch (id)
@@ -479,8 +504,6 @@ class BattlegroundSA : public Battleground
         void EndBattleground(uint32 winner) override;
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
-
-        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
         
         bool gateDestroyed;
         bool notEvenAScratch(uint32 team) const { return _notEvenAScratch[GetTeamIndexByTeamId(team)]; }

@@ -98,9 +98,8 @@ void BattlegroundRV::StartingEventOpenDoors()
 
 void BattlegroundRV::AddPlayer(Player* player)
 {
-    //create score and add it to map, default values are set in constructor
-    AddPlayerScore(player->GetGUID(), new BattlegroundRVScore);
     Battleground::AddPlayer(player);
+
     UpdateWorldState(WorldStates::BG_RV_WORLD_STATE_A, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(WorldStates::BG_RV_WORLD_STATE_H, GetAlivePlayersCountByTeam(HORDE));
 }
@@ -135,12 +134,6 @@ void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-bool BattlegroundRV::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), 763.5f, -284, 28.276f, 2.422f, false);
-    return true;
-}
-
 void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     switch (trigger)
@@ -165,7 +158,6 @@ void BattlegroundRV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 
 void BattlegroundRV::Reset()
 {
-    //call parent's class reset
     Battleground::Reset();
 }
 

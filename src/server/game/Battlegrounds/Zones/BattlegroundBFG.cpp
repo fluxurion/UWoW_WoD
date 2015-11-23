@@ -151,8 +151,8 @@ void BattlegroundBFG::StartingEventOpenDoors()
 
 void BattlegroundBFG::AddPlayer(Player* player)
 {
-    AddPlayerScore(player->GetGUID(), new BattlegroundBFGScore);
     Battleground::AddPlayer(player);
+    PlayerScores[player->GetGUID()] = new BattlegroundBFGScore(player->GetGUID(), player->GetTeamId());
 
     player->SendDirectMessage(WorldPackets::Battleground::Init(GILNEAS_BG_MAX_TEAM_SCORE).Write());
 
@@ -169,11 +169,7 @@ void BattlegroundBFG::HandleAreaTrigger(Player* player, uint32 trigger, bool ent
         case 6448: // Horde Start
         case 6447: // Alliance Start
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-            {
-                Position startPos;
-                GetTeamStartLoc(player->GetTeamId(), startPos);
-                player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
-            }
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -342,7 +338,6 @@ bool BattlegroundBFG::SetupBattleground()
 
 void BattlegroundBFG::Reset()
 {
-    //call parent's class reset
     Battleground::Reset();
 
     for (int8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
@@ -370,26 +365,23 @@ void BattlegroundBFG::Reset()
             DelCreature(i);
 }
 
-void BattlegroundBFG::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+bool BattlegroundBFG::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor /*= true*/)
 {
-    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
-    if (itr == PlayerScores.end())
-        return;
+    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
+        return false;
 
     switch (type)
     {
         case SCORE_BASES_ASSAULTED:
-            ((BattlegroundBFGScore*)itr->second)->BasesAssaulted += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_OBJECTIVE_ASSAULT_BASE, 1);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_OBJECTIVE_ASSAULT_BASE, 1);
             break;
         case SCORE_BASES_DEFENDED:
-            ((BattlegroundBFGScore*)itr->second)->BasesDefended += value;
-            Source->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_OBJECTIVE_DEFEND_BASE, 1);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_OBJECTIVE_DEFEND_BASE, 1);
             break;
         default:
-            Battleground::UpdatePlayerScore(Source, type, value, doAddHonor);
             break;
     }
+    return true;
 }
 
 void BattlegroundBFG::EndBattleground(uint32 winner)

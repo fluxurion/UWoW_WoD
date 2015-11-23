@@ -79,14 +79,6 @@ enum BattlegroundDSData
     BG_DS_WATERFALL_STATUS_OFF                   = 3,
 };
 
-class BattlegroundDSScore : public BattlegroundScore
-{
-    public:
-        BattlegroundDSScore() {};
-        virtual ~BattlegroundDSScore() {};
-        //TODO fix me
-};
-
 class BattlegroundDS : public Battleground
 {
     public:
@@ -103,7 +95,6 @@ class BattlegroundDS : public Battleground
         void Reset() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
-        bool HandlePlayerUnderMap(Player* player) override;
     private:
         uint32 _waterfallTimer;
         uint8 _waterfallStatus;
