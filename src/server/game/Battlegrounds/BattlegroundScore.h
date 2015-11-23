@@ -71,7 +71,7 @@ struct BattlegroundScore
     friend class Battleground;
 
     protected:
-        BattlegroundScore(ObjectGuid playerGuid, TeamId team) : PlayerGuid(playerGuid), TeamID(team),
+        BattlegroundScore(ObjectGuid playerGuid, TeamId team) : PlayerGuid(playerGuid), TeamID(team == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE), // evil shit from blizzard
             KillingBlows(0), Deaths(0), HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0) { }
 
         virtual ~BattlegroundScore() { }

@@ -1261,8 +1261,6 @@ void Battleground::AddPlayer(Player* player)
 
     // Add to list/maps
     m_Players[guid] = bp;
-    ASSERT(PlayerScores[guid]);                             //not add bg score???? First add score after add to bg
-    PlayerScores[guid]->TeamID = GetTeamIndexByTeamId(team);
 
     UpdatePlayersCountByTeam(team, false);                  // +1 player
     SendPacketToTeam(team, WorldPackets::Battleground::PlayerJoined(guid).Write(), player, false);
