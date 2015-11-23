@@ -896,6 +896,8 @@ void Garrison::SendGarrisonUpgradebleResult(Player* receiver) const
     WorldPackets::Garrison::GarrisonIsUpgradeableResult result;
     if (_siteLevel->Level >= 3)
         result.Result = GARRISON_ERROR_MAX_LEVEL;
+    else
+        result.Result = GARRISON_ERROR_NOT_ALLOW_GARRISON_UPGRADE;
     receiver->SendDirectMessage(result.Write());
 }
 

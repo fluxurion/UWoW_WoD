@@ -61,7 +61,7 @@ enum GarrisonError
     GARRISON_ERROR_BUILDING_EXISTS          = 24,
     GARRISON_ERROR_NOT_ENOUGH_CURRENCY      = 46,
     GARRISON_ERROR_NOT_ENOUGH_GOLD          = 47,
-
+    GARRISON_ERROR_NOT_ALLOW_GARRISON_UPGRADE = 68,
     GARRISON_GENERIC_UNKNOWN_ERROR          = 255   // custom value for packets whose handlers only check if error != 0
 };
 
