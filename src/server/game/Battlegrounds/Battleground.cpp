@@ -870,10 +870,10 @@ void Battleground::EndBattleground(uint32 winner)
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA, GetMapId());
         }
-        else
+        else if (isArena() && isRated())
         {
-            _arenaTeamScores[TEAM_ALLIANCE].Assign(bracket->getRating(), bracket->getRating() + -16, bracket->getLastMMRChange());
-            _arenaTeamScores[TEAM_HORDE].Assign(bracket->getRating(), bracket->getRating() + -16, bracket->getLastMMRChange());
+            _arenaTeamScores[TEAM_ALLIANCE].Assign(bracket->getRating(), bracket->getRating() -16, bracket->getLastMMRChange());
+            _arenaTeamScores[TEAM_HORDE].Assign(bracket->getRating(), bracket->getRating() -16, bracket->getLastMMRChange());
 
             bracket->FinishGame(false, -16);
         }
