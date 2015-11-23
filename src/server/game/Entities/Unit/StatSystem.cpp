@@ -1543,8 +1543,11 @@ bool Guardian::UpdateStats(Stats stat)
                 {
                     switch (ToPet()->GetSpecializationId())
                     {
+                        case SPEC_PET_ADAPTATION_FEROCITY:
                         case SPEC_PET_FEROCITY: mod = 0.67f; break;
+                        case SPEC_PET_ADAPTATION_TENACITY:
                         case SPEC_PET_TENACITY: mod = 0.78f; break;
+                        case SPEC_PET_ADAPTATION_CUNNING:
                         case SPEC_PET_CUNNING: mod = 0.725f; break;
                     }
                 }
@@ -1851,6 +1854,8 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, SPELL_SCHOOL_MASK_NORMAL);
+    if(Unit* owner = GetOwner())
+        total_pct *= owner->GetTotalAuraMultiplier(SPELL_AURA_PET_DAMAGE_DONE_PCT);
 
     float weapon_mindamage = GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
     float weapon_maxdamage = GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);

@@ -487,7 +487,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //426 SPELL_AURA_426
     &AuraEffect::HandleNULL,                                      //427 SPELL_AURA_ITEMS_SCALING_AURA
     &AuraEffect::HandleSummonController,                          //428 SPELL_AURA_SUMMON_CONTROLLER
-    &AuraEffect::HandleNULL,                                      //429 SPELL_AURA_PET_DAMAGE_DONE_PCT
+    &AuraEffect::HandleNULL,                                      //429 SPELL_AURA_PET_DAMAGE_DONE_PCT implemented in Unit::SpellBaseDamageBonus Unit::MeleeDamageBonusDone
     &AuraEffect::HandleAuraActivateScene,                         //430 SPELL_AURA_ACTIVATE_SCENE
     &AuraEffect::HandleNULL,                                      //431 SPELL_AURA_CONTESTED_PVP
     &AuraEffect::HandleNULL,                                      //432 SPELL_AURA_ENTER_BATTLEGROUND - seems used for items and player lvl scaling

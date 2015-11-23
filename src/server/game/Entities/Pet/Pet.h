@@ -138,6 +138,7 @@ class Pet : public Guardian
         void SetSpecializationId(uint32 id) { m_specialization = id; }
         void LearnSpecializationSpell();
         void UnlearnSpecializationSpell();
+        void CheckSpecialization();
         void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
         
         uint32 GetGroupUpdateFlag() const { return m_groupUpdateMask; }

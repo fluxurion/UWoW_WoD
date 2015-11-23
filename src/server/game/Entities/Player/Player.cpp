@@ -4465,6 +4465,34 @@ void Player::learnSpell(uint32 spell_id, bool dependent, uint32 fromSkill /*= 0*
 
     bool learning = addSpell(spell_id, active, true, dependent, false);
 
+    // prevent duplicated entires in spell book, also not send if not in world (loading)
+    // should send in any time for correct auto-action button setting.
+    if (learning/* && IsInWorld()*/)
+    {
+        WorldPackets::Spells::LearnedSpells packet;
+        packet.SpellID.push_back(spell_id);
+        GetSession()->SendPacket(packet.Write());
+    }
+
+    // learn all disabled higher ranks and required spells (recursive)
+    if (disabled)
+    {
+        if (uint32 nextSpell = sSpellMgr->GetNextSpellInChain(spell_id))
+        {
+            PlayerSpellMap::iterator iter = m_spells.find(nextSpell);
+            if (iter != m_spells.end() && iter->second->disabled)
+                learnSpell(nextSpell, false, fromSkill);
+        }
+
+        SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(spell_id);
+        for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequiringSpell.first; itr2 != spellsRequiringSpell.second; ++itr2)
+        {
+            PlayerSpellMap::iterator iter2 = m_spells.find(itr2->second);
+            if (iter2 != m_spells.end() && iter2->second->disabled)
+                learnSpell(itr2->second, false, fromSkill);
+        }
+    }
+
     if (const std::vector<SpellTalentLinked> *spell_triggered = sSpellMgr->GetSpelltalentLinked(spell_id))
     {
         for (std::vector<SpellTalentLinked>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
@@ -4510,35 +4538,14 @@ void Player::learnSpell(uint32 spell_id, bool dependent, uint32 fromSkill /*= 0*
                     RemovePet(NULL);
                     break;
                 }
+                case 3: //Check pet spec
+                {
+                    if (Pet* pet = GetPet())
+                        if (pet->getPetType() == HUNTER_PET && !pet->m_Stampeded)
+                            pet->CheckSpecialization();
+                    break;
+                }
             }
-        }
-    }
-
-    // prevent duplicated entires in spell book, also not send if not in world (loading)
-    // should send in any time for correct auto-action button setting.
-    if (learning/* && IsInWorld()*/)
-    {
-        WorldPackets::Spells::LearnedSpells packet;
-        packet.SpellID.push_back(spell_id);
-        GetSession()->SendPacket(packet.Write());
-    }
-
-    // learn all disabled higher ranks and required spells (recursive)
-    if (disabled)
-    {
-        if (uint32 nextSpell = sSpellMgr->GetNextSpellInChain(spell_id))
-        {
-            PlayerSpellMap::iterator iter = m_spells.find(nextSpell);
-            if (iter != m_spells.end() && iter->second->disabled)
-                learnSpell(nextSpell, false, fromSkill);
-        }
-
-        SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(spell_id);
-        for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequiringSpell.first; itr2 != spellsRequiringSpell.second; ++itr2)
-        {
-            PlayerSpellMap::iterator iter2 = m_spells.find(itr2->second);
-            if (iter2 != m_spells.end() && iter2->second->disabled)
-                learnSpell(itr2->second, false, fromSkill);
         }
     }
 
@@ -4570,47 +4577,6 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     itr = m_spells.find(spell_id);
     if (itr == m_spells.end())
         return;                                             // already unleared
-
-    if (const std::vector<SpellTalentLinked> *spell_triggered = sSpellMgr->GetSpelltalentLinked(-(int32)spell_id))
-    {
-        for (std::vector<SpellTalentLinked>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
-        {
-            Unit* target = (Unit*)this;
-            Unit* caster = (Unit*)this;
-
-            if(i->caster == 1)
-                if (Pet* pet = GetPet())
-                    caster = (Unit*)pet;
-            if(i->target == 1)
-                if (Pet* pet = GetPet())
-                    target = (Unit*)pet;
-
-            switch (i->type)
-            {
-                case 0: //remove or add auras
-                {
-                    if (i->triger < 0)
-                        target->RemoveAurasDueToSpell(-(i->triger));
-                    else
-                        caster->CastSpell(target, i->triger, true);
-                    break;
-                }
-                case 1: //remove or add spell
-                {
-                    if (i->triger < 0)
-                        removeSpell(-(i->triger));
-                    else
-                        learnSpell(i->triger, false);
-                    break;
-                }
-                case 2: //remove pet
-                {
-                    RemovePet(NULL);
-                    break;
-                }
-            }
-        }
-    }
 
     bool giveTalentPoints = disabled || !itr->second->disabled;
 
@@ -4686,6 +4652,54 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         removeSpell(itr2->second.spell, disabled);
         if (itr2->second.overridesSpell)
             RemoveOverrideSpell(itr2->second.overridesSpell, itr2->second.spell);
+    }
+
+    if (const std::vector<SpellTalentLinked> *spell_triggered = sSpellMgr->GetSpelltalentLinked(-(int32)spell_id))
+    {
+        for (std::vector<SpellTalentLinked>::const_iterator i = spell_triggered->begin(); i != spell_triggered->end(); ++i)
+        {
+            Unit* target = (Unit*)this;
+            Unit* caster = (Unit*)this;
+
+            if(i->caster == 1)
+                if (Pet* pet = GetPet())
+                    caster = (Unit*)pet;
+            if(i->target == 1)
+                if (Pet* pet = GetPet())
+                    target = (Unit*)pet;
+
+            switch (i->type)
+            {
+                case 0: //remove or add auras
+                {
+                    if (i->triger < 0)
+                        target->RemoveAurasDueToSpell(-(i->triger));
+                    else
+                        caster->CastSpell(target, i->triger, true);
+                    break;
+                }
+                case 1: //remove or add spell
+                {
+                    if (i->triger < 0)
+                        removeSpell(-(i->triger));
+                    else
+                        learnSpell(i->triger, false);
+                    break;
+                }
+                case 2: //remove pet
+                {
+                    RemovePet(NULL);
+                    break;
+                }
+                case 3: //Check pet spec
+                {
+                    if (Pet* pet = GetPet())
+                        if (pet->getPetType() == HUNTER_PET && !pet->m_Stampeded)
+                            pet->CheckSpecialization();
+                    break;
+                }
+            }
+        }
     }
 
     // activate lesser rank in spellbook/action bar, and cast it if need

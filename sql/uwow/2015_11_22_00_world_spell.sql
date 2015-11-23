@@ -77,3 +77,5 @@ insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
 ('64803','157752','0','1','0','0','0','0','0','0','7','0','0','0','0','0','1','Усиленная западня');
 
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('162537','170661','0','0','0','0','0','0','0','0','0','7','0','0','0','0','0','0','0','-1','0','0','0','Отравленные боеприпасы');

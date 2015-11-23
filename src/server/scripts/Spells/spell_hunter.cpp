@@ -2059,6 +2059,53 @@ class spell_hun_lone_wolf : public SpellScriptLoader
         }
 };
 
+// Lone Wolf - 155228
+class spell_hun_lone_wolf_tal : public SpellScriptLoader
+{
+    public:
+        spell_hun_lone_wolf_tal() : SpellScriptLoader("spell_hun_lone_wolf_tal") { }
+
+        class spell_hun_lone_wolf_tal_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_lone_wolf_tal_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* _player = GetCaster()->ToPlayer())
+                {
+                    if (!_player->GetPet())
+                        _player->CastSpell(_player, 164273, true);
+                }
+            }
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    caster->RemoveAura(160198);
+                    caster->RemoveAura(160199);
+                    caster->RemoveAura(160200);
+                    caster->RemoveAura(160203);
+                    caster->RemoveAura(160205);
+                    caster->RemoveAura(160206);
+                    caster->RemoveAura(172967);
+                    caster->RemoveAura(172968);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectApplyFn(spell_hun_lone_wolf_tal_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_hun_lone_wolf_tal_AuraScript::OnApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_lone_wolf_tal_AuraScript();
+        }
+};
+
 // Mastery: Wild Quiver - 76659
 class spell_hun_mastery_wild_quiver : public SpellScriptLoader
 {
@@ -2075,22 +2122,24 @@ class spell_hun_mastery_wild_quiver : public SpellScriptLoader
             {
                 update += diff;
 
-                if (update >= 1000)
+                if (update >= 500)
                 {
                     if (Unit* caster = GetCaster())
                     {
+                        Aura* aura = caster->GetAura(168811);
+                        int32 dur = aura ? aura->GetDuration() : 0;
+
                         if (caster->isMoving())
                         {
                             if (caster->HasAura(168809))
                                 caster->RemoveAura(168809);
-                            if (Aura* aura = caster->GetAura(168811))
-                                if(aura->GetDuration() < 0)
-                                {
-                                    aura->SetMaxDuration(6000);
-                                    aura->SetDuration(6000);
-                                }
+                            if(aura && dur < 0)
+                            {
+                                aura->SetMaxDuration(6000);
+                                aura->SetDuration(6000);
+                            }
                         }
-                        else if (!caster->HasAura(168809) && !caster->HasAura(168811))
+                        else if (!caster->HasAura(168809) && dur >= 0)
                             caster->CastSpell(caster, 168809, true);
                     }
                     update = 0;
@@ -2106,6 +2155,48 @@ class spell_hun_mastery_wild_quiver : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_hun_mastery_wild_quiver_AuraScript();
+        }
+};
+
+// Enhanced Basic Attacks - 157715
+class spell_hun_enhanced_basic_attacks : public SpellScriptLoader
+{
+    public:
+        spell_hun_enhanced_basic_attacks() : SpellScriptLoader("spell_hun_enhanced_basic_attacks") { }
+
+        class spell_hun_enhanced_basic_attacks_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_enhanced_basic_attacks_SpellScript);
+
+            void HandleOnCast()
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+                Unit* owner = caster->GetOwner();
+                if (!owner)
+                    return;
+                if (Player* _player = owner->ToPlayer())
+                {
+                    if (roll_chance_i(15))
+                    {
+                        _player->RemoveSpellCooldown(GetSpellInfo()->Id, true);
+                        if (Creature* pet = caster->ToCreature())
+                            pet->RemoveCreatureSpellCooldown(GetSpellInfo()->Id);
+                        caster->CastSpell(caster, 157717, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_hun_enhanced_basic_attacks_SpellScript::HandleOnCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_enhanced_basic_attacks_SpellScript();
         }
 };
 
@@ -2148,5 +2239,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_widow_venom();
     new spell_hun_explosive_shot();
     new spell_hun_lone_wolf();
+    new spell_hun_lone_wolf_tal();
     new spell_hun_mastery_wild_quiver();
+    new spell_hun_enhanced_basic_attacks();
 }

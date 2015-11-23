@@ -348,6 +348,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool s
                 m_declinedname->name[i] = fields2[i].GetString();
             }
         }
+        if (!stampeded)
+            CheckSpecialization();
     }
 
     //set last used pet number (for use in BG's)
@@ -1984,6 +1986,62 @@ void Pet::UnlearnSpecializationSpell()
             continue;
 
         unlearnSpell(specializationEntry->LearnSpell);
+    }
+}
+
+void Pet::CheckSpecialization()
+{
+    Unit* owner = GetOwner();
+    if (!owner)
+        return;
+
+    Player* player = GetOwner()->ToPlayer();
+    if (!player)
+        return;
+
+    bool adaptation = false;
+    if (owner->HasAura(152244)) //Adaptation Spec
+        adaptation = true;
+    uint32 newSpecId = 0;
+
+    switch(m_specialization)
+    {
+        case SPEC_PET_FEROCITY:
+            if (adaptation)
+                newSpecId = SPEC_PET_ADAPTATION_FEROCITY;
+            break;
+        case SPEC_PET_TENACITY:
+            if (adaptation)
+                newSpecId = SPEC_PET_ADAPTATION_TENACITY;
+            break;
+        case SPEC_PET_CUNNING:
+            if (adaptation)
+                newSpecId = SPEC_PET_ADAPTATION_CUNNING;
+            break;
+        case SPEC_PET_ADAPTATION_FEROCITY:
+            if (!adaptation)
+                newSpecId = SPEC_PET_FEROCITY;
+            break;
+        case SPEC_PET_ADAPTATION_TENACITY:
+            if (!adaptation)
+                newSpecId = SPEC_PET_TENACITY;
+            break;
+        case SPEC_PET_ADAPTATION_CUNNING:
+            if (!adaptation)
+                newSpecId = SPEC_PET_CUNNING;
+            break;
+        default:
+            break;
+    }
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Pet::CheckSpecialization newSpecId %i m_specialization %i adaptation %i", newSpecId, m_specialization, adaptation);
+
+    if (newSpecId)
+    {
+        UnlearnSpecializationSpell();
+        SetSpecializationId(newSpecId);
+        LearnSpecializationSpell();
+        player->PetSpellInitialize();
+        player->SendTalentsInfoData(true);
     }
 }
 

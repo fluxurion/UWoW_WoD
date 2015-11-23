@@ -4360,6 +4360,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 144595:  // Divine Crusader
                 case 157174:  // Elemental Fusion
                 case 88819:  // Daybreak
+                case 157717:  // Enhanced Basic Attacks
                     spellInfo->ProcCharges = 1;
                     break;
                 case 89485:  // Inner Focus

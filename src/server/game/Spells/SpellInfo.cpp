@@ -2687,6 +2687,10 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         }
         case SPELLFAMILY_HUNTER:
         {
+            // Poisoned Ammo
+            if (Id == 170661)
+                return SPELL_SPECIFIC_NORMAL;
+
             // only hunter stings have this
             if (Dispel == DISPEL_POISON)
                 return SPELL_SPECIFIC_STING;

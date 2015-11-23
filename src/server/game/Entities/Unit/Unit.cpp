@@ -12068,6 +12068,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             }
         }
 
+        if (Unit* owner = GetAnyOwner())
+            AddPct(DoneTotalMod, owner->GetTotalAuraModifier(SPELL_AURA_PET_DAMAGE_DONE_PCT));
+
         // 76613 - Mastery: Frostburn
         if (GetTypeId() == TYPEID_PLAYER && spellProto->SpellFamilyName == SPELLFAMILY_MAGE &&
             getLevel() >= 80 && ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_MAGE_FROST)
@@ -13329,9 +13332,8 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
             AddPct(DoneTotalMod, (*i)->GetAmount());
     }
 
-    // done scripted mod (take it from owner)
-    Unit* owner = GetOwner() ? GetOwner() : this;
-    // AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+    if (Unit* owner = GetAnyOwner())
+        AddPct(DoneTotalMod, owner->GetTotalAuraModifier(SPELL_AURA_PET_DAMAGE_DONE_PCT));
 
     float tmpDamage = float(int32(pdamage) + DoneFlatBenefit) * DoneTotalMod;
 

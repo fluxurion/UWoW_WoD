@@ -552,17 +552,30 @@ void WorldSession::HandleLearnPetSpecializationGroup(WorldPackets::PetPackets::L
         return;
 
     uint32 specializationId = 0;
+    bool adaptation = false;
+
+    if (_player->HasAura(152244)) //Adaptation Spec
+        adaptation = true;
 
     switch(packet.SpecGroupId)
     {
         case 0:
-            specializationId = SPEC_PET_FEROCITY;
+            if(adaptation)
+                specializationId = SPEC_PET_ADAPTATION_FEROCITY;
+            else
+                specializationId = SPEC_PET_FEROCITY;
             break;
         case 1:
-            specializationId = SPEC_PET_TENACITY;
+            if(adaptation)
+                specializationId = SPEC_PET_ADAPTATION_TENACITY;
+            else
+                specializationId = SPEC_PET_TENACITY;
             break;
         case 2:
-            specializationId = SPEC_PET_CUNNING;
+            if(adaptation)
+                specializationId = SPEC_PET_ADAPTATION_CUNNING;
+            else
+                specializationId = SPEC_PET_CUNNING;
             break;
         default:
             break;

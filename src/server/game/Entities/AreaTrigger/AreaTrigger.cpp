@@ -576,9 +576,9 @@ void AreaTrigger::DoAction(Unit* unit, ActionInfo& action)
     else if (action.action->aura < 0 && unit->HasAura(abs(action.action->aura)))
         return;
 
-    if (action.action->hasspell > 0 && !unit->HasSpell(action.action->hasspell))
+    if (action.action->hasspell > 0 && !_caster->HasSpell(action.action->hasspell))
         return;
-    else if (action.action->hasspell < 0 && unit->HasSpell(abs(action.action->hasspell)))
+    else if (action.action->hasspell < 0 && _caster->HasSpell(abs(action.action->hasspell)))
         return;
 
     if (!CheckActionConditions(*action.action, unit))

@@ -144,7 +144,10 @@ enum SpecIndex
     SPEC_MONK_BREWMASTER        = 268,
     SPEC_MONK_WINDWALKER        = 269,
     SPEC_MONK_MISTWEAVER        = 270,
-    SPEC_MAX_SPEC_INDEX         = 271
+    SPEC_MAX_SPEC_INDEX         = 271,
+    SPEC_PET_ADAPTATION_FEROCITY = 535,
+    SPEC_PET_ADAPTATION_CUNNING  = 536,
+    SPEC_PET_ADAPTATION_TENACITY = 537,
 };
 
 // used in script definitions
