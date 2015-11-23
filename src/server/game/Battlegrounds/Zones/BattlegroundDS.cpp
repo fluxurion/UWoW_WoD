@@ -29,10 +29,11 @@ BattlegroundDS::BattlegroundDS()
     BgObjects.resize(BG_DS_OBJECT_MAX);
     BgCreatures.resize(BG_DS_NPC_MAX);
 
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
+    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
+    {
+        m_broadcastMessages[i] = ArenaBroadcastTexts[i];
+        m_hasBroadcasts[i] = true;
+    }
 }
 
 BattlegroundDS::~BattlegroundDS()
@@ -182,8 +183,6 @@ void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
     {
         case 5347:
         case 5348:
-        case 8534:
-        case 8533:
             // Remove effects of Demonic Circle Summon
             if (player->HasAura(48018))
                 player->RemoveAurasDueToSpell(48018);
@@ -192,6 +191,11 @@ void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             // so we reset the knockback count for kicking the player again into the arena.
             if (getPipeKnockBackCount() >= BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT)
                 setPipeKnockBackCount(0);
+            break;
+        case 8533: // Alliance start loc
+        case 8534: // Horde start loc
+            if (!entered && GetStatus() != STATUS_IN_PROGRESS)
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);

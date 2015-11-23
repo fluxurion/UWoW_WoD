@@ -28,10 +28,11 @@ BattlegroundRV::BattlegroundRV()
 {
     BgObjects.resize(BG_RV_OBJECT_MAX);
 
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
+    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
+    {
+        m_broadcastMessages[i] = ArenaBroadcastTexts[i];
+        m_hasBroadcasts[i] = true;
+    }
 	
     PillarCollision = false;
 }

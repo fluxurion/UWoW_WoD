@@ -57,7 +57,7 @@
 /***            BATTLEGROUND MANAGER                   ***/
 /*********************************************************/
 
-BattlegroundMgr::BattlegroundMgr() : m_ArenaTesting(false)
+BattlegroundMgr::BattlegroundMgr()
 {
     for (uint32 i = BATTLEGROUND_TYPE_NONE; i < MAX_BATTLEGROUND_TYPE_ID; i++)
         m_Battlegrounds[i].clear();
@@ -834,15 +834,6 @@ void BattlegroundMgr::ToggleTesting()
         sWorld->SendWorldText(LANG_DEBUG_BG_ON);
     else
         sWorld->SendWorldText(LANG_DEBUG_BG_OFF);
-}
-
-void BattlegroundMgr::ToggleArenaTesting()
-{
-    m_ArenaTesting = !m_ArenaTesting;
-    if (m_ArenaTesting)
-        sWorld->SendWorldText(LANG_DEBUG_ARENA_ON);
-    else
-        sWorld->SendWorldText(LANG_DEBUG_ARENA_OFF);
 }
 
 void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)

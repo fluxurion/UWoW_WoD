@@ -35,6 +35,7 @@ EndScriptData */
 #include "Vehicle.h"
 #include "Packets/ChatPackets.h"
 #include "Packets/MiscPackets.h"
+#include "DisableMgr.h"
 
 #include <fstream>
 
@@ -892,9 +893,51 @@ public:
         return true;
     }
 
-    static bool HandleDebugArenaCommand(ChatHandler* /*handler*/, char const* /*args*/)
+    static bool HandleDebugArenaCommand(ChatHandler* handler, char const* args)
     {
-        sBattlegroundMgr->ToggleArenaTesting();
+        if (!*args)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* player = handler->GetSession()->GetPlayer();
+        if (!player)
+            return false;
+
+        if (player->InBattleground())
+            return false;
+
+        uint8 Jointype = sBattlegroundMgr->GetJoinTypeByBracketSlot(atoi((char*)args));
+        Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
+        if (!bg)
+            return false;
+
+        BattlegroundTypeId bgTypeId = bg->GetTypeID();
+        BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, Jointype);
+        BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
+
+        PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), player->getLevel());
+        if (!bracketEntry)
+            return false;
+
+        bg->SetRated(true);
+
+        sBattlegroundMgr->ScheduleQueueUpdate(1700, Jointype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
+
+        WorldPackets::Battleground::IgnorMapInfo ignore;
+        GroupQueueInfo* ginfo = bgQueue.AddGroup(player, nullptr, bgTypeId, bracketEntry, Jointype, true, false, ignore, 1500);
+        uint32 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
+
+        player->AddBattlegroundQueueJoinTime(bgTypeId, ginfo->JoinTime);
+
+        WorldPackets::Battleground::BattlefieldStatusQueued queued;
+        sBattlegroundMgr->BuildBattlegroundStatusQueued(&queued, bg, player, player->AddBattlegroundQueueId(bgQueueTypeId), ginfo->JoinTime, avgTime, ginfo->JoinType, true);
+        player->SendDirectMessage(queued.Write());
+
+        sBattlegroundMgr->ScheduleQueueUpdate(1500, Jointype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
+
         return true;
     }
 

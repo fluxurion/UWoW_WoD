@@ -155,6 +155,7 @@ Battleground::Battleground()
     m_ResetStatTimer    = 0;
     m_Events            = 0;
     m_IsRated           = false;
+    m_IsTournament = false;
     m_BuffChange        = false;
     m_IsRandom          = false;
     m_Name              = "";
@@ -180,7 +181,7 @@ Battleground::Battleground()
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
 
-    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_FOURTH; ++i)
+    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
     {
         m_broadcastMessages[i] = 89373 + i; // lets use this like default
         m_hasBroadcasts[i] = false;
@@ -264,8 +265,6 @@ void Battleground::Update(uint32 diff)
         }
         case STATUS_IN_PROGRESS:
         {
-            uint8 dumpeningTime = m_JoinType == JOIN_TYPE_ARENA_2v2 ? 6 : 11;
-
             _ProcessOfflineQueue();
             // after 20 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
@@ -295,7 +294,7 @@ void Battleground::Update(uint32 diff)
                    ++m_arenaMinutesElapsed;
                    UpdateWorldState(8529, int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(20) - m_arenaMinutesElapsed).count()));
                 }
-                else if (GetElapsedTime() >= Minutes(dumpeningTime))
+                else if (GetElapsedTime() >= Minutes(10))
                 {
                     ModifyStartDelayTime(Milliseconds(diff));
                     if (GetStartDelayTime() <= Seconds(0) || GetStartDelayTime() > Seconds(10))

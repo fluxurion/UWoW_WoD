@@ -862,31 +862,8 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         MinPlayersPerTeam = 1;
     if (bg_template->isArena() || bg_template->IsRBG())
     {
-        if (sBattlegroundMgr->isArenaTesting())
-        {
-            MaxPlayersPerTeam = 1;
-            MinPlayersPerTeam = 1;
-        } else
-        {
-            //this switch can be much shorter
-            MaxPlayersPerTeam = JoinType;
-            MinPlayersPerTeam = JoinType;
-            /*switch (JoinType)
-            {
-            case JOIN_TYPE_ARENA_2v2:
-                MaxPlayersPerTeam = 2;
-                MinPlayersPerTeam = 2;
-                break;
-            case JOIN_TYPE_ARENA_3v3:
-                MaxPlayersPerTeam = 3;
-                MinPlayersPerTeam = 3;
-                break;
-            case JOIN_TYPE_ARENA_5v5:
-                MaxPlayersPerTeam = 5;
-                MinPlayersPerTeam = 5;
-                break;
-            }*/
-        }
+        MaxPlayersPerTeam = JoinType;
+        MinPlayersPerTeam = JoinType;
     }
 
     for (uint32 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)

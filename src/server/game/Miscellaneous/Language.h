@@ -645,12 +645,6 @@ enum TrinityStrings
     LANG_BG_SSM_START_HALF_MINUTE       = 774,
     LANG_BG_SSM_HAS_BEGUN               = 775,
 
-    LANG_ARENA_ONE_TOOLOW               = 700,
-    LANG_ARENA_ONE_MINUTE               = 701,
-    LANG_ARENA_THIRTY_SECONDS           = 702,
-    LANG_ARENA_FIFTEEN_SECONDS          = 703,
-    LANG_ARENA_HAS_BEGUN                = 704,
-
     LANG_WAIT_BEFORE_SPEAKING           = 705,
     LANG_NOT_EQUIPPED_ITEM              = 706,
     LANG_PLAYER_DND                     = 707,
@@ -682,8 +676,6 @@ enum TrinityStrings
     LANG_CANNOT_SUMMON_TO_BG            = 734,              // "You cannot summon players to a battleground or arena map."
     LANG_CANNOT_GO_TO_BG_GM             = 735,              // "You must be in GM mode to teleport to a player in a battleground."
     LANG_CANNOT_GO_TO_BG_FROM_BG        = 736,              // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."
-    LANG_DEBUG_ARENA_ON                 = 737,
-    LANG_DEBUG_ARENA_OFF                = 738,
     LANG_DEBUG_BG_ON                    = 739,
     LANG_DEBUG_BG_OFF                   = 740,
     LANG_DIST_ARENA_POINTS_START        = 741,

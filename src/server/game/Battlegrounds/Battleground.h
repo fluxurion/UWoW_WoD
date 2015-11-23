@@ -269,6 +269,7 @@ enum BattlegroundStartingEventsIds
     BG_STARTING_EVENT_COUNT
 };
 
+static uint32 const ArenaBroadcastTexts[BG_STARTING_EVENT_COUNT] = {15740, 15741, 15739, 15742};
 
 enum BgNodeStatus
 {
@@ -411,7 +412,8 @@ class Battleground
         void SetMaxPlayers(uint32 MaxPlayers) { m_MaxPlayers = MaxPlayers; }
         void SetMinPlayers(uint32 MinPlayers) { m_MinPlayers = MinPlayers; }
         void SetLevelRange(uint32 min, uint32 max) { m_LevelMin = min; m_LevelMax = max; }
-        void SetRated(bool state)           { m_IsRated = state; }
+        void SetRated(bool state) { m_IsRated = state; }
+        void SetTournamentRules(bool state) { m_IsRated = state; }
         void SetJoinType(uint8 type)       { m_JoinType = type; }
         void SetArenaorBGType(bool _isArena) { m_IsArena = _isArena; }
         void SetWinner(uint8 winner)        { m_Winner = winner; }
@@ -434,10 +436,11 @@ class Battleground
         bool HasFreeSlots() const;
         uint32 GetFreeSlotsForTeam(uint32 Team) const;
 
-        bool isArena() const        { return m_IsArena; }
+        bool isArena() const { return m_IsArena; }
         bool isBattleground() const { return !m_IsArena; }
-        bool IsRBG()          const { return m_IsRBG; }
-        bool isRated() const        { return m_IsRated; }
+        bool IsRBG() const { return m_IsRBG; }
+        bool isRated() const { return m_IsRated; }
+        bool IsTournament() const { return m_IsRated; }
 
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
         uint32 GetPlayersSize() const { return m_Players.size(); }
@@ -679,8 +682,9 @@ class Battleground
         uint8  m_Winner;                                    // 0=alliance, 1=horde, 2=none
         Milliseconds m_StartDelayTime;
         Milliseconds m_LastPlayerPositionBroadcast;
-        bool   m_IsRated;                                   // is this battle rated?
-        bool   m_PrematureCountDown;
+        bool m_IsRated;
+        bool m_IsTournament;
+        bool m_PrematureCountDown;
         uint32 m_PrematureCountDownTimer;
         char const* m_Name;
         uint64 m_QueueID;

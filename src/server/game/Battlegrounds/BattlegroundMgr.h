@@ -147,7 +147,6 @@ class BattlegroundMgr
         uint32 GetRatingDiscardTimer()  const;
         uint32 GetPrematureFinishTime() const;
 
-        void ToggleArenaTesting();
         void ToggleTesting();
 
         void LoadBattleMastersEntry();
@@ -160,7 +159,6 @@ class BattlegroundMgr
             return BATTLEGROUND_WS;
         }
 
-        bool isArenaTesting() const { return m_ArenaTesting; }
         bool isTesting() const { return m_Testing; }
 
         static bool IsArenaType(BattlegroundTypeId bgTypeId);
@@ -183,7 +181,6 @@ class BattlegroundMgr
         QueueSchedulerItems m_QueueUpdateScheduler;
         ClientBattlegroundIDs m_ClientBattlegroundIds[MAX_BATTLEGROUND_TYPE_ID][MAX_BATTLEGROUND_BRACKETS]; //the instanceids just visible for the client
         uint32 m_NextRatedArenaUpdate;
-        bool   m_ArenaTesting;
         bool   m_Testing;
 };
 

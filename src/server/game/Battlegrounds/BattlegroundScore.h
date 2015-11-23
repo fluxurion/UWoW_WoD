@@ -49,9 +49,9 @@ enum ScoreType
     SCORE_DESTROYED_DEMOLISHER  = 18,
     SCORE_DESTROYED_WALL        = 19,
 
-    //SM
+    // SM
     SCORE_CARTS_HELPED          = 20,
-    //TK
+    // TK
     SCORE_ORB_HANDLES           = 21,
     SCORE_ORB_SCORE             = 22,
 
@@ -59,7 +59,7 @@ enum ScoreType
     SCORE_DAMAGE_TAKEN          = 23,
     SCORE_HEALING_TAKEN         = 24,
 
-    //DG
+    // DG
     SCORE_CARTS_CAPTURED        = 25,
     SCORE_CARTS_DEFENDED        = 26,
     SCORE_POINTS_CAPTURED       = 27,
@@ -97,6 +97,10 @@ struct BattlegroundScore
                     break;
                 case SCORE_HEALING_DONE:
                     HealingDone += value;
+                    break;
+                    // is this score types really needed - we have armory ?
+                case SCORE_DAMAGE_TAKEN:
+                case SCORE_HEALING_TAKEN:
                     break;
                 default:
                     ASSERT(false && "Not implemented Battleground score type!");

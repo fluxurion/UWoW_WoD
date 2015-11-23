@@ -28,10 +28,11 @@ BattlegroundNA::BattlegroundNA()
 {
     BgObjects.resize(BG_NA_OBJECT_MAX);
 
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
+    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
+    {
+        m_broadcastMessages[i] = ArenaBroadcastTexts[i];
+        m_hasBroadcasts[i] = true;
+    }
 }
 
 BattlegroundNA::~BattlegroundNA()
@@ -97,6 +98,11 @@ void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
     {
         case 4536:
         case 4537:
+            break;
+        case 8447: // Alliance start loc
+        case 8448: // Horde start loc
+            if (!entered && GetStatus() != STATUS_IN_PROGRESS)
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
