@@ -515,6 +515,16 @@ WorldPacket const* WorldPackets::Spells::UnlearnedSpells::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Spells::SupercededSpells::Write()
+{
+    _worldPacket << SpellCount1;
+    _worldPacket << SpellCount2;
+    _worldPacket << SpellID;
+    _worldPacket << SupercededSpellID;
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Spells::CooldownEvent::Write()
 {
     _worldPacket << int32(SpellID);

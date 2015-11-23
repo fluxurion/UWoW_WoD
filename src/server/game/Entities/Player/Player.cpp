@@ -4097,13 +4097,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                 if (next_active_spell_id)
                 {
                     // update spell ranks in spellbook and action bar
-                    // 6.0.3
-                    WorldPacket data(SMSG_SUPERCEDED_SPELLS);
-                    data << uint32(1);
-                    data << uint32(1);
-                    data << uint32(next_active_spell_id);
-                    data << uint32(spellId);
-                    GetSession()->SendPacket(&data);
+                    WorldPackets::Spells::SupercededSpells supercededSpells;
+                    supercededSpells.SpellID = next_active_spell_id;
+                    supercededSpells.SupercededSpellID = spellId;
+                    SendDirectMessage(supercededSpells.Write());
                 }
                 else
                 {
@@ -4257,11 +4254,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
         // replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
         if (newspell->active && !newspell->disabled && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked() != 0)
         {
-            //!6.0.3
-            WorldPacket data(SMSG_SUPERCEDED_SPELLS);
-            uint32 bitCount = 0;
-            ByteBuffer dataBuffer1;
-            ByteBuffer dataBuffer2;
             for (PlayerSpellMap::iterator itr2 = m_spells.begin(); itr2 != m_spells.end(); ++itr2)
             {
                 if (itr2->second->state == PLAYERSPELL_REMOVED)
@@ -4279,9 +4271,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                         {
                             if (IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
-                                bitCount++;
-                                dataBuffer1 << uint32(itr2->first);
-                                dataBuffer2 << uint32(spellId);
+                                WorldPackets::Spells::SupercededSpells supercededSpells;
+                                supercededSpells.SpellID = spellId;
+                                supercededSpells.SupercededSpellID = itr2->first;
+                                SendDirectMessage(supercededSpells.Write());
                             }
 
                             // mark old spell as disable (SMSG_SUPERCEDED_SPELLS replace it in client by new)
@@ -4294,9 +4287,10 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                         {
                             if (IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
-                                bitCount++;
-                                dataBuffer1 << uint32(spellId);
-                                dataBuffer2 << uint32(itr2->first);
+                                WorldPackets::Spells::SupercededSpells supercededSpells;
+                                supercededSpells.SpellID = itr2->first;
+                                supercededSpells.SupercededSpellID = spellId;
+                                SendDirectMessage(supercededSpells.Write());
                             }
 
                             // mark new spell as disable (not learned yet for client and will not learned)
@@ -4307,11 +4301,6 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
                     }
                 }
             }
-            data << uint32(bitCount);
-            data << uint32(bitCount);
-            data.append(dataBuffer2);
-            data.append(dataBuffer1);
-            GetSession()->SendPacket(&data);
         }
 
         m_spells[spellId] = newspell;
@@ -4726,13 +4715,10 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                     if (addSpell(prev_id, true, false, prev_itr->second->dependent, prev_itr->second->disabled))
                     {
                         // downgrade spell ranks in spellbook and action bar
-                        //! 6.0.3
-                        WorldPacket data(SMSG_SUPERCEDED_SPELLS);
-                        data << uint32(1);
-                        data << uint32(1);
-                        data << uint32(prev_id);
-                        data << uint32(spell_id);
-                        GetSession()->SendPacket(&data);
+                        WorldPackets::Spells::SupercededSpells supercededSpells;
+                        supercededSpells.SpellID = prev_id;
+                        supercededSpells.SupercededSpellID = spell_id;
+                        SendDirectMessage(supercededSpells.Write());
                         prev_activate = true;
                     }
                 }
@@ -6808,8 +6794,8 @@ bool Player::UpdateSkill(uint32 skill_id, uint32 step)
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
 
-    uint16 value = GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset);
-    uint16 max = GetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset);
+    uint16 value = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset);
+    uint16 max = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_MAX_RANK_OFFSET + field, offset);
 
     if (!max || !value || value >= max)
         return false;
@@ -6820,7 +6806,8 @@ bool Player::UpdateSkill(uint32 skill_id, uint32 step)
         if (new_value > max)
             new_value = max;
 
-        SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, new_value);
+        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset, new_value);
+
         if (itr->second.uState != SKILL_NEW)
             itr->second.uState = SKILL_CHANGED;
 
@@ -6945,8 +6932,8 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
 
-    uint16 value = GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset);
-    uint16 max = GetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset);
+    uint16 value = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset);
+    uint16 max = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_MAX_RANK_OFFSET + field, offset);
 
     if (!max || !value || value >= max)
         return false;
@@ -6959,7 +6946,8 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
         if (new_value > max)
             new_value = max;
 
-        SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, new_value);
+        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset, new_value);
+
         if (itr->second.uState != SKILL_NEW)
             itr->second.uState = SKILL_CHANGED;
 
@@ -6989,7 +6977,7 @@ void Player::ModifySkillBonus(uint32 skillid, int32 val, bool talent)
     if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
         return;
 
-    uint16 field = itr->second.pos / 2 + (talent ? PLAYER_SKILL_TALENT_0 : PLAYER_SKILL_MODIFIER_0);
+    uint16 field = itr->second.pos / 2 + (talent ? PLAYER_FIELD_SKILL + SKILL_PERM_BONUS_OFFSET : PLAYER_FIELD_SKILL + SKILL_TEMP_BONUS_OFFSET);
     uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
 
     uint16 bonus = GetUInt16Value(field, offset);
@@ -7012,7 +7000,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
     {
         uint16 field = itr->second.pos / 2;
         uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
-        currVal = GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset);
+        currVal = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset);
         if (newVal)
         {
             // if skill value is going down, update enchantments before setting the new value
@@ -7020,10 +7008,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 UpdateSkillEnchantments(id, currVal, newVal);
 
             // update step
-            SetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset, step);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_STEP_OFFSET + field, offset, step);
             // update value
-            SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, newVal);
-            SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, maxVal);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset, newVal);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_MAX_RANK_OFFSET + field, offset, maxVal);
 
             if (itr->second.uState != SKILL_NEW)
                 itr->second.uState = SKILL_CHANGED;
@@ -7041,12 +7029,12 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             //remove enchantments needing this skill
             UpdateSkillEnchantments(id, currVal, 0);
             // clear skill fields
-            SetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_ID_OFFSET + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_STEP_OFFSET + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_MAX_RANK_OFFSET + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
 
             // mark as deleted or simply remove from map if not saved yet
             if (itr->second.uState != SKILL_NEW)
@@ -7074,7 +7062,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             uint16 field = i / 2;
             uint8 offset = i & 1; // i % 2
 
-            if (!GetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset))
+            if (!GetUInt16Value(PLAYER_FIELD_SKILL + field, offset))
             {
                 SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(id);
                 if (!skillEntry)
@@ -7083,7 +7071,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                     return;
                 }
 
-                SetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset, id);
+                SetUInt16Value(PLAYER_FIELD_SKILL + field, offset, id);
                 if (skillEntry->categoryId == SKILL_CATEGORY_PROFESSION)
                 {
                     if (!GetUInt32Value(PLAYER_FIELD_PROFESSION_SKILL_LINE))
@@ -7092,9 +7080,9 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                         SetUInt32Value(PLAYER_FIELD_PROFESSION_SKILL_LINE + 1, id);
                 }
 
-                SetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset, step);
-                SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, newVal);
-                SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, maxVal);
+                SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_STEP_OFFSET + field, offset, step);
+                SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset, newVal);
+                SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_MAX_RANK_OFFSET + field, offset, maxVal);
 
                 UpdateSkillEnchantments(id, currVal, newVal);
                 UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
@@ -7110,8 +7098,8 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                     mSkillStatus.insert(SkillStatusMap::value_type(id, SkillStatusData(i, SKILL_NEW)));
 
                 // apply skill bonuses
-                SetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset, 0);
-                SetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset, 0);
+                SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
+                SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
 
                 // temporary bonuses
                 AuraEffectList const& mModSkill = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL);
@@ -7157,7 +7145,7 @@ uint16 Player::GetSkillStep(uint16 skill) const
     if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
         return 0;
 
-    return GetUInt16Value(PLAYER_SKILL_STEP_0 + itr->second.pos / 2, itr->second.pos & 1);
+    return GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_STEP_OFFSET + itr->second.pos / 2, itr->second.pos & 1);
 }
 
 uint16 Player::GetSkillValue(uint32 skill) const
@@ -7172,9 +7160,10 @@ uint16 Player::GetSkillValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    int32 result = int32(GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset));
-    result += int32(GetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset));
-    result += int32(GetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset));
+    int32 result = int32(GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset));
+    result += int32(GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_TEMP_BONUS_OFFSET + field, offset));
+    result += int32(GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_PERM_BONUS_OFFSET + field, offset));
+
     return result < 0 ? 0 : result;
 }
 
@@ -7190,9 +7179,9 @@ uint16 Player::GetMaxSkillValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    int32 result = int32(GetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset));
-    result += int32(GetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset));
-    result += int32(GetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset));
+    int32 result = int32(GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_MAX_RANK_OFFSET + field, offset));
+    result += int32(GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_TEMP_BONUS_OFFSET + field, offset));
+    result += int32(GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_PERM_BONUS_OFFSET + field, offset));
     return result < 0 ? 0 : result;
 }
 
@@ -7208,7 +7197,7 @@ uint16 Player::GetPureMaxSkillValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    return GetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset);
+    return GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_MAX_RANK_OFFSET + field, offset);
 }
 
 uint16 Player::GetBaseSkillValue(uint32 skill) const
@@ -7223,8 +7212,8 @@ uint16 Player::GetBaseSkillValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    int32 result = int32(GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset));
-    result += int32(GetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset));
+    int32 result = int32(GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset));
+    result += int32(GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_PERM_BONUS_OFFSET + field, offset));
     return result < 0 ? 0 : result;
 }
 
@@ -7240,7 +7229,7 @@ uint16 Player::GetPureSkillValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    return GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset);
+    return GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset);
 }
 
 int16 Player::GetSkillPermBonusValue(uint32 skill) const
@@ -7255,7 +7244,7 @@ int16 Player::GetSkillPermBonusValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    return GetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset);
+    return GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_PERM_BONUS_OFFSET + field, offset);
 }
 
 int16 Player::GetSkillTempBonusValue(uint32 skill) const
@@ -7270,7 +7259,7 @@ int16 Player::GetSkillTempBonusValue(uint32 skill) const
     uint16 field = itr->second.pos / 2;
     uint8 offset = itr->second.pos & 1;
 
-    return GetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset);
+    return GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_TEMP_BONUS_OFFSET + field, offset);
 }
 
 void Player::SendActionButtons(uint32 state) const
@@ -21893,8 +21882,8 @@ void Player::_SaveSkills(SQLTransaction& trans)
         uint16 field = itr->second.pos / 2;
         uint8 offset = itr->second.pos & 1;
 
-        uint16 value = GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset);
-        uint16 max = GetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset);
+        uint16 value = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset);
+        uint16 max = GetUInt16Value(PLAYER_FIELD_SKILL + SKILL_MAX_RANK_OFFSET + field, offset);
 
         switch (itr->second.uState)
         {
@@ -27546,7 +27535,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 field = count / 2;
             uint8 offset = count & 1;
 
-            SetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset, skill);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_ID_OFFSET + field, offset, skill);
             uint16 step = 0;
 
             SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(rcEntry->SkillID);
@@ -27564,11 +27553,11 @@ void Player::_LoadSkills(PreparedQueryResult result)
                 }
             }
 
-            SetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset, step);
-            SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, value);
-            SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, max);
-            SetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset, 0);
-            SetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_STEP_OFFSET + field, offset, step);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset, value);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_MAX_RANK_OFFSET + field, offset, max);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
+            SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
 
             mSkillStatus.insert(SkillStatusMap::value_type(skill, SkillStatusData(count, SKILL_UNCHANGED)));
 
@@ -27590,12 +27579,12 @@ void Player::_LoadSkills(PreparedQueryResult result)
         uint16 field = count / 2;
         uint8 offset = count & 1;
 
-        SetUInt16Value(PLAYER_SKILL_LINEID_0 + field, offset, 0);
-        SetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset, 0);
-        SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, 0);
-        SetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset, 0);
-        SetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset, 0);
-        SetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset, 0);
+        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_ID_OFFSET + field, offset, 0);
+        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_STEP_OFFSET + field, offset, 0);
+        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_RANK_OFFSET + field, offset, 0);
+        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_MAX_RANK_OFFSET + field, offset, 0);
+        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_TEMP_BONUS_OFFSET + field, offset, 0);
+        SetUInt16Value(PLAYER_FIELD_SKILL + SKILL_PERM_BONUS_OFFSET + field, offset, 0);
     }
 
     // special settings

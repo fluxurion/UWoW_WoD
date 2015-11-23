@@ -437,6 +437,19 @@ namespace WorldPackets
             bool SuppressMessaging = false;
         };
 
+        class SupercededSpells final : public ServerPacket
+        {
+        public:
+            SupercededSpells() : ServerPacket(SMSG_SUPERCEDED_SPELLS, 16) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SpellCount1 = 1;
+            uint32 SpellCount2 = 1;
+            uint32 SpellID = 0;
+            uint32 SupercededSpellID = 0;
+        };
+
         class CooldownEvent final : public ServerPacket
         {
         public:

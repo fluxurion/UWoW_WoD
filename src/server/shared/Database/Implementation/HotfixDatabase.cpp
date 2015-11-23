@@ -80,13 +80,19 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM item_modified_appearance ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ItemSparse.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, Quality, Flags, Unk1, Unk2, BuyCount, BuyPrice, SellPrice, InventoryType, AllowableClass, "
-        "AllowableRace, ItemLevel, RequiredLevel, RequiredSkill, RequiredSkillRank, RequiredSpell, RequiredHonorRank, RequiredCityRank, "
-        "RequiredReputationFaction, RequiredReputationRank, MaxCount, Stackable, ContainerSlots, ItemStatType, ItemStatValue, ItemStatAllocation, "
-        "ItemStatSocketCostMultiplier, ScalingStatDistribution, DamageType, Delay, RangedModRange, Bonding, Name, Name2, Name3, Name4, Description, "
+    PrepareStatement(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, Quality, Flags1, Flags2, Flags3, Unk1, Unk2, BuyCount, BuyPrice, SellPrice, InventoryType, "
+        "AllowableClass, AllowableRace, ItemLevel, RequiredLevel, RequiredSkill, RequiredSkillRank, RequiredSpell, RequiredHonorRank, "
+        "RequiredCityRank, RequiredReputationFaction, RequiredReputationRank, MaxCount, Stackable, ContainerSlots, ItemStatType1, ItemStatType2, "
+        "ItemStatType3, ItemStatType4, ItemStatType5, ItemStatType6, ItemStatType7, ItemStatType8, ItemStatType9, ItemStatType10, ItemStatValue1, "
+        "ItemStatValue2, ItemStatValue3, ItemStatValue4, ItemStatValue5, ItemStatValue6, ItemStatValue7, ItemStatValue8, ItemStatValue9, "
+        "ItemStatValue10, ItemStatAllocation1, ItemStatAllocation2, ItemStatAllocation3, ItemStatAllocation4, ItemStatAllocation5, "
+        "ItemStatAllocation6, ItemStatAllocation7, ItemStatAllocation8, ItemStatAllocation9, ItemStatAllocation10, ItemStatSocketCostMultiplier1, "
+        "ItemStatSocketCostMultiplier2, ItemStatSocketCostMultiplier3, ItemStatSocketCostMultiplier4, ItemStatSocketCostMultiplier5, "
+        "ItemStatSocketCostMultiplier6, ItemStatSocketCostMultiplier7, ItemStatSocketCostMultiplier8, ItemStatSocketCostMultiplier9, "
+        "ItemStatSocketCostMultiplier10, ScalingStatDistribution, DamageType, Delay, RangedModRange, Bonding, Name, Name2, Name3, Name4, Description, "
         "PageText, LanguageID, PageMaterial, StartQuest, LockID, Material, Sheath, RandomProperty, RandomSuffix, ItemSet, Area, Map, BagFamily, "
-        "TotemCategory, SocketColor, SocketBonus, GemProperties, ArmorDamageModifier, Duration, ItemLimitCategory, HolidayID, StatScalingFactor, "
-        "CurrencySubstitutionID, CurrencySubstitutionCount, ItemNameDescriptionID FROM item_sparse ORDER BY ID DESC", CONNECTION_SYNCH);
+        "TotemCategory, SocketColor1, SocketColor2, SocketColor3, SocketBonus, GemProperties, ArmorDamageModifier, Duration, ItemLimitCategory, "
+        "HolidayID, StatScalingFactor, CurrencySubstitutionID, CurrencySubstitutionCount, ItemNameDescriptionID FROM item_sparse ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, Name_lang, Name2_lang, Name3_lang, Name4_lang, Description_lang FROM item_sparse_locale"
         " WHERE locale = ?", CONNECTION_SYNCH);
 

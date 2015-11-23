@@ -74,12 +74,12 @@ typedef std::deque<Mail*> PlayerMails;
 enum SkillFieldOffset
 {
     SKILL_ID_OFFSET                 = 0,
-    SKILL_STEP_OFFSET               = 64,
-    SKILL_RANK_OFFSET               = SKILL_STEP_OFFSET + 64,
-    SUBSKILL_START_RANK_OFFSET      = SKILL_RANK_OFFSET + 64,
-    SKILL_MAX_RANK_OFFSET           = SUBSKILL_START_RANK_OFFSET + 64,
-    SKILL_TEMP_BONUS_OFFSET         = SKILL_MAX_RANK_OFFSET + 64,
-    SKILL_PERM_BONUS_OFFSET         = SKILL_TEMP_BONUS_OFFSET + 64
+    SKILL_STEP_OFFSET               = 0x40,
+    SKILL_RANK_OFFSET               = SKILL_STEP_OFFSET + 0x40,
+    SUBSKILL_START_RANK_OFFSET      = SKILL_RANK_OFFSET + 0x40,
+    SKILL_MAX_RANK_OFFSET           = SUBSKILL_START_RANK_OFFSET + 0x40,
+    SKILL_TEMP_BONUS_OFFSET         = SKILL_MAX_RANK_OFFSET + 0x40,
+    SKILL_PERM_BONUS_OFFSET         = SKILL_TEMP_BONUS_OFFSET + 0x40
 };
 
 // Note: SPELLMOD_* values is aura types in fact
