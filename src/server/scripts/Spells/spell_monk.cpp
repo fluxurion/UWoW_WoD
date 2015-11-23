@@ -469,7 +469,8 @@ class spell_monk_guard : public SpellScriptLoader
 
                 if (Player* _plr = GetCaster()->ToPlayer())
                 {
-                    amount += int32((_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 18) * (1.0f + _plr->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS)));
+                    amount += int32((_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 18));
+                    AddPct(amount, _plr->GetFloatValue(PLAYER_FIELD_VERSATILITY));
 
                     if (_plr->HasAura(ITEM_MONK_T14_TANK_4P))
                         amount = int32(amount * 1.2f);
@@ -482,7 +483,8 @@ class spell_monk_guard : public SpellScriptLoader
                 {
                     if (Player* _plr = GetCaster()->GetOwner()->ToPlayer())
                     {
-                        amount += int32((_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 18) * (1.0f + _plr->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS)));
+                        amount += int32((_plr->GetTotalAttackPowerValue(BASE_ATTACK) * 18));
+                        AddPct(amount, _plr->GetFloatValue(PLAYER_FIELD_VERSATILITY));
 
                         if (_plr->HasAura(ITEM_MONK_T14_TANK_4P))
                             amount = int32(amount * 1.2f);
