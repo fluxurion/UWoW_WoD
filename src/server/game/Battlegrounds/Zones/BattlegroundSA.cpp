@@ -390,9 +390,9 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
                 if (RoundScores[0].time == RoundScores[1].time)
                     EndBattleground(0);
                 else if (RoundScores[0].time < RoundScores[1].time)
-                    EndBattleground(RoundScores[0].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+                    EndBattleground(GetTeamByTeamId(RoundScores[0].winner));
                 else
-                    EndBattleground(RoundScores[1].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+                    EndBattleground(GetTeamByTeamId(RoundScores[1].winner));
                 return;
             }
         }
@@ -863,9 +863,9 @@ void BattlegroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
                 if (RoundScores[0].time == RoundScores[1].time)
                     EndBattleground(0);
                 else if (RoundScores[0].time < RoundScores[1].time)
-                    EndBattleground(RoundScores[0].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+                    EndBattleground(GetTeamByTeamId(RoundScores[0].winner));
                 else
-                    EndBattleground(RoundScores[1].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+                    EndBattleground(GetTeamByTeamId(RoundScores[1].winner));
             }
         }
     }

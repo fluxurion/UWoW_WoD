@@ -153,21 +153,8 @@ uint32 const BG_KT_ORBS_AURA[MAX_ORBS] =
     BG_KT_SPELL_ORB_AURA_4
 };
 
-const uint16 LANG_BG_KT_PICKEDUP[MAX_ORBS] =
-{
-    LANG_BG_KT_PICKEDUP_1,
-    LANG_BG_KT_PICKEDUP_2,
-    LANG_BG_KT_PICKEDUP_3,
-    LANG_BG_KT_PICKEDUP_4
-};
-
-const uint16 LANG_BG_KT_DROPPED[MAX_ORBS] =
-{
-    LANG_BG_KT_DROPPED_1,
-    LANG_BG_KT_DROPPED_2,
-    LANG_BG_KT_DROPPED_3,
-    LANG_BG_KT_DROPPED_4
-};
+const uint16 BgKtBroadCastTextOrbPickedUp[MAX_ORBS] = { 62281, 62282, 62280, 62279 };
+const uint16 BgKtBroadCastTextOrbDropped[MAX_ORBS] = { 62286, 62284, 62285, 62283 };
 
 WorldStates const OrbsWS[MAX_ORBS][MAX_TEAMS] = 
 {
@@ -214,7 +201,6 @@ class BattlegroundKT : public Battleground
         void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
-        void AddPoint(Team team, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(team)] += Points; }
         void SetTeamPoint(Team team, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(team)] = Points; }
         void RemovePoint(Team team, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
 

@@ -176,7 +176,7 @@ class BattlegroundBFG : public Battleground
         bool IsTeamScores500Disadvantage(uint32 team) const { return _teamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
     private:
 
-        void _NodeOccupied(uint8 node, Team team);
+        void _NodeOccupied(uint8 node, TeamId team);
         void _NodeDeOccupied(uint8 node);
 
         CapturePointInfo _capturePoints[GILNEAS_BG_DYNAMIC_NODES_COUNT];

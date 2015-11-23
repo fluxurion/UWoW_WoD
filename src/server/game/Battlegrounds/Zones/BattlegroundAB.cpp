@@ -66,7 +66,7 @@ void BattlegroundAB::PostUpdateImpl(Milliseconds diff)
                 _capturePoints[i].PrevStatus = _capturePoints[i].Status;
                 _capturePoints[i].Status = NODE_STATUS_CAPTURE;
 
-                _NodeOccupied(i, _capturePoints[i].TeamID == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+                _NodeOccupied(i, _capturePoints[i].TeamID);
 
                 UpdateCapturePoint(NODE_STATUS_CAPTURE, _capturePoints[i].TeamID, _capturePoints[i].Point);
             }
@@ -95,28 +95,27 @@ void BattlegroundAB::PostUpdateImpl(Milliseconds diff)
 
             if (_reputationScoreTics[team] >= _reputationTics)
             {
-                RewardReputationToTeam(509, 510, 50, team == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+                RewardReputationToTeam(509, 510, 50, GetTeamByTeamId(team));
                 _reputationScoreTics[team] -= _reputationTics;
             }
 
             if (_honorScoreTics[team] >= _honorTics) // should be 9 all time?
             {
-                RewardHonorToTeam(GetBonusHonorFromKill(1), team == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+                RewardHonorToTeam(GetBonusHonorFromKill(1), GetTeamByTeamId(team));
                 _honorScoreTics[team] -= _honorTics;
             }
 
             if (!_isInformedNearVictory && m_TeamScores[team] > BG_AB_WARNING_NEAR_VICTORY_SCORE)
             {
-                SendBroadcastTextToAll(team == 0 ? 10598 : 10599, CHAT_MSG_BG_SYSTEM_NEUTRAL, nullptr);
+                SendBroadcastTextToAll(team == TEAM_ALLIANCE ? 10598 : 10599, CHAT_MSG_BG_SYSTEM_NEUTRAL);
                 PlaySoundToAll(BG_SOUND_NEAR_VICTORY);
-
                 _isInformedNearVictory = true;
             }
 
             if (m_TeamScores[team] > BG_AB_MAX_TEAM_SCORE)
                 m_TeamScores[team] = BG_AB_MAX_TEAM_SCORE;
 
-            Battleground::SendBattleGroundPoints(static_cast<TeamId>(team), m_TeamScores[team]);
+            Battleground::SendBattleGroundPoints(team != TEAM_ALLIANCE, m_TeamScores[team]);
 
             UpdateWorldState(team == TEAM_ALLIANCE ? WorldStates::BG_AB_OP_RESOURCES_ALLY : WorldStates::BG_AB_OP_RESOURCES_HORDE, m_TeamScores[team]);
 
@@ -124,13 +123,10 @@ void BattlegroundAB::PostUpdateImpl(Milliseconds diff)
             if (m_TeamScores[team] > m_TeamScores[otherTeam] + 500)
                 _teamScores500Disadvantage[otherTeam] = true;
         }
+        
+        if (m_TeamScores[team] >= BG_AB_MAX_TEAM_SCORE)
+            EndBattleground(GetTeamByTeamId(team));
     }
-
-    // Test win condition
-    if (m_TeamScores[TEAM_ALLIANCE] >= BG_AB_MAX_TEAM_SCORE)
-        EndBattleground(ALLIANCE);
-    if (m_TeamScores[TEAM_HORDE] >= BG_AB_MAX_TEAM_SCORE)
-        EndBattleground(HORDE);
 }
 
 void BattlegroundAB::StartingEventCloseDoors()
@@ -146,8 +142,8 @@ void BattlegroundAB::StartingEventCloseDoors()
     SpawnBGObject(BG_AB_OBJECT_GATE_A, RESPAWN_IMMEDIATELY);
     SpawnBGObject(BG_AB_OBJECT_GATE_H, RESPAWN_IMMEDIATELY);
 
-    _NodeOccupied(BG_AB_SPIRIT_ALIANCE, ALLIANCE);
-    _NodeOccupied(BG_AB_SPIRIT_HORDE, HORDE);
+    _NodeOccupied(BG_AB_SPIRIT_ALIANCE, TEAM_ALLIANCE);
+    _NodeOccupied(BG_AB_SPIRIT_HORDE, TEAM_HORDE);
 }
 
 void BattlegroundAB::StartingEventOpenDoors()
@@ -215,7 +211,7 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
             {
                 Position startPos;
-                GetTeamStartLoc(GetTeamIndexByTeamId(player->GetBGTeam()), startPos);
+                GetTeamStartLoc(player->GetTeamId(), startPos);
                 player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
             }
             break;
@@ -247,9 +243,11 @@ void BattlegroundAB::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* n
     Battleground::UpdateCapturePoint(type, teamID, node, player, initial);
 }
 
-void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
+void BattlegroundAB::_NodeOccupied(uint8 node, TeamId teamID)
 {
-    if (!AddSpiritGuide(node, BgAbSpiritsPos[node], team))
+    Team team = GetTeamByTeamId(teamID);
+
+    if (!AddSpiritGuide(node, BgAbSpiritsPos[node], teamID))
         sLog->outError(LOG_FILTER_BATTLEGROUND, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
 
     uint8 capturedNodes = 0;
@@ -274,7 +272,7 @@ void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
 
     if (trigger)
     {
-        trigger->setFaction(team == ALLIANCE ? 84 : 83);
+        trigger->setFaction(teamID == TEAM_ALLIANCE ? 84 : 83);
         trigger->CastSpell(trigger, SPELL_BG_HONORABLE_DEFENDER_25Y, false);
     }
 
@@ -324,7 +322,7 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* object
     if (i == BG_AB_DYNAMIC_NODES_COUNT)
         return;
 
-    TeamId teamID = GetTeamIndexByTeamId(source->GetBGTeam());
+    TeamId teamID = source->GetTeamId();
     if (_capturePoints[i].TeamID == teamID)
         return;
 
@@ -357,11 +355,11 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* object
             {
                 UpdatePlayerScore(source, SCORE_BASES_DEFENDED, 1);
                 UpdateCapturePoint(NODE_STATUS_CAPTURE, teamID, _capturePoints[i].Point, source);
-                _NodeOccupied(i, (teamID == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
+                _NodeOccupied(i, teamID);
 
                 _capturePoints[i].Timer = Milliseconds(0);
                 _capturePoints[i].PrevStatus = _capturePoints[i].Status;
-                _capturePoints[i].Status = NODE_STATUS_DEFENDED;
+                _capturePoints[i].Status = NODE_STATUS_CAPTURE;
                 _capturePoints[i].TeamID = teamID;
                 break;
             }
@@ -436,7 +434,7 @@ void BattlegroundAB::EndBattleground(uint32 winner)
 
 WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
 {
-    TeamId teamIndex = GetTeamIndexByTeamId(player->GetBGTeam());
+    TeamId teamIndex = player->GetTeamId();
 
     std::vector<uint8> nodes;
     for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)

@@ -136,7 +136,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;//maybe we should log this, cause this must be a cheater or a big bug
-    uint8 team = GetTeamIndexByTeamId(player->GetTeam());
+    TeamId team = player->GetTeamId();
     //TODO add reputation, events (including quest not available anymore, next quest availabe, go/npc de/spawning)and maybe honor
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed", questid);
     switch (questid)
@@ -236,9 +236,10 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
 }
 
 void BattlegroundAV::UpdateScore(uint16 team, int16 points)
-{ //note: to remove reinforcementpoints points must be negative, for adding reinforcements points must be positive
+{
     ASSERT(team == ALLIANCE || team == HORDE);
-    uint8 teamindex = GetTeamIndexByTeamId(team); //0=ally 1=horde
+
+    TeamId teamindex = GetTeamIndexByTeamId(team);
     m_Team_Scores[teamindex] += points;
 
     UpdateWorldState(((teamindex == TEAM_HORDE) ? WorldStates::AV_Horde_Score : WorldStates::AV_Alliance_Score), m_Team_Scores[teamindex]);
@@ -246,12 +247,12 @@ void BattlegroundAV::UpdateScore(uint16 team, int16 points)
     {
         if (m_Team_Scores[teamindex] < 1)
         {
-            m_Team_Scores[teamindex]=0;
-            EndBattleground(((teamindex == TEAM_HORDE)?ALLIANCE:HORDE));
+            m_Team_Scores[teamindex] = 0;
+            EndBattleground(((teamindex == TEAM_HORDE) ? ALLIANCE : HORDE));
         }
         else if (!m_IsInformedNearVictory[teamindex] && m_Team_Scores[teamindex] < SEND_MSG_NEAR_LOSE)
         {
-            SendMessageToAll(teamindex == TEAM_HORDE?LANG_BG_AV_H_NEAR_LOSE:LANG_BG_AV_A_NEAR_LOSE, teamindex == TEAM_HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE);
+            SendMessageToAll(teamindex == TEAM_HORDE ? LANG_BG_AV_H_NEAR_LOSE : LANG_BG_AV_A_NEAR_LOSE, teamindex == TEAM_HORDE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE);
             PlaySoundToAll(BG_SOUND_NEAR_VICTORY);
             m_IsInformedNearVictory[teamindex] = true;
         }
@@ -461,7 +462,7 @@ void BattlegroundAV::EndBattleground(uint32 winner)
             RewardReputationToTeam(730, 729, rep[i], i);
 
         if (kills[i] != 0)
-            RewardHonorToTeam(GetBonusHonor(kills[i]), (i == 0) ? ALLIANCE : HORDE);
+            RewardHonorToTeam(GetBonusHonor(kills[i]), GetTeamByTeamId(i));
     }
 
     //TODO add enterevademode for all attacking creatures
@@ -510,7 +511,7 @@ void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
             {
                 Position startPos;
-                GetTeamStartLoc(GetTeamIndexByTeamId(player->GetBGTeam()), startPos);
+                GetTeamStartLoc(player->GetTeamId(), startPos);
                 player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
             }
             break;
@@ -727,33 +728,36 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);
     uint32 creatureid;
     if (IsTower(node))
-        creatureid=(owner == ALLIANCE)?AV_NPC_A_TOWERDEFENSE:AV_NPC_H_TOWERDEFENSE;
+        creatureid = (owner == ALLIANCE) ? AV_NPC_A_TOWERDEFENSE : AV_NPC_H_TOWERDEFENSE;
     else
     {
-        uint8 team2 = GetTeamIndexByTeamId(owner);
-    if (m_Team_QuestStatus[team2][0] < 500)
-            creatureid = (owner == ALLIANCE)? AV_NPC_A_GRAVEDEFENSE0 : AV_NPC_H_GRAVEDEFENSE0;
+        TeamId team2 = GetTeamIndexByTeamId(owner);
+        if (m_Team_QuestStatus[team2][0] < 500)
+            creatureid = (owner == ALLIANCE) ? AV_NPC_A_GRAVEDEFENSE0 : AV_NPC_H_GRAVEDEFENSE0;
         else if (m_Team_QuestStatus[team2][0] < 1000)
-            creatureid = (owner == ALLIANCE)? AV_NPC_A_GRAVEDEFENSE1 : AV_NPC_H_GRAVEDEFENSE1;
+            creatureid = (owner == ALLIANCE) ? AV_NPC_A_GRAVEDEFENSE1 : AV_NPC_H_GRAVEDEFENSE1;
         else if (m_Team_QuestStatus[team2][0] < 1500)
-            creatureid = (owner == ALLIANCE)? AV_NPC_A_GRAVEDEFENSE2 : AV_NPC_H_GRAVEDEFENSE2;
+            creatureid = (owner == ALLIANCE) ? AV_NPC_A_GRAVEDEFENSE2 : AV_NPC_H_GRAVEDEFENSE2;
         else
-           creatureid = (owner == ALLIANCE)? AV_NPC_A_GRAVEDEFENSE3 : AV_NPC_H_GRAVEDEFENSE3;
-        //spiritguide
+            creatureid = (owner == ALLIANCE) ? AV_NPC_A_GRAVEDEFENSE3 : AV_NPC_H_GRAVEDEFENSE3;
+
         if (!BgCreatures[node].IsEmpty())
             DelCreature(node);
+
         if (!AddSpiritGuide(node, BG_AV_CreaturePos[node][0], BG_AV_CreaturePos[node][1], BG_AV_CreaturePos[node][2], BG_AV_CreaturePos[node][3], owner))
             sLog->outError(LOG_FILTER_BATTLEGROUND, "AV: couldn't spawn spiritguide at node %i", node);
 
     }
-    for (uint8 i=0; i<4; i++)
-        AddAVCreature(creatureid, c_place+i);
 
-    if (node >= BG_AV_NODES_MAX)//fail safe
+    for (uint8 i = 0; i < 4; i++)
+        AddAVCreature(creatureid, c_place + i);
+
+    if (node >= BG_AV_NODES_MAX)
         return;
+
     Creature* trigger = GetBGCreature(node + 302);//0-302 other creatures
     if (!trigger)
-       trigger = AddCreature(WORLD_TRIGGER, node + 302, owner, BG_AV_CreaturePos[node + 302][0], BG_AV_CreaturePos[node + 302][1], BG_AV_CreaturePos[node + 302][2], BG_AV_CreaturePos[node + 302][3]);
+        trigger = AddCreature(WORLD_TRIGGER, node + 302, owner, BG_AV_CreaturePos[node + 302][0], BG_AV_CreaturePos[node + 302][1], BG_AV_CreaturePos[node + 302][2], BG_AV_CreaturePos[node + 302][3]);
 
     //add bonus honor aura trigger creature when node is accupied
     //cast bonus aura (+50% honor in 25yards)
@@ -765,10 +769,12 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
             DelCreature(node + 302);
             return;
         }
+
         trigger->setFaction(owner == ALLIANCE ? 84 : 83);
         trigger->CastSpell(trigger, SPELL_BG_HONORABLE_DEFENDER_25Y, false);
     }
 }
+
 void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
 {
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);

@@ -159,7 +159,7 @@ class BattlegroundTP : public Battleground
         }
 
 private:
-        void AddPoint(uint32 teamID)                            { ++m_TeamScores[GetTeamIndexByTeamId(teamID)]; }
+        void AddPoint(TeamId teamID) { ++m_TeamScores[teamID]; }
 
         void UpdateFlagState(uint32 team, uint32 value, ObjectGuid flagKeeperGUID = ObjectGuid::Empty);
         void SetLastFlagCapture(uint32 teamID)                  { _lastFlagCaptureTeam = teamID; }

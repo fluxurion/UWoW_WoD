@@ -153,7 +153,7 @@ class BattlegroundWS : public Battleground
         void SetDroppedFlagGUID(ObjectGuid guid, uint32 TeamID) { _droppedFlagGUID[GetTeamIndexByTeamId(TeamID)] = guid; }
 
 private:
-        void AddPoint(uint32 teamID) { ++m_TeamScores[GetTeamIndexByTeamId(teamID)]; }
+        void AddPoint(TeamId teamID) { ++m_TeamScores[teamID]; }
         void UpdateFlagState(uint32 team, uint32 value, ObjectGuid flagKeeperGUID = ObjectGuid::Empty);
         void SetLastFlagCapture(uint32 teamID) { _lastFlagCaptureTeam = teamID; }
         void RespawnFlag(uint32 team, bool captured = false);

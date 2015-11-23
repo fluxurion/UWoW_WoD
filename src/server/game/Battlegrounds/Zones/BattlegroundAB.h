@@ -199,7 +199,7 @@ class BattlegroundAB : public Battleground
     private:
         void PostUpdateImpl(Milliseconds diff) override;
         uint8 _GetCapturedNodesForTeam(TeamId teamID);
-        void _NodeOccupied(uint8 node, Team team); // TODO: working, scripted peons spawning
+        void _NodeOccupied(uint8 node, TeamId team);
         void _NodeDeOccupied(uint8 node);
         
         Milliseconds _lastTick[MAX_TEAMS];

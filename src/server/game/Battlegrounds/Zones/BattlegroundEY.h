@@ -184,7 +184,7 @@ enum EYBattlegroundObjectTypes
 
 enum BG_EY_Score
 {
-    BG_EY_WARNING_NEAR_VICTORY_SCORE    = 1000,
+    BG_EY_WARNING_NEAR_VICTORY_SCORE    = 1200,
     BG_EY_MAX_TEAM_SCORE                = 1500
 };
 
@@ -317,7 +317,7 @@ class BattlegroundEY : public Battleground
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
         bool SetupBattleground() override;
         void Reset() override;
-        void UpdateTeamScore(uint32 Team);
+        void UpdateTeamScore(TeamId teamID);
         void EndBattleground(uint32 winner) override;
         void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true) override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
@@ -341,7 +341,7 @@ class BattlegroundEY : public Battleground
         void _CheckSomeoneJoinedPoint();
         void UpdatePointStatuses();
 
-        void AddPoints(uint32 Team, uint32 Points);
+        void AddPoints(TeamId teamID, uint32 points);
 
         void RemovePoint(uint32 TeamID, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] -= Points; }
         void SetTeamPoint(uint32 TeamID, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(TeamID)] = Points; }
@@ -366,6 +366,7 @@ class BattlegroundEY : public Battleground
 
         int32 m_PointAddingTimer;
         uint32 m_HonorTics;
+        bool _isInformedNearVictory;
 };
 #endif
 

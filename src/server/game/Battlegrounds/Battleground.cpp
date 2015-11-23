@@ -175,11 +175,16 @@ Battleground::Battleground()
 
     m_baseTickHonor = 9;
 
-    //we must set to some default existing values
     StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_WS_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
+
+    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_FOURTH; ++i)
+    {
+        m_broadcastMessages[i] = 89373 + i; // lets use this like default
+        m_hasBroadcasts[i] = false;
+    }
 
     m_IsRBG = false;
 
@@ -501,32 +506,44 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         }
 
         StartingEventCloseDoors();
-        SetStartDelayTime(isArena() ? m_messageTimer[0] / 2 : m_messageTimer[0]);
-        // First start warning - 2 or 1 minute
-        SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_FIRST], CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SetStartDelayTime(isArena() ? m_messageTimer[BG_STARTING_EVENT_FIRST] / 2 : m_messageTimer[BG_STARTING_EVENT_FIRST]);
+
+        if (m_hasBroadcasts[BG_STARTING_EVENT_FIRST])
+            SendBroadcastTextToAll(m_broadcastMessages[BG_STARTING_EVENT_FIRST], CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        else
+            SendWarningToAll(StartMessageIds[BG_STARTING_EVENT_FIRST]);
     }
-    // After 1 minute or 30 seconds, warning is signaled
-    else if (GetStartDelayTime() <= (isArena() ? m_messageTimer[1] / 2 : m_messageTimer[1]) && !(m_Events & BG_STARTING_EVENT_2))
+    else if (GetStartDelayTime() <= (isArena() ? m_messageTimer[BG_STARTING_EVENT_SECOND] / 2 : m_messageTimer[BG_STARTING_EVENT_SECOND]) && !(m_Events & BG_STARTING_EVENT_2))
     {
         m_Events |= BG_STARTING_EVENT_2;
-        SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_SECOND], CHAT_MSG_BG_SYSTEM_NEUTRAL);
+
+        if (m_hasBroadcasts[BG_STARTING_EVENT_SECOND])
+            SendBroadcastTextToAll(m_broadcastMessages[BG_STARTING_EVENT_SECOND], CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        else
+            SendWarningToAll(StartMessageIds[BG_STARTING_EVENT_SECOND]);
     }
-    // After 30 or 15 seconds, warning is signaled
-    else if (GetStartDelayTime() <= (isArena() ? m_messageTimer[2] / 2 : m_messageTimer[2]) && !(m_Events & BG_STARTING_EVENT_3))
+    else if (GetStartDelayTime() <= (isArena() ? m_messageTimer[BG_STARTING_EVENT_THIRD] / 2 : m_messageTimer[BG_STARTING_EVENT_THIRD]) && !(m_Events & BG_STARTING_EVENT_3))
     {
         m_Events |= BG_STARTING_EVENT_3;
-        SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_THIRD], CHAT_MSG_BG_SYSTEM_NEUTRAL);
+
+        if (m_hasBroadcasts[BG_STARTING_EVENT_THIRD])
+            SendBroadcastTextToAll(m_broadcastMessages[BG_STARTING_EVENT_THIRD], CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        else
+            SendWarningToAll(StartMessageIds[BG_STARTING_EVENT_THIRD]);
     }
-    // Delay expired (after 2 or 1 minute)
-    else if (GetStartDelayTime() <= m_messageTimer[3] && !(m_Events & BG_STARTING_EVENT_4))
+    else if (GetStartDelayTime() <= m_messageTimer[BG_STARTING_EVENT_FOURTH] && !(m_Events & BG_STARTING_EVENT_4))
     {
         m_Events |= BG_STARTING_EVENT_4;
 
         StartingEventOpenDoors();
 
-        SendWarningToAll(StartMessageIds[BG_STARTING_EVENT_FOURTH]);
+        if (m_hasBroadcasts[BG_STARTING_EVENT_FOURTH])
+            SendBroadcastTextToAll(m_broadcastMessages[BG_STARTING_EVENT_FOURTH], CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        else
+            SendWarningToAll(StartMessageIds[BG_STARTING_EVENT_FOURTH], CHAT_MSG_BG_SYSTEM_NEUTRAL);
+
         SetStatus(STATUS_IN_PROGRESS);
-        SetStartDelayTime(m_messageTimer[3]);
+        SetStartDelayTime(m_messageTimer[BG_STARTING_EVENT_FOURTH]);
 
         // Remove preparation
         if (isArena())
@@ -538,7 +555,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     // BG Status packet
                     BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetJoinType());
                     uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
-                   
+
                     WorldPackets::Battleground::BattlefieldStatusActive battlefieldStatus;
                     sBattlegroundMgr->BuildBattlegroundStatusActive(&battlefieldStatus, this, player, queueSlot, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetJoinType());
                     player->SendDirectMessage(battlefieldStatus.Write());
@@ -568,7 +585,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                 }
 
             CheckArenaWinConditions();
-        } else
+        }
+        else
         {
             PlaySoundToAll(BG_SOUND_START);
 
@@ -755,19 +773,19 @@ void Battleground::EndBattleground(uint32 winner)
 {
     RemoveFromBGFreeSlotQueue();
 
-    int32 winmsg_id = 0;
+    int32 broadcastID = 0;
 
     BracketType bType = BattlegroundMgr::BracketByJoinType(GetJoinType());
 
     if (winner == ALLIANCE)
     {
-        winmsg_id = isBattleground() ? LANG_BG_A_WINS : LANG_ARENA_GOLD_WINS;
+        broadcastID = isBattleground() ? 7335 : 63033;
         PlaySoundToAll(BG_SOUND_ALLIANCE_WIN);                // alliance wins sound
         SetWinner(WINNER_ALLIANCE);
     }
     else if (winner == HORDE)
     {
-        winmsg_id = isBattleground() ? LANG_BG_H_WINS : LANG_ARENA_GREEN_WINS;
+        broadcastID = isBattleground() ? 7336 : 63037;
         PlaySoundToAll(BG_SOUND_HORDE_WIN);                   // horde wins sound
         SetWinner(WINNER_HORDE);
     }
@@ -849,7 +867,7 @@ void Battleground::EndBattleground(uint32 winner)
         player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_25Y);
         player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_60Y);
 
-        PlayerReward(player, team == winner, !isArena() ? 0 : 2, false /*firstWeekly*/, !player->GetRandomWinner());
+        PlayerReward(player, team == winner, !isArena() ? 0 : (isRated() ? 2 : 3), false /*firstWeekly*/, !player->GetRandomWinner());
 
         // Reward winner team
         if (team == winner)
@@ -968,8 +986,8 @@ void Battleground::EndBattleground(uint32 winner)
     sBattlegroundMgr->BuildPvPLogDataPacket(pvpLogData, this);
     SendPacketToAll(pvpLogData.Write());
 
-    if (winmsg_id)
-        SendMessageToAll(winmsg_id, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+    if (broadcastID)
+        SendBroadcastTextToAll(broadcastID, CHAT_MSG_BG_SYSTEM_NEUTRAL);
 }
 
 void Battleground::PlayerReward(Player* player, bool isWinner, uint8 type, bool firstWeekly, bool firstDaily)
@@ -1363,12 +1381,6 @@ void Battleground::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* nod
             kitID = teamID == TEAM_ALLIANCE ? 4 : 3;
             visualID = spellVisualArray[3];
             break;
-        case NODE_STATUS_DEFENDED:
-            nodeState = teamID == TEAM_ALLIANCE ? NODE_STATE_ALLIANCE_ASSAULT : NODE_STATE_HORDE_ASSAULT;
-            broadcastID = teamID == TEAM_ALLIANCE ? pointInfo.DefendedBroadcastAlliance : pointInfo.DefendedBroadcastHorde;
-            kitID = teamID == TEAM_ALLIANCE ? 4 : 3;
-            visualID = spellVisualArray[teamID == TEAM_ALLIANCE ? 3 : 4];
-            break;
         default:
             break;
     }
@@ -1407,8 +1419,6 @@ void Battleground::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* nod
                 break;
             case NODE_STATUS_CAPTURE:
                 PlaySoundToAll(teamID == TEAM_HORDE ? BG_SOUND_CAPTURE_POINT_CAPTURED_HORDE : BG_SOUND_CAPTURE_POINT_CAPTURED_ALLIANCE);
-                break;
-            case NODE_STATUS_DEFENDED:
                 break;
             default:
                 break;
@@ -1859,9 +1869,9 @@ bool Battleground::DelObject(uint32 type)
     return false;
 }
 
-bool Battleground::AddSpiritGuide(uint32 type, Position pos, uint32 team)
+bool Battleground::AddSpiritGuide(uint32 type, Position pos, TeamId team)
 {
-    return AddSpiritGuide(type, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation, team);
+    return AddSpiritGuide(type, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation, GetTeamByTeamId(team));
 }
 
 bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team)
@@ -1949,7 +1959,7 @@ void Battleground::SendMessage2ToAll(int32 entry, ChatMsg type, Player const* so
     BroadcastWorker(bg_do);
 }
 
-void Battleground::SendBroadcastTextToAll(int32 broadcastTextID, ChatMsg type, Player const* player)
+void Battleground::SendBroadcastTextToAll(int32 broadcastTextID, ChatMsg type, Unit const* unit /*= nullptr*/)
 {
     BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(broadcastTextID);
     if (!bct)
@@ -1958,8 +1968,8 @@ void Battleground::SendBroadcastTextToAll(int32 broadcastTextID, ChatMsg type, P
     WorldPacket data;
     Trinity::ChatData c;
     
-    if (player)
-        c.targetGuid = player->GetGUID();
+    if (unit)
+        c.targetGuid = unit->GetGUID();
     c.chatType = type;
 
     for (auto const& v : m_Players)
@@ -2176,8 +2186,7 @@ WorldSafeLocsEntry const* Battleground::GetClosestGraveYard(Player* player)
 
 bool Battleground::IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxScore) const
 {
-    TeamId teamIndex = GetTeamIndexByTeamId(team);
-    uint32 score = std::max(m_TeamScores[teamIndex], 0);
+    uint32 score = std::max(m_TeamScores[GetTeamIndexByTeamId(team)], 0);
     return score >= minScore && score <= maxScore;
 }
 

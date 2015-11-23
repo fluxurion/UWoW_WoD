@@ -242,7 +242,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                 nodePoint[i].nodeState == NODE_STATE_CONTROLLED_H)
             {
                 factionReinforcements[nodePoint[i].faction] += 1;
-                RewardHonorToTeam(RESOURCE_HONOR_AMOUNT, nodePoint[i].faction == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+                RewardHonorToTeam(RESOURCE_HONOR_AMOUNT, GetTeamByTeamId(nodePoint[i].faction));
                 UpdateWorldState((nodePoint[i].faction == TEAM_ALLIANCE ? WorldStates::BG_IC_ALLIANCE_RENFORT : WorldStates::BG_IC_HORDE_RENFORT), factionReinforcements[nodePoint[i].faction]);
             }
         }
@@ -332,7 +332,7 @@ void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
             {
                 Position startPos;
-                GetTeamStartLoc(GetTeamIndexByTeamId(player->GetBGTeam()), startPos);
+                GetTeamStartLoc(player->GetTeamId(), startPos);
                 player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
             }
             break;
@@ -470,7 +470,9 @@ void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
 
 void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 {
-    if (!player || player->GetTeamId() >= 2)
+    TeamId teamID = player->GetTeamId();
+
+    if (!player || teamID >= MAX_TEAMS)
         return;
 
     if (GetStatus() != STATUS_IN_PROGRESS)
@@ -478,12 +480,12 @@ void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 
     Battleground::HandleKillPlayer(player, killer);
 
-    factionReinforcements[player->GetTeamId()] -= 1;
+    factionReinforcements[teamID] -= 1;
 
-    UpdateWorldState((player->GetTeamId() == TEAM_ALLIANCE ? WorldStates::BG_IC_ALLIANCE_RENFORT : WorldStates::BG_IC_HORDE_RENFORT), factionReinforcements[player->GetTeamId()]);
+    UpdateWorldState((teamID == TEAM_ALLIANCE ? WorldStates::BG_IC_ALLIANCE_RENFORT : WorldStates::BG_IC_HORDE_RENFORT), factionReinforcements[player->GetTeamId()]);
 
     // we must end the battleground
-    if (factionReinforcements[player->GetTeamId()] < 1)
+    if (factionReinforcements[teamID] < TEAM_HORDE)
         EndBattleground(killer->GetTeam());
 }
 
@@ -636,8 +638,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
     {
         if (!AddSpiritGuide(BG_IC_NPC_SPIRIT_GUIDE_1+nodePoint->nodeType-2,
             BG_IC_SpiritGuidePos[nodePoint->nodeType][0], BG_IC_SpiritGuidePos[nodePoint->nodeType][1],
-            BG_IC_SpiritGuidePos[nodePoint->nodeType][2], BG_IC_SpiritGuidePos[nodePoint->nodeType][3],
-            (nodePoint->faction == TEAM_ALLIANCE ? ALLIANCE : HORDE)))
+            BG_IC_SpiritGuidePos[nodePoint->nodeType][2], BG_IC_SpiritGuidePos[nodePoint->nodeType][3], (GetTeamByTeamId(nodePoint->faction))))
             sLog->outError(LOG_FILTER_BATTLEGROUND, "Isle of Conquest: Failed to spawn spirit guide! point: %u, team: %u, ", nodePoint->nodeType, nodePoint->faction);
     }
 
@@ -664,12 +665,12 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
             // we should spawn teleporters
             break;
         case BG_IC_GO_QUARRY_BANNER:
-            RemoveAuraOnTeam(SPELL_QUARRY, (nodePoint->faction == TEAM_ALLIANCE ? HORDE : ALLIANCE));
-            CastSpellOnTeam(SPELL_QUARRY, (nodePoint->faction == TEAM_ALLIANCE ? ALLIANCE : HORDE));
+            RemoveAuraOnTeam(SPELL_QUARRY, GetTeamByTeamId(nodePoint->faction));
+            CastSpellOnTeam(SPELL_QUARRY, GetTeamByTeamId(nodePoint->faction));
             break;
         case BG_IC_GO_REFINERY_BANNER:
             RemoveAuraOnTeam(SPELL_OIL_REFINERY, (nodePoint->faction == TEAM_ALLIANCE ? HORDE : ALLIANCE));
-            CastSpellOnTeam(SPELL_OIL_REFINERY, (nodePoint->faction == TEAM_ALLIANCE ? ALLIANCE : HORDE));
+            CastSpellOnTeam(SPELL_OIL_REFINERY, GetTeamByTeamId(nodePoint->faction));
             break;
         case BG_IC_GO_DOCKS_BANNER:
 
@@ -879,12 +880,12 @@ void BattlegroundIC::EventPlayerDamagedGO(Player* /*player*/, GameObject* /*go*/
 
 WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveYard(Player* player)
 {
-    TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
+    TeamId teamIndex = player->GetTeamId();
 
     // Is there any occupied node for this team?
     std::vector<uint8> nodes;
     for (uint8 i = 0; i < MAX_NODE_TYPES; ++i)
-        if (nodePoint[i].faction == player->GetTeamId())
+        if (nodePoint[i].faction == teamIndex)
             nodes.push_back(i);
 
     WorldSafeLocsEntry const* good_entry = NULL;
@@ -911,7 +912,7 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveYard(Player* player)
     }
     // If not, place ghost on starting location
     if (!good_entry)
-        good_entry = sWorldSafeLocsStore.LookupEntry(BG_IC_GraveyardIds[teamIndex+MAX_NODE_TYPES]);
+        good_entry = sWorldSafeLocsStore.LookupEntry(BG_IC_GraveyardIds[teamIndex + MAX_NODE_TYPES]);
 
     return good_entry;
 }

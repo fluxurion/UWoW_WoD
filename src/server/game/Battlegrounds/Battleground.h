@@ -315,8 +315,7 @@ enum BgNodeStatus
 {
     NODE_STATUS_NEUTRAL             = 0,
     NODE_STATUS_ASSAULT             = 1,
-    NODE_STATUS_CAPTURE             = 2,
-    NODE_STATUS_DEFENDED            = 3,
+    NODE_STATUS_CAPTURE             = 2
 };
 
 enum BgNodeStatusIcon
@@ -575,7 +574,7 @@ class Battleground
 
         // specialized version with 2 string id args
         void SendMessage2ToAll(int32 entry, ChatMsg type, Player const* source, int32 strId1 = 0, int32 strId2 = 0);
-        void SendBroadcastTextToAll(int32 broadcastTextID, ChatMsg type, Player const* player);
+        void SendBroadcastTextToAll(int32 broadcastTextID, ChatMsg type, Unit const* unit = nullptr);
 
         // Raid Group
         Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE]; }
@@ -584,6 +583,8 @@ class Battleground
         virtual void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         static TeamId GetTeamIndexByTeamId(uint32 team) { return team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
+        static Team GetTeamByTeamId(uint32 teamID) { return teamID == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
+
         uint32 GetPlayersCountByTeam(uint32 Team) const { return m_PlayersCount[GetTeamIndexByTeamId(Team)]; }
         uint32 GetAlivePlayersCountByTeam(uint32 Team) const;   // used in arenas to correctly handle death in spirit of redemption / last stand etc. (killer = killed) cases
         void UpdatePlayersCountByTeam(uint32 Team, bool remove)
@@ -657,7 +658,7 @@ class Battleground
 
         bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
-        bool AddSpiritGuide(uint32 type, Position pos, uint32 team);
+        bool AddSpiritGuide(uint32 type, Position pos, TeamId team);
         bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team);
         int32 GetObjectType(ObjectGuid guid);
         
@@ -723,6 +724,8 @@ class Battleground
         uint8 m_Events;
         // this must be filled in constructors!
         uint32 StartMessageIds[BG_STARTING_EVENT_COUNT];
+        uint32 m_broadcastMessages[BG_STARTING_EVENT_COUNT];
+        bool m_hasBroadcasts[BG_STARTING_EVENT_COUNT];
 
         bool   m_BuffChange;
         bool   m_IsRandom;

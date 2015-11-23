@@ -62,7 +62,7 @@ void BattlegroundBFG::PostUpdateImpl(Milliseconds diff)
                 _capturePoints[i].PrevStatus = _capturePoints[i].Status;
                 _capturePoints[i].Status = NODE_STATUS_CAPTURE;
 
-                _NodeOccupied(i, _capturePoints[i].TeamID == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+                _NodeOccupied(i, _capturePoints[i].TeamID);
 
                 UpdateCapturePoint(NODE_STATUS_CAPTURE, _capturePoints[i].TeamID, _capturePoints[i].Point);
             }
@@ -88,13 +88,13 @@ void BattlegroundBFG::PostUpdateImpl(Milliseconds diff)
 
             if (_honorScoreTicks[team] >= _HonorTicks)
             {
-                RewardHonorToTeam(GetBonusHonorFromKill(1), team == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+                RewardHonorToTeam(GetBonusHonorFromKill(1), GetTeamByTeamId(team));
                 _honorScoreTicks[team] -= _HonorTicks;
             }
 
             if (!_IsInformedNearVictory && m_TeamScores[team] > GILNEAS_BG_WARNING_NEAR_VICTORY_SCORE)
             {
-                SendMessageToAll(team == TEAM_ALLIANCE ? LANG_BG_AB_A_NEAR_VICTORY : LANG_BG_AB_H_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                SendBroadcastTextToAll(team == TEAM_ALLIANCE ? 10598 : 10599, CHAT_MSG_BG_SYSTEM_NEUTRAL);
                 PlaySoundToAll(BG_SOUND_NEAR_VICTORY);
                 _IsInformedNearVictory = true;
             }
@@ -110,14 +110,10 @@ void BattlegroundBFG::PostUpdateImpl(Milliseconds diff)
             if (m_TeamScores[team] > m_TeamScores[otherTeam] + 500)
                 _teamScores500Disadvantage[otherTeam] = true;
         }
+
+        if (m_TeamScores[team] >= GILNEAS_BG_MAX_TEAM_SCORE)
+            EndBattleground(GetTeamByTeamId(team));
     }
-
-    // Test win condition
-    if (m_TeamScores[TEAM_ALLIANCE] >= GILNEAS_BG_MAX_TEAM_SCORE)
-        EndBattleground(ALLIANCE);
-
-    if (m_TeamScores[TEAM_HORDE] >= GILNEAS_BG_MAX_TEAM_SCORE)
-        EndBattleground(HORDE);
 }
 
 void BattlegroundBFG::StartingEventCloseDoors()
@@ -131,8 +127,8 @@ void BattlegroundBFG::StartingEventCloseDoors()
     DoorsClose(GILNEAS_BG_OBJECT_GATE_A_1, GILNEAS_BG_OBJECT_GATE_H_1);
     DoorsClose(GILNEAS_BG_OBJECT_GATE_A_2, GILNEAS_BG_OBJECT_GATE_H_2);
 
-    _NodeOccupied(GILNEAS_BG_SPIRIT_ALIANCE, ALLIANCE);
-    _NodeOccupied(GILNEAS_BG_SPIRIT_HORDE, HORDE);
+    _NodeOccupied(GILNEAS_BG_SPIRIT_ALIANCE, TEAM_ALLIANCE);
+    _NodeOccupied(GILNEAS_BG_SPIRIT_HORDE, TEAM_HORDE);
 }
 
 void BattlegroundBFG::StartingEventOpenDoors()
@@ -175,7 +171,7 @@ void BattlegroundBFG::HandleAreaTrigger(Player* player, uint32 trigger, bool ent
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
             {
                 Position startPos;
-                GetTeamStartLoc(GetTeamIndexByTeamId(player->GetBGTeam()), startPos);
+                GetTeamStartLoc(player->GetTeamId(), startPos);
                 player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
             }
             break;
@@ -203,13 +199,13 @@ void BattlegroundBFG::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* 
     Battleground::UpdateCapturePoint(type, teamID, node, player, initial);
 }
 
-void BattlegroundBFG::_NodeOccupied(uint8 node, Team team)
+void BattlegroundBFG::_NodeOccupied(uint8 node, TeamId team)
 {
     if (node >= GILNEAS_BG_DYNAMIC_NODES_COUNT)
         return;
 
     if (!AddSpiritGuide(node, BgBfgSpiritGuidePos[node], team))
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "Failed to spawn spirit guide! point: %u, team: %u, ", node, GetTeamByTeamId(team));
 
     UpdateWorldState(_capturePoints[node].Point->GetGOInfo()->capturePoint.worldState1, _capturePoints[node].Status);
 
@@ -253,7 +249,7 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*obj
     if (i == GILNEAS_BG_DYNAMIC_NODES_COUNT)
         return;
 
-    TeamId teamID = GetTeamIndexByTeamId(source->GetBGTeam());
+    TeamId teamID = source->GetTeamId();
     if (_capturePoints[i].TeamID == teamID)
         return;
 
@@ -288,11 +284,11 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*obj
             {
                 UpdatePlayerScore(source, SCORE_BASES_DEFENDED, 1);
                 UpdateCapturePoint(NODE_STATUS_CAPTURE, teamID, _capturePoints[i].Point, source);
-                _NodeOccupied(i, (teamID == TEAM_ALLIANCE) ? ALLIANCE : HORDE);
+                _NodeOccupied(i, teamID);
 
                 _capturePoints[i].Timer = Milliseconds(0);
                 _capturePoints[i].PrevStatus = _capturePoints[i].Status;
-                _capturePoints[i].Status = NODE_STATUS_DEFENDED;
+                _capturePoints[i].Status = NODE_STATUS_CAPTURE;
                 _capturePoints[i].TeamID = teamID;
                 break;
             }
@@ -403,7 +399,7 @@ void BattlegroundBFG::EndBattleground(uint32 winner)
 
 WorldSafeLocsEntry const* BattlegroundBFG::GetClosestGraveYard(Player* player)
 {
-    TeamId teamIndex = GetTeamIndexByTeamId(player->GetBGTeam());
+    TeamId teamIndex = player->GetTeamId();
 
     std::vector<uint8> nodes;
     for (uint8 i = GILNEAS_BG_NODE_LIGHTHOUSE; i < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++i)

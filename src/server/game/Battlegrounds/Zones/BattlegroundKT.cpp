@@ -33,8 +33,6 @@ BattlegroundKT::BattlegroundKT()
     StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_BG_KT_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_KT_HAS_BEGUN;
 
-    _reputationCapture = 0;
-
     _updatePointsTimer = 3 * IN_MILLISECONDS;
     _lastCapturedOrbTeam = TEAM_NONE;
 }
@@ -59,6 +57,7 @@ void BattlegroundKT::PostUpdateImpl(uint32 diff)
                     AccumulateScore(player->GetTeamId(), _playersZone[guid]);
                     UpdatePlayerScore(player, SCORE_ORB_SCORE, BG_KT_TickPoints[_playersZone[guid]]);
                     player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_KT_OBJECTIVE_ORB_COUNT, _playersZone[guid] + 3);
+                    Battleground::SendBattleGroundPoints(player->GetBGTeamId() != TEAM_ALLIANCE, m_TeamScores[player->GetBGTeamId()]);
                 }
             }
 
@@ -154,7 +153,7 @@ void BattlegroundKT::EventPlayerClickedOnFlag(Player* source, GameObject* object
     if (Creature* aura = GetBGCreature(BG_KT_CREATURE_ORB_AURA_1 + index))
         aura->RemoveAllAuras();
 
-    SendMessageToAll(LANG_BG_KT_PICKEDUP_1 + index, source->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
+    SendBroadcastTextToAll(BgKtBroadCastTextOrbPickedUp[index], source->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
@@ -188,7 +187,7 @@ void BattlegroundKT::EventPlayerDroppedFlag(Player* source)
     UpdateWorldState(OrbsWS[index][source->GetTeamId()], 0);
     UpdateWorldState(OrbsIcons[index], 1);
 
-    SendWarningToAll(LANG_BG_KT_DROPPED_1 + index, source->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
+    SendBroadcastTextToAll(BgKtBroadCastTextOrbDropped[index], source->GetTeamId() == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, source);
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
@@ -233,7 +232,7 @@ void BattlegroundKT::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
             {
                 Position startPos;
-                GetTeamStartLoc(GetTeamIndexByTeamId(player->GetBGTeam()), startPos);
+                GetTeamStartLoc(player->GetTeamId(), startPos);
                 player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
             }
             break;
@@ -271,15 +270,12 @@ bool BattlegroundKT::SetupBattleground()
 
 void BattlegroundKT::Reset()
 {
-    //call parent's class reset
     Battleground::Reset();
     BgObjects.resize(BG_KT_OBJECT_MAX);
     BgCreatures.resize(BG_KT_CREATURE_MAX);
 
     for (uint32 i = 0; i < MAX_ORBS; ++i)
         _orbKeepers[i].Clear();
-
-    _reputationCapture = 35;
 
     _lastCapturedOrbTeam = TEAM_NONE;
 }
@@ -336,25 +332,10 @@ void BattlegroundKT::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
 
 WorldSafeLocsEntry const* BattlegroundKT::GetClosestGraveYard(Player* player)
 {
-    //if status in progress, it returns main graveyards with spiritguides
-    //else it will return the graveyard in the flagroom - this is especially good
-    //if a player dies in preparation phase - then the player can't cheat
-    //and teleport to the graveyard outside the flagroom
-    //and start running around, while the doors are still closed
-    if (player->GetTeam() == ALLIANCE)
-    {
-        if (GetStatus() == STATUS_IN_PROGRESS)
-            return sWorldSafeLocsStore.LookupEntry(KT_GRAVEYARD_RECTANGLEA1);
-        else
-            return sWorldSafeLocsStore.LookupEntry(KT_GRAVEYARD_RECTANGLEA2);
-    }
+    if (player->GetTeamId() == TEAM_ALLIANCE)
+        return sWorldSafeLocsStore.LookupEntry(GetStatus() == STATUS_IN_PROGRESS ? KT_GRAVEYARD_RECTANGLEA1 : KT_GRAVEYARD_RECTANGLEA2);
     else
-    {
-        if (GetStatus() == STATUS_IN_PROGRESS)
-            return sWorldSafeLocsStore.LookupEntry(KT_GRAVEYARD_RECTANGLEH1);
-        else
-            return sWorldSafeLocsStore.LookupEntry(KT_GRAVEYARD_RECTANGLEH2);
-    }
+        return sWorldSafeLocsStore.LookupEntry(GetStatus() == STATUS_IN_PROGRESS ? KT_GRAVEYARD_RECTANGLEH1 : KT_GRAVEYARD_RECTANGLEH2);
 }
 
 void BattlegroundKT::AccumulateScore(TeamId team, BG_KT_ZONE zone)
@@ -372,29 +353,16 @@ void BattlegroundKT::AccumulateScore(TeamId team, BG_KT_ZONE zone)
 
     UpdateWorldState(team == TEAM_ALLIANCE ? WorldStates::BG_KT_ORB_POINTS_A : WorldStates::BG_KT_ORB_POINTS_H, m_TeamScores[team]);
 
-    switch (team)
-    {
-        case TEAM_ALLIANCE:
-            UpdateWorldState(WorldStates::BG_KT_ORB_POINTS_A, m_TeamScores[team]);
-            if (m_TeamScores[team] == BG_KT_MAX_TEAM_SCORE)
-                EndBattleground(ALLIANCE);
-            break;
-        case TEAM_HORDE:
-            UpdateWorldState(WorldStates::BG_KT_ORB_POINTS_H, m_TeamScores[team]);
-            if (m_TeamScores[team] == BG_KT_MAX_TEAM_SCORE)
-                EndBattleground(HORDE);
-            break;
-        default:
-            break;
-    }
+    if (m_TeamScores[team] == BG_KT_MAX_TEAM_SCORE)
+        EndBattleground(GetTeamByTeamId(team));
 }
 
 void BattlegroundKT::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_GREEN_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_GREEN].IsEmpty() ? 0 : 1);
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_PURPLE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_GREEN].IsEmpty() ? 0 : 1);
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_ORANGE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_ORANGE].IsEmpty() ? 0 : 1);
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_BLUE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_BLUE].IsEmpty() ? 0 : 1);
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_GREEN_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_GREEN].IsEmpty() ? 1 : 0);
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_PURPLE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_GREEN].IsEmpty() ? 1 : 0);
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_ORANGE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_ORANGE].IsEmpty() ? 1 : 0);
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_BLUE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_BLUE].IsEmpty() ? 1 : 0);
 
     packet.Worldstates.emplace_back(WorldStates::BG_KT_ORB_POINTS_A, m_TeamScores[TEAM_ALLIANCE]);
     packet.Worldstates.emplace_back(WorldStates::BG_KT_ORB_POINTS_H, m_TeamScores[TEAM_HORDE]);

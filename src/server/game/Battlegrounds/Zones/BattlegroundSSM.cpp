@@ -144,7 +144,7 @@ void BattlegroundSSM::HandleAreaTrigger(Player* player, uint32 trigger, bool ent
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
             {
                 Position startPos;
-                GetTeamStartLoc(GetTeamIndexByTeamId(player->GetBGTeam()), startPos);
+                GetTeamStartLoc(player->GetTeamId(), startPos);
                 player->TeleportTo(GetMapId(), startPos.GetPositionX(), startPos.GetPositionY(), startPos.GetPositionZ(), startPos.GetOrientation());
             }
             break;
@@ -258,7 +258,7 @@ Creature* BattlegroundSSM::_UpdateCart(uint32 type)
         cart->Kill(cart);
         DelCreature(type);
         cart = _AddCart(type, _cartWaypointsMap[type][0]);
-        SendMessageToAll(LANG_BG_SSM_SPAWN_CART, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SendBroadcastTextToAll(60444, CHAT_MSG_BG_SYSTEM_NEUTRAL, cart);
 
         _waysStep[type] = 1;
     }
@@ -353,6 +353,8 @@ void BattlegroundSSM::_AddScore(TeamId team, int32 points)
 {
     m_TeamScores[team] += points;
 
+    Battleground::SendBattleGroundPoints(team != TEAM_ALLIANCE, m_TeamScores[team]);
+
     if (m_TeamScores[team] > SSM_MAX_TEAM_POINTS)
         m_TeamScores[team] = SSM_MAX_TEAM_POINTS;
 
@@ -360,8 +362,8 @@ void BattlegroundSSM::_AddScore(TeamId team, int32 points)
 
     if (m_TeamScores[team] = SSM_MAX_TEAM_POINTS)
     {
-        EndBattleground(team == TEAM_ALLIANCE ? ALLIANCE : HORDE);
-        CastSpellOnTeam(135787, team == TEAM_ALLIANCE ? ALLIANCE : HORDE); // Quest credit "The Lion Roars"
+        EndBattleground(GetTeamByTeamId(team));
+        CastSpellOnTeam(135787, GetTeamByTeamId(team)); // Quest credit "The Lion Roars"
     }
 }
 
@@ -503,5 +505,5 @@ void BattlegroundSSM::FillInitialWorldStates(WorldPackets::WorldState::InitWorld
 
 WorldSafeLocsEntry const* BattlegroundSSM::GetClosestGraveYard(Player* player)
 {
-    return player->GetTeam() == ALLIANCE ? sWorldSafeLocsStore.LookupEntry(BG_SSM_ALLIANCE_GRAVEYARD) : sWorldSafeLocsStore.LookupEntry(BG_SSM_HORDE_GRAVEYARD);
+    return player->GetTeamId() == TEAM_ALLIANCE ? sWorldSafeLocsStore.LookupEntry(BG_SSM_ALLIANCE_GRAVEYARD) : sWorldSafeLocsStore.LookupEntry(BG_SSM_HORDE_GRAVEYARD);
 }
