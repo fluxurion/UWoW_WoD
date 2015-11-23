@@ -865,7 +865,10 @@ void Battleground::EndBattleground(uint32 winner)
                 _arenaTeamScores[team == winner].Assign(bracket->getRating(), bracket->getRating() + gain, bracket->getLastMMRChange());
             }
             else
+            {
                 player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
+                _arenaTeamScores[team != winner].Assign(bracket->getRating(), bracket->getRating() - gain, bracket->getLastMMRChange());
+            }
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA, GetMapId());
         }
@@ -881,7 +884,7 @@ void Battleground::EndBattleground(uint32 winner)
         player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_25Y);
         player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_60Y);
 
-        PlayerReward(player, team == winner, !isArena() ? 0 : (isRated() ? 2 : 3), false /*firstWeekly*/, !player->GetRandomWinner());
+        PlayerReward(player, team == winner, (!isArena() && !isRated()) ? 0 : 2, false /*firstWeekly*/, !player->GetRandomWinner());
 
         // Reward winner team
         if (team == winner)

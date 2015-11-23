@@ -440,7 +440,7 @@ class Battleground
         bool isBattleground() const { return !m_IsArena; }
         bool IsRBG() const { return m_IsRBG; }
         bool isRated() const { return m_IsRated; }
-        bool IsTournament() const { return m_IsRated; }
+        bool IsTournament() const { return m_IsTournament; }
 
         BattlegroundPlayerMap const& GetPlayers() const { return m_Players; }
         uint32 GetPlayersSize() const { return m_Players.size(); }

@@ -1671,7 +1671,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     WorldPackets::Party::PartyUpdate partyUpdate;
 
     partyUpdate.PartyType = m_groupType;
-    partyUpdate.PartyIndex = 0;
+    partyUpdate.PartyIndex = 1;
     partyUpdate.PartyFlags = IsHomeGroup() ? 0 : 1;
 
     partyUpdate.PartyGUID = m_guid;

@@ -217,8 +217,8 @@ void BattlegroundMgr::BuildBattlegroundStatusHeader(WorldPackets::Battleground::
     header->RangeMax = bg->GetMaxLevel();
     header->TeamSize = bg->isArena() ? arenaType : 0;
     header->InstanceID = bg->GetClientInstanceID();
-    header->RegisteredMatch = false;
-    header->TournamentRules = false; //bg->isRated();
+    header->RegisteredMatch = bg->isRated();
+    header->TournamentRules = bg->IsTournament();
 }
 
 void BattlegroundMgr::BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player* player, uint32 queueSlot, uint32 joinTime, Battleground* bg, uint32 arenaType)
@@ -242,7 +242,7 @@ void BattlegroundMgr::BuildBattlegroundStatusActive(WorldPackets::Battleground::
     BuildBattlegroundStatusHeader(&battlefieldStatus->Header, bg, player, ticketId, joinTime, arenaType);
     battlefieldStatus->ShutdownTimer = std::chrono::duration_cast<Seconds>(bg->GetRemainingTime());
     battlefieldStatus->ArenaFaction = player->GetBGTeam() == HORDE ? TEAM_ALLIANCE : TEAM_HORDE;
-    battlefieldStatus->LeftEarly = bg->isRated() && bg->GetStatus() != STATUS_WAIT_LEAVE;
+    battlefieldStatus->LeftEarly = bg->IsTournament() || bg->IsRBG();
     battlefieldStatus->StartTimer = std::chrono::duration_cast<Seconds>(bg->GetElapsedTime());
     battlefieldStatus->Mapid = bg->GetMapId();
 }
