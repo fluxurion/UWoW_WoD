@@ -14,3 +14,13 @@ insert into `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targe
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('17253','spell_hun_enhanced_basic_attacks');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('16827','spell_hun_enhanced_basic_attacks');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('49966','spell_hun_enhanced_basic_attacks');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('-164273','-160198','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Одинокий волк'),
+('-164273','-160199','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Одинокий волк'),
+('-164273','-160200','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Одинокий волк'),
+('-164273','-160203','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Одинокий волк'),
+('-164273','-160205','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Одинокий волк'),
+('-164273','-160206','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Одинокий волк'),
+('-164273','-172967','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Одинокий волк'),
+('-164273','-172968','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Одинокий волк');
