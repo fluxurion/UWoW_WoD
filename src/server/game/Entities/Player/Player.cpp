@@ -4349,6 +4349,11 @@ bool Player::addSpell(uint32 spellId, bool active, bool learning, bool dependent
             if (skillValue < spellLearnSkill->value)
                 skillValue = spellLearnSkill->value;
 
+            uint32 newMaxSkillValue = spellLearnSkill->maxvalue == 0 ? GetMaxSkillValueForLevel() : spellLearnSkill->maxvalue;
+
+            if (maxSkillValue < newMaxSkillValue)
+                maxSkillValue = newMaxSkillValue;
+
             SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skillValue, maxSkillValue);
         }
     }
@@ -4460,6 +4465,8 @@ void Player::learnSpell(uint32 spell_id, bool dependent, uint32 fromSkill /*= 0*
     {
         WorldPackets::Spells::LearnedSpells packet;
         packet.SpellID.push_back(spell_id);
+        if (disabled || !active)
+            packet.SuppressMessaging = true;
         GetSession()->SendPacket(packet.Write());
     }
 
@@ -25627,6 +25634,9 @@ void Player::learnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ability->SpellID);
         if (!spellInfo)
+            continue;
+
+        if (HasSpell(spellInfo->Id))
             continue;
 
         if (ability->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
