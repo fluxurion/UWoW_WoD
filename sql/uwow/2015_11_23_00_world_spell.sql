@@ -1,6 +1,8 @@
+DELETE FROM spell_talent_linked_spell WHERE spellid IN (152244, -152244);
 insert into `spell_talent_linked_spell` (`spellid`, `spelllink`, `type`, `target`, `caster`, `comment`) values
-('152244','0','3','0','0','Адаптация'),
-('-152244','0','3','0','0','Адаптация');
+('-152244','152244','2','0','0','Адаптация'),
+('152244','152244','3','0','0','Адаптация');
+
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('155228','spell_hun_lone_wolf_tal');
 insert into `spell_talent_linked_spell` (`spellid`, `spelllink`, `type`, `target`, `caster`, `comment`) values
@@ -24,3 +26,4 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 ('-164273','-160206','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Одинокий волк'),
 ('-164273','-172967','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Одинокий волк'),
 ('-164273','-172968','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Одинокий волк');
+
