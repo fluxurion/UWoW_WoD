@@ -130,3 +130,6 @@ INSERT INTO `garrison_building_gameobject` (`plotID`, `BuildID`, `id`, `map`, `p
 -- Alliance. Big. empty building
 (23, 0, 231855, 1158, 1906.99, 235.7743, 77.60764, 3.348588, 0, 0, 0, 1);
 
+DELETE FROM `garrison_building_creature` WHERE map =1158 ;
+INSERT INTO `garrison_building_creature` (`plotID`, `BuildID`, `id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`) VALUES
+(23, 26, 77379, 1158, 1897.158, 241.4114, 76.98568, 2.097671);
