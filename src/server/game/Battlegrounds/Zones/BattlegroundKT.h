@@ -191,7 +191,10 @@ WorldStates const OrbsWS[MAX_ORBS][MAX_TEAMS] =
 
 WorldStates const OrbsIcons[MAX_ORBS] = 
 {
-    {WorldStates::BG_KT_ICON_GREEN_ORB_ICON}, {WorldStates::BG_KT_ICON_PURPLE_ORB_ICON}, {WorldStates::BG_KT_ICON_ORANGE_ORB_ICON}, {WorldStates::BG_KT_ICON_BLUE_ORB_ICON}
+    WorldStates::BG_KT_ICON_GREEN_ORB_ICON,
+    WorldStates::BG_KT_ICON_PURPLE_ORB_ICON,
+    WorldStates::BG_KT_ICON_ORANGE_ORB_ICON,
+    WorldStates::BG_KT_ICON_BLUE_ORB_ICON
 };
 
 uint32 const BG_KT_TickPoints[3] = {5, 10, 15};
