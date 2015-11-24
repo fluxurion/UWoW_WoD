@@ -881,6 +881,7 @@ struct GameObjectData
     bool dbData;
 
     uint32 AiID;
+    bool building = false;      // Garrison building state.
     std::set<uint32> PhaseID;
 };
 

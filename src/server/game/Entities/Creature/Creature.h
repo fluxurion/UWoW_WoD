@@ -350,6 +350,7 @@ struct CreatureData
     uint32 dynamicflags = 0;
     bool isActive = false;
     bool dbData;
+    bool building;                                              // garrison building state
     std::set<uint32> PhaseID;
 };
 

@@ -1010,6 +1010,11 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         {
             if (map->GetId() != data->mapid)
                 continue;
+
+            // ignore building state object for already build object.
+            if (BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active == data->building)
+                continue;
+
             GameObject* linkGO = new GameObject();
             if (!linkGO->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), data->id, map, 1, data->posX, data->posY, data->posZ, data->orientation,
                 data->rotation0, data->rotation1, data->rotation2, data->rotation3, 255, GO_STATE_READY) ||
@@ -1026,6 +1031,8 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         {
             if (map->GetId() != data->mapid)
                 continue;
+            if (BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active == data->building)
+                continue;
             Creature* linkNPC = new Creature();
             if (!linkNPC->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), map, 1, data->id, 0, 0, data->posX, data->posY, data->posZ, data->orientation) ||
                 !linkNPC->IsPositionValid() || !map->AddToMap(linkNPC))
@@ -1033,6 +1040,9 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
                 delete linkNPC;
                 continue;
             }
+            if (data->building)
+                linkNPC->SetUInt32Value(UNIT_NPC_EMOTESTATE, urand(0, 1) ? 173 : 69);
+
             BuildingInfo.Spawns.insert(linkNPC->GetGUID());
         }
     }

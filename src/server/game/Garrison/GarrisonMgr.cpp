@@ -459,7 +459,7 @@ void GarrisonMgr::LoadFollowerClassSpecAbilities()
 void GarrisonMgr::LoadBuildingSpawnNPC()
 {
     //                                                  0       1      2   3    4              5           6            7
-    QueryResult result = WorldDatabase.Query("SELECT plotID, BuildID, id, map, position_x, position_y, position_z, orientation FROM garrison_building_creature");
+    QueryResult result = WorldDatabase.Query("SELECT plotID, BuildID, id, map, position_x, position_y, position_z, orientation, building FROM garrison_building_creature");
 
     if (!result)
     {
@@ -505,6 +505,7 @@ void GarrisonMgr::LoadBuildingSpawnNPC()
         data.posY = fields[index++].GetFloat();
         data.posZ = fields[index++].GetFloat();
         data.orientation = fields[index++].GetFloat();
+        data.building = fields[index++].GetBool();
         data.dbData = false;
         _buildSpawnNpc[BuildID][garrPlotInstanceId].push_back(data);
 
@@ -516,8 +517,8 @@ void GarrisonMgr::LoadBuildingSpawnNPC()
 
 void GarrisonMgr::LoadBuildingSpawnGo()
 {
-    //                                                  0       1      2   3    4              5           6            7           8           9       10          11
-    QueryResult result = WorldDatabase.Query("SELECT plotID, BuildID, id, map, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3 FROM garrison_building_gameobject");
+    //                                                  0       1      2   3    4              5           6            7           8           9       10          11          12
+    QueryResult result = WorldDatabase.Query("SELECT plotID, BuildID, id, map, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, building FROM garrison_building_gameobject");
 
     if (!result)
     {
@@ -566,6 +567,7 @@ void GarrisonMgr::LoadBuildingSpawnGo()
         data.rotation1 = fields[index++].GetFloat();
         data.rotation2 = fields[index++].GetFloat();
         data.rotation3 = fields[index++].GetFloat();
+        data.building = fields[index++].GetBool();
         data.dbData = false;
         _buildSpawnGo[BuildID][garrPlotInstanceId].push_back(data);
 
