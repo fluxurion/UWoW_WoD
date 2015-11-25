@@ -845,14 +845,19 @@ class spell_mage_inferno_blast : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                uint32 count = 3;
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
 
-                if (Unit* caster = GetCaster())
-                    if (Aura* aura = caster->GetAura(89926))
-                    {
-                        if (aura->GetEffect(EFFECT_0))
-                            count += aura->GetEffect(EFFECT_0)->GetAmount();
-                    }
+                uint32 count = 3;
+                if (SpellInfo const* _spellInfo = sSpellMgr->GetSpellInfo(108853))
+                    count = _spellInfo->Effects[EFFECT_1].CalcValue(caster);
+
+                if (Aura* aura = caster->GetAura(89926))
+                {
+                    if (aura->GetEffect(EFFECT_0))
+                        count += aura->GetEffect(EFFECT_0)->GetAmount();
+                }
                 if (targets.size() > count)
                     Trinity::Containers::RandomResizeList(targets, count);
             }

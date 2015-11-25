@@ -4361,6 +4361,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 157174:  // Elemental Fusion
                 case 88819:  // Daybreak
                 case 157717:  // Enhanced Basic Attacks
+                case 157644:  // Enhanced Pyrotechnics
                     spellInfo->ProcCharges = 1;
                     break;
                 case 89485:  // Inner Focus
