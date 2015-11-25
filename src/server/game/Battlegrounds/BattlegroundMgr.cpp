@@ -564,8 +564,8 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
     uint8 selectionWeight;
     BattlemasterListEntry const* bl;
 
-    //                                               0    1                2              3       4
-    QueryResult result = WorldDatabase.Query("SELECT id, AllianceStartLoc, HordeStartLoc, Weight, ScriptName FROM battleground_template");
+    //                                               0   1                 2              3       4           5
+    QueryResult result = WorldDatabase.Query("SELECT id, AllianceStartLoc, HordeStartLoc, Weight, ScriptName, MinPlayersPerTeam  FROM battleground_template");
 
     if (!result)
     {
@@ -593,7 +593,9 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
 
         CreateBattlegroundData data;
         data.bgTypeId = BattlegroundTypeId(ID);
-        data.MinPlayersPerTeam = bl->MinPlayers;
+        uint8 MinPlayersPerTeam = bl->MinPlayers;
+        if (uint32 dbVal = fields[5].GetUInt32())
+            data.MinPlayersPerTeam = dbVal;
         data.MaxPlayersPerTeam = bl->MaxPlayers;
         data.LevelMin = bl->Minlevel;
         data.LevelMax = bl->Maxlevel;
