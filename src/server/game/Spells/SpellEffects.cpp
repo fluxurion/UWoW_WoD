@@ -7439,13 +7439,10 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
                 summon->SetDisplayId(1126);
         }
 
-        // if (properties->Id != 3390)
-            // summon->AI()->EnterEvadeMode();
-
         // guardians should follow owner.
         if (caster && !summon->HasUnitState(UNIT_STATE_FOLLOW)) // no charm info and no victim
-            summon->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, summon->GetFollowAngle());
-
+            if (summon->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE) // Prevent rewrite movement from scripts
+                summon->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, summon->GetFollowAngle());
 
         ExecuteLogEffectSummonObject(i, summon);
     }

@@ -1932,6 +1932,8 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
     if(maxTargets < 0)
         maxTargets = m_spellInfo->GetEffect(effIndex, m_diffMode)->ChainTargets;
 
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitChainTargets maxTargets %i Id %i", maxTargets, m_spellInfo->Id);
+
     // Havoc
     if (Aura* _aura = m_caster->GetAura(80240))
     {

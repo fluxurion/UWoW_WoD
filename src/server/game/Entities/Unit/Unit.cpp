@@ -7283,7 +7283,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     if (effIndex != EFFECT_0)
                         return false;
 
-                    basepoints0 = CalculatePct(damage, triggerAmount / 2);
+                    basepoints0 = CalculatePct(damage, triggerAmount);
                     triggered_spell_id = 12654;
                     break;
                 }

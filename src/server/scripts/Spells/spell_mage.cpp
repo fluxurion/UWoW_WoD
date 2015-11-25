@@ -215,11 +215,8 @@ class spell_mage_arcane_missile : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_arcane_missile_AuraScript);
 
-            bool casterCharge;
-
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                casterCharge = false;
                 if (!GetCaster())
                     return;
 
@@ -233,28 +230,10 @@ class spell_mage_arcane_missile : public SpellScriptLoader
                     }
             }
 
-            void OnTick(AuraEffect const* aurEff)
-            {
-                Player* target = GetTarget()->ToPlayer();
-                if (!target)
-                    return;
-
-                if (target->GetSpecializationId(target->GetActiveSpec()) != SPEC_MAGE_ARCANE)
-                    return;
-
-                if (!casterCharge)
-                {
-                    casterCharge = true;
-                    target->CastSpell(target, SPELL_MAGE_ARCANE_CHARGE, true);
-                }
-            }
-
             void Register()
             {
                 OnEffectApply += AuraEffectApplyFn(spell_mage_arcane_missile_AuraScript::OnApply, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_arcane_missile_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
-
         };
 
         AuraScript* GetAuraScript() const
@@ -432,18 +411,10 @@ class spell_mage_arcane_explosion : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_arcane_explosion_SpellScript);
 
-            bool casted;
-
-        public:
-            spell_mage_arcane_explosion_SpellScript() : SpellScript()
-            {
-                casted = false;
-            }
-
-            void HandleOnHit()
+            void HandleOnCast()
             {
                 Unit* caster = GetCaster();
-                if (!caster)
+                if (!caster || !GetSpell()->GetTargetCount())
                     return;
 
                 Player* player = caster->ToPlayer();
@@ -453,29 +424,17 @@ class spell_mage_arcane_explosion : public SpellScriptLoader
                 if (player->GetSpecializationId(player->GetActiveSpec()) != SPEC_MAGE_ARCANE)
                     return;
 
-                if (!casted)
-                {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        if (roll_chance_i(30))
-                        {
-                            casted = true;
-                            caster->CastSpell(caster, SPELL_MAGE_ARCANE_CHARGE, true);
-                        }
-                    }
-                }
+                int32 chance = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                if (roll_chance_i(chance))
+                    caster->CastSpell(caster, SPELL_MAGE_ARCANE_CHARGE, true);
 
-                if (!casted)
-                {
-                    if (Unit* target = GetHitUnit())
-                        if (Aura* arcaneCharge = caster->GetAura(SPELL_MAGE_ARCANE_CHARGE))
-                            arcaneCharge->RefreshDuration();
-                }
+                if (Aura* arcaneCharge = caster->GetAura(SPELL_MAGE_ARCANE_CHARGE))
+                    arcaneCharge->RefreshDuration();
             }
 
             void Register()
             {
-                OnHit += SpellHitFn(spell_mage_arcane_explosion_SpellScript::HandleOnHit);
+                OnCast += SpellCastFn(spell_mage_arcane_explosion_SpellScript::HandleOnCast);
             }
         };
 
@@ -671,12 +630,7 @@ class spell_mage_frost_bomb : public SpellScriptLoader
                     return;
 
                 if (Unit* caster = GetCaster())
-                {
                     caster->CastSpell(GetTarget(), SPELL_MAGE_FROST_BOMB_TRIGGERED, true);
-
-                    if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
-                        caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
-                }
             }
 
             void Register()
@@ -751,27 +705,6 @@ class spell_mage_nether_tempest : public SpellScriptLoader
                         pCaster->CastSpell(*itr, SPELL_MAGE_NETHER_TEMPEST_VISUAL, true);
                         GetTarget()->CastSpell(*itr, SPELL_MAGE_NETHER_TEMPEST_MISSILE, true);
                     }
-
-                    if (pCaster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
-                    {
-                        ObjectGuid procTarget;
-                        int32 maxDuration = 0;
-
-                        for (GuidSet::iterator iter = pCaster->m_unitsHasCasterAura.begin(); iter != pCaster->m_unitsHasCasterAura.end(); ++iter)
-                        {
-                            if (Unit* _target = ObjectAccessor::GetUnit(*pCaster, *iter))
-                                if (Aura* aura = _target->GetAura(114923, pCaster->GetGUID()))
-                                    if (aura->GetDuration() >= maxDuration)
-                                    {
-                                        maxDuration = aura->GetDuration();
-                                        procTarget = *iter;
-                                    }
-                        }
-
-                        if (procTarget == GetTarget()->GetGUID())
-                            if (irand(0, 10000) < 833)
-                                pCaster->CastSpell(pCaster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
-                    }
                 }
             }
 
@@ -844,16 +777,10 @@ class spell_mage_combustion : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        _player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST, true);
-                        _player->RemoveSpellCooldown(SPELL_MAGE_INFERNO_BLAST_IMPACT, true);
-
                         int32 combustionBp = 0;
-                        int32 percent = 20;
-                        if(_player->HasAura(56368))
-                            percent += 20;
-
+                        int32 perc = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                         if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_MAGE_IGNITE, EFFECT_0))
-                            combustionBp += CalculatePct(aurEff->GetAmount(), percent);
+                            combustionBp += CalculatePct(aurEff->GetAmount(), perc);
 
                         if (combustionBp)
                             _player->CastCustomSpell(target, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);
@@ -1518,32 +1445,6 @@ class spell_mage_living_bomb : public SpellScriptLoader
                     firsttarget->RemoveAurasDueToSpell(44457, caster->GetGUID());
 
             }
-            
-            void OnTick(AuraEffect const* aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetTarget())
-                        if (caster->HasAura(SPELL_MAGE_BRAIN_FREEZE))
-                        {
-                            ObjectGuid procTarget;
-                            int32 maxDuration = 0;
-
-                            for (GuidSet::iterator iter = caster->m_unitsHasCasterAura.begin(); iter != caster->m_unitsHasCasterAura.end(); ++iter)
-                            {
-                                if (Unit* _target = ObjectAccessor::GetUnit(*caster, *iter))
-                                    if (Aura* aura = _target->GetAura(44457, caster->GetGUID()))
-                                        if (aura->GetDuration() >= maxDuration)
-                                        {
-                                            maxDuration = aura->GetDuration();
-                                            procTarget = *iter;
-                                        }
-                            }
-
-                            if (procTarget == target->GetGUID())
-                                if (roll_chance_i(25))
-                                    caster->CastSpell(caster, SPELL_MAGE_BRAIN_FREEZE_TRIGGERED, true);
-                        }
-            }
 
             void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
@@ -1560,7 +1461,6 @@ class spell_mage_living_bomb : public SpellScriptLoader
             void Register()
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_mage_living_bomb_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_living_bomb_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
