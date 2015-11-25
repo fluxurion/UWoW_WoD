@@ -7373,10 +7373,18 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     if (!procSpell)
                         return false;
 
+                    int32 chance = triggerAmount;
                     uint8 effIdx = triggeredByAura->GetEffIndex();
                     switch (procSpell->Id)
                     {
                         case 116:   // Frostbolt
+                        {
+                            if (effIdx != EFFECT_0)
+                                return false;
+                            if(victim && victim->HasAura(135029))
+                                chance = 100;
+                            break;
+                        }
                         case 44614: // Frostfire Bolt
                         case 84714: // Frozen Orb
                         {
@@ -7400,7 +7408,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                             return false;
                     }
 
-                    if (!roll_chance_i(triggerAmount))
+                    if (!roll_chance_i(chance))
                         return false;
 
                     triggered_spell_id = 44544;
@@ -17559,7 +17567,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 }
             }
 
-            i->aura->DropCharge();
+            if (!i->aura->IsPassive())
+                i->aura->DropCharge();
             if(isReflect) // reflect take only one aura
                 return;
             if(isModifier && (procExtra & PROC_EX_ON_CAST)) // same proc use charge on cast can take only one aura

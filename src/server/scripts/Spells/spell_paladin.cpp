@@ -1797,6 +1797,41 @@ class spell_pal_beacon_of_light_proc : public SpellScriptLoader
         }
 };
 
+// Holy Shield - 152261
+class spell_pal_holy_shield : public SpellScriptLoader
+{
+    public:
+        spell_pal_holy_shield() : SpellScriptLoader("spell_pal_holy_shield") { }
+
+        class spell_pal_holy_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_holy_shield_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                // Set absorbtion amount to unlimited
+                amount = -1;
+            }
+
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
+            {
+                if (!roll_chance_f(GetTarget()->GetUnitBlockChance()))
+                    absorbAmount = 0;
+            }
+
+            void Register()
+            {
+                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_holy_shield_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_SCHOOL_ABSORB);
+                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_pal_holy_shield_AuraScript::Absorb, EFFECT_2, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_holy_shield_AuraScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_glyph_of_avenging_wrath();
@@ -1839,4 +1874,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_beacon_of_insight();
     new spell_pal_beacon_of_light();
     new spell_pal_beacon_of_light_proc();
+    new spell_pal_holy_shield();
 }

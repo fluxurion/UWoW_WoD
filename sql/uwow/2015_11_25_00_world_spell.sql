@@ -66,7 +66,7 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 ('55342','88085','6','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение'),
 ('55342','88089','6','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение');
 insert into `spell_pet_auras` (`petEntry`, `spellId`, `option`, `target`, `targetaura`, `bp0`, `bp1`, `bp2`, `aura`, `casteraura`, `createdspell`, `fromspell`, `comment`) values
-('47243','58838','0','0','0','0','0','0','0','0','0','0','Inherit Master\'s Threat List'),
+('47243','58838','0','0','0','0','0','0','0','0','0','0','Inherit Masters Threat List'),
 ('47243','45204','0','2','0','0','0','0','0','0','0','0','Клонирование себя'),
 ('47243','45206','0','1','0','0','0','0','0','0','0','0','Копирование оружия левой руки'),
 ('47243','41055','0','1','0','0','0','0','0','0','0','0','Копирование оружия');
@@ -115,3 +115,17 @@ insert into `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targe
 ('1712','0','1','0','2','155158','0','0','0','0','0','0','0','Метеор'),
 ('1712','1','42','1','2','155158','0','0','0','0','0','0','0','Метеор');
 
+DELETE FROM spell_proc_event WHERE entry IN (44448);
+insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `SpellFamilyMask3`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`, `effectmask`) values
+('44448','0','0','0','0','0','0','0','2','0','0','0','7');
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('44448','0','0','0','0','0','0','7','-1','-1','0','0','0','0','0','0','-4','0','0','0','Ясность мысли Огненная глыба');
+
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('152261','spell_pal_holy_shield');
+DELETE FROM spell_proc_event WHERE entry IN (152261);
+insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `SpellFamilyMask3`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`, `effectmask`) values
+('152261','0','0','0','0','0','0','0','1088','0','0','0','7');
+
+DELETE FROM spell_trigger WHERE spell_id IN (157727);
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('157727','84714','0','4','1','0','0','0','-500','0','0','7','0','0','0','0','0','0','0','-1','0','0','0','Улучшенная снежная буря');

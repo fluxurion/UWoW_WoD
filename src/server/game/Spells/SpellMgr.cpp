@@ -4364,6 +4364,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 88819:  // Daybreak
                 case 157717:  // Enhanced Basic Attacks
                 case 157644:  // Enhanced Pyrotechnics
+                case 79684:  // Arcane Missiles
                     spellInfo->ProcCharges = 1;
                     break;
                 case 89485:  // Inner Focus
