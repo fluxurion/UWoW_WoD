@@ -4721,6 +4721,8 @@ void Spell::finish(bool ok)
                 }
             }
         }
+
+    LinkedSpell(m_caster, unitTarget, SPELL_LINK_FINISH_CAST);
 }
 
 void Spell::SendCastResult(SpellCastResult result)

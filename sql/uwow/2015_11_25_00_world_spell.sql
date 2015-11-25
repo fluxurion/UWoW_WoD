@@ -1,3 +1,14 @@
+REPLACE INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
+('176248','1116','3745.1','-4056.01','46.6','2.811'),
+('176242','1116','5267.64','-4061.54','21.15','0.926'),
+('49359','1','-3748.85','-4440.35','30.551','0.725'),
+('49358','0','-10468.9','-3329.99','25.472','0.859'),
+('3567','1','1776.21','-4332.21','-7.97','3.773'),
+('3566','1','-964.02','284.161','111.241','3.673'),
+('3565','1','9657.56','2513.23','1331.72','4.336'),
+('3563','0','1770.89','63.296','-46.32','0.645'),
+('3562','0','-4610.5','-912.9','501.13','3.869');
+
 insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
 ('2948','157633','0','0','0','0','157632','0','0','0','0','0','0','0','0','-1','0','0','Улучшенный ожог');
 
@@ -18,4 +29,89 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
 ('36032','-157595','0','2','0','0','0','0','0','0','16','0','0','0','0','0','1','Усиленная чародейская вспышка');
 
+DELETE FROM spell_bonus_data WHERE entry IN (11426);
+insert into `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `damage_bonus`, `heal_bonus`, `comments`) values
+('11426','4.95','0','0','0','0','0','Mage - Ice Barrier');
+
+DELETE FROM spell_script_names WHERE spell_id IN (11958);
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('11958','120','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','8','0','Холодная хватка'),
+('11958','122','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','8','0','Холодная хватка'),
+('11958','45438','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','8','0','Холодная хватка'),
+('11958','12043','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','8','0','Холодная хватка'),
+('11958','31661','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','8','0','Холодная хватка'),
+('11958','157913','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','8','0','Холодная хватка');
+
+insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
+('114923','36032','1','9','0','0','0','0','0','0','7','0','0','0','0','0','1','Буря Пустоты'),
+('114954','36032','1','9','0','0','0','0','0','0','7','0','0','0','0','0','1','Буря Пустоты');
+
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('133','spell_mage_fireball');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('116','spell_mage_unstable_magic');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('44614','spell_mage_unstable_magic');
+
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('157980','spell_mage_supernova');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('157981','spell_mage_supernova');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('157997','spell_mage_supernova');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('108853','118280','0','0','0','1','44457','0','0','0','0','0','1','0','0','-1','0','0','Живая бомба');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('30455','113092','1','0','0','1','112948','7','4','0','0','0','0','0','0','-1','0','0','Ледяная бомба'),
+('113092','-112948','1','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Ледяная бомба');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('55342','88087','6','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение'),
+('55342','88085','6','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение'),
+('55342','88089','6','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение');
+insert into `spell_pet_auras` (`petEntry`, `spellId`, `option`, `target`, `targetaura`, `bp0`, `bp1`, `bp2`, `aura`, `casteraura`, `createdspell`, `fromspell`, `comment`) values
+('47243','58838','0','0','0','0','0','0','0','0','0','0','Inherit Master\'s Threat List'),
+('47243','45204','0','2','0','0','0','0','0','0','0','0','Клонирование себя'),
+('47243','45206','0','1','0','0','0','0','0','0','0','0','Копирование оружия левой руки'),
+('47243','41055','0','1','0','0','0','0','0','0','0','0','Копирование оружия');
+UPDATE creature_template SET spell1 = 59638 WHERE entry IN (47243);
+insert into `pet_stats` (`entry`, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `maxspdorap`, `state`, `energy`, `energy_type`, `armor`, `type`, `damage`, `haste`, `comment`) values
+('47243','0.1','-0.15','0','0.3','16','0','1','100','0','1','1','0','1','Mirror Image');
+
+DELETE FROM spell_script_names WHERE spell_id IN (1463, -1463);
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('1463','spell_mage_incanters_flow');
+
+insert into `pet_stats` (`entry`, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `maxspdorap`, `state`, `energy`, `energy_type`, `armor`, `type`, `damage`, `haste`, `comment`) values
+('76933','65','1','0','1','127','0','1','100','0','1','1','0','0','Радужный кристалл');
+insert into `spell_pet_auras` (`petEntry`, `spellId`, `option`, `target`, `targetaura`, `bp0`, `bp1`, `bp2`, `aura`, `casteraura`, `createdspell`, `fromspell`, `comment`) values
+('76933','155153','0','0','0','0','0','0','0','0','0','0','Радужный кристалл');
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('155153','155152','0','3','1','5','0','0','0','-2','0','2','0','0','0','0','0','0','0','-1','0','0','0','Радужный кристалл');
+insert into `spell_visual` (`spellId`, `SpellVisualID`, `TravelSpeed`, `MissReason`, `ReflectStatus`, `SpeedAsTime`, `type`, `temp`, `comment`) values
+('155152','36621','0','0','0','0','0','0','Радужный кристалл');
+insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values
+('155152','16','9','0','0','0','0','0','7','0','0','0','0','0','Радужный кристалл');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('30455','12472','0','0','3','2','155149','0','0','0','0','2000','0','0','0','-1','10','0','Ледяная Бездна'),
+('5143','12042','0','0','3','2','155147','0','0','0','0','2000','0','0','0','-1','10','0','Перегрузка');
+
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('155148','0','0','133','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Разжигание'),
+('155148','0','0','11366','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Разжигание'),
+('155148','0','0','108853','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Разжигание');
+insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `SpellFamilyMask3`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`, `effectmask`) values
+('155148','0','0','0','0','0','0','0','2','0','0','0','7');
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('155148','11129','0','4','1','0','0','0','-1000','0','0','7','0','0','0','0','0','0','0','-1','0','0','0','Разжигание');
+
+insert into `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `amount`, `comment`) values
+('1612','0','1','0','2','153640','0','0','0','0','0','0','0','Чародейский шар');
+
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('153595','spell_monk_comet_storm');
+
+insert into `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `amount`, `comment`) values
+('3467','0','8','0','32','153564','0','0','0','0','0','0','0','Метеор');
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('153561','177345','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','11','0','Метеор');
+
+insert into `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `amount`, `comment`) values
+('1712','0','1','0','2','155158','0','0','0','0','0','0','0','Метеор'),
+('1712','1','42','1','2','155158','0','0','0','0','0','0','0','Метеор');
 

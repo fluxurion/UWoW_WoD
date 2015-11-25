@@ -4145,6 +4145,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 143962: //Inferno Strike
                 case 157333: //Soothing Winds
                 case 157503: //Cloudburst
+                case 155152: //Prismatic Crystal
+                case 153564: //Meteor
                     // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                     break;

@@ -7283,7 +7283,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                     if (effIndex != EFFECT_0)
                         return false;
 
-                    basepoints0 = CalculatePct(damage, triggerAmount);
+                    basepoints0 = int32(CalculatePct(damage, triggerAmount) / 5);
                     triggered_spell_id = 12654;
                     break;
                 }
@@ -14084,7 +14084,11 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     // can't attack self
     if (this == target)
         return false;
-    
+
+    if (Creature const* creatureTarget = target->ToCreature()) // Prismatic Crystal
+        if(creatureTarget->GetEntry() == 76933 && target->IsOwnerOrSelf(const_cast<Unit*>(this)))
+            return true;
+
     // Sha of anger mind control || Crawler mine (Iron Juggernaut)
     if (target->HasAura(119626) || target->HasAura(144718))
         return true;
@@ -18366,7 +18370,7 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                 if (Pet* pet = target->ToPlayer()->GetPet())
                     target = (Unit*)pet;
             if(itr->target == 5) //get target owner
-                if (Unit* owner = GetOwner())
+                if (Unit* owner = GetAnyOwner())
                     target = owner;
             if(itr->target == 7) //get target self
                 target = triggeredByAura->GetCaster();
@@ -18381,8 +18385,10 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                 if (Pet* pet = ToPlayer()->GetPet())
                     _caster = (Unit*)pet;
             if(itr->caster == 4) //get caster owner
-                if (Unit* owner = GetOwner())
+                if (Unit* owner = GetAnyOwner())
                     _caster = owner;
+            if(itr->caster == 5) //get caster is target
+                _caster = victim;
             if(!_caster)
                 _caster = this;
 
@@ -24595,12 +24601,17 @@ bool Unit::HasAuraLinkedSpell(Unit* caster, Unit* target, uint8 type, int32 hast
         }
         case LINK_HAS_MY_AURA_ON_TARGET: // 6
         {
-            if(!caster)
-                return false;
             if(hastalent > 0)
-                return target ? !target->HasAura(hastalent, caster->GetGUID()) : true ;
+                return target ? !target->HasAura(hastalent, caster ? caster->GetGUID() : ObjectGuid::Empty) : true ;
             else if(hastalent < 0)
-                return target ? target->HasAura(abs(hastalent), caster->GetGUID()) : true ;
+                return target ? target->HasAura(abs(hastalent), caster ? caster->GetGUID() : ObjectGuid::Empty) : true ;
+        }
+        case LINK_HAS_AURA_STATE: // 7
+        {
+            if(hastalent > 0)
+                return target ? !target->HasAuraState(AuraStateType(hastalent)) : true ;
+            else if(hastalent < 0)
+                return target ? target->HasAuraState(AuraStateType(abs(hastalent))) : true ;
         }
     }
     return true;

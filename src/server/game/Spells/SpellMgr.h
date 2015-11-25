@@ -101,6 +101,7 @@ enum SpellLinkedType
     SPELL_LINK_BEFORE_CAST      = 5 * 200000,
     SPELL_LINK_PREPARE_CAST     = 6 * 200000,
     SPELL_LINK_BEFORE_CHECK     = 7 * 200000,
+    SPELL_LINK_FINISH_CAST      = 8 * 200000,
     SPELL_LINK_REMOVE           = 0,
 };
 
@@ -129,6 +130,7 @@ enum SpellLinkedHasType
     LINK_HAS_AURATYPE             = 4,
     LINK_HAS_MY_AURA_ON_CASTER    = 5,
     LINK_HAS_MY_AURA_ON_TARGET    = 6,
+    LINK_HAS_AURA_STATE           = 7,
 };
 
 enum SpellLinkedActionType

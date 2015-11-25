@@ -2147,10 +2147,6 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
                             break;
                     }
                     break;
-                case SPELLFAMILY_MAGE:
-                    if (GetId() == 55342)// Mirror Image
-                        m_isPeriodic = false;
-                    break;
                 case SPELLFAMILY_DEATHKNIGHT:
                     // Chains of Ice
                     if (GetSpellInfo()->SpellFamilyFlags[1] & 0x00004000)
