@@ -101,6 +101,7 @@ void AddSC_garrison_instance();
 void AddSC_wod_dark_portal();
 void AddSC_wod_frostfire_ridge();
 void AddSC_wod_shadowmoon_valley();
+void AddSC_ashran_battlefield();
 
 void AddSC_instance_iron_docks();       // Iron Docks
 void AddSC_boss_fleshrender_nokgar();
@@ -1104,6 +1105,8 @@ void AddDraenorScripts()
     AddSC_wod_dark_portal();
     AddSC_wod_frostfire_ridge();
     AddSC_wod_shadowmoon_valley();
+    AddSC_ashran_battlefield();
+
     AddSC_instance_iron_docks();       // Iron Docks
     AddSC_boss_fleshrender_nokgar();
     AddSC_boss_grimrail_enforcers();

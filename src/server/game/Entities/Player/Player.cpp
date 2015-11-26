@@ -10714,6 +10714,10 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 packet.Worldstates.emplace_back(WorldStates::ZM_MAP_ALLIANCE_FLAG_READY, 0);
             }
             break;
+        case 6941:
+            if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_ASHRAN))
+                bf->FillInitialWorldStates(packet);
+            break;
         default:
             break;
     }

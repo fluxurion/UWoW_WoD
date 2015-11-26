@@ -108,12 +108,13 @@ class BfCapturePoint
 
         GuidSet m_activePlayers[MAX_TEAMS];
 
-        float m_maxValue;
-        float m_minValue;
+        uint32 m_maxValue;
+        uint32 m_minValue;
 
         float m_maxSpeed;
 
-        float m_value;
+        uint32 m_value;
+
         TeamId m_team;
 
         BattlefieldObjectiveStates m_OldState;

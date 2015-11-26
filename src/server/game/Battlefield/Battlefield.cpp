@@ -990,9 +990,9 @@ bool Battlefield::IncrementQuest(Player *player, uint32 quest, bool complete)
 BfCapturePoint::BfCapturePoint(Battlefield* battlefield) : m_Bf(battlefield), m_capturePoint(nullptr)
 {
     m_team = TEAM_NEUTRAL;
-    m_value = 0.0f;
-    m_maxValue = 0.0f;
-    m_minValue = 0.0f;
+    m_value = 0;
+    m_maxValue = 0;
+    m_minValue = 0;
     m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL;
     m_OldState = BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL;
     m_neutralValuePct = 0;
@@ -1050,21 +1050,17 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
         return false;
     }
 
-    m_maxValue = goinfo->controlZone.maxTime;
-    m_maxSpeed = m_maxValue / (goinfo->controlZone.minTime ? goinfo->controlZone.minTime : 60);
+    m_maxValue = 100;   // goinfo->controlZone.maxTime;
+    m_minValue = 0;     // m_maxValue * goinfo->controlZone.neutralPercent / 100;
+    
     m_neutralValuePct = goinfo->controlZone.neutralPercent;
-    m_minValue = m_maxValue * goinfo->controlZone.neutralPercent / 100;
-    m_capturePointEntry = capturePoint->GetEntry();
-    if (m_team == TEAM_ALLIANCE)
-    {
-        m_value = m_maxValue;
-        m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE;
-    }
-    else
-    {
-        m_value = -m_maxValue;
-        m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE;
-    }
+    m_value = goinfo->controlZone.startingValue;
+
+    m_maxSpeed = m_maxValue / (goinfo->controlZone.minTime ? goinfo->controlZone.minTime : 60);
+    m_State = m_value == 50 ? BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL : (m_value == 0 ? BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE : BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE);
+
+    sLog->outError(LOG_FILTER_GENERAL, "m_maxValue %u; m_minValue %u; m_neutralValuePct %u; m_value %u; m_maxSpeed %u; m_State %u",
+        m_maxValue, m_minValue, m_neutralValuePct, m_value, m_maxSpeed, m_State);
 
     return true;
 }
@@ -1149,7 +1145,7 @@ bool BfCapturePoint::Update(uint32 diff)
 
     m_OldState = m_State;
 
-    m_value += fact_diff;
+    m_value += fact_diff / 100.0f;
 
     if (m_value < -m_minValue) // red
     {
@@ -1193,6 +1189,7 @@ bool BfCapturePoint::Update(uint32 diff)
         if (oldTeam != m_team)
         {
             ChangeTeam(oldTeam);
+            PointCapturedByTeam(m_team);
 
             for (uint8 team = TEAM_ALLIANCE; team < MAX_TEAMS; ++team)
                 for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
