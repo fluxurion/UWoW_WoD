@@ -197,6 +197,7 @@ enum SpellTriggeredType
     SPELL_TRIGGER_DAM_MAXHEALTH                 = 38,           // set basepoint to spell damage or max heal percent
     SPELL_TRIGGER_STACK_AMOUNT                  = 39,           // stack damage in amount
     SPELL_TRIGGER_BP_DURATION                   = 40,           // damage is duration
+    SPELL_TRIGGER_ADD_STACK_AND_CAST            = 41,           // change stack and set bp = stack
 };
 
 enum DummyTriggerType

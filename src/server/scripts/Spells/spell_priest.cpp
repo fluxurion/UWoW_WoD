@@ -781,23 +781,18 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                             if(Aura* aura = _player->GetAura(145179)) // Item - Priest T16 Shadow 4P Bonus
                                 aura->GetEffect(0)->SetAmount(20 * currentPower);
 
-                            _player->ModifyPower(POWER_SHADOW_ORBS, -currentPower, true);
                             // Shadow Orb visual
                             if (_player->HasAura(77487))
                                 _player->RemoveAura(77487);
                             // Glyph of Shadow Ravens
                             else if (_player->HasAura(127850))
                                 _player->RemoveAura(127850);
-
-                            // Instant damage equal to amount of shadow orb
-                            SetHitDamage(int32(GetHitDamage() * currentPower / 3));
-
-                            if (Aura* aur = target->GetAura(GetSpellInfo()->Id, _player->GetGUID()))
-                            {
-                                if (AuraEffect* eff = aur->GetEffect(EFFECT_2))
-                                    eff->SetAmount(100 * currentPower / 3);
-                            }
                         }
+
+                        int32 bp = GetHitDamage();
+                        _player->CastCustomSpell(_player, PRIEST_DEVOURING_PLAGUE_HEAL, &bp, 0, 0, true);
+                        bp /= 6;
+                        _player->CastCustomSpell(target, 158831, &bp, 0, 0, true);
                     }
                 }
             }
@@ -807,43 +802,6 @@ class spell_pri_devouring_plague : public SpellScriptLoader
                 OnHit += SpellHitFn(spell_pri_devouring_plague_SpellScript::HandleOnHit);
             }
         };
-
-        class spell_pri_devouring_plague_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_devouring_plague_AuraScript);
-
-            int32 orbCount;
-
-            bool Load()
-            {
-                if(Unit* caster = GetCaster())
-                    orbCount = caster->GetPower(POWER_SHADOW_ORBS) + 1;
-                GetAura()->SetCustomData(orbCount);
-                return true;
-            }
-
-            void OnPereodic(AuraEffect const* /*aurEff*/)
-            {
-                if(Unit* caster = GetCaster())
-                    caster->CastCustomSpell(caster, PRIEST_DEVOURING_PLAGUE_HEAL, &orbCount, 0, 0, true);
-            }
-
-            void HandleTick(AuraEffect const* /*aurEff*/, int32& amount, Unit* /*target*/)
-            {
-                amount *= orbCount;
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_devouring_plague_AuraScript::OnPereodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-                DoEffectChangeTickDamage += AuraEffectChangeTickDamageFn(spell_pri_devouring_plague_AuraScript::HandleTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_devouring_plague_AuraScript();
-        }
 
         SpellScript* GetSpellScript() const
         {
@@ -1538,6 +1496,8 @@ class spell_pri_shadow_orb : public SpellScriptLoader
                                         plr->RemoveSpellCooldown(GetSpellInfo()->Id, true);
                                     }
                                 }
+                                else if (caster->HasAura(157218)) // Enhanced Shadow Word: Death
+                                    caster->CastSpell(caster, 125927, true);
                             }
             }
 
@@ -1799,8 +1759,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* dispeller = dispelInfo->GetDispeller())
-                        if (caster->HasAura(PRIEST_SPELL_4P_S12_SHADOW))
-                            dispeller->CastSpell(dispeller, PRIEST_SPELL_SIN_AND_PUNISHMENT, true, 0, NULL, caster->GetGUID());
+                        dispeller->CastSpell(dispeller, PRIEST_SPELL_SIN_AND_PUNISHMENT, true, 0, NULL, caster->GetGUID());
             }
 
             void Register()
@@ -2487,16 +2446,16 @@ class spell_pri_lightwell_trigger : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (targets.empty())
+                Unit* caster = GetCaster();
+                if (targets.empty() || !caster)
                     return;
 
                 std::list<WorldObject*> unitList;
                 for (std::list<WorldObject*>::iterator itr = targets.begin() ; itr != targets.end(); ++itr)
                 {
                     if (Unit* targer = (*itr)->ToUnit())
-                        if (Unit* caster = GetCaster())
-                            if (targer->GetHealthPct() <= 50.0f && !targer->HasAura(LIGHTSPRING_RENEW_MOP) && targer != caster)
-                                unitList.push_back((*itr));
+                        if (targer->GetHealthPct() <= 50.0f && !targer->HasAura(LIGHTSPRING_RENEW_MOP) && targer != caster)
+                            unitList.push_back((*itr));
                 }
                 targets.clear();
                 targets = unitList;
@@ -2628,6 +2587,64 @@ class spell_pri_devouring_plague_mastery : public SpellScriptLoader
         }
 };
 
+// Mind Sear - 48045
+class spell_pri_mind_sear : public SpellScriptLoader
+{
+    public:
+        spell_pri_mind_sear() : SpellScriptLoader("spell_pri_mind_sear") { }
+
+        class spell_pri_mind_sear_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_mind_sear_SpellScript);
+
+            SpellCastResult CheckTarget()
+            {
+                if (GetExplTargetUnit() == GetCaster())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pri_mind_sear_SpellScript::CheckTarget);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_mind_sear_SpellScript;
+        }
+};
+
+// Prayer of Mending - 41635
+class spell_pri_prayer_of_mending : public SpellScriptLoader
+{
+public:
+    spell_pri_prayer_of_mending() : SpellScriptLoader("spell_pri_prayer_of_mending") { }
+
+    class spell_pri_prayer_of_mendingAuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_prayer_of_mendingAuraScript);
+
+        void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            if(Aura* aura = GetAura())
+                aura->SetStackAmount(aurEff->GetAmount());
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_prayer_of_mendingAuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pri_prayer_of_mendingAuraScript();
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_glyph_of_mass_dispel();
@@ -2681,4 +2698,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_void_tendrils_grasp();
     new spell_pri_divine_star_filter();
     new spell_pri_devouring_plague_mastery();
+    new spell_pri_mind_sear();
+    new spell_pri_prayer_of_mending();
 }

@@ -1589,6 +1589,16 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         return;
     }
 
+    switch (triggered_spell_id)
+    {
+        case 41637: // Prayer of Mending
+            values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
+            values.AddSpellMod(SPELLVALUE_BASE_POINT1, damage);
+            values.AddSpellMod(SPELLVALUE_BASE_POINT2, damage);
+        default:
+            break;
+    }
+
     // original caster guid only for GO cast
     m_caster->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULL, m_originalCasterGUID);
 }

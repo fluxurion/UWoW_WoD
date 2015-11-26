@@ -4366,6 +4366,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 157717:  // Enhanced Basic Attacks
                 case 157644:  // Enhanced Pyrotechnics
                 case 79684:  // Arcane Missiles
+                case 81662:  // Evangelism
                     spellInfo->ProcCharges = 1;
                     break;
                 case 89485:  // Inner Focus

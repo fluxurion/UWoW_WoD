@@ -7656,7 +7656,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                 if (!target)
                     return false;
 
-                basepoints0 = CalculatePct(int32(damage), triggerAmount);
+                basepoints0 = CalculatePct(damage, triggerAmount);
 
                 if(AuraEffect const* aurEff = target->GetAuraEffect(47753, EFFECT_0))
                 {
@@ -12584,8 +12584,8 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* /*spellProto*/, uint32 d
 {
     // Calculate critical bonus
     int32 crit_bonus = damage;
-    damage += crit_bonus;
     damage = int32(float(damage) * GetTotalAuraMultiplier(SPELL_AURA_MOD_CRITICAL_HEALING_AMOUNT));
+    damage += crit_bonus;
 
     return damage;
 }
@@ -19330,7 +19330,7 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                     triggered_spell_id = abs(itr->spell_trigger);
 
                     if(Aura* aura = _caster->GetAura(triggered_spell_id))
-                        if(aura->GetCharges() < (triggerAmount + bp1))
+                        if(aura->GetStackAmount() < (triggerAmount + bp1))
                             aura->ModStackAmount(bp0);
 
                     check = true;
@@ -19466,6 +19466,31 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                 {
                     basepoints0 = triggeredByAura->GetBase()->GetDuration();
                     _caster->CastCustomSpell(target, triggered_spell_id, &basepoints0, &basepoints0, &basepoints0, true, castItem, triggeredByAura, originalCaster);
+                    check = true;
+                }
+                break;
+                case SPELL_TRIGGER_ADD_STACK_AND_CAST: //41
+                {
+                    if(itr->aura > 0 && !_targetAura->HasAura(itr->aura))
+                    {
+                        check = true;
+                        continue;
+                    }
+                    if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
+                    {
+                        check = true;
+                        continue;
+                    }
+
+                    triggered_spell_id = abs(itr->spell_trigger);
+                    basepoints0 = triggeredByAura->GetBase()->GetStackAmount() + bp1;
+
+                    if(basepoints0 > 0)
+                        _caster->CastCustomSpell(target, triggered_spell_id, &basepoints0, &basepoints0, &basepoints0, true, castItem, triggeredByAura, originalCaster);
+                    triggeredByAura->GetBase()->ModStackAmount(bp1);
+
+                    if(itr->spell_trigger < 0)
+                        triggeredByAura->GetBase()->Remove();
                     check = true;
                 }
                 break;
