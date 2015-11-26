@@ -2108,7 +2108,8 @@ void Battleground::HandleTriggerBuff(ObjectGuid go_guid)
 }
 void Battleground::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    player->GetSession()->SendNotification("Warning: Unhandled AreaTrigger in Battleground: %u, Entered: %u", trigger, entered);
+    // temp - for debugging
+    //player->GetSession()->SendNotification("Warning: Unhandled AreaTrigger in Battleground: %u, Entered: %u", trigger, entered);
 }
 
 void Battleground::HandleKillPlayer(Player* victim, Player* killer)

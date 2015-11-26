@@ -436,10 +436,7 @@ void WorldSession::HandleAreaTrigger(WorldPackets::Misc::AreaTrigger& packet)
     }
 
     if (Battleground* bg = player->GetBattleground())
-    {
         bg->HandleAreaTrigger(player, packet.AreaTriggerID, packet.Entered);
-        return;
-    }
 
     if (OutdoorPvP* pvp = player->GetOutdoorPvP())
     {
