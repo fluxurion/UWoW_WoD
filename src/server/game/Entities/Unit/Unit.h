@@ -1508,7 +1508,7 @@ class Unit : public WorldObject
         void SetRace(uint8 race) { SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE, race); }
         void SetClass(uint8 newClass) { SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, newClass); }
         
-        float GetStat(Stats stat) const { return float(GetUInt32Value(UNIT_FIELD_STATS+stat)); }
+        float GetStat(Stats stat) const { return float(GetInt32Value(UNIT_FIELD_STATS+stat)); }
         void SetStat(Stats stat, int32 val) { SetStatInt32Value(UNIT_FIELD_STATS+stat, val); }
         uint32 GetArmor() const { return GetResistance(SPELL_SCHOOL_NORMAL); }
         void SetArmor(int32 val) { SetResistance(SPELL_SCHOOL_NORMAL, val); }
