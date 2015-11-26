@@ -6295,7 +6295,7 @@ void Player::RepopAtGraveyard()
     AreaTableEntry const* zone = GetAreaEntryByAreaID(GetAreaId());
     if (!zone)
     {
-        sLog->outInfo(LOG_FILTER_PLAYER, "Joueur %u dans une zone nulle; area id : %u", GetGUIDLow(), GetAreaId());
+        sLog->outInfo(LOG_FILTER_PLAYER, "Unknown area ID = %u for player %u", GetAreaId(), GetGUIDLow());
         return;
     }
 
@@ -6312,6 +6312,7 @@ void Player::RepopAtGraveyard()
             {
                 TeleportTo(_grave->GetMapId(), _grave->GetPositionX(), _grave->GetPositionY(), _grave->GetPositionZ(), _grave->GetOrientation());
                 UpdateObjectVisibility();
+
                 if (isDead())                                        // not send if alive, because it used in TeleportTo()
                 {
                     WorldPackets::Misc::DeathReleaseLoc packet;
@@ -6319,9 +6320,11 @@ void Player::RepopAtGraveyard()
                     packet.Loc = G3D::Vector3(_grave->GetPositionX(), _grave->GetPositionY(), _grave->GetPositionZ());
                     GetSession()->SendPacket(packet.Write());
                 }
+
                 return;
             }
         }
+
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
             ClosestGrave = bf->GetClosestGraveYard(this);
         else
@@ -6331,12 +6334,12 @@ void Player::RepopAtGraveyard()
     // stop countdown until repop
     m_deathTimer = 0;
 
-    // if no grave found, stay at the current location
-    // and don't show spirit healer location
+    // if grave found and no transport
     if (ClosestGrave && !GetTransport())
     {
         TeleportTo(ClosestGrave->MapID, ClosestGrave->Loc.X, ClosestGrave->Loc.Y, ClosestGrave->Loc.Z, GetOrientation());
         UpdateObjectVisibility();
+
         if (isDead())                                        // not send if alive, because it used in TeleportTo()
         {
             WorldPackets::Misc::DeathReleaseLoc packet;
@@ -6345,15 +6348,20 @@ void Player::RepopAtGraveyard()
             GetSession()->SendPacket(packet.Write());
         }
     }
-    // Do it only if where is no grave or transport!
-    // Such zones are considered unreachable as a ghost and the player must be automatically revived
-    else if ((!isAlive() && zone && zone->Flags[0] & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < MAX_MAP_DEPTH)
+    // if no grave found or have transport, teleport to home in ghost state
+    // don't need old resurrect, maybe in transport/vehicle only and some zones too, but no falling!
+    else
     {
-        ResurrectPlayer(0.5f);
-        SpawnCorpseBones();
+        if ((!isAlive() && zone && zone->Flags[0] & AREA_FLAG_NEED_FLY) || GetTransport())
+        {
+            ResurrectPlayer(0.5f);
+            SpawnCorpseBones();
+            return;
+        }
+
+        TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+        UpdateObjectVisibility();
     }
-    //else if (GetPositionZ() < zone->MaxDepth)
-        //TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
 }
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
