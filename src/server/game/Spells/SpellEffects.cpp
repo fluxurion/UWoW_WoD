@@ -432,17 +432,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
     if (unitTarget && unitTarget->isAlive())
     {
-        // Meteor like spells (divided damage to targets)
-        if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_SHARE_DAMAGE)
-        {
-            uint32 count = 0;
-            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                if (ihit->effectMask & (1 << effIndex))
-                    ++count;
-
-            damage /= count;                    // divide to all targets
-        }
-
         switch (m_spellInfo->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
@@ -716,6 +705,17 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
         }
 
         m_damage += damage;
+
+        // Meteor like spells (divided damage to targets)
+        if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_SHARE_DAMAGE)
+        {
+            uint32 count = 0;
+            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                if (ihit->effectMask & (1 << effIndex))
+                    ++count;
+
+            m_damage /= count;                    // divide to all targets
+        }
 
         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectSchoolDMG end %i, m_diffMode %i, effIndex %i, spellId %u, damage %i", m_damage, m_diffMode, effIndex, m_spellInfo->Id, damage);
 
@@ -1171,7 +1171,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 45206: // Copy Off-hand Weapon
                 case 69892:
                 {
-                    m_caster->CastSpell(unitTarget, damage, true);
+                    unitTarget->CastSpell(m_caster, damage, true);
                     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
                         break;
 
@@ -1188,7 +1188,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 63416:
                 case 69891:
                 {
-                    m_caster->CastSpell(unitTarget, damage, true);
                     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
                         break;
 
@@ -5008,7 +5007,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     return;
                 }
                 case 45204: // Clone Me!
-                    m_caster->CastSpell(unitTarget, damage, true);
+                    unitTarget->CastSpell(m_caster, damage, true);
                     break;
                 case 55693:                                 // Remove Collapsing Cave Aura
                     if (!unitTarget)

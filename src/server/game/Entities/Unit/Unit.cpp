@@ -24611,16 +24611,28 @@ bool Unit::HasAuraLinkedSpell(Unit* caster, Unit* target, uint8 type, int32 hast
         case LINK_HAS_MY_AURA_ON_TARGET: // 6
         {
             if(hastalent > 0)
-                return target ? !target->HasAura(hastalent, caster ? caster->GetGUID() : ObjectGuid::Empty) : true ;
+                return target ? !target->HasAura(hastalent, caster ? caster->GetGUID() : ObjectGuid::Empty) : true;
             else if(hastalent < 0)
-                return target ? target->HasAura(abs(hastalent), caster ? caster->GetGUID() : ObjectGuid::Empty) : true ;
+                return target ? target->HasAura(abs(hastalent), caster ? caster->GetGUID() : ObjectGuid::Empty) : true;
         }
         case LINK_HAS_AURA_STATE: // 7
         {
             if(hastalent > 0)
-                return target ? !target->HasAuraState(AuraStateType(hastalent)) : true ;
+                return target ? !target->HasAuraState(AuraStateType(hastalent)) : true;
             else if(hastalent < 0)
-                return target ? target->HasAuraState(AuraStateType(abs(hastalent))) : true ;
+                return target ? target->HasAuraState(AuraStateType(abs(hastalent))) : true;
+        }
+        case LINK_HAS_SPECID: // 8
+        {
+            if(!caster)
+                return true;
+            Player* _player = caster->ToPlayer();
+            if (!_player)
+                return true;
+            if(hastalent > 0)
+                return _player->GetSpecializationId(_player->GetActiveSpec()) != hastalent;
+            else if(hastalent < 0)
+                return _player->GetSpecializationId(_player->GetActiveSpec()) == hastalent;
         }
     }
     return true;

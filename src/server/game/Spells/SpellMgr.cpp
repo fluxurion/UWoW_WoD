@@ -4147,7 +4147,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 157503: //Cloudburst
                 case 155152: //Prismatic Crystal
                 case 153564: //Meteor
-                    // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
+                case 153596: //Comet Storm
+                    // ONLY SPELLS WITH EFFECT_SCHOOL_DAMAGE or SPELL_EFFECT_HEAL
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                     break;
                 case 18500: // Wing Buffet

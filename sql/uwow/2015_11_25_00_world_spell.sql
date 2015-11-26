@@ -61,19 +61,6 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 ('30455','113092','1','0','0','1','112948','7','4','0','0','0','0','0','0','-1','0','0','Ледяная бомба'),
 ('113092','-112948','1','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Ледяная бомба');
 
-insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
-('55342','88087','6','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение'),
-('55342','88085','6','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение'),
-('55342','88089','6','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение');
-insert into `spell_pet_auras` (`petEntry`, `spellId`, `option`, `target`, `targetaura`, `bp0`, `bp1`, `bp2`, `aura`, `casteraura`, `createdspell`, `fromspell`, `comment`) values
-('47243','58838','0','0','0','0','0','0','0','0','0','0','Inherit Masters Threat List'),
-('47243','45204','0','2','0','0','0','0','0','0','0','0','Клонирование себя'),
-('47243','45206','0','1','0','0','0','0','0','0','0','0','Копирование оружия левой руки'),
-('47243','41055','0','1','0','0','0','0','0','0','0','0','Копирование оружия');
-UPDATE creature_template SET spell1 = 59638 WHERE entry IN (47243);
-insert into `pet_stats` (`entry`, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `maxspdorap`, `state`, `energy`, `energy_type`, `armor`, `type`, `damage`, `haste`, `comment`) values
-('47243','0.1','-0.15','0','0.3','16','0','1','100','0','1','1','0','1','Mirror Image');
-
 DELETE FROM spell_script_names WHERE spell_id IN (1463, -1463);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('1463','spell_mage_incanters_flow');
 
@@ -129,3 +116,44 @@ insert into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 DELETE FROM spell_trigger WHERE spell_id IN (157727);
 insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
 ('157727','84714','0','4','1','0','0','0','-500','0','0','7','0','0','0','0','0','0','0','-1','0','0','0','Улучшенная снежная буря');
+
+DELETE FROM spell_proc_check WHERE entry IN (157727);
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('157727','0','0','42208','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Улучшенная снежная буря');
+
+DELETE FROM spell_bonus_data WHERE entry IN (44461);
+
+UPDATE creature_template SET `exp` = 5, spell1 = 59638, ScriptName = '' WHERE entry IN (31216);
+UPDATE creature_template SET `exp` = 5, spell1 = 88084, ScriptName = '' WHERE entry IN (47243);
+UPDATE creature_template SET `exp` = 5, spell1 = 88082, ScriptName = '' WHERE entry IN (47244);
+DELETE FROM spell_pet_auras WHERE spellId IN (45205,41054,45206);
+UPDATE spell_pet_auras SET `target` = 1 WHERE spellId IN (41055);
+DELETE FROM spell_linked_spell WHERE spell_trigger IN (55342);
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('55342','88085','6','0','0','8','62','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение - Темная магия'),
+('55342','88087','6','0','0','8','62','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение - Темная магия'),
+('55342','88089','6','0','0','8','62','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение - Темная магия'),
+('55342','58833','6','0','0','8','64','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение - Лед'),
+('55342','58831','6','0','0','8','64','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение - Лед'),
+('55342','58834','6','0','0','8','64','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение - Лед'),
+('55342','88088','6','0','0','8','63','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение - Огонь'),
+('55342','88086','6','0','0','8','63','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение - Огонь'),
+('55342','88090','6','0','0','8','63','0','0','0','0','0','0','0','0','-1','0','0','Зеркальное изображение - Огонь');
+replace into `spell_pet_auras` (`petEntry`, `spellId`, `option`, `target`, `targetaura`, `bp0`, `bp1`, `bp2`, `aura`, `casteraura`, `createdspell`, `fromspell`, `comment`) values
+('47243','58838','0','0','0','0','0','0','0','0','0','0','Inherit Masters Threat List'),
+('47243','45204','0','2','0','0','0','0','0','0','0','0','Клонирование себя'),
+('47243','41055','0','1','0','0','0','0','0','0','0','0','Копирование оружия'),
+('47244','58838','0','0','0','0','0','0','0','0','0','0','Inherit Masters Threat List'),
+('47244','45204','0','2','0','0','0','0','0','0','0','0','Клонирование себя'),
+('47244','41055','0','1','0','0','0','0','0','0','0','0','Копирование оружия');
+
+replace into `pet_stats` (`entry`, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `maxspdorap`, `state`, `energy`, `energy_type`, `armor`, `type`, `damage`, `haste`, `comment`) values
+('31216','0.1','-0.45','0','1','16','0','1','100','0','1','1','0','1','Mirror Image'),
+('47243','0.1','-0.45','0','1','16','0','1','100','0','1','1','0','1','Mirror Image'),
+('47244','0.1','-0.45','0','1','16','0','1','100','0','1','1','0','1','Mirror Image');
+
+UPDATE creature_template SET `exp` = 5, minlevel = 101 WHERE entry IN (76933);
+
+insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values
+('153626','16','8','0','0','0','0','0','7','0','0','0','0','0','Чародейский шар');
+

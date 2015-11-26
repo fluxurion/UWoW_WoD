@@ -707,7 +707,7 @@ class spell_mage_combustion : public SpellScriptLoader
                         int32 combustionBp = 0;
                         int32 perc = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                         if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_MAGE_IGNITE, EFFECT_0))
-                            combustionBp += CalculatePct(aurEff->GetAmount(), perc);
+                            combustionBp += int32(aurEff->GetAmount() * GetSpellInfo()->Effects[EFFECT_0].BasePoints / 10);
 
                         if (combustionBp)
                             _player->CastCustomSpell(target, SPELL_MAGE_COMBUSTION_DOT, &combustionBp, NULL, NULL, true);

@@ -7544,6 +7544,7 @@ SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
 bool Spell::CanAutoCast(Unit* target)
 {
     ObjectGuid targetguid = target->GetGUID();
+    bool withDamage = false;
 
     for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
@@ -7551,16 +7552,19 @@ bool Spell::CanAutoCast(Unit* target)
         {
             case SPELL_EFFECT_APPLY_AURA:
             {
-                if (m_spellInfo->StackAmount <= 1)
+                if(!withDamage)
                 {
-                    if (target->HasAuraEffect(m_spellInfo->Id, j))
-                        return false;
-                }
-                else
-                {
-                    if (AuraEffect* aureff = target->GetAuraEffect(m_spellInfo->Id, j))
-                        if (aureff->GetBase()->GetStackAmount() >= m_spellInfo->StackAmount)
+                    if (m_spellInfo->StackAmount <= 1)
+                    {
+                        if (target->HasAuraEffect(m_spellInfo->Id, j))
                             return false;
+                    }
+                    else
+                    {
+                        if (AuraEffect* aureff = target->GetAuraEffect(m_spellInfo->Id, j))
+                            if (aureff->GetBase()->GetStackAmount() >= m_spellInfo->StackAmount)
+                                return false;
+                    }
                 }
                 switch (m_spellInfo->Effects[j].ApplyAuraName)
                 {
@@ -7620,6 +7624,15 @@ bool Spell::CanAutoCast(Unit* target)
                         find = true;
                 if(!find)
                     return false;
+                break;
+            }
+            case SPELL_EFFECT_SCHOOL_DAMAGE:
+            case SPELL_EFFECT_WEAPON_DAMAGE:
+            case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+            case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+            case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+            {
+                withDamage = true;
                 break;
             }
         }
