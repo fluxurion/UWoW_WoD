@@ -53,11 +53,6 @@ bool BattlefieldWG::SetupBattlefield()
     m_AreaID = BATTLEFIELD_WG_ZONEID;
     m_MapId = BATTLEFIELD_WG_MAPID;
 
-    //Mop
-    //m_QueueID = MAKE_NEW_GUID(m_TypeId, 0, HIGHGUID_TYPE_BATTLEGROUND);
-    //m_QueueID |= 0x20000; // BATTLEFIELD_TYPE_WORLD_PVP 5.0.5
-    InitGUID();
-
     m_MaxPlayer = sWorld->getIntConfig(CONFIG_WINTERGRASP_PLR_MAX);
     m_IsEnabled = sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE);
     m_MinPlayer = sWorld->getIntConfig(CONFIG_WINTERGRASP_PLR_MIN);

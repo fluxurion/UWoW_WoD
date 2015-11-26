@@ -24,11 +24,6 @@ bool BattlefieldTB::SetupBattlefield()
     m_AreaID = 5095;                                                                     // Tol Barad
     m_MapId = 732;                                                                       // Map X
 
-    //Mop
-    //m_QueueID = MAKE_NEW_GUID(m_TypeId, 0, HIGHGUID_TYPE_BATTLEGROUND);
-    //m_QueueID |= 0x20000; // BATTLEFIELD_TYPE_WORLD_PVP 5.0.5
-    InitGUID();
-
     m_MaxPlayer = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MAX);
     m_IsEnabled = sWorld->getBoolConfig(CONFIG_TOL_BARAD_ENABLE);
     m_MinPlayer = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MIN);

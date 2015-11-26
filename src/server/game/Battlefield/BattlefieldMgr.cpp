@@ -19,26 +19,24 @@
 #include "BattlefieldMgr.h"
 #include "Zones/BattlefieldWG.h"
 #include "Zones/BattlefieldTB.h"
+#include "Zones/BattlefieldAshran.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 
 BattlefieldMgr::BattlefieldMgr()
 {
     m_UpdateTimer = 0;
-    //sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Instantiating BattlefieldMgr");
 }
 
 BattlefieldMgr::~BattlefieldMgr()
 {
-    //sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Deleting BattlefieldMgr");
-    for (BattlefieldSet::iterator itr = m_BattlefieldSet.begin(); itr != m_BattlefieldSet.end(); ++itr)
-        delete *itr;
+    for (auto const& v : m_BattlefieldSet)
+        delete v;
 }
 
 void BattlefieldMgr::InitBattlefield()
 {
     Battlefield* pBf = new BattlefieldWG;
-    // respawn, init variables
     if (!pBf->SetupBattlefield())
     {
         sLog->outInfo(LOG_FILTER_GENERAL, "Battlefield : Wintergrasp init failed.");
@@ -50,10 +48,8 @@ void BattlefieldMgr::InitBattlefield()
         sLog->outInfo(LOG_FILTER_GENERAL, "Battlefield : Wintergrasp successfully initiated.");
     }
 
-     //For Cataclysm: Tol Barad
     pBf = new BattlefieldTB;
-    // respawn, init variables
-    if(!pBf->SetupBattlefield())
+    if (!pBf->SetupBattlefield())
     {
         sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Battlefield : Tol Barad init failed.");
         delete pBf;
@@ -63,6 +59,18 @@ void BattlefieldMgr::InitBattlefield()
         m_BattlefieldSet.push_back(pBf);
         sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Battlefield : Tol Barad successfully initiated.");
     } 
+
+    pBf = new BattlefieldAshran;
+    if (!pBf->SetupBattlefield())
+    {
+        sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Battlefield : Ashran init failed.");
+        delete pBf;
+    }
+    else
+    {
+        m_BattlefieldSet.push_back(pBf);
+        sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Battlefield : Ashran successfully initiated.");
+    }
 }
 
 void BattlefieldMgr::AddZone(uint32 zoneid, Battlefield *handle)
@@ -70,7 +78,7 @@ void BattlefieldMgr::AddZone(uint32 zoneid, Battlefield *handle)
     m_BattlefieldMap[zoneid] = handle;
 }
 
-void BattlefieldMgr::HandlePlayerEnterZone(Player * player, uint32 zoneid)
+void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
 {
     BattlefieldMap::iterator itr = m_BattlefieldMap.find(zoneid);
     if (itr == m_BattlefieldMap.end())
@@ -89,10 +97,11 @@ void BattlefieldMgr::HandlePlayerLeaveZone(Player * player, uint32 zoneid)
     if (itr == m_BattlefieldMap.end())
         return;
 
-    // teleport: remove once in removefromworld, once in updatezone
     if (!itr->second->HasPlayer(player))
         return;
+
     itr->second->HandlePlayerLeaveZone(player, zoneid);
+
     sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Player %u left outdoorpvp id %u", player->GetGUID().GetCounter(), itr->second->GetTypeId());
 }
 
@@ -100,32 +109,30 @@ Battlefield *BattlefieldMgr::GetBattlefieldToZoneId(uint32 zoneid)
 {
     BattlefieldMap::iterator itr = m_BattlefieldMap.find(zoneid);
     if (itr == m_BattlefieldMap.end())
-    {
-        // no handle for this zone, return
-        return NULL;
-    }
+        return nullptr;
+
     if (!itr->second->IsEnabled())
-        return NULL;
+        return nullptr;
+
     return itr->second;
 }
 
 Battlefield *BattlefieldMgr::GetBattlefieldByBattleId(uint32 battleid)
 {
     for (BattlefieldSet::iterator itr = m_BattlefieldSet.begin(); itr != m_BattlefieldSet.end(); ++itr)
-    {
         if ((*itr)->GetBattleId() == battleid)
             return (*itr);
-    }
-    return NULL;
+
+    return nullptr;
 }
 
 Battlefield* BattlefieldMgr::GetBattlefieldByQueueID(uint64 const& queueID)
 {
-    for (BattlefieldSet::iterator itr = m_BattlefieldSet.begin(); itr != m_BattlefieldSet.end(); ++itr)
-        if ((*itr)->GetQueueID() == queueID)
-            return (*itr);
+    for (Battlefield* bf : m_BattlefieldSet)
+        if (bf->GetQueueID() == queueID)
+            return bf;
 
-    return NULL;
+    return nullptr;
 }
 
 void BattlefieldMgr::Update(uint32 diff)
@@ -146,7 +153,7 @@ ZoneScript *BattlefieldMgr::GetZoneScript(uint32 zoneId)
     if (itr != m_BattlefieldMap.end())
         return itr->second;
     else
-        return NULL;
+        return nullptr;
 }
 
 void BattlefieldMgr::EventPlayerLoggedOut(Player * player)

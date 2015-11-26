@@ -789,11 +789,11 @@ enum PartyResult
 
 enum BFLeaveReason
 {
-    BF_LEAVE_REASON_CLOSE     = 0x00000001,
-    //BF_LEAVE_REASON_UNK1      = 0x00000002, (not used)
-    //BF_LEAVE_REASON_UNK2      = 0x00000004, (not used)
-    BF_LEAVE_REASON_EXITED    = 0x00000008,
-    BF_LEAVE_REASON_LOW_LEVEL = 0x00000010,
+    BF_LEAVE_REASON_CLOSE               = 1,
+    BF_LEAVE_REASON_EXITED              = 8,
+    BF_LEAVE_REASON_LOW_LEVEL           = 10,
+    BF_LEAVE_REASON_NOT_WHILE_IN_RAID   = 15,
+    BF_LEAVE_REASON_DESERTER            = 16
 };
 
 enum ChatRestrictionType
@@ -1484,10 +1484,10 @@ class WorldSession
 
         // Battlefield
         void SendBfInvitePlayerToWar(uint64 const& guid,uint32 ZoneId,uint32 time);
-        void SendBfInvitePlayerToQueue(uint64 const& guid);
-        void SendBfQueueInviteResponse(uint64 const& guid,uint32 ZoneId, bool CanQueue = true, bool Full = false);
-        void SendBfEntered(uint64 const& guid);
-        void SendBfLeaveMessage(uint64 const& guid, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
+        void SendBfInvitePlayerToQueue(uint64 queueId, int8 battleState);
+        void SendBfQueueInviteResponse(uint64 queueId, uint32 zoneId, int8 battleStatus, bool canQueue = true, bool loggingIn = false);
+        void SendBfEntered(uint64 queueId, bool relocated, bool onOffense);
+        void SendBfLeaveMessage(uint64 queueId, int8 battleState, bool relocated, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
         void HandleBfQueueInviteResponse(WorldPackets::Battleground::EntryOrQueueInviteResponse& packet);
         void HandleBfEntryInviteResponse(WorldPackets::Battleground::EntryOrQueueInviteResponse& packet);
         void HandleBfExitQueueRequest(WorldPackets::Battleground::ExitRequest& packet);

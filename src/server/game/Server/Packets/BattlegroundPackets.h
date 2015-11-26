@@ -468,14 +468,13 @@ namespace WorldPackets
         class BFMgrEntryInvite final : public ServerPacket
         {
         public:
-            BFMgrEntryInvite() : ServerPacket(SMSG_BF_MGR_ENTRY_INVITE, 8 + 4 + 4 + 1) { }
+            BFMgrEntryInvite() : ServerPacket(SMSG_BF_MGR_ENTRY_INVITE, 8 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
             uint64 QueueID = 0;
             uint32 AreaID = 0;
             uint32 ExpireTime = 0;
-            bool Remove = false;
         };
 
         class BFMgrStateChanged final : public ServerPacket

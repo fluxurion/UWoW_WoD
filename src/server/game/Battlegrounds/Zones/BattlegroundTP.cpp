@@ -298,7 +298,7 @@ void BattlegroundTP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
         {
             switch(_flagState[team])
             {
-                //case BG_TP_FLAG_STATE_ON_GROUND:
+                case BG_TP_FLAG_STATE_ON_GROUND:
                     packet.Worldstates.emplace_back(team == TEAM_ALLIANCE ? WorldStates::BG_WS_FLAG_UNK_ALLIANCE : WorldStates::BG_WS_FLAG_UNK_HORDE, -1);
                     packet.Worldstates.emplace_back(team == TEAM_ALLIANCE ? WorldStates::BG_WS_FLAG_STATE_ALLIANCE : WorldStates::BG_WS_FLAG_STATE_HORDE, 3); ///< Show if team's flag is carried
                     break;

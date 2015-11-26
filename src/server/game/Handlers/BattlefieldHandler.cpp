@@ -34,56 +34,48 @@ void WorldSession::SendBfInvitePlayerToWar(uint64 const& queueID, uint32 areaID,
     WorldPackets::Battleground::BFMgrEntryInvite invite;
     invite.QueueID = queueID;
     invite.AreaID = areaID;
-    invite.ExpireTime = time(NULL) + pTime;
-    invite.Remove = false;
+    invite.ExpireTime = time(nullptr) + pTime;
     SendPacket(invite.Write());
 }
 
-void WorldSession::SendBfInvitePlayerToQueue(uint64 const& queueID)
+void WorldSession::SendBfInvitePlayerToQueue(uint64 queueId, int8 battleState)
 {
     WorldPackets::Battleground::BFMgrQueueInvite queueInvite;
-    queueInvite.QueueID = queueID;
-    queueInvite.BattleState = 1;
-    queueInvite.Timeout = -1;
-    queueInvite.MinLevel = 0;
-    queueInvite.MaxLevel = 0;
-    queueInvite.InstanceID = 0;
-    queueInvite.MapID = 0;
-    queueInvite.Index = false;
+    queueInvite.QueueID = queueId;
+    queueInvite.BattleState = battleState;
+    queueInvite.Timeout = 4294967295;
     SendPacket(queueInvite.Write());
 }
 
-void WorldSession::SendBfQueueInviteResponse(uint64 const& queueID, uint32 areaID, bool CanQueue, bool Full)
+void WorldSession::SendBfQueueInviteResponse(uint64 queueId, uint32 zoneId, int8 battleStatus, bool canQueue /*= true*/, bool loggingIn /*= false*/)
 {
     WorldPackets::Battleground::BFMgrQueueRequestResponse response;
     response.FailedPlayerGUID;
-    response.QueueID = queueID;
-    response.AreaID = areaID;
-    response.BattleState = 1;
-    response.Result = CanQueue ? true : false;
-    response.LoggingIn = Full ? false : true;
+    response.QueueID = queueId;
+    response.AreaID = zoneId;
+    response.BattleState = battleStatus;
+    response.Result = canQueue;
+    response.LoggingIn = loggingIn;
     SendPacket(response.Write());
 }
 
-void WorldSession::SendBfEntered(uint64 const& queueID)
+void WorldSession::SendBfEntered(uint64 queueID, bool relocated, bool onOffense)
 {
-    //m_PlayerInWar[player->GetTeamId()].insert(player->GetGUID());
-
     WorldPackets::Battleground::BFMgrEntering entering;
-    entering.ClearedAFK = _player->isAFK() ? 1 : 0;
-    entering.OnOffense = true;
-    entering.Relocated = true;
+    entering.ClearedAFK = !_player->isAFK();
+    entering.OnOffense = onOffense;
+    entering.Relocated = relocated;
     entering.QueueID = queueID;
     SendPacket(entering.Write());
 }
 
-void WorldSession::SendBfLeaveMessage(uint64 const& queueID, BFLeaveReason reason)
+void WorldSession::SendBfLeaveMessage(uint64 queueId, int8 battleState, bool relocated, BFLeaveReason reason /*= BF_LEAVE_REASON_EXITED*/)
 {
     WorldPackets::Battleground::BFMgrEjected packet;
-    packet.QueueID = queueID;
-    packet.BattleState = 2;
+    packet.QueueID = queueId;
     packet.Reason = reason;
-    packet.Relocated = false;
+    packet.BattleState = battleState;
+    packet.Relocated = relocated;
     SendPacket(packet.Write());
 }
 
@@ -135,10 +127,11 @@ void WorldSession::HandleBfQueueRequest(WorldPackets::Battleground::QueueRequest
 
 void WorldSession::HandleBfExitQueueRequest(WorldPackets::Battleground::ExitRequest& packet)
 {
-    SendBfLeaveMessage(packet.QueueID);
-
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByQueueID(packet.QueueID))
+    {
         bf->AskToLeaveQueue(_player);
+        SendBfLeaveMessage(packet.QueueID, bf->GetState(), _player->GetZoneId() == bf->GetZoneId());
+    }
 }
 
 void WorldSession::HandleBfExitRequest(WorldPacket& recv_data)
