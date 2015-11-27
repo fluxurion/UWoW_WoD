@@ -387,10 +387,9 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId
         }
     }
 
-    // for now not all bg`s works due to factions
     if (oldbgTypeId == BATTLEGROUND_RATED_10_VS_10)
     {
-        uint8 randbg = urand(1, 3);
+        uint8 randbg = urand(1, 7);
         switch (randbg)
         {
             case 1:
@@ -402,13 +401,26 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId
             case 3:
                 bgTypeId = BATTLEGROUND_WS;
                 break;
+            case 4:
+                bgTypeId = BATTLEGROUND_BFG;
+                break;
+            case 5:
+                bgTypeId = BATTLEGROUND_TP;
+                break;
+            case 6:
+                bgTypeId = BATTLEGROUND_EY; //@TODO replace by BATTLEGROUND_EY_RATED after some updates to script
+                break;
+            case 7:
+                bgTypeId = BATTLEGROUND_SSM;
+                break;
+            default:
+                break;
         }
 
         bg_template = GetBattlegroundTemplate(bgTypeId);
     }
 
     Battleground* bg = nullptr;
-    // create a copy of the BG template
     switch (bgTypeId)
     {
         case BATTLEGROUND_AV:

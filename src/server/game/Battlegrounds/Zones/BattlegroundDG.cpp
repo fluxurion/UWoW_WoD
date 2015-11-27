@@ -616,9 +616,9 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
 
         m_controlledBy = player->GetGUID();
 
-        uint32 goldBeffore = GetBg()->m_TeamScores[TeamId()];
-        GetBg()->ModGold(TeamId(), -200);
-        m_stolenGold = goldBeffore - GetBg()->m_TeamScores[TeamId()];
+        uint32 goldBeffore = GetBg()->m_TeamScores[GetTeamId()];
+        GetBg()->ModGold(GetTeamId(), -200);
+        m_stolenGold = goldBeffore - GetBg()->m_TeamScores[GetTeamId()];
     }
 }
 
@@ -626,7 +626,7 @@ void BattlegroundDG::Cart::CartDropped()
 {
     m_playerDroppedCart = m_controlledBy;
     UnbindCartFromPlayer();
-    GetBg()->ModGold(TeamId(), m_stolenGold);
+    GetBg()->ModGold(GetTeamId(), m_stolenGold);
     m_stolenGold = 0;
 }
 
