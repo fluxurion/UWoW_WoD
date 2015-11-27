@@ -3286,7 +3286,7 @@ float Unit::GetUnitDodgeChanceAgainst(Unit const* attacker) const
             int32 levelDiff = getLevelForTarget(attacker) - attacker->getLevelForTarget(this);
             if (levelDiff > 0)
                 dodge += 1.5f * levelDiff;
-            return dodge;
+            return dodge > 0.0f ? dodge : 0.0f;
         }
     }
 }
@@ -3348,7 +3348,7 @@ float Unit::GetUnitBlockChanceAgainst(Unit const* attacker) const
             int32 levelDiff = getLevelForTarget(attacker) - attacker->getLevelForTarget(this);
             if (levelDiff > 0)
                 block += 1.5f * levelDiff;
-            return block;
+            return block > 0.0f ? block : 0.0f;
         }
     }
 }
