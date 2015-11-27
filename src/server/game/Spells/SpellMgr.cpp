@@ -4331,11 +4331,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 140130: // Summon Intro Scene (hack scene)
                     spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(8); // 15s
                     break;
-                case 127630:// Cascade - damage trigger
-                case 120786:// Cascade - heal trigger
-                    spellInfo->Effects[EFFECT_1].TargetA = TARGET_UNIT_TARGET_ANY;
-                    spellInfo->Effects[EFFECT_1].TargetB = 0;
-                    break;
                 case 324:    // Lightning Shield
                 case 50227:  // Sword and Board
                 case 113901: // Demonic Gateway

@@ -264,6 +264,7 @@ enum SpellTargetFilterType
     SPELL_FILTER_TARGET_IS_IN_BETWEEN_SHIFT     = 12,           // Select target is in between and shift
     SPELL_FILTER_BY_AURA_OR                     = 13,           // Remove target by any aura
     SPELL_FILTER_BY_ENTRY                       = 14,           // Remove target by any entry
+    SPELL_FILTER_TARGET_ATTACKABLE              = 15,           // Check Attackable
 };
 
 enum SpellConcatenateAuraOption

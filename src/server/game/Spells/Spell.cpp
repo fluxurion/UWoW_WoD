@@ -9307,6 +9307,14 @@ void Spell::CustomTargetSelector(std::list<WorldObject*>& targets, SpellEffIndex
                     targets.remove_if(Trinity::UnitEntryCheck(itr->param1, itr->param2, itr->param3));
                     break;
                 }
+                case SPELL_FILTER_TARGET_ATTACKABLE: // 15
+                {
+                    if(itr->param1 < 0.0f)
+                        targets.remove_if(Trinity::UnitAttackableCheck(true, _caster));
+                    else
+                        targets.remove_if(Trinity::UnitAttackableCheck(false, _caster));
+                    break;
+                }
             }
             switch(itr->addcaster)
             {
