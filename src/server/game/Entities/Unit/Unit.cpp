@@ -14641,6 +14641,9 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal, bool gene
             }
             else
                 RemoveAura(77487);
+            if (modVal < 0 && !generate)
+                if (Aura* insanity = GetAura(139139)) // Insanity
+                    insanity->SetCustomData(insanity->GetCustomData() - modVal);
             break;
         }
         case POWER_RAGE:

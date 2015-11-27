@@ -224,7 +224,12 @@ class spell_pri_power_word_solace : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, 129253, true);
+                {
+                    int32 bp = 2;
+                    caster->CastCustomSpell(caster, 129253, &bp, NULL, NULL, true);
+                    int32 _damage = GetHitDamage();
+                    caster->CastCustomSpell(caster, 140815, &_damage, NULL, NULL, true);
+                }
             }
 
             void Register()
@@ -2148,35 +2153,6 @@ class spell_pri_power_word_solace_heal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_power_word_solace_heal_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                {
-                    targets.push_back(GetCaster());
-                    return;
-                }
-
-                Unit* targerSave = NULL;
-                for (std::list<WorldObject*>::iterator itr = targets.begin() ; itr != targets.end(); ++itr)
-                {
-                    if(Unit* target = (*itr)->ToUnit())
-                        if(target->GetTypeId() == TYPEID_PLAYER)
-                            if(!targerSave || target->GetHealth() < targerSave->GetHealth())
-                                targerSave = target;
-                }
-
-                targets.clear();
-                if(targerSave)
-                    targets.push_back(targerSave);
-                else
-                    targets.push_back(GetCaster());
-            }
-
-            void FilterSelf(std::list<WorldObject*>& targets)
-            {
-                targets.clear();
-            }
-
             void HandleDamageCalc(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
@@ -2188,8 +2164,6 @@ class spell_pri_power_word_solace_heal : public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_pri_power_word_solace_heal_SpellScript::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_HEAL);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_power_word_solace_heal_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_power_word_solace_heal_SpellScript::FilterSelf, EFFECT_0, TARGET_DEST_DEST);
             }
         };
 
@@ -2463,7 +2437,7 @@ class spell_pri_lightwell_trigger : public SpellScriptLoader
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_lightwell_trigger_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_lightwell_trigger_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
                 OnHit += SpellHitFn(spell_pri_lightwell_trigger_SpellScript::HandleOnHit);
             }
         };
@@ -2645,6 +2619,40 @@ public:
     }
 };
 
+// Insanity - 132573
+class spell_pri_insanity : public SpellScriptLoader
+{
+    public:
+        spell_pri_insanity() : SpellScriptLoader("spell_pri_insanity") { }
+
+        class spell_pri_insanity_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_insanity_AuraScript);
+
+            void CalculateMaxDuration(int32& duration)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Aura* insanity = caster->GetAura(139139)) // Insanity
+                    {
+                        duration *= insanity->GetCustomData();
+                        insanity->SetCustomData(0);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                DoCalcMaxDuration += AuraCalcMaxDurationFn(spell_pri_insanity_AuraScript::CalculateMaxDuration);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_insanity_AuraScript();
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_glyph_of_mass_dispel();
@@ -2700,4 +2708,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_devouring_plague_mastery();
     new spell_pri_mind_sear();
     new spell_pri_prayer_of_mending();
+    new spell_pri_insanity();
 }

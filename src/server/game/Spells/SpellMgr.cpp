@@ -4367,6 +4367,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 157644:  // Enhanced Pyrotechnics
                 case 79684:  // Arcane Missiles
                 case 81662:  // Evangelism
+                case 87160:  // Surge of Darkness
+                case 123267:  // Divine Insight
                     spellInfo->ProcCharges = 1;
                     break;
                 case 89485:  // Inner Focus

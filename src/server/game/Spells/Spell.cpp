@@ -4432,7 +4432,20 @@ void Spell::_handle_finish_phase()
                     m_caster->CastSpell(m_caster, 118674, true);
             }
         }
-
+        if (Aura* insanity = m_caster->GetAura(139139)) // Insanity
+        {
+            int32 bp = insanity->GetCustomData();
+            if (bp)
+            {
+                if (Aura* aura = m_caster->GetAura(132573)) // Insanity
+                {
+                    aura->SetDuration(aura->GetDuration() + (2000 * bp));
+                    insanity->SetCustomData(0);
+                }
+                else
+                    m_caster->CastSpell(m_caster, 132573, true);
+            }
+        }
         // Real add combo points from effects
         if (m_comboPointGain)
             m_caster->m_movedPlayer->GainSpellComboPoints(m_comboPointGain);
