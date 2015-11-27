@@ -481,10 +481,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         startTimer.Type = WORLD_TIMER_TYPE_PVP;
         startTimer.TimeRemaining = countdownMaxForBGType - std::chrono::duration_cast<Seconds>(GetElapsedTime());
         startTimer.TotalTime = countdownMaxForBGType;
-
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                player->GetSession()->SendPacket(startTimer.Write());
+        SendPacketToAll(startTimer.Write());
     }
 
     if (!(m_Events & BG_STARTING_EVENT_1))
