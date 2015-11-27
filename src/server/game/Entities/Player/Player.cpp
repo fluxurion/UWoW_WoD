@@ -6634,26 +6634,27 @@ float Player::GetRatingBonusValue(CombatRating cr) const
 //    return float(1.0f - pow(0.99f, baseResult)) * 100.0f;
 }
 
-float Player::GetBaseEnemyDodgeChance(uint8 levelOffset) const
+float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
 {
-    if (levelOffset < 0 || levelOffset > 3)
-        return 0.0f;
+    float baseExpertise = 7.5f;
+    switch (attType)
+    {
+        case BASE_ATTACK:
+            return baseExpertise + GetUInt32Value(PLAYER_FIELD_MAINHAND_EXPERTISE) / 4.0f;
+        case OFF_ATTACK:
+            return baseExpertise + GetUInt32Value(PLAYER_FIELD_MAINHAND_EXPERTISE + 1) / 4.0f;
+        case RANGED_ATTACK:
+        {
+            if (getClass() != CLASS_HUNTER)
+                break;
 
-    float baseEnemyDodgeChance[4] = { -4.5f, -3.0f, -1.5f, 0.0f };
-
-    return baseEnemyDodgeChance[levelOffset];
+            return baseExpertise + GetUInt32Value(PLAYER_FIELD_MAINHAND_EXPERTISE + 2) / 4.0f;
+        }
+        default:
+            break;
+    }
+    return 0.0f;
 }
-
-float Player::GetBaseEnemyParryChance(uint8 levelOffset) const
-{
-    if (levelOffset < 0 || levelOffset > 3)
-        return 0.0f;
-
-    float baseEnemyParryChance[4] = { -1.5f, 0.0f, 1.5f, 3.0f };
-
-    return baseEnemyParryChance[levelOffset];
-}
-
 
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 {

@@ -1681,9 +1681,9 @@ class Unit : public WorldObject
         SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spell);
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spell, bool canReflect = false, uint32 effectMask = 0);
 
-        float GetUnitDodgeChance()    const;
-        float GetUnitParryChance()    const;
-        float GetUnitBlockChance()    const;
+        float GetUnitDodgeChanceAgainst(Unit const* attacker) const;
+        float GetUnitParryChanceAgainst(Unit const* attacker) const;
+        float GetUnitBlockChanceAgainst(Unit const* attacker) const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim, SpellInfo const* spellProto = NULL) const;
         int32 GetMechanicResistChance(const SpellInfo* spell);
         bool CanUseAttackType(uint8 attacktype) const
@@ -1699,7 +1699,6 @@ class Unit : public WorldObject
 
         virtual uint32 GetBlockPercent() { return 30; }
 
-        uint32 GetUnitMeleeSkill(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         float GetWeaponProcChance() const;
         float GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellInfo* spellProto) const;
 
