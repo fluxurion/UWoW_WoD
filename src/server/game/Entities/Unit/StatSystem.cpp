@@ -2003,12 +2003,9 @@ void Player::UpdateMultistrike()
 
 void Player::UpdateMultistrikeDamage()
 {
-    float value = 0.3f; // base value
-
-    value *= GetTotalAuraModifier(SPELL_AURA_MULTISTRIKE_DAMAGE_PCT, true);
-
-    if (value < 0.3f)
-        value = 0.3f;
+    float value = 0.3f; // 30% damage of base attack
+    float mod = GetTotalAuraModifier(SPELL_AURA_MULTISTRIKE_DAMAGE_PCT, true) / 100.0f;
+    value *= mod;
 
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, value);
 }
