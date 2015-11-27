@@ -40,10 +40,7 @@ BattlegroundDG::BattlegroundDG()
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_DG_START_HAS_BEGUN;
 
     for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
-    {
-        _gold[i] = 0;
         _carts[i] = nullptr;
-    }
 
     for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
         _points[i] = nullptr;
@@ -122,6 +119,9 @@ void BattlegroundDG::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
     PlayerScores[player->GetGUID()] = new BattlegroundDGScore(player->GetGUID(), player->GetBGTeamId());
+
+    player->SendDirectMessage(WorldPackets::Battleground::Init(BG_DG_MAX_TEAM_SCORE).Write());
+    Battleground::SendBattleGroundPoints(player->GetBGTeamId() != TEAM_ALLIANCE, m_TeamScores[player->GetBGTeamId()], false, player);
 }
 
 void BattlegroundDG::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
@@ -198,13 +198,13 @@ void BattlegroundDG::UpdatePointsCountPerTeam()
     UpdateWorldState(8231, hordePoints);
 }
 
-uint32 BattlegroundDG::ModGold(uint8 teamId, int32 val)
+uint32 BattlegroundDG::ModGold(TeamId teamId, int32 val)
 {
-    _gold[teamId] = (val < 0 && int32(int32(_gold[teamId]) + val) < 0) ? 0 : _gold[teamId] + val;
+    m_TeamScores[teamId] = (val < 0 && int32(m_TeamScores[teamId] + val) < 0) ? 0 : m_TeamScores[teamId] + val;
+    UpdateWorldState(teamId == TEAM_ALLIANCE ? 7880 : 7881, m_TeamScores[teamId]);
+    Battleground::SendBattleGroundPoints(teamId != TEAM_ALLIANCE, m_TeamScores[teamId]);
 
-    UpdateWorldState(teamId == TEAM_ALLIANCE ? 7880 : 7881, _gold[teamId]);
-
-    return _gold[teamId];
+    return m_TeamScores[teamId];
 }
 
 void BattlegroundDG::PostUpdateImpl(Milliseconds diff)
@@ -242,9 +242,9 @@ void BattlegroundDG::PostUpdateImpl(Milliseconds diff)
     else
         _goldUpdate -= diff;
 
-    if (GetCurrentGold(TEAM_ALLIANCE) >= BG_DG_MAX_TEAM_SCORE)
+    if (m_TeamScores[TEAM_ALLIANCE] >= BG_DG_MAX_TEAM_SCORE)
         EndBattleground(ALLIANCE);
-    if (GetCurrentGold(TEAM_HORDE) >= BG_DG_MAX_TEAM_SCORE)
+    if (m_TeamScores[TEAM_HORDE] >= BG_DG_MAX_TEAM_SCORE)
         EndBattleground(HORDE);
 }
 
@@ -275,8 +275,8 @@ void BattlegroundDG::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
     packet.Worldstates.emplace_back(static_cast<WorldStates>(7904), (_carts[TEAM_HORDE] && !_carts[TEAM_HORDE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
     packet.Worldstates.emplace_back(static_cast<WorldStates>(7887), (_carts[TEAM_ALLIANCE] && !_carts[TEAM_ALLIANCE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
 
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(7880), _gold[TEAM_ALLIANCE]);
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(7881), _gold[TEAM_HORDE]);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7880), m_TeamScores[TEAM_ALLIANCE]);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7881), m_TeamScores[TEAM_HORDE]);
 
     if (_points[0])
         UpdatePointsCountPerTeam();
@@ -305,7 +305,7 @@ bool BattlegroundDG::SetupBattleground()
     for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
     {
         _carts[i] = new Cart(this);
-        _carts[i]->SetTeamId(i);
+        _carts[i]->SetTeamId(static_cast<TeamId>(i));
     }
 
     _carts[0]->SetGameObject(GetBgMap()->GetGameObject(BgObjects[BG_DG_CART_ALLIANCE]), BG_DG_CART_ALLIANCE);
@@ -556,7 +556,7 @@ void BattlegroundDG::MiddlePoint::UpdateState(PointStates state)
 BattlegroundDG::Cart::Cart(BattlegroundDG* bg) : m_bg(bg)
 {
     m_controlledBy.Clear();
-    m_team = 0;
+    m_team = TEAM_NEUTRAL;
     m_goCart = 0;
     m_playerDroppedCart.Clear();
     m_stolenGold = 0;
@@ -616,10 +616,9 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
 
         m_controlledBy = player->GetGUID();
 
-        uint32 goldBeffore = GetBg()->GetCurrentGold(TeamId());
-        int32 takeGold = -200;
-        GetBg()->ModGold(TeamId(), takeGold);
-        m_stolenGold = goldBeffore - GetBg()->GetCurrentGold(TeamId());
+        uint32 goldBeffore = GetBg()->m_TeamScores[TeamId()];
+        GetBg()->ModGold(TeamId(), -200);
+        m_stolenGold = goldBeffore - GetBg()->m_TeamScores[TeamId()];
     }
 }
 

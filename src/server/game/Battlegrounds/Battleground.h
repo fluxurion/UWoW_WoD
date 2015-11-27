@@ -532,6 +532,7 @@ class Battleground
         void CheckArenaAfterTimerConditions();
         void CheckArenaWinConditions();
         void UpdateArenaWorldState();
+        void BattlegroundTimedWin(uint32 type = 1);
 
         uint32 GetSameTeamId() { return m_sameBgTeamId; }
         void SetSameTeamId(uint32 team) { m_sameBgTeamId = team; }
@@ -611,6 +612,7 @@ class Battleground
         // virtual score-array - get's used in bg-subclasses
         int32 m_TeamScores[MAX_TEAMS];
         ArenaTeamScore _arenaTeamScores[MAX_TEAMS];
+        uint32 m_lastFlagCaptureTeam;
 
         void RewardXPAtKill(Player* killer, Player* victim);
 
@@ -689,7 +691,6 @@ class Battleground
         char const* m_Name;
         uint64 m_QueueID;
         uint32 m_baseTickHonor;
-
         uint32 m_sameBgTeamId;
 
         /* Pre- and post-update hooks */

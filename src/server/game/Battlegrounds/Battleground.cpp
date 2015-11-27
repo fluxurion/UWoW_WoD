@@ -203,6 +203,8 @@ Battleground::Battleground()
         m_PlayersCount[i] = 0;
         m_TeamScores[i] = 0;
     }
+
+    m_lastFlagCaptureTeam = 0;
 }
 
 Battleground::~Battleground()
@@ -2229,6 +2231,40 @@ void Battleground::CheckArenaWinConditions()
         EndBattleground(HORDE);
     else if (GetPlayersCountByTeam(ALLIANCE) && !GetAlivePlayersCountByTeam(HORDE))
         EndBattleground(ALLIANCE);
+}
+
+void Battleground::BattlegroundTimedWin(uint32 type = 1)
+{
+    switch (type)
+    {
+        case 1:
+            if (m_TeamScores[TEAM_ALLIANCE] > m_TeamScores[TEAM_HORDE])
+                EndBattleground(ALLIANCE);
+            else if (m_TeamScores[TEAM_HORDE] > m_TeamScores[TEAM_ALLIANCE])
+                EndBattleground(HORDE);
+            else
+                EndBattleground(TEAM_OTHER);
+            break;
+        case 2:
+            if (m_TeamScores[TEAM_ALLIANCE] == 0)
+            {
+                if (m_TeamScores[TEAM_HORDE] == 0)
+                    EndBattleground(WINNER_NONE);
+                else
+                    EndBattleground(HORDE);
+            }
+            else if (m_TeamScores[TEAM_HORDE] == 0)
+                EndBattleground(ALLIANCE);
+            else if (m_TeamScores[TEAM_HORDE] == m_TeamScores[TEAM_ALLIANCE])
+                EndBattleground(m_lastFlagCaptureTeam);
+            else if (m_TeamScores[TEAM_HORDE] > m_TeamScores[TEAM_ALLIANCE])
+                EndBattleground(HORDE);
+            else
+                EndBattleground(ALLIANCE);
+            break;
+        default:
+            break;
+    }
 }
 
 void Battleground::UpdateArenaWorldState()

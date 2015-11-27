@@ -142,7 +142,7 @@ void BattlegroundKT::EventPlayerClickedOnFlag(Player* source, GameObject* object
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    if (!source->IsWithinDistInMap(object, 10))
+    if (!source->IsWithinDistInMap(object, object->GetGOInfo()->flagStand.radius))
         return;
 
     uint32 index = object->GetEntry() - BG_KT_OBJECT_ORB_1_ENTRY;

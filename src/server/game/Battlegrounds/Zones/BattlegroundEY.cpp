@@ -51,6 +51,9 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
+        if (GetElapsedTime() >= Minutes(17))
+            Battleground::BattlegroundTimedWin();
+
         m_PointAddingTimer -= diff;
         if (m_PointAddingTimer <= 0)
         {
@@ -283,6 +286,8 @@ void BattlegroundEY::UpdateTeamScore(TeamId teamID)
         score = BG_EY_MAX_TEAM_SCORE;
         EndBattleground(teamID);
     }
+    
+    Battleground::SendBattleGroundPoints(teamID != TEAM_ALLIANCE, m_TeamScores[teamID]);
 
     if (teamID == TEAM_ALLIANCE)
         UpdateWorldState(WorldStates::EY_ALLIANCE_RESOURCES, score);
@@ -337,6 +342,9 @@ void BattlegroundEY::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
     PlayerScores[player->GetGUID()] = new BattlegroundEYScore(player->GetGUID(), player->GetBGTeamId());
+
+    player->SendDirectMessage(WorldPackets::Battleground::Init(BG_EY_MAX_TEAM_SCORE).Write());
+    Battleground::SendBattleGroundPoints(player->GetBGTeamId() != TEAM_ALLIANCE, m_TeamScores[player->GetBGTeamId()], false, player);
 
     _playersNearPoint[EY_POINTS_MAX].push_back(player->GetGUID());
 }
@@ -611,9 +619,9 @@ void BattlegroundEY::EventPlayerDroppedFlag(Player* Source)
     SendBroadcastTextToAll(18361, Source->GetBGTeam() == ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE);
 }
 
-void BattlegroundEY::EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj)
+void BattlegroundEY::EventPlayerClickedOnFlag(Player* Source, GameObject* object)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS || IsFlagPickedup() || !Source->IsWithinDistInMap(target_obj, 10))
+    if (GetStatus() != STATUS_IN_PROGRESS || IsFlagPickedup() || !Source->IsWithinDistInMap(object, object->GetGOInfo()->flagStand.radius))
         return;
 
     TeamId teamID = Source->GetBGTeamId();

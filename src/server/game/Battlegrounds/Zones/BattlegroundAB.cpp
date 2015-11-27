@@ -52,6 +52,9 @@ void BattlegroundAB::PostUpdateImpl(Milliseconds diff)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
+    if (GetElapsedTime() >= Minutes(17))
+        Battleground::BattlegroundTimedWin();
+
     uint16 teamPoints[MAX_TEAMS] = { };
 
     for (int8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)

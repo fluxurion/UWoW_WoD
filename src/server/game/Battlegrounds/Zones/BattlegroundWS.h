@@ -177,12 +177,10 @@ class BattlegroundWS : public Battleground
         void SetDroppedFlagGUID(ObjectGuid guid, uint32 TeamID) { _droppedFlagGUID[GetTeamIndexByTeamId(TeamID)] = guid; }
 
 private:
-        void AddPoint(TeamId teamID) { ++m_TeamScores[teamID]; }
         void UpdateFlagState(uint32 team, uint32 value, ObjectGuid flagKeeperGUID = ObjectGuid::Empty);
-        void SetLastFlagCapture(uint32 teamID) { _lastFlagCaptureTeam = teamID; }
         void RespawnFlag(uint32 team, bool captured = false);
-        void EventPlayerDroppedFlag(Player* source);
-        void EventPlayerClickedOnFlag(Player* source, GameObject* object);
+        void EventPlayerDroppedFlag(Player* source) override;
+        void EventPlayerClickedOnFlag(Player* source, GameObject* object) override;
         void EventPlayerCapturedFlag(Player* source);
 
         ObjectGuid _flagKeepers[MAX_TEAMS];
@@ -190,11 +188,9 @@ private:
         uint8 _flagState[MAX_TEAMS];
         int32 _flagsTimer;
         int32 _flagsDropTimer[MAX_TEAMS];
-        uint32 _lastFlagCaptureTeam;
         int32 _flagSpellForceTimer;
         bool _bothFlagsKept;
         uint8 _flagDebuffState;
-        uint8 _minutesElapsed;
         uint32 _reputationCapture;
         int32 _flagPosTimer;
 };

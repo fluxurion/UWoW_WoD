@@ -195,8 +195,7 @@ public:
 
     void UpdatePointsCountPerTeam();
 
-    uint32 ModGold(uint8 teamId, int32 val);
-    uint32 GetCurrentGold(uint8 teamId) { return _gold[teamId]; }
+    uint32 ModGold(TeamId teamId, int32 val);
 
     ObjectGuid GetFlagPickerGUID(int32 team) const override;
     void GetPlayerPositionData(std::vector<WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition>* positions) const override;
@@ -275,8 +274,8 @@ private:
             void SetGameObject(GameObject* obj, uint32 id) { m_goCart = obj; m_goBgId = id; }
             GameObject* GetGameObject() { return m_goCart; }
 
-            void SetTeamId(uint32 team) { m_team = team; }
-            uint32 TeamId() { return m_team; }
+            void SetTeamId(TeamId team) { m_team = team; }
+            TeamId GetTeamId() { return m_team; }
 
             ObjectGuid TakePlayerWhoDroppedFlag() { ObjectGuid v = m_playerDroppedCart; m_playerDroppedCart.Clear(); return v; }
 
@@ -291,7 +290,7 @@ private:
             GameObject* m_goCart;
             uint32 m_goBgId;
 
-            uint32 m_team;
+            ::TeamId m_team;
 
             ObjectGuid m_playerDroppedCart;
             uint32 m_stolenGold;
@@ -305,8 +304,7 @@ private:
 
         int32 _flagsUpdTimer;
         Milliseconds _goldUpdate;
-
-        uint32 _gold[MAX_TEAMS];
 };
 
 #endif
+

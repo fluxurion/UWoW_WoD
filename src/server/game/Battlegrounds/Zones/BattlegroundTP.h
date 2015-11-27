@@ -85,6 +85,14 @@ enum BG_TP_Graveyards
     TP_MAX_GRAVEYARDS                       = 6
 };
 
+enum BG_TP_FlagState
+{
+    BG_TP_FLAG_STATE_ON_BASE,
+    BG_TP_FLAG_STATE_WAIT_RESPAWN,
+    BG_TP_FLAG_STATE_ON_PLAYER,
+    BG_TP_FLAG_STATE_ON_GROUND,
+};
+
 uint32 const BG_TP_GraveyardIds[TP_MAX_GRAVEYARDS] = {1726, 1727, 1729, 1728, 1749, 1750};
 
 enum BG_TP_CreatureTypes
@@ -134,7 +142,6 @@ class BattlegroundTPScore final : public BattlegroundScore
         uint32 FlagReturns;
 };
 
-// Main class for Twin Peaks Battleground
 class BattlegroundTP : public Battleground
 {
     friend class BattlegroundMgr;
@@ -157,7 +164,7 @@ class BattlegroundTP : public Battleground
         void EndBattleground(uint32 winner) override;
 
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
-        void HandleKillPlayer(Player *player, Player *killer) override;
+        void HandleKillPlayer(Player* player, Player* killer) override;
 
         ObjectGuid GetFlagPickerGUID(int32 team) const override
         {
@@ -165,6 +172,7 @@ class BattlegroundTP : public Battleground
                 return _flagKeepers[team];
             return ObjectGuid::Empty;
         }
+
         void SetAllianceFlagPicker(ObjectGuid const& guid) { _flagKeepers[TEAM_ALLIANCE] = guid; }
         void SetHordeFlagPicker(ObjectGuid const& guid) { _flagKeepers[TEAM_HORDE] = guid; }
         bool IsAllianceFlagPickedup() const { return !_flagKeepers[TEAM_ALLIANCE].IsEmpty(); }
@@ -181,25 +189,20 @@ class BattlegroundTP : public Battleground
         }
 
 private:
-        void AddPoint(TeamId teamID) { ++m_TeamScores[teamID]; }
-
         void UpdateFlagState(uint32 team, uint32 value, ObjectGuid flagKeeperGUID = ObjectGuid::Empty);
-        void SetLastFlagCapture(uint32 teamID)                  { _lastFlagCaptureTeam = teamID; }
         void RespawnFlag(uint32 team, bool captured = false);
-        void EventPlayerDroppedFlag(Player* source);
-        void EventPlayerClickedOnFlag(Player* source, GameObject* object);
+        void EventPlayerDroppedFlag(Player* source) override;
+        void EventPlayerClickedOnFlag(Player* source, GameObject* object) override;
         void EventPlayerCapturedFlag(Player* source);
 
-        ObjectGuid _flagKeepers[MAX_TEAMS];       ///< Maintains the flag picker GUID: 0 for ALLIANCE FLAG and 1 for HORDE FLAG (EX: _flagKeepers[TEAM_ALLIANCE] is guid for a horde player)
-        ObjectGuid _droppedFlagGUID[MAX_TEAMS];   ///< If the flag is on the ground(dropped by a player) we must maintain its guid to dispawn it when a player clicks on it. (else it will automatically dispawn)
-        uint8 _flagState[MAX_TEAMS];              ///< Show where flag is (in base / on ground / on player)
-        int32 _flagsTimer;                          ///< Timer for flags that are unspawn after a capture
-        int32 _flagsDropTimer[MAX_TEAMS];         ///< Used for counting how much time have passed since the flag dropped
-        uint32 _lastFlagCaptureTeam;                ///< If the score is equal and the time expires the winer is based on witch team captured the last flag
-        int32 _flagSpellForceTimer;                 ///< Used for counting how much time have passed since the both flags are kept
-        bool _bothFlagsKept;                        ///< shows if both flags are kept
-        uint8 _flagDebuffState;                     ///< This maintain the debuff state of the flag carrier. If the flag is on a player for more then X minutes, the player will be cursed with an debuff. (0 - No debuff, 1 - Focus assault, 2 - Brutal assault)
-        uint8 _minutesElapsed;                      ///< Elapsed time since the beginning of the battleground (It counts as well the beginning time(when the doors are closed))
+        ObjectGuid _flagKeepers[MAX_TEAMS];
+        ObjectGuid _droppedFlagGUID[MAX_TEAMS];
+        uint8 _flagState[MAX_TEAMS];
+        int32 _flagsTimer;
+        int32 _flagsDropTimer[MAX_TEAMS];
+        int32 _flagSpellForceTimer;
+        bool _bothFlagsKept;
+        uint8 _flagDebuffState;
 };
 
 #endif

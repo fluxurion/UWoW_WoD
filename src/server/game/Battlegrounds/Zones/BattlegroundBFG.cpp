@@ -48,6 +48,9 @@ void BattlegroundBFG::PostUpdateImpl(Milliseconds diff)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
+    if (GetElapsedTime() >= Minutes(17))
+        Battleground::BattlegroundTimedWin();
+
     int16 teamPoints[MAX_TEAMS] = { };
 
     for (uint8 i = GILNEAS_BG_NODE_LIGHTHOUSE; i < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++i)
