@@ -59,7 +59,7 @@ void BattlegroundKT::PostUpdateImpl(uint32 diff)
                     if (playerZone > KT_ZONE_MAX)
                         continue;
                         
-                    TeamId teamID = player->GetTeamId();
+                    TeamId teamID = player->GetBGTeamId();
                     if (teamID >= TEAM_NEUTRAL)
                         continue;
 
@@ -112,7 +112,7 @@ void BattlegroundKT::StartingEventOpenDoors()
 void BattlegroundKT::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattleGroundKTScore(player->GetGUID(), player->GetTeamId());
+    PlayerScores[player->GetGUID()] = new BattleGroundKTScore(player->GetGUID(), player->GetBGTeamId());
 
     player->SendDirectMessage(WorldPackets::Battleground::Init(BG_KT_MAX_TEAM_SCORE).Write());
     Battleground::SendBattleGroundPoints(player->GetBGTeamId() != TEAM_ALLIANCE, m_TeamScores[player->GetBGTeamId()], false, player);
@@ -131,7 +131,7 @@ void BattlegroundKT::GetPlayerPositionData(std::vector<WorldPackets::Battlegroun
         WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition position;
         position.Guid = player->GetGUID();
         position.Pos = player->GetPosition();
-        position.IconID = player->GetTeamId() == TEAM_ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
+        position.IconID = player->GetBGTeamId() == TEAM_ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
         position.ArenaSlot = i + 2;
         positions->push_back(position);
     }
@@ -156,7 +156,7 @@ void BattlegroundKT::EventPlayerClickedOnFlag(Player* source, GameObject* object
         if (_orbKeepers[i] == source->GetGUID())
             return;
 
-    TeamId teamID = source->GetTeamId();
+    TeamId teamID = source->GetBGTeamId();
 
     source->CastSpell(source, BG_KT_ORBS_SPELLS[index], true);
     source->CastSpell(source, teamID == TEAM_ALLIANCE ? BG_KT_ALLIANCE_INSIGNIA : BG_KT_HORDE_INSIGNIA, true);
@@ -192,7 +192,7 @@ void BattlegroundKT::EventPlayerDroppedFlag(Player* source)
             break;
     }
     
-    TeamId teamID = source->GetTeamId();
+    TeamId teamID = source->GetBGTeamId();
 
     source->RemoveAurasDueToSpell(BG_KT_ORBS_SPELLS[index]);
     source->RemoveAurasDueToSpell(BG_KT_ALLIANCE_INSIGNIA);
@@ -251,7 +251,7 @@ void BattlegroundKT::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 8378: // Alliance start loc
         case 8377: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetBGTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -329,7 +329,7 @@ void BattlegroundKT::HandleKillPlayer(Player *player, Player *killer)
 
 WorldSafeLocsEntry const* BattlegroundKT::GetClosestGraveYard(Player* player)
 {
-    if (player->GetTeamId() == TEAM_ALLIANCE)
+    if (player->GetBGTeamId() == TEAM_ALLIANCE)
         return sWorldSafeLocsStore.LookupEntry(GetStatus() == STATUS_IN_PROGRESS ? KT_GRAVEYARD_RECTANGLEA1 : KT_GRAVEYARD_RECTANGLEA2);
     else
         return sWorldSafeLocsStore.LookupEntry(GetStatus() == STATUS_IN_PROGRESS ? KT_GRAVEYARD_RECTANGLEH1 : KT_GRAVEYARD_RECTANGLEH2);

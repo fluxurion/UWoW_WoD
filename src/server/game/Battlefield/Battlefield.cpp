@@ -425,7 +425,7 @@ void Battlefield::PlayerAcceptInviteToWar(Player* player)
 
     if (AddOrSetPlayerToCorrectBfGroup(player))
     {
-        player->GetSession()->SendBfEntered(GetQueueID(), player->GetZoneId() != GetZoneId(), player->GetTeamId() == GetAttackerTeam());
+        player->GetSession()->SendBfEntered(GetQueueID(), player->GetZoneId() != GetZoneId(), false);
         
         if (player->GetTeamId() < MAX_TEAMS)
         {

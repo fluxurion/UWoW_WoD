@@ -97,7 +97,7 @@ void BattlegroundEY::GetPlayerPositionData(std::vector<WorldPackets::Battlegroun
         WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition position;
         position.Guid = player->GetGUID();
         position.Pos = player->GetPosition();
-        position.IconID = player->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
+        position.IconID = player->GetBGTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
         position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
         positions->push_back(position);
     }
@@ -212,7 +212,7 @@ void BattlegroundEY::_CheckSomeoneLeftPoint()
                 else
                 {
                     //player is neat flag, so update count:
-                    m_CurrentPointPlayersCount[2 * i + player->GetTeamId()]++;
+                    m_CurrentPointPlayersCount[2 * i + player->GetBGTeamId()]++;
                     ++j;
                 }
             }
@@ -254,11 +254,11 @@ void BattlegroundEY::UpdatePointStatuses()
                 if (pointOwnerTeamId != m_PointOwnedByTeam[point])
                 {
                     //point was uncontrolled and player is from team which captured point
-                    if (m_PointState[point] == EY_POINT_STATE_UNCONTROLLED && player->GetTeam() == pointOwnerTeamId)
+                    if (m_PointState[point] == EY_POINT_STATE_UNCONTROLLED && player->GetBGTeam() == pointOwnerTeamId)
                         EventTeamCapturedPoint(player, point);
 
                     //point was under control and player isn't from team which controlled it
-                    if (m_PointState[point] == EY_POINT_UNDER_CONTROL && player->GetTeam() != m_PointOwnedByTeam[point])
+                    if (m_PointState[point] == EY_POINT_UNDER_CONTROL && player->GetBGTeam() != m_PointOwnedByTeam[point])
                         EventTeamLostPoint(player, point);
                 }
             }
@@ -336,7 +336,7 @@ void BattlegroundEY::UpdatePointsIcons(uint32 Team, uint32 Point)
 void BattlegroundEY::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundEYScore(player->GetGUID(), player->GetTeamId());
+    PlayerScores[player->GetGUID()] = new BattlegroundEYScore(player->GetGUID(), player->GetBGTeamId());
 
     _playersNearPoint[EY_POINTS_MAX].push_back(player->GetGUID());
 }
@@ -370,22 +370,22 @@ void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
     switch (trigger)
     {
         case TR_BLOOD_ELF_POINT:
-            if (m_PointState[BLOOD_ELF] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[BLOOD_ELF] == player->GetTeam())
+            if (m_PointState[BLOOD_ELF] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[BLOOD_ELF] == player->GetBGTeam())
                 if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
                     EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_BLOOD_ELF);
             break;
         case TR_FEL_REAVER_POINT:
-            if (m_PointState[FEL_REAVER] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[FEL_REAVER] == player->GetTeam())
+            if (m_PointState[FEL_REAVER] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[FEL_REAVER] == player->GetBGTeam())
                 if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
                     EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_FEL_REAVER);
             break;
         case TR_MAGE_TOWER_POINT:
-            if (m_PointState[MAGE_TOWER] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[MAGE_TOWER] == player->GetTeam())
+            if (m_PointState[MAGE_TOWER] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[MAGE_TOWER] == player->GetBGTeam())
                 if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
                     EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_MAGE_TOWER);
             break;
         case TR_DRAENEI_RUINS_POINT:
-            if (m_PointState[DRAENEI_RUINS] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[DRAENEI_RUINS] == player->GetTeam())
+            if (m_PointState[DRAENEI_RUINS] == EY_POINT_UNDER_CONTROL && m_PointOwnedByTeam[DRAENEI_RUINS] == player->GetBGTeam())
                 if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
                     EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_DRAENEI_RUINS);
             break;
@@ -402,7 +402,7 @@ void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 4531: // Alliance start loc
         case 4530: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetBGTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -608,7 +608,7 @@ void BattlegroundEY::EventPlayerDroppedFlag(Player* Source)
     UpdateWorldState(WorldStates::NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
     UpdateWorldState(WorldStates::NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
 
-    SendBroadcastTextToAll(18361, Source->GetTeam() == ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE);
+    SendBroadcastTextToAll(18361, Source->GetBGTeam() == ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE);
 }
 
 void BattlegroundEY::EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj)
@@ -616,7 +616,7 @@ void BattlegroundEY::EventPlayerClickedOnFlag(Player* Source, GameObject* target
     if (GetStatus() != STATUS_IN_PROGRESS || IsFlagPickedup() || !Source->IsWithinDistInMap(target_obj, 10))
         return;
 
-    TeamId teamID = Source->GetTeamId();
+    TeamId teamID = Source->GetBGTeamId();
 
     UpdateWorldState(teamID == TEAM_ALLIANCE ? WorldStates::NETHERSTORM_FLAG_STATE_ALLIANCE : WorldStates::NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_ON_PLAYER);
     PlayeCapturePointSound(NODE_STATUS_ASSAULT, teamID);
@@ -688,7 +688,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* Source, uint32 Point)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    uint32 Team = Source->GetTeam();
+    uint32 Team = Source->GetBGTeam();
 
     SpawnBGObject(m_CapturingPointTypes[Point].DespawnNeutralObjectType, RESPAWN_ONE_DAY);
     SpawnBGObject(m_CapturingPointTypes[Point].DespawnNeutralObjectType + 1, RESPAWN_ONE_DAY);
@@ -755,7 +755,7 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* source, uint32 BgObjectType
     if (GetStatus() != STATUS_IN_PROGRESS || GetFlagPickerGUID() != source->GetGUID())
         return;
 
-    TeamId teamId = source->GetTeamId();
+    TeamId teamId = source->GetBGTeamId();
 
     SetFlagPicker(ObjectGuid::Empty);
     m_FlagState = BG_EY_FLAG_STATE_WAIT_RESPAWN;
@@ -835,7 +835,7 @@ WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveYard(Player* player)
 {
     uint32 g_id = 0;
 
-    switch (player->GetTeam())
+    switch (player->GetBGTeam())
     {
         case ALLIANCE: g_id = EY_GRAVEYARD_MAIN_ALLIANCE; break;
         case HORDE:    g_id = EY_GRAVEYARD_MAIN_HORDE;    break;
@@ -864,7 +864,7 @@ WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveYard(Player* player)
 
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
-        if (m_PointOwnedByTeam[i] == player->GetTeam() && m_PointState[i] == EY_POINT_UNDER_CONTROL)
+        if (m_PointOwnedByTeam[i] == player->GetBGTeam() && m_PointState[i] == EY_POINT_UNDER_CONTROL)
         {
             entry = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[i].GraveYardId);
             if (!entry)

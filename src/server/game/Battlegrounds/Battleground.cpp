@@ -919,7 +919,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         if (IsRBG())
         {
-            if (player->GetTeam() != team)
+            if (player->GetBGTeam() != team)
                 player->setFactionForRace(player->getRace());
                 
             PlayerReward(player, team == winner, 1, false, false);
@@ -1086,7 +1086,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         }
 
         if (IsRBG())
-            if (player->GetTeam() != team)
+            if (player->GetBGTeam() != team)
                 player->setFactionForRace(player->getRace());
 
         player->RemoveAura(SPELL_BG_BATTLE_FATIGUE);
@@ -1103,7 +1103,8 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         {
             player->ClearAfkReports();
 
-            if (!team) team = player->GetTeam();
+            if (!team)
+                team = player->GetBGTeam();
 
             // if arena, remove the specific arena auras
             if (isArena() || IsRBG())
@@ -1281,7 +1282,7 @@ void Battleground::AddPlayer(Player* player)
 
     if (IsRBG())
     {
-        if (player->GetTeam() != team)
+        if (player->GetBGTeam() != team)
             player->setFaction(team == ALLIANCE ? 1 : 2);
 
         player->CastSpell(player, SPELL_BG_BATTLE_FATIGUE, true);
@@ -1290,7 +1291,7 @@ void Battleground::AddPlayer(Player* player)
     // add arena specific auras
     if (isArena())
     {
-        PlayerScores[player->GetGUID()] = new ArenaScore(player->GetGUID(), player->GetTeamId());
+        PlayerScores[player->GetGUID()] = new ArenaScore(player->GetGUID(), player->GetBGTeamId());
 
         player->ResummonPetTemporaryUnSummonedIfAny();
 
@@ -1308,9 +1309,9 @@ void Battleground::AddPlayer(Player* player)
 
         player->RemoveArenaEnchantments(TEMP_ENCHANTMENT_SLOT);
         if (team == ALLIANCE)                                // gold
-           player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_BG_HORDE_GOLD_FLAG : SPELL_BG_ALLIANCE_GOLD_FLAG, true);
+           player->CastSpell(player, player->GetBGTeam() == HORDE ? SPELL_BG_HORDE_GOLD_FLAG : SPELL_BG_ALLIANCE_GOLD_FLAG, true);
         else                                                // green
-           player->CastSpell(player, player->GetTeam() == HORDE ? SPELL_BG_HORDE_GREEN_FLAG : SPELL_BG_ALLIANCE_GREEN_FLAG, true);
+           player->CastSpell(player, player->GetBGTeam() == HORDE ? SPELL_BG_HORDE_GREEN_FLAG : SPELL_BG_ALLIANCE_GREEN_FLAG, true);
 
         player->CastSpell(player, SPELL_BG_BATTLE_FATIGUE, true);
 
@@ -1504,8 +1505,8 @@ void Battleground::EventPlayerLoggedOut(Player* player)
 
         // 1 player is logging out, if it is the last, then end arena!
         if (isArena())
-            if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
-                EndBattleground(GetOtherTeam(player->GetTeam()));
+            if (GetAlivePlayersCountByTeam(player->GetBGTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetBGTeam())))
+                EndBattleground(GetOtherTeam(player->GetBGTeam()));
     }
 }
 
@@ -2055,7 +2056,7 @@ void Battleground::EndNow()
 
 bool Battleground::HandlePlayerUnderMap(Player* player)
 {
-    player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()), TELE_TO_NOT_LEAVE_COMBAT);
+    player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetBGTeamId()), TELE_TO_NOT_LEAVE_COMBAT);
     return true;
 }
 
@@ -2134,7 +2135,7 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
             if (!creditedPlayer || creditedPlayer == killer)
                 continue;
 
-            if (creditedPlayer->GetTeam() == killer->GetTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
+            if (creditedPlayer->GetBGTeam() == killer->GetBGTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
                 UpdatePlayerScore(creditedPlayer, SCORE_HONORABLE_KILLS, 1);
         }
     }
@@ -2248,7 +2249,7 @@ void Battleground::SetBgRaid(uint32 TeamID, Group* bg_raid)
 
 WorldSafeLocsEntry const* Battleground::GetClosestGraveYard(Player* player)
 {
-    return sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
+    return sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetBGTeam());
 }
 
 bool Battleground::IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxScore) const

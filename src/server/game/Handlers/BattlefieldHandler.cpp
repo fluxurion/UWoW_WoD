@@ -62,7 +62,7 @@ void WorldSession::SendBfQueueInviteResponse(uint64 queueId, uint32 zoneId, int8
 void WorldSession::SendBfEntered(uint64 queueID, bool relocated, bool onOffense)
 {
     WorldPackets::Battleground::BFMgrEntering entering;
-    entering.ClearedAFK = !_player->isAFK();
+    entering.ClearedAFK = _player->isAFK();
     entering.OnOffense = onOffense;
     entering.Relocated = relocated;
     entering.QueueID = queueID;

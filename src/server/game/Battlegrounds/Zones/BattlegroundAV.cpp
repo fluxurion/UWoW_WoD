@@ -52,7 +52,7 @@ void BattlegroundAV::HandleKillPlayer(Player* player, Player* killer)
         return;
 
     Battleground::HandleKillPlayer(player, killer);
-    UpdateScore(player->GetTeam(), -1);
+    UpdateScore(player->GetBGTeam(), -1);
 }
 
 void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
@@ -127,16 +127,16 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
         DelCreature(AV_CPLACE_TRIGGER18);
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_N_4][0] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_A_4][0] || entry == BG_AV_CreatureInfo[AV_NPC_N_MINE_H_4][0])
-        ChangeMineOwner(AV_NORTH_MINE, killer->GetTeam());
+        ChangeMineOwner(AV_NORTH_MINE, killer->GetBGTeam());
     else if (entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_N_4][0] || entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_A_4][0] || entry == BG_AV_CreatureInfo[AV_NPC_S_MINE_H_4][0])
-        ChangeMineOwner(AV_SOUTH_MINE, killer->GetTeam());
+        ChangeMineOwner(AV_SOUTH_MINE, killer->GetBGTeam());
 }
 
 void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;//maybe we should log this, cause this must be a cheater or a big bug
-    TeamId team = player->GetTeamId();
+    TeamId team = player->GetBGTeamId();
     //TODO add reputation, events (including quest not available anymore, next quest availabe, go/npc de/spawning)and maybe honor
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed", questid);
     switch (questid)
@@ -150,7 +150,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
             {
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed starting with unit upgrading..", questid);
                 for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
-                    if (m_Nodes[i].Owner == player->GetTeam() && m_Nodes[i].State == POINT_CONTROLED)
+                    if (m_Nodes[i].Owner == player->GetBGTeam() && m_Nodes[i].State == POINT_CONTROLED)
                     {
                         DePopulateNode(i);
                         PopulateNode(i);
@@ -161,21 +161,21 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
         case AV_QUEST_A_COMMANDER1:
         case AV_QUEST_H_COMMANDER1:
             m_Team_QuestStatus[team][1]++;
-            RewardReputationToTeam(team, team, 1, player->GetTeam());
+            RewardReputationToTeam(team, team, 1, player->GetBGTeam());
             if (m_Team_QuestStatus[team][1] == 30)
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_COMMANDER2:
         case AV_QUEST_H_COMMANDER2:
             m_Team_QuestStatus[team][2]++;
-            RewardReputationToTeam(team, team, 1, player->GetTeam());
+            RewardReputationToTeam(team, team, 1, player->GetBGTeam());
             if (m_Team_QuestStatus[team][2] == 60)
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
         case AV_QUEST_A_COMMANDER3:
         case AV_QUEST_H_COMMANDER3:
             m_Team_QuestStatus[team][3]++;
-            RewardReputationToTeam(team, team, 1, player->GetTeam());
+            RewardReputationToTeam(team, team, 1, player->GetBGTeam());
             if (m_Team_QuestStatus[team][1] == 120)
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
             break;
@@ -420,7 +420,7 @@ void BattlegroundAV::StartingEventOpenDoors()
 void BattlegroundAV::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundAVScore(player->GetGUID(), player->GetTeamId());
+    PlayerScores[player->GetGUID()] = new BattlegroundAVScore(player->GetGUID(), player->GetBGTeamId());
 
     if (m_MaxLevel == 0)
         m_MaxLevel=(player->getLevel()%10 == 0)? player->getLevel() : (player->getLevel()-(player->getLevel()%10))+10; //TODO: just look at the code \^_^/ --but queue-info should provide this information..
@@ -487,13 +487,13 @@ void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
     {
         case 95:
         case 2608:
-            if (player->GetTeam() != ALLIANCE)
+            if (player->GetBGTeam() != ALLIANCE)
                 player->GetSession()->SendNotification("Only The Alliance can use that portal");
             else
                 player->LeaveBattleground();
             break;
         case 2606:
-            if (player->GetTeam() != HORDE)
+            if (player->GetBGTeam() != HORDE)
                 player->GetSession()->SendNotification("Only The Horde can use that portal");
             else
                 player->LeaveBattleground();
@@ -508,7 +508,7 @@ void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 6632: // Alliance start loc
         case 6633: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetBGTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -867,9 +867,9 @@ void BattlegroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
     BG_AV_Nodes node = GetNodeThroughObject(object);
 
     uint32 owner = m_Nodes[node].Owner; //maybe should name it prevowner
-    uint32 team = player->GetTeam();
+    uint32 team = player->GetBGTeam();
 
-    if (owner == player->GetTeam() || m_Nodes[node].State != POINT_ASSAULTED)
+    if (owner == player->GetBGTeam() || m_Nodes[node].State != POINT_ASSAULTED)
         return;
     if (m_Nodes[node].TotalOwner == AV_NEUTRAL_TEAM)
     { //until snowfall doesn't belong to anyone it is better handled in assault-code
@@ -938,7 +938,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
 
     BG_AV_Nodes node = GetNodeThroughObject(object);
     uint32 owner = m_Nodes[node].Owner; //maybe name it prevowner
-    uint32 team  = player->GetTeam();
+    uint32 team  = player->GetBGTeam();
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "bg_av: player assaults point object %i node %i", object, node);
     if (owner == team || team == m_Nodes[node].TotalOwner)
         return; //surely a gm used this object
@@ -1151,11 +1151,11 @@ WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveYard(Player* player)
 
     player->GetPosition(x, y);
 
-    pGraveyard = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[GetTeamIndexByTeamId(player->GetTeam())+7]);
+    pGraveyard = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[GetTeamIndexByTeamId(player->GetBGTeam())+7]);
     minDist = (pGraveyard->Loc.X - x)*(pGraveyard->Loc.X - x) + (pGraveyard->Loc.Y - y)*(pGraveyard->Loc.Y - y);
 
     for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
-        if (m_Nodes[i].Owner == player->GetTeam() && m_Nodes[i].State == POINT_CONTROLED)
+        if (m_Nodes[i].Owner == player->GetBGTeam() && m_Nodes[i].State == POINT_CONTROLED)
         {
             entry = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[i]);
             if (entry)

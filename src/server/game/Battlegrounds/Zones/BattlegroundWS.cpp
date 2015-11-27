@@ -177,7 +177,7 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
 void BattlegroundWS::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundWGScore(player->GetGUID(), player->GetTeamId());
+    PlayerScores[player->GetGUID()] = new BattlegroundWGScore(player->GetGUID(), player->GetBGTeamId());
 }
 
 void BattlegroundWS::GetPlayerPositionData(std::vector<WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition>* positions) const
@@ -407,7 +407,7 @@ void BattlegroundWS::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 8966: // Alliance start loc
         case 8965: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetBGTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -444,7 +444,7 @@ WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveYard(Player* player)
 
 void BattlegroundWS::EventPlayerDroppedFlag(Player* Source)
 {
-    TeamId teamID = Source->GetTeamId();
+    TeamId teamID = Source->GetBGTeamId();
 
     if (GetStatus() != STATUS_IN_PROGRESS)
     {
@@ -511,7 +511,7 @@ void BattlegroundWS::EventPlayerDroppedFlag(Player* Source)
         SendBroadcastTextToAll(teamID == TEAM_ALLIANCE ? 9805 : 9806, teamID == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_ALLIANCE : CHAT_MSG_BG_SYSTEM_HORDE, Source);
         UpdateWorldState(teamID == TEAM_ALLIANCE ? WorldStates::BG_WS_FLAG_UNK_ALLIANCE : WorldStates::BG_WS_FLAG_UNK_HORDE, uint32(-1));
 
-        _flagsDropTimer[Source->GetTeamId() ? 0 : 1] = BG_WS_FLAG_DROP_TIME;
+        _flagsDropTimer[Source->GetBGTeamId() ? 0 : 1] = BG_WS_FLAG_DROP_TIME;
     }
 }
 

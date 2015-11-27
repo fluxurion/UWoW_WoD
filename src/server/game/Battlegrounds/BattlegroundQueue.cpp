@@ -141,7 +141,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
     ginfo->IsInvitedToBGInstanceGUID = 0;
     ginfo->JoinTime                  = getMSTime();
     ginfo->RemoveInviteTime          = 0;
-    ginfo->Team                      = leader->GetTeam();
+    ginfo->Team                      = leader->GetBGTeam();
     ginfo->MatchmakerRating          = mmr;
     ginfo->OpponentsMatchmakerRating = 0;
     ginfo->ignore                    = ignore;

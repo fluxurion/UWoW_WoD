@@ -103,7 +103,7 @@ void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 8443: // Alliance start loc
         case 8444: // Horde start loc
             if (!entered && GetStatus() != STATUS_IN_PROGRESS)
-                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetBGTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);

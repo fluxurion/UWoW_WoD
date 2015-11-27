@@ -152,7 +152,7 @@ void BattlegroundBFG::StartingEventOpenDoors()
 void BattlegroundBFG::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundBFGScore(player->GetGUID(), player->GetTeamId());
+    PlayerScores[player->GetGUID()] = new BattlegroundBFGScore(player->GetGUID(), player->GetBGTeamId());
 
     player->SendDirectMessage(WorldPackets::Battleground::Init(GILNEAS_BG_MAX_TEAM_SCORE).Write());
 
@@ -169,7 +169,7 @@ void BattlegroundBFG::HandleAreaTrigger(Player* player, uint32 trigger, bool ent
         case 6448: // Horde Start
         case 6447: // Alliance Start
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetBGTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -245,7 +245,7 @@ void BattlegroundBFG::EventPlayerClickedOnFlag(Player* source, GameObject* /*obj
     if (i == GILNEAS_BG_DYNAMIC_NODES_COUNT)
         return;
 
-    TeamId teamID = source->GetTeamId();
+    TeamId teamID = source->GetBGTeamId();
     if (_capturePoints[i].TeamID == teamID)
         return;
 
@@ -391,7 +391,7 @@ void BattlegroundBFG::EndBattleground(uint32 winner)
 
 WorldSafeLocsEntry const* BattlegroundBFG::GetClosestGraveYard(Player* player)
 {
-    TeamId teamIndex = player->GetTeamId();
+    TeamId teamIndex = player->GetBGTeamId();
 
     std::vector<uint8> nodes;
     for (uint8 i = GILNEAS_BG_NODE_LIGHTHOUSE; i < GILNEAS_BG_DYNAMIC_NODES_COUNT; ++i)

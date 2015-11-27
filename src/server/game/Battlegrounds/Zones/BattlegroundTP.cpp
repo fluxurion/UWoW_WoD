@@ -183,7 +183,7 @@ void BattlegroundTP::PostUpdateImpl(uint32 diff)
 void BattlegroundTP::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundTPScore(player->GetGUID(), player->GetTeamId());
+    PlayerScores[player->GetGUID()] = new BattlegroundTPScore(player->GetGUID(), player->GetBGTeamId());
 }
 
 void BattlegroundTP::StartingEventCloseDoors()
@@ -400,7 +400,7 @@ void BattlegroundTP::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 8967: // Alliance start loc
         case 8968: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetBGTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -461,7 +461,7 @@ WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
 
 void BattlegroundTP::EventPlayerDroppedFlag(Player* Source)
 {
-    TeamId teamID = Source->GetTeamId();
+    TeamId teamID = Source->GetBGTeamId();
 
     if (GetStatus() != STATUS_IN_PROGRESS)
     {
@@ -525,7 +525,7 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player* Source)
     if (set)
     {
         Source->CastSpell(Source, SPELL_BG_RECENTLY_DROPPED_FLAG, true);
-        UpdateFlagState(Source->GetTeam(), BG_TP_FLAG_STATE_WAIT_RESPAWN);
+        UpdateFlagState(Source->GetBGTeam(), BG_TP_FLAG_STATE_WAIT_RESPAWN);
 
         SendMessageToAll(teamID == TEAM_ALLIANCE ? 9806 : 9805, teamID == TEAM_ALLIANCE ? CHAT_MSG_BG_SYSTEM_HORDE : CHAT_MSG_BG_SYSTEM_ALLIANCE, Source);
         UpdateWorldState(teamID == TEAM_ALLIANCE ? WorldStates::BG_WS_FLAG_UNK_HORDE : WorldStates::BG_WS_FLAG_UNK_ALLIANCE, uint32(-1));
@@ -539,7 +539,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* source, GameObject* object
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    TeamId team = source->GetTeamId();
+    TeamId team = source->GetBGTeamId();
 
     if (source->IsWithinDistInMap(object, 10)) ///< Check if target is in distance with flag
     {
@@ -625,8 +625,7 @@ void BattlegroundTP::EventPlayerCapturedFlag(Player* source)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-
-    TeamId team = source->GetTeamId();
+    TeamId team = source->GetBGTeamId();
 
     source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
     _flagDebuffState = 0;
@@ -672,7 +671,7 @@ void BattlegroundTP::RemovePlayer(Player* player, ObjectGuid guid, uint32 /* tea
     if (!player)
         return;
 
-    TeamId team = player->GetTeamId();
+    TeamId team = player->GetBGTeamId();
 
     if (_flagKeepers[team ^ 1] == guid)
     {

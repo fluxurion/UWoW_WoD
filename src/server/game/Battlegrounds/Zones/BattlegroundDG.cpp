@@ -121,7 +121,7 @@ const WorldSafeLocsEntry* BattlegroundDG::GetClosestGraveYard(Player* player)
 void BattlegroundDG::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundDGScore(player->GetGUID(), player->GetTeamId());
+    PlayerScores[player->GetGUID()] = new BattlegroundDGScore(player->GetGUID(), player->GetBGTeamId());
 }
 
 void BattlegroundDG::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*team*/)
@@ -568,7 +568,7 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
         return;
 
     uint32 summonSpellId, cartEntry, flagStateField, cartAuraId;
-    auto teamID = player->GetTeamId();
+    auto teamID = player->GetBGTeamId();
 
     if (teamID == TEAM_ALLIANCE)
     {

@@ -171,7 +171,7 @@ void BattlegroundAB::StartingEventOpenDoors()
 void BattlegroundAB::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundABScore(player->GetGUID(), player->GetTeamId());
+    PlayerScores[player->GetGUID()] = new BattlegroundABScore(player->GetGUID(), player->GetBGTeamId());
 
     player->SendDirectMessage(WorldPackets::Battleground::Init(BG_AB_MAX_TEAM_SCORE).Write());
 
@@ -209,7 +209,7 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 6635: // Horde Start loc
         case 6634: // Alliance Start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetBGTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -318,7 +318,7 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* object
     if (i == BG_AB_DYNAMIC_NODES_COUNT)
         return;
 
-    TeamId teamID = source->GetTeamId();
+    TeamId teamID = source->GetBGTeamId();
     if (_capturePoints[i].TeamID == teamID)
         return;
 
@@ -430,7 +430,7 @@ void BattlegroundAB::EndBattleground(uint32 winner)
 
 WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
 {
-    TeamId teamIndex = player->GetTeamId();
+    TeamId teamIndex = player->GetBGTeamId();
 
     std::vector<uint8> nodes;
     for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)

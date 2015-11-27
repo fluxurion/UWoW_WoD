@@ -142,7 +142,7 @@ void BattlegroundSSM::HandleAreaTrigger(Player* player, uint32 trigger, bool ent
         case 8493: // Alliance start loc
         case 8494: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
-                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetTeamId()));
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetBGTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -317,7 +317,7 @@ void BattlegroundSSM::_CheckPlayersAtCars()
 void BattlegroundSSM::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattleGroundSSMScore(player->GetGUID(), player->GetTeamId());
+    PlayerScores[player->GetGUID()] = new BattleGroundSSMScore(player->GetGUID(), player->GetBGTeamId());
 
     player->SendDirectMessage(WorldPackets::Battleground::Init(SSM_MAX_TEAM_POINTS).Write());
 
@@ -501,5 +501,5 @@ void BattlegroundSSM::FillInitialWorldStates(WorldPackets::WorldState::InitWorld
 
 WorldSafeLocsEntry const* BattlegroundSSM::GetClosestGraveYard(Player* player)
 {
-    return player->GetTeamId() == TEAM_ALLIANCE ? sWorldSafeLocsStore.LookupEntry(BG_SSM_ALLIANCE_GRAVEYARD) : sWorldSafeLocsStore.LookupEntry(BG_SSM_HORDE_GRAVEYARD);
+    return player->GetBGTeamId() == TEAM_ALLIANCE ? sWorldSafeLocsStore.LookupEntry(BG_SSM_ALLIANCE_GRAVEYARD) : sWorldSafeLocsStore.LookupEntry(BG_SSM_HORDE_GRAVEYARD);
 }
