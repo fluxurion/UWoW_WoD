@@ -131,7 +131,6 @@ bool Player::UpdateStats(Stats stat)
 void Player::ApplySpellPowerBonus(int32 amount, bool apply)
 {
     _ModifyUInt32(apply, m_baseSpellPower, amount);
-
     UpdateSpellDamageAndHealingBonus();
 }
 
