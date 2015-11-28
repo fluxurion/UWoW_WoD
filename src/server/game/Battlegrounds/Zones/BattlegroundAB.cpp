@@ -120,7 +120,7 @@ void BattlegroundAB::PostUpdateImpl(Milliseconds diff)
 
             Battleground::SendBattleGroundPoints(team != TEAM_ALLIANCE, m_TeamScores[team]);
 
-            UpdateWorldState(team == TEAM_ALLIANCE ? WorldStates::BG_AB_OP_RESOURCES_ALLY : WorldStates::BG_AB_OP_RESOURCES_HORDE, m_TeamScores[team]);
+            UpdateWorldState(team == TEAM_ALLIANCE ? WorldStates::ALLIANCE_RESOUCES : WorldStates::HORDE_RESOUCES, m_TeamScores[team]);
 
             uint8 otherTeam = (team + 1) % MAX_TEAMS;
             if (m_TeamScores[team] > m_TeamScores[otherTeam] + 500)
@@ -200,15 +200,6 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             else
                 player->LeaveBattleground();
             break;
-        case 3866:                                          // Stables
-        case 3869:                                          // Gold Mine
-        case 3867:                                          // Farm
-        case 3868:                                          // Lumber Mill
-        case 3870:                                          // Black Smith
-        case 4020:                                          // Unk1
-        case 4021:                                          // Unk2
-        case 4674:                                          // Unk3
-            break;
         case 6635: // Horde Start loc
         case 6634: // Alliance Start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)
@@ -228,12 +219,12 @@ void BattlegroundAB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
         packet.Worldstates.emplace_back(AbNodeStatesWS[i][_capturePoints[i].Status], _capturePoints[i].Status);
     }
 
-    packet.Worldstates.emplace_back(WorldStates::BG_AB_OP_OCCUPIED_BASES_ALLY, _GetCapturedNodesForTeam(TEAM_ALLIANCE));
-    packet.Worldstates.emplace_back(WorldStates::BG_AB_OP_OCCUPIED_BASES_HORDE, _GetCapturedNodesForTeam(TEAM_HORDE));
-    packet.Worldstates.emplace_back(WorldStates::BG_AB_OP_RESOURCES_MAX, BG_AB_MAX_TEAM_SCORE);
+    packet.Worldstates.emplace_back(WorldStates::OCCOPIED_BASES_ALLIANCE, _GetCapturedNodesForTeam(TEAM_ALLIANCE));
+    packet.Worldstates.emplace_back(WorldStates::OCCOPIED_BASES_HORDE, _GetCapturedNodesForTeam(TEAM_HORDE));
+    packet.Worldstates.emplace_back(WorldStates::MAX_TEAM_RESOUCES, BG_AB_MAX_TEAM_SCORE);
     packet.Worldstates.emplace_back(WorldStates::BG_AB_OP_RESOURCES_WARNING, BG_AB_WARNING_NEAR_VICTORY_SCORE);
-    packet.Worldstates.emplace_back(WorldStates::BG_AB_OP_RESOURCES_ALLY, m_TeamScores[TEAM_ALLIANCE]);
-    packet.Worldstates.emplace_back(WorldStates::BG_AB_OP_RESOURCES_HORDE, m_TeamScores[TEAM_HORDE]);
+    packet.Worldstates.emplace_back(WorldStates::ALLIANCE_RESOUCES, m_TeamScores[TEAM_ALLIANCE]);
+    packet.Worldstates.emplace_back(WorldStates::HORDE_RESOUCES, m_TeamScores[TEAM_HORDE]);
     packet.Worldstates.emplace_back(static_cast<WorldStates>(1861), 2);
 }
 
@@ -281,10 +272,10 @@ void BattlegroundAB::_NodeOccupied(uint8 node, TeamId teamID)
     if (_capturePoints[node].Status == NODE_STATUS_CAPTURE)
     {
         if (_capturePoints[node].TeamID == TEAM_ALLIANCE)
-            UpdateWorldState(WorldStates::BG_AB_OP_OCCUPIED_BASES_ALLY, _GetCapturedNodesForTeam(TEAM_ALLIANCE));
+            UpdateWorldState(WorldStates::OCCOPIED_BASES_ALLIANCE, _GetCapturedNodesForTeam(TEAM_ALLIANCE));
 
         if (_capturePoints[node].TeamID == TEAM_HORDE)
-            UpdateWorldState(WorldStates::BG_AB_OP_OCCUPIED_BASES_HORDE, _GetCapturedNodesForTeam(TEAM_HORDE));
+            UpdateWorldState(WorldStates::OCCOPIED_BASES_HORDE, _GetCapturedNodesForTeam(TEAM_HORDE));
     }
 }
 

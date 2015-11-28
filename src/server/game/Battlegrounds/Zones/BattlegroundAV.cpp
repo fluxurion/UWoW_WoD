@@ -498,13 +498,6 @@ void BattlegroundAV::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             else
                 player->LeaveBattleground();
             break;
-        case 3326:
-        case 3327:
-        case 3328:
-        case 3329:
-        case 3330:
-        case 3331:
-            break;
         case 6632: // Alliance start loc
         case 6633: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)

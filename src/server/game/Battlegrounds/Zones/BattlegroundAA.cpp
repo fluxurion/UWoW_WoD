@@ -46,11 +46,6 @@ void BattlegroundAA::HandleKillPlayer(Player* player, Player* killer)
     Battleground::HandleKillPlayer(player, killer);
 }
 
-void BattlegroundAA::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
-{
-    Battleground::HandleAreaTrigger(player, trigger, entered);
-}
-
 bool BattlegroundAA::SetupBattleground()
 {
     return true;

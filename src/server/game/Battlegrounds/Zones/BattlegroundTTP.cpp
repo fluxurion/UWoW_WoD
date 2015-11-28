@@ -51,19 +51,6 @@ void BattlegroundTTP::StartingEventOpenDoors()
     Arena::StartingEventOpenDoors();
 }
 
-void BattlegroundTTP::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
-{
-    switch (trigger)
-    {
-        case 9127:
-        case 9126:
-            break;
-        default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
-            break;
-    }
-}
-
 void BattlegroundTTP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
     packet.Worldstates.emplace_back(static_cast<WorldStates>(2577), 1);

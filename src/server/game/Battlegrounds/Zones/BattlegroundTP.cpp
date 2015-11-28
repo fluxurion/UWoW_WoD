@@ -321,17 +321,6 @@ void BattlegroundTP::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
                 if (_flagKeepers[TEAM_ALLIANCE] == player->GetGUID())
                     EventPlayerCapturedFlag(player);
             break;
-        case 5908:                                          // Horde Tower
-        case 5909:                                          // Twin Peak House big
-        case 5910:                                          // Horde House
-        case 5911:                                          // Twin Peak House small
-        case 5914:                                          // Alliance Start right
-        case 5916:                                          // Alliance Start
-        case 5917:                                          // Alliance Start left
-        case 5918:                                          // Horde Start
-        case 5920:                                          // Horde Start Front entrance
-        case 5921:                                          // Horde Start left Water channel
-            break;
         case 8967: // Alliance start loc
         case 8968: // Horde start loc
             if (!entered && GetStatus() == STATUS_WAIT_JOIN)

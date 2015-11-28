@@ -107,7 +107,7 @@ void BattlegroundBFG::PostUpdateImpl(Milliseconds diff)
 
             Battleground::SendBattleGroundPoints(team != TEAM_ALLIANCE, m_TeamScores[team]);
 
-            UpdateWorldState(team == TEAM_ALLIANCE ? WorldStates::GILNEAS_BG_OP_RESOURCES_ALLY : WorldStates::GILNEAS_BG_OP_RESOURCES_HORDE, m_TeamScores[team]);
+            UpdateWorldState(team == TEAM_ALLIANCE ? WorldStates::ALLIANCE_RESOUCES : WorldStates::HORDE_RESOUCES, m_TeamScores[team]);
 
             uint8 otherTeam = (team + 1) % MAX_TEAMS;
             if (m_TeamScores[team] > m_TeamScores[otherTeam] + 500)
@@ -186,11 +186,11 @@ void BattlegroundBFG::FillInitialWorldStates(WorldPackets::WorldState::InitWorld
         if (GameObject* point = _capturePoints[i].Point) // if player entered the battleground which has already begun
             packet.Worldstates.emplace_back(static_cast<WorldStates>(point->GetGOInfo()->capturePoint.worldState1), _capturePoints[i].Status);
 
-    packet.Worldstates.emplace_back(WorldStates::GILNEAS_BG_OP_OCCUPIED_BASES_ALLY, _GetCapturedNodesForTeam(TEAM_ALLIANCE));
-    packet.Worldstates.emplace_back(WorldStates::GILNEAS_BG_OP_OCCUPIED_BASES_HORDE, _GetCapturedNodesForTeam(TEAM_HORDE));
-    packet.Worldstates.emplace_back(WorldStates::GILNEAS_BG_OP_RESOURCES_ALLY, m_TeamScores[TEAM_ALLIANCE]);
-    packet.Worldstates.emplace_back(WorldStates::GILNEAS_BG_OP_RESOURCES_HORDE, m_TeamScores[TEAM_HORDE]);
-    packet.Worldstates.emplace_back(WorldStates::GILNEAS_BG_OP_RESOURCES_MAX, GILNEAS_BG_MAX_TEAM_SCORE);
+    packet.Worldstates.emplace_back(WorldStates::OCCOPIED_BASES_ALLIANCE, _GetCapturedNodesForTeam(TEAM_ALLIANCE));
+    packet.Worldstates.emplace_back(WorldStates::OCCOPIED_BASES_HORDE, _GetCapturedNodesForTeam(TEAM_HORDE));
+    packet.Worldstates.emplace_back(WorldStates::ALLIANCE_RESOUCES, m_TeamScores[TEAM_ALLIANCE]);
+    packet.Worldstates.emplace_back(WorldStates::HORDE_RESOUCES, m_TeamScores[TEAM_HORDE]);
+    packet.Worldstates.emplace_back(WorldStates::MAX_TEAM_RESOUCES, GILNEAS_BG_MAX_TEAM_SCORE);
 }
 
 void BattlegroundBFG::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* node, Player const* player /*= nullptr*/, bool initial /*= false*/)
@@ -211,10 +211,10 @@ void BattlegroundBFG::_NodeOccupied(uint8 node, TeamId team)
     if (_capturePoints[node].Status == NODE_STATUS_CAPTURE)
     {
         if (_capturePoints[node].TeamID == TEAM_ALLIANCE)
-            UpdateWorldState(WorldStates::BG_AB_OP_OCCUPIED_BASES_ALLY, _GetCapturedNodesForTeam(TEAM_ALLIANCE));
+            UpdateWorldState(WorldStates::OCCOPIED_BASES_ALLIANCE, _GetCapturedNodesForTeam(TEAM_ALLIANCE));
 
         if (_capturePoints[node].TeamID == TEAM_HORDE)
-            UpdateWorldState(WorldStates::BG_AB_OP_OCCUPIED_BASES_HORDE, _GetCapturedNodesForTeam(TEAM_HORDE));
+            UpdateWorldState(WorldStates::OCCOPIED_BASES_HORDE, _GetCapturedNodesForTeam(TEAM_HORDE));
     }
 }
 

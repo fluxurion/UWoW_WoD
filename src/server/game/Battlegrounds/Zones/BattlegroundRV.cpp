@@ -89,21 +89,6 @@ void BattlegroundRV::StartingEventOpenDoors()
     TogglePillarCollision();
 }
 
-void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
-{
-    switch (trigger)
-    {
-        case 5224:
-        case 5226:
-        case 5473:
-        case 5474:
-            break;
-        default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
-            break;
-    }
-}
-
 void BattlegroundRV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
     packet.Worldstates.emplace_back(WorldStates::ARENA_ALIVE_PLAYERS_GREEN, GetAlivePlayersCountByTeam(ALLIANCE));

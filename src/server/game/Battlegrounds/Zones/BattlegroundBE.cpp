@@ -58,9 +58,6 @@ void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 {
     switch (trigger)
     {
-        case 4538:
-        case 4539:
-            break;
         case 8449: // Alliance start loc
         case 8450: // Horde start loc
             if (!entered && GetStatus() != STATUS_IN_PROGRESS)

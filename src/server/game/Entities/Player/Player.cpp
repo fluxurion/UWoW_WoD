@@ -10508,7 +10508,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 bg->FillInitialWorldStates(packet);
             break;
         case 3820: // Eye of the Storm
-            if (bg && bg->GetTypeID(true) == BATTLEGROUND_EY || bg && bg->GetTypeID(true) == BATTLEGROUND_EY_RATED)
+            if (bg && (bg->GetTypeID(true) == BATTLEGROUND_EY ||  bg->GetTypeID(true) == BATTLEGROUND_EY_RATED))
                 bg->FillInitialWorldStates(packet);
             break;
         case 6665:

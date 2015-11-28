@@ -43,11 +43,11 @@ enum class WorldStates : uint32
     BG_WS_BATTLE_TIMER              = 5333,
     BG_WS_NEXT_BATTLE_TIMER         = 5332,
     
-    BG_AB_OP_OCCUPIED_BASES_HORDE       = 1778, GILNEAS_BG_OP_OCCUPIED_BASES_HORDE       = 1778,
-    BG_AB_OP_OCCUPIED_BASES_ALLY        = 1779, GILNEAS_BG_OP_OCCUPIED_BASES_ALLY        = 1779,
-    BG_AB_OP_RESOURCES_ALLY             = 1776, GILNEAS_BG_OP_RESOURCES_ALLY             = 1776,
-    BG_AB_OP_RESOURCES_HORDE            = 1777, GILNEAS_BG_OP_RESOURCES_HORDE            = 1777,
-    BG_AB_OP_RESOURCES_MAX              = 1780, GILNEAS_BG_OP_RESOURCES_MAX              = 1780,
+    OCCOPIED_BASES_HORDE                = 1778,
+    OCCOPIED_BASES_ALLIANCE             = 1779,
+    ALLIANCE_RESOUCES                   = 1776,
+    HORDE_RESOUCES                      = 1777,
+    MAX_TEAM_RESOUCES                   = 1780,
     BG_AB_OP_RESOURCES_WARNING          = 1955, GILNEAS_BG_OP_RESOURCES_WARNING          = 1955,
 
     NA_UI_HORDE_GUARDS_SHOW         = 2503,
@@ -229,11 +229,6 @@ enum class WorldStates : uint32
     AV_FROSTWOLFE_UNUSED            = 1393,
     AV_FROSTWOLFW_UNUSED            = 1392,
 
-    
-    EY_ALLIANCE_RESOURCES           = 2749,
-    EY_HORDE_RESOURCES              = 2750,
-    EY_ALLIANCE_BASE                = 2752,
-    EY_HORDE_BASE                   = 2753,
     DRAENEI_RUINS_HORDE_CONTROL     = 2733,
     DRAENEI_RUINS_ALLIANCE_CONTROL  = 2732,
     DRAENEI_RUINS_UNCONTROL         = 2731,
@@ -253,6 +248,9 @@ enum class WorldStates : uint32
     //set to 2 when flag is picked up, and to 1 if it is dropped
     NETHERSTORM_FLAG_STATE_ALLIANCE = 2769,
     NETHERSTORM_FLAG_STATE_HORDE    = 2770,
+    NETHERSTROM_FLAG_UI_ALLIANCE    = 9808,
+    NETHERSTROM_FLAG_UI_HORDE       = 9809,
+
 
     
     BG_IC_ALLIANCE_RENFORT_SET      = 4221,

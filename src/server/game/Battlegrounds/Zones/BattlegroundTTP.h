@@ -46,7 +46,6 @@ class BattlegroundTTP : public Arena
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 
-        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 };

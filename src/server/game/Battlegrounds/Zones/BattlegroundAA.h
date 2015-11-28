@@ -31,7 +31,6 @@ class BattlegroundAA : public Battleground
         void StartingEventOpenDoors() override;
 
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
-        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
         void HandleKillPlayer(Player* player, Player* killer) override;
 };

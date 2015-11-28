@@ -98,8 +98,6 @@ class BattlegroundRV : public Battleground
         void StartingEventOpenDoors() override;
         void Reset() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
-
-        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
 
     private:

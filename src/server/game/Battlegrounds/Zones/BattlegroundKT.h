@@ -228,9 +228,6 @@ class BattlegroundKT : public Battleground
 
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
-        void SetTeamPoint(Team team, uint32 Points = 0) { m_TeamScores[GetTeamIndexByTeamId(team)] = Points; }
-        void RemovePoint(Team team, uint32 Points = 1) { m_TeamScores[GetTeamIndexByTeamId(team)] -= Points; }
-
         ObjectGuid GetFlagPickerGUID(int32 index) const override
         {
             if (MAX_ORBS)
