@@ -65,7 +65,7 @@ enum BG_TP_ObjectEntry
 
 enum BG_TP_FlagState
 {
-    BG_TP_FLAG_STATE_ON_BASE                = 0,
+    BG_TP_FLAG_STATE_ON_BASE,
     BG_TP_FLAG_STATE_WAIT_RESPAWN,
     BG_TP_FLAG_STATE_ON_PLAYER,
     BG_TP_FLAG_STATE_ON_GROUND,
@@ -83,14 +83,6 @@ enum BG_TP_Graveyards
     TP_GRAVEYARD_MIDDLE_HORDE               = 5,
 
     TP_MAX_GRAVEYARDS                       = 6
-};
-
-enum BG_TP_FlagState
-{
-    BG_TP_FLAG_STATE_ON_BASE,
-    BG_TP_FLAG_STATE_WAIT_RESPAWN,
-    BG_TP_FLAG_STATE_ON_PLAYER,
-    BG_TP_FLAG_STATE_ON_GROUND,
 };
 
 uint32 const BG_TP_GraveyardIds[TP_MAX_GRAVEYARDS] = {1726, 1727, 1729, 1728, 1749, 1750};

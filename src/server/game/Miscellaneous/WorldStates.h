@@ -337,9 +337,7 @@ enum class WorldStates : uint32
     BG_KT_BLUE_ORB_C            = 6969,
     BG_KT_BLUE_ORB_X            = 6970,
 
-    BG_RV_WORLD_STATE_A                          = 0xe10,
-    BG_RV_WORLD_STATE_H                          = 0xe11,
-    BG_RV_WORLD_STATE                            = 0xe1a,
+    BG_RV_WORLD_STATE                            = 3610,
 
     
     BG_SA_ALLY_ATTACKS              = 4352,
@@ -485,6 +483,12 @@ enum class WorldStates : uint32
     WORLD_STATE_WAVES         = 2842,
     WORLD_STATE_ENEMY         = 2453,
     WORLD_STATE_ENEMYCOUNT    = 2454,
+    
+    ARENA_ALIVE_PLAYERS_GREEN           = 3600,
+    ARENA_ALIVE_PLAYERS_GOLD            = 3601,
+
+    ARENA_END_TIMER                     = 8529,
+    ARENA_SHOW_END_TIMER                = 8524,
 
     //< Ashran
     

@@ -19,7 +19,7 @@
 #ifndef __BATTLEGROUNDDS_H
 #define __BATTLEGROUNDDS_H
 
-class Battleground;
+#include "Arena.h"
 
 enum BattlegroundDSObjectTypes
 {
@@ -79,22 +79,18 @@ enum BattlegroundDSData
     BG_DS_WATERFALL_STATUS_OFF                   = 3,
 };
 
-class BattlegroundDS : public Battleground
+class BattlegroundDS : public Arena
 {
     public:
         BattlegroundDS();
         ~BattlegroundDS();
 
-        void AddPlayer(Player* player) override;
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 
-        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
-        void Reset() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
-        void HandleKillPlayer(Player* player, Player* killer) override;
     private:
         uint32 _waterfallTimer;
         uint8 _waterfallStatus;

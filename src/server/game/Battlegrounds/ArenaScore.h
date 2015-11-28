@@ -22,42 +22,43 @@
 
 struct ArenaScore : public BattlegroundScore
 {
-    friend class Battleground;
+    friend class Arena;
 
-    protected:
-        ArenaScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), TeamID(team) { }
+protected:
+    ArenaScore(ObjectGuid playerGuid, TeamId team) : BattlegroundScore(playerGuid, team), TeamID(team) { }
 
-        void BuildObjectivesBlock(std::vector<int32>& /*stats*/) override { }
+    void BuildObjectivesBlock(std::vector<int32>& /*stats*/) override { }
 
-        TeamId TeamID;
+    TeamId TeamID;
 };
 
 struct ArenaTeamScore
 {
+    friend class Arena;
     friend class Battleground;
 
-    protected:
-        ArenaTeamScore() : OldRating(0), NewRating(0), MatchmakerRating(0) { }
+protected:
+    ArenaTeamScore() : OldRating(0), NewRating(0), MatchmakerRating(0) { }
 
-        virtual ~ArenaTeamScore() { }
+    virtual ~ArenaTeamScore() { }
 
-        void Reset()
-        {
-            OldRating = 0;
-            NewRating = 0;
-            MatchmakerRating = 0;
-        }
+    void Reset()
+    {
+        OldRating = 0;
+        NewRating = 0;
+        MatchmakerRating = 0;
+    }
 
-        void Assign(int32 oldRating, int32 newRating, uint32 matchMakerRating)
-        {
-            OldRating = oldRating;
-            NewRating = newRating;
-            MatchmakerRating = matchMakerRating;
-        }
+    void Assign(int32 oldRating, int32 newRating, uint32 matchMakerRating)
+    {
+        OldRating = oldRating;
+        NewRating = newRating;
+        MatchmakerRating = matchMakerRating;
+    }
 
-        int32 OldRating;
-        int32 NewRating;
-        uint32 MatchmakerRating;
+    int32 OldRating;
+    int32 NewRating;
+    uint32 MatchmakerRating;
 };
 
 #endif // TRINITY_ARENA_SCORE_H

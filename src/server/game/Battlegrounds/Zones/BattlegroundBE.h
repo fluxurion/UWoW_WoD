@@ -18,7 +18,7 @@
 #ifndef __BATTLEGROUNDBE_H
 #define __BATTLEGROUNDBE_H
 
-class Battleground;
+#include "Arena.h"
 
 enum BattlegroundBEObjectTypes
 {
@@ -41,21 +41,17 @@ enum BattlegroundBEObjects
     BG_BE_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class BattlegroundBE : public Battleground
+class BattlegroundBE : public Arena
 {
     public:
         BattlegroundBE();
         ~BattlegroundBE();
 
-        void AddPlayer(Player* player) override;
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 
-        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
-        void Reset() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
-        void HandleKillPlayer(Player* player, Player* killer) override;
 };
 #endif

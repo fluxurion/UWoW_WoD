@@ -377,7 +377,6 @@ class Battleground
         BattlegroundStatus GetStatus() const { return m_Status; }
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
         Milliseconds GetElapsedTime() const       { return m_StartTime; }
-        Milliseconds GetArenaMinutesElapsed() const { return m_arenaMinutesElapsed; }
         Milliseconds GetRemainingTime() const     { return m_EndTime; }
         uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
         uint32 GetMaxPlayers() const        { return m_MaxPlayers; }
@@ -522,6 +521,8 @@ class Battleground
                 ++m_PlayersCount[GetTeamIndexByTeamId(Team)];
         }
 
+        virtual void CheckWinConditions() { }
+
         // used for rated arena battles
         void SetGroupForTeam(uint32 Team, uint32 GroupId) { m_GroupIds[GetTeamIndexByTeamId(Team)] = GroupId; }
         uint32 GetGroupIdForTeam(uint32 Team) const             { return m_GroupIds[GetTeamIndexByTeamId(Team)]; }
@@ -529,9 +530,6 @@ class Battleground
         void SetMatchmakerRating(uint32 Team, uint32 MMR){ m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)] = MMR; }
         uint32 GetMatchmakerRating(uint32 Team) const          { return m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)]; }
         uint32 GetMatchmakerRatingByIndex(uint32 index) const  { return m_ArenaTeamMMR[index]; }
-        void CheckArenaAfterTimerConditions();
-        void CheckArenaWinConditions();
-        void UpdateArenaWorldState();
         void BattlegroundTimedWin(uint32 type = 1);
 
         uint32 GetSameTeamId() { return m_sameBgTeamId; }
@@ -542,7 +540,7 @@ class Battleground
         virtual void HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/, bool /*entered*/);
         // must be implemented in BG subclass if need AND call base class generic code
         virtual void HandleKillPlayer(Player* player, Player* killer);
-        virtual void HandleKillUnit(Creature* /*unit*/, Player* /*killer*/);
+        virtual void HandleKillUnit(Creature* /*unit*/, Player* /*killer*/) { }
 
         // Battleground events
         virtual void UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* node, Player const* player = nullptr, bool initial = false);
@@ -624,7 +622,6 @@ class Battleground
         virtual void GetPlayerPositionData(std::vector<WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition>* /*positions*/) const { }
 
         void SendOpponentSpecialization(uint32 team);
-        void UpdateArenaVision();
         
         uint32 GetDefaultTickHonor(uint32 node) { return node ? m_baseTickHonor : 0; }
     protected:
@@ -641,7 +638,7 @@ class Battleground
         void _ProcessRessurect(uint32 diff);
         void _ProcessProgress(uint32 diff);
         void _ProcessLeave(uint32 diff);
-        void _ProcessJoin(uint32 diff);
+        virtual void _ProcessJoin(uint32 diff);
 
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
@@ -661,26 +658,24 @@ class Battleground
 
         bool   m_BuffChange;
         bool   m_IsRandom;
+        BattlegroundTypeId m_TypeID;
+        std::map<uint32, std::list<const char*>> m_nameList;
+        uint8  m_JoinType;                                 // 2=2v2, 3=3v3, 5=5v5
     private:
         // Battleground
-        BattlegroundTypeId m_TypeID;
         BattlegroundTypeId m_RandomTypeID;
         uint32 m_InstanceID;                                // Battleground Instance's GUID!
         BattlegroundStatus m_Status;
         uint32 m_ClientInstanceID;                          // the instance-id which is sent to the client and without any other internal use
         Milliseconds m_StartTime;
-        Milliseconds m_arenaMinutesElapsed;
         uint32 m_ResetStatTimer;
         Milliseconds m_EndTime;                                    // it is set to 120000 when bg is ending and it decreases itself
         Milliseconds m_CountdownTimer;
         uint32 m_LastResurrectTime;
         BattlegroundBracketId m_BracketId;
-        uint8  m_JoinType;                                 // 2=2v2, 3=3v3, 5=5v5
         bool   m_InBGFreeSlotQueue;                         // used to make sure that BG is only once inserted into the BattlegroundMgr.BGFreeSlotQueue[bgTypeId] deque
         bool   m_SetDeleteThis;                             // used for safe deletion of the bg after end / all players leave
         bool   m_IsArena;
-        bool   m_needFirstUpdateVision;
-        bool   m_needSecondUpdateVision;
         uint8  m_Winner;                                    // 0=alliance, 1=horde, 2=none
         Milliseconds m_StartDelayTime;
         Milliseconds m_LastPlayerPositionBroadcast;
@@ -739,8 +734,6 @@ class Battleground
 
         // Players count by team
         uint32 m_PlayersCount[MAX_TEAMS];
-
-        std::map<uint32, std::list<const char*>> m_nameList;
 
         // Arena team ids by team
         uint32 m_GroupIds[MAX_TEAMS];

@@ -18,7 +18,7 @@
 #ifndef __BATTLEGROUNDRL_H
 #define __BATTLEGROUNDRL_H
 
-class Battleground;
+#include "Arena.h"
 
 enum BattlegroundRLObjectTypes
 {
@@ -37,21 +37,17 @@ enum BattlegroundRLObjects
     BG_RL_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class BattlegroundRL : public Battleground
+class BattlegroundRL : public Arena
 {
     public:
         BattlegroundRL();
         ~BattlegroundRL();
 
-        void AddPlayer(Player* player) override;
-        void Reset() override;
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 
-        void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
         void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
-        void HandleKillPlayer(Player* player, Player* killer) override;
 };
 #endif

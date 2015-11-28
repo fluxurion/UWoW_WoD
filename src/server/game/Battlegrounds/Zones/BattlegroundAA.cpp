@@ -22,13 +22,7 @@
 #include "Player.h"
 
 BattlegroundAA::BattlegroundAA()
-{
-    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
-    {
-        m_broadcastMessages[i] = ArenaBroadcastTexts[i];
-        m_hasBroadcasts[i] = true;
-    }
-}
+{ }
 
 BattlegroundAA::~BattlegroundAA()
 { }

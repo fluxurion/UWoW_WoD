@@ -28,18 +28,10 @@ BattlegroundDS::BattlegroundDS()
 {
     BgObjects.resize(BG_DS_OBJECT_MAX);
     BgCreatures.resize(BG_DS_NPC_MAX);
-
-    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
-    {
-        m_broadcastMessages[i] = ArenaBroadcastTexts[i];
-        m_hasBroadcasts[i] = true;
-    }
 }
 
 BattlegroundDS::~BattlegroundDS()
-{
-
-}
+{ }
 
 void BattlegroundDS::PostUpdateImpl(uint32 diff)
 {
@@ -111,7 +103,7 @@ void BattlegroundDS::StartingEventCloseDoors()
     for (uint32 i = BG_DS_OBJECT_DOOR_1; i <= BG_DS_OBJECT_DOOR_2; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 
-    UpdateWorldState(static_cast<WorldStates>(8524), 0);
+    Arena::StartingEventCloseDoors();
 }
 
 void BattlegroundDS::StartingEventOpenDoors()
@@ -140,41 +132,8 @@ void BattlegroundDS::StartingEventOpenDoors()
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             if (player->HasAura(48018))
                 player->RemoveAurasDueToSpell(48018);
-        
-    UpdateWorldState(static_cast<WorldStates>(8524), 1);
-    UpdateWorldState(static_cast<WorldStates>(8529), int32(time(nullptr) + 1200));
-}
 
-void BattlegroundDS::AddPlayer(Player* player)
-{
-    Battleground::AddPlayer(player);
-    UpdateArenaWorldState();
-}
-
-void BattlegroundDS::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
-{
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        return;
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
-}
-
-void BattlegroundDS::HandleKillPlayer(Player* player, Player* killer)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    if (!killer)
-    {
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundDS: Killer player not found");
-        return;
-    }
-
-    Battleground::HandleKillPlayer(player, killer);
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
+    Arena::StartingEventOpenDoors();
 }
 
 void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
@@ -206,14 +165,7 @@ void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 void BattlegroundDS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
     packet.Worldstates.emplace_back(static_cast<WorldStates>(3610), 1);
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(8524), (GetStatus() != STATUS_IN_PROGRESS ? 0 : 1));
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(8529), int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(20) - GetArenaMinutesElapsed()).count()));
-    UpdateArenaWorldState();
-}
-
-void BattlegroundDS::Reset()
-{
-    Battleground::Reset();
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundDS::SetupBattleground()

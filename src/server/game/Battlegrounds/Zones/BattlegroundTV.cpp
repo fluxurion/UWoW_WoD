@@ -27,25 +27,17 @@
 BattlegroundTV::BattlegroundTV()
 {
     BgObjects.resize(BG_TV_OBJECT_MAX);
-
-    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
-    {
-        m_broadcastMessages[i] = ArenaBroadcastTexts[i];
-        m_hasBroadcasts[i] = true;
-    }
 }
 
 BattlegroundTV::~BattlegroundTV()
-{
-
-}
+{ }
 
 void BattlegroundTV::StartingEventCloseDoors()
 {
     for (uint32 i = BG_TV_OBJECT_DOOR_1; i <= BG_TV_OBJECT_DOOR_2; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 
-    UpdateWorldState(static_cast<WorldStates>(8524), 0);
+    Arena::StartingEventCloseDoors();
 }
 
 void BattlegroundTV::StartingEventOpenDoors()
@@ -53,41 +45,7 @@ void BattlegroundTV::StartingEventOpenDoors()
     for (uint32 i = BG_TV_OBJECT_DOOR_1; i <= BG_TV_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
 
-    UpdateWorldState(static_cast<WorldStates>(8524), 1);
-    UpdateWorldState(static_cast<WorldStates>(8529), int32(time(nullptr) + 1200));
-}
-
-void BattlegroundTV::AddPlayer(Player* player)
-{
-    Battleground::AddPlayer(player);
-
-    UpdateArenaWorldState();
-}
-
-void BattlegroundTV::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
-{
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        return;
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
-}
-
-void BattlegroundTV::HandleKillPlayer(Player* player, Player* killer)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    if (!killer)
-    {
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundTV: Killer player not found");
-        return;
-    }
-
-    Battleground::HandleKillPlayer(player, killer);
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
+    Arena::StartingEventOpenDoors();
 }
 
 void BattlegroundTV::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
@@ -109,14 +67,7 @@ void BattlegroundTV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 {
     packet.Worldstates.emplace_back(static_cast<WorldStates>(6643), 1);
     packet.Worldstates.emplace_back(static_cast<WorldStates>(3610), 1);
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(8524), (GetStatus() != STATUS_IN_PROGRESS ? 0 : 1));
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(8529), int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(20) - GetArenaMinutesElapsed()).count()));
-    UpdateArenaWorldState();
-}
-
-void BattlegroundTV::Reset()
-{
-    Battleground::Reset();
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundTV::SetupBattleground()

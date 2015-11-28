@@ -852,8 +852,6 @@ void BattlegroundMgr::ToggleTesting()
 
 void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 arenaType, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
 {
-    //This method must be atomic, TODO add mutex
-    //we will use only 1 number created of bgTypeId and bracket_id
     QueueSchedulerItem* schedule_id = new QueueSchedulerItem(arenaMatchmakerRating, arenaType, bgQueueTypeId, bgTypeId, bracket_id);
     bool found = false;
     for (size_t i = 0; i < m_QueueUpdateScheduler.size(); i++)

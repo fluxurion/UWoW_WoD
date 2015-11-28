@@ -28,19 +28,11 @@ BattlegroundRV::BattlegroundRV()
 {
     BgObjects.resize(BG_RV_OBJECT_MAX);
 
-    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
-    {
-        m_broadcastMessages[i] = ArenaBroadcastTexts[i];
-        m_hasBroadcasts[i] = true;
-    }
-	
     PillarCollision = false;
 }
 
 BattlegroundRV::~BattlegroundRV()
-{
-
-}
+{ }
 
 void BattlegroundRV::PostUpdateImpl(uint32 diff)
 {
@@ -97,44 +89,6 @@ void BattlegroundRV::StartingEventOpenDoors()
     TogglePillarCollision();
 }
 
-void BattlegroundRV::AddPlayer(Player* player)
-{
-    Battleground::AddPlayer(player);
-
-    UpdateWorldState(WorldStates::BG_RV_WORLD_STATE_A, GetAlivePlayersCountByTeam(ALLIANCE));
-    UpdateWorldState(WorldStates::BG_RV_WORLD_STATE_H, GetAlivePlayersCountByTeam(HORDE));
-}
-
-void BattlegroundRV::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
-{
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        return;
-
-    UpdateWorldState(WorldStates::BG_RV_WORLD_STATE_A, GetAlivePlayersCountByTeam(ALLIANCE));
-    UpdateWorldState(WorldStates::BG_RV_WORLD_STATE_H, GetAlivePlayersCountByTeam(HORDE));
-
-    CheckArenaWinConditions();
-}
-
-void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    if (!killer)
-    {
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundRV: Killer player not found");
-        return;
-    }
-
-    Battleground::HandleKillPlayer(player, killer);
-
-    UpdateWorldState(WorldStates::BG_RV_WORLD_STATE_A, GetAlivePlayersCountByTeam(ALLIANCE));
-    UpdateWorldState(WorldStates::BG_RV_WORLD_STATE_H, GetAlivePlayersCountByTeam(HORDE));
-
-    CheckArenaWinConditions();
-}
-
 void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     switch (trigger)
@@ -152,8 +106,8 @@ void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 
 void BattlegroundRV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(WorldStates::BG_RV_WORLD_STATE_A, GetAlivePlayersCountByTeam(ALLIANCE));
-    packet.Worldstates.emplace_back(WorldStates::BG_RV_WORLD_STATE_H, GetAlivePlayersCountByTeam(HORDE));
+    packet.Worldstates.emplace_back(WorldStates::ARENA_ALIVE_PLAYERS_GREEN, GetAlivePlayersCountByTeam(ALLIANCE));
+    packet.Worldstates.emplace_back(WorldStates::ARENA_ALIVE_PLAYERS_GOLD, GetAlivePlayersCountByTeam(HORDE));
     packet.Worldstates.emplace_back(WorldStates::BG_RV_WORLD_STATE, 1);
 }
 

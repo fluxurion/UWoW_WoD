@@ -23,28 +23,10 @@
 
 BattlegroundRB::BattlegroundRB()
 {
-    //TODO FIX ME!
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = 0;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
 }
 
 BattlegroundRB::~BattlegroundRB()
-{
-
-}
-
-void BattlegroundRB::StartingEventCloseDoors()
-{
-    UpdateWorldState(static_cast<WorldStates>(8524), 0);
-}
-
-void BattlegroundRB::StartingEventOpenDoors()
-{
-    UpdateWorldState(static_cast<WorldStates>(8524), 1);
-    UpdateWorldState(static_cast<WorldStates>(8529), int32(time(nullptr) + 1200));
-}
+{ }
 
 void BattlegroundRB::AddPlayer(Player* player)
 {

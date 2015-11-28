@@ -61,16 +61,16 @@ typedef std::map<BattlegroundTypeId, uint8> BattlegroundSelectionWeightMap; // T
 struct CreateBattlegroundData
 {
     BattlegroundTypeId bgTypeId;
-    bool IsArena;
-    bool IsRbg;
+    Position TeamStartLoc[MAX_TEAMS];
     uint32 MinPlayersPerTeam;
     uint32 MaxPlayersPerTeam;
     uint32 LevelMin;
     uint32 LevelMax;
-    char* BattlegroundName;
     uint32 MapID;
-    Position TeamStartLoc[MAX_TEAMS];
     uint32 scriptId;
+    char* BattlegroundName;
+    bool IsArena;
+    bool IsRbg;
 };
 
 struct QueueSchedulerItem
@@ -80,9 +80,9 @@ struct QueueSchedulerItem
 
     uint32 const _MMRating;
     uint8 const _joinType;
-    const BattlegroundQueueTypeId _bgQueueTypeId;
-    const BattlegroundTypeId _bgTypeId;
-    const BattlegroundBracketId _bracket_id;
+    BattlegroundQueueTypeId const _bgQueueTypeId;
+    BattlegroundTypeId const _bgTypeId;
+    BattlegroundBracketId const _bracket_id;
 };
 
 class BattlegroundMgr

@@ -27,69 +27,28 @@
 BattlegroundTTP::BattlegroundTTP()
 {
     BgObjects.resize(BG_TTP_OBJECT_MAX);
-
-    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
-    {
-        m_broadcastMessages[i] = ArenaBroadcastTexts[i];
-        m_hasBroadcasts[i] = true;
-    }
 }
 
 BattlegroundTTP::~BattlegroundTTP()
-{
-
-}
+{ }
 
 void BattlegroundTTP::StartingEventCloseDoors()
 {
     for (uint32 i = BG_TTP_OBJECT_DOOR_1; i <= BG_TTP_OBJECT_DOOR_2; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 
-    UpdateWorldState(static_cast<WorldStates>(8524), 0);
+    Arena::StartingEventCloseDoors();
 }
 
 void BattlegroundTTP::StartingEventOpenDoors()
 {
     for (uint32 i = BG_TTP_OBJECT_DOOR_1; i <= BG_TTP_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
-        
+
     for (uint32 i = BG_TTP_OBJECT_BUFF_1; i <= BG_TTP_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
-        
-    UpdateWorldState(static_cast<WorldStates>(8524), 1);
-    UpdateWorldState(static_cast<WorldStates>(8529), int32(time(nullptr) + 1200));
-}
 
-void BattlegroundTTP::AddPlayer(Player* player)
-{
-    Battleground::AddPlayer(player);
-    UpdateArenaWorldState();
-}
-
-void BattlegroundTTP::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
-{
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        return;
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
-}
-
-void BattlegroundTTP::HandleKillPlayer(Player* player, Player* killer)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    if (!killer)
-    {
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundTTP: Killer player not found");
-        return;
-    }
-
-    Battleground::HandleKillPlayer(player, killer);
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
+    Arena::StartingEventOpenDoors();
 }
 
 void BattlegroundTTP::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
@@ -107,16 +66,9 @@ void BattlegroundTTP::HandleAreaTrigger(Player* player, uint32 trigger, bool ent
 
 void BattlegroundTTP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(0xa11), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(2577), 1);
     packet.Worldstates.emplace_back(static_cast<WorldStates>(3610), 1);
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(8524), (GetStatus() != STATUS_IN_PROGRESS ? 0 : 1));
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(8529), int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(20) - GetArenaMinutesElapsed()).count()));
-    UpdateArenaWorldState();
-}
-
-void BattlegroundTTP::Reset()
-{
-    Battleground::Reset();
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundTTP::SetupBattleground()

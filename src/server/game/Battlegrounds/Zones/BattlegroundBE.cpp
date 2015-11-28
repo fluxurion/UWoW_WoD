@@ -27,18 +27,10 @@
 BattlegroundBE::BattlegroundBE()
 {
     BgObjects.resize(BG_BE_OBJECT_MAX);
-
-    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
-    {
-        m_broadcastMessages[i] = ArenaBroadcastTexts[i];
-        m_hasBroadcasts[i] = true;
-    }
 }
 
 BattlegroundBE::~BattlegroundBE()
-{
-
-}
+{ }
 
 void BattlegroundBE::StartingEventCloseDoors()
 {
@@ -48,7 +40,7 @@ void BattlegroundBE::StartingEventCloseDoors()
     for (uint32 i = BG_BE_OBJECT_BUFF_1; i <= BG_BE_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
 
-    UpdateWorldState(static_cast<WorldStates>(8524), 0);
+    Arena::StartingEventCloseDoors();
 }
 
 void BattlegroundBE::StartingEventOpenDoors()
@@ -58,41 +50,8 @@ void BattlegroundBE::StartingEventOpenDoors()
 
     for (uint32 i = BG_BE_OBJECT_BUFF_1; i <= BG_BE_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
-        
-    UpdateWorldState(static_cast<WorldStates>(8524), 1);
-    UpdateWorldState(static_cast<WorldStates>(8529), int32(time(nullptr) + 1200));
-}
 
-void BattlegroundBE::AddPlayer(Player* player)
-{
-    Battleground::AddPlayer(player);
-    UpdateArenaWorldState();
-}
-
-void BattlegroundBE::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/)
-{
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        return;
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
-}
-
-void BattlegroundBE::HandleKillPlayer(Player* player, Player* killer)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    if (!killer)
-    {
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "Killer player not found");
-        return;
-    }
-
-    Battleground::HandleKillPlayer(player, killer);
-
-    UpdateArenaWorldState();
-    CheckArenaWinConditions();
+    Arena::StartingEventOpenDoors();
 }
 
 void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
@@ -117,14 +76,7 @@ void BattlegroundBE::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
 {
     packet.Worldstates.emplace_back(WorldStates::WS_ARENA_BE_UNK2547, 1);
     packet.Worldstates.emplace_back(static_cast<WorldStates>(3610), 1);
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(8524), (GetStatus() != STATUS_IN_PROGRESS ? 0 : 1));
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(8529), int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(20) - GetArenaMinutesElapsed()).count()));
-    UpdateArenaWorldState();
-}
-
-void BattlegroundBE::Reset()
-{
-    Battleground::Reset();
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundBE::SetupBattleground()
