@@ -143,6 +143,10 @@ bool PhaseMgr::NeedsPhaseUpdateWithData(PhaseUpdateData const updateData) const
                     return true;
         }
     }
+
+    if (player->GetPhases().size())
+        return true;
+
     return false;
 }
 
