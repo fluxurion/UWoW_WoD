@@ -176,9 +176,9 @@ Battleground::Battleground()
 
     m_baseTickHonor = 9;
 
-    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_WS_START_TWO_MINUTES;
+    StartMessageIds[BG_STARTING_EVENT_FIRST] = LANG_BG_WS_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_BG_WS_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
 
     for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
@@ -352,10 +352,12 @@ inline void Battleground::_ProcessRessurect(uint32 diff)
 
             m_ReviveQueue.clear();
             m_LastResurrectTime = 0;
-        } else
+        }
+        else
             // queue is clear and time passed, just update last resurrection time
             m_LastResurrectTime = 0;
-    } else if (m_LastResurrectTime > 500)    // Resurrect players only half a second later, to see spirit heal effect on NPC
+    }
+    else if (m_LastResurrectTime > 500)    // Resurrect players only half a second later, to see spirit heal effect on NPC
     {
         for (GuidVector::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
         {
@@ -381,7 +383,8 @@ inline void Battleground::_ProcessProgress(uint32 diff)
     {
         m_PrematureCountDown = true;
         m_PrematureCountDownTimer = sBattlegroundMgr->GetPrematureFinishTime();
-    } else if (m_PrematureCountDownTimer < diff)
+    }
+    else if (m_PrematureCountDownTimer < diff)
     {
         // time's up!
         uint32 winner = 0;
@@ -392,7 +395,8 @@ inline void Battleground::_ProcessProgress(uint32 diff)
 
         EndBattleground(winner);
         m_PrematureCountDown = false;
-    } else if (!sBattlegroundMgr->isTesting())
+    }
+    else if (!sBattlegroundMgr->isTesting())
     {
         uint32 newtime = m_PrematureCountDownTimer - diff;
         // announce every minute
@@ -400,7 +404,8 @@ inline void Battleground::_ProcessProgress(uint32 diff)
         {
             if (newtime / (MINUTE * IN_MILLISECONDS) != m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS))
                 PSendMessageToAll(LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING, CHAT_MSG_SYSTEM, nullptr, (uint32)(m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS)));
-        } else
+        }
+        else
         {
             //announce every 15 seconds
             if (newtime / (15 * IN_MILLISECONDS) != m_PrematureCountDownTimer / (15 * IN_MILLISECONDS))
@@ -786,7 +791,7 @@ void Battleground::EndBattleground(uint32 winner)
         {
             if (player->GetBGTeam() != team)
                 player->setFactionForRace(player->getRace());
-                
+
             PlayerReward(player, team == winner, 1, false, false);
 
             player->getBracket(BRACKET_TYPE_RATED_BG)->FinishGame(team == winner, GetMatchmakerRating(team == winner ? GetOtherTeam(winner) : winner));
@@ -938,7 +943,8 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
 
             // this call is important, because player, when joins to battleground, this method is not called, so it must be called when leaving bg
             player->RemoveBattlegroundQueueId(bgQueueTypeId);
-        } else // removing offline participant
+        }
+        else // removing offline participant
         {
             if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
             {
@@ -1011,7 +1017,7 @@ void Battleground::Reset()
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
     PlayerScores.clear();
-    
+
     for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
         _arenaTeamScores[i].Reset();
 
@@ -1117,13 +1123,15 @@ void Battleground::AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team)
         SetBgRaid(team, group);
         group->Create(player);
         sGroupMgr->AddGroup(group);
-    } else                                            // raid already exist
+    }
+    else                                            // raid already exist
     {
         if (group->IsMember(playerGuid))
         {
             uint8 subgroup = group->GetMemberGroup(playerGuid);
             player->SetBattlegroundOrBattlefieldRaid(group, subgroup);
-        } else
+        }
+        else
         {
             group->AddMember(player);
             if (Group* originalGroup = player->GetOriginalGroup())
@@ -1189,7 +1197,7 @@ void Battleground::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* nod
             default:
                 break;
         }
-        
+
         PlayeCapturePointSound(type, teamID);
         SendBroadcastTextToAll(broadcastID, lang, player);
     }
@@ -1204,7 +1212,7 @@ void Battleground::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* nod
         info.Info.CaptureTotalDuration = pointInfo.CaptureTime;
     }
     SendPacketToAll(info.Write());
-    
+
     UpdateWorldState(pointInfo.worldState1, nodeState);
 
     node->SetUInt32Value(GAMEOBJECT_FIELD_SPELL_VISUAL_ID, visualID);
@@ -1389,7 +1397,7 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
                 Bracket* bracket = player->getBracket(bType);
                 if (!bracket)
                     bracket = sBracketMgr->TryGetOrCreateBracket(score.first, bType);
-            
+
                 if (bracket)
                 {
                     playerData.PreMatchRating = bracket->getRatingLastChange();
@@ -1551,9 +1559,10 @@ void Battleground::DoorClose(uint32 type)
             obj->SetLootState(GO_READY);
             obj->SetGoState(GO_STATE_READY);
         }
-    } else
+    }
+    else
         sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::DoorClose: door gameobject (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
-            type, BgObjects[type].GetCounter(), m_MapId, m_InstanceID);
+        type, BgObjects[type].GetCounter(), m_MapId, m_InstanceID);
 }
 
 void Battleground::DoorOpen(uint32 type)
@@ -1562,7 +1571,8 @@ void Battleground::DoorOpen(uint32 type)
     {
         obj->SetLootState(GO_ACTIVATED);
         obj->SetGoState(GO_STATE_ACTIVE);
-    } else
+    }
+    else
         sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground::DoorOpen: door gameobject (type: %u, GUID: %u) not found for BG (map: %u, instance id: %u)!",
         type, BgObjects[type].GetCounter(), m_MapId, m_InstanceID);
 }
@@ -1689,6 +1699,11 @@ bool Battleground::DelObject(uint32 type)
     return false;
 }
 
+bool Battleground::AddSpiritGuide(uint32 type, DBCPosition4D loc, TeamId team)
+{
+    return AddSpiritGuide(type, loc.X, loc.Y, loc.Z, loc.O, GetTeamByTeamId(team));
+}
+
 bool Battleground::AddSpiritGuide(uint32 type, Position pos, TeamId team)
 {
     return AddSpiritGuide(type, pos.m_positionX, pos.m_positionY, pos.m_positionZ, pos.m_orientation, GetTeamByTeamId(team));
@@ -1787,7 +1802,7 @@ void Battleground::SendBroadcastTextToAll(int32 broadcastTextID, ChatMsg type, U
 
     WorldPacket data;
     Trinity::ChatData c;
-    
+
     if (unit)
         c.targetGuid = unit->GetGUID();
     c.chatType = type;

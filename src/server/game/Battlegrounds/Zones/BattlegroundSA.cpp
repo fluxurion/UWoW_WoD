@@ -199,7 +199,7 @@ bool BattlegroundSA::ResetObjs()
     //Graveyards!
     for (uint8 i = 0;i < BG_SA_MAX_GY; i++)
     {
-        WorldSafeLocsEntry const* sg = NULL;
+        WorldSafeLocsEntry const* sg = nullptr;
         sg = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
 
         if (!sg)
@@ -211,12 +211,12 @@ bool BattlegroundSA::ResetObjs()
         if (i == BG_SA_BEACH_GY)
         {
             GraveyardStatus[i] = Attackers;
-            AddSpiritGuide(i + BG_SA_MAXNPC, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? HORDE : ALLIANCE));
+            AddSpiritGuide(i + BG_SA_MAXNPC, sg->Loc, Attackers);
         }
         else
         {
-            GraveyardStatus[i] = ((Attackers == TEAM_HORDE)? TEAM_ALLIANCE : TEAM_HORDE);
-            if (!AddSpiritGuide(i + BG_SA_MAXNPC, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? ALLIANCE : HORDE)))
+            GraveyardStatus[i] = Attackers == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE;
+            if (!AddSpiritGuide(i + BG_SA_MAXNPC, sg->Loc, Attackers == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE))
                 sLog->outError(LOG_FILTER_BATTLEGROUND, "SOTA: couldn't spawn GY: %u", i);
         }
     }
@@ -726,7 +726,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
         return;
     }
 
-    AddSpiritGuide(i + BG_SA_MAXNPC, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, BG_SA_GYOrientation[i], (GraveyardStatus[i] == TEAM_ALLIANCE?  ALLIANCE : HORDE));
+    AddSpiritGuide(i + BG_SA_MAXNPC, sg->Loc, GraveyardStatus[i]);
     uint32 npc = 0;
     uint32 flag = 0;
 
@@ -861,7 +861,7 @@ void BattlegroundSA::ToggleTimer()
 {
     TimerEnabled = !TimerEnabled;
 
-    UpdateWorldState(WorldStates::BG_SA_TIMER, TimerEnabled ? (time(NULL) + 600) : 0);
+    UpdateWorldState(WorldStates::BG_SA_TIMER, TimerEnabled ? (time(nullptr) + 600) : 0);
     UpdateWorldState(WorldStates::BG_SA_ENABLE_TIMER, (TimerEnabled) ? 1 : 0);
 }
 

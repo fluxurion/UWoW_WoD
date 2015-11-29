@@ -579,8 +579,7 @@ enum BG_AV_CreaturePlace
     AV_CPLACE_MAX = 321
 };
 
-//x, y, z, o
-const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] =
+Position const BG_AV_CreaturePos[AV_CPLACE_MAX] =
 {
     //spiritguides
     {643.000000f, 44.000000f, 69.740196f, -0.001854f},

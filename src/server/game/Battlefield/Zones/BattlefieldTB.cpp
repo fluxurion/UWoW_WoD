@@ -54,7 +54,7 @@ bool BattlefieldTB::SetupBattlefield()
     }
 
     if (sWorld->getWorldState(20011) == 0)
-        sWorld->setWorldState(20011, time(NULL) + 86400);
+        sWorld->setWorldState(20011, time(nullptr) + 86400);
 
     m_isActive = sWorld->getWorldState((uint32)WorldStates::WS_TB_NEXT_BATTLE_TIMER_ENABLED);
     m_DefenderTeam = (TeamId)sWorld->getWorldState((uint32)WorldStates::WS_TB_HORDE_DEFENCE);
@@ -312,7 +312,7 @@ void BattlefieldTB::OnBattleStart()
 
     for (GuidSet::const_iterator itr = goDoors.begin(); itr != goDoors.end(); ++itr)
     {
-        if (GameObject* obj = ObjectAccessor::GetObjectInWorld(*itr, (GameObject*)NULL))
+        if (GameObject* obj = ObjectAccessor::GetObjectInWorld(*itr, (GameObject*)nullptr))
         {
             obj->SetLootState(GO_READY);
             obj->UseDoorOrButton();
@@ -374,8 +374,8 @@ void BattlefieldTB::OnBattleEnd(bool endbytimer)
     else
         SendWarningToAllInZone(GetDefenderTeam() == TEAM_ALLIANCE ? BATTLEFIELD_TB_TEXT_ALLIANCE_TAKEN_TOLBARAD : BATTLEFIELD_TB_TEXT_HORDE_TAKEN_TOLBARAD);
 
-    if (sWorld->getWorldState(20011) > uint64(time(NULL)))
-        sWorld->setWorldState(20011, time(NULL) + 86400);
+    if (sWorld->getWorldState(20011) > uint64(time(nullptr)))
+        sWorld->setWorldState(20011, time(nullptr) + 86400);
 
     for (TbGameObjectBuilding::const_iterator itr = BuildingsInZone.begin(); itr != BuildingsInZone.end(); ++itr)
         if ((*itr))
@@ -397,7 +397,7 @@ void BattlefieldTB::OnBattleEnd(bool endbytimer)
 
     for (GuidSet::const_iterator itr = goDoors.begin(); itr != goDoors.end(); ++itr)
     {
-        if (GameObject* obj = ObjectAccessor::GetObjectInWorld(*itr, (GameObject*)NULL))
+        if (GameObject* obj = ObjectAccessor::GetObjectInWorld(*itr, (GameObject*)nullptr))
         {
             obj->ToGameObject()->SetLootState(GO_READY);
             obj->ToGameObject()->UseDoorOrButton();
@@ -520,18 +520,18 @@ void BattlefieldTB::OnBattleEnd(bool endbytimer)
 void BattlefieldTB::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
     packet.Worldstates.emplace_back(WorldStates::WS_TB_BATTLE_TIMER_ENABLED, IsWarTime() ? 1 : 0);
-    packet.Worldstates.emplace_back(WorldStates::BG_WS_BATTLE_TIMER, uint32(IsWarTime() ? (time(NULL) + GetTimer() / 1000) : 0));
+    packet.Worldstates.emplace_back(WorldStates::BG_WS_BATTLE_TIMER, uint32(IsWarTime() ? (time(nullptr) + GetTimer() / 1000) : 0));
     packet.Worldstates.emplace_back(WorldStates::WS_TB_COUNTER_BUILDINGS, 0);
     packet.Worldstates.emplace_back(WorldStates::WS_TB_COUNTER_BUILDINGS_ENABLED, IsWarTime() ? 1 : 0);
     packet.Worldstates.emplace_back(WorldStates::WS_TB_HORDE_DEFENCE, IsWarTime() ? (GetDefenderTeam() == TEAM_HORDE ? 1 : 0) : 0);
     packet.Worldstates.emplace_back(WorldStates::WS_TB_ALLIANCE_DEFENCE, uint32(IsWarTime() ? (GetDefenderTeam() == TEAM_ALLIANCE ? 1 : 0) : 0));
     packet.Worldstates.emplace_back(WorldStates::WS_TB_NEXT_BATTLE_TIMER_ENABLED, IsWarTime() ? 0 : 1);
-    packet.Worldstates.emplace_back(WorldStates::BG_WS_NEXT_BATTLE_TIMER, uint32(!IsWarTime() ? time(NULL) + (GetTimer() / 1000) : 0));
+    packet.Worldstates.emplace_back(WorldStates::BG_WS_NEXT_BATTLE_TIMER, uint32(!IsWarTime() ? time(nullptr) + (GetTimer() / 1000) : 0));
     packet.Worldstates.emplace_back(WorldStates::WS_TB_ALLIANCE_ATTACK, IsWarTime() ? (GetAttackerTeam() == TEAM_ALLIANCE ? 1 : 0) : 0);
     packet.Worldstates.emplace_back(WorldStates::WS_TB_HORDE_ATTACK, IsWarTime() ? (GetAttackerTeam() == TEAM_HORDE ? 1 : 0) : 0);
 
     if (!IsWarTime())
-        packet.Worldstates.emplace_back(WorldStates::BG_WS_NEXT_BATTLE_TIMER, uint32(time(NULL)+(GetTimer() / 1000)));
+        packet.Worldstates.emplace_back(WorldStates::BG_WS_NEXT_BATTLE_TIMER, uint32(time(nullptr)+(GetTimer() / 1000)));
     else
         packet.Worldstates.emplace_back(WorldStates::BG_WS_NEXT_BATTLE_TIMER, 0);
     packet.Worldstates.emplace_back(WorldStates::WS_TB_KEEP_HORDE_DEFENCE, GetDefenderTeam() == TEAM_HORDE ? 1 : 0);
@@ -643,7 +643,7 @@ void BattlefieldTB::OnDestroyed()
     // Tower destroing incrase battle time
     m_Timer += 10 * 60 * 1000;
     sWorld->setWorldState((uint32)ClockBTWorldState[0], m_Timer );
-    SendUpdateWorldState(WorldStates::BG_WS_BATTLE_TIMER, (time(NULL) + GetTimer() / 1000));
+    SendUpdateWorldState(WorldStates::BG_WS_BATTLE_TIMER, (time(nullptr) + GetTimer() / 1000));
 }
 
 void BattlefieldTB::HandleKill(Player *killer, Unit *victim)
@@ -711,7 +711,7 @@ BfCapturePointTB::BfCapturePointTB(BattlefieldTB *bf,TeamId control) : BfCapture
 {
     m_Bf = bf;
     m_team = control;
-    m_WorkShop = NULL;
+    m_WorkShop = nullptr;
 }
 
 BfGraveYardTB::BfGraveYardTB(BattlefieldTB* bf) : BfGraveyard(bf)

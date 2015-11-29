@@ -168,7 +168,7 @@ void BattlegroundEY::AddPoints(TeamId teamID, uint32 points)
 
 void BattlegroundEY::_CheckSomeoneJoinedPoint()
 {
-    GameObject* obj = NULL;
+    GameObject* obj = nullptr;
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
         obj = HashMapHolder<GameObject>::Find(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
@@ -208,7 +208,7 @@ void BattlegroundEY::_CheckSomeoneLeftPoint()
     //reset current point counts
     for (uint8 i = 0; i < 2 * EY_POINTS_MAX; ++i)
         _currentPointPlayersCount[i] = 0;
-    GameObject* obj = NULL;
+    GameObject* obj = nullptr;
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
         obj = HashMapHolder<GameObject>::Find(BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
@@ -485,16 +485,16 @@ bool BattlegroundEY::SetupBattleground()
             sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundEY: Cannot spawn buff");
     }
 
-    WorldSafeLocsEntry const* sg = NULL;
+    WorldSafeLocsEntry const* sg = nullptr;
     sg = sWorldSafeLocsStore.LookupEntry(EY_GRAVEYARD_MAIN_ALLIANCE);
-    if (!sg || !AddSpiritGuide(EY_SPIRIT_MAIN_ALLIANCE, sg->Loc.X, sg->Loc.Y, sg->Loc.Y, 3.124139f, ALLIANCE))
+    if (!sg || !AddSpiritGuide(EY_SPIRIT_MAIN_ALLIANCE, sg->Loc, TEAM_ALLIANCE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundEY: Failed to spawn spirit guide! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(EY_GRAVEYARD_MAIN_HORDE);
-    if (!sg || !AddSpiritGuide(EY_SPIRIT_MAIN_HORDE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.193953f, HORDE))
+    if (!sg || !AddSpiritGuide(EY_SPIRIT_MAIN_HORDE, sg->Loc, TEAM_HORDE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundEY: Failed to spawn spirit guide! Battleground not created!");
         return false;
@@ -681,7 +681,7 @@ void BattlegroundEY::EventTeamLostPoint(Player* Source, uint32 Point)
 
     //remove bonus honor aura trigger creature when node is lost
     if (Point < EY_POINTS_MAX)
-        DelCreature(Point + 6);//NULL checks are in DelCreature! 0-5 spirit guides
+        DelCreature(Point + 6);//nullptr checks are in DelCreature! 0-5 spirit guides
 }
 
 void BattlegroundEY::EventTeamCapturedPoint(Player* Source, uint32 Point)
@@ -723,9 +723,9 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* Source, uint32 Point)
     if (!BgCreatures[Point].IsEmpty())
         DelCreature(Point);
 
-    WorldSafeLocsEntry const* sg = NULL;
+    WorldSafeLocsEntry const* sg = nullptr;
     sg = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[Point].GraveYardId);
-    if (!sg || !AddSpiritGuide(Point, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.124139f, Team))
+    if (!sg || !AddSpiritGuide(Point, sg->Loc, Source->GetBGTeamId()))
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BatteGroundEY: Failed to spawn spirit guide! point: %u, team: %u, graveyard_id: %u",
         Point, Team, m_CapturingPointTypes[Point].GraveYardId);
 
@@ -854,20 +854,20 @@ WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveYard(Player* player)
     {
         case ALLIANCE: g_id = EY_GRAVEYARD_MAIN_ALLIANCE; break;
         case HORDE:    g_id = EY_GRAVEYARD_MAIN_HORDE;    break;
-        default:       return NULL;
+        default:       return nullptr;
     }
 
     float distance, nearestDistance;
 
-    WorldSafeLocsEntry const* entry = NULL;
-    WorldSafeLocsEntry const* nearestEntry = NULL;
+    WorldSafeLocsEntry const* entry = nullptr;
+    WorldSafeLocsEntry const* nearestEntry = nullptr;
     entry = sWorldSafeLocsStore.LookupEntry(g_id);
     nearestEntry = entry;
 
     if (!entry)
     {
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundEY: Not found the main team graveyard. Graveyard system isn't working!");
-        return NULL;
+        return nullptr;
     }
 
     float plr_x = player->GetPositionX();

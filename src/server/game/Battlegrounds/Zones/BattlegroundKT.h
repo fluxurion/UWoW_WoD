@@ -156,7 +156,7 @@ const float BG_KT_OrbPositions[MAX_ORBS][4] =
     {1716.83f, 1249.93f, 13.5706f, 4.71397f}
 };
 
-const float BG_KT_SpiritPositions[MAX_ORBS][4] =
+Position const BG_KT_SpiritPositions[MAX_ORBS] =
 {
     {1892.61f, 1151.69f, 14.7160f, 2.523528f},
     {1672.40f, 1524.10f, 16.7387f, 6.032206f},

@@ -64,20 +64,19 @@ BattlegroundSSM::~BattlegroundSSM()
 
 bool BattlegroundSSM::SetupBattleground()
 {
-    // gates
-    if (!AddObject(BG_DOOR_1, OBJECT_BG_SSM_DOOR3, 640.48f, 209.58f, 328.84f, 0.116671f, 0, 0, 0.058f, 0.99f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_DOOR_2, OBJECT_BG_SSM_DOOR3, 657.515f, 230.798f, 328.932f, 0.116671f, 0, 0, 0.058f, 0.99f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_DOOR_3, OBJECT_BG_SSM_DOOR3, 825.491f, 144.609f, 328.926f, 2.91383f, 0, 0, 0.993f, 0.113f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_DOOR_4, OBJECT_BG_SSM_DOOR3, 847.954f, 156.54f, 328.801f, 3.09369f, 0, 0, 0.99f, 0.023f, RESPAWN_IMMEDIATELY)
-        // buffs
-        || !AddObject(BG_SSM_OBJECT_SPEEDBUFF, BG_OBJECTID_SPEEDBUFF_ENTRY, 865.844f, 10.441f, 362.424f, 1.719f, 0, 0, 0.7313537f, -0.6819983f, BUFF_RESPAWN_TIME)
-        || !AddObject(BG_SSM_OBJECT_REGENBUFF, BG_OBJECTID_REGENBUFF_ENTRY, 787.352f, 271.7178f, 358.240f, 5.729f, 0, 0, 0.1305263f, -0.9914448f, BUFF_RESPAWN_TIME)
-        || !AddObject(BG_SSM_OBJECT_BERSERKBUFF, BG_OBJECTID_BERSERKERBUFF_ENTRY, 756.198f, 75.984f, 371.229f, 1.354f, 0, 0, 0.5591929f, 0.8290376f, BUFF_RESPAWN_TIME)
+    if (!AddObject(BG_DOOR_1, OBJECT_BG_SSM_DOOR3, 640.48f, 209.58f, 328.84f, 0.116671f, 0, 0, 0.058f, 0.99f, RESPAWN_IMMEDIATELY) ||
+        !AddObject(BG_DOOR_2, OBJECT_BG_SSM_DOOR3, 657.515f, 230.798f, 328.932f, 0.116671f, 0, 0, 0.058f, 0.99f, RESPAWN_IMMEDIATELY) ||
+        !AddObject(BG_DOOR_3, OBJECT_BG_SSM_DOOR3, 825.491f, 144.609f, 328.926f, 2.91383f, 0, 0, 0.993f, 0.113f, RESPAWN_IMMEDIATELY) ||
+        !AddObject(BG_DOOR_4, OBJECT_BG_SSM_DOOR3, 847.954f, 156.54f, 328.801f, 3.09369f, 0, 0, 0.99f, 0.023f, RESPAWN_IMMEDIATELY) ||
 
-        || !AddObject(BG_POINT_END1, OBJECT_BG_SSM_THE_DESPOSITS_OF_DIAMONDS, BgSSMObjectsPos[0][0], BgSSMObjectsPos[0][1], RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_POINT_END2, OBJECT_BG_SSM_RESERVOIR, BgSSMObjectsPos[1][0], BgSSMObjectsPos[1][1], RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_POINT_END3, OBJECT_BG_SSM_THE_DESPOSITION_OF_LAVA, BgSSMObjectsPos[2][0], BgSSMObjectsPos[2][1], RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_POINT_END4, OBJECT_BG_SSM_BACKLOG_TROLLS, BgSSMObjectsPos[3][0], BgSSMObjectsPos[3][1], RESPAWN_IMMEDIATELY))
+        !AddObject(BG_SSM_OBJECT_SPEEDBUFF, BG_OBJECTID_SPEEDBUFF_ENTRY, 865.844f, 10.441f, 362.424f, 1.719f, 0, 0, 0.7313537f, -0.6819983f, BUFF_RESPAWN_TIME) ||
+        !AddObject(BG_SSM_OBJECT_REGENBUFF, BG_OBJECTID_REGENBUFF_ENTRY, 787.352f, 271.7178f, 358.240f, 5.729f, 0, 0, 0.1305263f, -0.9914448f, BUFF_RESPAWN_TIME) ||
+        !AddObject(BG_SSM_OBJECT_BERSERKBUFF, BG_OBJECTID_BERSERKERBUFF_ENTRY, 756.198f, 75.984f, 371.229f, 1.354f, 0, 0, 0.5591929f, 0.8290376f, BUFF_RESPAWN_TIME) ||
+
+        !AddObject(BG_POINT_END1, OBJECT_BG_SSM_THE_DESPOSITS_OF_DIAMONDS, BgSSMObjectsPos[0][0], BgSSMObjectsPos[0][1], RESPAWN_IMMEDIATELY) ||
+        !AddObject(BG_POINT_END2, OBJECT_BG_SSM_RESERVOIR, BgSSMObjectsPos[1][0], BgSSMObjectsPos[1][1], RESPAWN_IMMEDIATELY) ||
+        !AddObject(BG_POINT_END3, OBJECT_BG_SSM_THE_DESPOSITION_OF_LAVA, BgSSMObjectsPos[2][0], BgSSMObjectsPos[2][1], RESPAWN_IMMEDIATELY) ||
+        !AddObject(BG_POINT_END4, OBJECT_BG_SSM_BACKLOG_TROLLS, BgSSMObjectsPos[3][0], BgSSMObjectsPos[3][1], RESPAWN_IMMEDIATELY))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundSSM: Failed to spawn some object Battleground not created!");
         return false;
@@ -91,14 +90,14 @@ bool BattlegroundSSM::SetupBattleground()
     }
 
     WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(BG_SSM_ALLIANCE_GRAVEYARD);
-    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_ALLIANCE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, sg->Loc.O, ALLIANCE))
+    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_ALLIANCE, sg->Loc, TEAM_ALLIANCE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundWS: Failed to spawn Alliance spirit guide! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(BG_SSM_HORDE_GRAVEYARD);
-    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_HORDE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, sg->Loc.O, HORDE))
+    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_HORDE, sg->Loc, TEAM_HORDE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundWS: Failed to spawn Horde spirit guide! Battleground not created!");
         return false;

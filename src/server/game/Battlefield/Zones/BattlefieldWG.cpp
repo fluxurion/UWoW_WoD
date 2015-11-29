@@ -318,7 +318,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
     // Remove relic
     if (m_titansRelic)
         m_titansRelic->RemoveFromWorld();
-    m_titansRelic = NULL;
+    m_titansRelic = nullptr;
 
     // Remove turret
     for (GuidSet::const_iterator itr = CanonList.begin(); itr != CanonList.end(); ++itr)
@@ -448,7 +448,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
                 else
                     marks = (team == GetDefenderTeam()) ? 1 : 0;
                 RemoveAurasFromPlayer(player);
-                player->RewardHonor(NULL, 1, (team == GetDefenderTeam()) ? 3000 : 1250);
+                player->RewardHonor(nullptr, 1, (team == GetDefenderTeam()) ? 3000 : 1250);
                 RewardMarkOfHonor(player, marks);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, (team == GetDefenderTeam()) ? SPELL_VICTORY_REWARD : SPELL_DEFEAT_REWARD);
 
@@ -819,7 +819,7 @@ void BattlefieldWG::PromotePlayer(Player* killer)
         return;
     // Updating rank of player
     Aura* aur = killer->GetAura(SPELL_RECRUIT);
-    if (aur != NULL)
+    if (aur != nullptr)
     {
         if (aur->GetStackAmount() >= 5)
         {
@@ -833,7 +833,7 @@ void BattlefieldWG::PromotePlayer(Player* killer)
     else
     {
         Aura* aur = killer->GetAura(SPELL_CORPORAL);
-        if (aur != NULL)
+        if (aur != nullptr)
         {
             if (aur->GetStackAmount() >= 5)
             {
@@ -971,8 +971,8 @@ void BattlefieldWG::FillInitialWorldStates(WorldPackets::WorldState::InitWorldSt
     packet.Worldstates.emplace_back(WorldStates::BATTLEFIELD_WG_WORLD_STATE_ACTIVE, IsWarTime()? 0 : 1); // Note: cleanup these two, their names look awkward
     packet.Worldstates.emplace_back(WorldStates::BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE, IsWarTime() ? 1 : 0);
 
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(ClockWorldState[0]), IsWarTime() ? (uint32(time(NULL) + (m_Timer / 1000))) : 0);
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(ClockWorldState[1]), !IsWarTime() ? (uint32(time(NULL) + (m_Timer / 1000))) : 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(ClockWorldState[0]), IsWarTime() ? (uint32(time(nullptr) + (m_Timer / 1000))) : 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(ClockWorldState[1]), !IsWarTime() ? (uint32(time(nullptr) + (m_Timer / 1000))) : 0);
 
     packet.Worldstates.emplace_back(WorldStates::BATTLEFIELD_WG_WORLD_STATE_VEHICLE_H, GetData(BATTLEFIELD_WG_DATA_VEHICLE_H));
     packet.Worldstates.emplace_back(WorldStates::BATTLEFIELD_WG_WORLD_STATE_MAX_VEHICLE_H, GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H));
@@ -1236,7 +1236,7 @@ WintergraspCapturePoint::WintergraspCapturePoint(BattlefieldWG* battlefield, Tea
 {
     m_Bf = battlefield;
     m_team = teamInControl;
-    m_Workshop = NULL;
+    m_Workshop = nullptr;
 }
 
 void WintergraspCapturePoint::ChangeTeam(TeamId /*oldTeam*/)

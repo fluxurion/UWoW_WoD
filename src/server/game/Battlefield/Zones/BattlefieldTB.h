@@ -420,7 +420,7 @@ struct BfTBGameObjectBuilding
     {
         m_TB = TB;
         m_Team = 0;
-        m_Build = NULL;
+        m_Build = nullptr;
         m_Type = 0;
         m_WorldState = 0;
         m_State = 0;
@@ -501,7 +501,7 @@ struct BfTBGameObjectBuilding
         m_TB->OnDestroyed();
 
         m_TB->SetTimer(m_TB->GetTimer() + 5 * 60 * 1000);
-        m_TB->SendUpdateWorldState(WorldStates::BG_WS_BATTLE_TIMER, (time(NULL) + m_TB->GetTimer() / 1000));
+        m_TB->SendUpdateWorldState(WorldStates::BG_WS_BATTLE_TIMER, (time(nullptr) + m_TB->GetTimer() / 1000));
 
         for (int i = 0; i < BUILDING_MAX_DIFF; i++)
         {
@@ -537,7 +537,7 @@ struct BfTBGameObjectBuilding
                 if (m_Build)
                 {
                     m_Build->Refresh();
-                    m_Build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
+                    m_Build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, nullptr, true);
                 }
                 break;
             case BATTLEFIELD_TB_OBJECTSTATE_ALLIANCE_DESTROY:
@@ -574,7 +574,7 @@ struct BfTBWorkShopData
     BfTBWorkShopData(BattlefieldTB* TB)
     {
         m_TB = TB;
-        m_Build = NULL;
+        m_Build = nullptr;
         m_Type = 0;
         m_State = 0;
         m_WorldState = 0;

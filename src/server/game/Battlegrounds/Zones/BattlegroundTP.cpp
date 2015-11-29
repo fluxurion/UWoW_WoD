@@ -196,7 +196,7 @@ bool BattlegroundTP::SetupBattleground()
         if (grave)
         {
             uint8 team = i % 2; ///< If 0 team == TEAM_ALLIANCE else TEAM_HORDE
-            if (!AddSpiritGuide(team == TEAM_ALLIANCE ? TP_SPIRIT_ALLIANCE : TP_SPIRIT_HORDE, grave->Loc.X, grave->Loc.Y, grave->Loc.Z, team == TEAM_ALLIANCE ? M_PI : 0, GetTeamByTeamId(team)))
+            if (!AddSpiritGuide(team == TEAM_ALLIANCE ? TP_SPIRIT_ALLIANCE : TP_SPIRIT_HORDE, grave->Loc, TeamId(team)))
             {
                 sLog->outError(LOG_FILTER_GENERAL, "BatteGroundTP: Failed to spawn spirit guide id: %u. Battleground not created!", grave->ID);
                 return false;
@@ -355,7 +355,7 @@ bool BattlegroundTP::UpdatePlayerScore(Player* player, uint32 type, uint32 value
 WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveYard(Player* player)
 {
     if (!player)
-        return NULL;
+        return nullptr;
 
     TeamId team = player->GetBGTeamId();
 

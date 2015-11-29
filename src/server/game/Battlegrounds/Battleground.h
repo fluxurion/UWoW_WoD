@@ -592,6 +592,8 @@ class Battleground
 
         bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
+        
+        bool AddSpiritGuide(uint32 type, DBCPosition4D loc, TeamId team);
         bool AddSpiritGuide(uint32 type, Position pos, TeamId team);
         bool AddSpiritGuide(uint32 type, float x, float y, float z, float o, uint32 team);
         int32 GetObjectType(ObjectGuid guid);

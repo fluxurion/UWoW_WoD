@@ -716,7 +716,7 @@ uint32 const BG_IC_GraveyardIds[MAX_NODE_TYPES+2] = {0, 0, 1480, 1481, 1482, 148
 
 const Position TransportMovementInfo = {7.305609f, -0.095246f, 34.51022f, 0.0f};
 
-const float BG_IC_SpiritGuidePos[MAX_NODE_TYPES+2][4] =
+Position const BG_IC_SpiritGuidePos[MAX_NODE_TYPES + 2] =
 {
     {0.0f, 0.0f, 0.0f, 0.0f},                     // no grave
     {0.0f, 0.0f, 0.0f, 0.0f},                     // no grave
