@@ -845,11 +845,16 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                 case 145976: // Readiness - Paladin Protection
                 case 145967: // Readiness - Monk Brewmaster
                 {
-                    if (Aura * aura = caster->GetAura(146025))
+                    if (caster->ToPlayer()->getLevel() < 91)
                     {
-                        if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
-                            amount = 100.0f / float((eff->GetAmount() + 100.0f) / 100.0f) - 100.0f;
+                        if (Aura * aura = caster->GetAura(146025))
+                        {
+                            if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
+                                amount = 100.0f / float((eff->GetAmount() + 100.0f) / 100.0f) - 100.0f;
+                        }
                     }
+                    else
+                        amount = 0;
                     break;
                 }
                 case 145978: // Readiness - Paladin Retribution
@@ -858,11 +863,16 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                 case 145959: // Readiness - Death Knight Frost
                 case 145960: // Readiness - Death Knight Unholy
                 {
-                    if (Aura * aura = caster->GetAura(145955))
+                    if (caster->ToPlayer()->getLevel() < 91)
                     {
-                        if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
-                            amount = 100.0f / float((eff->GetAmount() + 100.0f) / 100.0f) - 100.0f;
+                        if (Aura * aura = caster->GetAura(145955))
+                        {
+                            if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
+                                amount = 100.0f / float((eff->GetAmount() + 100.0f) / 100.0f) - 100.0f;
+                        }
                     }
+                    else
+                        amount = 0;
                     break;
                 }
                 case 145983: // Readiness - Rogue Assassination
@@ -875,11 +885,16 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                 case 145961: // Readiness - Druid Feral
                 case 145986: // Readiness - Shaman Enhancement
                 {
-                    if (Aura * aura = caster->GetAura(146019))
+                    if (caster->ToPlayer()->getLevel() < 91)
                     {
-                        if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
-                            amount = 100.0f / float((eff->GetAmount() + 100.0f) / 100.0f) - 100.0f;
+                        if (Aura * aura = caster->GetAura(146019))
+                        {
+                            if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
+                                amount = 100.0f / float((eff->GetAmount() + 100.0f) / 100.0f) - 100.0f;
+                        }
                     }
+                    else
+                        amount = 0;
                     break;
                 }
                 case 114232: // Sanctified Wrath
