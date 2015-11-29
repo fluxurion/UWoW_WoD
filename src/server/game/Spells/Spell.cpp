@@ -616,6 +616,7 @@ m_absorb(0), m_resist(0), m_blocked(0), m_interupted(false), m_effect_targets(NU
         saveDamageCalculate[i] = 0;
         m_destTargets[i] = SpellDestination(*m_caster);
     }
+
     variance = 0.0f;
     m_damage = 0;
     m_misc.Data = 0;
@@ -3975,10 +3976,13 @@ void Spell::cast(bool skipCheck)
         TakePower();
 
     m_caster->SendSpellCreateVisual(m_spellInfo, &visualPos, m_targets.GetUnitTarget());
-
     m_caster->SendSpellPlayOrphanVisual(m_spellInfo, true, m_targets.GetDstPos(), m_targets.GetUnitTarget());
+
     // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
     SendSpellGo();
+
+    if (m_CastItem && m_CastItem->IsInUse())
+        m_CastItem->SetInUse(false);
 
     //test fix for take some charges from aura mods
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -4582,7 +4586,12 @@ void Spell::finish(bool ok)
         m_caster->ReleaseFocus(this);
 
     if (!ok)
+    {
+        if (m_CastItem && m_CastItem->IsInUse())
+            m_CastItem->SetInUse(false);
+
         return;
+    }
 
     if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isSummon())
     {
@@ -5448,10 +5457,6 @@ void Spell::TakeCastItem()
     if (!m_CastItem || m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    // not remove cast item at triggered spell (equipping, weapon damage, etc)
-    if (_triggeredCastFlags & TRIGGERED_IGNORE_CAST_ITEM)
-        return;
-
     ItemTemplate const* proto = m_CastItem->GetTemplate();
 
     if (!proto)
@@ -5461,6 +5466,15 @@ void Spell::TakeCastItem()
         sLog->outError(LOG_FILTER_SPELLS_AURAS, "Cast item has no item prototype highId=%d, lowId=%d", m_CastItem->GetGUID().GetHigh(), m_CastItem->GetGUIDLow());
         return;
     }
+
+    // consumable item must be destroyed always
+    bool alwaysDestroy = false;
+    if (proto->Class == ITEM_CLASS_CONSUMABLE || (proto->SubClass == ITEM_SUBCLASS_CONSUMABLE || proto->SubClass == ITEM_SUBCLASS_CONSUMABLE_OTHER))
+        alwaysDestroy = true;
+
+    // not remove cast item at triggered spell (equipping, weapon damage, etc)
+    if (_triggeredCastFlags & TRIGGERED_IGNORE_CAST_ITEM && !alwaysDestroy)
+        return;
 
     bool expendable = false;
     bool withoutCharges = false;
@@ -6359,7 +6373,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         for (uint8 effIndex = EFFECT_0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         {
             SpellEffectInfo const* effInfo = m_spellInfo->GetEffect(effIndex, m_diffMode);
-            if (effInfo->ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
+            if (effInfo && effInfo->ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
             {
                 SpellShapeshiftFormEntry const* shapeShiftEntry = sSpellShapeshiftFormStore.LookupEntry(effInfo->MiscValue);
                 if (shapeShiftEntry && (shapeShiftEntry->flags1 & 1) == 0)  // unk flag
