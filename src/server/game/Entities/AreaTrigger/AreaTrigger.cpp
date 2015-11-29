@@ -22,6 +22,7 @@
 #include "AreaTrigger.h"
 #include "GridNotifiers.h"
 #include "Chat.h"
+#include "SpellPackets.h"
 
 AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _activationDelay(0), _updateDelay(0), _on_unload(false), _caster(NULL),
     _radius(1.0f), atInfo(), _on_despawn(false), m_spellInfo(NULL), _moveSpeed(0.0f), _moveTime(0), _realEntry(0), _hitCount(1), _areaTriggerCylinder(false),
@@ -34,6 +35,9 @@ AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0), _activationDelay(
 
     m_valuesCount = AREATRIGGER_END;
     m_currentNode = 0;
+    m_moveDistance = 0.0f;
+    m_moveDistanceMax = 0.0f;
+    m_moveLength = 0.0f;
     _dynamicValuesCount = AREATRIGGER_DYNAMIC_END;
 }
 
@@ -167,7 +171,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
 
         switch (atInfo.moveType)
         {
-            case AT_MOVE_TYPE_DEFAULT:
+            case AT_MOVE_TYPE_DEFAULT: // 0
             {
                 Vector3 curPos, nextPos;
                 pos.PositionToVector(curPos);
@@ -178,7 +182,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
                 m_movePath.push_back(nextPos);
                 break;
             }
-            case AT_MOVE_TYPE_LIMIT:
+            case AT_MOVE_TYPE_LIMIT: // 1
             {
                 Vector3 curPos, nextPos;
                 pos.PositionToVector(curPos);
@@ -191,7 +195,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
                 SetDuration(duration);
                 break;
             }
-            case AT_MOVE_TYPE_SPIRAL:
+            case AT_MOVE_TYPE_SPIRAL: // 2
             {
                 Vector3 curPos;
                 pos.PositionToVector(curPos);
@@ -218,7 +222,7 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
                 }
                 break;
             }
-            case AT_MOVE_TYPE_BOOMERANG:
+            case AT_MOVE_TYPE_BOOMERANG: // 3
             {
                 Vector3 curPos;
                 pos.PositionToVector(curPos);
@@ -241,12 +245,41 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
                 m_movePath.push_back(curPos);
                 break;
             }
-            case AT_MOVE_TYPE_CHAGE_ROTATION: //No WP
+            case AT_MOVE_TYPE_CHAGE_ROTATION: // 4 No WP
                 break;
+            case AT_MOVE_TYPE_RE_PATH: // 5 only Divine Star
+            {
+                Vector3 curPos, nextPos;
+                pos.PositionToVector(curPos);
+                m_movePath.push_back(curPos);
+                m_movePath.push_back(curPos);
+                float maxDist = 24.0f; // Data from sniff
+                _duration = (maxDist / _moveSpeed  * 1000.0f) + 100;
+
+                uint8 countStep = uint8(maxDist / 3.0f);
+
+                for (uint8 step = 1; step <= countStep; step++)
+                {
+                    float x = curPos.x + (step * 3.0f) * std::cos(pos.GetOrientation());
+                    float y = curPos.y + (step * 3.0f) * std::sin(pos.GetOrientation());
+                    Trinity::NormalizeMapCoord(x);
+                    Trinity::NormalizeMapCoord(y);
+                    nextPos.x = x;
+                    nextPos.y = y;
+                    nextPos.z = curPos.z;
+                    m_movePath.push_back(nextPos);
+                }
+                m_movePath.push_back(nextPos);
+                break;
+            }
         }
 
         if(!m_movePath.empty())
+        {
             _nextMoveTime = (m_movePath[0] - m_movePath[1]).length() * _moveSpeed;
+            for (size_t i = 0; i < m_movePath.size() - 1; ++i)
+                m_moveDistanceMax += (m_movePath[i + 1] - m_movePath[i]).length();
+        }
         else
             _nextMoveTime = 1000;
     }
@@ -422,7 +455,11 @@ void AreaTrigger::UpdateActionCharges(uint32 p_time)
 void AreaTrigger::Update(uint32 p_time)
 {
     //TMP. For debug info.
-    uint32 spell = GetSpellId();
+    //uint32 spell = GetSpellId();
+
+    UpdateActionCharges(p_time);
+    UpdateMovement(p_time);
+    UpdateRotation(p_time);
 
     if (GetDuration() != -1)
     {
@@ -446,10 +483,6 @@ void AreaTrigger::Update(uint32 p_time)
             return;
         }
     }
-
-    UpdateActionCharges(p_time);
-    UpdateMovement(p_time);
-    UpdateRotation(p_time);
 
     if (!_activationDelay)
         UpdateAffectedList(p_time, AT_ACTION_MOMENT_ENTER);
@@ -890,8 +923,12 @@ void AreaTrigger::UpdateMovement(uint32 diff)
     if (!isMoving() || m_movePath.empty())
         return;
 
-    if (m_currentNode == m_movePath.size() - 1)
+    if (m_moveDistance >= m_moveDistanceMax || m_currentNode >= m_movePath.size() - 1)
+    {
+        //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::UpdateMovement NOT RUN m_currentNode %i size %i _duration %i _duration %i diff %i _moveTime %i m_moveDistance %f m_moveDistanceMax %f",
+        //m_currentNode, m_movePath.size(), _duration, diff, _moveTime, m_moveDistance, m_moveDistanceMax);
         return;
+    }
 
     if (_waitTime > 0)
     {
@@ -920,25 +957,95 @@ void AreaTrigger::UpdateMovement(uint32 diff)
 
     if(_moveTime >= _nextMoveTime)
     {
-        tempPos.SimplePosXYRelocationByAngle(*this, (speed * _nextMoveTime) / 1000.0f, angle, true);
+        float distanceMove = (speed * _moveTime) / 1000.0f;
+        tempPos.SimplePosXYRelocationByAngle(*this, distanceMove, angle, true);
 
-        m_currentNode++;
+        m_moveDistance += distanceMove;
+        m_moveLength += distanceMove;
+        float lengthMove = 0.0f;
+        // Calculate patch move
+        for (uint16 i = m_currentNode; i < m_movePath.size() - 1; ++i)
+        {
+            lengthMove += (m_movePath[i + 1] - m_movePath[i]).length();
+            if (m_moveLength <= lengthMove)
+            {
+                m_currentNode = i + 1;
+                m_moveLength -= lengthMove;
+                break;
+            }
+        }
+        //m_currentNode++;
         _moveTime = 0;
-        if (m_currentNode == m_movePath.size() - 1)
+
+        switch (atInfo.moveType)
+        {
+            case AT_MOVE_TYPE_RE_PATH:
+            {
+                //if (m_currentNode == m_movePath.size() - 1)
+                if (m_moveDistance >= m_moveDistanceMax || m_currentNode >= m_movePath.size() - 1)
+                {
+                    float dist = GetDistance2d(_caster);
+                    if (dist > 3.0f)
+                    {
+                        m_movePath.clear();
+                        m_currentNode = 1;
+                        m_moveLength = 0.0f;
+                        m_moveDistance = 0.0f;
+                        m_moveDistanceMax = 0.0f;
+                        Vector3 curPos, nextPos;
+                        PositionToVector(curPos);
+                        m_movePath.push_back(curPos);
+                        m_movePath.push_back(curPos);
+
+                        _caster->PositionToVector(nextPos);
+                        m_movePath.push_back(nextPos);
+                        m_movePath.push_back(nextPos);
+
+                        for (size_t i = 0; i < m_movePath.size() - 1; ++i)
+                            m_moveDistanceMax += (m_movePath[i + 1] - m_movePath[i]).length();
+
+                        _duration = int32(m_moveDistanceMax / _moveSpeed  * 1000.0f) + 100; // +100 for same latency
+
+                        WorldPackets::Spells::AreaTriggerRePath rePath;
+                        rePath.TriggerGUID = GetGUID();
+                        rePath.Spline.TimeToTarget = _duration;
+                        rePath.Spline.ElapsedTimeForMovement = 880; // Data from sniff
+                        rePath.Spline.VerticesPoints.push_back(*this);
+                        rePath.Spline.VerticesPoints.push_back(*this);
+                        rePath.Spline.VerticesPoints.push_back(*_caster);
+                        rePath.Spline.VerticesPoints.push_back(*_caster);
+                        _caster->SendMessageToSet(rePath.Write(), true);
+                    }
+
+                    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::UpdateMovement AT_MOVE_TYPE_RE_PATH m_currentNode %i size %i _duration %i dist %f", m_currentNode, m_movePath.size(), _duration, dist);
+                }
+                break;
+            }
+        }
+        if (m_moveDistance >= m_moveDistanceMax || m_currentNode >= m_movePath.size() - 1)
+        {
+            //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::UpdateMovement STOP MOVE m_currentNode %i size %i _duration %i _duration %i diff %i _moveTime %i distanceMove %f m_moveDistance %f m_moveDistanceMax %f",
+            //m_currentNode, m_movePath.size(), _duration, diff, _moveTime, distanceMove, m_moveDistance, m_moveDistanceMax);
             return;
+        }
 
         float speedNext = getMoveSpeed();
-        if(atInfo.moveType == AT_MOVE_TYPE_SPIRAL)
+        switch (atInfo.moveType)
         {
-            int32 mod = int32(m_currentNode / 4);
-            if(mod)
-                speedNext = getMoveSpeed() / 2 * mod;
-            else
-                speedNext = getMoveSpeed() / 4;
+            case AT_MOVE_TYPE_SPIRAL:
+            {
+                int32 mod = int32(m_currentNode / 4);
+                if(mod)
+                    speedNext = getMoveSpeed() / 2 * mod;
+                else
+                    speedNext = getMoveSpeed() / 4;
+                break;
+            }
         }
-        //_caster->SummonCreature(44548, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(),TEMPSUMMON_TIMED_DESPAWN, 20000); // For visual point test
+        //_caster->SummonCreature(44548, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(),TEMPSUMMON_TIMED_DESPAWN, 10000); // For visual point test
         _nextMoveTime = (m_movePath[m_currentNode] - m_movePath[m_currentNode+1]).length() / speedNext * 1000;
-        //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::UpdateMovement speedNext %f _nextMoveTime %u length %f abs %i", speedNext, _nextMoveTime, (m_movePath[m_currentNode] - m_movePath[m_currentNode+1]).length(), int32(m_currentNode/4));
+        //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AreaTrigger::UpdateMovement speedNext %f _nextMoveTime %u length %f abs %i m_currentNode %i size %i _duration %i diff %i _moveTime %i distanceMove %f m_moveDistance %f m_moveDistanceMax %f",
+        //speedNext, _nextMoveTime, (m_movePath[m_currentNode] - m_movePath[m_currentNode+1]).length(), int32(m_currentNode/4), m_currentNode, m_movePath.size(), _duration, diff, _moveTime, distanceMove, m_moveDistance, m_moveDistanceMax);
     }
     else
         tempPos.SimplePosXYRelocationByAngle(*this, (speed * _moveTime) / 1000.0f, angle, true);

@@ -84,6 +84,7 @@ enum AreaTriggerMoveType
     AT_MOVE_TYPE_SPIRAL              = 2,
     AT_MOVE_TYPE_BOOMERANG           = 3,
     AT_MOVE_TYPE_CHAGE_ROTATION      = 4,
+    AT_MOVE_TYPE_RE_PATH             = 5,
 };
 
 struct PolygonPOI
@@ -267,6 +268,9 @@ class AreaTrigger : public WorldObject, public GridObject<AreaTrigger>
         uint32 _hitCount;
         bool _areaTriggerCylinder;
         uint32 m_currentNode;
+        float m_moveDistanceMax;
+        float m_moveDistance;
+        float m_moveLength;
 
         PositionsArray m_movePath;
 

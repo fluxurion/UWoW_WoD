@@ -224,8 +224,11 @@ class spell_pri_power_word_solace : public SpellScriptLoader
                 {
                     int32 bp = 2;
                     caster->CastCustomSpell(caster, 129253, &bp, NULL, NULL, true);
-                    int32 _damage = GetHitDamage();
-                    caster->CastCustomSpell(caster, 140815, &_damage, NULL, NULL, true);
+                    if (!caster->HasAura(81749))
+                    {
+                        int32 _damage = GetHitDamage();
+                        caster->CastCustomSpell(caster, 140815, &_damage, NULL, NULL, true);
+                    }
                 }
             }
 
