@@ -144,6 +144,11 @@ namespace Movement
 
         PointsArray& Path() { return args.path; }
 
+        void PushPath(Position pos)
+        {
+            return args.path.push_back(Vector3(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()));
+        };
+
         /* Disables transport coordinate transformations for cases where raw offsets are available
         */
         void DisableTransportPathTransformations();

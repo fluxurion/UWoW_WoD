@@ -366,6 +366,8 @@ enum class WorldStates : uint32
     SSM_PROGRESS_BAR_PERCENT_GREY       = 6877,                 //100 = empty (only grey), 0 = blue|red (no grey)
     SSM_PROGRESS_BAR_STATUS             = 6876,                 //50 init!, 48 ... hordak bere .. 33 .. 0 = full 100% hordacky, 100 = full alliance
     SSM_PROGRESS_BAR_SHOW               = 6875,                 //1 init, 0 druhy send - bez messagu, 1 = controlled aliance
+    SSM_EAST_TRACK_SWITCH               = 6467,
+    SSM_NORTH_TRACK_SWITCH              = 6468,
 
     SSM_INIT_POINTS_ALLIANCE            = 6441,
     SSM_INIT_POINTS_HORDE               = 6443,

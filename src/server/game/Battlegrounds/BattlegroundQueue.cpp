@@ -823,17 +823,17 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         {
             Battleground* bg = *itr; //we have to store battleground pointer here, because when battleground is full, it is BG_TEAM_HORDEremoved from free queue (not yet implemented!!)
             // and iterator is invalid
+            
+            m_SelectionPools[TEAM_ALLIANCE].Init();
+            m_SelectionPools[TEAM_HORDE].Init();
 
             // call a function that does the job for us
             FillPlayersToBG(bg, bracket_id);
 
-            for (uint32 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
-            {
-                m_SelectionPools[i].Init();
-
-                for (auto const& v : m_SelectionPools[i].SelectedGroups)
-                    InviteGroupToBG(v, bg, v->Team);
-            }
+            for (GroupsQueueType::const_iterator citr = m_SelectionPools[TEAM_ALLIANCE].SelectedGroups.begin(); citr != m_SelectionPools[TEAM_ALLIANCE].SelectedGroups.end(); ++citr)
+                InviteGroupToBG((*citr), bg, (*citr)->Team);
+            for (GroupsQueueType::const_iterator citr = m_SelectionPools[TEAM_HORDE].SelectedGroups.begin(); citr != m_SelectionPools[TEAM_HORDE].SelectedGroups.end(); ++citr)
+                InviteGroupToBG((*citr), bg, (*citr)->Team);
 
             if (!bg->HasFreeSlots())
                 bg->RemoveFromBGFreeSlotQueue();

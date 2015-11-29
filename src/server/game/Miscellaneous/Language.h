@@ -634,11 +634,6 @@ enum TrinityStrings
     LANG_BG_EY_HAS_LOST_A_F_RUINS       = 681,
     LANG_BG_EY_HAS_LOST_H_F_RUINS       = 682,
     LANG_BG_EY_HAS_TAKEN_FLAG           = 683,
-    
-    LANG_BG_SSM_START_TWO_MINUTES       = 756,
-    LANG_BG_SSM_START_ONE_MINUTE        = 773,
-    LANG_BG_SSM_START_HALF_MINUTE       = 774,
-    LANG_BG_SSM_HAS_BEGUN               = 775,
 
     LANG_WAIT_BEFORE_SPEAKING           = 705,
     LANG_NOT_EQUIPPED_ITEM              = 706,

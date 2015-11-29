@@ -607,9 +607,9 @@ void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Pl
                 player->GetSession()->SendPacket(packet);
 }
 
-void Battleground::PlaySoundToAll(uint32 soundKitID)
+void Battleground::PlaySoundToAll(uint32 soundKitID, ObjectGuid sourceGuid /*= ObjectGuid::Empty*/)
 {
-    SendPacketToAll(WorldPackets::Misc::PlaySound(ObjectGuid::Empty, soundKitID).Write());
+    SendPacketToAll(WorldPackets::Misc::PlaySound(sourceGuid, soundKitID).Write());
 }
 
 void Battleground::PlaySoundToTeam(uint32 soundKitID, uint32 TeamID)

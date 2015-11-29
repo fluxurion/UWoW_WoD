@@ -484,7 +484,7 @@ class Battleground
         void BroadcastWorker(Do& _do);
 
         void PlaySoundToTeam(uint32 SoundID, uint32 TeamID);
-        void PlaySoundToAll(uint32 SoundID);
+        void PlaySoundToAll(uint32 SoundID, ObjectGuid sourceGuid = ObjectGuid::Empty);
         void CastSpellOnTeam(uint32 SpellID, uint32 TeamID);
         void RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID);
         void RewardHonorToTeam(uint32 Honor, uint32 TeamID);

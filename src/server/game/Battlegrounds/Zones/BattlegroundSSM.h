@@ -52,8 +52,8 @@ struct BattleGroundSSMScore final : public BattlegroundScore
 enum BG_SSM_ObjectTypes
 {
     BG_SSM_CART_EAST,
-    BG_SSM_CART_SOUTH,
     BG_SSM_CART_NORTH,
+    BG_SSM_CART_SOUTH,
 
     BG_SSM_SPIRIT_MAIN_ALLIANCE,
     BG_SSM_SPIRIT_MAIN_HORDE,
@@ -67,7 +67,15 @@ enum BG_SSM_ObjectTypes
     BG_SSM_OBJECT_REGENBUFF,
     BG_SSM_OBJECT_BERSERKBUFF,
 
-    BG_SSM_OBJECT_MAX
+    BG_POINT_END1,
+    BG_POINT_END2,
+    BG_POINT_END3,
+    BG_POINT_END4,
+
+    BG_SSM_CREATURE_TRACK1,
+    BG_SSM_CREATURE_TRACK2,
+
+    BG_SSM_OBJECT_MAX,
 };
 
 enum BG_SSM_SPELLS
@@ -95,18 +103,31 @@ Milliseconds const SSM_CARTS_UPDATE_TIMER = Seconds(2);
 
 enum BG_SSM_UnitEntry
 {
-    BG_SSM_CART = 60140,
+    CREATURE_BG_SSM_CART            = 60140,
+    CREATURE_BG_SSM_TRACK_SWITCH    = 60283,
 };
 
 static const uint16 SSM_MAX_TEAM_POINTS = 1500;
 
 enum BG_SSM_ObjectEntry
 {
-    BG_SSM_CHEST_1 = 212080,
-    BG_SSM_CHEST_2 = 212081,
+    OBJECT_BG_SSM_RESERVOIR                 = 212080,
+    OBJECT_BG_SSM_THE_DESPOSITION_OF_LAVA   = 212081,
+    OBJECT_BG_SSM_THE_DESPOSITS_OF_DIAMONDS = 212082,
+    OBJECT_BG_SSM_BACKLOG_TROLLS            = 212083,
 
-    BG_SSM_DOOR    = 212941
+    OBJECT_BG_SSM_DOOR1                     = 212939,
+    OBJECT_BG_SSM_DOOR2                     = 212940,
+    OBJECT_BG_SSM_DOOR3                     = 212941,
+    OBJECT_BG_SSM_DOOR4                     = 212942,
 };
+
+static const uint32 BroadcastTextCartTaken[MAX_TEAMS] = {59689, 59690};
+static const uint32 BroadcastTextCartControlTaken[MAX_TEAMS] = {60441, 60442};
+static const uint32 BroadcastTextArrow[MAX_TEAMS] = {60031, 60032};
+static const uint32 BroadcastCartSpawn = 60444;
+static const uint32 SoundKitCartSpawn = 9431;
+static const uint32 BG_SSM_MAX_CARTS = 3;
 
 enum BG_SSM_ControlState
 {
@@ -115,19 +136,20 @@ enum BG_SSM_ControlState
     SSM_CONTROL_HORDE
 };
 
-static const uint32 BG_SSM_MAX_CARTS = 3;
+enum BgSSMTrackSwitchState
+{
+    TRACK_SWITCH_STATE_DEFAULT     = 1,
+    TRACK_SWITCH_STATE_EXTRA_WAY   = 2
+};
 
 enum BG_SSM_ProgressBarConsts
 {
-    BG_SSM_POINT_MAX_CAPTURERS_COUNT     = 5,
     BG_SSM_POINT_RADIUS                  = 22,
     BG_SSM_PROGRESS_BAR_DONT_SHOW        = 0,
     BG_SSM_PROGRESS_BAR_SHOW             = 1,
     BG_SSM_PROGRESS_BAR_PERCENT_GREY     = 0,
     BG_SSM_PROGRESS_BAR_STATE_MIDDLE     = 50,
     BG_SSM_PROGRESS_BAR_HORDE_CONTROLLED = 0,
-    BG_SSM_PROGRESS_BAR_NEUTRAL_LOW      = 30,
-    BG_SSM_PROGRESS_BAR_NEUTRAL_HIGH     = 70,
     BG_SSM_PROGRESS_BAR_ALI_CONTROLLED   = 100
 };
 
@@ -161,12 +183,36 @@ Position const ExtraWayEast1[] =
     {663.8229f, 86.53732f, 307.0153f},
     {660.3229f, 84.53732f, 305.7653f},
     {647.3229f, 82.03732f, 302.0153f},
-    {638.5729f, 81.53732f, 299.5153f},
+    {638.5729f, 81.53732f, 299.5153f}, // 638.5729 81.53732 299.5153
 };
 
 Position const ExtraWayEast2[] =
 {
-    {0.0f, 0.0f, 0.0f},
+    {716.9749f, 108.5017f, 321.1373f},
+    {719.9749f, 101.5017f, 321.3873f},
+    {724.4749f, 98.25174f, 322.1373f},
+    {732.7249f, 94.75174f, 323.8873f},
+    {737.7249f, 93.75174f, 325.8873f},
+    {744.4749f, 92.25174f, 328.1373f},
+    {758.7249f, 89.25174f, 332.8873f},
+    {767.2249f, 86.00174f, 336.1373f},
+    {774.2249f, 82.25174f, 339.3873f},
+    {784.2249f, 79.50174f, 342.8873f},
+    {793.7249f, 78.25174f, 346.1373f},
+    {798.2249f, 77.25174f, 348.1373f},
+    {803.9749f, 74.75174f, 349.8873f},
+    {807.7249f, 72.25174f, 351.1373f},
+    {813.4749f, 67.75174f, 352.8873f},
+    {819.9749f, 64.00174f, 354.8873f},
+    {823.9749f, 63.00174f, 355.8873f},
+    {829.7249f, 63.00174f, 357.1373f},
+    {833.4749f, 64.25174f, 357.8873f},
+    {842.2249f, 70.50174f, 359.8873f},
+    {850.4749f, 71.50174f, 361.3873f},
+    {859.4749f, 69.00174f, 362.8873f},
+    {865.4749f, 65.25174f, 363.8873f},
+    {873.4749f, 58.00174f, 364.6373f},
+    {879.7249f, 51.50174f, 364.6373f}
 };
 
 Position const WaySouth[] =
@@ -242,15 +288,80 @@ Position const WayNorthLeft[] =
     {806.7413f, 466.4679f, 359.1437f},
     {803.9913f, 472.9679f, 359.3937f},
     {800.9913f, 476.9679f, 359.6437f},
-    {793.7413f, 485.2179f, 359.6437f} 
-};
-Position const WayNorthRight[] =
-{
-    {0.0f, 0.0f, 0.0f},
+    {793.7413f, 485.2179f, 359.6437f}  /// 793.7413 485.2179 359.6437
 };
 
-static uint32 WaysSize[] = {13, 26, 17};
-static uint32 ExtraWaysSize[] = {21, 1, 12, 1}; //< WayNorthLeft WayNorthRight | ExtraWayEast1 ExtraWayEast2
+Position const WayNorthRight[] =
+{
+    {838.257f, 302.2188f, 347.3339f},
+    {843.257f, 303.4688f, 347.3339f},
+    {848.257f, 303.7188f, 347.3339f},
+    {854.007f, 303.2188f, 347.3339f},
+    {860.007f, 301.4688f, 347.5839f},
+    {863.507f, 299.9688f, 347.5839f},
+    {867.257f, 297.4688f, 347.5839f},
+    {877.257f, 287.7188f, 347.5839f},
+    {881.757f, 279.2188f, 347.3339f},
+    {885.757f, 270.4688f, 346.8339f},
+    {889.257f, 261.2188f, 346.3339f},
+    {893.507f, 248.7188f, 346.0839f},
+    {894.757f, 241.7188f, 346.5839f},
+    {897.757f, 226.4688f, 350.0839f},
+    {904.257f, 210.4688f, 354.8339f},
+    {911.507f, 178.4688f, 363.8339f},
+    {912.507f, 168.2188f, 366.5839f},
+    {912.007f, 163.2188f, 366.8339f},
+    {909.007f, 153.4688f, 366.8339f},
+    {907.007f, 149.7188f, 366.8339f},
+    {898.257f, 138.7188f, 366.8339f},
+    {888.257f, 126.2188f, 366.5839f},
+    {885.507f, 120.4688f, 366.3339f},
+    {882.757f, 109.2188f, 365.8339f},
+    {882.257f, 104.7188f, 365.5839f},
+    {883.757f, 97.21875f, 365.3339f},
+    {889.007f, 89.46875f, 365.0839f},
+    {891.007f, 82.46875f, 365.0839f},
+    {891.007f, 76.46875f, 364.8339f},
+    {890.257f, 70.96875f, 365.0839f},
+    {890.757f, 62.96875f, 364.8339f},
+    {891.757f, 56.21875f, 364.5839f}
+};
+
+struct CartPointDataStruct
+{
+    uint32 ID;
+    Position Pos;
+    Position EndPos;
+    Position EndPos2;
+};
+
+CartPointDataStruct const CartPointData[] = 
+{
+    {BG_SSM_CART_EAST,  WayEastBase[12],    ExtraWayEast1[11],  ExtraWayEast2[24]},
+    {BG_SSM_CART_NORTH, WayNorthBase[16],   WayNorthRight[31],  WayNorthLeft[20]},
+    {BG_SSM_CART_SOUTH, WaySouth[25],       WaySouth[25],       WaySouth[25]}
+};
+
+static uint32 WaysSize[] = {13, 17, 26};
+static uint32 ExtraWaysSize[][2] =
+{
+    {21, 32},   //< WayNorthLeft WayNorthRight
+    {12, 25}    //< ExtraWayEast1 ExtraWayEast2
+};
+
+Position const BgSSMObjectsPos[][2] = 
+{
+    {896.7936f, 25.29027f, 364.1431f, 3.539994f, -0.009816647f, 0.03659821f, -0.9795389f, 0.1976555f},  // OBJECT_BG_SSM_THE_DESPOSITS_OF_DIAMONDS
+    {564.8048f, 337.0873f, 347.1427f, 1.571254f, 0.0112772f, 0.006951332f, 0.7072344f, 0.7068551f},     // OBJECT_BG_SSM_RESERVOIR
+    {615.5099f, 79.41812f, 298.2867f, 1.654058f, -0.03407955f, -0.02646542f, 0.7354441f, 0.6762102f},   // OBJECT_BG_SSM_THE_DESPOSITION_OF_LAVA
+    {777.7377f, 502.3111f, 359.4537f, 0.719448f, -0.01845312f, -0.01729774f, 0.3516912f, 0.9357743f}    // OBJECT_BG_SSM_BACKLOG_TROLLS
+};
+
+Position const BgSSMCreaturePos[] = 
+{
+    {715.6424f, 100.1649f, 320.2845f, 4.592556f},
+    {845.5573f, 307.5521f, 347.0379f, 0.6224777f},
+};
 
 class BattlegroundSSM : public Battleground
 {
@@ -273,7 +384,7 @@ class BattlegroundSSM : public Battleground
 
     private:
         Creature* _AddCart(uint32 type, Position const loc);
-        Creature* _UpdateCart(uint32 type);
+        Creature* _UpdateCart(uint32 type, bool initial = true);
 
         void _CheckPlayersAtCars();
 
@@ -285,10 +396,6 @@ class BattlegroundSSM : public Battleground
         void _AddScore(TeamId team, int32 points);
 
         Creature* _cart[BG_SSM_MAX_CARTS];
-        uint32 _waysStep[BG_SSM_MAX_CARTS];
-        bool _isWaysStep[BG_SSM_MAX_CARTS];
-
-        std::map<uint8, Position const* /*pos*/> _cartWaypointsMap;
 
         uint32 _cartsState[BG_SSM_MAX_CARTS];
         int32 _cartsCapturePoints[BG_SSM_MAX_CARTS];
@@ -296,8 +403,8 @@ class BattlegroundSSM : public Battleground
         Milliseconds _timerPointsUpdate;
         Milliseconds _timerCartsUpdate;
 
-        bool _northController;
-        bool _eastController;
+        bool _cartsAdded[BG_SSM_MAX_CARTS];
+        uint32 _tractSwitchState[2];
 
         GuidVector _playersNearPoint[BG_SSM_MAX_CARTS + 1];
 };

@@ -18,53 +18,45 @@
 #include "BattlegroundSSM.h"
 #include "Creature.h"
 #include "GameObject.h"
-#include "Language.h"
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "BattlegroundMgr.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "MoveSplineInit.h"
 
 BattlegroundSSM::BattlegroundSSM()
 {
     BgCreatures.resize(BG_SSM_OBJECT_MAX);
     BgObjects.resize(BG_SSM_OBJECT_MAX);
 
-    /// Start Messages Initialization
-    StartMessageIds[BG_STARTING_EVENT_FIRST] = LANG_BG_SSM_START_TWO_MINUTES;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_SSM_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_BG_SSM_START_HALF_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_SSM_HAS_BEGUN;
-
-    _cartWaypointsMap[BG_SSM_CART_EAST] = WayEastBase;
-    _cartWaypointsMap[BG_SSM_CART_SOUTH] = WaySouth;
-    _cartWaypointsMap[BG_SSM_CART_NORTH] = WayNorthBase;
+    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
+    {
+        m_broadcastMessages[i] = BattlegroundBroadcastTexts[i];
+        m_hasBroadcasts[i] = true;
+    }
 
     _timerPointsUpdate = SSM_SCORE_UPDATE_TIMER;
     _timerCartsUpdate = SSM_CARTS_UPDATE_TIMER;
 
-    for (int8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
-        m_TeamScores[i] = 0;
-
     for (uint8 i = 0; i < BG_SSM_MAX_CARTS; ++i)
     {
         _cartsState[i] = SSM_CONTROL_NEUTRAL;
-        _cartsCapturePoints[i] = 50;
+        _cartsCapturePoints[i] = BG_SSM_PROGRESS_BAR_STATE_MIDDLE;
+        _cartsAdded[i] = false;
 
         _playersNearPoint[i].clear();
         _playersNearPoint[i].reserve(15);
 
-        _waysStep[i] = 1;
-        _isWaysStep[i] = false;
         _cart[i] = nullptr;
     }
 
+    _tractSwitchState[BG_SSM_CART_EAST] = TRACK_SWITCH_STATE_DEFAULT;
+    _tractSwitchState[BG_SSM_CART_NORTH] = TRACK_SWITCH_STATE_DEFAULT;
+
     _playersNearPoint[BG_SSM_MAX_CARTS].clear();
     _playersNearPoint[BG_SSM_MAX_CARTS].reserve(30);
-
-    _northController = false;
-    _eastController = false;
 }
 
 BattlegroundSSM::~BattlegroundSSM()
@@ -72,34 +64,41 @@ BattlegroundSSM::~BattlegroundSSM()
 
 bool BattlegroundSSM::SetupBattleground()
 {
-    _cart[BG_SSM_CART_EAST] = _AddCart(BG_SSM_CART_EAST, WayEastBase[0]);
-    _cart[BG_SSM_CART_SOUTH] = _AddCart(BG_SSM_CART_SOUTH, WaySouth[0]);
-    _cart[BG_SSM_CART_NORTH] = _AddCart(BG_SSM_CART_NORTH, WayNorthBase[0]);
-
     // gates
-    if (!AddObject(BG_DOOR_1, BG_SSM_DOOR, 640.48f, 209.58f, 328.84f, 0.116671f, 0, 0, 0.058f, 0.99f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_DOOR_2, BG_SSM_DOOR, 657.515f, 230.798f, 328.932f, 0.116671f, 0, 0, 0.058f, 0.99f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_DOOR_3, BG_SSM_DOOR, 825.491f, 144.609f, 328.926f, 2.91383f, 0, 0, 0.993f, 0.113f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_DOOR_4, BG_SSM_DOOR, 847.954f, 156.54f, 328.801f, 3.09369f, 0, 0, 0.99f, 0.023f, RESPAWN_IMMEDIATELY)
+    if (!AddObject(BG_DOOR_1, OBJECT_BG_SSM_DOOR3, 640.48f, 209.58f, 328.84f, 0.116671f, 0, 0, 0.058f, 0.99f, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_DOOR_2, OBJECT_BG_SSM_DOOR3, 657.515f, 230.798f, 328.932f, 0.116671f, 0, 0, 0.058f, 0.99f, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_DOOR_3, OBJECT_BG_SSM_DOOR3, 825.491f, 144.609f, 328.926f, 2.91383f, 0, 0, 0.993f, 0.113f, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_DOOR_4, OBJECT_BG_SSM_DOOR3, 847.954f, 156.54f, 328.801f, 3.09369f, 0, 0, 0.99f, 0.023f, RESPAWN_IMMEDIATELY)
         // buffs
         || !AddObject(BG_SSM_OBJECT_SPEEDBUFF, BG_OBJECTID_SPEEDBUFF_ENTRY, 865.844f, 10.441f, 362.424f, 1.719f, 0, 0, 0.7313537f, -0.6819983f, BUFF_RESPAWN_TIME)
         || !AddObject(BG_SSM_OBJECT_REGENBUFF, BG_OBJECTID_REGENBUFF_ENTRY, 787.352f, 271.7178f, 358.240f, 5.729f, 0, 0, 0.1305263f, -0.9914448f, BUFF_RESPAWN_TIME)
         || !AddObject(BG_SSM_OBJECT_BERSERKBUFF, BG_OBJECTID_BERSERKERBUFF_ENTRY, 756.198f, 75.984f, 371.229f, 1.354f, 0, 0, 0.5591929f, 0.8290376f, BUFF_RESPAWN_TIME)
-        )
+
+        || !AddObject(BG_POINT_END1, OBJECT_BG_SSM_THE_DESPOSITS_OF_DIAMONDS, BgSSMObjectsPos[0][0], BgSSMObjectsPos[0][1], RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_POINT_END2, OBJECT_BG_SSM_RESERVOIR, BgSSMObjectsPos[1][0], BgSSMObjectsPos[1][1], RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_POINT_END3, OBJECT_BG_SSM_THE_DESPOSITION_OF_LAVA, BgSSMObjectsPos[2][0], BgSSMObjectsPos[2][1], RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_POINT_END4, OBJECT_BG_SSM_BACKLOG_TROLLS, BgSSMObjectsPos[3][0], BgSSMObjectsPos[3][1], RESPAWN_IMMEDIATELY))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundSSM: Failed to spawn some object Battleground not created!");
         return false;
     }
 
+    if (!AddCreature(CREATURE_BG_SSM_TRACK_SWITCH, BG_SSM_CREATURE_TRACK1, TEAM_NEUTRAL, BgSSMCreaturePos[0], RESPAWN_IMMEDIATELY) ||
+        !AddCreature(CREATURE_BG_SSM_TRACK_SWITCH, BG_SSM_CREATURE_TRACK2, TEAM_NEUTRAL, BgSSMCreaturePos[1], RESPAWN_IMMEDIATELY))
+    {
+        sLog->outError(LOG_FILTER_SQL, "BatteGroundSSM: Failed to spawn some creatures Battleground not created!");
+        return false;
+    }
+
     WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(BG_SSM_ALLIANCE_GRAVEYARD);
-    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_ALLIANCE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.124139f, ALLIANCE))
+    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_ALLIANCE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, sg->Loc.O, ALLIANCE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundWS: Failed to spawn Alliance spirit guide! Battleground not created!");
         return false;
     }
 
     sg = sWorldSafeLocsStore.LookupEntry(BG_SSM_HORDE_GRAVEYARD);
-    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_HORDE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, 3.193953f, HORDE))
+    if (!sg || !AddSpiritGuide(BG_SSM_SPIRIT_MAIN_HORDE, sg->Loc.X, sg->Loc.Y, sg->Loc.Z, sg->Loc.O, HORDE))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundWS: Failed to spawn Horde spirit guide! Battleground not created!");
         return false;
@@ -110,13 +109,34 @@ bool BattlegroundSSM::SetupBattleground()
 
 void BattlegroundSSM::PostUpdateImpl(Milliseconds diff)
 {
+    if (GetElapsedTime() < Minutes(1))
+        return;
+
+    if (!_cartsAdded[BG_SSM_CART_EAST])
+    {
+        _cart[BG_SSM_CART_EAST] = _AddCart(BG_SSM_CART_EAST, WayEastBase[0]);
+        _cartsAdded[BG_SSM_CART_EAST] = true;
+    }
+
+    if (!_cartsAdded[BG_SSM_CART_SOUTH])
+    {
+        _cart[BG_SSM_CART_SOUTH] = _AddCart(BG_SSM_CART_SOUTH, WaySouth[0]);
+        _cartsAdded[BG_SSM_CART_SOUTH] = true;
+    }
+
+    if (!_cartsAdded[BG_SSM_CART_NORTH])
+    {
+        _cart[BG_SSM_CART_NORTH] = _AddCart(BG_SSM_CART_NORTH, WayNorthBase[0]);
+        _cartsAdded[BG_SSM_CART_NORTH] = true;
+    }
+
+    _CheckPlayersAtCars();
+
     for (uint8 i = 0; i < BG_SSM_MAX_CARTS; ++i)
-        _cart[i] = _UpdateCart(i);
+        _cart[i] = _UpdateCart(i, false);
 
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
-
-    _CheckPlayersAtCars();
 
     if (_timerCartsUpdate <= diff)
     {
@@ -152,100 +172,97 @@ void BattlegroundSSM::HandleAreaTrigger(Player* player, uint32 trigger, bool ent
 
 Creature* BattlegroundSSM::_AddCart(uint32 type, Position const loc)
 {
-    Creature* creature = nullptr;
-    if (creature = AddCreature(BG_SSM_CART, type, TEAM_NEUTRAL, loc))
-    {
-        creature->CastSpell(creature, BG_SSM_SPELL_CONTROL_NEUTRAL);
+    Creature* creature = AddCreature(CREATURE_BG_SSM_CART, type, TEAM_NEUTRAL, loc);
+    if (!creature)
+        return nullptr;
 
-        switch (type)
-        {
-            case BG_SSM_CART_SOUTH:
-                creature->CastSpell(creature, BG_SSM_SPELL_CART_CONTROL_CAPTURE_POINT_UNIT_SOUTH);
-                break;
-            case BG_SSM_CART_NORTH:
-                creature->CastSpell(creature, BG_SSM_SPELL_CART_CONTROL_CAPTURE_POINT_UNIT_NORTH);
-                break;
-            case BG_SSM_CART_EAST:
-                creature->CastSpell(creature, BG_SSM_SPELL_CART_CONTROL_CAPTURE_POINT_UNIT_EAST);
-                break;
-            default:
-                break;
-        }
+    PlaySoundToAll(SoundKitCartSpawn, creature->GetGUID());
+    SendBroadcastTextToAll(BroadcastCartSpawn, CHAT_MSG_BG_SYSTEM_NEUTRAL, creature);
 
-        creature->CastSpell(creature, BG_SSM_SPELL_DEFENDING_CART_AURA);
-
-        //creature->m_movementInfo.SetMovementFlags(MOVEMENTFLAG_FALLING_SLOW | MOVEMENTFLAG_FORWARD);
-        //creature->m_movementInfo.SetExtraMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING | MOVEMENTFLAG2_FULL_SPEED_TURNING | MOVEMENTFLAG2_FULL_SPEED_PITCHING);
-
-        creature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
-        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-
-        _cartsState[type] = SSM_CONTROL_NEUTRAL;
-        _cartsCapturePoints[type] = 50;
-    }
-
-    return creature;
-}
-
-Creature* BattlegroundSSM::_UpdateCart(uint32 type)
-{
-    Creature* cart = GetBGCreature(type);
-    if (!cart)
-        return cart;
-
-    Position pos = _cartWaypointsMap[type][_waysStep[type]];
+    creature->CastSpell(creature, BG_SSM_SPELL_CONTROL_NEUTRAL);
 
     switch (type)
     {
-        case BG_SSM_CART_EAST:
-            if (_waysStep[type] == WaysSize[type])
-                _isWaysStep[type] = true;
-
-            if (_waysStep[type] < _waysStep[type] ? (WaysSize[type] + ExtraWaysSize[_eastController ? 3 : 2]) : WaysSize[type] && !cart->isMoving())
-            {
-                if (_waysStep[type])
-                {
-                    if (_eastController)
-                        pos = ExtraWayEast2[_waysStep[type] - WaysSize[type]];
-                    else
-                        pos = ExtraWayEast1[_waysStep[type]];
-                }
-
-                cart->MonsterSmothMoveWithSpeed(pos, 1.0f);
-                _waysStep[type]++;
-            }
+        case BG_SSM_CART_SOUTH:
+            creature->CastSpell(creature, BG_SSM_SPELL_CART_CONTROL_CAPTURE_POINT_UNIT_SOUTH);
             break;
         case BG_SSM_CART_NORTH:
-            if (_waysStep[type] == WaysSize[type])
-                _isWaysStep[type] = true;
-
-            if (_waysStep[type] < _waysStep[type] ? (WaysSize[type] + ExtraWaysSize[_northController ? 0 : 1]) : WaysSize[type] && !cart->isMoving())
-            {
-                if (_waysStep[type])
-                {
-                    if (_northController)
-                        cart->MonsterSmothMoveWithSpeed(WayNorthLeft[_waysStep[type] - WaysSize[type]], 1.0f);
-                    else
-                        cart->MonsterSmothMoveWithSpeed(WayNorthRight[_waysStep[type]], 1.0f);
-                }
-
-                cart->MonsterSmothMoveWithSpeed(pos, 1.0f);
-                _waysStep[type]++;
-            }
+            creature->CastSpell(creature, BG_SSM_SPELL_CART_CONTROL_CAPTURE_POINT_UNIT_NORTH);
             break;
-        case BG_SSM_CART_SOUTH:
-            if (_waysStep[type] < WaysSize[type] && !cart->isMoving())
-                cart->MonsterSmothMoveWithSpeed(pos, 1.0f);
-            _waysStep[type]++;
+        case BG_SSM_CART_EAST:
+            creature->CastSpell(creature, BG_SSM_SPELL_CART_CONTROL_CAPTURE_POINT_UNIT_EAST);
             break;
         default:
             break;
     }
 
-    if ((type == BG_SSM_CART_EAST && _waysStep[type] >= (WaysSize[type] + ExtraWaysSize[_eastController ? 3 : 2])) ||
-        (type == BG_SSM_CART_NORTH && _waysStep[type] >= (WaysSize[type] + ExtraWaysSize[_northController ? 1 : 0])) ||
-        (type == BG_SSM_CART_SOUTH && _waysStep[type] >= WaysSize[type]) && !cart->isMoving())
+    creature->CastSpell(creature, BG_SSM_SPELL_DEFENDING_CART_AURA);
+    creature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
+    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+
+    _cartsState[type] = SSM_CONTROL_NEUTRAL;
+    _cartsCapturePoints[type] = BG_SSM_PROGRESS_BAR_STATE_MIDDLE;
+    _UpdateCart(type);
+
+    return creature;
+}
+
+Creature* BattlegroundSSM::_UpdateCart(uint32 type, bool initial /*= true*/)
+{
+    Creature* cart = GetBGCreature(type);
+    if (!cart)
+        return nullptr;
+
+    bool _isExtraWay = cart->GetDistance(CartPointData[type].Pos) < 1.0f;
+    bool _isMoving = cart->isMoving();
+
+    if (initial || (_isExtraWay && !_isMoving))
     {
+        uint32 waySize = 0;
+        Movement::MoveSplineInit init(*cart);
+        switch (type)
+        {
+            case BG_SSM_CART_EAST:
+                if (initial || _isExtraWay)
+                {
+                    if (_isExtraWay)
+                        waySize = ExtraWaysSize[type][_tractSwitchState[type] == TRACK_SWITCH_STATE_DEFAULT ? 0 : 1];
+                    else
+                        waySize = WaysSize[type];
+
+                    for (uint8 i = 1; i < waySize; ++i)
+                        init.PushPath(_isExtraWay ? (_tractSwitchState[type] == TRACK_SWITCH_STATE_DEFAULT ? ExtraWayEast1[i] : ExtraWayEast2[i]) : WayEastBase[i]);
+                }
+                break;
+            case BG_SSM_CART_NORTH:
+                if (initial || _isExtraWay)
+                {
+                    if (_isExtraWay)
+                        waySize = ExtraWaysSize[type][_tractSwitchState[type] == TRACK_SWITCH_STATE_DEFAULT ? 0 : 1];
+                    else
+                        waySize = WaysSize[type];
+
+                    for (uint8 i = 1; i < waySize; ++i)
+                        init.PushPath(_isExtraWay ? (_tractSwitchState[type] == TRACK_SWITCH_STATE_DEFAULT ? WayNorthLeft[i] : WayNorthRight[i]) : WayNorthBase[i]);
+                    break;
+                }
+            case BG_SSM_CART_SOUTH:
+                if (initial)
+                    for (uint8 i = 1; i < WaysSize[type]; ++i)
+                        init.PushPath(WaySouth[i]);
+                break;
+            default:
+                break;
+        }
+
+        init.SetWalk(true);
+        init.Launch();
+    }
+
+    if (!_isMoving && (cart->GetDistance(CartPointData[type].EndPos) < 1.0f || cart->GetDistance(CartPointData[type].EndPos2) < 1.0f))
+    {
+        _cartsAdded[type] = false;
+
         if (_cartsState[type] == SSM_CONTROL_ALLIANCE)
             _AddScore(TEAM_ALLIANCE, 200);
         else if (_cartsState[type] == SSM_CONTROL_HORDE)
@@ -253,10 +270,6 @@ Creature* BattlegroundSSM::_UpdateCart(uint32 type)
 
         cart->Kill(cart);
         DelCreature(type);
-        cart = _AddCart(type, _cartWaypointsMap[type][0]);
-        SendBroadcastTextToAll(60444, CHAT_MSG_BG_SYSTEM_NEUTRAL, cart);
-
-        _waysStep[type] = 1;
     }
 
     return cart;
@@ -356,7 +369,7 @@ void BattlegroundSSM::_AddScore(TeamId team, int32 points)
 
     UpdateWorldState(team == TEAM_ALLIANCE ? WorldStates::SSM_POINTS_ALLIANCE : WorldStates::SSM_POINTS_HORDE, m_TeamScores[team]);
 
-    if (m_TeamScores[team] = SSM_MAX_TEAM_POINTS)
+    if (m_TeamScores[team] == SSM_MAX_TEAM_POINTS)
     {
         EndBattleground(GetTeamByTeamId(team));
         CastSpellOnTeam(135787, GetTeamByTeamId(team)); // Quest credit "The Lion Roars"
@@ -387,12 +400,12 @@ void BattlegroundSSM::_UpdatePoints()
         _cartsCapturePoints[point] -= (hordeCount * 5);
         _cartsCapturePoints[point] += (allianceCount * 5);
 
-        if (_cartsCapturePoints[point] > 100)
-            _cartsCapturePoints[point] = 100;
-        else if (_cartsCapturePoints[point] < 0)
-            _cartsCapturePoints[point] = 0;
+        if (_cartsCapturePoints[point] > BG_SSM_PROGRESS_BAR_ALI_CONTROLLED)
+            _cartsCapturePoints[point] = BG_SSM_PROGRESS_BAR_ALI_CONTROLLED;
+        else if (_cartsCapturePoints[point] < BG_SSM_PROGRESS_BAR_HORDE_CONTROLLED)
+            _cartsCapturePoints[point] = BG_SSM_PROGRESS_BAR_HORDE_CONTROLLED;
 
-        if (_cartsCapturePoints[point] > 50)
+        if (_cartsCapturePoints[point] > BG_SSM_PROGRESS_BAR_STATE_MIDDLE)
         {
             if (_cartsState[point] != SSM_CONTROL_ALLIANCE)
             {
@@ -407,7 +420,7 @@ void BattlegroundSSM::_UpdatePoints()
                 _SetCartControl(point, TEAM_ALLIANCE);
             }
         }
-        else if (_cartsCapturePoints[point] < 50)
+        else if (_cartsCapturePoints[point] < BG_SSM_PROGRESS_BAR_STATE_MIDDLE)
         {
             if (_cartsState[point] != SSM_CONTROL_HORDE)
             {
@@ -443,19 +456,19 @@ void BattlegroundSSM::_UpdatePoints()
 void BattlegroundSSM::_SetCartControl(uint32 type, TeamId teamID)
 {
     Creature* cart = _cart[type];
-    if (cart)
-    {
-        cart->RemoveAura(BG_SSM_SPELL_CONTROL_ALLIANCE);
-        cart->RemoveAura(BG_SSM_SPELL_CONTROL_HORDE);
-        cart->RemoveAura(BG_SSM_SPELL_CONTROL_NEUTRAL);
+    if (!cart)
+        return;
 
-        if (teamID == TEAM_HORDE)
-            cart->CastSpell(cart, BG_SSM_SPELL_CONTROL_HORDE);
-        else if (teamID == TEAM_ALLIANCE)
-            cart->CastSpell(cart, BG_SSM_SPELL_CONTROL_ALLIANCE);
-        else
-            cart->CastSpell(cart, BG_SSM_SPELL_CONTROL_NEUTRAL);
-    }
+    cart->RemoveAura(BG_SSM_SPELL_CONTROL_ALLIANCE);
+    cart->RemoveAura(BG_SSM_SPELL_CONTROL_HORDE);
+    cart->RemoveAura(BG_SSM_SPELL_CONTROL_NEUTRAL);
+
+    if (teamID == TEAM_HORDE)
+        cart->CastSpell(cart, BG_SSM_SPELL_CONTROL_HORDE);
+    else if (teamID == TEAM_ALLIANCE)
+        cart->CastSpell(cart, BG_SSM_SPELL_CONTROL_ALLIANCE);
+    else
+        cart->CastSpell(cart, BG_SSM_SPELL_CONTROL_NEUTRAL);
 }
 
 void BattlegroundSSM::StartingEventOpenDoors()
@@ -486,17 +499,33 @@ void BattlegroundSSM::HandleKillPlayer(Player* player, Player* killer)
 
 void BattlegroundSSM::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(WorldStates::SSM_POINTS_ALLIANCE, 0);
-    packet.Worldstates.emplace_back(WorldStates::SSM_POINTS_HORDE, 0);
+    packet.Worldstates.emplace_back(WorldStates::SSM_POINTS_ALLIANCE, m_TeamScores[TEAM_ALLIANCE]);
+    packet.Worldstates.emplace_back(WorldStates::SSM_POINTS_HORDE, m_TeamScores[TEAM_HORDE]);
     packet.Worldstates.emplace_back(static_cast<WorldStates>(6439), 0);
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(6440), 0);
-    packet.Worldstates.emplace_back(WorldStates::SSM_INIT_POINTS_ALLIANCE, m_TeamScores[TEAM_ALLIANCE]);
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(6442), 0);
-    packet.Worldstates.emplace_back(WorldStates::SSM_INIT_POINTS_HORDE, m_TeamScores[TEAM_HORDE]);
-
-    packet.Worldstates.emplace_back(WorldStates::SSM_PROGRESS_BAR_SHOW, 0);
-    packet.Worldstates.emplace_back(WorldStates::SSM_PROGRESS_BAR_STATUS, 0);
-    packet.Worldstates.emplace_back(WorldStates::SSM_PROGRESS_BAR_PERCENT_GREY, 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(6440), 0); // related carts capturing? 1, after capturing 0
+    packet.Worldstates.emplace_back(WorldStates::SSM_INIT_POINTS_ALLIANCE, 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(6442), 1);
+    packet.Worldstates.emplace_back(WorldStates::SSM_INIT_POINTS_HORDE, 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(6455), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(6456), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(6457), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(6458), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(6459), 0);
+    packet.Worldstates.emplace_back(WorldStates::SSM_EAST_TRACK_SWITCH, _tractSwitchState[BG_SSM_CART_EAST]);
+    packet.Worldstates.emplace_back(WorldStates::SSM_NORTH_TRACK_SWITCH, _tractSwitchState[BG_SSM_CART_NORTH]);
+    packet.Worldstates.emplace_back(WorldStates::SSM_PROGRESS_BAR_SHOW, BG_SSM_PROGRESS_BAR_DONT_SHOW);
+    packet.Worldstates.emplace_back(WorldStates::SSM_PROGRESS_BAR_STATUS, BG_SSM_PROGRESS_BAR_DONT_SHOW);
+    packet.Worldstates.emplace_back(WorldStates::SSM_PROGRESS_BAR_PERCENT_GREY, BG_SSM_PROGRESS_BAR_PERCENT_GREY);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(6879), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(6880), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(6881), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(6882), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(9601), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(9602), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(9603), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(9604), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(9605), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(9606), 0);
 }
 
 WorldSafeLocsEntry const* BattlegroundSSM::GetClosestGraveYard(Player* player)
