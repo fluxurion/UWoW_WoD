@@ -174,8 +174,6 @@ Battleground::Battleground()
 
     m_PrematureCountDown = false;
 
-    m_baseTickHonor = 9;
-
     StartMessageIds[BG_STARTING_EVENT_FIRST] = LANG_BG_WS_START_TWO_MINUTES;
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_BG_WS_START_HALF_MINUTE;

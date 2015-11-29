@@ -86,8 +86,8 @@ void BattlegroundBFG::PostUpdateImpl(Milliseconds diff)
         if (_lastTick[team] > BgBFGTickIntervals[points])
         {
             _lastTick[team] -= BgBFGTickIntervals[points];
-            m_TeamScores[team] += GetDefaultTickHonor(points);
-            _honorScoreTicks[team] += GetDefaultTickHonor(points);
+            m_TeamScores[team] += BgBFGTickPoints[points];
+            _honorScoreTicks[team] += BgBFGTickPoints[points];
 
             if (_honorScoreTicks[team] >= _HonorTicks)
             {

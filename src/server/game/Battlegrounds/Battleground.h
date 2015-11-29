@@ -628,8 +628,6 @@ class Battleground
 
         void _ProcessPlayerPositionBroadcast(Milliseconds diff);
         virtual void GetPlayerPositionData(std::vector<WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition>* /*positions*/) const { }
-        
-        uint32 GetDefaultTickHonor(uint32 node) { return node ? m_baseTickHonor : 0; }
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();
@@ -691,7 +689,6 @@ class Battleground
         uint32 m_PrematureCountDownTimer;
         char const* m_Name;
         uint64 m_QueueID;
-        uint32 m_baseTickHonor;
         uint32 m_sameBgTeamId;
 
         /* Pre- and post-update hooks */

@@ -106,7 +106,8 @@ Position const BgBfgDoorPos[4][2] =
     {1395.96f, 977.257f, -13.7897f, 6.265733f, 0.0f, 0.0f, -0.00872612f, 0.9999619f},   // BG_BFG_GO_GATE_H_2
 };
 
-Milliseconds const BgBFGTickIntervals[4] = {Seconds(0), Seconds(12), Seconds(6), Seconds(1)};
+Milliseconds const BgBFGTickIntervals[4] = {Seconds(0), Seconds(9), Seconds(3), Seconds(1)};
+uint32 const BgBFGTickPoints[4] = {0, 10, 10, 30};
 uint32 const GILNEAS_BG_GraveyardIds[GILNEAS_BG_ALL_NODES_COUNT] = { 1736, 1738, 1735, 1740, 1739 };
 
 Position const BgBfgSpiritGuidePos[GILNEAS_BG_ALL_NODES_COUNT] =
