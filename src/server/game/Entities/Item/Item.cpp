@@ -244,7 +244,7 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
 }
 
 Item::Item() : m_slot(0), uState(ITEM_NEW), uQueuePos(-1), m_container(NULL), m_lootGenerated(false),
-mb_in_trade(false), m_paidMoney(0), m_paidExtendedCost(0)
+mb_in_trade(false), m_in_use(false), m_paidMoney(0), m_paidExtendedCost(0)
 {
     m_objectType |= TYPEMASK_ITEM;
     m_objectTypeId = TYPEID_ITEM;

@@ -13815,7 +13815,6 @@ void Player::DestroyItemCount(Item* pItem, uint32 &count, bool update)
     if (pItem->GetCount() <= count)
     {
         count -= pItem->GetCount();
-
         DestroyItem(pItem->GetBagSlot(), pItem->GetSlot(), update);
     }
     else
@@ -14015,9 +14014,13 @@ void Player::SwapItem(uint16 src, uint16 dst)
         return;
     }
 
-    if(pSrcItem->GetEntry() == 38186)
+    // don't allow swap items used in spell cast
+    if (pSrcItem->IsInUse())
+        return;
+
+    if (pSrcItem->GetEntry() == 38186)
         sLog->outDebug(LOG_FILTER_EFIR, "Player::SwapItem pSrcItem %u; count = %u playerGUID %u IsNotEmptyBag %u",
-            pSrcItem->GetEntry(), pSrcItem->GetCount(), GetGUID(), pSrcItem->IsNotEmptyBag());
+        pSrcItem->GetEntry(), pSrcItem->GetCount(), GetGUID(), pSrcItem->IsNotEmptyBag());
 
     if (sObjectMgr->IsPlayerInLogList(this))
     {
@@ -14025,18 +14028,18 @@ void Player::SwapItem(uint16 src, uint16 dst)
         sLog->outDebug(LOG_FILTER_DUPE, "---Player::SwapItem pSrcItem %u; count = %u GUID %u GetSlot %u",
             pSrcItem->GetEntry(), pSrcItem->GetCount(), pSrcItem->GetGUID(), pSrcItem->GetSlot());
 
-        if(pDstItem)
+        if (pDstItem)
             sLog->outDebug(LOG_FILTER_DUPE, "Player::SwapItem pDstItem %u; count = %u GUID %u GetSlot %u",
-                pDstItem->GetEntry(), pDstItem->GetCount(), pDstItem->GetGUID(), pDstItem->GetSlot());
+            pDstItem->GetEntry(), pDstItem->GetCount(), pDstItem->GetGUID(), pDstItem->GetSlot());
     }
 
     // DST checks
 
     if (pDstItem)
     {
-        if(pDstItem->GetEntry() == 38186)
+        if (pDstItem->GetEntry() == 38186)
             sLog->outDebug(LOG_FILTER_EFIR, "Player::SwapItem pDstItem %u; count = %u playerGUID %u IsNotEmptyBag %u IsNotEmptyBag %u",
-                pDstItem->GetEntry(), pDstItem->GetCount(), GetGUID(), pDstItem->IsNotEmptyBag(), pSrcItem->IsNotEmptyBag());
+            pDstItem->GetEntry(), pDstItem->GetCount(), GetGUID(), pDstItem->IsNotEmptyBag(), pSrcItem->IsNotEmptyBag());
 
         if (pDstItem->m_lootGenerated)                       // prevent swap looting item
         {
@@ -14056,6 +14059,10 @@ void Player::SwapItem(uint16 src, uint16 dst)
                 return;
             }
         }
+
+        // don't allow swap items used in spell cast
+        if (pDstItem->IsInUse())
+            return;
     }
 
     // NOW this is or item move (swap with empty), or swap with another item (including bags in bag possitions)

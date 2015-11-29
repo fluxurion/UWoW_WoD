@@ -312,6 +312,9 @@ class Item : public Object
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
 
+        void SetInUse(bool u = true) { m_in_use = u; }
+        bool IsInUse() const { return m_in_use; }
+
         bool HasEnchantRequiredSkill(const Player* player) const;
         uint32 GetEnchantRequiredLevel() const;
 
@@ -456,6 +459,7 @@ class Item : public Object
         ItemUpdateState uState;
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window
+        bool m_in_use;
         time_t m_lastPlayedTimeUpdate;
         ObjectGuid m_refundRecipient;
         uint32 m_paidMoney;

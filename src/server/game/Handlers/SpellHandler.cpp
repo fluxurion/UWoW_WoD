@@ -135,6 +135,7 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::ItemUse& cast)
     if (!sScriptMgr->OnItemUse(pUser, pItem, targets))
     {
         // no script or script not process request by self
+        pItem->SetInUse();
         pUser->CastItemUseSpell(pItem, targets, cast.Cast.CastID, cast.Cast.Misc);
     }
 }
