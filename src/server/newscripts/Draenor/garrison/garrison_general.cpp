@@ -192,10 +192,73 @@ public:
     }
 };
 
+//- 155071
+/*
+UPDATE `npc_spellclick_spells` set cast_flags = 1 WHERE`spell_id` = 155071; -- need plr caster to creature
+*/
+
+class spell_interract : public SpellScriptLoader
+{
+public:
+    spell_interract() : SpellScriptLoader("spell_interract") { }
+
+    class spell_interract_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_interract_SpellScript);
+
+        enum data
+        {
+            NPC__ = 79446,
+
+            SPELL_CREDIT_Q34646 = 177492,
+
+        };
+
+        void HandleEffect(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            if (Unit* caster = GetCaster())
+            {
+                Player* plr = caster->ToPlayer();
+                if (!plr)
+                    return;
+
+                Unit * target = GetOriginalTarget(); 
+                if (!target)
+                    return;
+
+                volatile uint32 entry = target->GetEntry();
+                switch (target->GetEntry())
+                {
+                    case NPC__:
+                        //cast 164640
+                        //cast 164649
+                        plr->TalkedToCreature(target->GetEntry(), target->GetGUID());
+                        caster->CastSpell(caster, SPELL_CREDIT_Q34646, true);
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_interract_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_interract_SpellScript();
+    }
+};
 void AddSC_garrison_general()
 {
     new spell_garrison_hearthstone();
     new spell_garrison_cache_loot();
     new spell_q34824();
     new spell_161033();
+    new spell_interract();
 }

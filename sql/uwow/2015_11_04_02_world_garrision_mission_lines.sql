@@ -47,6 +47,22 @@ INSERT INTO `garrison_mission_line` (`ID`, `NextMission`, `ReqGarrFollowerID`, `
 (87, 44, 153, 0, 'Horde.'),
 (469, 0, 0, 1, '');
 
+REPLACE INTO `garrison_mission_line` (`ID`, `NextMission`, `ReqGarrFollowerID`, `IsRandom`, `Comment`) VALUES
+('66', '65', '34', '0', 'Alliance'),
+('86', '88', '153', '0', 'Alliance'),
+('88', '90', '0', '0', 'Alliance'),
+('89', '0', '0', '1', 'Alliance'),
+('91', '0', '0', '1', 'Alliance'),
+('333', '0', '463', '0', 'Alliance'),
+('137', '0', '0', '1', 'taken from snif on Alliance'),
+('207', '0', '0', '1', 'taken from snif on Alliance'),
+('369', '0', '0', '1', 'taken from snif on Alliance'),
+('151', '0', '0', '1', 'taken from snif on Alliance'),
+('176', '0', '0', '1', 'taken from snif on Alliance'),
+('188', '0', '0', '1', 'taken from snif on Alliance'),
+('171', '0', '0', '1', 'taken from snif on Alliance'),
+('155', '0', '0', '1', 'taken from snif on Alliance');
+
 --
 -- Индексы сохранённых таблиц
 --

@@ -5,8 +5,8 @@ REPLACE INTO `quest_template_addon` (`ID`, `PrevQuestID`, `NextQuestID`, `Exclus
 ('35176', '34586', '34587', '-35174'),
 ('35174', '34586', '34587', '-35174'),
 ('35166', '34586', '34587', '-35174'),
-('34646', '34587', '0', '0');
-
+('34646', '34587', '0', '0'),
+('34692', '34646', '0', '0');
 
 DELETE FROM `spell_area` WHERE area in (6719, 7078);
 REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES 
@@ -22,6 +22,9 @@ REPLACE INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_sp
 -- 3290 - after complete 34583
 -- 2559 - after reward 34586
 -- 3609 - go 231826  231851 npc 79205 81670 for q. 35166
+-- 3509 3510 3511 3523 3524 3525 - new after take 34646 npc 79446
+-- 3666 - new after complete - npc 3666 on garrison.
+-- 3464 - garrison after complete 34646 npc 79611
 DELETE FROM `phase_definitions` WHERE `zoneId` in (6719, 7078);
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 7078;
 
@@ -45,8 +48,13 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 -- 2559 2877 2884 2988 3054 3055 3122 3184 3238 3244 3253 3290 3420 3434 3639 3695 3926 3934 4086 4352          выход из гарнизона.
 -- 2559 2877 2884 2988 3054 3055 3122 3184 3238 3244 3253 3290 3420 3434 3609 3695 3926 3934 4086 4352          01/04/2015 23:13:35
 (6719, 8, 0, '3609', 0, 0, 16, 'Draenor. ShadowMoon.Valley.q35176 q35174'),
-
-
+-- 2559 2877 2884 2988 3054 3055 3122 3184 3238 3244 3253 3290 3420 3434 3695 3926 3934 4086 4352
+-- 2559 2877 2884 2988 3054 3055 3122 3184 3238 3244 3253 3290 3420 3434 3509 3510 3511 3523 3524 3525 3695 3926 3934 4086 4352 - появление квестового 34646
+(6719, 9, 0, '3509 3510 3511 3523 3524 3525', 0, 0, 16, 'Draenor. ShadowMoon.Valley.q 34646'),
+-- 2559 2877 2884 2988 3054 3055 3122 3184 3238 3244 3253 3290 3420 3434 3509 3510 3511 3523 3524 3525 3666 3695 3926 3934 4086 4352 after complete q34646
+(7078, 10, 0, '3666', 0, 0, 16, 'Draenor. ShadowMoon.Valley.q34646'),
+(7078, 11, 0, '3464', 0, 0, 16, 'Draenor. ShadowMoon.Valley.q34646'),
+-- 2487 2501 2559 2877 2884 2988 3054 3055 3122 3184 3238 3244 3253 3290 3420 3434 3585 3666 3695 3926 3934 4086 4352
 (6719, 100, 0, '2877 2884 2988 3054 3055 3122 3184 3238 3244 3253 3420 3434 3926 3934 4086 4318', 0, 0, 16, 'Draenor. ShadowMoon.Valley. general.');
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 6719;
@@ -60,8 +68,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 6719, 8, 0, 0, 14, 0, 35166, 0, 0, 1, 0, '', 'Draenor. ShadowMoon.Valley. q35166'),
 (23, 6719, 8, 0, 0, 8, 0, 35166, 0, 0, 1, 0, '', 'Draenor. ShadowMoon.Valley. q35166'),
 (23, 6719, 8, 0, 1, 14, 0, 35174, 0, 0, 1, 0, '', 'Draenor. ShadowMoon.Valley. q35174'),
-(23, 6719, 8, 0, 1, 8, 0, 35174, 0, 0, 1, 0, '', 'Draenor. ShadowMoon.Valley. q35174');
-
+(23, 6719, 8, 0, 1, 8, 0, 35174, 0, 0, 1, 0, '', 'Draenor. ShadowMoon.Valley. q35174'),
+(23, 6719, 9, 0, 0, 14, 0, 34646, 0, 0, 1, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646'),
+(23, 6719, 10, 0, 0, 28, 0, 34646, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646'),
+(23, 6719, 11, 0, 0, 8, 0, 34646, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646');
 
 -- Q34583 spell 160405 npc 82125
 DELETE FROM `creature_text` WHERE entry = 82125;
@@ -109,7 +119,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (81441, 0, 1, 0, 62, 0, 100, 0, 16598, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'At gossip select Q335176 say');
 
 -- Q: 34587
-
 DELETE FROM `creature_text` WHERE entry = 77209;
 REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (77209, 0, 0, 'Благодаря тебе у нас появился отличный форпост в Долине Призрачной Луны.', 12, 0, 100, 396, 0, 0, 'Барос Алекстон to Player'),
@@ -136,3 +145,24 @@ INSERT INTO `garrison_building_gameobject` (`plotID`, `BuildID`, `id`, `map`, `p
 DELETE FROM `garrison_building_creature` WHERE map =1158 ;
 INSERT INTO `garrison_building_creature` (`plotID`, `BuildID`, `id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`) VALUES
 (23, 26, 77379, 1158, 1897.158, 241.4114, 76.98568, 2.097671);
+
+-- Q: 34646 cast 177492
+UPDATE `npc_spellclick_spells` set cast_flags = 1 WHERE`spell_id` = 155071;
+REPLACE INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('155071', 'spell_interract');
+
+-- Q: 34692
+REPLACE INTO `garrison_mission_line` (`ID`, `NextMission`, `ReqGarrFollowerID`, `IsRandom`, `Comment`) VALUES
+('66', '65', '34', '0', 'Alliance'),
+('86', '88', '153', '0', 'Alliance'),
+('88', '90', '0', '0', 'Alliance'),
+('89', '0', '0', '1', 'Alliance'),
+('91', '0', '0', '1', 'Alliance'),
+('333', '0', '463', '0', 'Alliance'),
+('137', '0', '0', '1', 'taken from snif on Alliance'),
+('207', '0', '0', '1', 'taken from snif on Alliance'),
+('369', '0', '0', '1', 'taken from snif on Alliance'),
+('151', '0', '0', '1', 'taken from snif on Alliance'),
+('176', '0', '0', '1', 'taken from snif on Alliance'),
+('188', '0', '0', '1', 'taken from snif on Alliance'),
+('171', '0', '0', '1', 'taken from snif on Alliance'),
+('155', '0', '0', '1', 'taken from snif on Alliance');
