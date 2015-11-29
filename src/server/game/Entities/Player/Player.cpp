@@ -6744,7 +6744,7 @@ void Player::UpdateRating(CombatRating cr)
             break;
         case CR_VERSATILITY_DAMAGE_DONE:
         case CR_VERSATILITY_DAMAGE_TAKEN:
-            UpdateVersality();
+            UpdateVersality(cr);
             break;
         case CR_MULTISTRIKE:
             UpdateMultistrike();

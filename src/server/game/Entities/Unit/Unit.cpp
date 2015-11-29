@@ -11791,7 +11791,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 
     {
         // Apply PowerPvP damage bonus
-        DoneTotalMod = CalcVersalityBonus(victim, DoneTotalMod);
+        DoneTotalMod = CalcVersalityBonusDone(victim, DoneTotalMod);
 
         // Chaos Bolt - 116858 and Soul Fire - 6353
         // damage is increased by your critical strike chance
@@ -12183,6 +12183,8 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
             TakenTotalCasterMod += (float((*i)->GetAmount()));
     }
+
+    TakenTotalMod = CalcVersalityBonusTaken(TakenTotalMod);
 
     // from positive and negative SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN
     // multiplicative bonus, for example Dispersion + Shadowform (0.10*0.85=0.085)
@@ -12679,7 +12681,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         }
     }
 
-    DoneTotalMod = CalcVersalityBonus(victim, DoneTotalMod);
+    DoneTotalMod = CalcVersalityBonusDone(victim, DoneTotalMod);
 
     // done scripted mod (take it from owner)
     Unit* owner = GetOwner() ? GetOwner() : this;
@@ -12943,36 +12945,21 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     return uint32(std::max(heal, 0.0f));
 }
 
-float Unit::CalcVersalityBonus(Unit* target, float amount)
+float Unit::CalcVersalityBonusDone(Unit* target, float amount)
 {
     if (!target)
         return amount;
 
     Unit* caster = this;
 
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        if (Unit* owner = target->GetOwner())
-        {
-            if (owner->GetTypeId() != TYPEID_PLAYER)
-                return amount;
-        }
-        else return amount;
+    // versality bonus only for player
+    if (caster->GetTypeId() != TYPEID_PLAYER)
+        return amount;
 
-    if (GetTypeId() != TYPEID_PLAYER)
-    {
-        if (Unit* owner = GetOwner())
-        {
-            if (owner->GetTypeId() == TYPEID_PLAYER)
-                caster = owner;
-            else return amount;
-        }
-        else return amount;
-    }
-
-    float value = 0.f;
     if (Player* plr = caster->ToPlayer())
     {
-        value += plr->GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS);
+        float value = float(GetUInt32Value(PLAYER_FIELD_VERSATILITY)) * GetRatingMultiplier(CR_VERSATILITY_DAMAGE_DONE);
+        value += GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS);
 
         switch (plr->GetSpecializationId(plr->GetActiveSpec()))
         {
@@ -13024,11 +13011,78 @@ float Unit::CalcVersalityBonus(Unit* target, float amount)
 
         //Done = CalculatePct(damageDone, DamagePct);
         //Taken  = CalculatePct(taken,   HealPct);
+        AddPct(amount, value);
     }
 
+    return amount;
+}
+
+float Unit::CalcVersalityBonusTaken(float amount)
+{
+    Unit* caster = this;
+
+    // versality bonus only for player
+    if (caster->GetTypeId() != TYPEID_PLAYER)
+        return amount;
 
     if (Player* plr = caster->ToPlayer())
-        AddPct(amount, value);
+    {
+        float value = float(GetUInt32Value(PLAYER_FIELD_VERSATILITY)) * GetRatingMultiplier(CR_VERSATILITY_DAMAGE_TAKEN);
+        float versalityBonusTaken = GetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS) * 0.5f;
+        value += versalityBonusTaken;
+
+        switch (plr->GetSpecializationId(plr->GetActiveSpec()))
+        {
+        case SPEC_MAGE_ARCANE:
+        case SPEC_MAGE_FIRE:
+        case SPEC_MAGE_FROST:
+        case SPEC_WARRIOR_ARMS:
+        case SPEC_WARRIOR_FURY:
+        case SPEC_WARRIOR_PROTECTION:
+        case SPEC_PALADIN_PROTECTION:
+        case SPEC_DRUID_BEAR:
+        case SPEC_DK_BLOOD:
+        case SPEC_DK_FROST:
+        case SPEC_DK_UNHOLY:
+        case SPEC_HUNTER_BEASTMASTER:
+        case SPEC_HUNTER_MARKSMAN:
+        case SPEC_HUNTER_SURVIVAL:
+        case SPEC_ROGUE_ASSASSINATION:
+        case SPEC_ROGUE_COMBAT:
+        case SPEC_ROGUE_SUBTLETY:
+        case SPEC_WARLOCK_AFFLICTION:
+        case SPEC_WARLOCK_DEMONOLOGY:
+        case SPEC_WARLOCK_DESTRUCTION:
+        case SPEC_MONK_BREWMASTER:
+            //DamagePct = 100;
+            //HealPct = 40;
+            break;
+        case SPEC_SHAMAN_ELEMENTAL:
+        case SPEC_SHAMAN_ENHANCEMENT:
+        case SPEC_PALADIN_RETRIBUTION:
+        case SPEC_DRUID_BALANCE:
+        case SPEC_DRUID_CAT:
+        case SPEC_PRIEST_SHADOW:
+        case SPEC_MONK_WINDWALKER:
+            //DamagePct = 100;
+            //HealPct = 70;
+            break;
+        case SPEC_PALADIN_HOLY:
+        case SPEC_DRUID_RESTORATION:
+        case SPEC_PRIEST_DISCIPLINE:
+        case SPEC_PRIEST_HOLY:
+        case SPEC_SHAMAN_RESTORATION:
+        case SPEC_MONK_MISTWEAVER:
+            //HealPct = 100;
+            break;
+        default:
+            break;
+        }
+
+        //Done = CalculatePct(damageDone, DamagePct);
+        //Taken  = CalculatePct(taken,   HealPct);
+        AddPct(amount, -value);
+    }
 
     return amount;
 }
@@ -13312,7 +13366,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     float DoneTotalMod = 1.0f;
 
     // Apply PowerPvP damage bonus
-    DoneTotalMod = CalcVersalityBonus(victim, DoneTotalMod);
+    DoneTotalMod = CalcVersalityBonusDone(victim, DoneTotalMod);
 
     // Some spells don't benefit from pct done mods
     if (spellProto)
@@ -13441,6 +13495,8 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
 
     // Taken total percent damage auras
     float TakenTotalMod = 1.0f;
+
+    TakenTotalMod = CalcVersalityBonusTaken(TakenTotalMod);
 
     // ..taken
     TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, GetMeleeDamageSchoolMask());

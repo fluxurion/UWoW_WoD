@@ -1921,7 +1921,7 @@ void Player::UpdateMasteryAuras()
     }
 }
 
-void Player::UpdateVersality()
+void Player::UpdateVersality(CombatRating cr)
 {
     // need some informations about calc this for different specs
     //switch (GetSpecializationId(GetActiveSpec()))
@@ -1975,17 +1975,14 @@ void Player::UpdateVersality()
     //Done = CalculatePct(damageDone, DamagePct);
     //Taken  = CalculatePct(taken,   HealPct);
 
-    float ValueD = 0.f;
-    float ValueT = 0.f;
+    if (cr == CR_VERSATILITY_DAMAGE_TAKEN)
+        return;
 
-    ValueD += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
-    ValueT += GetRatingBonusValue(CR_VERSATILITY_DAMAGE_TAKEN);
+    uint32 versailty = GetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_VERSATILITY_DAMAGE_DONE);
+    float versalityBonus = GetTotalAuraModifier(SPELL_AURA_MOD_VERSALITY_PCT, true);
 
-    ValueT += GetTotalAuraModifier(SPELL_AURA_MOD_VERSALITY_PCT, true);
-    ValueD += GetTotalAuraModifier(SPELL_AURA_MOD_VERSALITY_PCT, true);
-
-    SetFloatValue(PLAYER_FIELD_VERSATILITY, ValueD);
-    SetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS, ValueT);
+    SetUInt32Value(PLAYER_FIELD_VERSATILITY, versailty);
+    SetFloatValue(PLAYER_FIELD_VERSATILITY_BONUS, versalityBonus);
 }
 
 void Player::UpdateMultistrike()
@@ -2004,8 +2001,8 @@ void Player::UpdateMultistrike()
 void Player::UpdateMultistrikeDamage()
 {
     float value = 0.3f; // 30% damage of base attack
-    float mod = GetTotalAuraModifier(SPELL_AURA_MULTISTRIKE_DAMAGE_PCT, true) / 100.0f;
-    value *= mod;
+    float mod = GetTotalAuraModifier(SPELL_AURA_MULTISTRIKE_DAMAGE_PCT, true);
+    AddPct(value, mod);
 
     SetFloatValue(PLAYER_FIELD_MULTISTRIKE_EFFECT, value);
 }

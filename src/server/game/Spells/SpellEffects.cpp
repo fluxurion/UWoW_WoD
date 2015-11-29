@@ -2514,7 +2514,7 @@ void Spell::EffectHealPct(SpellEffIndex effIndex)
     switch (m_spellInfo->Id)
     {
         case 149254: // Spirit Bond
-            heal = m_originalCaster->CalcVersalityBonus(unitTarget, heal);
+            heal = m_originalCaster->CalcVersalityBonusDone(unitTarget, heal);
         default:
             break;
     }

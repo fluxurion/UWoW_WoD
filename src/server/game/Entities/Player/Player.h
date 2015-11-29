@@ -2501,7 +2501,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateMasteryAuras();
         void UpdateRuneRegen(RuneType rune);
         void UpdateAllRunesRegen();
-        void UpdateVersality();
+        void UpdateVersality(CombatRating cr = CR_NONE);
         void UpdateMultistrike();
         void UpdateMultistrikeDamage();
         void UpdateReadiness();

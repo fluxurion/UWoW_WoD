@@ -601,6 +601,7 @@ enum WeaponAttackType
 // Last check : 5.0.5
 enum CombatRating
 {
+    CR_NONE                             = 0,
     CR_DEFENSE_SKILL                    = 1,
     CR_DODGE                            = 2,
     CR_PARRY                            = 3,
@@ -2328,7 +2329,8 @@ class Unit : public WorldObject
         int32 SpellBaseHealingBonusTaken(SpellSchoolMask schoolMask);
         uint32 SpellHealingBonusDone(Unit* victim, SpellInfo const *spellProto, uint32 healamount, DamageEffectType damagetype, SpellEffIndex effIndex = EFFECT_0, uint32 stack = 1);
         uint32 SpellHealingBonusTaken(Unit* caster, SpellInfo const *spellProto, uint32 healamount, DamageEffectType damagetype, SpellEffIndex effIndex = EFFECT_0, uint32 stack = 1);
-        float CalcVersalityBonus(Unit* target, float amount);
+        float CalcVersalityBonusDone(Unit* target, float amount);
+        float CalcVersalityBonusTaken(float amount);
 
         uint32 MeleeDamageBonusDone(Unit *pVictim, uint32 damage, WeaponAttackType attType, SpellInfo const *spellProto = NULL, uint32 effectMask = 0);
         uint32 MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage,WeaponAttackType attType, SpellInfo const *spellProto = NULL);

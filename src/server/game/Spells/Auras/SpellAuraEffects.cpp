@@ -8293,7 +8293,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster, SpellEf
        if (ModHealingPct != 1.0f)
            TakenTotalMod *= ModHealingPct;
 
-        TakenTotalMod = caster->CalcVersalityBonus(target, TakenTotalMod);
+        TakenTotalMod = caster->CalcVersalityBonusDone(target, TakenTotalMod);
         TakenTotalMod = std::max(TakenTotalMod, 0.0f);
 
         damage = uint32(target->CountPctFromMaxHealth(damage));
