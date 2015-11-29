@@ -1813,9 +1813,10 @@ class spell_pal_holy_shield : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
-                if (!roll_chance_f(GetTarget()->GetUnitBlockChance()))
+                Unit* attacker = dmgInfo.GetAttacker();
+                if (!roll_chance_f(GetTarget()->GetUnitBlockChanceAgainst(attacker)))
                     absorbAmount = 0;
             }
 
