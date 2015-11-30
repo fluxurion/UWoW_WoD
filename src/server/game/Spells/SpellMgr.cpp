@@ -2307,7 +2307,7 @@ void SpellMgr::LoadSpellPetAuras()
         SpellInfo const* spellInfo = GetSpellInfo(abs(spellId));
         if (!spellInfo)
         {
-            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_pet_auras` does not exist", abs(spellId));
+            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_pet_auras` does not exist", spellId);
             continue;
         }
 
@@ -3213,7 +3213,7 @@ void SpellMgr::LoadSpellTriggered()
         if (!spellInfo)
         {
             sLog->outError(LOG_FILTER_SQL, "Spell %i listed in `spell_target_filter` does not exist", spellId);
-            WorldDatabase.PExecute("DELETE FROM `spell_aura_dummy` WHERE spellId = %i", spellId);
+            WorldDatabase.PExecute("DELETE FROM `spell_target_filter` WHERE spellId = %i", spellId);
             continue;
         }
 
