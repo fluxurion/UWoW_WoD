@@ -2307,7 +2307,7 @@ void SpellMgr::LoadSpellPetAuras()
         SpellInfo const* spellInfo = GetSpellInfo(abs(spellId));
         if (!spellInfo)
         {
-            sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_pet_auras` does not exist", spellId);
+            sLog->outError(LOG_FILTER_SQL, "Spell %i listed in `spell_pet_auras` does not exist", spellId);
             continue;
         }
 

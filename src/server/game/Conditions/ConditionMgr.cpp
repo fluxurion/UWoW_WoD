@@ -1131,6 +1131,7 @@ bool ConditionMgr::addToLootTemplate(Condition* cond, LootTemplate* loot)
         return true;
 
     sLog->outError(LOG_FILTER_SQL, "ConditionMgr: Item %u not found in LootTemplate %u", cond->SourceEntry, cond->SourceGroup);
+    WorldDatabase.PExecute("DELETE FROM `conditions` WHERE SourceEntry = %u AND SourceGroup = %u", cond->SourceEntry, cond->SourceGroup);
     return false;
 }
 
@@ -1260,6 +1261,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             if (!LootTemplates_Creature.HaveLootFor(cond->SourceGroup))
             {
                 sLog->outError(LOG_FILTER_SQL, "SourceGroup %u in `condition` table, does not exist in `creature_loot_template`, ignoring.", cond->SourceGroup);
+                WorldDatabase.PExecute("DELETE FROM `conditions` WHERE SourceGroup = %u AND SourceTypeOrReferenceId = %u", cond->SourceGroup, cond->SourceType);
                 return false;
             }
 
@@ -1328,6 +1330,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             if (!LootTemplates_Gameobject.HaveLootFor(cond->SourceGroup))
             {
                 sLog->outError(LOG_FILTER_SQL, "SourceGroup %u in `condition` table, does not exist in `gameobject_loot_template`, ignoring.", cond->SourceGroup);
+                WorldDatabase.PExecute("DELETE FROM `conditions` WHERE SourceGroup = %u AND SourceTypeOrReferenceId = %u", cond->SourceGroup, cond->SourceType);
                 return false;
             }
 
