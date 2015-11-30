@@ -5208,6 +5208,7 @@ void ObjectMgr::LoadSpellScriptNames()
         if (!spellInfo)
         {
             sLog->outError(LOG_FILTER_SQL, "Scriptname:`%s` spell (spell_id:%d) does not exist in `Spell.dbc`.", scriptName, fields[0].GetInt32());
+            WorldDatabase.PExecute("DELETE FROM `spell_script_names` WHERE spell_id = %i", fields[0].GetInt32());
             continue;
         }
 
