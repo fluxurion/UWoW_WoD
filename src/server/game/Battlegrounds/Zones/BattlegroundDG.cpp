@@ -567,27 +567,23 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
     if (!m_controlledBy.IsEmpty())
         return;
 
-    uint32 summonSpellId, cartEntry, flagStateField, cartAuraId;
+    uint32 cartEntry, flagStateField, cartAuraId;
     auto teamID = player->GetBGTeamId();
 
     if (teamID == TEAM_ALLIANCE)
     {
-        summonSpellId = BG_DG_SPELL_SPAWN_HORDE_CART;
         cartEntry = 71073;
         flagStateField = 7904;
         cartAuraId = BG_DG_AURA_CART_HORDE;
     }
     else
     {
-        summonSpellId = BG_DG_SPELL_SPAWN_ALLIANCE_CART;
         cartEntry = 71071;
         flagStateField = 7887;
         cartAuraId = BG_DG_AURA_CART_ALLIANCE;
     }
 
     GetBg()->PlayeCapturePointSound(NODE_STATUS_ASSAULT, teamID);
-
-    player->CastSpell(player, summonSpellId);
 
     CellCoord p(Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY()));
     Cell cell(p);
