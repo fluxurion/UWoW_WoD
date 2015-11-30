@@ -2978,7 +2978,7 @@ void SpellMgr::LoadSpellTriggered()
         if (!spellInfo)
         {
             sLog->outError(LOG_FILTER_SQL, "Spell_trigger %i listed in `spell_trigger` does not exist", spell_trigger);
-            WorldDatabase.PExecute("DELETE FROM `spell_trigger` WHERE spell_id = %i", spell_trigger);
+            WorldDatabase.PExecute("DELETE FROM `spell_trigger` WHERE spell_trigger = %i", spell_trigger);
             continue;
         }
         spellInfo = GetSpellInfo(abs(dummyId));
