@@ -1062,15 +1062,15 @@ class spell_pri_cascade_shadow : public SpellScriptLoader
         }
 };
 
-// Halo
-class spell_pri_halo : public SpellScriptLoader
+// Halo - 120692
+class spell_pri_halo_heal : public SpellScriptLoader
 {
     public:
-        spell_pri_halo() : SpellScriptLoader("spell_pri_halo") { }
+        spell_pri_halo_heal() : SpellScriptLoader("spell_pri_halo_heal") { }
 
-        class spell_pri_halo_SpellScript : public SpellScript
+        class spell_pri_halo_heal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_pri_halo_SpellScript);
+            PrepareSpellScript(spell_pri_halo_heal_SpellScript);
 
             void HandleHeal(SpellEffIndex /*effIndex*/)
             {
@@ -1087,6 +1087,28 @@ class spell_pri_halo : public SpellScriptLoader
                 }
             }
 
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_halo_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_halo_heal_SpellScript;
+        }
+};
+
+// Halo - 120696
+class spell_pri_halo_damage : public SpellScriptLoader
+{
+    public:
+        spell_pri_halo_damage() : SpellScriptLoader("spell_pri_halo_damage") { }
+
+        class spell_pri_halo_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_halo_damage_SpellScript);
+
             void HandleDamage(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
@@ -1102,36 +1124,15 @@ class spell_pri_halo : public SpellScriptLoader
                 }
             }
 
-            void FilterTargets(WorldObject*& target)
-            {
-                Unit* unit = target->ToUnit();
-                if(!unit)
-                    target = NULL;
-                if(!GetCaster()->IsFriendlyTo(unit))
-                    target = NULL;
-            }
-
-            void FilterTargets1(WorldObject*& target)
-            {
-                Unit* unit = target->ToUnit();
-                if(!unit)
-                    target = NULL;
-                if(GetCaster()->IsFriendlyTo(unit))
-                    target = NULL;
-            }
-
             void Register()
             {
-                OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_halo_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ANY);
-                OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_halo_SpellScript::FilterTargets1, EFFECT_1, TARGET_UNIT_TARGET_ANY);
-                OnEffectHitTarget += SpellEffectFn(spell_pri_halo_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-                OnEffectHitTarget += SpellEffectFn(spell_pri_halo_SpellScript::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_pri_halo_damage_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pri_halo_SpellScript;
+            return new spell_pri_halo_damage_SpellScript;
         }
 };
 
@@ -2591,6 +2592,47 @@ class spell_pri_cascade_marker : public SpellScriptLoader
         }
 };
 
+// Clarity of Purpose - 155245
+class spell_pri_clarity_of_purpose : public SpellScriptLoader
+{
+    public:
+        spell_pri_clarity_of_purpose() : SpellScriptLoader("spell_pri_clarity_of_purpose") { }
+
+        class spell_pri_clarity_of_purpose_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_clarity_of_purpose_SpellScript);
+
+            int32 perc = 0;
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                if (perc)
+                {
+                    int32 _heal = GetHitHeal();
+                    _heal += CalculatePct(_heal, perc);
+                    SetHitHeal(_heal);
+                }
+            }
+
+            void HandleOnCast()
+            {
+                if (Unit* target = GetExplTargetUnit())
+                    perc = int32(100.0f - target->GetHealthPct());
+            }
+
+            void Register()
+            {
+                OnCast += SpellCastFn(spell_pri_clarity_of_purpose_SpellScript::HandleOnCast);
+                OnEffectHitTarget += SpellEffectFn(spell_pri_clarity_of_purpose_SpellScript::HandleHeal, EFFECT_1, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_clarity_of_purpose_SpellScript;
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_glyph_of_mass_dispel();
@@ -2616,7 +2658,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_trigger();
     new spell_pri_cascade();
     new spell_pri_cascade_shadow();
-    new spell_pri_halo();
+    new spell_pri_halo_heal();
+    new spell_pri_halo_damage();
     new spell_pri_shadowy_apparition();
     new spell_pri_inner_fire_or_will();
     new spell_pri_leap_of_faith();
@@ -2649,4 +2692,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_prayer_of_mending();
     new spell_pri_insanity();
     new spell_pri_cascade_marker();
+    new spell_pri_clarity_of_purpose();
 }

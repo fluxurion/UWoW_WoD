@@ -37,3 +37,19 @@ insert into `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targe
 replace into `areatrigger_data` (`entry`, `spellId`, `customEntry`, `customVisualId`, `Radius`, `RadiusTarget`, `Height`, `HeightTarget`, `Float4`, `Float5`, `isMoving`, `moveType`, `waitTime`, `speed`, `activationDelay`, `updateDelay`, `maxCount`, `hitType`, `MoveCurveID`, `ElapsedTime`, `MorphCurveID`, `FacingCurveID`, `ScaleCurveID`, `HasFollowsTerrain`, `HasAttached`, `HasAbsoluteOrientation`, `HasDynamicShape`, `HasFaceMovementDir`, `hasAreaTriggerBox`, `RollPitchYaw1X`, `RollPitchYaw1Y`, `RollPitchYaw1Z`, `TargetRollPitchYawX`, `TargetRollPitchYawY`, `TargetRollPitchYawZ`, `windX`, `windY`, `windZ`, `windSpeed`, `windType`, `polygon`, `comment`) values
 ('2147','122121','7262','25152','4','4','0','0','0','0','1','5','0','30','0','0','0','0','0','0','0','0','0','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','Ѕожественна€ звезда'),
 ('2148','110744','6700','22903','4','4','0','0','0','0','1','5','0','30','0','0','0','0','0','0','0','0','0','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','Ѕожественна€ звезда');
+
+DELETE FROM spell_script_names WHERE spell_id IN (120692,120696);
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('120692','spell_pri_halo_heal');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('120696','spell_pri_halo_damage');
+DELETE FROM areatrigger_actions WHERE entry IN (657,658);
+insert into `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `amount`, `comment`) values
+('657','0','1','0','2','120696','0','0','0','0','0','0','0','Priest: Halo Dark on enemy enter cast'),
+('658','0','1','0','1','120692','0','0','0','0','0','0','0','Priest: Halo Light on friend enter cast');
+
+insert into `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `damage_bonus`, `heal_bonus`, `comments`) values
+('152118','6.6','0','0','0','0','0','ясность воли');
+
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('155245','spell_pri_clarity_of_purpose');
+insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values
+('155245','31','0','0','0','0','0','0','7','1','5','0','0','0','ясна€ цель');
+
