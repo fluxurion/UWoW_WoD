@@ -1763,7 +1763,7 @@ void Player::Update(uint32 p_time)
             GetZoneAndAreaId(newzone, newarea);
 
             //! HardCore. Alliance
-            if (newzone == 6719)
+            if (newzone == 6719 && !m_taxi.GetTaxiSource())
             {
                 if (Garrison *garr = GetGarrison())
                 {
@@ -8670,7 +8670,7 @@ void Player::UpdateArea(uint32 newArea)
     }
 
     // Add to garrison.
-    if (newArea == Garrison::GetAreaIdForTeam(GetTeam()) && !GetMap()->IsGarrison())
+    if (newArea == Garrison::GetAreaIdForTeam(GetTeam()) && !GetMap()->IsGarrison() && !m_taxi.GetTaxiSource())
     {
         if (Garrison *garr = GetGarrison())
         {
@@ -23034,6 +23034,11 @@ void Player::CleanupAfterTaxiFlight()
     Dismount();
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
     getHostileRefManager().setOnlineOfflineState(true);
+
+    // Garrison support
+    uint32 newzone, newarea;
+    GetZoneAndAreaId(newzone, newarea);
+    UpdateZone(newzone, newarea);
 }
 
 void Player::ContinueTaxiFlight()
