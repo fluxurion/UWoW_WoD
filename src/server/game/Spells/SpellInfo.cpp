@@ -2144,7 +2144,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
 
             return mapEntry->IsBattlegroundOrArena() && player && player->InBattleground() ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         }
-        case SPELL_BG_ARENA_PREPARATION:
+        case SPELL_ARENA_PREPARATION:
         {
             if (!player)
                 return SPELL_FAILED_REQUIRES_AREA;
@@ -2158,6 +2158,31 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
 
             Battleground* bg = player->GetBattleground();
             return bg && bg->GetStatus() == STATUS_WAIT_JOIN ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
+        }
+        case SPELL_ARENA_PEREODIC_AURA:
+        {
+            if (!player)
+                return SPELL_FAILED_REQUIRES_AREA;
+
+            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            if (!mapEntry)
+                return SPELL_FAILED_INCORRECT_AREA;
+
+            if (!mapEntry->IsBattleArena())
+                return SPELL_FAILED_REQUIRES_AREA;
+        }
+        case SPELL_ENTERING_BATTLEGROUND:
+        case SPELL_RATED_PVP_TRANSFORM_SUPPRESSION:
+        {
+            if (!player)
+                return SPELL_FAILED_REQUIRES_AREA;
+
+            MapEntry const* mapEntry = sMapStore.LookupEntry(map_id);
+            if (!mapEntry)
+                return SPELL_FAILED_INCORRECT_AREA;
+
+            if (!mapEntry->IsBattlegroundOrArena())
+                return SPELL_FAILED_REQUIRES_AREA;
         }
     }
 
@@ -2811,7 +2836,7 @@ uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
 
     // hack -- no cast time while prep
     if(sWorld->getBoolConfig(CONFIG_FUN_OPTION_ENABLED) && caster)
-        if (caster->HasAura(SPELL_BG_PREPARATION) || caster->HasAura(SPELL_BG_ARENA_PREPARATION))
+        if (caster->HasAura(SPELL_BG_PREPARATION) || caster->HasAura(SPELL_ARENA_PREPARATION))
             return 0;
 
     // not all spells have cast time index and this is all is pasiive abilities

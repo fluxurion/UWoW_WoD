@@ -599,11 +599,6 @@ enum TrinityStrings
     LANG_BG_WS_START_HALF_MINUTE        = 603,
     LANG_BG_WS_HAS_BEGUN                = 604,
 
-    LANG_BG_EY_START_TWO_MINUTES        = 755,
-    LANG_BG_EY_START_ONE_MINUTE         = 636,
-    LANG_BG_EY_START_HALF_MINUTE        = 637,
-    LANG_BG_EY_HAS_BEGUN                = 638,
-
     LANG_BG_AB_ALLY                     = 650,
     LANG_BG_AB_HORDE                    = 651,
     LANG_BG_AB_NODE_STABLES             = 652,

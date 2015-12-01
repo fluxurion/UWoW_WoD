@@ -138,7 +138,6 @@ enum BattlegroundSpells
     SPELL_BG_SPIRIT_HEAL_CHANNEL        = 22011,
     SPELL_BG_SPIRIT_HEAL                = 22012,
     SPELL_BG_RESURRECTION_VISUAL        = 24171,
-    SPELL_BG_ARENA_PREPARATION          = 32727,
     SPELL_BG_PREPARATION                = 44521,
     SPELL_BG_SPIRIT_HEAL_MANA           = 44535,
     SPELL_BG_RECENTLY_DROPPED_FLAG      = 42792,
@@ -147,7 +146,12 @@ enum BattlegroundSpells
     SPELL_BG_HONORABLE_DEFENDER_60Y     = 66157,
     SPELL_BG_THE_LAST_STANDING          = 26549,
     SPELL_BG_ARENA_DUMPENING            = 110310,
-    SPELL_BG_BATTLE_FATIGUE             = 134735,
+    SPELL_BATTLE_FATIGUE                = 134735,
+    
+    SPELL_ARENA_PREPARATION             = 32727,
+    SPELL_ARENA_PEREODIC_AURA           = 74410,
+    SPELL_ENTERING_BATTLEGROUND         = 91318,
+    SPELL_RATED_PVP_TRANSFORM_SUPPRESSION = 182306,
 };
 
 static Milliseconds const PositionBroadcastUpdate = Seconds(5);
@@ -156,7 +160,8 @@ enum BattlegroundTimeIntervals
 {
     RESURRECTION_INTERVAL           = 30000,                // ms
     INVITATION_REMIND_TIME          = 20000,                // ms
-    INVITE_ACCEPT_WAIT_TIME         = 90000,                // ms
+    BG_INVITE_ACCEPT_WAIT_TIME      = 90000,                // ms
+    ARENA_INVITE_ACCEPT_WAIT_TIME   = 30000,                // ms
     TIME_AUTOCLOSE_BATTLEGROUND     = 120000,               // ms
     MAX_OFFLINE_TIME                = 300,                  // secs
     RESPAWN_ONE_DAY                 = 86400,                // secs
@@ -270,6 +275,7 @@ enum BattlegroundStartingEventsIds
 };
 
 static uint32 const ArenaBroadcastTexts[BG_STARTING_EVENT_COUNT] = {15740, 15741, 15739, 15742};
+static uint32 const BattlegroundBroadcastTexts[BG_STARTING_EVENT_COUNT] = {71789, 71790, 71791, 71792};
 
 enum BgNodeStatus
 {
@@ -620,8 +626,6 @@ class Battleground
 
         void _ProcessPlayerPositionBroadcast(Milliseconds diff);
         virtual void GetPlayerPositionData(std::vector<WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition>* /*positions*/) const { }
-
-        void SendOpponentSpecialization(uint32 team);
         
         uint32 GetDefaultTickHonor(uint32 node) { return node ? m_baseTickHonor : 0; }
     protected:

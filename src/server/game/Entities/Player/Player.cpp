@@ -28182,11 +28182,6 @@ void Player::ActivateSpec(uint8 spec)
     SendActionButtons(1);
     InitialPowers();
 
-    //Arena Update
-    if (Battleground* bg = GetBattleground())
-        if (bg->isArena())
-            bg->SendOpponentSpecialization(GetTeam());
-
     if (!sChrSpecializationsStore.LookupEntry(GetSpecializationId(GetActiveSpec())))
         ResetTalents(true);
 }

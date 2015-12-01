@@ -183,7 +183,7 @@ Battleground::Battleground()
 
     for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
     {
-        m_broadcastMessages[i] = 89373 + i; // lets use this like default
+        m_broadcastMessages[i] = BattlegroundBroadcastTexts[i];
         m_hasBroadcasts[i] = false;
     }
 
@@ -893,7 +893,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             if (player->GetBGTeam() != team)
                 player->setFactionForRace(player->getRace());
 
-        player->RemoveAura(SPELL_BG_BATTLE_FATIGUE);
+        player->RemoveAura(SPELL_BATTLE_FATIGUE);
     }
 
     RemovePlayer(player, guid, team);                           // BG subclass specific code
@@ -1089,7 +1089,7 @@ void Battleground::AddPlayer(Player* player)
         if (player->GetBGTeam() != team)
             player->setFaction(team == ALLIANCE ? 1 : 2);
 
-        player->CastSpell(player, SPELL_BG_BATTLE_FATIGUE, true);
+        player->CastSpell(player, SPELL_BATTLE_FATIGUE, true);
     }
 
     if (!isArena() && GetStatus() == STATUS_WAIT_JOIN)
@@ -1868,8 +1868,8 @@ void Battleground::HandleTriggerBuff(ObjectGuid go_guid)
 }
 void Battleground::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
-    // temp - for debugging
-    //player->GetSession()->SendNotification("Warning: Unhandled AreaTrigger in Battleground: %u, Entered: %u", trigger, entered);
+    if (player->isGameMaster())
+        player->GetSession()->SendNotification("Warning: Unhandled AreaTrigger in Battleground: %u, Entered: %u", trigger, entered);
 }
 
 void Battleground::HandleKillPlayer(Player* victim, Player* killer)
@@ -2060,22 +2060,4 @@ void Battleground::_ProcessPlayerPositionBroadcast(Milliseconds diff)
     WorldPackets::Battleground::PlayerPositions playerPositions;
     GetPlayerPositionData(&playerPositions.FlagCarriers);
     SendPacketToAll(playerPositions.Write());
-}
-
-void Battleground::SendOpponentSpecialization(uint32 team)
-{
-    WorldPackets::Battleground::ArenaPrepOpponentSpecializations spec;
-    WorldPackets::Battleground::ArenaPrepOpponentSpecializations::OpponentSpecData data;
-
-    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-    {
-        if (Player* opponent = _GetPlayerForTeam(team, itr, "SendOponentSpecialization"))
-        {
-            data.Guid = opponent->GetGUID();
-            data.SpecializationID = opponent->GetSpecializationId(opponent->GetActiveSpec());
-            data.Unk = 0;
-        }
-    }
-
-    SendPacketToTeam(GetOtherTeam(team), spec.Write());
 }

@@ -423,7 +423,7 @@ bool BattlegroundQueue::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg,
         if (bg->isArena() && bg->isRated())
             bg->SetGroupForTeam(ginfo->Team, ginfo->GroupId);
 
-        ginfo->RemoveInviteTime = getMSTime() + INVITE_ACCEPT_WAIT_TIME;
+        ginfo->RemoveInviteTime = getMSTime() + bg->isArena() ? ARENA_INVITE_ACCEPT_WAIT_TIME : BG_INVITE_ACCEPT_WAIT_TIME;
 
         // loop through the players
         for (std::map<ObjectGuid, PlayerQueueInfo*>::iterator itr = ginfo->Players.begin(); itr != ginfo->Players.end(); ++itr)
@@ -448,14 +448,14 @@ bool BattlegroundQueue::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg,
             m_events.AddEvent(inviteEvent, m_events.CalculateTime(INVITATION_REMIND_TIME));
             // create automatic remove events
             BGQueueRemoveEvent* removeEvent = new BGQueueRemoveEvent(player->GetGUID(), ginfo->IsInvitedToBGInstanceGUID, bgTypeId, bgQueueTypeId, ginfo->RemoveInviteTime);
-            m_events.AddEvent(removeEvent, m_events.CalculateTime(INVITE_ACCEPT_WAIT_TIME));
+            m_events.AddEvent(removeEvent, m_events.CalculateTime(bg->isArena() ? ARENA_INVITE_ACCEPT_WAIT_TIME : BG_INVITE_ACCEPT_WAIT_TIME));
 
             uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
 
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: invited player %s (%u) to BG instance %u queueindex %u bgtype %u, I can't help it if they don't press the enter battle button.", player->GetName(), player->GetGUID().GetCounter(), bg->GetInstanceID(), queueSlot, bg->GetTypeID());
 
             WorldPackets::Battleground::BattlefieldStatusNeedConfirmation battlefieldStatus;
-            sBattlegroundMgr->BuildBattlegroundStatusNeedConfirmation(&battlefieldStatus, bg, player, queueSlot, player->GetBattlegroundQueueJoinTime(bgTypeId), INVITE_ACCEPT_WAIT_TIME, ginfo->JoinType);
+            sBattlegroundMgr->BuildBattlegroundStatusNeedConfirmation(&battlefieldStatus, bg, player, queueSlot, player->GetBattlegroundQueueJoinTime(bgTypeId), bg->isArena() ? ARENA_INVITE_ACCEPT_WAIT_TIME : BG_INVITE_ACCEPT_WAIT_TIME, ginfo->JoinType);
             player->SendDirectMessage(battlefieldStatus.Write());
         }
         return true;
@@ -1111,7 +1111,7 @@ bool BGQueueInviteEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
         if (bgQueue.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
         {
             WorldPackets::Battleground::BattlefieldStatusNeedConfirmation battlefieldStatus;
-            sBattlegroundMgr->BuildBattlegroundStatusNeedConfirmation(&battlefieldStatus, bg, player, queueSlot, player->GetBattlegroundQueueJoinTime(m_BgTypeId), INVITE_ACCEPT_WAIT_TIME - INVITATION_REMIND_TIME, 0);
+            sBattlegroundMgr->BuildBattlegroundStatusNeedConfirmation(&battlefieldStatus, bg, player, queueSlot, player->GetBattlegroundQueueJoinTime(m_BgTypeId), (bg->isArena() ? ARENA_INVITE_ACCEPT_WAIT_TIME : BG_INVITE_ACCEPT_WAIT_TIME) - INVITATION_REMIND_TIME, 0);
             player->SendDirectMessage(battlefieldStatus.Write());
         }
     }

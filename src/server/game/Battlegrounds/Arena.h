@@ -38,6 +38,7 @@ protected:
     void HandleKillPlayer(Player* player, Player* killer) override;
     void StartingEventCloseDoors() override;
     void StartingEventOpenDoors() override;
+    void SendOpponentSpecialization(uint32 team);
 private:
     void RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket) override;
     void EndBattleground(uint32 winner) override;

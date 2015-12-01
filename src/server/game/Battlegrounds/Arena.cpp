@@ -41,14 +41,14 @@ void Arena::Update(uint32 diff)
         return;
 
     Milliseconds elapsedTime = GetElapsedTime();
-    if (elapsedTime >= Minutes(20))
+    if (elapsedTime >= Minutes(25))
     {
         UpdateArenaWorldState();
-        Battleground::EndBattleground(WINNER_NONE);
+        EndBattleground(WINNER_NONE);
         return;
     }
     else if (elapsedTime > Minutes(2))
-        UpdateWorldState(WorldStates::ARENA_END_TIMER, int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(20) - elapsedTime).count()));
+        UpdateWorldState(WorldStates::ARENA_END_TIMER, int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(25) - elapsedTime).count()));
     else if (elapsedTime >= Minutes(10))
     {
         ModifyStartDelayTime(Milliseconds(diff));
@@ -72,17 +72,18 @@ inline void Arena::_ProcessJoin(uint32 diff)
 
     if (GetStartDelayTime() <= m_messageTimer[BG_STARTING_EVENT_FOURTH] && !(m_Events & BG_STARTING_EVENT_4))
     {
+        BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetJoinType());
+
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             {
-                BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetJoinType());
                 uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
 
                 WorldPackets::Battleground::BattlefieldStatusActive battlefieldStatus;
                 sBattlegroundMgr->BuildBattlegroundStatusActive(&battlefieldStatus, this, player, queueSlot, player->GetBattlegroundQueueJoinTime(BATTLEGROUND_AA), GetJoinType());
                 player->SendDirectMessage(battlefieldStatus.Write());
 
-                player->RemoveAurasDueToSpell(SPELL_BG_ARENA_PREPARATION);
+                player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                 player->ResetAllPowers();
 
                 Unit::AuraApplicationMap & auraMap = player->GetAppliedAuras();
@@ -129,14 +130,19 @@ void Arena::AddPlayer(Player* player)
     else
         player->CastSpell(player, player->GetBGTeam() == HORDE ? SPELL_BG_HORDE_GREEN_FLAG : SPELL_BG_ALLIANCE_GREEN_FLAG, true);
 
-    player->CastSpell(player, SPELL_BG_BATTLE_FATIGUE, true);
+    player->CastSpell(player, SPELL_BATTLE_FATIGUE, true);
 
     player->DestroyConjuredItems(true);
     player->UnsummonPetTemporaryIfAny();
 
     if (GetStatus() == STATUS_WAIT_JOIN)
     {
-        player->CastSpell(player, SPELL_BG_ARENA_PREPARATION, true);
+        player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
+        player->CastSpell(player, SPELL_ARENA_PEREODIC_AURA, true);
+        player->CastSpell(player, SPELL_ENTERING_BATTLEGROUND, true);
+        if (isRated())
+            player->CastSpell(player, SPELL_RATED_PVP_TRANSFORM_SUPPRESSION, true);
+
         player->ResetAllPowers(true);
     }
 
@@ -160,7 +166,7 @@ void Arena::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*
 void Arena::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
     packet.Worldstates.emplace_back(WorldStates::ARENA_SHOW_END_TIMER, GetStatus() == STATUS_IN_PROGRESS);
-    packet.Worldstates.emplace_back(WorldStates::ARENA_END_TIMER, int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(20) - GetElapsedTime()).count()));
+    packet.Worldstates.emplace_back(WorldStates::ARENA_END_TIMER, int32(time(nullptr) + std::chrono::duration_cast<Seconds>(Minutes(25) - GetElapsedTime()).count()));
     packet.Worldstates.emplace_back(WorldStates::ARENA_ALIVE_PLAYERS_GREEN, GetAlivePlayersCountByTeam(HORDE));
     packet.Worldstates.emplace_back(WorldStates::ARENA_ALIVE_PLAYERS_GOLD, GetAlivePlayersCountByTeam(ALLIANCE));
 }
@@ -194,11 +200,24 @@ void Arena::StartingEventOpenDoors()
     Battleground::StartingEventOpenDoors();
 
     UpdateWorldState(WorldStates::ARENA_SHOW_END_TIMER, 1);
+
+    for (auto const& v : GetPlayers())
+        if (Player* player = ObjectAccessor::FindPlayer(v.first))
+            player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
 }
 
 void Arena::RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket)
 {
     Battleground::RemovePlayerAtLeave(guid, transport, sendPacket);
+
+    Player* player = ObjectAccessor::FindPlayer(guid);
+    if (!player)
+        return;
+
+    player->RemoveAurasDueToSpell(SPELL_ARENA_PEREODIC_AURA);
+    player->RemoveAurasDueToSpell(SPELL_ENTERING_BATTLEGROUND);
+    if (isRated())
+        player->RemoveAurasDueToSpell(SPELL_RATED_PVP_TRANSFORM_SUPPRESSION);
 }
 
 void Arena::CheckWinConditions()
@@ -215,6 +234,8 @@ void Arena::EndBattleground(uint32 winner)
 
     if (!isArena())
         return;
+
+    UpdateWorldState(WorldStates::ARENA_SHOW_END_TIMER, 0);
 
     bool guildAwarded = false;
     uint8 aliveWinners = GetAlivePlayersCountByTeam(winner);
@@ -242,47 +263,46 @@ void Arena::EndBattleground(uint32 winner)
             continue;
 
         Bracket* bracket = GetJoinType() ? player->getBracket(bType) : nullptr;
+        uint16 bracketRating = bracket->getRating();
+        bool isWinnerTeam = team == winner;
 
-        if (team == winner && isRated() && GetJoinType() == JOIN_TYPE_ARENA_5v5 && aliveWinners == 1 && player->isAlive())
+        if (isWinnerTeam && isRated() && GetJoinType() == JOIN_TYPE_ARENA_5v5 && aliveWinners == 1 && player->isAlive())
             player->CastSpell(player, SPELL_BG_THE_LAST_STANDING, true);
 
         if (isRated() && winner != WINNER_NONE)
         {
-            uint32 gain = bracket->FinishGame(team == winner, GetMatchmakerRating(team == winner ? GetOtherTeam(winner) : winner));
-            info << " >> Plr: " << player->ToString().c_str() << " mmr gain: " << gain << " state:" << (team == winner) ? "WINER" : "LOSER";
-            if (team == winner)
+            uint32 gain = bracket->FinishGame(isWinnerTeam, GetMatchmakerRating(isWinnerTeam ? GetOtherTeam(winner) : winner));
+            info << " >> Plr: " << player->ToString().c_str() << " mmr gain: " << gain << " state:" << (isWinnerTeam) ? "WINER" : "LOSER";
+            if (isWinnerTeam)
             {
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, 1);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
                 player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_ARENA_META, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
 
-                _arenaTeamScores[team == winner].Assign(bracket->getRating(), bracket->getRating() + gain, bracket->getLastMMRChange());
+                _arenaTeamScores[team].Assign(bracketRating, bracketRating + gain, bracket->getLastMMRChange());
+
+                if (!guildAwarded)
+                {
+                    guildAwarded = true;
+                    if (ObjectGuid::LowType guildId = GetBgMap()->GetOwnerGuildId(player->GetTeam()))
+                        if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+                            guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(bracketRating, 1), 0, 0, nullptr, player);
+                }
             }
             else
             {
                 player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
-                _arenaTeamScores[team != winner].Assign(bracket->getRating(), bracket->getRating() - gain, bracket->getLastMMRChange());
+                _arenaTeamScores[team].Assign(bracketRating, bracketRating - gain, bracket->getLastMMRChange());
             }
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA, GetMapId());
         }
         else if (isRated())
         {
-            _arenaTeamScores[TEAM_ALLIANCE].Assign(bracket->getRating(), bracket->getRating() - 16, bracket->getLastMMRChange());
-            _arenaTeamScores[TEAM_HORDE].Assign(bracket->getRating(), bracket->getRating() - 16, bracket->getLastMMRChange());
+            _arenaTeamScores[TEAM_ALLIANCE].Assign(bracketRating, bracketRating - 16, bracket->getLastMMRChange());
+            _arenaTeamScores[TEAM_HORDE].Assign(bracketRating, bracketRating - 16, bracket->getLastMMRChange());
 
             bracket->FinishGame(false, -16);
-        }
-
-        if (team == winner && !guildAwarded && isRated() && winner != WINNER_NONE)
-        {
-            guildAwarded = true;
-            if (ObjectGuid::LowType guildId = GetBgMap()->GetOwnerGuildId(player->GetTeam()))
-                if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                {
-                    ASSERT(bracket);
-                    guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(bracket->getRating(), 1), 0, 0, nullptr, player);
-                }
         }
     }
 
@@ -345,4 +365,21 @@ void Arena::EndBattleground(uint32 winner)
                 break;
         }
     }
+}
+
+void Arena::SendOpponentSpecialization(uint32 team)
+{
+    WorldPackets::Battleground::ArenaPrepOpponentSpecializations spec;
+    WorldPackets::Battleground::ArenaPrepOpponentSpecializations::OpponentSpecData data;
+
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    {
+        if (Player* opponent = _GetPlayerForTeam(team, itr, "SendOponentSpecialization"))
+        {
+            data.Guid = opponent->GetGUID();
+            data.SpecializationID = opponent->GetSpecializationId(opponent->GetActiveSpec());
+        }
+    }
+
+    SendPacketToTeam(GetOtherTeam(team), spec.Write());
 }
