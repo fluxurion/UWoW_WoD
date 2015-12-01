@@ -5226,8 +5226,6 @@ void Player::SetSpecializationId(uint8 spec, uint32 id)
 
     if (spec == GetActiveSpec())
         SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, id);
-
-    UpdateVersality();
 }
 
 uint32 Player::GetRoleForGroup(uint32 specializationId)
@@ -9585,6 +9583,7 @@ void Player::UpdateEquipSpellsAtFormChange()
         }
     }
 }
+
 void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 procVictim, uint32 procEx)
 {
     if (!target || !target->isAlive() || target == this)
@@ -18674,31 +18673,15 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         for(std::vector<uint32>::iterator itr = prof_skills.begin(); itr != prof_skills.end(); ++itr)
         {
             uint32 skill_id = *itr;
+
             if(HasSkill(skill_id))
             {
                 ++prof_count;
+
                 if(prof_count > 2)
-                    SetSkill(skill_id,0 , 0, 0);
+                    SetSkill(skill_id, 0, 0, 0);
             }    
         }
-    }
-
-    //dual spec check
-    if (GetSpecsCount() == 2)
-    {
-        PlayerSpellMap::iterator itr = m_spells.find(63645);
-        if (itr == m_spells.end())
-            learnSpell(63645, true);
-
-        itr = m_spells.find(63644);
-        if (itr == m_spells.end())
-            learnSpell(63644, true);
-    }else
-    {
-        //Fix learning DK DualSpec at char creation + pissible lost cases.
-        PlayerSpellMap::iterator itr = m_spells.find(63645);
-        if(itr != m_spells.end())
-            UpdateSpecCount(2);
     }
 
     if (sObjectMgr->IsPlayerInLogList(this))
