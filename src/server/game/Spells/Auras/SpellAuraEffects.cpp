@@ -8003,6 +8003,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
             case 103103: // Malefic Grasp
             {
                 int32 afflictionDamage = 0;
+                if (caster->HasAura(157077) && target->HealthBelowPct(20)) // Improved Drain Soul
+                    damage *= 2;
 
                 // Every tick, Malefic Grasp deals instantly 50% of tick-damage for each affliction effects on the target
                 // Corruption ...

@@ -7602,6 +7602,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
                 }
                 case 108558: // Nightfall
                 {
+                    float chance = triggerAmount / 10;
+                    if (!roll_chance_f(chance))
+                        return false;
+
                     triggered_spell_id = 17941;
                     break;
                 }

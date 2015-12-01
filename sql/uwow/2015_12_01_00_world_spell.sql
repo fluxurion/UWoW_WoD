@@ -19,3 +19,17 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('155362','spe
 insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
 ('155363','156678','0','20','0','0','0','0','0','0','0','7','0','0','0','0','0','0','0','-1','0','0','0','Молитва восстановления');
 
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('74434','93313','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Warlock - Seed of Corruption(Soulburn)'),
+('74434','104249','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Warlock - Demonic Circle: Teleport(Soulburn)'),
+('-74434','-104249','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Soulburn Dummy'),
+('-74434','-93313','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Soulburn Dummy');
+
+DELETE FROM spell_proc_event WHERE entry IN (108558);
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('108558','0','0','146739','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Сумерки');
+
+replace into `areatrigger_data` (`entry`, `spellId`, `customEntry`, `customVisualId`, `Radius`, `RadiusTarget`, `Height`, `HeightTarget`, `Float4`, `Float5`, `isMoving`, `moveType`, `waitTime`, `speed`, `activationDelay`, `updateDelay`, `maxCount`, `hitType`, `MoveCurveID`, `ElapsedTime`, `MorphCurveID`, `FacingCurveID`, `ScaleCurveID`, `HasFollowsTerrain`, `HasAttached`, `HasAbsoluteOrientation`, `HasDynamicShape`, `HasFaceMovementDir`, `hasAreaTriggerBox`, `RollPitchYaw1X`, `RollPitchYaw1Y`, `RollPitchYaw1Z`, `TargetRollPitchYawX`, `TargetRollPitchYawY`, `TargetRollPitchYawZ`, `windX`, `windY`, `windZ`, `windSpeed`, `windType`, `polygon`, `comment`) values
+('657','120644','3919','24817','5','30','0','0','0','0','0','0','0','0','1000','0','0','0','0','0','0','0','0','0','0','0','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','Сияние'),
+('658','120517','3921','24801','5','30','0','0','0','0','0','0','0','0','1000','0','0','0','0','0','0','0','0','0','0','0','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','Сияние');
+

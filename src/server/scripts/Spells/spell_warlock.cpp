@@ -925,6 +925,13 @@ class spell_warl_soul_swap : public SpellScriptLoader
                             caster->RemoveSoulSwapDOT(target);
                             target->CastSpell(caster, WARLOCK_SOUL_SWAP_VISUAL, true);
                             caster->m_SpecialTarget = target->GetGUID();
+                            if (caster->HasAura(74434)) // Soulburn
+                            {
+                                // Apply instantly corruption, unstable affliction and agony on the target
+                                caster->CastSpell(target, WARLOCK_CORRUPTION, true);
+                                caster->CastSpell(target, WARLOCK_UNSTABLE_AFFLICTION, true);
+                                caster->CastSpell(target, WARLOCK_AGONY, true);
+                            }
                         }
                         else if (GetSpellInfo()->Id == 86213)
                         {

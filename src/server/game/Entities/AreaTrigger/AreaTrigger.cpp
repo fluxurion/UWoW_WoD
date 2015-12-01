@@ -128,14 +128,12 @@ bool AreaTrigger::CreateAreaTrigger(ObjectGuid::LowType guidlow, uint32 triggerE
     else
     {
         bool find = false;
-        if(atInfo.Radius)
+        if(atInfo.Radius || atInfo.RadiusTarget)
         {
-            _radius = atInfo.Radius;
-            find = true;
-        }
-        else if(atInfo.RadiusTarget)
-        {
-            _radius = atInfo.RadiusTarget;
+            if(atInfo.Radius > atInfo.RadiusTarget)
+                _radius = atInfo.Radius;
+            else
+                _radius = atInfo.RadiusTarget;
             find = true;
         }
 
