@@ -3042,11 +3042,8 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     if (canDodge)
     {
-        int32 lvldiff = victim->getLevel() - getLevel();
-        int32 dodgelvl = lvldiff * 150;
         // Roll dodge
         int32 dodgeChance = int32(victim->GetUnitDodgeChanceAgainst(this) * 100.0f);
-        dodgeChance += dodgelvl;
         // Reduce enemy dodge chance by SPELL_AURA_MOD_COMBAT_RESULT_CHANCE
         dodgeChance += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_COMBAT_RESULT_CHANCE, VICTIMSTATE_DODGE) * 100;
         dodgeChance = int32(float(dodgeChance) * GetTotalAuraMultiplier(SPELL_AURA_MOD_ENEMY_DODGE));
@@ -3113,20 +3110,11 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     SpellSchoolMask schoolMask = spell->GetSchoolMask();
     int32 lchance = victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
-    int32 thisLevel = getLevelForTarget(victim);
+    int32 thisLevel = getLevel();
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->isTrigger())
         thisLevel = std::max<int32>(thisLevel, spell->SpellLevel);
-    int32 leveldif = int32(victim->getLevelForTarget(this)) - thisLevel;
+    int32 leveldif = int32(victim->getLevel()) - thisLevel;
     int32 levelBasedHitDiff = leveldif;
-
-    // Base hit chance from attacker and victim levels
-
-    // | caster | target | miss 
-    //    90        90      6
-    //    90        91      9
-    //    90        92     12
-    //    90        93     15
-
     int32 modHitChance = 100;
 
     if (levelBasedHitDiff >= 0)
