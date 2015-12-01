@@ -225,7 +225,7 @@ private:
             Creature* GetCreaturePoint() { return m_point; }
 
         protected:
-            typedef std::pair<uint32, uint32> WorldState;
+            typedef std::pair<WorldStates, uint32> WorldState;
             WorldState m_currentWorldState;
 
             PointStates m_state;

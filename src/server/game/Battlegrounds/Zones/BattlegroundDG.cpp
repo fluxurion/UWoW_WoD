@@ -416,7 +416,7 @@ BattlegroundDG::Point::Point(BattlegroundDG* bg) : m_bg(bg)
     m_state = POINT_STATE_NEUTRAL;
     m_timer = Milliseconds(0);
     m_goldCredit = 0;
-    m_currentWorldState = std::make_pair(0, 0);
+    m_currentWorldState = std::make_pair(WorldStates::WS_NONE, 0);
     m_point = nullptr;
 }
 
@@ -502,7 +502,7 @@ void BattlegroundDG::TopPoint::UpdateState(PointStates state)
     PointStates oldstate = m_state;
     Point::UpdateState(state);
 
-    if (m_currentWorldState.first)
+    if (m_currentWorldState.first != WorldStates::WS_NONE)
         GetBg()->UpdateWorldState(m_currentWorldState.first, !m_currentWorldState.second);
 
     switch (state)
@@ -512,22 +512,22 @@ void BattlegroundDG::TopPoint::UpdateState(PointStates state)
                 GetBg()->UpdateWorldState(WorldStates::DG_SHOW_PANDAREN_MINE_ICON, 0);
 
             GetBg()->UpdateWorldState(7857, 1);
-            m_currentWorldState = std::make_pair(7857, 1);
+            m_currentWorldState = std::make_pair(static_cast<WorldStates>(7857), 1);
             break;
         case POINT_STATE_CONTESTED_HORDE:
             if (oldstate == POINT_STATE_NEUTRAL)
                 GetBg()->UpdateWorldState(WorldStates::DG_SHOW_PANDAREN_MINE_ICON, 0);
 
             GetBg()->UpdateWorldState(7861, 1);
-            m_currentWorldState = std::make_pair(7861, 1);
+            m_currentWorldState = std::make_pair(static_cast<WorldStates>(7861), 1);
             break;
         case POINT_STATE_CAPTURED_ALLIANCE:
             GetBg()->UpdateWorldState(7855, 2);
-            m_currentWorldState = std::make_pair(7855, 2);
+            m_currentWorldState = std::make_pair(static_cast<WorldStates>(7855), 2);
             break;
         case POINT_STATE_CAPTURED_HORDE:
             GetBg()->UpdateWorldState(7855, 1);
-            m_currentWorldState = std::make_pair(7855, 1);
+            m_currentWorldState = std::make_pair(static_cast<WorldStates>(7855), 1);
             break;
         default:
             break;
@@ -539,7 +539,7 @@ void BattlegroundDG::BotPoint::UpdateState(PointStates state)
     PointStates oldstate = m_state;
     Point::UpdateState(state);
 
-    if (m_currentWorldState.first)
+    if (m_currentWorldState.first != WorldStates::WS_NONE)
         GetBg()->UpdateWorldState(m_currentWorldState.first, !m_currentWorldState.second);
 
     switch (state)
@@ -556,7 +556,7 @@ void BattlegroundDG::BotPoint::UpdateState(PointStates state)
                 GetBg()->UpdateWorldState(WorldStates::DG_SHOW_GOBLIN_MINE_ICON, 0);
 
             GetBg()->UpdateWorldState(7865, 1);
-            m_currentWorldState = std::make_pair(7865, 1);
+            m_currentWorldState = std::make_pair(static_cast<WorldStates>(7865), 1);
             break;
         case POINT_STATE_CAPTURED_ALLIANCE:
             GetBg()->UpdateWorldState(WorldStates::DG_GOBLIN_MINE_CAPTURED_BY_TEAM, 2);
@@ -576,7 +576,7 @@ void BattlegroundDG::MiddlePoint::UpdateState(PointStates state)
     PointStates oldstate = m_state;
     Point::UpdateState(state);
 
-    if (m_currentWorldState.first)
+    if (m_currentWorldState.first != WorldStates::WS_NONE)
         GetBg()->UpdateWorldState(m_currentWorldState.first, !m_currentWorldState.second);
 
     switch (state)
@@ -593,7 +593,7 @@ void BattlegroundDG::MiddlePoint::UpdateState(PointStates state)
                 GetBg()->UpdateWorldState(WorldStates::DG_SHOW_MIDDLE_MINE_ICON, 0);
 
             GetBg()->UpdateWorldState(7936, 1);
-            m_currentWorldState = std::make_pair(7936, 1);
+            m_currentWorldState = std::make_pair(static_cast<WorldStates>(7936), 1);
             break;
         case POINT_STATE_CAPTURED_ALLIANCE:
             GetBg()->UpdateWorldState(WorldStates::DG_MIDDLE_MINE_HORDE_CAPTURED, 2);
@@ -622,23 +622,10 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
     if (!m_controlledBy.IsEmpty())
         return;
 
-    uint32 cartEntry, cartAuraId;
-    WorldStates flagState;
-
-    auto teamID = player->GetBGTeamId();
-
-    if (teamID == TEAM_ALLIANCE)
-    {
-        cartEntry = 71073;
-        flagState = WorldStates::DG_ALLIANCE_CART_ASSAULT;
-        cartAuraId = BG_DG_AURA_CART_HORDE;
-    }
-    else
-    {
-        cartEntry = 71071;
-        flagState = WorldStates::DG_HORDE_CART_ASSAULT;
-        cartAuraId = BG_DG_AURA_CART_ALLIANCE;
-    }
+    uint32 cartAuraId[MAX_TEAMS] = {BG_DG_AURA_CART_HORDE, BG_DG_AURA_CART_ALLIANCE};
+    WorldStates flagState[MAX_TEAMS] = {WorldStates::DG_ALLIANCE_CART_ASSAULT, WorldStates::DG_HORDE_CART_ASSAULT};
+    uint32 cartEntry[MAX_TEAMS] = {71073, 71071};
+    TeamId teamID = player->GetBGTeamId();
 
     GetBg()->PlayeCapturePointSound(NODE_STATUS_ASSAULT, teamID);
 
@@ -647,7 +634,7 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
     cell.SetNoCreate();
 
     Creature* cart = nullptr;
-    Trinity::AllCreaturesOfEntryInRange check(player, cartEntry, SIZE_OF_GRIDS);
+    Trinity::AllCreaturesOfEntryInRange check(player, cartEntry[teamID], SIZE_OF_GRIDS);
     Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(player, cart, check);
     TypeContainerVisitor<Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
 
@@ -657,7 +644,7 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
     {
         cart->GetMotionMaster()->MoveFollow(player, 2.f, 0.f);
         cart->CastSpell(player, BG_DG_AURA_CARTS_CHAINS);
-        cart->AddAura(cartAuraId, cart);
+        cart->AddAura(cartAuraId[teamID], cart);
         // WTF? It's already set creature type, or u need set 0x10000? ->SetUInt16Value(OBJECT_FIELD_TYPE, 1, 1);
         // This nothing change before!
         //cart->SetUInt16Value(OBJECT_FIELD_TYPE, 0, 65545);
@@ -665,7 +652,7 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
         cart->setFaction(35);
         cart->SetSpeed(MOVE_RUN, 3.f);
 
-        GetBg()->UpdateWorldState(flagState, 2);
+        GetBg()->UpdateWorldState(flagState[teamID], 2);
 
         m_controlledBy = player->GetGUID();
 
