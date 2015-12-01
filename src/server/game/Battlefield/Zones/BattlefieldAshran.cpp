@@ -3,8 +3,8 @@
 
 bool BattlefieldAshran::SetupBattlefield()
 {
-    m_isActive = true;
-    m_IsEnabled = true;
+    m_isActive = false;
+    m_IsEnabled = false;
 
     m_TypeId = BATTLEFIELD_ASHRAN;
     m_BattleId = BATTLEFIELD_BATTLEID_ASHRAN;
