@@ -70,6 +70,8 @@ REPLACE INTO `phase_definitions` (`zoneId`, `entry`, `phasemask`, `phaseId`, `Pr
 (7078, 10, 0, '3666', 0, 0, 16, 'Draenor. ShadowMoon.Valley.q34646'),
 (7078, 11, 0, '3464', 0, 0, 16, 'Draenor. ShadowMoon.Valley.q34646'),
 -- 2487 2501 2559 2877 2884 2988 3054 3055 3122 3184 3238 3244 3253 3290 3420 3434 3585 3666 3695 3926 3934 4086 4352
+
+('6719', '95', '0', '0', '1158', '0', '24', 'Draenor. ShadowMoon. Garrison terrain lvl.1 '),
 (6719, 100, 0, '2877 2884 2988 3054 3055 3122 3184 3238 3244 3253 3420 3434 3926 3934 4086 4318', 0, 0, 16, 'Draenor. ShadowMoon.Valley. general.');
 
 DELETE FROM `conditions` WHERE SourceTypeOrReferenceId = 23 AND SourceGroup = 6719;
@@ -86,6 +88,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 6719, 8, 0, 1, 8, 0, 35174, 0, 0, 1, 0, '', 'Draenor. ShadowMoon.Valley. q35174'),
 (23, 6719, 9, 0, 0, 14, 0, 34646, 0, 0, 1, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646'),
 (23, 6719, 10, 0, 0, 28, 0, 34646, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646'),
+
+(23, 6719, 95, 0, 0, 8, 0, 34583, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. 34583'),
 (23, 6719, 11, 0, 0, 8, 0, 34646, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646');
 
 -- Q34583 spell 160405 npc 82125
