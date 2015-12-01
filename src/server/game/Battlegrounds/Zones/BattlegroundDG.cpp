@@ -34,10 +34,11 @@ BattlegroundDG::BattlegroundDG()
 
     _goldUpdate = Seconds(5);
 
-    StartMessageIds[BG_STARTING_EVENT_FIRST] = LANG_BG_DG_START_TWO_MINUTES;
-    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_DG_START_ONE_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_BG_DG_START_HALF_MINUTE;
-    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_DG_START_HAS_BEGUN;
+    for (uint8 i = BG_STARTING_EVENT_FIRST; i < BG_STARTING_EVENT_COUNT; ++i)
+    {
+        m_broadcastMessages[i] = BattlegroundBroadcastTexts[i];
+        m_hasBroadcasts[i] = true;
+    }
 
     for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
         _carts[i] = nullptr;
@@ -163,14 +164,20 @@ void BattlegroundDG::EventPlayerUsedGO(Player* player, GameObject* go)
 {
     for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
         if (_carts[i]->GetGameObject() == go)
+        {
             _carts[i]->ToggleCaptured(player);
+            SendBroadcastTextToAll(BgDGCartChecked[player->GetBGTeamId()], CHAT_MSG_BG_SYSTEM_NEUTRAL, player);
+        }
 }
 
-void BattlegroundDG::EventPlayerDroppedFlag(Player* Source)
+void BattlegroundDG::EventPlayerDroppedFlag(Player* player)
 {
     for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
-        if (_carts[i]->ControlledByPlayerWithGuid() == Source->GetGUID())
+        if (_carts[i]->ControlledByPlayerWithGuid() == player->GetGUID())
+        {
             _carts[i]->CartDropped();
+            SendBroadcastTextToAll(BgDGCartRetured[player->GetBGTeamId()], CHAT_MSG_BG_SYSTEM_NEUTRAL, player);
+        }
 }
 
 ObjectGuid BattlegroundDG::GetFlagPickerGUID(int32 team) const
@@ -181,27 +188,14 @@ ObjectGuid BattlegroundDG::GetFlagPickerGUID(int32 team) const
     return ObjectGuid::Empty;
 }
 
-void BattlegroundDG::UpdatePointsCountPerTeam()
-{
-    uint8 allincePoints = 0;
-    uint8 hordePoints = 0;
-
-    for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
-    {
-        if (_points[i]->GetState() == POINT_STATE_CAPTURED_ALLIANCE)
-            allincePoints++;
-        else if (_points[i]->GetState() == POINT_STATE_CAPTURED_HORDE)
-            hordePoints++;
-    }
-
-    UpdateWorldState(8230, allincePoints);
-    UpdateWorldState(8231, hordePoints);
-}
-
 uint32 BattlegroundDG::ModGold(TeamId teamId, int32 val)
 {
     m_TeamScores[teamId] = (val < 0 && int32(m_TeamScores[teamId] + val) < 0) ? 0 : m_TeamScores[teamId] + val;
-    UpdateWorldState(teamId == TEAM_ALLIANCE ? 7880 : 7881, m_TeamScores[teamId]);
+    UpdateWorldState(teamId == TEAM_ALLIANCE ? WorldStates::DG_ALLIANCE_POINTS : WorldStates::DG_HORDE_POINTS, m_TeamScores[teamId]);
+
+    if (m_TeamScores[teamId] > BG_DG_MAX_TEAM_SCORE)
+        m_TeamScores[teamId] = BG_DG_MAX_TEAM_SCORE;
+
     Battleground::SendBattleGroundPoints(teamId != TEAM_ALLIANCE, m_TeamScores[teamId]);
 
     return m_TeamScores[teamId];
@@ -218,24 +212,9 @@ void BattlegroundDG::PostUpdateImpl(Milliseconds diff)
 
     if (_goldUpdate < Milliseconds(0))
     {
-        uint32 alliancemod = 0;
-        uint32 hordemod = 0;
-
-        uint32 modPerPoint = 16;
-
-        for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
-        {
-            if (_points[i]->GetState() == POINT_STATE_CAPTURED_ALLIANCE)
-                alliancemod += modPerPoint;
-            else if (_points[i]->GetState() == POINT_STATE_CAPTURED_HORDE)
-                hordemod += modPerPoint;
-        }
-
-        if (alliancemod)
-            ModGold(TEAM_ALLIANCE, alliancemod);
-
-        if (hordemod)
-            ModGold(TEAM_HORDE, hordemod);
+        // wrong value, but idk blizz values
+        ModGold(TEAM_ALLIANCE, _GetCapturedNodesForTeam(TEAM_ALLIANCE) * 16);
+        ModGold(TEAM_HORDE, _GetCapturedNodesForTeam(TEAM_HORDE) * 16);
 
         _goldUpdate = Seconds(5);
     }
@@ -252,13 +231,24 @@ void BattlegroundDG::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 {
     switch (trigger)
     {
-        case 9013:                                          // near alliance cart
+        case 9013: // Alliance cart point
             if (_carts[TEAM_ALLIANCE]->ControlledByPlayerWithGuid() == player->GetGUID())
+            {
                 _carts[TEAM_ALLIANCE]->CartDelivered();
-            break;
-        case 9012:                                          // near horde cart
+                SendBroadcastTextToAll(BgDGCartCaptured[TEAM_ALLIANCE], CHAT_MSG_BG_SYSTEM_NEUTRAL, player);
+                break;
+            }
+        case 9012: // Horde cart point
             if (_carts[TEAM_HORDE]->ControlledByPlayerWithGuid() == player->GetGUID())
+            {
                 _carts[TEAM_HORDE]->CartDelivered();
+                SendBroadcastTextToAll(BgDGCartCaptured[TEAM_HORDE], CHAT_MSG_BG_SYSTEM_NEUTRAL, player);
+                break;
+            }
+        case 9139: // Alliance start loc
+        case 9140: // Horde start loc
+            if (!entered && GetStatus() == STATUS_WAIT_JOIN)
+                player->TeleportTo(GetMapId(), GetTeamStartPosition(player->GetBGTeamId()));
             break;
         default:
             Battleground::HandleAreaTrigger(player, trigger, entered);
@@ -268,23 +258,66 @@ void BattlegroundDG::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
 
 void BattlegroundDG::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(7939), 1);
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(7938), 1);
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(7935), 1);
-
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(7904), (_carts[TEAM_HORDE] && !_carts[TEAM_HORDE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(7887), (_carts[TEAM_ALLIANCE] && !_carts[TEAM_ALLIANCE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
-
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(7880), m_TeamScores[TEAM_ALLIANCE]);
-    packet.Worldstates.emplace_back(static_cast<WorldStates>(7881), m_TeamScores[TEAM_HORDE]);
-
-    if (_points[0])
-        UpdatePointsCountPerTeam();
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7855), 0);
+    packet.Worldstates.emplace_back(WorldStates::DG_GOBLIN_MINE_CAPTURED_BY_TEAM, 0); // 1 horde, 2 alliance OMGG
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7857), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7858), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7859), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7861), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7862), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7863), 0);
+    packet.Worldstates.emplace_back(WorldStates::DG_GOBLIN_MINE_ALLIANCE_ASSAULT, 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7865), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7866), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7867), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7870), 1);
+    packet.Worldstates.emplace_back(WorldStates::DG_ALLIANCE_POINTS, m_TeamScores[TEAM_ALLIANCE]);
+    packet.Worldstates.emplace_back(WorldStates::DG_HORDE_POINTS, m_TeamScores[TEAM_HORDE]);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7885), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7886), 1);
+    packet.Worldstates.emplace_back(WorldStates::DG_HORDE_CART_ASSAULT, (_carts[TEAM_ALLIANCE] && !_carts[TEAM_ALLIANCE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7892), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7893), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7894), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7895), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7897), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7898), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7899), 1);
+    packet.Worldstates.emplace_back(WorldStates::DG_ALLIANCE_CART_ASSAULT, (_carts[TEAM_HORDE] && !_carts[TEAM_HORDE]->ControlledByPlayerWithGuid().IsEmpty() ? 2 : 1));
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7905), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7906), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7907), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7908), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7909), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7910), 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7911), 1);
+    packet.Worldstates.emplace_back(WorldStates::DG_MIDDLE_MINE_HORDE_CAPTURED, 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7933), 0);
+    packet.Worldstates.emplace_back(WorldStates::DG_MIDDLE_MINE_ALLIANCE_ASSAULT, 0);
+    packet.Worldstates.emplace_back(WorldStates::DG_SHOW_PANDAREN_MINE_ICON, 1);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7936), 0);
+    packet.Worldstates.emplace_back(static_cast<WorldStates>(7937), 0);
+    packet.Worldstates.emplace_back(WorldStates::DG_SHOW_GOBLIN_MINE_ICON, 1);
+    packet.Worldstates.emplace_back(WorldStates::DG_SHOW_MIDDLE_MINE_ICON, 1);
+    packet.Worldstates.emplace_back(WorldStates::DG_ALLIANCE_NODES, _GetCapturedNodesForTeam(TEAM_ALLIANCE));
+    packet.Worldstates.emplace_back(WorldStates::DG_HORDE_NODES, _GetCapturedNodesForTeam(TEAM_HORDE));
 }
 
 void BattlegroundDG::Reset()
 {
     Battleground::Reset();
+
+    _goldUpdate = Seconds(5);
+
+    for (uint8 i = 0; i < BG_DG_UNIT_MAX; ++i)
+        if (!BgCreatures[i].IsEmpty())
+            DelCreature(i);
+
+    for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
+        _carts[i] = nullptr;
+
+    for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
+        _points[i] = nullptr;
 }
 
 bool BattlegroundDG::SetupBattleground()
@@ -357,6 +390,27 @@ bool BattlegroundDG::SetupBattleground()
     return true;
 }
 
+uint8 BattlegroundDG::_GetCapturedNodesForTeam(TeamId teamID)
+{
+    uint8 nodes = 0;
+
+    for (uint8 i = BG_DG_UNIT_FLAG_BOT; i <= BG_DG_UNIT_FLAG_TOP; ++i)
+    {
+        if (!_points[i])
+            return nodes;
+
+        if (teamID == TEAM_ALLIANCE)
+            if (_points[i]->GetState() == POINT_STATE_CAPTURED_ALLIANCE)
+                ++nodes;
+        
+        if (teamID == TEAM_HORDE)
+            if (_points[i]->GetState() == POINT_STATE_CAPTURED_HORDE)
+                ++nodes;
+    }
+
+    return nodes;
+}
+
 BattlegroundDG::Point::Point(BattlegroundDG* bg) : m_bg(bg)
 {
     m_state = POINT_STATE_NEUTRAL;
@@ -411,7 +465,8 @@ void BattlegroundDG::Point::UpdateState(PointStates state)
 
     m_state = state;
 
-    GetBg()->UpdatePointsCountPerTeam();
+    GetBg()->UpdateWorldState(WorldStates::DG_ALLIANCE_NODES, GetBg()->_GetCapturedNodesForTeam(TEAM_ALLIANCE));
+    GetBg()->UpdateWorldState(WorldStates::DG_HORDE_NODES, GetBg()->_GetCapturedNodesForTeam(TEAM_HORDE));
 }
 
 void BattlegroundDG::Point::PointClicked(Player* player)
@@ -454,14 +509,14 @@ void BattlegroundDG::TopPoint::UpdateState(PointStates state)
     {
         case POINT_STATE_CONTESTED_ALLIANCE:
             if (oldstate == POINT_STATE_NEUTRAL)
-                GetBg()->UpdateWorldState(7935, 0);
+                GetBg()->UpdateWorldState(WorldStates::DG_SHOW_PANDAREN_MINE_ICON, 0);
 
             GetBg()->UpdateWorldState(7857, 1);
             m_currentWorldState = std::make_pair(7857, 1);
             break;
         case POINT_STATE_CONTESTED_HORDE:
             if (oldstate == POINT_STATE_NEUTRAL)
-                GetBg()->UpdateWorldState(7935, 0);
+                GetBg()->UpdateWorldState(WorldStates::DG_SHOW_PANDAREN_MINE_ICON, 0);
 
             GetBg()->UpdateWorldState(7861, 1);
             m_currentWorldState = std::make_pair(7861, 1);
@@ -491,25 +546,25 @@ void BattlegroundDG::BotPoint::UpdateState(PointStates state)
     {
         case POINT_STATE_CONTESTED_ALLIANCE:
             if (oldstate == POINT_STATE_NEUTRAL)
-                GetBg()->UpdateWorldState(7938, 0);
+                GetBg()->UpdateWorldState(WorldStates::DG_SHOW_GOBLIN_MINE_ICON, 0);
 
-            GetBg()->UpdateWorldState(7864, 1);
-            m_currentWorldState = std::make_pair(7864, 1);
+            GetBg()->UpdateWorldState(WorldStates::DG_GOBLIN_MINE_ALLIANCE_ASSAULT, 1);
+            m_currentWorldState = std::make_pair(WorldStates::DG_GOBLIN_MINE_ALLIANCE_ASSAULT, 1);
             break;
         case POINT_STATE_CONTESTED_HORDE:
             if (oldstate == POINT_STATE_NEUTRAL)
-                GetBg()->UpdateWorldState(7938, 0);
+                GetBg()->UpdateWorldState(WorldStates::DG_SHOW_GOBLIN_MINE_ICON, 0);
 
             GetBg()->UpdateWorldState(7865, 1);
             m_currentWorldState = std::make_pair(7865, 1);
             break;
         case POINT_STATE_CAPTURED_ALLIANCE:
-            GetBg()->UpdateWorldState(7856, 2);
-            m_currentWorldState = std::make_pair(7856, 2);
+            GetBg()->UpdateWorldState(WorldStates::DG_GOBLIN_MINE_CAPTURED_BY_TEAM, 2);
+            m_currentWorldState = std::make_pair(WorldStates::DG_GOBLIN_MINE_CAPTURED_BY_TEAM, 2);
             break;
         case POINT_STATE_CAPTURED_HORDE:
-            GetBg()->UpdateWorldState(7856, 1);
-            m_currentWorldState = std::make_pair(7856, 1);
+            GetBg()->UpdateWorldState(WorldStates::DG_GOBLIN_MINE_CAPTURED_BY_TEAM, 1);
+            m_currentWorldState = std::make_pair(WorldStates::DG_GOBLIN_MINE_CAPTURED_BY_TEAM, 1);
             break;
         default:
             break;
@@ -528,25 +583,25 @@ void BattlegroundDG::MiddlePoint::UpdateState(PointStates state)
     {
         case POINT_STATE_CONTESTED_ALLIANCE:
             if (oldstate == POINT_STATE_NEUTRAL)
-                GetBg()->UpdateWorldState(7939, 0);
+                GetBg()->UpdateWorldState(WorldStates::DG_SHOW_MIDDLE_MINE_ICON, 0);
 
-            GetBg()->UpdateWorldState(7934, 1);
-            m_currentWorldState = std::make_pair(7934, 1);
+            GetBg()->UpdateWorldState(WorldStates::DG_MIDDLE_MINE_ALLIANCE_ASSAULT, 1);
+            m_currentWorldState = std::make_pair(WorldStates::DG_MIDDLE_MINE_ALLIANCE_ASSAULT, 1);
             break;
         case POINT_STATE_CONTESTED_HORDE:
             if (oldstate == POINT_STATE_NEUTRAL)
-                GetBg()->UpdateWorldState(7939, 0);
+                GetBg()->UpdateWorldState(WorldStates::DG_SHOW_MIDDLE_MINE_ICON, 0);
 
             GetBg()->UpdateWorldState(7936, 1);
             m_currentWorldState = std::make_pair(7936, 1);
             break;
         case POINT_STATE_CAPTURED_ALLIANCE:
-            GetBg()->UpdateWorldState(7932, 2);
-            m_currentWorldState = std::make_pair(7932, 2);
+            GetBg()->UpdateWorldState(WorldStates::DG_MIDDLE_MINE_HORDE_CAPTURED, 2);
+            m_currentWorldState = std::make_pair(WorldStates::DG_MIDDLE_MINE_HORDE_CAPTURED, 2);
             break;
         case POINT_STATE_CAPTURED_HORDE:
-            GetBg()->UpdateWorldState(7932, 1);
-            m_currentWorldState = std::make_pair(7932, 1);
+            GetBg()->UpdateWorldState(WorldStates::DG_MIDDLE_MINE_HORDE_CAPTURED, 1);
+            m_currentWorldState = std::make_pair(WorldStates::DG_MIDDLE_MINE_HORDE_CAPTURED, 1);
             break;
         default:
             break;
@@ -567,19 +622,21 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
     if (!m_controlledBy.IsEmpty())
         return;
 
-    uint32 cartEntry, flagStateField, cartAuraId;
+    uint32 cartEntry, cartAuraId;
+    WorldStates flagState;
+
     auto teamID = player->GetBGTeamId();
 
     if (teamID == TEAM_ALLIANCE)
     {
         cartEntry = 71073;
-        flagStateField = 7904;
+        flagState = WorldStates::DG_ALLIANCE_CART_ASSAULT;
         cartAuraId = BG_DG_AURA_CART_HORDE;
     }
     else
     {
         cartEntry = 71071;
-        flagStateField = 7887;
+        flagState = WorldStates::DG_HORDE_CART_ASSAULT;
         cartAuraId = BG_DG_AURA_CART_ALLIANCE;
     }
 
@@ -608,7 +665,7 @@ void BattlegroundDG::Cart::ToggleCaptured(Player* player)
         cart->setFaction(35);
         cart->SetSpeed(MOVE_RUN, 3.f);
 
-        GetBg()->UpdateWorldState(flagStateField, 2);
+        GetBg()->UpdateWorldState(flagState, 2);
 
         m_controlledBy = player->GetGUID();
 
@@ -661,7 +718,7 @@ void BattlegroundDG::Cart::UnbindCartFromPlayer()
         cart->ToCreature()->DespawnOrUnsummon();
         GetBg()->SpawnBGObject(m_goBgId, 0);
         m_controlledBy.Clear();
-        GetBg()->UpdateWorldState(player->GetBGTeamId() == TEAM_ALLIANCE ? 7904 : 7887, 1);
+        GetBg()->UpdateWorldState(player->GetBGTeamId() == TEAM_ALLIANCE ? WorldStates::DG_ALLIANCE_CART_ASSAULT : WorldStates::DG_HORDE_CART_ASSAULT, 1);
     }
 }
 

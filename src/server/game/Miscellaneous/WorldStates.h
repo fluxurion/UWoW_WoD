@@ -490,6 +490,22 @@ enum class WorldStates : uint32
     ARENA_END_TIMER                     = 8529,
     ARENA_SHOW_END_TIMER                = 8524,
 
+    DG_ALLIANCE_POINTS                  = 7880,
+    DG_HORDE_POINTS                     = 7881,
+    DG_ALLIANCE_NODES                   = 8230,
+    DG_HORDE_NODES                      = 8231,
+    DG_SHOW_MIDDLE_MINE_ICON            = 7939,
+    DG_SHOW_GOBLIN_MINE_ICON            = 7938,
+    DG_SHOW_PANDAREN_MINE_ICON          = 7935,
+    DG_MIDDLE_MINE_ALLIANCE_ASSAULT     = 7934,
+    DG_MIDDLE_MINE_HORDE_CAPTURED       = 7932,
+
+    DG_GOBLIN_MINE_ALLIANCE_ASSAULT     = 7864,
+    DG_GOBLIN_MINE_CAPTURED_BY_TEAM     = 7856,
+
+    DG_ALLIANCE_CART_ASSAULT            = 7904, // 1 default to show alliance points; 2 cart assault; 3 cart dropeed
+    DG_HORDE_CART_ASSAULT               = 7887, // 1 default to show alliance points; 2 cart assault; 3 cart dropeed
+
     //< Ashran
     
     ASHRAN_CURRENT_KILLS_ALLIANCE       = 8933,

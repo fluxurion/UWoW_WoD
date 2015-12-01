@@ -983,6 +983,8 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         if (Transport)
             player->TeleportToBGEntryPoint();
 
+        player->SetUInt32Value(UNIT_FIELD_EFFECTIVE_LEVEL, 0);
+
         sLog->outInfo(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Removed player %s from Battleground.", player->GetName());
     }
 
@@ -1084,6 +1086,7 @@ void Battleground::AddPlayer(Player* player)
     sBattlegroundMgr->BuildBattlegroundStatusActive(&battlefieldStatus, this, player, queueSlot, player->GetBattlegroundQueueJoinTime(m_TypeID), GetJoinType());
     player->SendDirectMessage(battlefieldStatus.Write());
 
+    player->SetUInt32Value(UNIT_FIELD_EFFECTIVE_LEVEL, GetMaxLevel());
     player->Dismount();
     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
     player->RemoveAurasByType(SPELL_AURA_FLY);
@@ -1165,7 +1168,7 @@ void Battleground::UpdateCapturePoint(uint8 type, TeamId teamID, GameObject* nod
             nodeState = teamID == TEAM_ALLIANCE ? NODE_STATE_ALLIANCE_CAPTURE : NODE_STATE_HORDE_CAPTURE;
             broadcastID = teamID == TEAM_ALLIANCE ? pointInfo.CaptureBroadcastAlliance : pointInfo.CaptureBroadcastHorde;
             kitID = teamID == TEAM_ALLIANCE ? 4 : 3;
-            visualID = spellVisualArray[3]; // ehm shouldnot be here ```spellVisualArray[TEAM_ALLIANCE ? 3 : 4]``` - recheck with more sniffs
+            visualID = spellVisualArray[TEAM_ALLIANCE ? 4 : 3];
             break;
         default:
             break;

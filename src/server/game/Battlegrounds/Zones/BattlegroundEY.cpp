@@ -771,6 +771,9 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* player, uint32 BgObjectType
     if (_teamPointsCount[teamId] > TEAM_ALLIANCE)
         AddPoints(teamId, BG_EY_FlagPoints[_teamPointsCount[teamId] - 1]);
 
+
+    UpdateWorldState(teamId == TEAM_ALLIANCE ? WorldStates::NETHERSTROM_FLAG_UI_ALLIANCE : WorldStates::NETHERSTROM_FLAG_UI_HORDE, 4);
+
     UpdatePlayerScore(player, SCORE_FLAG_CAPTURES, 1);
 }
 

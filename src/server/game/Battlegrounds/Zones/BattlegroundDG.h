@@ -66,8 +66,6 @@ enum BG_DG_SPELLS
 
     BG_DG_AURA_CART_HORDE       = 141555,
     BG_DG_AURA_CART_ALLIANCE    = 141551,
-
-
     BG_DG_AURA_CARTS_CHAINS     = 141553,
 
     BG_DG_CAPTURE_SPELL         = 97388,
@@ -119,6 +117,12 @@ enum BG_DG_Objectives
     DG_OBJECTIVE_CAPTURE_FLAG               = 459,
     DG_OBJECTIVE_DEFENDED_FLAG              = 460,
 };
+
+static const uint32 BgDGCartRetured[MAX_TEAMS] = {73832, 73834};
+static const uint32 BgDGCartReturedToBase[MAX_TEAMS] = {73836, 73837};
+static const uint32 BgDGCartReady[MAX_TEAMS] = {73540, 73541};
+static const uint32 BgDGCartChecked[MAX_TEAMS] = {73548, 73549};
+static const uint32 BgDGCartCaptured[MAX_TEAMS] = {74023, 74024};
 
 struct BattlegroundDGScore final : public BattlegroundScore
 {
@@ -193,12 +197,11 @@ public:
     void EventPlayerUsedGO(Player* player, GameObject* go) override;
     void EventPlayerDroppedFlag(Player* Source) override;
 
-    void UpdatePointsCountPerTeam();
-
     uint32 ModGold(TeamId teamId, int32 val);
 
     ObjectGuid GetFlagPickerGUID(int32 team) const override;
     void GetPlayerPositionData(std::vector<WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition>* positions) const override;
+    uint8 _GetCapturedNodesForTeam(TeamId teamID);
 
 private:
         class Point
@@ -290,7 +293,7 @@ private:
             GameObject* m_goCart;
             uint32 m_goBgId;
 
-            ::TeamId m_team;
+            TeamId m_team;
 
             ObjectGuid m_playerDroppedCart;
             uint32 m_stolenGold;
