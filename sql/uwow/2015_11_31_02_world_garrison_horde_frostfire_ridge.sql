@@ -2,6 +2,10 @@
 /*!40101 SET NAMES utf8 */;
 /*!40014 SET FOREIGN_KEY_CHECKS=0 */;
 
+
+REPLACE INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES 
+('1', '37290', '0', '', '', '');
+
 UPDATE `creature_template` set `npcflag2` = 2 WHERE `name` LIKE 'Architect Table';
 UPDATE `creature_template` set `npcflag2` = 64 WHERE `name` LIKE 'Command Table';
 
