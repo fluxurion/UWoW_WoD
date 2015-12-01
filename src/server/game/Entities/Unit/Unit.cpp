@@ -2642,8 +2642,8 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit* victim, WeaponAttackT
     int32 sum = 0, tmp = 0;
     int32 roll = urand (0, 10000);
 
-    int32 attackerLevel = getLevelForTarget(victim);
-    int32 victimLevel = getLevelForTarget(this);
+    int32 attackerLevel = getLevel();
+    int32 victimLevel = victim->getLevel();
 
     sLog->outDebug(LOG_FILTER_UNITS, "RollMeleeOutcomeAgainst: rolled %d, miss %d, dodge %d, parry %d, block %d, crit %d",
         roll, miss_chance, dodge_chance, parry_chance, block_chance, crit_chance);
@@ -3283,7 +3283,7 @@ float Unit::GetUnitDodgeChanceAgainst(Unit const* attacker) const
         else
         {
             float dodge = 3.0f + GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
-            int32 levelDiff = getLevelForTarget(attacker) - attacker->getLevelForTarget(this);
+            int32 levelDiff = getLevel() - attacker->getLevel();
             if (levelDiff > 0)
                 dodge += 1.5f * levelDiff;
             return dodge > 0.0f ? dodge : 0.0f;
@@ -3313,7 +3313,7 @@ float Unit::GetUnitParryChanceAgainst(Unit const* attacker) const
     else if (GetTypeId() == TYPEID_UNIT)
     {
         chance = 6.0f;
-        int32 levelDiff = getLevelForTarget(attacker) - attacker->getLevelForTarget(this);
+        int32 levelDiff = getLevel() - attacker->getLevel();
         if (levelDiff > 0)
             chance += 1.5f * levelDiff;
         chance += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
@@ -3345,7 +3345,7 @@ float Unit::GetUnitBlockChanceAgainst(Unit const* attacker) const
         else
         {
             float block = 3.0f;
-            int32 levelDiff = getLevelForTarget(attacker) - attacker->getLevelForTarget(this);
+            int32 levelDiff = getLevel() - attacker->getLevel();
             if (levelDiff > 0)
                 block += 1.5f * levelDiff;
             return block > 0.0f ? block : 0.0f;
