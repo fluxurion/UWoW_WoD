@@ -3970,6 +3970,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 74434: // Soulburn
                     spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 33024;
+                    spellInfo->ProcCharges = 1;
                     break;
                 case 81269: // Efflorescence
                     spellInfo->Effects[EFFECT_0].Scaling.Coefficient = 1.5309f;
@@ -4366,6 +4367,8 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 79684:  // Arcane Missiles
                 case 81662:  // Evangelism
                 case 123267:  // Divine Insight
+                case 152117:  // Words of Mending
+                case 155363:  // Words of Mending
                     spellInfo->ProcCharges = 1;
                     break;
                 case 89485:  // Inner Focus

@@ -17102,11 +17102,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
-    // Hack Fix Cobra Strikes - Drop charge
-    if (GetTypeId() == TYPEID_UNIT && HasAura(53257) && !procSpell)
-        if (Aura* aura = GetAura(53257))
-            aura->ModStackAmount(-1);
-
     // Hack Fix Immolate - Critical strikes generate burning embers
     if (GetTypeId() == TYPEID_PLAYER && procSpell && (procSpell->Id == 348 || procSpell->Id == 108686) && procExtra & PROC_EX_CRITICAL_HIT)
         ModifyPower(POWER_BURNING_EMBERS, 1);

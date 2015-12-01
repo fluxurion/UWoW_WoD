@@ -2633,6 +2633,73 @@ class spell_pri_clarity_of_purpose : public SpellScriptLoader
         }
 };
 
+// Mind Sear - 49821, Mind Spike - 73510, Shadow Word: Death - 32379
+class spell_pri_clarity_of_power : public SpellScriptLoader
+{
+    public:
+        spell_pri_clarity_of_power() : SpellScriptLoader("spell_pri_clarity_of_power") { }
+
+        class spell_pri_clarity_of_power_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_clarity_of_power_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HasAura(155246)) // Clarity of Power
+                        if (Unit* target = GetHitUnit())
+                            if (!target->HasAura(PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()) || !target->HasAura(PRIEST_VAMPIRIC_TOUCH, caster->GetGUID()))
+                                SetHitDamage(int32(GetHitDamage() * 1.4f));
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_pri_clarity_of_power_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_clarity_of_power_SpellScript;
+        }
+};
+
+// Words of Mending - 155362
+class spell_pri_words_of_mending : public SpellScriptLoader
+{
+    public:
+        spell_pri_words_of_mending() : SpellScriptLoader("spell_pri_words_of_mending") { }
+
+        class spell_pri_words_of_mending_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_words_of_mending_AuraScript);
+
+            void OnStackChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if(GetStackAmount() >= 10)
+                    {
+                        caster->CastSpell(caster, 155363, true);
+                        GetAura()->Remove();
+                    }
+            }
+
+            // function registering
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_pri_words_of_mending_AuraScript::OnStackChange, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        // function which creates AuraScript
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_words_of_mending_AuraScript();
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_glyph_of_mass_dispel();
@@ -2693,4 +2760,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_insanity();
     new spell_pri_cascade_marker();
     new spell_pri_clarity_of_purpose();
+    new spell_pri_clarity_of_power();
+    new spell_pri_words_of_mending();
 }
