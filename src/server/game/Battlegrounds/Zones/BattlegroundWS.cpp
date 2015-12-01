@@ -469,7 +469,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* source, GameObject* object
 
     TeamId team = source->GetBGTeamId();
 
-    if (source->IsWithinDistInMap(object, object->GetGOInfo()->flagStand.radius))
+    if (source->IsWithinDistInMap(object, 10))
     {
         switch (_flagState[team ^ 1])
         {
