@@ -546,7 +546,7 @@ inline void Battleground::_ProcessLeave(uint32 diff)
     }
 }
 
-inline Player* Battleground::_GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const
+inline Player* Battleground::GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const
 {
     Player* player = nullptr;
     if (!offlineRemove)
@@ -559,19 +559,19 @@ inline Player* Battleground::_GetPlayer(ObjectGuid guid, bool offlineRemove, con
     return player;
 }
 
-inline Player* Battleground::_GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context)
+inline Player* Battleground::GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context)
 {
-    return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context);
+    return GetPlayer(itr->first, itr->second.OfflineRemoveTime, context);
 }
 
-inline Player* Battleground::_GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const
+inline Player* Battleground::GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const
 {
-    return _GetPlayer(itr->first, itr->second.OfflineRemoveTime, context);
+    return GetPlayer(itr->first, itr->second.OfflineRemoveTime, context);
 }
 
-inline Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const
+inline Player* Battleground::GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const
 {
-    Player* player = _GetPlayer(itr, context);
+    Player* player = GetPlayer(itr, context);
     if (player)
     {
         uint32 team = itr->second.Team;
@@ -598,14 +598,14 @@ Position const* Battleground::GetTeamStartPosition(TeamId teamId) const
 void Battleground::SendPacketToAll(WorldPacket const* packet)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayer(itr, "SendPacketToAll"))
+        if (Player* player = GetPlayer(itr, "SendPacketToAll"))
             player->GetSession()->SendPacket(packet);
 }
 
 void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender, bool self)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayerForTeam(TeamID, itr, "SendPacketToTeam"))
+        if (Player* player = GetPlayerForTeam(TeamID, itr, "SendPacketToTeam"))
             if (self || sender != player)
                 player->GetSession()->SendPacket(packet);
 }
@@ -618,28 +618,28 @@ void Battleground::PlaySoundToAll(uint32 soundKitID, ObjectGuid sourceGuid /*= O
 void Battleground::PlaySoundToTeam(uint32 soundKitID, uint32 TeamID)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayerForTeam(TeamID, itr, "PlaySoundToTeam"))
+        if (Player* player = GetPlayerForTeam(TeamID, itr, "PlaySoundToTeam"))
             player->GetSession()->SendPacket(WorldPackets::Misc::PlaySound(ObjectGuid::Empty, soundKitID).Write());
 }
 
 void Battleground::CastSpellOnTeam(uint32 SpellID, uint32 TeamID)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayerForTeam(TeamID, itr, "CastSpellOnTeam"))
+        if (Player* player = GetPlayerForTeam(TeamID, itr, "CastSpellOnTeam"))
             player->CastSpell(player, SpellID, true);
 }
 
 void Battleground::RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayerForTeam(TeamID, itr, "RemoveAuraOnTeam"))
+        if (Player* player = GetPlayerForTeam(TeamID, itr, "RemoveAuraOnTeam"))
             player->RemoveAura(SpellID);
 }
 
 void Battleground::YellToAll(Creature* creature, const char* text, uint32 language)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayer(itr, "YellToAll"))
+        if (Player* player = GetPlayer(itr, "YellToAll"))
         {
             WorldPacket data(SMSG_CHAT, 200);
             creature->BuildMonsterChat(&data, CHAT_MSG_MONSTER_YELL, text, language, creature->GetName(), itr->first);
@@ -650,7 +650,7 @@ void Battleground::YellToAll(Creature* creature, const char* text, uint32 langua
 void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayerForTeam(TeamID, itr, "RewardHonorToTeam"))
+        if (Player* player = GetPlayerForTeam(TeamID, itr, "RewardHonorToTeam"))
             UpdatePlayerScore(player, SCORE_BONUS_HONOR, Honor);
 }
 
@@ -658,7 +658,7 @@ void Battleground::RewardReputationToTeam(uint32 factionIDAlliance, uint32 facti
 {
     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(teamID == ALLIANCE ? factionIDAlliance : factionIDHorde))
         for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-            if (Player* player = _GetPlayerForTeam(teamID, itr, "RewardReputationToTeam"))
+            if (Player* player = GetPlayerForTeam(teamID, itr, "RewardReputationToTeam"))
                 player->GetReputationMgr().ModifyReputation(factionEntry, reputation);
 }
 
@@ -730,7 +730,7 @@ void Battleground::EndBattleground(uint32 winner)
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         uint32 team = itr->second.Team;
-        Player* player = _GetPlayer(itr, "EndBattleground");
+        Player* player = GetPlayer(itr, "EndBattleground");
         if (!player)
             continue;
 
