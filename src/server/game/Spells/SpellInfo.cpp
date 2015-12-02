@@ -479,7 +479,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         if (!_spellInfo->HasAttribute(SPELL_ATTR11_SEND_ITEM_LEVEL) && _spellInfo->HasAttribute(SPELL_ATTR10_UNK12))
             level = _spellInfo->BaseLevel;
 
-        if (_spellInfo->Scaling.MaxScalingLevel && _spellInfo->Scaling.MaxScalingLevel > level)
+        if (_spellInfo->Scaling.MaxScalingLevel && level > _spellInfo->Scaling.MaxScalingLevel)
             level = _spellInfo->Scaling.MaxScalingLevel;
 
         float value = 0.0f;
