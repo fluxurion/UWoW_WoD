@@ -2136,8 +2136,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
         bool addSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, bool charload = false, uint32 fromSkill = 0);
-        void learnSpell(uint32 spell_id, bool dependent, uint32 fromSkill = 0);
-        void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
+        void learnSpell(uint32 spell_id, bool dependent, uint32 fromSkill = 0, bool sendMessage = true);
+        void removeSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true, bool sendMessage = true);
         void resetSpells(bool myClassOnly = false);
         SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const override;
         void AddOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
@@ -2190,9 +2190,9 @@ class Player : public Unit, public GridObject<Player>
         void InitTalentForLevel();
         void SendTalentsInfoData(bool pet);
         bool LearnTalent(uint32 talentId);
-        bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning);
+        bool AddTalent(TalentEntry const* talent, uint8 spec, bool learning, bool sendMessage = true);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
-        void RemoveTalent(TalentEntry const* talent);
+        void RemoveTalent(TalentEntry const* talent, bool sendMessage = true);
         uint32 CalculateTalentsPoints() const;
         void LearnTalentSpecialization(uint32 talentSpec);
         void ResetTalentSpecialization();

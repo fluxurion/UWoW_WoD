@@ -3467,18 +3467,18 @@ void Player::InitTalentForLevel()
         SendTalentsInfoData(false);                         // update at client
 }
 
-void Player::RemoveTalent(TalentEntry const* talent)
+void Player::RemoveTalent(TalentEntry const* talent, bool sendMessage)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->spellId);
     if (!spellInfo)
         return;
 
-    removeSpell(talent->spellId, true);
+    removeSpell(talent->spellId, true, true, sendMessage);
 
     // search for spells that the talent teaches and unlearn them
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (spellInfo->GetEffect(i, m_diffMode)->TriggerSpell > 0 && spellInfo->GetEffect(i, m_diffMode)->Effect == SPELL_EFFECT_LEARN_SPELL)
-            removeSpell(spellInfo->GetEffect(i, m_diffMode)->TriggerSpell, true);
+            removeSpell(spellInfo->GetEffect(i, m_diffMode)->TriggerSpell, true, true, sendMessage);
 
     if (talent->OverridesSpellID)
         RemoveOverrideSpell(talent->OverridesSpellID, talent->spellId);
@@ -3583,7 +3583,7 @@ void Player::RemoveSpecializationSpells()
                 for (size_t j = 0; j < specSpells->size(); ++j)
                 {
                     SpecializationSpellEntry const* specSpell = specSpells->at(j);
-                    removeSpell(specSpell->LearnSpell, true);
+                    removeSpell(specSpell->LearnSpell, true, true, false);
                     if (specSpell->OverrideSpell)
                         RemoveOverrideSpell(specSpell->OverrideSpell, specSpell->LearnSpell);
                 }
@@ -3592,9 +3592,11 @@ void Player::RemoveSpecializationSpells()
             for (uint32 j = 0; j < MAX_MASTERY_SPELLS; ++j)
                 if (uint32 mastery = specialization->MasterySpellID[j])
                     RemoveAurasDueToSpell(mastery);
+
+            for (uint32 j = 0; j < MAX_PERKS_COUNT; ++j)
+                if (MinorTalentEntry const* minor = sMinorTalentByIndexStore[specialization->ID][j])
+                    removeSpell(minor->SpellID, true, true, false);
         }
-        if (MinorTalentEntry const* minor = sMinorTalentByIndexStore[GetSpecializationId(GetActiveSpec())][i])
-            removeSpell(minor->SpellID, true);
     }
 }
 
@@ -3889,7 +3891,7 @@ void Player::AddNewMailDeliverTime(time_t deliver_time)
     }
 }
 
-bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning)
+bool Player::AddTalent(TalentEntry const* talent, uint8 spec, bool learning, bool sendMessage)
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talent->spellId);
     if (!spellInfo)
@@ -4450,7 +4452,7 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
     return need_cast && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState)));
 }
 
-void Player::learnSpell(uint32 spell_id, bool dependent, uint32 fromSkill /*= 0*/)
+void Player::learnSpell(uint32 spell_id, bool dependent, uint32 fromSkill, bool sendMessage)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spell_id);
 
@@ -4465,7 +4467,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent, uint32 fromSkill /*= 0*
     {
         WorldPackets::Spells::LearnedSpells packet;
         packet.SpellID.push_back(spell_id);
-        if (disabled || !active)
+        if (disabled || !active || !sendMessage)
             packet.SuppressMessaging = true;
         GetSession()->SendPacket(packet.Write());
     }
@@ -4549,7 +4551,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent, uint32 fromSkill /*= 0*
     UpdateMount();
 }
 
-void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
+void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank, bool sendMessage)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spell_id);
     if (itr == m_spells.end())
@@ -4757,6 +4759,8 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     {
         WorldPackets::Spells::UnlearnedSpells unlearnedSpells;
         unlearnedSpells.SpellID.push_back(spell_id);
+        if (!sendMessage)
+            unlearnedSpells.SuppressMessaging = true;
         SendDirectMessage(unlearnedSpells.Write());
     }
 }
@@ -27514,7 +27518,7 @@ void Player::LearnTalentSpecialization(uint32 talentSpec)
 
 void Player::ResetTalentSpecialization()
 {
-    if (GetSpecializationId(GetActiveSpec()))
+    if (!GetSpecializationId(GetActiveSpec()))
         return;
 
     SetSpecializationId(GetActiveSpec(), 0);
@@ -27528,6 +27532,7 @@ void Player::ResetTalentSpecialization()
                     RemoveTalent(talent);
 
     RemoveSpecializationSpells();
+
     SendTalentsInfoData(false);
     InitialPowers();
     _ApplyOrRemoveItemEquipDependentAuras(ObjectGuid::Empty, false);
@@ -28038,23 +28043,10 @@ void Player::ActivateSpec(uint8 spec)
 
     for (TalentEntry const* talentInfo : sTalentStore)
     {
-        if (talentInfo->classId != getClass())
+        if (talentInfo->classId != getClass() || talentInfo->spellId == 0)
             continue;
 
-        if (talentInfo->spellId == 0)
-            continue;
-
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->spellId);
-        if (!spellInfo)
-            continue;
-
-        removeSpell(talentInfo->spellId, true); // removes the talent, and all dependant, learned, and chained spells..
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellInfo for valid trigger spells
-            if (spellInfo->Effects[i].TriggerSpell > 0 && spellInfo->Effects[i].Effect == SPELL_EFFECT_LEARN_SPELL)
-                removeSpell(spellInfo->Effects[i].TriggerSpell, true); // and remove any spells that the talent teaches
-
-        if (talentInfo->OverridesSpellID)
-            RemoveOverrideSpell(talentInfo->OverridesSpellID, talentInfo->spellId);
+        RemoveTalent(talentInfo, false);
     }
 
     if (const std::vector<SpellTalentLinked> *spell_triggered = sSpellMgr->GetSpelltalentLinked(0))
@@ -28084,9 +28076,9 @@ void Player::ActivateSpec(uint8 spec)
                 case 1: //remove or add spell
                 {
                     if (i->triger < 0)
-                        removeSpell(-(i->triger));
+                        removeSpell(-(i->triger), false, true, false);
                     else
-                        learnSpell(i->triger, false);
+                        learnSpell(i->triger, false, 0, false);
                     break;
                 }
                 case 2: //remove pet
@@ -28129,7 +28121,7 @@ void Player::ActivateSpec(uint8 spec)
         if (HasTalent(talentInfo->Id, GetActiveSpec()))
         {
             usedTalentPoint++;
-            learnSpell(talentInfo->spellId, false);      // add the talent to the PlayerSpellMap
+            learnSpell(talentInfo->spellId, false, 0, false);      // add the talent to the PlayerSpellMap
             if (talentInfo->OverridesSpellID)
                 AddOverrideSpell(talentInfo->OverridesSpellID, talentInfo->spellId);
         }

@@ -41,6 +41,7 @@
 #define MAX_MAP_DEPTH -5000 // Temporary define until max depth is found somewhere (adt?)
 #define MAX_OUTFIT_ITEMS 24
 #define MAX_MASTERY_SPELLS 2
+#define MAX_PERKS_COUNT 4
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
 #define MAX_FACTION_RELATIONS 4
 #define MAX_ITEM_ENCHANTMENT_EFFECTS 3
