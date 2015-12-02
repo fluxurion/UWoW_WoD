@@ -258,7 +258,7 @@ void Arena::EndBattleground(uint32 winner)
             continue;
         }
 
-        Player* player = GetPlayer(itr, "EndBattleground");
+        Player* player = Battleground::GetPlayer(itr, "EndBattleground");
         if (!player)
             continue;
 
@@ -374,7 +374,7 @@ void Arena::SendOpponentSpecialization(uint32 team)
 
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
-        if (Player* opponent = GetPlayerForTeam(team, itr, "SendOponentSpecialization"))
+        if (Player* opponent = Battleground::GetPlayerForTeam(team, itr, "SendOponentSpecialization"))
         {
             data.Guid = opponent->GetGUID();
             data.SpecializationID = opponent->GetSpecializationId(opponent->GetActiveSpec());
