@@ -1,0 +1,1 @@
+DELETE FROM `npc_text` WHERE `Probability0` = 0 AND `BroadcastTextID0` = 0;
