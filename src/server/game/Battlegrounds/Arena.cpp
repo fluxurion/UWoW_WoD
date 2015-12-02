@@ -258,8 +258,8 @@ void Arena::EndBattleground(uint32 winner)
             continue;
         }
 
-        Player* player = Battleground::GetPlayer(itr, "EndBattleground");
-        if (!player)
+        Player* player = ObjectAccessor::FindPlayer(itr->first);
+        if (!player || itr->second.OfflineRemoveTime)
             continue;
 
         Bracket* bracket = GetJoinType() ? player->getBracket(bType) : nullptr;
@@ -372,12 +372,16 @@ void Arena::SendOpponentSpecialization(uint32 team)
     WorldPackets::Battleground::ArenaPrepOpponentSpecializations spec;
     WorldPackets::Battleground::ArenaPrepOpponentSpecializations::OpponentSpecData data;
 
-    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for (auto const& v : GetPlayers())
     {
-        if (Player* opponent = Battleground::GetPlayerForTeam(team, itr, "SendOponentSpecialization"))
+        if (v.second.OfflineRemoveTime || v.second.Team == team)
+            continue;
+
+        Player* player = ObjectAccessor::FindPlayer(v.first);
+        if (player)
         {
-            data.Guid = opponent->GetGUID();
-            data.SpecializationID = opponent->GetSpecializationId(opponent->GetActiveSpec());
+            data.Guid = player->GetGUID();
+            data.SpecializationID = player->GetSpecializationId(player->GetActiveSpec());
         }
     }
 
