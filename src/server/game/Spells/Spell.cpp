@@ -5467,10 +5467,11 @@ void Spell::TakeCastItem()
         return;
     }
 
-    // consumable item must be destroyed always
+    // TODO : research spell attributes or item flags
     bool alwaysDestroy = false;
-    if (proto->Class == ITEM_CLASS_CONSUMABLE || (proto->SubClass == ITEM_SUBCLASS_CONSUMABLE || proto->SubClass == ITEM_SUBCLASS_CONSUMABLE_OTHER))
-        alwaysDestroy = true;
+    if (SpellEffectInfo const* effect = m_spellInfo->GetEffect(0))
+        if (effect->Effect == SPELL_EFFECT_GIVE_CURRENCY || effect->Effect == SPELL_EFFECT_GIVE_REPUTATION)
+            alwaysDestroy = true;
 
     // not remove cast item at triggered spell (equipping, weapon damage, etc)
     if (_triggeredCastFlags & TRIGGERED_IGNORE_CAST_ITEM && !alwaysDestroy)

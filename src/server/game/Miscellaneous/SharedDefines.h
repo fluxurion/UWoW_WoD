@@ -1208,7 +1208,7 @@ enum SpellEffects
     SPELL_EFFECT_INEBRIATE                          = 100,
     SPELL_EFFECT_FEED_PET                           = 101,
     SPELL_EFFECT_DISMISS_PET                        = 102,
-    SPELL_EFFECT_REPUTATION                         = 103,
+    SPELL_EFFECT_GIVE_REPUTATION                    = 103,
     SPELL_EFFECT_SUMMON_OBJECT_SLOT                 = 104,
     SPELL_EFFECT_SURVEY                             = 105,
     SPELL_EFFECT_SUMMON_RAID_MARKER                 = 106,
