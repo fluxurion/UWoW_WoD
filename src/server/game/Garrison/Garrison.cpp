@@ -892,12 +892,20 @@ void Garrison::SendBuildingLandmarks(Player* receiver) const
 
 void Garrison::SendGarrisonUpgradebleResult(Player* receiver) const
 {
+    //!
     //@TODO worn on checks... exmaple: at first lvl u cant upgrade if u hadnt complete quest line
     WorldPackets::Garrison::GarrisonIsUpgradeableResult result;
-    if (_siteLevel->Level >= 3)
-        result.Result = GARRISON_ERROR_MAX_LEVEL;
-    else
-        result.Result = GARRISON_ERROR_NOT_ALLOW_GARRISON_UPGRADE;
+    switch (_siteLevel->Level)
+    {
+        case 1: 
+            result.Result = GARRISON_ERROR_NOT_ALLOW_GARRISON_UPGRADE;
+            break;
+        case 2: //Requare Alliance Q: 36592, Horde Q: 36567
+        default:
+            result.Result = GARRISON_ERROR_MAX_LEVEL;
+            break;
+    }
+
     receiver->SendDirectMessage(result.Write());
 }
 
