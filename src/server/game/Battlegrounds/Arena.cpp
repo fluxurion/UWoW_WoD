@@ -258,8 +258,8 @@ void Arena::EndBattleground(uint32 winner)
             continue;
         }
 
-        Player* player = ObjectAccessor::FindPlayer(itr->first);
-        if (!player || itr->second.OfflineRemoveTime)
+        Player* player = GetPlayer(itr, "EndBattleground");
+        if (!player)
             continue;
 
         Bracket* bracket = GetJoinType() ? player->getBracket(bType) : nullptr;
@@ -372,18 +372,34 @@ void Arena::SendOpponentSpecialization(uint32 team)
     WorldPackets::Battleground::ArenaPrepOpponentSpecializations spec;
     WorldPackets::Battleground::ArenaPrepOpponentSpecializations::OpponentSpecData data;
 
-    for (auto const& v : GetPlayers())
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
-        if (v.second.OfflineRemoveTime || v.second.Team == team)
-            continue;
-
-        Player* player = ObjectAccessor::FindPlayer(v.first);
-        if (player)
+        if (Player* opponent = GetPlayerForTeam(team, itr, "SendOponentSpecialization"))
         {
-            data.Guid = player->GetGUID();
-            data.SpecializationID = player->GetSpecializationId(player->GetActiveSpec());
+            data.Guid = opponent->GetGUID();
+            data.SpecializationID = opponent->GetSpecializationId(opponent->GetActiveSpec());
         }
     }
 
     SendPacketToTeam(GetOtherTeam(team), spec.Write());
+}
+
+inline Player* Arena::GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const
+{
+    return Battleground::GetPlayer(guid, offlineRemove, context);
+}
+
+inline Player* Arena::GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context)
+{
+    return Battleground::GetPlayer(itr, context);
+}
+
+inline Player* Arena::GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const
+{
+    return Battleground::GetPlayer(itr, context);
+}
+
+inline Player* Arena::GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const
+{
+    return Battleground::GetPlayerForTeam(teamId, itr, context);
 }

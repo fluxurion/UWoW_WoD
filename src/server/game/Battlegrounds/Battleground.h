@@ -629,10 +629,10 @@ class Battleground
         void _ProcessPlayerPositionBroadcast(Milliseconds diff);
         virtual void GetPlayerPositionData(std::vector<WorldPackets::Battleground::PlayerPositions::BattlegroundPlayerPosition>* /*positions*/) const { }
 
-        Player* GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const;
-        Player* GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context);
-        Player* GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const;
-        Player* GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const;
+        virtual Player* GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const;
+        virtual Player* GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context);
+        virtual Player* GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const;
+        virtual Player* GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const;
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();

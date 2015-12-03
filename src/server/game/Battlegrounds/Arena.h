@@ -39,6 +39,11 @@ protected:
     void StartingEventCloseDoors() override;
     void StartingEventOpenDoors() override;
     void SendOpponentSpecialization(uint32 team);
+
+    Player* GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const override;
+    Player* GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context) override;
+    Player* GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const override;
+    Player* GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const override;
 private:
     void RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket) override;
     void EndBattleground(uint32 winner) override;
