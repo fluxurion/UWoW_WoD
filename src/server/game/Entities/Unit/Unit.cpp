@@ -22395,6 +22395,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             if(HasAura(126094))
                 return 26101;
             break;
+        case FORM_METAMORPHOSIS:
+            return 25277;
         default:
             break;
     }

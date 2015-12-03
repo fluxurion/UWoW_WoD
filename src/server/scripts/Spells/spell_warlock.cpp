@@ -67,7 +67,7 @@ enum WarlockSpells
     WARLOCK_SOUL_SWAP_VISUAL                = 92795,
     WARLOCK_GRIMOIRE_OF_SACRIFICE           = 108503,
     WARLOCK_METAMORPHOSIS                   = 103958,
-    WARLOCK_DEMONIC_LEAP_JUMP               = 54785,
+    WARLOCK_DEMONIC_LEAP_JUMP               = 109163,
     WARLOCK_ITEM_S12_TIER_4                 = 131632,
     WARLOCK_TWILIGHT_WARD_S12               = 131623,
     WARLOCK_TWILIGHT_WARD_METAMORPHOSIS_S12 = 131624,
@@ -816,8 +816,18 @@ class spell_warl_demonic_leap : public SpellScriptLoader
                 }
             }
 
+            void OnTick(AuraEffect const* aurEff)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (!caster->HasUnitState(UNIT_STATE_JUMPING))
+                        GetAura()->Remove();
+                }
+            }
+
             void Register()
             {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_demonic_leap_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_demonic_leap_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -1070,9 +1080,6 @@ class spell_warl_conflagrate_aura : public SpellScriptLoader
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (!target->HasAura(WARLOCK_IMMOLATE) && !_player->HasAura(WARLOCK_GLYPH_OF_CONFLAGRATE))
-                            if (Aura* conflagrate = target->GetAura(WARLOCK_CONFLAGRATE))
-                                target->RemoveAura(WARLOCK_CONFLAGRATE);
                         if (!target->HasAura(WARLOCK_IMMOLATE_FIRE_AND_BRIMSTONE))
                             if (Aura* conflagrate = target->GetAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE))
                                 target->RemoveAura(WARLOCK_CONFLAGRATE_FIRE_AND_BRIMSTONE);
@@ -1921,7 +1928,7 @@ class spell_warl_rain_of_fire_damage : public SpellScriptLoader
             {
                 if (Unit* unitTarget = GetHitUnit())
                 {
-                    if(unitTarget->HasAura(348) || unitTarget->HasAura(108686))
+                    if(unitTarget->HasAura(157736) || unitTarget->HasAura(108686))
                         SetHitDamage(int32(GetHitDamage() * 1.5f));
 
                     GetSpell()->AddEffectTarget(unitTarget->GetGUID());
@@ -1951,7 +1958,7 @@ class spell_warl_rain_of_fire_damage : public SpellScriptLoader
         }
 };
 
-// Metamorphosis - 103965 for Dark Apotheosis 114168
+// Metamorphosis - 103965
 class spell_warl_metamorphosis : public SpellScriptLoader
 {
     public:
@@ -1967,14 +1974,9 @@ class spell_warl_metamorphosis : public SpellScriptLoader
                 {
                     switch(aurEff->GetEffIndex())
                     {
-                        case EFFECT_0:
-                            if(caster->HasAura(114168))
-                                amount = 114175;
-                            break;
-                        case EFFECT_1:
-                        case EFFECT_3:
-                        case EFFECT_14:
-                            if(caster->HasAura(114168))
+                        case EFFECT_4:
+                        case EFFECT_7:
+                        case EFFECT_8:
                                 amount = 0;
                             break;
                     }
@@ -1983,10 +1985,9 @@ class spell_warl_metamorphosis : public SpellScriptLoader
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_metamorphosis_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_metamorphosis_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_metamorphosis_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_metamorphosis_AuraScript::CalculateAmount, EFFECT_14, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_metamorphosis_AuraScript::CalculateAmount, EFFECT_4, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_metamorphosis_AuraScript::CalculateAmount, EFFECT_7, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_metamorphosis_AuraScript::CalculateAmount, EFFECT_8, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
             }
         };
 
@@ -2008,8 +2009,12 @@ class spell_warl_corruption : public SpellScriptLoader
 
             void HandleTick(AuraEffect const* aurEff, int32& /*amount*/, Unit* /*target*/)
             {
-                if (GetCaster())
-                    GetCaster()->EnergizeBySpell(GetCaster(), aurEff->GetSpellInfo()->Id, 4, POWER_DEMONIC_FURY);
+                if (Unit* caster = GetCaster())
+                {
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(172);
+                    int32 bp = spellInfo->Effects[EFFECT_1].CalcValue(caster);
+                    caster->EnergizeBySpell(caster, aurEff->GetSpellInfo()->Id, bp, POWER_DEMONIC_FURY);
+                }
             }
 
             void Register()

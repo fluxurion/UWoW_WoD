@@ -6120,7 +6120,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
     }
 }
 
-bool Spell::CheckEffFromDummy(Unit* /*target*/, uint32 eff)
+bool Spell::CheckEffFromDummy(Unit* target, uint32 eff)
 {
     bool prevent = false;
     if (std::vector<SpellAuraDummy> const* spellAuraDummy = sSpellMgr->GetSpellAuraDummy(m_spellInfo->Id))
@@ -6141,6 +6141,11 @@ bool Spell::CheckEffFromDummy(Unit* /*target*/, uint32 eff)
                 if (Unit* owner = _caster->GetOwner())
                     _targetAura = owner;
             }
+            if(itr->targetaura == 3) //get target
+                _targetAura = target;
+
+            if(!_targetAura)
+                _targetAura = _caster;
 
             switch (itr->option)
             {

@@ -33,3 +33,10 @@ replace into `areatrigger_data` (`entry`, `spellId`, `customEntry`, `customVisua
 ('657','120644','3919','24817','5','30','0','0','0','0','0','0','0','0','1000','0','0','0','0','0','0','0','0','0','0','0','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','Сияние'),
 ('658','120517','3921','24801','5','30','0','0','0','0','0','0','0','0','1000','0','0','0','0','0','0','0','0','0','0','0','1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','Сияние');
 
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('348','157736','1','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Жертвенный огонь'),
+('108686','157736','1','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Жертвенный огонь');
+
+insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
+('17962','157736','0','4','0','0','3','0','0','0','7','0','0','0','0','0','1','Поджигание');
+

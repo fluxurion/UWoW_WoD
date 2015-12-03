@@ -25836,16 +25836,9 @@ uint32 Player::GetResurrectionSpellId()
     for (AuraEffectList::const_iterator itr = dummyAuras.begin(); itr != dummyAuras.end(); ++itr)
     {
         // Soulstone Resurrection                           // prio: 3 (max, non death persistent)
-        if (prio < 2 && (*itr)->GetSpellInfo()->SpellVisual[0] == 99 && (*itr)->GetSpellInfo()->SpellIconID == 92)
+        if (prio < 2 && (*itr)->GetId() == 20707)
         {
-            switch ((*itr)->GetId())
-            {
-                case 20707: spell_id =  3026; break;        // rank 1
-                default:
-                    sLog->outError(LOG_FILTER_PLAYER, "Unhandled spell %u: S.Resurrection", (*itr)->GetId());
-                    continue;
-            }
-
+            spell_id =  3026; break;
             prio = 3;
         }
         // Twisting Nether                                  // prio: 2 (max)

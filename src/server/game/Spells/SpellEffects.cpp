@@ -6377,6 +6377,7 @@ void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
     player->SetPower(POWER_FOCUS, 0);
 
     player->SpawnCorpseBones();
+    player->RemoveAurasDueToSpell(160029);
 }
 
 void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)

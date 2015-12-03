@@ -3771,6 +3771,9 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         if (HasAura(108503))
             RemoveAura(108503);
 
+    if (pet->isControlled() && !pet->isTemporarySummoned())
+        SetLastPetEntry(entry);
+
     if (duration > 0)
         pet->SetDuration(duration);
 
