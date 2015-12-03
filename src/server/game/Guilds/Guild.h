@@ -405,10 +405,7 @@ private:
             m_accountId(0),
             m_rankId(rankId),
             m_achievementPoints(0),
-            m_totalActivity(0),
-            m_weekActivity(0),
-            m_totalReputation(0),
-            m_weekReputation(0)
+            m_totalReputation(0)
         {
             memset(m_bankWithdraw, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(int32));
         }
@@ -427,8 +424,6 @@ private:
         void SetZoneId(uint32 id) { m_zoneId = id; }
         void SetAchievementPoints(uint32 val) { m_achievementPoints = val; }
         void SetLevel(uint8 var) { m_level = var; }
-        void AddReputation(uint32 reputation) { m_weekReputation += reputation; }
-        void AddActivity(uint64 activity) { m_totalActivity += activity; m_weekActivity += activity; }
 
         void AddFlag(uint8 var) { m_flags |= var; }
         void RemFlag(uint8 var) { m_flags &= ~var; }
@@ -450,10 +445,7 @@ private:
         uint8 GetFlags() const { return m_flags; }
         uint32 GetZoneId() const { return m_zoneId; }
         uint32 GetAchievementPoints() const { return m_achievementPoints; }
-        uint64 GetTotalActivity() const { return m_totalActivity; }
-        uint64 GetWeekActivity() const { return m_weekActivity; }
         uint32 GetTotalReputation() const { return m_totalReputation; }
-        uint32 GetWeekReputation() const { return m_weekReputation; }
         ProfessionInfo const& GetProfessionInfo(uint32 index) const { return m_professionInfo[index]; }
 
         bool IsOnline() { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
@@ -467,7 +459,6 @@ private:
 
         void UpdateBankWithdrawValue(SQLTransaction& trans, uint8 tabId, uint32 amount);
         int32 GetBankWithdrawValue(uint8 tabId) const;
-        void RepEarned(Player* player, uint32 value);
         void SendGuildReputationWeeklyCap(WorldSession* session, uint32 reputation) const;
         void ResetValues();
 
@@ -499,10 +490,7 @@ private:
         RemainingValue m_bankRemaining[GUILD_BANK_MAX_TABS + 1];
         int32 m_bankWithdraw[GUILD_BANK_MAX_TABS + 1];
         uint32 m_achievementPoints;
-        uint64 m_totalActivity;
-        uint64 m_weekActivity;
         uint32 m_totalReputation;
-        uint32 m_weekReputation;
         ProfessionInfo m_professionInfo[MAX_GUILD_PROFESSIONS];
     };
 
@@ -964,7 +952,7 @@ public:
 
      // Guild leveling
     void ResetWeek();
-    uint32 RepGainedBy(Player* player, uint32 amount);
+    void RewardReputation(Player* player, uint32 amount);
     uint8 GetLevel() const { return _level; }
 
     EmblemInfo const& GetEmblemInfo() const { return m_emblemInfo; }

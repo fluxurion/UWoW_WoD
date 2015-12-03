@@ -7886,7 +7886,7 @@ void Player::RewardGuildReputation(Quest const* quest)
         rep = int32(rep * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
 
     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-        guild->RepGainedBy(this, rep);
+        guild->RewardReputation(this, rep);
 
     //if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(REP_GUILD))
         //GetReputationMgr().ModifyReputation(factionEntry, rep);

@@ -590,18 +590,15 @@ void Guild::Member::SetStats(Player* player)
 void Guild::Member::SaveStatsToDB(SQLTransaction* trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_MEMBER_STATS);
-    stmt->setUInt64(0, m_weekReputation);
-    stmt->setUInt64(1, m_weekActivity);
-    stmt->setUInt64(2, m_totalActivity);
-    stmt->setUInt32(3, m_achievementPoints);
+    stmt->setUInt32(0, m_achievementPoints);
     for (uint32 i = 0; i < MAX_GUILD_PROFESSIONS; ++i)
     {
-        stmt->setInt32(4 + i * 4, m_professionInfo[i].skillId);
-        stmt->setInt32(5 + i * 4, m_professionInfo[i].skillValue);
-        stmt->setInt8(6 + i * 4, m_professionInfo[i].skillRank);
-        stmt->setString(7 + i * 4, m_professionInfo[i].knownRecipes.GetMaskForSave());
+        stmt->setInt32(1 + i * 4, m_professionInfo[i].skillId);
+        stmt->setInt32(2 + i * 4, m_professionInfo[i].skillValue);
+        stmt->setInt8(3 + i * 4, m_professionInfo[i].skillRank);
+        stmt->setString(4 + i * 4, m_professionInfo[i].knownRecipes.GetMaskForSave());
     }
-    stmt->setUInt64(12, GetGUID().GetGUIDLow());
+    stmt->setUInt64(9, GetGUID().GetGUIDLow());
 
     if (trans)
         (*trans)->Append(stmt);
@@ -699,21 +696,18 @@ bool Guild::Member::LoadFromDB(Field* fields)
              fields[26].GetUInt16(),                        // characters.zone
              fields[27].GetUInt32(),                        // characters.account
              fields[29].GetUInt32(),                        // character_reputation.standing
-             fields[34].GetUInt8(),                         // characters.gender
-             fields[33].GetUInt32(),                        // achievement points
-             fields[35].GetUInt32(),                        // prof id 1
-             fields[36].GetUInt32(),                        // prof value 1
-             fields[37].GetUInt8(),                         // prof rank 1
-             fields[38].GetString(),                        // prof recipes mask 1
-             fields[39].GetUInt32(),                        // prof id 2
-             fields[40].GetUInt32(),                        // prof value 2
-             fields[41].GetUInt8(),                         // prof rank 2
-             fields[32].GetString()                         // prof recipes mask 2
+             fields[31].GetUInt8(),                         // characters.gender
+             fields[30].GetUInt32(),                        // achievement points
+             fields[32].GetUInt32(),                        // prof id 1
+             fields[33].GetUInt32(),                        // prof value 1
+             fields[34].GetUInt8(),                         // prof rank 1
+             fields[35].GetString(),                        // prof recipes mask 1
+             fields[36].GetUInt32(),                        // prof id 2
+             fields[37].GetUInt32(),                        // prof value 2
+             fields[38].GetUInt8(),                         // prof rank 2
+             fields[39].GetString()                         // prof recipes mask 2
              );
     m_logoutTime    = fields[28].GetUInt32();               // characters.logout_time
-    m_totalActivity = fields[30].GetUInt64();
-    m_weekActivity = fields[31].GetUInt64();
-    m_weekReputation = fields[32].GetUInt32();
 
     if (!CheckStats())
         return false;
@@ -752,8 +746,8 @@ bool Guild::Member::CheckStats() const
 
 void Guild::Member::ResetValues()
 {
-    m_weekActivity = 0;
-    m_weekReputation = 0;
+    for (uint8 tabId = 0; tabId <= GUILD_BANK_MAX_TABS; ++tabId)
+        m_bankWithdraw[tabId] = 0;
 }
 
 // Decreases amount of money/slots left for today.
@@ -3367,42 +3361,37 @@ void Guild::SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, u
     BroadcastPacket(rankChange.Write());
 }
 
-uint32 Guild::RepGainedBy(Player* player, uint32 amount)
+void Guild::RewardReputation(Player* player, uint32 amount)
 {
     if (!amount || !player)
-        return 0;
-
-    Member* member = GetMember(player->GetGUID());
-    if(!member)
-        return 0;
-
-    amount = std::min(amount, uint32(GUILD_WEEKLY_REP_CAP - member->GetWeekReputation()));
-    
-    // Guild Champion Tabard        
-    Unit::AuraEffectList const& auras = player->GetAuraEffectsByType(SPELL_AURA_MOD_REPUTATION_GAIN_PCT);
-    for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
-        AddPct(amount, (*i)->GetAmount());
-
-    if (amount)
-        member->RepEarned(player, amount);
-
-    return amount;
-}
-
-void Guild::Member::RepEarned(Player* player, uint32 value)
-{
-    FactionEntry const* entry = sFactionStore.LookupEntry(REP_GUILD);
-    if(!entry || !player)
         return;
 
-    AddReputation(value);
-    player->GetReputationMgr().ModifyReputation(entry, int32(value));
+    if (Member* member = GetMember(player->GetGUID()))
+    {
+        // Guild Champion Tabard
+        Unit::AuraEffectList const& auras = player->GetAuraEffectsByType(SPELL_AURA_MOD_REPUTATION_GAIN_PCT);
+        for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+            AddPct(amount, (*i)->GetAmount());
+
+        if (amount)
+        {
+            if (FactionEntry const* entry = sFactionStore.LookupEntry(REP_GUILD))
+                player->GetReputationMgr().ModifyReputation(entry, int32(amount));
+        }
+    }
 }
 
 void Guild::ResetWeek()
 {
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+    {
         itr->second->ResetValues();
+        if (Player* player = itr->second->FindPlayer())
+        {
+            WorldPackets::Guild::GuildMemberDailyReset packet; // tells the client to request bank withdrawal limit
+            player->GetSession()->SendPacket(packet.Write());
+        }
+    }
 }
 
 void Guild::SendGuildEventBankContentsChanged()
