@@ -384,22 +384,22 @@ void Arena::SendOpponentSpecialization(uint32 team)
     SendPacketToTeam(GetOtherTeam(team), spec.Write());
 }
 
-inline Player* Arena::GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const
+Player* Arena::GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const
 {
     return Battleground::GetPlayer(guid, offlineRemove, context);
 }
 
-inline Player* Arena::GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context)
+Player* Arena::GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context)
 {
     return Battleground::GetPlayer(itr, context);
 }
 
-inline Player* Arena::GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const
+Player* Arena::GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const
 {
     return Battleground::GetPlayer(itr, context);
 }
 
-inline Player* Arena::GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const
+Player* Arena::GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const
 {
     return Battleground::GetPlayerForTeam(teamId, itr, context);
 }
