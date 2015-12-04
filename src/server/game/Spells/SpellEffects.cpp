@@ -1782,8 +1782,8 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     float distance = m_caster->GetExactDist(x, y, z);
     CalculateJumpSpeeds(effIndex, distance, speedXY, speedZ);
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJump start xyz %f %f %f caster %u target %u damage %i distance %f distance2d %f",
-    x, y, z, m_caster->GetGUIDLow(), unitTarget->GetGUIDLow(), damage, distance, distance2d);
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJump start xyz %f %f %f caster %u target %u damage %i distance %f distance2d %f",
+    //x, y, z, m_caster->GetGUIDLow(), unitTarget->GetGUIDLow(), damage, distance, distance2d);
 
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, 0, 0.0f, delayCast, unitTarget);
 }

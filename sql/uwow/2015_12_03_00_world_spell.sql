@@ -1,7 +1,7 @@
 DELETE FROM spell_script_names WHERE spell_id IN (755, -755);
 DELETE FROM spell_bonus_data WHERE entry IN (689);
 
-insert into `spell_check_cast` (`spellId`, `type`, `param`, `errorId`, `customErrorId`, `caster`, `target`, `checkType`, `dataType`, `checkType2`, `dataType2`, `comment`) values
+insert into `spell_check_cast` (`spellId`, `type`, `param1`, `errorId`, `customErrorId`, `caster`, `target`, `checkType`, `dataType`, `checkType2`, `dataType2`, `comment`) values
 ('755','1','-100','2','0','0','1','0','0','0','0','Канал здоровья - проверка фулл ХП'),
 ('1454','1','15','0','28','0','3','0','0','0','0','Жизнеотвод - проверка 15% ХП'),
 ('108482','1','20','0','28','0','3','0','0','0','0','Свободная воля - проверка 20% ХП'),
