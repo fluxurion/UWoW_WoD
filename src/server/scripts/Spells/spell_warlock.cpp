@@ -230,21 +230,6 @@ class spell_warl_flames_of_xoroth : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            SpellCastResult CheckPet()
-            {
-                if (!GetCaster())
-                    return SPELL_FAILED_DONT_REPORT;
-
-                Player* _plr = GetCaster()->ToPlayer();
-                if (!_plr)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (Pet* pet = _plr->GetPet())
-                    return SPELL_FAILED_ALREADY_HAVE_PET;
-
-                return SPELL_CAST_OK;
-            }
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (!GetCaster())
@@ -275,7 +260,6 @@ class spell_warl_flames_of_xoroth : public SpellScriptLoader
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_warl_flames_of_xoroth_SpellScript::CheckPet);
                 OnEffectHitTarget += SpellEffectFn(spell_warl_flames_of_xoroth_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -1225,16 +1209,15 @@ class spell_warl_drain_life : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    Player* _player = GetCaster()->ToPlayer();
-                    if (!_player)
-                        return;
-
                     // In Demonology spec : Generates 10 Demonic Fury per second
                     if (GetSpellInfo()->Effects[2].IsAura(SPELL_AURA_DUMMY))
-                        _player->EnergizeBySpell(_player, 689, GetSpellInfo()->Effects[2].BasePoints, POWER_DEMONIC_FURY);
+                        caster->EnergizeBySpell(caster, 689, GetSpellInfo()->Effects[2].BasePoints, POWER_DEMONIC_FURY);
 
-                    int32 basepoints = _player->CountPctFromMaxHealth(GetSpellInfo()->Effects[1].BasePoints);
-                    _player->CastCustomSpell(_player, WARLOCK_DRAIN_LIFE_HEAL, &basepoints, NULL, NULL, true);
+                    int32 modPct = caster->HasAura(157069) ? aurEff->GetTickNumber() * 10 : 0; // Empowered Drain Life
+                    float pct = GetSpellInfo()->Effects[1].BasePoints / aurEff->GetTotalTicks();
+                    int32 basepoints = CalculatePct(caster->GetMaxHealth(), pct);
+                    basepoints += CalculatePct(basepoints, modPct);
+                    caster->CastCustomSpell(caster, WARLOCK_DRAIN_LIFE_HEAL, &basepoints, NULL, NULL, true);
                 }
             }
 
@@ -1334,40 +1317,6 @@ class spell_warl_life_tap : public SpellScriptLoader
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_life_tap_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_SCHOOL_HEAL_ABSORB);
             }
         };
-
-        class spell_warl_life_tap_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_life_tap_SpellScript);
-
-            SpellCastResult CheckHealth()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 percent = GetSpellInfo()->Effects[EFFECT_2].BasePoints;
-                    if (caster->GetHealthPct() <= percent)
-                    {
-                        SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NOT_ENOUGH_HEALTH);
-                        return SPELL_FAILED_CUSTOM_ERROR;
-                    }
-                    else
-                        return SPELL_CAST_OK;
-                }
-                else
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_warl_life_tap_SpellScript::CheckHealth);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_life_tap_SpellScript();
-        }
 
         AuraScript* GetAuraScript() const
         {
@@ -1761,24 +1710,6 @@ class spell_warl_unbound_will : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_unbound_will_SpellScript);
 
-            SpellCastResult CheckHealth()
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->GetHealthPct() <= 20.0f)
-                    {
-                        SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NOT_ENOUGH_HEALTH);
-                        return SPELL_FAILED_CUSTOM_ERROR;
-                    }
-                    else
-                        return SPELL_CAST_OK;
-                }
-                else
-                    return SPELL_FAILED_DONT_REPORT;
-
-                return SPELL_CAST_OK;
-            }
-
             void HandleAfterHit()
             {
                 if (Unit* player = GetCaster())
@@ -1811,7 +1742,6 @@ class spell_warl_unbound_will : public SpellScriptLoader
 
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_warl_unbound_will_SpellScript::CheckHealth);
                 AfterHit += SpellHitFn(spell_warl_unbound_will_SpellScript::HandleAfterHit);
             }
         };
@@ -2041,9 +1971,10 @@ class spell_warl_healthstone : public SpellScriptLoader
 
             void HandleHeal(SpellEffIndex effIndex)
             {
-                int32 percent = GetSpellInfo()->Effects[effIndex].BasePoints;
+                //int32 percent = GetSpellInfo()->Effects[effIndex].BasePoints;
                 if (Unit* caster = GetCaster())
-                    SetHitHeal(CalculatePct(caster->GetMaxHealth(), percent));
+                    //SetHitHeal(CalculatePct(caster->GetMaxHealth(), percent));
+                    SetHitHeal(50000);
             }
 
             void Register()
@@ -2058,9 +1989,10 @@ class spell_warl_healthstone : public SpellScriptLoader
 
             void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
             {
-                int32 percent = int32(GetSpellInfo()->Effects[aurEff->GetEffIndex()].BasePoints / 10);
-                if (Unit* caster = GetCaster())
-                    amount = CalculatePct(caster->GetMaxHealth(), percent);
+                //int32 percent = int32(GetSpellInfo()->Effects[aurEff->GetEffIndex()].BasePoints / 10);
+                //if (Unit* caster = GetCaster())
+                    //amount = CalculatePct(caster->GetMaxHealth(), percent);
+                    amount = 100000;
             }
 
             void Register()
@@ -2129,7 +2061,7 @@ class spell_warl_demonic_gateway : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if(Unit* owner = ObjectAccessor::GetUnit(*caster, GetCasterGUID()))
                         if (owner->HasAura(143395))
-                            duration = 45000;
+                            duration = 75000;
             }
 
             void Register()
@@ -2665,7 +2597,7 @@ class spell_warl_void_shield : public SpellScriptLoader
 
             void Register()
             {
-                AfterEffectApply += AuraEffectApplyFn(spell_warl_void_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_warl_void_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_warl_void_shield_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
             }
         };
@@ -2719,6 +2651,64 @@ class spell_warl_void_shield_damage : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_void_shield_damage_SpellScript();
+        }
+};
+
+// 115232 - Shadow Shield (Special Ability)
+class spell_warl_shadow_shield : public SpellScriptLoader
+{
+    public:
+        spell_warl_shadow_shield() : SpellScriptLoader("spell_warl_shadow_shield") { }
+
+        class spell_warl_shadow_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_shadow_shield_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                SetStackAmount(3);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_warl_shadow_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_shadow_shield_AuraScript();
+        }
+};
+
+// 115240 - Shadow Shield
+class spell_warl_shadow_shield_damage : public SpellScriptLoader
+{
+    public:
+        spell_warl_shadow_shield_damage() : SpellScriptLoader("spell_warl_shadow_shield_damage") { }
+
+        class spell_warl_shadow_shield_damage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_shadow_shield_damage_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Aura* shield = caster->GetAura(115232))
+                        shield->ModStackAmount(-1);
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_shadow_shield_damage_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_shadow_shield_damage_SpellScript();
         }
 };
 
@@ -2783,4 +2773,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_burning_embers_aoe();
     new spell_warl_void_shield();
     new spell_warl_void_shield_damage();
+    new spell_warl_shadow_shield();
+    new spell_warl_shadow_shield_damage();
 }

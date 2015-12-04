@@ -422,6 +422,7 @@ enum ItemQualities
 enum SpellCategory
 {
     SPELL_CATEGORY_FOOD             = 11,
+    SPELL_CATEGORY_HEALTHSTONE      = 30,
     SPELL_CATEGORY_DRINK            = 59,
 };
 

@@ -255,13 +255,22 @@ void PetAI::UpdateAI(uint32 diff)
                 if (!spellUsed)
                     delete spell;
             }
-            else if (me->getVictim() && CanAttack(me->getVictim()) && spellInfo->CanBeUsedInCombat())
+            else if (spellInfo->CanBeUsedInCombat())
             {
-                Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty);
-                if (spell->CanAutoCast(me->getVictim()))
-                    targetSpellStore.push_back(std::make_pair(me->getVictim(), spell));
-                else
-                    delete spell;
+                Unit* target = me->getAttackerForHelper();
+                Unit* targetOwner = target;
+                if (owner)
+                    targetOwner = owner->getAttackerForHelper();
+                if ((target && CanAttack(target)) || (targetOwner && targetOwner != target && CanAttack(targetOwner)))
+                {
+                    Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty);
+                    if (target && spell->CanAutoCast(target))
+                        targetSpellStore.push_back(std::make_pair(target, spell));
+                    else if (targetOwner && targetOwner != target && spell->CanAutoCast(targetOwner))
+                        targetSpellStore.push_back(std::make_pair(targetOwner, spell));
+                    else
+                        delete spell;
+                }
             }
         }
 

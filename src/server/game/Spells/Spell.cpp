@@ -3406,8 +3406,13 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
     if (m_preCastSpell)
     {
         if (sSpellMgr->GetSpellInfo(m_preCastSpell))
-            // Blizz seems to just apply aura without bothering to cast
-            m_caster->AddAura(m_preCastSpell, unit);
+        {
+            if(m_preCastSpell == 160029 && unit->isAlive()) // aura only for death target
+            {}
+            else
+                // Blizz seems to just apply aura without bothering to cast
+                m_caster->AddAura(m_preCastSpell, unit);
+        }
     }
 
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
@@ -9042,6 +9047,86 @@ SpellCastResult Spell::CallScriptCheckCastHandlers()
 
         (*scritr)->_FinishScriptCall();
     }
+
+    if(retVal == SPELL_CAST_OK)
+        retVal = CustomCheckCast();
+
+    return retVal;
+}
+
+SpellCastResult Spell::CustomCheckCast()
+{
+    SpellCastResult retVal = SPELL_CAST_OK;
+
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::CustomCheckCast spellId %u", m_spellInfo->Id);
+
+    if (std::vector<SpellCheckCast> const* checkCast = sSpellMgr->GetSpellCheckCast(m_spellInfo->Id))
+    {
+        bool check = false;
+        for (std::vector<SpellCheckCast>::const_iterator itr = checkCast->begin(); itr != checkCast->end(); ++itr)
+        {
+            Unit* _caster = m_originalCaster ? m_originalCaster : m_caster;
+            Unit* _target = m_targets.GetUnitTarget();
+
+            if (itr->target)
+                _target = (m_originalCaster ? m_originalCaster : m_caster)->GetUnitForLinkedSpell(_caster, _target, itr->target);
+
+            if (itr->caster)
+                _caster = (m_originalCaster ? m_originalCaster : m_caster)->GetUnitForLinkedSpell(_caster, _target, itr->caster);
+
+            if(!_caster)
+                check = true;
+
+            if(!_target)
+                check = true;
+
+            if(itr->dataType)
+                if(m_caster->HasAuraLinkedSpell(_caster, _target, itr->checkType, itr->dataType))
+                    check = true;
+
+            if(itr->dataType2)
+                if(m_caster->HasAuraLinkedSpell(_caster, _target, itr->checkType2, itr->dataType2))
+                    check = true;
+
+            switch (itr->type)
+            {
+                case SPELL_CHECK_CAST_DEFAULT: // 0
+                    if(itr->param1 < 0 && !check)
+                        check = true;
+                    else if(itr->param1 < 0 && check)
+                        check = false;
+                    break;
+                case SPELL_CHECK_CAST_HEALTH: // 1
+                {
+                    if(check)
+                        break;
+                    if (itr->param1 > 0 && _target->GetHealthPct() < itr->param1)
+                        check = true;
+                    else if (itr->param1 < 0 && _target->GetHealthPct() >= abs(itr->param1))
+                        check = true;
+                    break;
+                }
+            }
+
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::CustomCheckCast spellId %u check %i param1 %i type %i errorId %i customErrorId %i",
+            m_spellInfo->Id, check, itr->param1, itr->type, itr->errorId, itr->customErrorId);
+
+            if(check)
+            {
+                if (itr->customErrorId)
+                {
+                    retVal = SPELL_FAILED_CUSTOM_ERROR;
+                    m_customError = (SpellCustomErrors)itr->customErrorId;
+                }
+                else
+                    retVal = (SpellCastResult)itr->errorId;
+                break;
+            }
+        }
+    }
+
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::CustomCheckCast spellId %u retVal %i m_customError %i", m_spellInfo->Id, retVal, m_customError);
+
     return retVal;
 }
 

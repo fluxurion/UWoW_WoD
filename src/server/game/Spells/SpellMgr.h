@@ -267,6 +267,12 @@ enum SpellTargetFilterType
     SPELL_FILTER_TARGET_ATTACKABLE              = 15,           // Check Attackable
 };
 
+enum SpellCheckCastType
+{
+    SPELL_CHECK_CAST_DEFAULT                    = 0,            // Not check type, check only dataType and dataType2
+    SPELL_CHECK_CAST_HEALTH                     = 1,            // Check healh percent
+};
+
 enum SpellConcatenateAuraOption
 {
     CONCATENATE_NONE                     = 0x000,            //
@@ -942,11 +948,29 @@ struct SpellConcatenateAura
     int8 target;
 };
 
+struct SpellCheckCast
+{
+    int32 spellId;
+    int32 type;
+    int32 errorId;
+    int32 customErrorId;
+    int32 caster;
+    int32 target;
+    int32 checkType;
+    int32 dataType;
+    int32 checkType2;
+    int32 dataType2;
+    int32 param1;
+    int32 param2;
+    int32 param3;
+};
+
 typedef std::unordered_map<int32, std::vector<SpellTriggered> > SpellTriggeredMap;
 typedef std::unordered_map<int32, std::vector<SpellDummyTrigger> > SpellDummyTriggerMap;
 typedef std::unordered_map<int32, std::vector<SpellDummyTrigger> > SpellAuraTriggerMap;
 typedef std::unordered_map<int32, std::vector<SpellAuraDummy> > SpellAuraDummyMap;
 typedef std::unordered_map<int32, std::vector<SpellTargetFilter> > SpellTargetFilterMap;
+typedef std::unordered_map<int32, std::vector<SpellCheckCast> > SpellCheckCastMap;
 typedef std::unordered_map<int32, std::vector<SpellLinked> > SpellLinkedMap;
 typedef std::unordered_map<int32, std::vector<SpellTalentLinked> > SpellTalentLinkedMap;
 typedef std::unordered_map<int32, std::vector<SpellPrcoCheck> > SpellPrcoCheckMap;
@@ -1079,6 +1103,7 @@ class SpellMgr
         const std::vector<SpellDummyTrigger> *GetSpellAuraTrigger(int32 spell_id) const;
         const std::vector<SpellAuraDummy> *GetSpellAuraDummy(int32 spell_id) const;
         const std::vector<SpellTargetFilter> *GetSpellTargetFilter(int32 spell_id) const;
+        const std::vector<SpellCheckCast> *GetSpellCheckCast(int32 spell_id) const;
         const std::vector<SpellVisual> *GetSpellVisual(int32 spell_id) const;
         const SpellVisualPlayOrphan* GetSpellVisualPlayOrphan(int32 spell_id) const;
         const std::vector<SpellPendingCast> *GetSpellPendingCast(int32 spell_id) const;
@@ -1167,6 +1192,7 @@ class SpellMgr
         SpellAuraTriggerMap        mSpellAuraTriggerMap;
         SpellAuraDummyMap          mSpellAuraDummyMap;
         SpellTargetFilterMap       mSpellTargetFilterMap;
+        SpellCheckCastMap          mSpellCheckCastMap;
         SpellEnchantProcEventMap   mSpellEnchantProcEventMap;
         EnchantCustomAttribute     mEnchantCustomAttr;
         SpellAreaMap               mSpellAreaMap;

@@ -3777,7 +3777,6 @@ class npc_guardian_of_ancient_kings : public CreatureScript
 
 enum gateway_data
 {
-    SPELL_DEMONIC_GATEWAY_CHARGES           = 113901,
     //Add animation to AreaTrigger
     SPELL_DEMONIC_PORTAL_BIRTH_ANIM_DUMMY   = 143251,
     //Summon arrea trigger.
@@ -3788,12 +3787,6 @@ enum gateway_data
 };
 
 uint32 DestEntry[2]= { NPC_PURGE_GATE, NPC_GREEN_GATE };
-
-uint32 gwauras[2][5]=
-{
-    { 113903, 113911, 113912, 113913, 113914 },
-    { 113915, 113916, 113917, 113918, 113919}
-};
 
 class npc_demonic_gateway : public CreatureScript
 {
@@ -3813,12 +3806,6 @@ class npc_demonic_gateway : public CreatureScript
                 gate = me->GetEntry() == NPC_PURGE_GATE;
                 me->CastSpell(me, SPELL_DEMONIC_GATEWAY, true);
                 me->CastSpell(me, SPELL_DEMONIC_PORTAL_BIRTH_ANIM_DUMMY, false);
-                if (gate)   //Only Purge gate do check for caster aura.
-                {
-                    if (summoner->HasAura(SPELL_DEMONIC_GATEWAY_CHARGES))
-                        summoner->RemoveAurasDueToSpell(SPELL_DEMONIC_GATEWAY_CHARGES);
-                    summoner->CastSpell(summoner, SPELL_DEMONIC_GATEWAY_CHARGES, false);
-                }
             }
 
             void OnSpellClick(Unit* who)
@@ -3831,40 +3818,16 @@ class npc_demonic_gateway : public CreatureScript
                     Player* whoPlayer = who->ToPlayer();
                     if(!ownerPlayer || !whoPlayer || !ownerPlayer->IsGroupVisibleFor(whoPlayer))
                         return;
-                    if (Aura* aurastack = owner->GetAura(SPELL_DEMONIC_GATEWAY_CHARGES))
-                    {
-                        uint32 stacks = aurastack->GetEffect(EFFECT_0)->GetAmount();
-                        if (!stacks)
-                            return;
 
-                        for (int32 i = 0; i < MAX_SUMMON_SLOT; ++i)
+                    for (int32 i = 0; i < MAX_SUMMON_SLOT; ++i)
+                    {
+                        if (owner->m_SummonSlot[i].GetEntry() != DestEntry[gate])
+                            continue;
+                        if(Unit* uGate = ObjectAccessor::GetUnit(*me, owner->m_SummonSlot[i]))
                         {
-                            if (owner->m_SummonSlot[i].GetEntry() != DestEntry[gate])
-                                continue;
-                            if(Unit* uGate = ObjectAccessor::GetUnit(*me, owner->m_SummonSlot[i]))
-                            {
-                                aurastack->GetEffect(EFFECT_0)->ChangeAmount(stacks - 1);
-                                aurastack->SetNeedClientUpdateForTargets();
-                                //who->CastSpell(uGate, gate ? 120729 : 113896, true);
-                                who->CastCustomSpell(uGate, gate ? 120729 : 113896, NULL, NULL, NULL, true, NULL, NULL, owner->GetGUID());
-                                for(int32 j = 5; j >= 0; --j)
-                                {
-                                    if (uGate->HasAura(gwauras[!gate][j]))
-                                    {
-                                        uGate->RemoveAurasDueToSpell(gwauras[!gate][j]);
-                                        break;
-                                    }
-                                }
-                                for(int32 j = 5; j >= 0; --j)
-                                {
-                                    if (me->HasAura(gwauras[gate][j]))
-                                    {
-                                        me->RemoveAurasDueToSpell(gwauras[gate][j]);
-                                        break;
-                                    }
-                                }
-                                break;
-                            }
+                            //who->CastSpell(uGate, gate ? 120729 : 113896, true);
+                            who->CastCustomSpell(uGate, gate ? 120729 : 113896, NULL, NULL, NULL, true, NULL, NULL, owner->GetGUID());
+                            break;
                         }
                     }
                 }

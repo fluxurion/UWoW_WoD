@@ -1175,6 +1175,12 @@ const std::vector<SpellTargetFilter>* SpellMgr::GetSpellTargetFilter(int32 spell
     return itr != mSpellTargetFilterMap.end() ? &(itr->second) : NULL;
 }
 
+const std::vector<SpellCheckCast>* SpellMgr::GetSpellCheckCast(int32 spell_id) const
+{
+    SpellCheckCastMap::const_iterator itr = mSpellCheckCastMap.find(spell_id);
+    return itr != mSpellCheckCastMap.end() ? &(itr->second) : NULL;
+}
+
 PetLevelupSpellSet const* SpellMgr::GetPetLevelupSpellList(uint32 petFamily) const
 {
     PetLevelupSpellMap::const_iterator itr = mPetLevelupSpellMap.find(petFamily);
@@ -2929,6 +2935,7 @@ void SpellMgr::LoadSpellTriggered()
     mSpellAuraTriggerMap.clear();    // need for reload case
     mSpellAuraDummyMap.clear();    // need for reload case
     mSpellTargetFilterMap.clear();    // need for reload case
+    mSpellCheckCastMap.clear();    // need for reload case
 
     uint32 count = 0;
     //                                                    0           1                    2           3         4          5          6          7      8      9         10         11       12       13         14          15            16            17           18          19           20              21          22
@@ -3186,7 +3193,7 @@ void SpellMgr::LoadSpellTriggered()
     result = WorldDatabase.Query("SELECT `spellId`, `targetId`, `option`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `param1`, `param2`, `param3` FROM `spell_target_filter`");
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 aura dummy spells. DB table `spell_aura_dummy` is empty.");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 aura dummy spells. DB table `spell_target_filter` is empty.");
         return;
     }
 
@@ -3233,6 +3240,46 @@ void SpellMgr::LoadSpellTriggered()
         tempfilter.param2 = param2;
         tempfilter.param3 = param3;
         mSpellTargetFilterMap[spellId].push_back(tempfilter);
+
+        ++count;
+    } while (result->NextRow());
+
+    //                                       0        1         2             3            4         5           6           7            8            9           10        11        12
+    result = WorldDatabase.Query("SELECT `spellId`, `type`, `errorId`, `customErrorId`, `caster`, `target`, `checkType`, `dataType`, `checkType2`, `dataType2`, `param1`, `param2`, `param3` FROM `spell_check_cast`");
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 aura dummy spells. DB table `spell_check_cast` is empty.");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+        int32 spellId = fields[0].GetInt32();
+
+        SpellInfo const* spellInfo = GetSpellInfo(abs(spellId));
+        if (!spellInfo)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Spell %i listed in `spell_check_cast` does not exist", spellId);
+            WorldDatabase.PExecute("DELETE FROM `spell_check_cast` WHERE spellId = %i", spellId);
+            continue;
+        }
+
+        SpellCheckCast checkCast;
+        checkCast.spellId = spellId;
+        checkCast.type = fields[1].GetInt32();
+        checkCast.errorId = fields[2].GetInt32();
+        checkCast.customErrorId = fields[3].GetInt32();
+        checkCast.caster = fields[4].GetInt32();
+        checkCast.target = fields[5].GetInt32();
+        checkCast.checkType = fields[6].GetInt32();
+        checkCast.dataType = fields[7].GetInt32();
+        checkCast.checkType2 = fields[8].GetInt32();
+        checkCast.dataType2 = fields[9].GetInt32();
+        checkCast.param1 = fields[10].GetInt32();
+        checkCast.param2 = fields[11].GetInt32();
+        checkCast.param3 = fields[12].GetInt32();
+        mSpellCheckCastMap[spellId].push_back(checkCast);
 
         ++count;
     } while (result->NextRow());
