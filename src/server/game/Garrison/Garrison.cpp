@@ -1013,7 +1013,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
     if ((building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING || building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_PLOT)/* && building->GetGOInfo()->garrisonBuilding.mapID*/)
     {
 
-        if (std::list<GameObjectData> const* goList = sGarrisonMgr.GetGoSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo ? BuildingInfo.PacketInfo->GarrBuildingID : 0))
+        if (std::list<GameObjectData> const* goList = sGarrisonMgr.GetGoSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active ? BuildingInfo.PacketInfo->GarrBuildingID : 0))
         for (std::list<GameObjectData>::const_iterator data = goList->begin(); data != goList->end(); ++data)
         {
             if (GarrisonMgr::getFirstMap(map->GetId()) != data->mapid)
@@ -1034,7 +1034,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
             BuildingInfo.Spawns.insert(linkGO->GetGUID());
         }
 
-        if (std::list<CreatureData> const* npcList = sGarrisonMgr.GetNpcSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo ?  BuildingInfo.PacketInfo->GarrBuildingID : 0))
+        if (std::list<CreatureData> const* npcList = sGarrisonMgr.GetNpcSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active ? BuildingInfo.PacketInfo->GarrBuildingID : 0))
         for (std::list<CreatureData>::const_iterator data = npcList->begin(); data != npcList->end(); ++data)
         {
             if (GarrisonMgr::getFirstMap(map->GetId()) != data->mapid)
