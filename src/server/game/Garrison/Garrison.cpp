@@ -1016,7 +1016,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         if (std::list<GameObjectData> const* goList = sGarrisonMgr.GetGoSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo ? BuildingInfo.PacketInfo->GarrBuildingID : 0))
         for (std::list<GameObjectData>::const_iterator data = goList->begin(); data != goList->end(); ++data)
         {
-            if (map->GetId() != data->mapid)
+            if (GarrisonMgr::getFirstMap(map->GetId()) != data->mapid)
                 continue;
 
             // ignore building state object for already build object.
@@ -1037,7 +1037,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         if (std::list<CreatureData> const* npcList = sGarrisonMgr.GetNpcSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo ?  BuildingInfo.PacketInfo->GarrBuildingID : 0))
         for (std::list<CreatureData>::const_iterator data = npcList->begin(); data != npcList->end(); ++data)
         {
-            if (map->GetId() != data->mapid)
+            if (GarrisonMgr::getFirstMap(map->GetId()) != data->mapid)
                 continue;
             if (BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active == data->building)
                 continue;

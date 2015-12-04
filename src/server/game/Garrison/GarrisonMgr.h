@@ -55,6 +55,8 @@ public:
         return instance;
     }
 
+    static uint32 getFirstMap(uint32 map);
+
     void Initialize();
 
     GarrSiteLevelEntry const* GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const;

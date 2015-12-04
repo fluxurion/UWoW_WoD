@@ -24,6 +24,22 @@
 #include "ObjectMgr.h"
 #include "World.h"
 
+uint32 GarrisonMgr::getFirstMap(uint32 map)
+{
+    switch (map)
+    {
+        case 1152:
+        case 1330:
+        case 1153:
+            return 1152;
+        case 1158:
+        case 1331:
+        case 1159:
+            return 1158;
+    }
+    return 0;
+}
+
 void GarrisonMgr::Initialize()
 {
     for (GarrSiteLevelPlotInstEntry const* plotInstance : sGarrSiteLevelPlotInstStore)
@@ -500,7 +516,8 @@ void GarrisonMgr::LoadBuildingSpawnNPC()
 
         CreatureData data;
         data.id = entry;
-        data.mapid = fields[index++].GetUInt16();
+        uint32 map = fields[index++].GetUInt16();
+        data.mapid = getFirstMap(map);
         data.posX = fields[index++].GetFloat();
         data.posY = fields[index++].GetFloat();
         data.posZ = fields[index++].GetFloat();
@@ -508,6 +525,9 @@ void GarrisonMgr::LoadBuildingSpawnNPC()
         data.building = fields[index++].GetBool();
         data.dbData = false;
         _buildSpawnNpc[BuildID][garrPlotInstanceId].push_back(data);
+
+        if (!data.mapid)
+            sLog->outError(LOG_FILTER_SQL, "Not supported map %u in `garrison_building_creature`.", map);
 
         ++count;
     } while (result->NextRow());
@@ -558,7 +578,8 @@ void GarrisonMgr::LoadBuildingSpawnGo()
 
         GameObjectData data;
         data.id = entry;
-        data.mapid = fields[index++].GetUInt16();
+        uint32 map = fields[index++].GetUInt16();
+        data.mapid = getFirstMap(map);
         data.posX = fields[index++].GetFloat();
         data.posY = fields[index++].GetFloat();
         data.posZ = fields[index++].GetFloat();
@@ -570,6 +591,9 @@ void GarrisonMgr::LoadBuildingSpawnGo()
         data.building = fields[index++].GetBool();
         data.dbData = false;
         _buildSpawnGo[BuildID][garrPlotInstanceId].push_back(data);
+
+        if (!data.mapid)
+            sLog->outError(LOG_FILTER_SQL, "Not supported map %u in `garrison_building_gameobject`.", map);
 
         ++count;
     } while (result->NextRow());

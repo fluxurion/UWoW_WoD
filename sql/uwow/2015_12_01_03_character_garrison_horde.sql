@@ -1,5 +1,5 @@
 -- Удаляем орде гарнизон и чистим базу от лишнего.
-DELETE FROM `character_garrison` WHERE siteLevelId = 258;
+DELETE FROM `character_garrison` WHERE siteLevelId in (444, 445, 6, 259);
 DELETE FROM character_garrison_blueprints WHERE guid not in (select guid from `character_garrison`);
 DELETE FROM character_garrison_buildings WHERE guid not in (select guid from `character_garrison`);
 DELETE FROM character_garrison_followers WHERE guid not in (select guid from `character_garrison`);
