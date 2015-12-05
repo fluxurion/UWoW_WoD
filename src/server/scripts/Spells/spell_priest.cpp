@@ -2547,8 +2547,11 @@ class spell_pri_insanity : public SpellScriptLoader
                 {
                     if (Aura* insanity = caster->GetAura(139139)) // Insanity
                     {
-                        duration *= insanity->GetCustomData();
-                        insanity->SetCustomData(0);
+                        if(insanity->GetCustomData())
+                        {
+                            duration = (2000 * insanity->GetCustomData());
+                            insanity->SetCustomData(0);
+                        }
                     }
                 }
             }

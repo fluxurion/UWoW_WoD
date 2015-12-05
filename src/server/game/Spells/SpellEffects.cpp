@@ -1782,8 +1782,8 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     float distance = m_caster->GetExactDist(x, y, z);
     CalculateJumpSpeeds(effIndex, distance, speedXY, speedZ);
 
-    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJump start xyz %f %f %f caster %u target %u damage %i distance %f distance2d %f",
-    //x, y, z, m_caster->GetGUIDLow(), unitTarget->GetGUIDLow(), damage, distance, distance2d);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJump start xyz %f %f %f caster %u target %u damage %i distance %f",
+    x, y, z, m_caster->GetGUIDLow(), unitTarget->GetGUIDLow(), damage, distance);
 
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, 0, 0.0f, delayCast, unitTarget);
 }
@@ -3040,9 +3040,15 @@ void Spell::EffectEnergizePct(SpellEffIndex effIndex)
         return;
 
     uint32 gain = CalculatePct(maxPower, damage);
+
+    if (m_spellInfo->Id == 123051) // hack for Mana Leech 0.75% bp cannot now is float
+        gain /= 100;
+
     m_addptype = power;
     m_addpower = gain;
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, gain, power);
+
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectEnergizePct Id %i damage %i power %i gain %i", m_spellInfo->Id, damage, power, gain);
 }
 
 void Spell::SendLoot(ObjectGuid const& guid, LootType loottype)

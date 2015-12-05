@@ -19,3 +19,9 @@ insert into `pet_stats` (`entry`, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('115232','spell_warl_shadow_shield');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('115240','spell_warl_shadow_shield_damage');
 
+DELETE FROM spell_trigger WHERE spell_id IN (123050);
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('123050','123051','0','1','5','0','0','0','75','0','0','7','0','0','0','0','0','0','0','-1','0','0','0','Высасывание маны Атаки подчиняющего разум');
+
+DELETE FROM spell_aura_dummy WHERE spellId IN (152118);
+
