@@ -898,7 +898,7 @@ void Garrison::SendGarrisonUpgradebleResult(Player* receiver) const
     switch (_siteLevel->Level)
     {
         case 1: 
-            result.Result = GARRISON_ERROR_NOT_ALLOW_GARRISON_UPGRADE;
+            result.Result = 0/*GARRISON_ERROR_NOT_ALLOW_GARRISON_UPGRADE*/;
             break;
         case 2: //Requare Alliance Q: 36592, Horde Q: 36567
         default:
@@ -1020,7 +1020,8 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
                 continue;
 
             // ignore building state object for already build object.
-            if (BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active == data->building)
+            if (data->building && !BuildingInfo.PacketInfo ||
+                (BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active == data->building))
                 continue;
 
             GameObject* linkGO = new GameObject();
@@ -1039,7 +1040,9 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         {
             if (GarrisonMgr::getFirstMap(map->GetId()) != data->mapid)
                 continue;
-            if (BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active == data->building)
+            // ignore building state object for already build object.
+            if (data->building && !BuildingInfo.PacketInfo ||
+                (BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active == data->building))
                 continue;
             Creature* linkNPC = new Creature();
             if (!linkNPC->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), map, 1, data->id, 0, 0, data->posX, data->posY, data->posZ, data->orientation) ||
