@@ -1457,6 +1457,9 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_CHECK_MT_SESSION] = sConfigMgr->GetBoolDefault("World.MT.Session", false);
 
+    // Garrison
+    m_bool_configs[CONFIG_DISABLE_GARE_UPGRADE] = sConfigMgr->GetBoolDefault("Garrisone.DisableUpgrade", true);
+
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }
