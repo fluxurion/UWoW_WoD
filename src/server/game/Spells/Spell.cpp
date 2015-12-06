@@ -5954,7 +5954,7 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
                         if(Aura* aura = (_target ? _target : _caster)->GetAura(i->effect, _caster->GetGUID()))
                         {
                             if (!i->duration)
-                                aura->SetDuration(aura->GetSpellInfo()->GetMaxDuration(), true);
+                                aura->RefreshTimers();
                             else
                             {
                                 int32 _duration = int32(aura->GetDuration() + i->duration);
@@ -6720,17 +6720,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if (Player* plr = m_caster->ToPlayer())
                             if (plr->GetSpecializationId(plr->GetActiveSpec()) != SPEC_WARLOCK_DEMONOLOGY)
                                 return SPELL_FAILED_NO_SPEC;
-                        break;
-                    }
-                    case 86121:  // Soul Swap
-                    {
-                        if (Unit* target = m_targets.GetUnitTarget())
-                        {
-                            if (!target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x00000402, 0x00000112, 0, m_caster->GetGUID()))
-                            {
-                                return SPELL_FAILED_BAD_TARGETS;
-                            }
-                        }
                         break;
                     }
                     case 86213:  // Soul Swap Exhale
@@ -9058,7 +9047,7 @@ SpellCastResult Spell::CustomCheckCast()
 {
     SpellCastResult retVal = SPELL_CAST_OK;
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::CustomCheckCast spellId %u", m_spellInfo->Id);
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::CustomCheckCast spellId %u", m_spellInfo->Id);
 
     if (std::vector<SpellCheckCast> const* checkCast = sSpellMgr->GetSpellCheckCast(m_spellInfo->Id))
     {
@@ -9108,8 +9097,8 @@ SpellCastResult Spell::CustomCheckCast()
                 }
             }
 
-            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::CustomCheckCast spellId %u check %i param1 %i type %i errorId %i customErrorId %i",
-            m_spellInfo->Id, check, itr->param1, itr->type, itr->errorId, itr->customErrorId);
+            //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::CustomCheckCast spellId %u check %i param1 %i type %i errorId %i customErrorId %i",
+            //m_spellInfo->Id, check, itr->param1, itr->type, itr->errorId, itr->customErrorId);
 
             if(check)
             {
@@ -9125,7 +9114,7 @@ SpellCastResult Spell::CustomCheckCast()
         }
     }
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::CustomCheckCast spellId %u retVal %i m_customError %i", m_spellInfo->Id, retVal, m_customError);
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::CustomCheckCast spellId %u retVal %i m_customError %i", m_spellInfo->Id, retVal, m_customError);
 
     return retVal;
 }

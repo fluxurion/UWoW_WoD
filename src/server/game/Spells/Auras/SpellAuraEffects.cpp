@@ -1639,6 +1639,8 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
             if(!_targetAura)
                 _targetAura = caster;
 
+            Aura* _aura = _caster->GetAura(abs(itr->spellDummyId), caster->GetGUID());
+
             switch (itr->option)
             {
                 case SPELL_DUMMY_ENABLE: //0
@@ -1648,12 +1650,12 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                     if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                         continue;
 
-                    if(itr->spellDummyId > 0 && !_caster->HasAura(itr->spellDummyId, caster->GetGUID()))
+                    if(itr->spellDummyId > 0 && !_aura)
                     {
                         amount = 0;
                         check = true;
                     }
-                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId), caster->GetGUID()))
+                    if(itr->spellDummyId < 0 && _aura)
                     {
                         amount = 0;
                         check = true;
@@ -1667,9 +1669,17 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                     if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                         continue;
 
-                    if(itr->spellDummyId > 0 && _caster->HasAura(itr->spellDummyId, caster->GetGUID()))
+                    if(itr->spellDummyId > 0 && _aura)
                     {
-                        if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(itr->spellDummyId))
+                        if(AuraEffect const* dummyEff = _aura->GetEffect(itr->effectDummy))
+                        {
+                            float bp = itr->custombp;
+                            if(!bp)
+                                bp = dummyEff->GetAmount();
+                            amount += CalculatePct(amount, bp);
+                            check = true;
+                        }
+                        else if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(itr->spellDummyId)) // for spell without aura for this affect
                         {
                             float bp = itr->custombp;
                             if(!bp)
@@ -1678,9 +1688,17 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                             check = true;
                         }
                     }
-                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId), caster->GetGUID()))
+                    if(itr->spellDummyId < 0 && _aura)
                     {
-                        if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(abs(itr->spellDummyId)))
+                        if(AuraEffect const* dummyEff = _aura->GetEffect(itr->effectDummy))
+                        {
+                            float bp = itr->custombp;
+                            if(!bp)
+                                bp = dummyEff->GetAmount();
+                            amount -= CalculatePct(amount, bp);
+                            check = true;
+                        }
+                        else if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(abs(itr->spellDummyId))) // for spell without aura for this affect
                         {
                             float bp = itr->custombp;
                             if(!bp)
@@ -1698,9 +1716,17 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                     if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                         continue;
 
-                    if(itr->spellDummyId > 0 && _caster->HasAura(itr->spellDummyId, caster->GetGUID()))
+                    if(itr->spellDummyId > 0 && _aura)
                     {
-                        if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(itr->spellDummyId))
+                        if(AuraEffect const* dummyEff = _aura->GetEffect(itr->effectDummy))
+                        {
+                            float bp = itr->custombp;
+                            if(!bp)
+                                bp = dummyEff->GetAmount();
+                            amount += bp;
+                            check = true;
+                        }
+                        else if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(itr->spellDummyId)) // for spell without aura for this affect
                         {
                             float bp = itr->custombp;
                             if(!bp)
@@ -1709,9 +1735,17 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                             check = true;
                         }
                     }
-                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId), caster->GetGUID()))
+                    if(itr->spellDummyId < 0 && _aura)
                     {
-                        if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(abs(itr->spellDummyId)))
+                        if(AuraEffect const* dummyEff = _aura->GetEffect(itr->effectDummy))
+                        {
+                            float bp = itr->custombp;
+                            if(!bp)
+                                bp = dummyEff->GetAmount();
+                            amount -= bp;
+                            check = true;
+                        }
+                        else if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(abs(itr->spellDummyId))) // for spell without aura for this affect
                         {
                             float bp = itr->custombp;
                             if(!bp)
@@ -1729,9 +1763,19 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                     if(itr->aura < 0 && _targetAura->HasAura(abs(itr->aura)))
                         continue;
 
-                    if(itr->spellDummyId > 0 && _caster->HasAura(itr->spellDummyId, caster->GetGUID()))
+                    if(itr->spellDummyId > 0 && _aura)
                     {
-                        if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(itr->spellDummyId))
+                        if(AuraEffect const* dummyEff = _aura->GetEffect(itr->effectDummy))
+                        {
+                            float bp = itr->custombp;
+                            if(!bp)
+                                bp = dummyEff->GetAmount();
+
+                            bp /= 100.0f;
+                            amount += CalculatePct(amount, bp);
+                            check = true;
+                        }
+                        else if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(itr->spellDummyId)) // for spell without aura for this affect
                         {
                             float bp = itr->custombp;
                             if(!bp)
@@ -1742,9 +1786,19 @@ void AuraEffect::CalculateFromDummyAmount(Unit* caster, Unit* target, int32 &amo
                             check = true;
                         }
                     }
-                    if(itr->spellDummyId < 0 && _caster->HasAura(abs(itr->spellDummyId), caster->GetGUID()))
+                    if(itr->spellDummyId < 0 && _aura)
                     {
-                        if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(abs(itr->spellDummyId)))
+                        if(AuraEffect const* dummyEff = _aura->GetEffect(itr->effectDummy))
+                        {
+                            float bp = itr->custombp;
+                            if(!bp)
+                                bp = dummyEff->GetAmount();
+
+                            bp /= 100.0f;
+                            amount -= CalculatePct(amount, bp);
+                            check = true;
+                        }
+                        else if(SpellInfo const* dummyInfo = sSpellMgr->GetSpellInfo(abs(itr->spellDummyId))) // for spell without aura for this affect
                         {
                             float bp = itr->custombp;
                             if(!bp)
@@ -8319,6 +8373,10 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster, SpellEf
                 // Mastery: Emberstorm
                 if (AuraEffect const* aurEff = caster->GetAuraEffect(77220, EFFECT_0))
                     AddPct(damage, aurEff->GetAmount());
+                if (Player* _player = caster->ToPlayer())
+                    if (caster->HasAura(157121)) // Enhanced Ember Tap
+                        if (Pet* pet = _player->GetPet())
+                            caster->HealBySpell(pet, m_spellInfo, uint32(damage/5));
                 break;
             }
             default:

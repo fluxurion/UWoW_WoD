@@ -1164,8 +1164,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
                 case 6203:  // Soulstone
                 {
-                    if (!unitTarget->isAlive())
+                    if (unitTarget->isAlive())
                         unitTarget->CastSpell(unitTarget, 3026, true); // Self resurrect
+                    else
+                        m_caster->CastSpell(unitTarget, 95750, true);
                     break;
                 }
                 case 45206: // Copy Off-hand Weapon
@@ -1774,18 +1776,19 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     if (m_caster->ToCreature())
         m_caster->GetMotionMaster()->Clear(false);
 
-    float x, y, z;
-    unitTarget->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
-
+    Position pos;
+    unitTarget->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, unitTarget->GetAngle(m_caster));
+    //float x, y, z;
+    //unitTarget->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
 
     float speedXY, speedZ;
-    float distance = m_caster->GetExactDist(x, y, z);
+    float distance = m_caster->GetExactDist(&pos);
     CalculateJumpSpeeds(effIndex, distance, speedXY, speedZ);
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJump start xyz %f %f %f caster %u target %u damage %i distance %f",
-    x, y, z, m_caster->GetGUIDLow(), unitTarget->GetGUIDLow(), damage, distance);
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectJump start xyz %f %f %f caster %u target %u damage %i distance %f targetSize %f casterSize %f",
+    //pos.m_positionX, pos.m_positionY, pos.m_positionZ, m_caster->GetGUIDLow(), unitTarget->GetGUIDLow(), damage, distance, unitTarget->GetObjectSize(), m_caster->GetObjectSize());
 
-    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ, 0, 0.0f, delayCast, unitTarget);
+    m_caster->GetMotionMaster()->MoveJump(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speedXY, speedZ, 0, 0.0f, delayCast, unitTarget);
 }
 
 void Spell::EffectJumpDest(SpellEffIndex effIndex)
@@ -2479,6 +2482,10 @@ void Spell::EffectHealPct(SpellEffIndex effIndex)
             // Mastery: Emberstorm
             if (AuraEffect const* aurEff = m_caster->GetAuraEffect(77220, EFFECT_0))
                 AddPct(damage, aurEff->GetAmount());
+            if (Player* _player = m_caster->ToPlayer())
+                if (m_caster->HasAura(157121)) // Enhanced Ember Tap
+                    if (Pet* pet = _player->GetPet())
+                        m_caster->HealBySpell(pet, m_spellInfo, uint32(damage/5));
             break;
         }
         case 118340:// Impending Victory - Heal

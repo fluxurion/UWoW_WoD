@@ -3319,8 +3319,8 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (!spell) // not exist or triggered or talent
                     continue;
 
-                if (!spell->SpellLevel)
-                    continue;
+                //if (!spell->SpellLevel) // disable, not learn all need spell, example 134477
+                    //continue;
 
                 PetLevelupSpellSet& spellSet = mPetLevelupSpellMap[creatureFamily->ID];
                 if (spellSet.empty())

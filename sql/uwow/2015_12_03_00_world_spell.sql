@@ -25,3 +25,40 @@ insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `opt
 
 DELETE FROM spell_aura_dummy WHERE spellId IN (152118);
 
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('121148','spell_pri_cascade_heal');
+
+DELETE FROM spell_trigger WHERE spell_id IN (124495);
+DELETE FROM spell_proc_check WHERE entry IN (124495);
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('2944','155361','1','0','0','0','0','0','0','0','0','0','0','0','0','-1','10','0','Энтропия Бездны');
+
+DELETE FROM spell_linked_spell WHERE spell_trigger IN (148859);
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('148859','155521','1','10','0','0','155271','0','0','0','0','0','0','0','0','-1','0','0','Благосклонные духи');
+
+DELETE FROM spell_aura_dummy WHERE spellId IN (17962);
+insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
+('17962','157736','0','4','0','0','3','0','0','0','2','0','0','0','0','0','1','Поджигание');
+
+DELETE FROM spell_aura_dummy WHERE spellId IN (108683);
+insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
+('108683','157696','0','0','0','0','0','0','0','0','8','0','0','0','0','0','1','Огонь и сера'),
+('108683','-77220','0','2','0','0','0','0','0','0','32','0','0','0','225','0','1','Огонь и сера');
+
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('157736','spell_warl_immolate_dot');
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('108686','157736','1','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Жертвенный огонь');
+
+DELETE FROM creature_equip_template WHERE CreatureID IN (1860);
+
+DELETE FROM pet_stats WHERE entry IN (78158,78217,58959,58960,58964,58963,58965);
+insert into `pet_stats` (`entry`, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `maxspdorap`, `state`, `energy`, `energy_type`, `armor`, `type`, `damage`, `haste`, `comment`) values
+('78158','0.5','-1','0','1','36','0','2','200','3','3','0','0','1','Страж ужаса'),
+('78217','0.5','-1','0','1','36','0','2','200','3','3','0','0','1','Инфернал'),
+('58959','0.4','-1','0','1','36','0','1','200','3','3','1','0','1','Fel Imp'),
+('58960','0.6','-1','0','1','36','0','1','0','0','3','0','0','1','Voidlord'),
+('58963','0.5','-1','0','1','36','0','1','200','3','3','0','0','1','Shivarra'),
+('58964','0.5','-1','0','1','36','0','1','200','3','3','0','0','1','Observer'),
+('58965','0.6','-1','0','1','36','0','1','0','0','1','0','0','1','Wrathguard');
+

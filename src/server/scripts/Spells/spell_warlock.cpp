@@ -1803,8 +1803,30 @@ class spell_warl_seed_of_corruption_dota : public SpellScriptLoader
                     }
             }
 
+            void OnTick(AuraEffect const* aurEff)
+            {
+                Unit* target = GetTarget();
+                Unit* caster = GetCaster();
+                if (!target || !caster)
+                    return;
+
+                AuraEffect* effectAura = GetAura()->GetEffect(2);
+                if(!effectAura)
+                    return;
+
+                if(aurEff->GetAmount() >= effectAura->GetAmount())
+                {
+                    caster->CastSpell(target, 27285, true);
+                    GetAura()->Remove(AURA_REMOVE_BY_DEFAULT);
+                    return;
+                }
+
+                effectAura->SetAmount(effectAura->GetAmount() - aurEff->GetAmount());
+            }
+
             void Register()
             {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_seed_of_corruption_dota_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_seed_of_corruption_dota_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_seed_of_corruption_dota_AuraScript::CalculateAmountDummy, EFFECT_1, SPELL_AURA_DUMMY);
                 OnEffectRemove += AuraEffectApplyFn(spell_warl_seed_of_corruption_dota_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
@@ -1856,9 +1878,12 @@ class spell_warl_rain_of_fire_damage : public SpellScriptLoader
 
             void Damage(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* unitTarget = GetHitUnit())
+                Unit* caster = GetCaster();
+                Unit* unitTarget = GetHitUnit();
+
+                if (caster && unitTarget)
                 {
-                    if(unitTarget->HasAura(157736) || unitTarget->HasAura(108686))
+                    if(unitTarget->HasAura(157736, caster->GetGUID()))
                         SetHitDamage(int32(GetHitDamage() * 1.5f));
 
                     GetSpell()->AddEffectTarget(unitTarget->GetGUID());
@@ -2452,37 +2477,9 @@ class spell_warl_immolate : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warl_immolate_SpellScript::Damage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_warl_immolate_SpellScript::Damage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
-
-        class spell_warl_immolate_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_immolate_AuraScript);
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                   if(Aura* aura = caster->GetAura(77220))
-                   {
-                       int32 mastery = aura->GetEffect(EFFECT_0)->GetAmount();
-                       float perc = (35 * (100 + mastery)) / 100;
-                       amount = CalculatePct(amount, perc);
-                   }
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_immolate_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_immolate_AuraScript();
-        }
 
         SpellScript* GetSpellScript() const
         {
@@ -2712,6 +2709,42 @@ class spell_warl_shadow_shield_damage : public SpellScriptLoader
         }
 };
 
+// 157736 - Immolate
+class spell_warl_immolate_dot : public SpellScriptLoader
+{
+    public:
+        spell_warl_immolate_dot() : SpellScriptLoader("spell_warl_immolate_dot") { }
+
+        class spell_warl_immolate_dot_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_immolate_dot_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool & /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HasAura(108683)) // Fire and Brimstone
+                        if (Aura* aura = caster->GetAura(77220))
+                        {
+                            int32 mastery = aura->GetEffect(EFFECT_0)->GetAmount();
+                            float perc = (35 * (100 + mastery)) / 100;
+                            amount = CalculatePct(amount, perc);
+                        }
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_immolate_dot_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_immolate_dot_AuraScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_shield_of_shadow();
@@ -2775,4 +2808,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_void_shield_damage();
     new spell_warl_shadow_shield();
     new spell_warl_shadow_shield_damage();
+    new spell_warl_immolate_dot();
 }

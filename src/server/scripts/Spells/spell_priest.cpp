@@ -964,6 +964,21 @@ class spell_pri_cascade_trigger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_cascade_trigger_SpellScript);
 
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        int32 _damage = GetHitDamage();
+                        float distance = caster->GetDistance(target);
+                        float pct = 40.0f + (distance > 20.0f ? ((distance - 20.0f) + 40.0f) : distance * 2.0f);
+                        _damage = CalculatePct(_damage, pct);
+                        SetHitDamage(_damage);
+                    }
+                }
+            }
+
             void HandleOnHit(SpellEffIndex /*effIndex*/)
             {
                 SpellValue const* spellValue = GetSpellValue();
@@ -980,6 +995,7 @@ class spell_pri_cascade_trigger : public SpellScriptLoader
 
             void Register()
             {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_cascade_trigger_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
                 OnEffectHitTarget += SpellEffectFn(spell_pri_cascade_trigger_SpellScript::HandleOnHit, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
             }
         };
@@ -987,6 +1003,43 @@ class spell_pri_cascade_trigger : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_cascade_trigger_SpellScript();
+        }
+};
+
+// Cascade - 121148 (shadow heal)
+class spell_pri_cascade_heal : public SpellScriptLoader
+{
+    public:
+        spell_pri_cascade_heal() : SpellScriptLoader("spell_pri_cascade_heal") { }
+
+        class spell_pri_cascade_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_cascade_heal_SpellScript);
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                    {
+                        int32 _heal = GetHitHeal();
+                        float distance = caster->GetDistance(target);
+                        float pct = 40.0f + (distance > 20.0f ? ((distance - 20.0f) + 40.0f) : distance * 2.0f);
+                        _heal = CalculatePct(_heal, pct);
+                        SetHitHeal(_heal);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_cascade_heal_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_cascade_heal_SpellScript();
         }
 };
 
@@ -2652,7 +2705,7 @@ class spell_pri_clarity_of_power : public SpellScriptLoader
                 {
                     if (caster->HasAura(155246)) // Clarity of Power
                         if (Unit* target = GetHitUnit())
-                            if (!target->HasAura(PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()) || !target->HasAura(PRIEST_VAMPIRIC_TOUCH, caster->GetGUID()))
+                            if (!target->HasAura(PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()) && !target->HasAura(PRIEST_VAMPIRIC_TOUCH, caster->GetGUID()))
                                 SetHitDamage(int32(GetHitDamage() * 1.4f));
                 }
             }
@@ -2728,6 +2781,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_cascade_trigger();
     new spell_pri_cascade();
     new spell_pri_cascade_shadow();
+    new spell_pri_cascade_heal();
     new spell_pri_halo_heal();
     new spell_pri_halo_damage();
     new spell_pri_shadowy_apparition();
