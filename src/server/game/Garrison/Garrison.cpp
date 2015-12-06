@@ -891,7 +891,7 @@ void Garrison::SendBuildingLandmarks(Player* receiver) const
 }
 
 void Garrison::SendGarrisonUpgradebleResult(Player* receiver) const
-{       
+{
     //!
     //@TODO worn on checks... exmaple: at first lvl u cant upgrade if u hadnt complete quest line
     WorldPackets::Garrison::GarrisonIsUpgradeableResult result;
