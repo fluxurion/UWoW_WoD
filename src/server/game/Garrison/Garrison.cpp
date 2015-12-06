@@ -396,17 +396,19 @@ void Garrison::Upgrade()
         return;
     }
 
+    GarrSiteLevelEntry const* newSiteLevel = NULL;
     for (GarrSiteLevelEntry const* v : sGarrSiteLevelStore)
         if (v->SiteID == _siteLevel->SiteID && v->Level == garrLvl + 1)
-            _siteLevel = v;
+            newSiteLevel = v;
 
-    if (_siteLevel->Level == garrLvl)
+    if (newSiteLevel->Level == garrLvl)
     {
         result.Result = GARRISON_ERROR_NO_BUILDING;
         _owner->SendDirectMessage(result.Write());
         return;
     }
 
+    // cost taken from old site, not from new
     if (!_owner->HasCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, _siteLevel->UpgradeResourceCost))
     {
         result.Result = GARRISON_ERROR_NOT_ENOUGH_CURRENCY;
@@ -414,32 +416,35 @@ void Garrison::Upgrade()
         return;
     }
 
+    // cost taken from old site, not from new
     if (!_owner->HasEnoughMoney(uint64(_siteLevel->UpgradeMoneyCost) * GOLD))
     {
         result.Result = GARRISON_ERROR_NOT_ENOUGH_GOLD;
         _owner->SendDirectMessage(result.Write());
         return;
     }
+    //Set new site level.
+    _siteLevel = newSiteLevel;
+    InitializePlots();
 
     switch (_siteLevel->ID)
     {
         //< alliance
         case 444:   // 2 lvl
-            //_owner->TeleportTo(_siteLevel->MapID, 1733.25f, 156.995f, 75.40f, 0.79f, TELE_TO_SEAMLESS);
+            _owner->TeleportTo(_siteLevel->MapID, 1779.97f, 199.439f, 70.8068f, 0.3276943f, TELE_TO_SEAMLESS);
             break;
         case 6:     // 3 lvl
-            //_owner->TeleportTo(_siteLevel->MapID, 1733.25f, 156.995f, 75.40f, 0.79f, TELE_TO_SEAMLESS);
+            _owner->TeleportTo(_siteLevel->MapID, 1733.25f, 156.995f, 75.40f, 0.79f, TELE_TO_SEAMLESS);
             break;
-        //< horde
+            //< horde
         case 445:   // 2 lvl
-            //_owner->TeleportTo(_siteLevel->MapID, 1733.25f, 156.995f, 75.40f, 0.79f, TELE_TO_SEAMLESS);
-            break;
         case 259:   // 3 lvl
-            //_owner->TeleportTo(_siteLevel->MapID, 1733.25f, 156.995f, 75.40f, 0.79f, TELE_TO_SEAMLESS);
+            _owner->TeleportTo(_siteLevel->MapID, 5756.79f, 4493.11f, 132.311f, 2.862183f, TELE_TO_SEAMLESS);
             break;
         default:
-            return;
-    }
+            _owner->TeleportTo(_siteLevel->MapID, _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), _owner->GetOrientation(), TELE_TO_SEAMLESS);
+            break;
+    }   
 
     WorldPackets::Misc::StreamingMovie movie;
     movie.MovieIDs.push_back(_siteLevel->MovieID);
@@ -451,6 +456,11 @@ void Garrison::Upgrade()
 
     _owner->ModifyCurrency(CURRENCY_TYPE_GARRISON_RESOURCES, -_siteLevel->UpgradeResourceCost, false, true);
     _owner->ModifyMoney(-_siteLevel->UpgradeMoneyCost * GOLD, false);
+
+    // Save us
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    SaveToDB(trans);
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void Garrison::Enter() const

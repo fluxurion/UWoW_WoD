@@ -8672,11 +8672,11 @@ void Player::UpdateArea(uint32 newArea)
     }
 
     // Add to garrison.
-    if (newArea == Garrison::GetAreaIdForTeam(GetTeam()) && !GetMap()->IsGarrison() && !m_taxi.GetTaxiSource())
+    if (newArea == Garrison::GetAreaIdForTeam(GetTeam()) && !m_taxi.GetTaxiSource())
     {
         if (Garrison *garr = GetGarrison())
         {
-            if (garr->GetGarrisonMapID() != -1)
+            if (garr->GetGarrisonMapID() != -1 && garr->GetGarrisonMapID() != GetMap()->GetId())
             {
                 // As some area in garrison not in same place.
                 Map* newMap = sMapMgr->CreateMap(garr->GetGarrisonMapID(), this);
