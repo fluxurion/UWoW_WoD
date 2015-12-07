@@ -444,7 +444,7 @@ void Garrison::Upgrade()
         default:
             _owner->TeleportTo(_siteLevel->MapID, _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), _owner->GetOrientation(), TELE_TO_SEAMLESS);
             break;
-    }   
+    }
 
     WorldPackets::Misc::StreamingMovie movie;
     movie.MovieIDs.push_back(_siteLevel->MovieID);
