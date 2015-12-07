@@ -1843,7 +1843,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     if (attType > OFF_ATTACK || GetEntry() == 69792 || GetEntry() == 69680 || GetEntry() == 69791)
         return;
 
-    float APCoefficient = 11.f;
+    float APCoefficient = 3.5f;
     UnitMods unitMod = UNIT_MOD_DAMAGE_MAINHAND;
 
     float att_speed = BASE_ATTACK_TIME / 1000.0f;

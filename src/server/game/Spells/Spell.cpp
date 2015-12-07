@@ -7603,7 +7603,7 @@ bool Spell::CanAutoCast(Unit* target)
                         for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
                             if (target->GetCurrentSpell(CurrentSpellTypes(i)))
                                 find = true;
-                        if(!find)
+                        if(!find && !m_spellInfo->Effects[j].IsTargetingArea())
                             return false;
                         break;
                     }

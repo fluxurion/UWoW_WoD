@@ -1810,7 +1810,7 @@ class spell_warl_seed_of_corruption_dota : public SpellScriptLoader
                 if (!target || !caster)
                     return;
 
-                AuraEffect* effectAura = GetAura()->GetEffect(2);
+                AuraEffect* effectAura = GetAura()->GetEffect(1);
                 if(!effectAura)
                     return;
 
@@ -2678,7 +2678,7 @@ class spell_warl_shadow_shield : public SpellScriptLoader
         }
 };
 
-// 115240 - Shadow Shield
+// 115234 - Shadow Shield
 class spell_warl_shadow_shield_damage : public SpellScriptLoader
 {
     public:
@@ -2791,10 +2791,8 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
             {
                 if(Unit* caster = GetCaster())
                 {
-                    AuraEffect* effectAura = caster->GetAuraEffect(157902, 0);
-                    if(!effectAura)
-                        return;
-                    effectAura->ChangeAmount(157899);
+                    int32 bp = 157899;
+                    caster->CastCustomSpell(caster, 157902, &bp, NULL, NULL, true);
                 }
             }
 
@@ -2802,10 +2800,8 @@ class spell_warl_demonic_servitude : public SpellScriptLoader
             {
                 if(Unit* caster = GetCaster())
                 {
-                    AuraEffect* effectAura = caster->GetAuraEffect(157902, 0);
-                    if(!effectAura)
-                        return;
-                    effectAura->ChangeAmount(0);
+                    if (Aura* aura = caster->GetAura(157902))
+                        aura->Remove();
                 }
             }
 

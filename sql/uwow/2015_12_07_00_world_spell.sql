@@ -30,3 +30,14 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 ('115770','119913','0','2','0','0','0','0','0','0','0','0','0','0','0','-1','3','0','Кнут Скверны (Особая способность)'),
 ('6360','119909','0','2','0','0','0','0','0','0','0','0','0','0','0','-1','3','0','Удар кнутом (Особая способность)');
 
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('86121','-74434','8','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Горящая душа');
+
+UPDATE creature_template SET unit_flags2 = unit_flags2 | 2048 WHERE entry IN (78215);
+insert into `pet_stats` (`entry`, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `maxspdorap`, `state`, `energy`, `energy_type`, `armor`, `type`, `damage`, `haste`, `comment`) values
+('78215','0.5','-0.06','0','1','127','0','2','100','3','3','1','0','1','Стражник жути');
+
+DELETE FROM spell_linked_spell WHERE spell_effect IN (17767);
+
+DELETE FROM spell_script_names WHERE ScriptName IN ('spell_warl_shadow_shield_damage');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('115234','spell_warl_shadow_shield_damage');

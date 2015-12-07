@@ -2470,17 +2470,6 @@ void Spell::EffectHealPct(SpellEffIndex effIndex)
             if (m_caster->HasAura(119447)) // Glyph of Chimera Shot
                 damage += 2;
             break;
-        case 114635:  // Ember Tap
-        {
-            // Mastery: Emberstorm
-            if (AuraEffect const* aurEff = m_caster->GetAuraEffect(77220, EFFECT_0))
-                AddPct(damage, aurEff->GetAmount());
-            if (Player* _player = m_caster->ToPlayer())
-                if (m_caster->HasAura(157121)) // Enhanced Ember Tap
-                    if (Pet* pet = _player->GetPet())
-                        m_caster->HealBySpell(pet, m_spellInfo, uint32(damage/5));
-            break;
-        }
         case 118340:// Impending Victory - Heal
             // Victorious State causes your next Impending Victory to heal for 20% of your maximum health.
             if (m_caster->HasAura(32216))
@@ -2515,6 +2504,14 @@ void Spell::EffectHealPct(SpellEffIndex effIndex)
     {
         case 149254: // Spirit Bond
             heal = m_originalCaster->CalcVersalityBonusDone(unitTarget, heal);
+        case 114635:  // Ember Tap
+        {
+            if (Player* _player = m_caster->ToPlayer())
+                if (m_caster->HasAura(157121)) // Enhanced Ember Tap
+                    if (Pet* pet = _player->GetPet())
+                        m_caster->HealBySpell(pet, m_spellInfo, uint32(heal/5));
+            break;
+        }
         default:
             break;
     }

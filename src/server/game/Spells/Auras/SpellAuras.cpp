@@ -117,7 +117,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
 {
     Aura const* aura = GetBase();
     // mark as selfcasted if needed
-    _flags |= (aura->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_NONE : AFLAG_NOCASTER;
+    _flags |= (aura->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_NOCASTER : AFLAG_NONE;
 
     // aura is casted by self or an enemy
     // one negative effect and we know aura is negative

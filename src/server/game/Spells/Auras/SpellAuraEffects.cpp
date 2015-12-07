@@ -8376,9 +8376,6 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster, SpellEf
             }
             case 114635:
             {
-                // Mastery: Emberstorm
-                if (AuraEffect const* aurEff = caster->GetAuraEffect(77220, EFFECT_0))
-                    AddPct(damage, aurEff->GetAmount());
                 if (Player* _player = caster->ToPlayer())
                     if (caster->HasAura(157121)) // Enhanced Ember Tap
                         if (Pet* pet = _player->GetPet())
