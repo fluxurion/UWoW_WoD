@@ -248,7 +248,10 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
             }
     }
 
+    SpellInfo const* saveSpellInfo = spellInfo;
     spellInfo = _player->GetCastSpellInfo(spellInfo);
+    if (saveSpellInfo != spellInfo)
+        replaced = true;
 
     // Client is resending autoshot cast opcode when other spell is casted during shoot rotation
     // Skip it to prevent "interrupt" message

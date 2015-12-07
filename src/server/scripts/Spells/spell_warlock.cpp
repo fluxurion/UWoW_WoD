@@ -2745,6 +2745,83 @@ class spell_warl_immolate_dot : public SpellScriptLoader
         }
 };
 
+// 85692 - Doom Bolt
+class spell_warl_doom_bolt : public SpellScriptLoader
+{
+    public:
+        spell_warl_doom_bolt() : SpellScriptLoader("spell_warl_doom_bolt") { }
+
+        class spell_warl_doom_bolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_doom_bolt_SpellScript);
+
+            void HandleOnHit()
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    int32 perc = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+                    if (target->HealthBelowPct(perc))
+                        SetHitDamage(int32(GetHitDamage() * 1.2f));
+                }
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_warl_doom_bolt_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_doom_bolt_SpellScript();
+        }
+};
+
+// 152107 - Demonic Servitude
+class spell_warl_demonic_servitude : public SpellScriptLoader
+{
+    public:
+        spell_warl_demonic_servitude() : SpellScriptLoader("spell_warl_demonic_servitude") { }
+
+        class spell_warl_demonic_servitude_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_demonic_servitude_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if(Unit* caster = GetCaster())
+                {
+                    AuraEffect* effectAura = caster->GetAuraEffect(157902, 0);
+                    if(!effectAura)
+                        return;
+                    effectAura->ChangeAmount(157899);
+                }
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if(Unit* caster = GetCaster())
+                {
+                    AuraEffect* effectAura = caster->GetAuraEffect(157902, 0);
+                    if(!effectAura)
+                        return;
+                    effectAura->ChangeAmount(0);
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_warl_demonic_servitude_AuraScript::OnApply, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_warl_demonic_servitude_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_demonic_servitude_AuraScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_shield_of_shadow();
@@ -2809,4 +2886,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_shadow_shield();
     new spell_warl_shadow_shield_damage();
     new spell_warl_immolate_dot();
+    new spell_warl_doom_bolt();
+    new spell_warl_demonic_servitude();
 }

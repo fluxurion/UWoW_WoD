@@ -807,10 +807,6 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
             if (!(itr->effectmask & (1 << effIndex)))
                 continue;
 
-            #ifdef WIN32
-            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectDummy2: %u, 1<<effIndex %u, itr->effectmask %u, option %u, spell_trigger %i, target %u (%u ==> %u)", m_spellInfo->Id, 1<<effIndex, itr->effectmask, itr->option, itr->spell_trigger, itr->target, triggerTarget ? triggerTarget->GetGUIDLow(): 0, triggerCaster ? triggerCaster->GetGUIDLow(): 0);
-            #endif
-
             if (itr->target)
                 triggerTarget = (m_originalCaster ? m_originalCaster : m_caster)->GetUnitForLinkedSpell(m_caster, unitTarget, itr->target);
 
@@ -819,6 +815,10 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
 
             if (itr->targetaura)
                 targetAura = (m_originalCaster ? m_originalCaster : m_caster)->GetUnitForLinkedSpell(m_caster, unitTarget, itr->targetaura);
+
+            #ifdef WIN32
+            sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::EffectDummy2: %u, 1<<effIndex %u, itr->effectmask %u, option %u, spell_trigger %i, target %u (%u ==> %u)", m_spellInfo->Id, 1<<effIndex, itr->effectmask, itr->option, itr->spell_trigger, itr->target, triggerTarget ? triggerTarget->GetGUIDLow(): 0, triggerCaster ? triggerCaster->GetGUIDLow(): 0);
+            #endif
 
             cooldown_spell_id = abs(itr->spell_trigger);
             if (triggerCaster && triggerCaster->ToPlayer())
@@ -1495,13 +1495,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     return;
                 }
                 break;
-            }
-            // Demonic Fury (not exist)
-            case 104330:
-            {
-                if (Unit* owner = m_caster->GetAnyOwner())
-                    m_caster->EnergizeBySpell(owner, m_spellInfo->Id, damage, POWER_DEMONIC_FURY);
-                return;
             }
             // Vanish (not exist)
             case 18461:

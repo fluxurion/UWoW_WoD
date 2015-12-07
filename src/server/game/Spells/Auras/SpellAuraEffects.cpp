@@ -7757,6 +7757,12 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster, 
         // Spell exist but require custom code
         switch (auraId)
         {
+            case 19483: // Immolation
+            {
+                if (!caster->isInCombat())
+                    return;
+                break;
+            }
             case 51769: // Emblazon Runeblade
                 if (caster)
                     caster->CastSpell(caster, triggerSpellId, false);
