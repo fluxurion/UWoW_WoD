@@ -5599,6 +5599,10 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 175997: // Noxious Eruption
                     spellInfo->CasterAuraSpell = 0;
                     break;
+                case 160856: // Q: 34582
+                case 178790:
+                    spellInfo->Attributes |= SPELL_ATTR0_CASTABLE_WHILE_MOUNTED;
+                    break;
                 default:
                     break;
             }
