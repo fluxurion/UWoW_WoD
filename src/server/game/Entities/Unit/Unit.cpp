@@ -12432,7 +12432,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
 
                 for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
                 {
-                    float _crit = GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + i);
+                    float _crit = GetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + i);
                     if (_crit > maxCrit)
                         maxCrit = _crit;
                 }
