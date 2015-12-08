@@ -5024,7 +5024,9 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 case 144331: //Iron Prison
                 case 142906: //Ancient Miasma Dmg
-                case 29604:  // Jom Gabbar
+                case 29604: // Jom Gabbar
+                case 110914: // Dark Bargain
+                case 148874: // Dark Bargain
                     spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
                     break;
                 //General Nazgrim
@@ -5347,10 +5349,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 83115:
                 case 83116:
                     spellInfo->Effects[EFFECT_0].MiscValueB = 3302;  //SUMMON_TYPE_MINIPET
-                    break;
-                case 103964: // Touch of Chaos
-                case 129347: // Chaos Wave
-                    spellInfo->SchoolMask &= ~SPELL_SCHOOL_MASK_NORMAL;
                     break;
                 case 53257: // Cobra Strikes
                     spellInfo->Attributes |= SPELL_ATTR0_CANT_CANCEL;

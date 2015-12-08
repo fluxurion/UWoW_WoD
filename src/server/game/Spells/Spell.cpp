@@ -9066,8 +9066,8 @@ SpellCastResult Spell::CustomCheckCast()
             if(!_caster)
                 check = true;
 
-            if(!_target)
-                check = true;
+            if(_target)
+                _target = _caster;
 
             if(itr->dataType)
                 if(m_caster->HasAuraLinkedSpell(_caster, _target, itr->checkType, itr->dataType))

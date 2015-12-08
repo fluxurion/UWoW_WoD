@@ -2539,7 +2539,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             uint32 newStance = (1<<((newAura ? newAura->GetMiscValue() : 0)-1));
 
             // If the stances are not compatible with the spell, remove it
-            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance))
+            if (itr->second->GetBase()->IsRemovedOnShapeLost(target) && !(itr->second->GetBase()->GetSpellInfo()->Stances & newStance) && itr->second->GetBase()->GetSpellInfo()->_IsPositiveSpell())
                 target->RemoveAura(itr);
             else
                 ++itr;
@@ -8140,7 +8140,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
 
     GetBase()->CallScriptEffectChangeTickDamageHandlers(const_cast<AuraEffect const*>(this), dmg, target);
 
-    if (!(GetSpellInfo()->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS) && m_spellInfo->Id != 110914)
+    if (!(GetSpellInfo()->AttributesEx6 & SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS))
         caster->ApplyResilience(target, &dmg, crit);
 
     if (target->getClass() == CLASS_MONK)
@@ -8376,6 +8376,10 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster, SpellEf
             }
             case 114635:
             {
+                // Mastery: Emberstorm
+                if (AuraEffect const* aurEff = caster->GetAuraEffect(77220, EFFECT_0))
+                    damage += CalculatePct(damage, aurEff->GetAmount());
+
                 if (Player* _player = caster->ToPlayer())
                     if (caster->HasAura(157121)) // Enhanced Ember Tap
                         if (Pet* pet = _player->GetPet())

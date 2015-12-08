@@ -2031,8 +2031,9 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
 bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo, uint32 effectMask)
 {
     // only physical spells damage gets reduced by armor
-    if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
+    if (schoolMask != SPELL_SCHOOL_MASK_NORMAL)
         return false;
+
     if (spellInfo)
     {
         // there are spells with no specific attribute but they have "ignores armor" in tooltip
@@ -2209,7 +2210,11 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         AuraApplication const* aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(victim->GetGUID());
         if (!aurApp)
             continue;
-        if (!(absorbAurEff->GetMiscValue() & schoolMask))
+
+        uint8 _mask = schoolMask;
+        _mask &= ~absorbAurEff->GetMiscValue();
+
+        if (_mask != 0)
             continue;
 
         // get amount which can be still absorbed by the aura
@@ -3139,9 +3144,22 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
     // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spell->Id, SPELLMOD_RESIST_MISS_CHANCE, modHitChance);
+
+    int32 bestVal = 0;
+    bool firstCheck = false;
         
-    // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
-    modHitChance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, schoolMask);
+    for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+        if (schoolMask & (1 << i))
+        {
+            int32 amount = victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, (1 << i)); // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
+            if (bestVal < amount || !firstCheck)
+            {
+                bestVal = amount;
+                firstCheck = true;
+            }
+        }
+
+    modHitChance += bestVal;
 
     int32 HitChance = modHitChance * 100;
     // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
@@ -7585,6 +7603,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect
 
                         if (basepoints0 > (int32)CountPctFromMaxHealth(15))
                             basepoints0 = CountPctFromMaxHealth(15);
+                        if (Pet* pet = warlock->GetPet())
+                        {
+                            int32 bp0 = basepoints0 / 2;
+                            CastCustomSpell(pet, triggered_spell_id, &bp0, NULL, NULL, true);
+                        }
                     }
                     break;
                 }
@@ -11802,21 +11825,42 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             DoneTotalMod *= ToCreature()->GetSpellDamageMod(ToCreature()->GetCreatureTemplate()->rank);
 
         AuraEffectList const& mModDamagePercentDone = GetTotalNotStuckAuraEffectByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-        for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
-        {
-            // Mastery: Unshackled Fury
-            if ((*i)->GetId() == 76856 && !HasAuraState(AURA_STATE_ENRAGE))
-                continue;
 
-            if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()) && (*i)->GetSpellInfo()->EquippedItemClass != -1 && spellProto->DmgClass == SPELL_DAMAGE_CLASS_MELEE)
-                AddPct(DoneTotalMod, (*i)->GetAmount());
-            else if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
+        if (!mModDamagePercentDone.empty())
+        {
+            float best_bonus = 1.0f;
+            bool firstCheck = false;
+
+            for (uint8 j = SPELL_SCHOOL_NORMAL; j < MAX_SPELL_SCHOOL; ++j)
             {
-                if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
-                else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
+                if (spellProto->GetSchoolMask() & (1 << j))
+                {
+                    float temp = 1.0f;
+                    for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+                    {
+                        // Mastery: Unshackled Fury
+                        if ((*i)->GetId() == 76856 && !HasAuraState(AURA_STATE_ENRAGE))
+                            continue;
+
+                        if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()) && (*i)->GetSpellInfo()->EquippedItemClass != -1 && spellProto->DmgClass == SPELL_DAMAGE_CLASS_MELEE)
+                            AddPct(temp, (*i)->GetAmount());
+                        else if ((*i)->GetMiscValue() & (1 << j))
+                        {
+                            if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
+                                AddPct(temp, (*i)->GetAmount());
+                            else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
+                                AddPct(temp, (*i)->GetAmount());
+                        }
+                    }
+
+                    if (best_bonus < temp || !firstCheck)
+                    {
+                        best_bonus = temp;
+                        firstCheck = true;
+                    }
+                }
             }
+            DoneTotalMod *= best_bonus;
         }
 
         uint32 creatureTypeMask = victim->GetCreatureTypeMask();
@@ -12162,12 +12206,13 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     int32 TakenTotal = 0;
     float TakenTotalMod = 1.0f;
     float TakenTotalCasterMod = 0.0f;
+    SpellSchoolMask schoolMask = spellProto->GetSchoolMask();
 
     // get all auras from caster that allow the spell to ignore resistance (sanctified wrath)
     AuraEffectList const& IgnoreResistAuras = caster->GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
     for (AuraEffectList::const_iterator i = IgnoreResistAuras.begin(); i != IgnoreResistAuras.end(); ++i)
     {
-        if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
+        if ((*i)->GetMiscValue() & schoolMask)
             TakenTotalCasterMod += (float((*i)->GetAmount()));
     }
 
@@ -12175,7 +12220,22 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
 
     // from positive and negative SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN
     // multiplicative bonus, for example Dispersion + Shadowform (0.10*0.85=0.085)
-    TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, spellProto->GetSchoolMask());
+
+    float bestVal = 1.0f;
+    bool firstCheck = false;
+
+    for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+        if (schoolMask & (1 << i))
+        {
+            float amount = GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, (1 << i));
+            if (bestVal < amount || !firstCheck)
+            {
+                bestVal = amount;
+                firstCheck = true;
+            }
+        }
+
+    TakenTotalMod *= bestVal;
 
     // From caster spells
     AuraEffectList const& mOwnerTaken = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
@@ -12192,7 +12252,21 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
                 AddPct(TakenTotalMod, (*i)->GetAmount());
     }
 
-    TakenTotal += SpellBaseDamageBonusTaken(spellProto->GetSchoolMask());
+    int32 bestVal1 = 0;
+    firstCheck = false;
+
+    for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+        if (schoolMask & (1 << i))
+        {
+            int32 amount = SpellBaseDamageBonusTaken(SpellSchoolMask(1 << i));
+            if (bestVal1 < amount || !firstCheck)
+            {
+                bestVal1 = amount;
+                firstCheck = true;
+            }
+        }
+
+    TakenTotal += bestVal1;
 
     float tmpDamage = 0.0f;
 
@@ -12352,7 +12426,20 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
         case SPELL_DAMAGE_CLASS_NONE:
         case SPELL_DAMAGE_CLASS_MAGIC:
         {
-            if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
+            if (schoolMask == SPELL_SCHOOL_MASK_ALL)
+            {
+                float maxCrit = 0.0f;
+
+                for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+                {
+                    float _crit = GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + i);
+                    if (_crit > maxCrit)
+                        maxCrit = _crit;
+                }
+                    
+                crit_chance = maxCrit;
+            }
+            else if (schoolMask & SPELL_SCHOOL_MASK_NORMAL)
                 crit_chance = 0.0f;
             // For other schools
             else if (GetTypeId() == TYPEID_PLAYER)
@@ -13152,21 +13239,32 @@ bool Unit::IsImmunedToDamage(SpellInfo const* spellInfo)
     if (spellInfo->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
         return false;
 
-    uint32 shoolMask = spellInfo->GetSchoolMask();
+    uint8 shoolMask = spellInfo->GetSchoolMask();
+    uint8 tempMask = shoolMask;
+
     if (spellInfo->Id != 42292 && spellInfo->Id != 59752)
     {
         // If m_immuneToSchool type contain this school type, IMMUNE damage.
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
+        {
+            tempMask &= ~itr->type;
             if (itr->type & shoolMask && !spellInfo->CanPierceImmuneAura(sSpellMgr->GetSpellInfo(itr->spellId)))
-                return true;
+            {
+                if (!tempMask)
+                    return true;
+            }
+        }
     }
 
     // If m_immuneToDamage type contain magic, IMMUNE damage.
     SpellImmuneList const& damageList = m_spellImmune[IMMUNITY_DAMAGE];
     for (SpellImmuneList::const_iterator itr = damageList.begin(); itr != damageList.end(); ++itr)
-        if (itr->type & shoolMask)
+    {
+        tempMask &= ~itr->type;
+        if ((itr->type & shoolMask) && !tempMask)
             return true;
+    }
 
     return false;
 }
@@ -13221,14 +13319,19 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo)
 
     if (spellInfo->Id != 42292 && spellInfo->Id != 59752)
     {
+        uint8 mask = spellInfo->GetSchoolMask();
         SpellImmuneList const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
         for (SpellImmuneList::const_iterator itr = schoolList.begin(); itr != schoolList.end(); ++itr)
         {
+            mask &= ~itr->type;
             SpellInfo const* immuneSpellInfo = sSpellMgr->GetSpellInfo(itr->spellId);
             if ((itr->type & spellInfo->GetSchoolMask())
                 && !(immuneSpellInfo && immuneSpellInfo->IsPositive() && spellInfo->IsPositive())
                 && !spellInfo->CanPierceImmuneAura(immuneSpellInfo))
-                return true;
+            {
+                if (!mask)
+                    return true;
+            }
         }
     }
 
@@ -18451,6 +18554,16 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                     target = owner;
             if(itr->target == 7) //get target self
                 target = triggeredByAura->GetCaster();
+            if(itr->target == 10) //get target owner or self
+            {
+                if (Player* _player = ToPlayer())
+                {
+                    if (Pet* pet = _player->GetPet())
+                        target = (Unit*)pet;
+                }
+                else if (Unit* owner = GetAnyOwner())
+                    target = owner;
+            }
 
             Unit* _caster = this;
             Unit* _targetAura = this;
@@ -18466,6 +18579,16 @@ bool Unit::SpellProcTriggered(Unit* victim, DamageInfo* dmgInfoProc, AuraEffect*
                     _caster = owner;
             if(itr->caster == 5) //get caster is target
                 _caster = victim;
+            if(itr->caster == 10) //get target owner or self
+            {
+                if (Player* _player = ToPlayer())
+                {
+                    if (Pet* pet = _player->GetPet())
+                        _caster = (Unit*)pet;
+                }
+                else if (Unit* owner = GetAnyOwner())
+                    _caster = owner;
+            }
             if(!_caster)
                 _caster = this;
 

@@ -2506,6 +2506,10 @@ void Spell::EffectHealPct(SpellEffIndex effIndex)
             heal = m_originalCaster->CalcVersalityBonusDone(unitTarget, heal);
         case 114635:  // Ember Tap
         {
+            // Mastery: Emberstorm
+            if (AuraEffect const* aurEff = m_caster->GetAuraEffect(77220, EFFECT_0))
+                heal += CalculatePct(heal, aurEff->GetAmount());
+
             if (Player* _player = m_caster->ToPlayer())
                 if (m_caster->HasAura(157121)) // Enhanced Ember Tap
                     if (Pet* pet = _player->GetPet())

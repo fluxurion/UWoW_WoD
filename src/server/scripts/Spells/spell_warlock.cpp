@@ -145,27 +145,25 @@ class spell_warl_grimoire_of_sacrifice : public SpellScriptLoader
                 {
                     // EFFECT_0 : Instakill
                     // EFFECT_1 : 2% health every 5s
-                    // EFFECT_2 : +50% DOT damage for Malefic Grasp, Drain Life and Drain Soul
-                    // EFFECT_3 : +30% damage for Shadow Bolt, Hand of Gul'Dan, Soul Fire, Wild Imps and Fel Flame
-                    // EFFECT_4 : +25% damage for Incinerate, Conflagrate, Chaos Bolt, Shadowburn and Fel Flame
-                    // EFFECT_5 : +50% damage for Fel Flame
-                    // EFFECT_6 : +20% Health if Soul Link talent is also chosen
-                    // EFFECT_7 : +50% on EFFECT_2 of Malefic Grasp
-                    // EFFECT_8 : +50% on EFFECT_4 and EFFECT_5 of Drain Soul -> Always set to 0
-                    // EFFECT_9 : Always set to 0
-                    // EFFECT_10 : Always set to 0
-                    // EFFECT_11 : Duration for HB
+                    // EFFECT_2 : +20% Health if Soul Link talent is also chosen
+                    // EFFECT_3 : +25% damage for Incinerate, Conflagrate, Chaos Bolt, Shadowburn and Fel Flame
+                    // EFFECT_4 : +25% DOT damage for Malefic Grasp, Drain Life and Drain Soul
+                    // EFFECT_5 : +25% DOT damage for Malefic Grasp, Drain Life and Drain Soul
                     switch(aurEff->GetEffIndex())
                     {
                         case EFFECT_2:
-                        case EFFECT_5:
-                        case EFFECT_7:
-                        case EFFECT_8:
                         {
-                            amount = player->GetSpecializationId(player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION ? amount : 0;
+                            switch (player->GetSpecializationId(player->GetActiveSpec()))
+                            {
+                                case SPEC_NONE:
+                                    amount = 0;
+                                    break;
+                            }
+                            if (!player->HasSpell(108415))
+                                amount = 0;
                             break;
                         }
-                        case EFFECT_3:
+                        /*case EFFECT_3:
                         {
                             amount = player->GetSpecializationId(player->GetActiveSpec()) == SPEC_WARLOCK_DEMONOLOGY ? amount : 0;
                             break;
@@ -175,22 +173,11 @@ class spell_warl_grimoire_of_sacrifice : public SpellScriptLoader
                             amount = player->GetSpecializationId(player->GetActiveSpec()) == SPEC_WARLOCK_DESTRUCTION ? amount : 0;
                             break;
                         }
-                        case EFFECT_9:
-                        case EFFECT_10:
+                        case EFFECT_5:
                         {
-                            amount = 0;
+                            amount = player->GetSpecializationId(player->GetActiveSpec()) == SPEC_WARLOCK_AFFLICTION ? amount : 0;
                             break;
-                        }
-                        case EFFECT_6:
-                        switch (player->GetSpecializationId(player->GetActiveSpec()))
-                        {
-                            case SPEC_NONE:
-                                amount = 0;
-                                break;
-                        }
-                        if (!player->HasSpell(108415))
-                            amount = 0;
-                        break;
+                        }*/
                     }
                 }
             }
@@ -839,18 +826,16 @@ class spell_warl_burning_rush : public SpellScriptLoader
 
             void OnTick(AuraEffect const* aurEff)
             {
-                if (GetCaster())
+                if (Unit* caster = GetCaster())
                 {
-                    // Drain 4% of health every second
-                    int32 basepoints = GetCaster()->CountPctFromMaxHealth(4);
-
-                    GetCaster()->DealDamage(GetCaster(), basepoints, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    if (!caster->HealthAbovePct(4))
+                        GetAura()->Remove();
                 }
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_burning_rush_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_burning_rush_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
             }
         };
 
@@ -1131,14 +1116,12 @@ class spell_warl_burning_embers : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (Player* _player = GetCaster()->ToPlayer())
+                if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetHitUnit())
                     {
-                        if (GetSpell()->IsCritForTarget(target))
-                            _player->ModifyPower(POWER_BURNING_EMBERS, 2);
-                        else
-                            _player->ModifyPower(POWER_BURNING_EMBERS, 1);
+                        int32 count = (caster->HasAura(157696) ? 2 : 1) * (GetSpell()->IsCritForTarget(target) ? 2 : 1);
+                        caster->ModifyPower(POWER_BURNING_EMBERS, count);
                     }
                 }
             }
@@ -1762,27 +1745,11 @@ class spell_warl_seed_of_corruption_dota : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_seed_of_corruption_dota_AuraScript);
 
-            int32 damage;
-
-            bool Load()
-            {
-                damage = 0;
-                return true;
-            }
+            int32 damage = 0;
 
             void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
             {
-                damage = amount;
-                if (Unit* caster = GetCaster())
-                {
-                    if(Player* _player = caster->ToPlayer())
-                        if(Unit* target = _player->GetSelectedUnit())
-                        {
-                            damage = caster->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, EFFECT_0, GetAura()->GetStackAmount());
-                            damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage);
-                        }
-                }
-                damage *= aurEff->GetTotalTicks();
+                damage = aurEff->GetTotalTicks() * amount;
             }
 
             void CalculateAmountDummy(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)

@@ -41,3 +41,39 @@ DELETE FROM spell_linked_spell WHERE spell_effect IN (17767);
 
 DELETE FROM spell_script_names WHERE ScriptName IN ('spell_warl_shadow_shield_damage');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('115234','spell_warl_shadow_shield_damage');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('114635','177376','8','0','0','0','174848','0','0','0','0','0','0','0','0','-1','0','0','Жгучее пламя');
+
+insert into `spell_talent_linked_spell` (`spellid`, `spelllink`, `type`, `target`, `caster`, `comment`) values
+('-108415','-108446','2','1','1','Родство душ');
+
+insert into `spell_check_cast` (`spellId`, `type`, `param1`, `param2`, `param3`, `errorId`, `customErrorId`, `caster`, `target`, `checkType`, `dataType`, `checkType2`, `dataType2`, `comment`) values
+('113858','0','0','0','0','10','0','0','0','0','-113858','0','0','Тьма Архимонда'),
+('113860','0','0','0','0','10','0','0','0','0','-113860','0','0','Тьма Архимонда'),
+('113861','0','0','0','0','10','0','0','0','0','-113861','0','0','Тьма Архимонда');
+
+insert into `spell_visual` (`spellId`, `SpellVisualID`, `TravelSpeed`, `MissReason`, `ReflectStatus`, `SpeedAsTime`, `type`, `temp`, `comment`) values
+('157701','45285','19','0','0','0','0','0','Стрела Хаоса');
+
+DELETE FROM spell_trigger WHERE spell_id IN (123050);
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('123050','123051','0','1','5','0','0','0','75','0','0','7','0','0','0','0','0','0','0','-1','0','0','0','Высасывание маны Атаки подчиняющего разум');
+
+insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
+('152118','77484','0','1','0','0','0','0','0','0','7','0','0','0','0','0','1','Ясность воли');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('74434','157697','0','0','0','0','152109','0','0','0','0','0','0','0','0','-1','0','0','Soulburn Dummy'),
+('48181','157698','1','3','3','0','157697','0','0','0','0','0','0','0','0','-1','0','0','Блуждающие духи'),
+('-74434','-157697','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Soulburn Dummy');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('152108','30108','1','0','0','2','980','0','0','0','0','0','0','0','0','-1','0','0','Катаклизм'),
+('152108','980','1','0','0','2','980','0','0','0','0','0','0','0','0','-1','0','0','Катаклизм'),
+('152108','146739','1','0','0','2','104315','0','0','0','0','0','0','0','0','-1','0','0','Катаклизм'),
+('152108','157736','1','0','0','2','348','0','0','0','0','0','0','0','0','-1','0','0','Катаклизм');
+
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('171975','171982','0','20','10','0','0','0','0','0','0','7','0','0','0','0','0','0','0','-1','0','0','0','Гримуар помощи');
+
