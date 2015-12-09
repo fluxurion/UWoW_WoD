@@ -904,6 +904,7 @@ void Garrison::SendGarrisonUpgradebleResult(Player* receiver) const
 {
     //!
     //@TODO worn on checks... exmaple: at first lvl u cant upgrade if u hadnt complete quest line
+    // Quest line with rew. item 118215
     WorldPackets::Garrison::GarrisonIsUpgradeableResult result;
     switch (_siteLevel->Level)
     {
