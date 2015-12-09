@@ -535,12 +535,9 @@ Player::Player(WorldSession* session): Unit(true),
     m_comboSavePoints = 0;
 
     m_regenTimer = 0;
-    m_regenTimerCount = 0;
-    m_chiholyPowerRegenTimerCount = 0;
-    m_demonicFuryPowerRegenTimerCount = 0;
-    m_soulShardsRegenTimerCount = 0;
-    m_burningEmbersRegenTimerCount = 0;
-    m_focusRegenTimerCount = 0;
+    for (uint8 i = 0; i < MAX_POWERS; ++i)
+        m_powerRegenTimer[i] = 0;
+
     m_weaponChangeTimer = 0;
     m_statsUpdateTimer = 0;
     m_needToUpdateRunesRegen = false;
@@ -2505,10 +2502,10 @@ void Player::RemoveFromWorld()
 
 void Player::RegenerateAll()
 {
-    m_regenTimerCount += m_regenTimer;
+    m_powerRegenTimer[POWER_RAGE] += m_regenTimer;
 
     if (getClass() == CLASS_HUNTER)
-        m_focusRegenTimerCount += m_regenTimer;
+        m_powerRegenTimer[POWER_FOCUS] += m_regenTimer;
 
     Regenerate(POWER_ENERGY, m_regenTimer);
     Regenerate(POWER_MANA, m_regenTimer);
@@ -2566,13 +2563,29 @@ void Player::RegenerateAll()
         }
     }
 
-    if (m_focusRegenTimerCount >= 200 && getClass() == CLASS_HUNTER)
+    if (isInCombat())
+        Regenerate(POWER_ECLIPSE, m_regenTimer);
+    else
     {
-        Regenerate(POWER_FOCUS, m_focusRegenTimerCount);
-        m_focusRegenTimerCount = 0;
+        if (m_powerRegenTimer[POWER_ECLIPSE] > m_regenTimer)
+        {
+            Regenerate(POWER_ECLIPSE, m_regenTimer);
+            m_powerRegenTimer[POWER_ECLIPSE] -= m_regenTimer;
+        }
+        else if (m_powerRegenTimer[POWER_ECLIPSE] != 0)
+        {
+            m_powerRegenTimer[POWER_ECLIPSE] = 0;
+            SetPower(POWER_ECLIPSE, 0);
+        }
     }
 
-    if (m_regenTimerCount >= 2000)
+    if (m_powerRegenTimer[POWER_FOCUS] >= 200 && getClass() == CLASS_HUNTER)
+    {
+        Regenerate(POWER_FOCUS, m_powerRegenTimer[POWER_FOCUS]);
+        m_powerRegenTimer[POWER_FOCUS] = 0;
+    }
+
+    if (m_powerRegenTimer[POWER_RAGE] >= 2000)
     {
         // Not in combat or they have regeneration
         if (!isInCombat() || IsPolymorphed() || m_baseHealthRegen ||
@@ -2583,60 +2596,61 @@ void Player::RegenerateAll()
         }
 
         if (!isInCombat())
-            Regenerate(POWER_RAGE, m_regenTimerCount);
+            Regenerate(POWER_RAGE, m_powerRegenTimer[POWER_RAGE]);
 
         if (getClass() == CLASS_DEATH_KNIGHT)
-            Regenerate(POWER_RUNIC_POWER, m_regenTimerCount);
+            Regenerate(POWER_RUNIC_POWER, m_powerRegenTimer[POWER_RAGE]);
 
-        m_regenTimerCount -= 2000;
+        m_powerRegenTimer[POWER_RAGE] -= 2000;
     }
 
     if (!isInCombat())
     {
-        if(m_chiholyPowerRegenTimerCount <= m_regenTimer)
+        if(m_powerRegenTimer[POWER_HOLY_POWER] <= m_regenTimer)
         {
-            m_chiholyPowerRegenTimerCount = 10000;
+            m_powerRegenTimer[POWER_HOLY_POWER] = 10000;
             if (getClass() == CLASS_PALADIN)
-                Regenerate(POWER_HOLY_POWER, m_chiholyPowerRegenTimerCount);
+                Regenerate(POWER_HOLY_POWER, m_powerRegenTimer[POWER_HOLY_POWER]);
 
             if (getClass() == CLASS_MONK)
-                Regenerate(POWER_CHI, m_chiholyPowerRegenTimerCount);
+                Regenerate(POWER_CHI, m_powerRegenTimer[POWER_HOLY_POWER]);
         }
         else
-            m_chiholyPowerRegenTimerCount -= m_regenTimer;
+            m_powerRegenTimer[POWER_HOLY_POWER] -= m_regenTimer;
 
-        if (m_demonicFuryPowerRegenTimerCount <= m_regenTimer)
+        if (m_powerRegenTimer[POWER_DEMONIC_FURY] <= m_regenTimer)
         {
-            m_demonicFuryPowerRegenTimerCount = 320;
-            Regenerate(POWER_DEMONIC_FURY, m_demonicFuryPowerRegenTimerCount);
+            m_powerRegenTimer[POWER_DEMONIC_FURY] = 320;
+            Regenerate(POWER_DEMONIC_FURY, m_powerRegenTimer[POWER_DEMONIC_FURY]);
         }
         else
-            m_demonicFuryPowerRegenTimerCount -= m_regenTimer;
+            m_powerRegenTimer[POWER_DEMONIC_FURY] -= m_regenTimer;
 
-        if (m_soulShardsRegenTimerCount <= m_regenTimer)
+        if (m_powerRegenTimer[POWER_SOUL_SHARDS] <= m_regenTimer)
         {
-            m_soulShardsRegenTimerCount = 20000;
-            Regenerate(POWER_SOUL_SHARDS, m_soulShardsRegenTimerCount);
+            m_powerRegenTimer[POWER_SOUL_SHARDS] = 20000;
+            Regenerate(POWER_SOUL_SHARDS, m_powerRegenTimer[POWER_SOUL_SHARDS]);
         }
         else
-            m_soulShardsRegenTimerCount -= m_regenTimer;
+            m_powerRegenTimer[POWER_SOUL_SHARDS] -= m_regenTimer;
 
-        if (m_burningEmbersRegenTimerCount <= m_regenTimer)
+        if (m_powerRegenTimer[POWER_BURNING_EMBERS] <= m_regenTimer)
         {
             if (AuraEffect* aurEff = GetAuraEffect(108647, 0))
                 aurEff->ChangeAmount(0);
-            m_burningEmbersRegenTimerCount = 2500;
-            Regenerate(POWER_BURNING_EMBERS, m_burningEmbersRegenTimerCount);
+            m_powerRegenTimer[POWER_BURNING_EMBERS] = 2500;
+            Regenerate(POWER_BURNING_EMBERS, m_powerRegenTimer[POWER_BURNING_EMBERS]);
         }
         else
-            m_burningEmbersRegenTimerCount -= m_regenTimer;
+            m_powerRegenTimer[POWER_BURNING_EMBERS] -= m_regenTimer;
     }
     else
     {
-        m_chiholyPowerRegenTimerCount = 10000;
-        m_demonicFuryPowerRegenTimerCount = 30000;
-        m_burningEmbersRegenTimerCount = 28000;
-        m_soulShardsRegenTimerCount = 20000;
+        m_powerRegenTimer[POWER_HOLY_POWER] = 10000;
+        m_powerRegenTimer[POWER_BURNING_EMBERS] = 28000;
+        m_powerRegenTimer[POWER_SOUL_SHARDS] = 20000;
+        m_powerRegenTimer[POWER_DEMONIC_FURY] = 30000;
+        m_powerRegenTimer[POWER_ECLIPSE] = 30000;
     }
 
     m_regenTimer = 0;
@@ -2682,14 +2696,19 @@ void Player::Regenerate(Powers power, uint32 saveTimer)
 
     switch (power)
     {
+        case POWER_ECLIPSE:
+        {
+            addvalue += saveTimer + GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + powerIndex) * saveTimer;
+            break;
+        }
         case POWER_MANA: // Regenerate Mana
         {
             float ManaIncreaseRate = sWorld->getRate(RATE_POWER_MANA);
 
             if (isInCombat()) // Trinity Updates Mana in intervals of 2s, which is correct
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * saveTimer) + CalculatePct(0.001f, spellHaste));
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) * ManaIncreaseRate * ((0.001f * saveTimer) + CalculatePct(0.001f, spellHaste));
             else
-                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) *  ManaIncreaseRate * ((0.001f * saveTimer) + CalculatePct(0.001f, spellHaste));
+                addvalue += GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) * ManaIncreaseRate * ((0.001f * saveTimer) + CalculatePct(0.001f, spellHaste));
             break;
         }
         // Regenerate Rage
@@ -2829,7 +2848,7 @@ void Player::Regenerate(Powers power, uint32 saveTimer)
         case POWER_FOCUS:
         case POWER_ENERGY:
         {
-            if ((saveCur != maxValue && curValue == maxValue) || m_regenTimerCount >= 2000)
+            if ((saveCur != maxValue && curValue == maxValue) || m_powerRegenTimer[POWER_RAGE] >= 2000)
                 SetInt32Value(UNIT_FIELD_POWER + powerIndex, curValue);
             else
                 UpdateInt32Value(UNIT_FIELD_POWER + powerIndex, curValue);
@@ -2844,7 +2863,7 @@ void Player::Regenerate(Powers power, uint32 saveTimer)
         }
         default:
         {
-            if (m_regenTimerCount >= 2000)
+            if (m_powerRegenTimer[POWER_RAGE] >= 2000)
                 SetInt32Value(UNIT_FIELD_POWER + powerIndex, curValue);
             else
                 UpdateInt32Value(UNIT_FIELD_POWER + powerIndex, curValue);

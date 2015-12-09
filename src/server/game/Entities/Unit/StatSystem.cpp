@@ -364,12 +364,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             SpellShapeshiftFormEntry const* form = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
             // Directly taken from client, SHAPESHIFT_FLAG_AP_FROM_STRENGTH ?
             if (form && form->flags1 & 0x20)
-            {
                 agilityValue += std::max(GetStat(STAT_AGILITY) * entry->AttackPowerPerStrength, 0.0f);
-                // Druid feral has AP per agility = 2
-                if (form->ID == FORM_CAT || form->ID == FORM_BEAR)
-                    agilityValue *= 2;
-            }
 
             val2 = strengthValue + agilityValue;
         }
@@ -1220,6 +1215,8 @@ void Unit::UpdatePowerRegen(uint32 power)
 
     float meleeHaste = GetFloatValue(UNIT_FIELD_MOD_HASTE);
     float addvalue = 0.0f;
+    bool regenInCombat = false;
+    bool regenNotCombat = false;
 
     //add value in 1s
     switch (power)
@@ -1227,51 +1224,63 @@ void Unit::UpdatePowerRegen(uint32 power)
         case POWER_RAGE: // Regenerate Rage
         {
             addvalue -= 25 / meleeHaste / 2;
+            regenInCombat = true;
+            regenNotCombat = true;
             break;
         }
         case POWER_FOCUS: // Regenerate Focus
         {
             addvalue += 1.0f * 5;
+            regenInCombat = true;
+            regenNotCombat = true;
             break;
         }
         case POWER_ENERGY: // Regenerate Energy
         {
             addvalue += 0.01f * 1000;
+            regenInCombat = true;
+            regenNotCombat = true;
             break;
         }
         case POWER_RUNIC_POWER: // Regenerate Runic Power
         {
             addvalue -= 30 / 2;
+            regenNotCombat = true;
             break;
         }
         case POWER_HOLY_POWER:
         case POWER_CHI:
         {
             addvalue -= 1.0f / 10;
+            regenNotCombat = true;
             break;
         }
         // Regenerate Demonic Fury
         case POWER_DEMONIC_FURY:
         {
             addvalue -= 1.0f * 12.5f;
+            regenNotCombat = true;
             break;
         }
         // Regenerate Burning Embers
         case POWER_BURNING_EMBERS:
         {
             addvalue -= 1.0f / 2.5f;
+            regenNotCombat = true;
             break;
         }
         // Regenerate Soul Shards
         case POWER_SOUL_SHARDS:
         {
             addvalue += 100.0f / 20;
+            regenNotCombat = true;
             break;
         }
         // Regenerate Soul Shards
         case POWER_ECLIPSE:
         {
             addvalue += 1.0f;
+            regenInCombat = true;
             break;
         }
         default:
@@ -1280,8 +1289,9 @@ void Unit::UpdatePowerRegen(uint32 power)
 
     float val = (addvalue * GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, power) - addvalue);
 
-    SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + powerIndex, val);
-    if(power < POWER_COMBO_POINTS)
+    if(regenNotCombat)
+        SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + powerIndex, val);
+    if(regenInCombat)
         SetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + powerIndex, val);
 
     //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Unit::UpdatePowerRegen val %f, perc %i, powerIndex %i, power %i, addvalue %f", val, perc, powerIndex, power, addvalue);

@@ -1686,7 +1686,7 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
                 }
 
                 targets.remove_if(Trinity::UnitCheckCCAura(true, GetCaster()));
-                if(GetCaster()->HasAura(146655))
+                if(!GetCaster()->HasAura(146655))
                     targets.remove_if(AuraCheck());
 
                 Trinity::Containers::RandomResizeList(targets, 2);
@@ -1696,16 +1696,12 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 // Shapeshifting into an animal form or mounting cancels the effect
-                if (caster->GetCreatureType() == CREATURE_TYPE_BEAST || caster->IsMounted())
+                if (caster->GetCreatureType() == CREATURE_TYPE_BEAST || caster->HasUnitState(UNIT_STATE_CONTROLLED))
                 {
                     if (SpellInfo const* spellInfo = GetTriggeringSpell())
                         caster->RemoveAurasDueToSpell(spellInfo->Id);
                     return;
                 }
-
-                // Any effect which causes you to lose control of your character will supress the starfall effect.
-                //if (caster->HasUnitState(UNIT_STATE_CONTROLLED))
-                    //return;
 
                 caster->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
             }
@@ -1723,7 +1719,7 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
 
                     bool operator()(WorldObject* unit)
                     {
-                       return (!unit->ToUnit() || (!unit->ToUnit()->HasAura(8921) && !unit->ToUnit()->HasAura(93402)));
+                       return (!unit->ToUnit() || (!unit->ToUnit()->HasAura(164812) && !unit->ToUnit()->HasAura(164815)));
                     }
             };
         };

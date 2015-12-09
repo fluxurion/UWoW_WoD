@@ -940,7 +940,15 @@ enum SpellAttr13
     SPELL_ATTR13_UNK20                            = 0x00100000, // 20
     SPELL_ATTR13_UNK21                            = 0x00200000, // 21
     SPELL_ATTR13_UNK22                            = 0x00400000, // 22
-    SPELL_ATTR13_UNK23                            = 0x00800000  // 23
+    SPELL_ATTR13_UNK23                            = 0x00800000, // 23
+    SPELL_ATTR13_UNK24                            = 0x01000000, // 24
+    SPELL_ATTR13_UNK25                            = 0x02000000, // 25
+    SPELL_ATTR13_UNK26                            = 0x04000000, // 26 some healing spell
+    SPELL_ATTR13_UNK27                            = 0x08000000, // 27
+    SPELL_ATTR13_UNK28                            = 0x10000000, // 28
+    SPELL_ATTR13_UNK29                            = 0x20000000, // 29
+    SPELL_ATTR13_UNK30                            = 0x40000000, // 30
+    SPELL_ATTR13_UNK31                            = 0x80000000  // 31
 };
 
 #define MAX_TALENT_SPEC         1

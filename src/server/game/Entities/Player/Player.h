@@ -2030,7 +2030,7 @@ class Player : public Unit, public GridObject<Player>
         void RegenerateAll();
         void Regenerate(Powers power, uint32 saveTimer);
         void RegenerateHealth();
-        void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
+        void setRegenTimerCount(uint32 time) {m_powerRegenTimer[POWER_RAGE] = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
 
         uint64 GetMoney() const { return GetUInt64Value(PLAYER_FIELD_COINAGE); }
@@ -3305,13 +3305,10 @@ class Player : public Unit, public GridObject<Player>
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
-        uint32 m_regenTimerCount;
-        uint32 m_chiholyPowerRegenTimerCount;
-        uint32 m_burningEmbersRegenTimerCount;
-        uint32 m_soulShardsRegenTimerCount;
-        uint32 m_focusRegenTimerCount;
-        uint32 m_demonicFuryPowerRegenTimerCount;
+
+        uint32 m_powerRegenTimer[MAX_POWERS];
         float m_powerFraction[MAX_POWERS_PER_CLASS];
+
         uint32 m_contestedPvPTimer;
         uint32 m_statsUpdateTimer;
         bool m_needToUpdateRunesRegen;

@@ -37,7 +37,7 @@ UPDATE creature_template SET unit_flags2 = unit_flags2 | 2048 WHERE entry IN (78
 insert into `pet_stats` (`entry`, `hp`, `ap`, `ap_type`, `spd`, `school_mask`, `maxspdorap`, `state`, `energy`, `energy_type`, `armor`, `type`, `damage`, `haste`, `comment`) values
 ('78215','0.5','-0.06','0','1','127','0','2','100','3','3','1','0','1','Стражник жути');
 
-DELETE FROM spell_linked_spell WHERE spell_effect IN (17767);
+DELETE FROM spell_linked_spell WHERE spell_trigger IN (17767);
 
 DELETE FROM spell_script_names WHERE ScriptName IN ('spell_warl_shadow_shield_damage');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('115234','spell_warl_shadow_shield_damage');
@@ -76,4 +76,21 @@ insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `cast
 
 insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
 ('171975','171982','0','20','10','0','0','0','0','0','0','7','0','0','0','0','0','0','0','-1','0','0','0','Гримуар помощи');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('78674','164547','0','0','0','0','164724','0','0','0','0','0','0','0','0','-1','0','0','Звездный поток'),
+('78674','164545','0','0','0','0','164725','0','0','0','0','0','0','0','0','-1','0','0','Звездный поток');
+
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('8921','164812','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Лунный огонь'),
+('93402','164815','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Солнечный огонь');
+
+insert into `spell_proc_check` (`entry`, `entry2`, `entry3`, `checkspell`, `hastalent`, `chance`, `target`, `effectmask`, `powertype`, `dmgclass`, `specId`, `spellAttr0`, `targetTypeMask`, `mechanicMask`, `fromlevel`, `perchp`, `spelltypeMask`, `combopoints`, `deathstateMask`, `hasDuration`, `comment`) values
+('93399','0','0','164812','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Падающие звезды'),
+('93399','0','0','164815','0','0','0','7','-1','-1','0','0','0','0','0','0','0','0','0','0','Падающие звезды');
+insert into `spell_trigger` (`spell_id`, `spell_trigger`, `spell_cooldown`, `option`, `target`, `caster`, `targetaura`, `targetaura2`, `bp0`, `bp1`, `bp2`, `effectmask`, `aura`, `aura2`, `chance`, `group`, `procFlags`, `procEx`, `check_spell_id`, `addptype`, `schoolMask`, `dummyId`, `dummyEffect`, `comment`) values
+('93399','93400','0','20','1','0','0','0','0','0','0','7','0','0','7','0','0','0','0','-1','0','0','0','Падающие звезды');
+insert into `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `caster`, `target`, `hastype`, `hastalent`, `hastype2`, `hastalent2`, `chance`, `cooldown`, `duration`, `hitmask`, `removeMask`, `targetCountType`, `targetCount`, `actiontype`, `group`, `comment`) values
+('93400','78674','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','8','0','Падающие звезды'),
+('93400','48505','0','0','0','0','0','0','0','0','0','0','0','0','0','-1','0','0','Падающие звезды');
 

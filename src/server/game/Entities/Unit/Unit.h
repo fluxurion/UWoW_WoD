@@ -1545,7 +1545,7 @@ class Unit : public WorldObject
         void SetFieldPowerType(uint32 powerType) { SetUInt32Value(UNIT_FIELD_DISPLAY_POWER, powerType); }
         void setPowerType(Powers power);
         int32 GetPower(Powers power) const;
-        int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -100 : 0; }
+        int32 GetMinPower(Powers power) const { return 0; }
         int32 GetMaxPower(Powers power) const;
         void SetPower(Powers power, int32 val, bool send = true);
         void InitialPowers(bool maxpower = false);
@@ -1556,7 +1556,6 @@ class Unit : public WorldObject
         // returns the change in power
         int32 ModifyPower(Powers power, int32 val, bool set = false);
         int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
-        void TriggerEclipse(int32 power);
 
         uint32 GetPowerIndex(Powers power) const { return GetPowerIndexByClass(power, getClass()); }
         uint32 GetPowerIndexByClass(uint32 powerId, uint32 classId) const;

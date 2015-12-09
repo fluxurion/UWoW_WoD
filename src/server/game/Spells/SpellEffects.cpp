@@ -871,11 +871,6 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
                         basepoints0 *= -1;
 
                     triggerCaster->CastCustomSpell(triggerTarget, spell_trigger, &basepoints0, &basepoints0, &basepoints0, true, m_CastItem, NULL, m_originalCasterGUID);
-                    if (itr->target == 6)
-                    {
-                        if (Guardian* pet = triggerCaster->GetGuardianPet())
-                            triggerCaster->CastCustomSpell(pet, spell_trigger, &basepoints0, &bp1, &bp2, true);
-                    }
                     check = true;
                 }
                 break;
@@ -884,11 +879,6 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
                     if(!triggerCaster || !triggerTarget)
                         break;
                     triggerCaster->CastCustomSpell(triggerTarget, spell_trigger, &bp0, &bp1, &bp2, true, m_CastItem, NULL, m_originalCasterGUID);
-                    if (itr->target == 6)
-                    {
-                        if (Guardian* pet = triggerCaster->GetGuardianPet())
-                            triggerCaster->CastCustomSpell(pet, spell_trigger, &basepoints0, &bp1, &bp2, true);
-                    }
                     check = true;
                 }
                 break;
@@ -978,11 +968,6 @@ bool Spell::SpellDummyTriggered(SpellEffIndex effIndex)
                     basepoints0 = CalculatePct(triggerTarget->GetMaxHealth(), percent);
 
                     triggerCaster->CastCustomSpell(triggerTarget, spell_trigger, &basepoints0, &bp1, &bp2, true, m_CastItem, NULL, m_originalCasterGUID);
-                    if (itr->target == 6)
-                    {
-                        if (Guardian* pet = triggerCaster->GetGuardianPet())
-                            triggerCaster->CastCustomSpell(pet, spell_trigger, &basepoints0, &bp1, &bp2, true);
-                    }
                     check = true;
                 }
                 break;
@@ -2918,14 +2903,6 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
 
     if (level_diff > 0)
         damage -= level_multiplier * level_diff;
-
-    // now alter power used as mana too as it's some kind of category not power.
-    //if (damage < 0 && power != POWER_ECLIPSE && power != POWER_ALTERNATE_POWER)
-    //    return;
-
-    // Do not energize when in Celestial Alignment
-    //if (power == POWER_ECLIPSE && m_caster->HasAura(112071))
-        //return;
 
     if (power == POWER_RAGE && m_caster->HasAura(138222) && unitTarget->HasAura(5229)) // Item - Druid T15 Guardian 4P Bonus
         damage *= 1.5;

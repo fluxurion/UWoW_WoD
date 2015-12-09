@@ -6280,103 +6280,11 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, DamageInfo* /*dmgInfoProc*/
 
     int32 powerAmount = GetPower(powerType);
 
-    switch (spellProto->Id)
+    /*switch (spellProto->Id)
     {
-        case 79577:         // Eclipse Mastery Driver Passive
-        {
-            if (!procSpell)
-                return false;
-
-            // forbid proc when not in balance spec or while in Celestial Alignment
-            if (!HasSpell(78674) || HasAura(112071))
-                return false;
-
-            int32 powerMod = 0;
-            bool isGlyph = false;
-            bool aura54812 = HasAura(54812);
-
-            bool aura48517 = HasAura(48517);
-            bool aura48518 = HasAura(48518);
-
-            bool aura67484 = HasAura(67484);
-            bool aura67483 = HasAura(67483);
-
-            
-            switch(procSpell->Id)
-            {
-                case 2912:
-                {
-                    powerMod = (aura67483 || (!aura67483 && !aura67484)) ? procSpell->Effects[1].CalcValue(this) : 0;
-                    break;
-                }
-                case 78674:
-                {
-                    powerMod = aura67483 ? procSpell->Effects[1].CalcValue(this) : -procSpell->Effects[1].CalcValue(this);
-                    break;
-                }
-                case 5176:
-                {
-                    powerMod = (aura67484 || (!aura67483 && !aura67484)) ? -procSpell->Effects[1].CalcValue(this) : 0;
-                    break;
-                }
-                case 99:
-                case 339:
-                case 5211:
-                case 33786:
-                case 61391:
-                case 102359:
-                case 102355:
-                case 106707:
-                case 102793:
-                case 132469:
-                {
-                    if (aura54812)
-                    {
-                        if (!aura48518 && !aura48517)
-                        {
-                            powerMod = aura67483 ? 10 : -10;
-                            isGlyph = true;
-                        }
-                    }
-                    break;
-                }
-                default:
-                    return false;
-            }
-
-            // while not in Eclipse State
-            if (!aura48517 && !aura48518 && !isGlyph)
-            {
-                // search Euphoria
-                if (HasAura(81062))
-                    powerMod *= 2;
-
-                // Item - Druid T12 Balance 4P Bonus
-                if (HasAura(99049) && procSpell->Id != 78674)
-                    powerMod += (procSpell->Id == 2912 ? 5 : -3);
-            }
-
-            // solar Eclipse Marker
-            if (!aura67484 && !aura67483)
-                AddAura(powerMod > 0 ? 67483 : 67484, this);
-
-            //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "HandleAuraProcOnPowerAmount: powerMod %i direction %i, powerAmount %i", powerMod, direction, powerAmount);
-            // proc failed if wrong spell or spell direction does not match marker direction
-            if (!powerMod)
-                return false;
-
-            if (powerMod > 0 && triggeredByAura->GetEffIndex() != EFFECT_0)
-                return false;
-            else if (powerMod < 0 && triggeredByAura->GetEffIndex() != EFFECT_1)
-                return false;
-
-            CastCustomSpell(this, 89265, &powerMod, NULL, NULL, true);
-            //ModifyPower(powerType, powerMod);
-            break;
-        }
         default:
             break;
-    }
+    }*/
 
     if (G3D::fuzzyGt(cooldown, 0.0) && GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->AddSpellCooldown(triggered_spell_id, 0, getPreciseTime() + cooldown);
@@ -14615,6 +14523,64 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal, bool gene
 
     switch(power)
     {
+        case POWER_ECLIPSE:
+        {
+            int32 step = curentVal - int32(40000 * int32(curentVal / 40000));
+            int32 stepOld = oldVal - int32(40000 * int32(oldVal / 40000));
+
+            if (step >= 30000) // Solar 100 > 0
+            {
+                if (step >= 39500 && stepOld < 39500) // Remove on Lunar 25%
+                {
+                    RemoveAura(163119);
+                    RemoveAura(164725);
+                }
+                if (step >= 35000 && stepOld < 35000) // Remove on Lunar 50%
+                    RemoveAura(93430);
+            }
+            else if (step >= 20000) // Solar 0 > 100
+            {
+                if (step >= 20100 && stepOld < 20100) // Start on enter in Solar zone
+                {
+                    CastSpell(this, 163119, true);
+                    CastSpell(this, 164725, true);
+                }
+                if (step >= 25000 && stepOld < 25000) // Start on Solar 50%
+                    CastSpell(this, 93430, true);
+                if (step >= 27500 && stepOld < 27500) // Start on Solar 75%, duration 5s, not remove
+                    CastSpell(this, 171744, true);
+            }
+            else if (step >= 10000) // Lunar 100 > 0
+            {
+                if (step >= 19500 && stepOld < 19500) // Remove on Lunar 25%
+                    RemoveAura(164724);
+                if (step >= 15000 && stepOld < 15000) // Remove on Lunar 50%
+                    RemoveAura(93431);
+            }
+            else // Lunar 0 > 100
+            {
+                if (step > 100 && stepOld < 100) // Start on enter in Lunar zone
+                    CastSpell(this, 164724, true);
+                if (step >= 5000 && stepOld < 5000) // Start on Lunar 50%
+                    CastSpell(this, 93431, true);
+                if (step >= 7500 && stepOld < 7500) // Start on Lunar 75%, duration 5s, not remove
+                    CastSpell(this, 171743, true);
+            }
+
+            if (curentVal == 0 && oldVal > 0) // Remove visual
+            {
+                RemoveAura(169482);
+                RemoveAura(93431);
+                RemoveAura(164724);
+                RemoveAura(163119);
+                RemoveAura(164725);
+                RemoveAura(93430);
+            }
+
+            if (oldVal == 0 && curentVal > 0) // Add scene visual
+                CastSpell(this, 169482, true);
+            break;
+        }
         case POWER_SOUL_SHARDS:
         {
             if(specId != SPEC_WARLOCK_AFFLICTION)
@@ -14943,8 +14909,7 @@ int32 Unit::ModifyPower(Powers power, int32 dVal, bool set)
             SetPower(power, GetMinPower(power));
         else
             SetInt32Value(UNIT_FIELD_POWER + powerIndex, GetMinPower(power));
-        if (power == POWER_ECLIPSE)
-            TriggerEclipse(curPower);
+
         return -curPower;
     }
 
@@ -14967,9 +14932,6 @@ int32 Unit::ModifyPower(Powers power, int32 dVal, bool set)
         gain = maxPower - curPower;
     }
 
-    if (gain && power == POWER_ECLIPSE)
-        TriggerEclipse(curPower);
-
     if(power == POWER_BURNING_EMBERS)
     {
         if(val >= maxPower && curPower < maxPower)
@@ -14977,35 +14939,6 @@ int32 Unit::ModifyPower(Powers power, int32 dVal, bool set)
     }
 
     return gain;
-}
-
-void Unit::TriggerEclipse(int32 oldPower)
-{
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(79577);
-    if (!spellInfo)
-        return;
-
-    int32 newPower = GetPower(POWER_ECLIPSE);
-    if (newPower == oldPower)
-        return;
-
-    // Eclipse is cleared when eclipse power reaches 0
-    if (newPower * oldPower <= 0)
-    {
-        RemoveAurasDueToSpell(spellInfo->Effects[EFFECT_0].TriggerSpell);
-        RemoveAurasDueToSpell(spellInfo->Effects[EFFECT_1].TriggerSpell);
-    }
-
-    if (newPower != spellInfo->Effects[EFFECT_0].CalcValue(this) && newPower != spellInfo->Effects[EFFECT_1].CalcValue(this))
-        return;
-
-    uint32 effIdx = newPower > 0 ? EFFECT_0 : EFFECT_1;
-    uint32 eclipseSpell = spellInfo->Effects[effIdx].TriggerSpell;
-    if (!eclipseSpell)
-        return;
-
-    // cast Eclipse
-    CastSpell(this, eclipseSpell, true);
 }
 
 // returns negative amount on power reduction
@@ -16331,6 +16264,9 @@ int32 Unit::GetMaxPower(Powers power) const
     if (powerIndex == MAX_POWERS)
         return 0;
 
+    if (power == POWER_ECLIPSE)
+        return 2147483647; //unlimited
+
     return GetInt32Value(UNIT_FIELD_MAX_POWER + powerIndex);
 }
 
@@ -16370,7 +16306,7 @@ int32 Unit::GetCreatePowers(Powers power, uint16 powerDisplay/* = 0*/) const
         case POWER_SOUL_SHARDS:
             return 400;
         case POWER_ECLIPSE:
-            return 100; // Should be -100 to 100 this needs the power to be int32 instead of uint32
+            return 100;
         case POWER_HOLY_POWER:
             return HasAura(115675) ? 5 : 3;
         case POWER_HEALTH:

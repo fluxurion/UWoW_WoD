@@ -703,24 +703,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
             }
             break;
         }
-        case SPELL_AURA_MOD_BASE_RESISTANCE_PCT:
-        {
-            if (!caster)
-                break;
-
-            switch (m_spellInfo->Id)
-            {
-                case 5487: // Bear Form
-                {
-                    if (Aura* aur = caster->GetAura(16931)) // Thick Hide
-                        amount = aur->GetEffect(EFFECT_1)->GetAmount();
-                    break;
-                }
-                default:
-                    break;
-            }
-            break;
-        }
         case SPELL_AURA_SCHOOL_ABSORB:
         {
             m_canBeRecalculated = false;
@@ -1278,7 +1260,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
                 {
                     if (caster)
                     {
-                        amount = caster->GetStat(STAT_INTELLECT);
+                        amount = int32(caster->GetStat(STAT_INTELLECT) * 1.81f); // from sniff take 180% stats
                     }
                     break;
                 }
@@ -2388,9 +2370,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId.push_back(3025);     // Wild Charge
             spellId.push_back(48629);    // Swipe, Mangle, Thrash
             spellId.push_back(106840);   // Skull Bash, Stampeding Roar, Berserk
-
-            if (target->HasAura(108299)) // Killer Instinct
-                spellId.push_back(108300);
+            spellId.push_back(108300);   // exist in all spec sniff
             break;
         case FORM_TRAVEL:
             spellId.push_back(5419);
@@ -2399,13 +2379,11 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             spellId.push_back(5421);
             break;
         case FORM_BEAR:
-            spellId.push_back(1178);
+            //spellId.push_back(1178);
             spellId.push_back(21178);  // Swipe, Wild Charge
             spellId.push_back(106829); // Mangle, Thrash, Skull Bash
             spellId.push_back(106899); // Stampeding Roar, Berserk
-
-            if (target->HasAura(108299)) // Killer Instinct
-                spellId.push_back(108300);
+            spellId.push_back(108300); // exist in all spec sniff
             break;
         case FORM_MOONKIN:
             spellId.push_back(24905);
@@ -7093,7 +7071,7 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
 
 bool AuraEffect::AuraSpellTrigger(Unit* target, Unit* caster, SpellEffIndex effIndex) const
 {
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AuraEffect::AuraSpellTrigger: Spell %u in Effect %d", GetId(), effIndex);
+    //sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "AuraEffect::AuraSpellTrigger: Spell %u in Effect %d", GetId(), effIndex);
 
     if (std::vector<SpellDummyTrigger> const* spellTrigger = sSpellMgr->GetSpellAuraTrigger(m_spellInfo->Id))
     {

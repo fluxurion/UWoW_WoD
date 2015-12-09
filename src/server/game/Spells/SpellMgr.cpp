@@ -5027,6 +5027,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 29604: // Jom Gabbar
                 case 110914: // Dark Bargain
                 case 148874: // Dark Bargain
+                case 114635: // Ember Tap
                     spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
                     break;
                 //General Nazgrim
