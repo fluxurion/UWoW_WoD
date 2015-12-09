@@ -289,6 +289,8 @@ struct LfgRoleData
     uint8 minTanksNeeded;
     uint8 minHealerNeeded;
     uint8 minDpsNeeded;
+
+    uint32 hardlookerherpoimichego = 0;
 };
 
 struct LFGDungeonData

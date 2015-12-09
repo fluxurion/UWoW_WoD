@@ -806,7 +806,7 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = 0 */, uint8 
     {
         if (LFGDungeonData const* dungeonData = GetLFGDungeon(*dungeons.begin()))
             if (dungeonData->dbc->IsScenario() && !dungeonData->dbc->IsChallenge())
-                roles = roles & PLAYER_ROLE_LEADER | PLAYER_ROLE_DAMAGE;
+                roles = roles & (PLAYER_ROLE_LEADER | PLAYER_ROLE_DAMAGE);
     }
 
     if (guid.IsEmpty())
@@ -826,7 +826,8 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = 0 */, uint8 
         {
             // use temporal var to check roles, CheckGroupRoles modifies the roles
             check_roles = roleCheck.roles;
-            roleCheck.state = CheckGroupRoles(check_roles, LfgRoleData(*roleCheck.dungeons.begin() & 0xFFFFF))
+            volatile uint32 dangeonID = *roleCheck.dungeons.begin() & 0xFFFFF;
+            roleCheck.state = CheckGroupRoles(check_roles, LfgRoleData(dangeonID))
                 ? LFG_ROLECHECK_FINISHED : LFG_ROLECHECK_WRONG_ROLES;
         }
     }
@@ -925,6 +926,9 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgRoleData const& roleData, b
 
     for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it)
     {
+        if (roleData.hardlookerherpoimichego > 1000)
+            return false;
+
         if (it->second == PLAYER_ROLE_NONE || (it->second & ROLE_FULL_MASK) == 0)
             return false;
 
