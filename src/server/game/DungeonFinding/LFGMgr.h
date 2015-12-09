@@ -454,7 +454,7 @@ class LFGMgr
         /// Checks if all players are queued
         bool AllQueued(GuidList const& check);
         /// Checks if given roles match, modifies given roles map with new roles
-        static bool CheckGroupRoles(LfgRolesMap& groles, LfgRoleData const& roleData, bool removeLeaderFlag = true);
+        static bool CheckGroupRoles(LfgRolesMap& groles, LfgRoleData& roleData, bool removeLeaderFlag = true);
         /// Checks if given players are ignoring each other
         static bool HasIgnore(ObjectGuid guid1, ObjectGuid guid2);
         /// Sends queue status to player
