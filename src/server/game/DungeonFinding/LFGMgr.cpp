@@ -911,7 +911,7 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, GuidSet const& playe
    @param[in]     removeLeaderFlag Determines if we have to remove leader flag (only used first call, Default = true)
    @return True if roles are compatible
 */
-bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgRoleData& roleData, bool removeLeaderFlag /*= true*/)
+bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgRoleData const& roleData, bool removeLeaderFlag /*= true*/)
 {
     if (groles.empty())
         return false;
@@ -924,7 +924,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgRoleData& roleData, bool re
         for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it)
             it->second &= ~PLAYER_ROLE_LEADER;
 
-    for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it, roleData.hardlookerherpoimichego++)
+    for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it)
     {
         if (roleData.hardlookerherpoimichego > 1000)
             return false;
