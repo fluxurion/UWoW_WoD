@@ -826,8 +826,8 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = 0 */, uint8 
         {
             // use temporal var to check roles, CheckGroupRoles modifies the roles
             check_roles = roleCheck.roles;
-            volatile uint32 dangeonID = *roleCheck.dungeons.begin() & 0xFFFFF;
-            roleCheck.state = CheckGroupRoles(check_roles, LfgRoleData(dangeonID))
+            uint32 n = 0;
+            roleCheck.state = CheckGroupRoles(check_roles, LfgRoleData(*roleCheck.dungeons.begin() & 0xFFFFF), n)
                 ? LFG_ROLECHECK_FINISHED : LFG_ROLECHECK_WRONG_ROLES;
         }
     }
@@ -911,7 +911,7 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, GuidSet const& playe
    @param[in]     removeLeaderFlag Determines if we have to remove leader flag (only used first call, Default = true)
    @return True if roles are compatible
 */
-bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgRoleData const& roleData, bool removeLeaderFlag /*= true*/)
+bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgRoleData const& roleData, uint32 &n, bool removeLeaderFlag /*= true*/)
 {
     if (groles.empty())
         return false;
@@ -924,9 +924,9 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgRoleData const& roleData, b
         for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it)
             it->second &= ~PLAYER_ROLE_LEADER;
 
-    for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it)
+    for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it, ++n)
     {
-        if (roleData.hardlookerherpoimichego > 1000)
+        if (n > 1000)
             return false;
 
         if (it->second == PLAYER_ROLE_NONE || (it->second & ROLE_FULL_MASK) == 0)
