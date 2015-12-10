@@ -937,7 +937,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgRoleData const& roleData, u
             if (it->second != PLAYER_ROLE_TANK)                 // if not one role taken - check enother
             {
                 it->second -= PLAYER_ROLE_TANK;                 // exclude role for recurse check
-                if (CheckGroupRoles(groles, roleData, false))   // check role with it
+                if (CheckGroupRoles(groles, roleData, n, false))   // check role with it
                     return true;                                // if plr not tank group can be completed
                 it->second += PLAYER_ROLE_TANK;                 // return back excluded role.
             }
@@ -954,7 +954,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgRoleData const& roleData, u
             if (it->second != PLAYER_ROLE_DAMAGE)
             {
                 it->second -= PLAYER_ROLE_DAMAGE;
-                if (CheckGroupRoles(groles, roleData, false))
+                if (CheckGroupRoles(groles, roleData, n, false))
                     return true;
                 it->second += PLAYER_ROLE_DAMAGE;
             }
@@ -969,7 +969,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, LfgRoleData const& roleData, u
             if (it->second != PLAYER_ROLE_HEALER)
             {
                 it->second -= PLAYER_ROLE_HEALER;
-                if (CheckGroupRoles(groles, roleData, false))
+                if (CheckGroupRoles(groles, roleData, n, false))
                     return true;
                 it->second += PLAYER_ROLE_HEALER;
             }
