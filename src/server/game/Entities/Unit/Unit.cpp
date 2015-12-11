@@ -14525,60 +14525,63 @@ void Unit::VisualForPower(Powers power, int32 curentVal, int32 modVal, bool gene
     {
         case POWER_ECLIPSE:
         {
-            int32 step = curentVal - int32(40000 * int32(curentVal / 40000));
-            int32 stepOld = oldVal - int32(40000 * int32(oldVal / 40000));
-
-            if (step >= 30000) // Solar 100 > 0
+            if(specId == SPEC_DRUID_BALANCE)
             {
-                if (step >= 39500 && stepOld < 39500) // Remove on Lunar 25%
+                int32 step = curentVal - int32(40000 * int32(curentVal / 40000));
+                int32 stepOld = oldVal - int32(40000 * int32(oldVal / 40000));
+
+                if (step >= 30000) // Solar 100 > 0
                 {
+                    if (step >= 39500 && stepOld < 39500) // Remove on Lunar 25%
+                    {
+                        RemoveAura(163119);
+                        RemoveAura(164725);
+                    }
+                    if (step >= 35000 && stepOld < 35000) // Remove on Lunar 50%
+                        RemoveAura(93430);
+                }
+                else if (step >= 20000) // Solar 0 > 100
+                {
+                    if (step >= 20100 && stepOld < 20100) // Start on enter in Solar zone
+                    {
+                        CastSpell(this, 163119, true);
+                        CastSpell(this, 164725, true);
+                    }
+                    if (step >= 25000 && stepOld < 25000) // Start on Solar 50%
+                        CastSpell(this, 93430, true);
+                    if (step >= 27500 && stepOld < 27500) // Start on Solar 75%, duration 5s, not remove
+                        CastSpell(this, 171744, true);
+                }
+                else if (step >= 10000) // Lunar 100 > 0
+                {
+                    if (step >= 19500 && stepOld < 19500) // Remove on Lunar 25%
+                        RemoveAura(164724);
+                    if (step >= 15000 && stepOld < 15000) // Remove on Lunar 50%
+                        RemoveAura(93431);
+                }
+                else // Lunar 0 > 100
+                {
+                    if (step > 100 && stepOld < 100) // Start on enter in Lunar zone
+                        CastSpell(this, 164724, true);
+                    if (step >= 5000 && stepOld < 5000) // Start on Lunar 50%
+                        CastSpell(this, 93431, true);
+                    if (step >= 7500 && stepOld < 7500) // Start on Lunar 75%, duration 5s, not remove
+                        CastSpell(this, 171743, true);
+                }
+
+                if (curentVal == 0 && oldVal > 0) // Remove visual
+                {
+                    RemoveAura(169482);
+                    RemoveAura(93431);
+                    RemoveAura(164724);
                     RemoveAura(163119);
                     RemoveAura(164725);
-                }
-                if (step >= 35000 && stepOld < 35000) // Remove on Lunar 50%
                     RemoveAura(93430);
-            }
-            else if (step >= 20000) // Solar 0 > 100
-            {
-                if (step >= 20100 && stepOld < 20100) // Start on enter in Solar zone
-                {
-                    CastSpell(this, 163119, true);
-                    CastSpell(this, 164725, true);
                 }
-                if (step >= 25000 && stepOld < 25000) // Start on Solar 50%
-                    CastSpell(this, 93430, true);
-                if (step >= 27500 && stepOld < 27500) // Start on Solar 75%, duration 5s, not remove
-                    CastSpell(this, 171744, true);
-            }
-            else if (step >= 10000) // Lunar 100 > 0
-            {
-                if (step >= 19500 && stepOld < 19500) // Remove on Lunar 25%
-                    RemoveAura(164724);
-                if (step >= 15000 && stepOld < 15000) // Remove on Lunar 50%
-                    RemoveAura(93431);
-            }
-            else // Lunar 0 > 100
-            {
-                if (step > 100 && stepOld < 100) // Start on enter in Lunar zone
-                    CastSpell(this, 164724, true);
-                if (step >= 5000 && stepOld < 5000) // Start on Lunar 50%
-                    CastSpell(this, 93431, true);
-                if (step >= 7500 && stepOld < 7500) // Start on Lunar 75%, duration 5s, not remove
-                    CastSpell(this, 171743, true);
-            }
 
-            if (curentVal == 0 && oldVal > 0) // Remove visual
-            {
-                RemoveAura(169482);
-                RemoveAura(93431);
-                RemoveAura(164724);
-                RemoveAura(163119);
-                RemoveAura(164725);
-                RemoveAura(93430);
+                if (oldVal == 0 && curentVal > 0) // Add scene visual
+                    CastSpell(this, 169482, true);
             }
-
-            if (oldVal == 0 && curentVal > 0) // Add scene visual
-                CastSpell(this, 169482, true);
             break;
         }
         case POWER_SOUL_SHARDS:

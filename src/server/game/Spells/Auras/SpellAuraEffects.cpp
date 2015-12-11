@@ -1002,23 +1002,15 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
         }
         case SPELL_AURA_MOD_SPELL_GDC_BY_MELEE_HASTE:
         case SPELL_AURA_MOD_SPELL_COOLDOWN_BY_MELEE_HASTE:
+        case SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN:
         {
-            switch (GetId())
+            if (Player* player = caster->ToPlayer())
             {
-                case 25956: // Sanctity of Battle
-                {
-                    if (Player* paladin = caster->ToPlayer())
-                    {
-                        amount  = -100;
-                        amount += paladin->GetFloatValue(UNIT_FIELD_MOD_HASTE) * 100.0f;
-
-                        if (amount > 0) amount = 0;
-                    }
-                    break;
-                }
-                default:
-                    break;
+                amount = -100;
+                amount += player->GetFloatValue(UNIT_FIELD_MOD_HASTE) * 100.0f;
             }
+            if (amount > 0)
+                amount = 0;
             break;
         }
         case SPELL_AURA_PERIODIC_DAMAGE:
@@ -1927,7 +1919,7 @@ void AuraEffect::CalculateSpellMod()
         case SPELL_AURA_MOD_SPELL_COOLDOWN_BY_MELEE_HASTE:
         case SPELL_AURA_MOD_SPELL_GDC_BY_MELEE_HASTE:
         {
-            /*if (!m_spellmod)
+            if (!m_spellmod)
             {
                 m_spellmod = new SpellModifier(GetBase());
                 m_spellmod->op = SpellModOp(GetMiscValue());
@@ -1939,7 +1931,7 @@ void AuraEffect::CalculateSpellMod()
                 m_spellmod->charges = GetBase()->GetCharges();
             }
             m_spellmod->value = GetAmount();
-            break;*/
+            break;
         }
         default:
             break;
@@ -5210,7 +5202,12 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, 
         case POWER_MANA:
             target->UpdateManaRegen();
             break;
+        case POWER_RUNES:
+            if (target->GetTypeId() == TYPEID_PLAYER)
+                target->ToPlayer()->SetNeedToUpdateRunesRegen();
+            break;
         default:
+            target->UpdatePowerRegen(GetMiscValue());
             break;
     }
 }

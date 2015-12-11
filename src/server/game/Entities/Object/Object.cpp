@@ -1754,6 +1754,8 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
         {
+            visibleFlag |= UF_FLAG_UNIT_ALL;
+
             Player* plr = ToUnit()->GetCharmerOrOwnerPlayerOrPlayerItself();
             flags = UnitDynamicFieldFlags;
             if (ToUnit()->GetOwnerGUID() == target->GetGUID())

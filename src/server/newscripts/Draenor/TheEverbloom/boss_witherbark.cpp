@@ -430,11 +430,11 @@ public:
 
         bool vineComplete;
         uint16 checkTimer;
-        Unit* plr;
+        ObjectGuid guidPlr;
 
         void Reset() 
         {
-            plr = NULL;
+            guidPlr = ObjectGuid::Empty;
         }
 
         void IsSummonedBy(Unit* summoner)
@@ -451,8 +451,10 @@ public:
             if (type != CHASE_MOTION_TYPE)
                 return;
 
-            if (!vineComplete && me->GetDistance(plr) < 3.0f)
-                Vine();
+            if (!vineComplete)
+                if (Unit* unit = ObjectAccessor::GetUnit(*me, guidPlr))
+                    if (me->GetDistance(unit) < 3.0f)
+                        Vine();
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -474,7 +476,7 @@ public:
             {
                 AttackStart(target);
                 me->AddThreat(target, 10000.0f);
-                plr = target;
+                guidPlr = target->GetGUID();
             }
         }
 

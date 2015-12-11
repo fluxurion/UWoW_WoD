@@ -1400,6 +1400,12 @@ bool Aura::CanBeSaved() const
         case 159127:
         case 166646:
         case 116014:
+        case 169482:
+        case 93431:
+        case 164724:
+        case 163119:
+        case 164725:
+        case 93430:
             return false;
         default:
             break;
@@ -1441,6 +1447,7 @@ bool Aura::CanBeSentToClient() const
     || HasEffectType(SPELL_AURA_MOD_CHARGES)
     || HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD)
     || HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER)
+    || HasEffectType(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN)
     || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS)
     || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2)
     || HasEffectType(SPELL_AURA_MOD_SPELL_VISUAL);
