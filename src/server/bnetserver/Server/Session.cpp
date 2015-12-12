@@ -185,7 +185,7 @@ void Battlenet::Session::HandleLogonRequest(Authentication::LogonRequest3 const&
                 else
                     logonResponse->SetAuthResult(AUTH_USE_GRUNT_LOGON);
 
-                sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::LogonRequest] %s is using unsupported component version %u!", GetClientInfo().c_str(), component.Version);
+                sLog->outDebug(LOG_FILTER_BNET_SESSION, "[Battlenet::LogonRequest] %s is using unsupported component version %u! program %s! platform %s!", GetClientInfo().c_str(), component.Version, component.ProgramId.c_str(), component.Component.c_str());
             }
 
             AsyncWrite(logonResponse);

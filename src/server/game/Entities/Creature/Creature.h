@@ -1001,6 +1001,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint64 m_DBTableGuid;                  ///< For new or temporary creatures is 0 for saved it is lowguid
         uint8 m_equipmentId;
         int8 m_originalEquipmentId; // can be -1
+        uint32 m_powerRegenTimer[MAX_POWERS];
+        float m_powerFraction[MAX_POWERS_PER_CLASS];
 
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;
