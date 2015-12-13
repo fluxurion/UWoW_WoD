@@ -1624,7 +1624,7 @@ void Garrison::UpdateResTakenTime()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-//! Activate some quests at finishing quests as complete spells not exist on dbc. For example: spellID 165077
+//! Activate some buildings at finishing quests as complete spells not exist on dbc. For example: spellID 165077
 void Garrison::OnQuestReward(uint32 questID)
 {
     switch (questID)
