@@ -12076,8 +12076,54 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                     AddPct(DoneTotalMod, aurEff->GetAmount());
         }
 
+        // 77492 - Mastery: Total Eclipse
+        if (GetTypeId() == TYPEID_PLAYER && spellProto->SpellFamilyName == SPELLFAMILY_DRUID &&
+            ToPlayer()->GetSpecializationId(ToPlayer()->GetActiveSpec()) == SPEC_DRUID_BALANCE)
+        {
+            if (AuraEffect const* aurEff = GetAuraEffect(77492, EFFECT_0))
+            {
+                if(int32 curPower = GetPower(POWER_ECLIPSE))
+                {
+                    int32 step = curPower - int32(40000 * int32(curPower / 40000));
+                    float lunarPerc = 0.0f;
+                    float solarPerc = 0.0f;
+
+                    if (step >= 30000) // Solar 100 > 0
+                        solarPerc = CalculatePct(30.0f, float(40000 - step) / 100.0f);
+                    else if (step >= 20000) // Solar 0 > 100
+                        solarPerc = CalculatePct(30.0f, float(step - 20000) / 100.0f);
+                    else if (step >= 10000) // Lunar 100 > 0
+                        lunarPerc = CalculatePct(30.0f, float(20000 - step) / 100.0f);
+                    else // Lunar 0 > 100
+                        lunarPerc = CalculatePct(30.0f, step / 100.0f);
+
+                    AddPct(lunarPerc, aurEff->GetAmount());
+                    AddPct(solarPerc, aurEff->GetAmount());
+                    switch (spellProto->Id)
+                    {
+                        // Lunar spell
+                        case 2912:
+                        case 50288: // 48505
+                        case 164812: // 8921
+                            AddPct(DoneTotalMod, lunarPerc);
+                            break;
+                        // Solar spell
+                        case 5176:
+                        case 42231: // 16914
+                        case 164815: // 93402
+                            AddPct(DoneTotalMod, solarPerc);
+                            break;
+                        case 78674:
+                            AddPct(DoneTotalMod, solarPerc);
+                            AddPct(DoneTotalMod, lunarPerc);
+                            break;
+                    }
+                }
+            }
+        }
+
         // Pyroblast
-        if (spellProto && spellProto->Id == 11366)
+        if (spellProto->Id == 11366)
         {
             // Pyroblast!
             if (HasAura(48108))
