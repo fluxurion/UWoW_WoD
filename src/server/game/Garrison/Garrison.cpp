@@ -585,10 +585,10 @@ void Garrison::UnlearnBlueprint(uint32 garrBuildingId)
     _owner->SendDirectMessage(unlearnBlueprintResult.Write());
 }
 
-void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
+void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId, bool quest/* = false*/)
 {
     WorldPackets::Garrison::GarrisonPlaceBuildingResult placeBuildingResult;
-    placeBuildingResult.Result = CheckBuildingPlacement(garrPlotInstanceId, garrBuildingId);
+    placeBuildingResult.Result = CheckBuildingPlacement(garrPlotInstanceId, garrBuildingId, quest);
     if (placeBuildingResult.Result == GARRISON_SUCCESS)
     {
         placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
@@ -617,15 +617,24 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
                 plot->ClearBuildingInfo(_owner);
         }
 
+        // If build by quest - skip building state and spawn building.
+        if (quest)
+        {
+            placeBuildingResult.PlayActivationCinematic = true;
+            placeBuildingResult.BuildingInfo.Active = true;
+        }
+        else
+        {
+            _owner->ModifyCurrency(building->CostCurrencyID, -building->CostCurrencyAmount, false, true);
+            _owner->ModifyMoney(-building->CostMoney * GOLD, false);
+        }
+
         plot->SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
         if (map)
         {
             if (GameObject* go = plot->CreateGameObject(map, GetFaction()))
                 map->AddToMap(go);
         }
-
-        _owner->ModifyCurrency(building->CostCurrencyID, -building->CostCurrencyAmount, false, true);
-        _owner->ModifyMoney(-building->CostMoney * GOLD, false);
 
         if (oldBuildingId)
         {
@@ -928,7 +937,7 @@ Map* Garrison::FindMap() const
     return sMapMgr->FindMap(_siteLevel->MapID, _owner->GetGUIDLow());
 }
 
-GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32 garrBuildingId) const
+GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32 garrBuildingId, bool byQuest/*=false*/) const
 {
     GarrPlotInstanceEntry const* plotInstance = sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId);
     Plot const* plot = GetPlot(garrPlotInstanceId);
@@ -951,7 +960,7 @@ GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32
         if (!_knownBuildings.count(garrBuildingId))
             return GARRISON_ERROR_BLUEPRINT_NOT_KNOWN;
     }
-    else // Building is built as a quest reward
+    else if (!byQuest) // Building is built as a quest reward
         return GARRISON_ERROR_INVALID_BUILDINGID;
 
     // Check all plots to find if we already have this building
@@ -967,7 +976,7 @@ GarrisonError Garrison::CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32
         }
     }
 
-    if (!_owner->HasCurrency(building->CostCurrencyID, building->CostCurrencyAmount))
+    if (!byQuest && !_owner->HasCurrency(building->CostCurrencyID, building->CostCurrencyAmount))
         return GARRISON_ERROR_NOT_ENOUGH_CURRENCY;
 
     if (!_owner->HasEnoughMoney(uint64(building->CostMoney) * GOLD))
@@ -1613,4 +1622,34 @@ void Garrison::UpdateResTakenTime()
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     SaveToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
+}
+
+//! Activate some quests at finishing quests as complete spells not exist on dbc. For example: spellID 165077
+void Garrison::OnQuestReward(uint32 questID)
+{
+    switch (questID)
+    {
+        // Open Herb Garden PlotID = 63 & BuildID = 29
+        case 36404:
+        case 34193:
+            PlaceBuilding(63, 29, true);
+            break;
+        // Open Mines PlotID = 59 & BuildID = 61
+        case 35154:
+        case 34192:
+            PlaceBuilding(59, 61, true);
+            break;
+        // Open Fishing PlotID = 67 & BuildID = 64
+        case 36870:
+        case 36612:
+            PlaceBuilding(67, 64, true);
+            break;
+        // Open Pet Menagerie PlotID = 81 & BuildID = 42
+        case 36483:
+        case 36662:
+            PlaceBuilding(81, 42, true);
+            break;
+        default:
+            break;
+    }
 }

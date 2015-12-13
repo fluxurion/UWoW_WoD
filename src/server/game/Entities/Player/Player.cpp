@@ -17707,6 +17707,9 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
 
     if (questGiver && questGiver->GetTypeId() == TYPEID_UNIT)
         questGiver->ToCreature()->AI()->OnQuestReward(this, quest);
+
+    if (Garrison *garr = GetGarrison())
+        garr->OnQuestReward(quest->Id);
 }
 
 void Player::SendQuestFailed(uint32 questId, InventoryResult reason)

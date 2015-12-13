@@ -174,7 +174,7 @@ public:
     // Buildings
     bool LearnBlueprint(uint32 garrBuildingId);
     void UnlearnBlueprint(uint32 garrBuildingId);
-    void PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId);
+    void PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId, bool byQuest = false);
     void CancelBuildingConstruction(uint32 garrPlotInstanceId);
     void ActivateBuilding(uint32 garrPlotInstanceId);
     uint32 GetCountOfBluePrints() const { return _knownBuildings.size();  }
@@ -211,10 +211,13 @@ public:
     uint32 GetResNumber() const;
     void UpdateResTakenTime();
 
+    // Enother
+    void OnQuestReward(uint32 questID);
+
 private:
     Map* FindMap() const;
     void InitializePlots();
-    GarrisonError CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32 garrBuildingId) const;
+    GarrisonError CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32 garrBuildingId, bool byQuest = false) const;
     GarrisonError CheckBuildingRemoval(uint32 garrPlotInstanceId) const;
     Player* _owner;
     GarrSiteLevelEntry const* _siteLevel;
