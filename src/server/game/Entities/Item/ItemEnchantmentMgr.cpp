@@ -219,7 +219,7 @@ bool CheckSpecProp(uint32 ench, uint32 type, uint32 SpecID)
     {
         if(ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(ench))
         {
-            for (uint32 slot = 0; slot < MAX_ITEM_ENCHANTMENT_EFFECTS; ++slot)
+            for (uint32 slot = 0; slot < 5; ++slot)
             {
                 if(!random_id->enchant_id[slot])
                     continue;
