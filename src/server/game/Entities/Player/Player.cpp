@@ -10383,20 +10383,20 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
                         AddPlayerLootCooldown(go->GetGOInfo()->entry);
                     else if (plData->type == GO_TYPE_DONTSPAWN)
                         AddPlayerLootCooldown(go->GetGOInfo()->entry, TYPE_GO, false);
+
+                    if (go_min == 1 && go_max == 1 && consumable == 1 && chestRestockTime == 0 && spell == 0 && questItems == 0 && lootid)
+                    {
+                        AutoStoreLoot(lootid, LootTemplates_Gameobject);
+                        loot->clear();
+                        //if(pLoot)
+                        //pLoot->clear();
+                        m_session->DoLootRelease(guid);
+                    }
                 }
             }
 
             if (go->GetGOInfo()->chest.spell)
                 CastSpell(this, go->GetGOInfo()->chest.spell, false);
-
-            if(go_min == 1 && go_max ==1 && consumable == 1 && chestRestockTime == 0 && spell == 0 && questItems == 0 && lootid)
-            {
-                AutoStoreLoot(lootid, LootTemplates_Gameobject);
-                loot->clear();
-                //if(pLoot)
-                    //pLoot->clear();
-                m_session->DoLootRelease(guid);
-            }
         }
     }
 
