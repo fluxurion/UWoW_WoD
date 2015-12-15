@@ -190,6 +190,7 @@ void ObjectGridLoader::LoadN(void)
 template<class T>
 void ObjectGridUnloader::Visit(GridRefManager<T> &m)
 {
+    _lock.lock();
     while (!m.isEmpty())
     {
         T *obj = m.getFirst()->getSource();
@@ -207,6 +208,7 @@ void ObjectGridUnloader::Visit(GridRefManager<T> &m)
         ///- object will get delinked from the manager when deleted
         delete obj;
     }
+    _lock.unlock();
 }
 
 void ObjectGridStoper::Visit(CreatureMapType &m)

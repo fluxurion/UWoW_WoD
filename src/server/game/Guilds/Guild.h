@@ -955,6 +955,10 @@ public:
     void RewardReputation(Player* player, uint32 amount);
     uint8 GetLevel() const { return _level; }
 
+    void AddMemberOnline() { m_members_online++; }
+    void RemoveMemberOnline() { if (m_members_online > 0) m_members_online--; }
+    uint32 GetMembersOnline() const { return m_members_online; }
+
     EmblemInfo const& GetEmblemInfo() const { return m_emblemInfo; }
 
     inline uint8 GetPurchasedTabsSize() const { return uint8(m_bankTabs.size()); }
@@ -991,10 +995,12 @@ protected:
     std::string m_motd;
     std::string m_info;
     time_t m_createdDate;
+    time_t m_lastSave;
 
     EmblemInfo m_emblemInfo;
     uint32 m_accountsNumber;
     uint64 m_bankMoney;
+    uint32 m_members_online;
 
     Ranks m_ranks;
     Members m_members;

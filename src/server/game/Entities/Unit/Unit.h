@@ -2012,6 +2012,7 @@ class Unit : public WorldObject
         AuraEffectList const& GetAuraEffectsByType(AuraType type) const { return m_modAuras[type]; }
         AuraEffectList GetAuraEffectsByMechanic(uint32 mechanic_mask) const;
         AuraEffectList GetTotalNotStuckAuraEffectByType(AuraType auratype) const;
+        AuraEffectList GetAuraEffectsByType(AuraType type) { return m_modAuras[type]; }
 
         AuraList      & GetSingleCastAuras()       { return m_scAuras; }
         AuraList const& GetSingleCastAuras() const { return m_scAuras; }
@@ -2579,7 +2580,7 @@ class Unit : public WorldObject
         bool HasSomeCasterAura(ObjectGuid const& guid) const;
         bool HasMyAura(uint32 spellId);
         bool HasMyAura(Aura const* hasAura, bool check = false);
-        void RemoveMyAura(uint32 spellId);
+        void RemovePetAndOwnerAura(uint32 spellId, Unit* owner = NULL);
         uint32 GetCountMyAura(uint32 spellId);
 
         Unit* GetUnitForLinkedSpell(Unit* caster, Unit* target, uint8 type);

@@ -1182,6 +1182,8 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
 Guild::Guild() : m_id(0), m_leaderGuid(), m_createdDate(0), m_accountsNumber(0), m_bankMoney(0), m_eventLog(nullptr), m_newsLog(nullptr), m_achievementMgr(this), _level(25)
 {
     memset(&m_bankEventLog, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(LogHolder*));
+    m_members_online = 0;
+    m_lastSave = 0;
 }
 
 Guild::~Guild()
@@ -1328,6 +1330,9 @@ void Guild::Disband()
 
 void Guild::SaveToDB(bool withMembers)
 {
+    if (m_lastSave > time(NULL)) // Prevent save if guild already saved
+        return;
+
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     m_achievementMgr.SaveToDB(trans);
@@ -1338,6 +1343,9 @@ void Guild::SaveToDB(bool withMembers)
         {
             if (Player* player = sObjectAccessor->FindPlayer(itr->second->GetGUID()))
             {
+                if (!player->IsInWorld() || !player->GetSession() || player->GetSession()->PlayerLogout() || player->GetSession()->PlayerLoading()) //Prevent crash when player change skills
+                    continue;
+
                 itr->second->SetStats(player);
                 itr->second->SaveStatsToDB(&trans);
             }
@@ -1347,6 +1355,8 @@ void Guild::SaveToDB(bool withMembers)
     }
 
     CharacterDatabase.CommitTransaction(trans);
+
+    m_lastSave = time(NULL) + (sWorld->getIntConfig(CONFIG_GUILD_SAVE_INTERVAL) * MINUTE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2065,6 +2075,8 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
 
 void Guild::HandleMemberLogout(WorldSession* session)
 {
+    RemoveMemberOnline();
+
     Player* player = session->GetPlayer();
     if (Member* member = GetMember(player->GetGUID()))
     {
@@ -2318,6 +2330,8 @@ void Guild::SendLoginInfo(WorldSession* session)
         session->GetPlayer()->learnSpell(entry->SpellId, true);
 
     GetAchievementMgr().SendAllAchievementData(session->GetPlayer());
+
+    AddMemberOnline();
 }
 
 void Guild::SendGuildChallengesInfo(WorldSession* session) const

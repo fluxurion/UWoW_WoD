@@ -42,7 +42,10 @@ void GuildMgr::RemoveGuild(ObjectGuid::LowType guildId)
 void GuildMgr::SaveGuilds()
 {
     for (GuildContainer::iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-        itr->second->SaveToDB(true);
+    {
+        if (itr->second->GetMembersOnline()) // Save guild only with player active
+            itr->second->SaveToDB(true);
+    }
 }
 
 ObjectGuid::LowType GuildMgr::GenerateGuildId()
