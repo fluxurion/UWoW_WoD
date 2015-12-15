@@ -160,6 +160,9 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (!entry->IsDungeon() || entry->IsGarrison())
         return true;
 
+    if (loginCheck && entry->IsScenario())
+        return false;
+
     InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapid);
     if (!instance)
         return false;

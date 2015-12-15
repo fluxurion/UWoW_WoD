@@ -4416,6 +4416,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 123267:  // Divine Insight
                 case 152117:  // Words of Mending
                 case 155363:  // Words of Mending
+                case 157228:  // Empowered Moonkin
                     spellInfo->ProcCharges = 1;
                     break;
                 case 89485:  // Inner Focus

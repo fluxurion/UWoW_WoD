@@ -948,7 +948,7 @@ class ObjectMgr
 
         typedef std::unordered_map<uint32, uint32> AreaTriggerScriptContainer;
 
-        typedef std::unordered_map<uint32, AccessRequirement> AccessRequirementContainer;
+        typedef std::map<AccessRequirementKey, AccessRequirement> AccessRequirementContainer;
 
         typedef std::unordered_map<uint32, RepRewardRate > RepRewardRateContainer;
         typedef std::unordered_map<uint32, ReputationOnKillEntry> RepOnKillContainer;
@@ -1105,9 +1105,10 @@ class ObjectMgr
             return NULL;
         }
 
-        AccessRequirement const* GetAccessRequirement(uint32 mapid, Difficulty difficulty) const
+        AccessRequirement const* GetAccessRequirement(int32 mapid, Difficulty difficulty, uint16 dungeonId = 0) const
         {
-            AccessRequirementContainer::const_iterator itr = _accessRequirementStore.find(MAKE_PAIR32(mapid, difficulty));
+            AccessRequirementKey key(mapid, uint8(difficulty), dungeonId);
+            AccessRequirementContainer::const_iterator itr = _accessRequirementStore.find(key);
             if (itr != _accessRequirementStore.end())
                 return &itr->second;
             return NULL;

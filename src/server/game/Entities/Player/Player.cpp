@@ -6337,17 +6337,9 @@ void Player::RepopAtGraveyard()
         {
             if(WorldLocation const* _grave = inst->GetClosestGraveYard())
             {
+                ResurrectPlayer(0.5f);
+                SpawnCorpseBones();
                 TeleportTo(_grave->GetMapId(), _grave->GetPositionX(), _grave->GetPositionY(), _grave->GetPositionZ(), _grave->GetOrientation());
-                UpdateObjectVisibility();
-
-                if (isDead())                                        // not send if alive, because it used in TeleportTo()
-                {
-                    WorldPackets::Misc::DeathReleaseLoc packet;
-                    packet.MapID = _grave->GetMapId();
-                    packet.Loc = G3D::Vector3(_grave->GetPositionX(), _grave->GetPositionY(), _grave->GetPositionZ());
-                    GetSession()->SendPacket(packet.Write());
-                }
-
                 return;
             }
         }
@@ -20270,6 +20262,12 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
         }
         else if (ar->item2 && !HasItemCount(ar->item2))
             missingItem = ar->item2;
+
+        if (ar->item_level)
+        {
+            if (GetAverageItemLevel() < ar->item_level)
+                return false;
+        }
 
         if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
         {
