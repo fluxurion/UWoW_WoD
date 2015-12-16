@@ -428,8 +428,17 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         }
         else
         {
-            // not fully looted object
-            go->SetLootState(GO_ACTIVATED, player);
+            // If player go out - reset state. for future using.
+            if (player->GetMap()->IsDungeon())
+            {
+                // not fully looted object
+                go->SetLootState(GO_ACTIVATED, player);
+            }
+            else
+            {
+                go->SetLootState(GO_JUST_DEACTIVATED);
+                loot->clear();
+            }
 
             // if the round robin player release, reset it.
             if (player->GetGUID() == loot->roundRobinPlayer)
