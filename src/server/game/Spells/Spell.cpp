@@ -3451,11 +3451,6 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
         m_hitTriggerSpells.clear();
     }
 
-    // Predatory Swiftness
-    if (Aura* aura = m_caster->GetAura(69369))
-        if (aura->GetEffect(EFFECT_0)->IsAffectingSpell(GetSpellInfo()))
-            aura->Remove();
-
     // trigger linked auras remove/apply
     // TODO: remove/cleanup this, as this table is not documented and people are doing stupid things with it
     LinkedSpell(unit, unit, SPELL_LINK_ON_HIT);
@@ -4729,6 +4724,11 @@ void Spell::finish(bool ok)
         default:
             break;
     }
+
+    // Predatory Swiftness
+    if (Aura* aura = m_caster->GetAura(69369))
+        if (aura->GetEffect(EFFECT_0)->IsAffectingSpell(GetSpellInfo()))
+            aura->Remove();
 
     if (m_caster->getClass() == CLASS_DEATH_KNIGHT && m_spellInfo->RuneCostID)
         if (Player* plr = m_caster->ToPlayer())

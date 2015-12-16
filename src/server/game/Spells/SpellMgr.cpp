@@ -4068,10 +4068,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 115834: // Shroud of Concealment
                     spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_IN_COMBAT;
                     break;
-                case 1850:   // Dash
-                case 113636: // Cat Form (Passive)
-                    spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_INCREASE_SPEED;
-                    break;
                 case 9005: // Pounce
                     spellInfo->Mechanic = MECHANIC_STUN;
                     break;
@@ -5602,6 +5598,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 case 160856: // Q: 34582
                 case 178790:
                     spellInfo->Attributes |= SPELL_ATTR0_CASTABLE_WHILE_MOUNTED;
+                    break;
+                case 33891: // Incarnation: Tree of Life
+                    spellInfo->Effects[EFFECT_2].TriggerSpell = 0;
                     break;
                 default:
                     break;

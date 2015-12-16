@@ -861,33 +861,6 @@ class spell_dru_cat_form : public SpellScriptLoader
     public:
         spell_dru_cat_form() : SpellScriptLoader("spell_dru_cat_form") { }
 
-        class spell_dru_cat_form_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dru_cat_form_SpellScript);
-
-            void HandleOnHit()
-            {
-                if (Player* _player = GetCaster()->ToPlayer())
-                {
-                    if (!_player->HasAura(SPELL_DRUID_FORM_CAT_INCREASE_SPEED))
-                    {
-                        _player->CastSpell(_player, SPELL_DRUID_FORM_CAT_INCREASE_SPEED, true);
-                        _player->RemoveMovementImpairingAuras();
-                    }
-                }
-            }
-
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_dru_cat_form_SpellScript::HandleOnHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dru_cat_form_SpellScript();
-        }
-
         class spell_dru_cat_form_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_dru_cat_form_AuraScript);
@@ -895,10 +868,17 @@ class spell_dru_cat_form : public SpellScriptLoader
             void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
+                {
+                    if (!caster->HasAura(SPELL_DRUID_FORM_CAT_INCREASE_SPEED))
+                    {
+                        caster->CastSpell(caster, SPELL_DRUID_FORM_CAT_INCREASE_SPEED, true);
+                        caster->RemoveMovementImpairingAuras();
+                    }
                     if (Aura* dash = caster->GetAura(SPELL_DRUID_DASH))
                         if (dash->GetEffect(0))
                             if (dash->GetEffect(0)->GetAmount() == 0)
                                 dash->GetEffect(0)->SetAmount(70);
+                }
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1928,6 +1908,8 @@ class spell_druid_rejuvenation : public SpellScriptLoader
                     if (AuraEffect* aurEff = GetAura()->GetEffect(2))
                         aurEff->SetAmount(int32(aurEff->GetAmount() * percent));
                 }
+                if(target != caster && caster->HasAura(158497)) // Dream of Cenarius
+                    caster->HealBySpell(caster, GetSpellInfo(), amount);
             }
 
             void Register()
@@ -2428,6 +2410,11 @@ class spell_dru_healing_ouch : public SpellScriptLoader
                         SetHitHeal(_heal);
                     }
                 }
+                if (Unit* target = GetHitUnit())
+                {
+                    if(target != caster && caster->HasAura(158497)) // Dream of Cenarius
+                        caster->HealBySpell(caster, GetSpellInfo(), GetHitHeal());
+                }
             }
 
             void Register()
@@ -2524,7 +2511,7 @@ class spell_dru_genesis : public SpellScriptLoader
 
                         if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
                         {
-                            int32 tick = eff->GetTotalTicks() - eff->GetTickNumber();
+                            int32 tick = eff->GetTotalTicks() - (eff->GetTickNumber() - 1);
                             int32 bp = (eff->GetAmount() * tick) / 5;
                             if (Unit* caster = GetCaster())
                                 caster->CastCustomSpell(target, 162359, &bp, 0, 0, true);

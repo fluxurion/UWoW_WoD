@@ -15104,7 +15104,8 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     // now we ready for speed calculation
     float speed = std::max(non_stack_bonus, stack_bonus);
     if (main_speed_mod)
-        AddPct(speed, main_speed_mod);
+        //AddPct(speed, main_speed_mod);
+        speed += float(main_speed_mod / 100.0f);
 
     switch (mtype)
     {
@@ -22058,6 +22059,10 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             // Hack for Druid of the Flame, Fandral's Flamescythe
             if (HasAura(99245) || HasAura(138927))
                 return 38150;
+
+            // Hack for Claws of Shirvallah
+            if (HasAura(171746))
+                return 59268;
 
             // check Incarnation
             bool epic = HasAura(102543);
