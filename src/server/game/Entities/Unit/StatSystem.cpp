@@ -734,6 +734,9 @@ void Player::UpdateDodgePercentage()
     val = val < 0.0f ? 0.0f : val;
 
     SetStatFloatValue(PLAYER_FIELD_DODGE_PERCENTAGE, val);
+
+    if (Aura* aura = GetAura(155578)) // Guardian of Elune
+        aura->RecalculateAmountOfEffects(true);
 }
 
 void Player::UpdateSpellCritChance(uint32 school)

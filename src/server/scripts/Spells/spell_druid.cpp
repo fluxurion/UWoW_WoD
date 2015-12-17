@@ -2944,6 +2944,273 @@ class spell_dru_lacerate : public SpellScriptLoader
         }
 };
 
+// 783 - Travel Form (Shapeshift)
+class spell_dru_travel_form : public SpellScriptLoader
+{
+    public:
+        spell_dru_travel_form() : SpellScriptLoader("spell_dru_travel_form") { }
+
+        class spell_dru_travel_form_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_travel_form_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (!caster->GetMap()->IsOutdoors(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ()))
+                        return SPELL_FAILED_ONLY_OUTDOORS;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dru_travel_form_SpellScript::CheckCast);
+            }
+        };
+
+        class spell_dru_travel_form_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_travel_form_AuraScript);
+
+            uint32 update = 0;
+            uint32 checkOutdoor = 0;
+
+            bool fly = false;
+            bool water = false;
+            bool walk = false;
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->IsInWater())
+                    {
+                        caster->CastSpell(caster, 1066, true);
+                        water = true;
+                    }
+                    else
+                    {
+                        bool canFly = true;
+                        Battlefield* Bf = sBattlefieldMgr->GetBattlefieldToZoneId(caster->GetZoneId());
+                        if (AreaTableEntry const* area = GetAreaEntryByAreaID(caster->GetAreaId()))
+                            if (area->Flags[0] & AREA_FLAG_NO_FLY_ZONE  || (Bf && !Bf->CanFlyIn()))
+                                canFly = false;
+                        if (canFly)
+                        {
+                            caster->CastSpell(caster, 40120, true);
+                            fly = true;
+                        }
+                        else
+                        {
+                            caster->CastSpell(caster, 165961, true);
+                            walk = true;
+                        }
+                    }
+                }
+            }
+
+            void OnUpdate(uint32 diff, AuraEffect* aurEff)
+            {
+                update += diff;
+                checkOutdoor += diff;
+
+                if (checkOutdoor >= 2000)
+                {
+                    if (Unit* caster = GetCaster())
+                    {
+                        if (!caster->GetMap()->IsOutdoors(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ()))
+                        {
+                            GetAura()->Remove();
+                            return;
+                        }
+                    }
+
+                    checkOutdoor = 0;
+                }
+                if (update >= 500)
+                {
+                    if (Unit* caster = GetCaster())
+                    {
+                        if (caster->IsInWater())
+                        {
+                            if (!water)
+                            {
+                                if (fly)
+                                {
+                                    fly = false;
+                                    caster->RemoveAurasDueToSpell(40120);
+                                }
+                                if (walk)
+                                {
+                                    walk = false;
+                                    caster->RemoveAurasDueToSpell(165961);
+                                }
+                                water = true;
+                                caster->CastSpell(caster, 1066, true);
+                            }
+                        }
+                        else
+                        {
+                            bool canFly = true;
+                            Battlefield* Bf = sBattlefieldMgr->GetBattlefieldToZoneId(caster->GetZoneId());
+                            if (AreaTableEntry const* area = GetAreaEntryByAreaID(caster->GetAreaId()))
+                                if (area->Flags[0] & AREA_FLAG_NO_FLY_ZONE  || (Bf && !Bf->CanFlyIn()))
+                                    canFly = false;
+                            if (canFly)
+                            {
+                                if (!fly)
+                                {
+                                    if (water)
+                                    {
+                                        water = false;
+                                        caster->RemoveAurasDueToSpell(1066);
+                                    }
+                                    if (walk)
+                                    {
+                                        walk = false;
+                                        caster->RemoveAurasDueToSpell(165961);
+                                    }
+                                    caster->CastSpell(caster, 40120, true);
+                                    fly = true;
+                                }
+                            }
+                            else
+                            {
+                                if (!walk)
+                                {
+                                    if (water)
+                                    {
+                                        water = false;
+                                        caster->RemoveAurasDueToSpell(1066);
+                                    }
+                                    if (fly)
+                                    {
+                                        fly = false;
+                                        caster->RemoveAurasDueToSpell(40120);
+                                    }
+                                    caster->CastSpell(caster, 165961, true);
+                                    walk = true;
+                                }
+                            }
+                        }
+                    }
+                    update = 0;
+                }
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (water)
+                        caster->RemoveAurasDueToSpell(1066);
+                    if (walk)
+                        caster->RemoveAurasDueToSpell(165961);
+                    if (fly)
+                        caster->RemoveAurasDueToSpell(40120);
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_dru_travel_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectUpdate += AuraEffectUpdateFn(spell_dru_travel_form_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+
+            int32 cooldown;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_travel_form_AuraScript();
+        }
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_travel_form_SpellScript();
+        }
+};
+
+
+// 1822 - Rake
+class spell_dru_rake : public SpellScriptLoader
+{
+    public:
+        spell_dru_rake() : SpellScriptLoader("spell_dru_rake") { }
+
+        class spell_dru_rake_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_rake_SpellScript);
+
+            uint8 addPerc = 0;
+
+            void HandleOnHit()
+            {
+                if (addPerc)
+                    SetHitDamage(GetHitDamage() + int32(CalculatePct(GetHitDamage(), addPerc)));
+            }
+
+            SpellCastResult CheckCast()
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (caster->HasAura(SPELL_DRUID_PROWL) || caster->HasAura(102547))
+                        if (Aura* prowl = caster->GetAura(157276))
+                            if (AuraEffect const* aurEff = prowl->GetEffect(EFFECT_0))
+                                addPerc = aurEff->GetAmount();
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dru_rake_SpellScript::CheckCast);
+                OnHit += SpellHitFn(spell_dru_rake_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_rake_SpellScript();
+        }
+};
+
+// Guardian of Elune - 155578
+class spell_dru_guardian_of_elune : public SpellScriptLoader
+{
+    public:
+        spell_dru_guardian_of_elune() : SpellScriptLoader("spell_dru_guardian_of_elune") {}
+
+        class spell_dru_guardian_of_elune_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_guardian_of_elune_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                amount = int32(3 + caster->GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT));
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_guardian_of_elune_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_guardian_of_elune_AuraScript::CalculateAmount, EFFECT_3, SPELL_AURA_ADD_PCT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_guardian_of_elune_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_play_death();
@@ -3004,4 +3271,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_mangle();
     new spell_dru_leader_of_the_pack();
     new spell_dru_lacerate();
+    new spell_dru_travel_form();
+    new spell_dru_rake();
+    new spell_dru_guardian_of_elune();
 }

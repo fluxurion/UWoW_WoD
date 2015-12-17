@@ -1438,13 +1438,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
                         power = POWER_HEALTH;
                         break;
                     }
-                    case 113828: // Healing Touch
-                    {
-                        unitTargets.push_back(m_caster);
-                        maxSize = 1;
-                        power = POWER_HEALTH;
-                        break;
-                    }
                     case 52759: // Ancestral Awakening
                     case 71610: // Echoes of Light (Althor's Abacus normal version)
                     case 71641: // Echoes of Light (Althor's Abacus heroic version)
@@ -5904,6 +5897,10 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
                         if (Aura* aura = (_target ? _target : _caster)->GetAura(abs(i->effect)))
                             aura->ModStackAmount(-1);
                         break;
+                    case LINK_ACTION_CHANGE_CHARGES:
+                        if (Aura* aura = (_target ? _target : _caster)->GetAura(abs(i->effect)))
+                            aura->ModCharges(-1);
+                        break;
                 }
             }
             else
@@ -5937,11 +5934,13 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
                         _caster->AddAura(i->effect, _target ? _target : _caster);
                         break;
                     case LINK_ACTION_CHANGE_STACK: //7
+                    {
                         if (Aura* aura = (_target ? _target : _caster)->GetAura(i->effect))
                             aura->ModStackAmount(1);
                         else
                             _caster->CastSpell(_target ? _target : _caster, i->effect, true);
                         break;
+                    }
                     case LINK_ACTION_REMOVE_COOLDOWN: //8
                         if (Player* _lplayer = _caster->ToPlayer())
                             _lplayer->RemoveSpellCooldown(i->effect, true);
@@ -5959,20 +5958,28 @@ void Spell::LinkedSpell(Unit* _caster, Unit* _target, SpellLinkedType type)
                             {
                                 int32 _duration = int32(aura->GetDuration() + i->duration);
                                 if (_duration < aura->GetMaxDuration())
-                                    aura->SetDuration(_duration, true);
+                                    aura->SetDuration(_duration);
                             }
                         }
                         else
                             _caster->CastSpell(_target ? _target : _caster, i->effect, true);
                         break;
                     }
-                    case LINK_UNIT_TYPE_CAST_DEST: //11
+                    case LINK_ACTION_CAST_DEST: //11
                     {
                         if (m_targets.HasDst())
                         {
                             Position pos = *m_targets.GetDstPos();
                             _caster->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), i->effect, true);
                         }
+                        break;
+                    }
+                    case LINK_ACTION_CHANGE_CHARGES: //12
+                    {
+                        if (Aura* aura = (_target ? _target : _caster)->GetAura(i->effect))
+                            aura->ModCharges(1);
+                        else
+                            _caster->CastSpell(_target ? _target : _caster, i->effect, true);
                         break;
                     }
                 }

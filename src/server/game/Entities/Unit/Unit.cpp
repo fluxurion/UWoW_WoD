@@ -12087,6 +12087,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                     int32 step = curPower - int32(40000 * int32(curPower / 40000));
                     float lunarPerc = 0.0f;
                     float solarPerc = 0.0f;
+                    float middlePerc = 0.0f;
 
                     if (step >= 30000) // Solar 100 > 0
                         solarPerc = CalculatePct(30.0f, float(40000 - step) / 100.0f);
@@ -12097,8 +12098,11 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                     else // Lunar 0 > 100
                         lunarPerc = CalculatePct(30.0f, step / 100.0f);
 
+                    middlePerc = 30.0f - lunarPerc - solarPerc;
                     AddPct(lunarPerc, aurEff->GetAmount());
                     AddPct(solarPerc, aurEff->GetAmount());
+                    AddPct(middlePerc, aurEff->GetAmount());
+
                     switch (spellProto->Id)
                     {
                         // Lunar spell
@@ -12113,9 +12117,12 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
                         case 164815: // 93402
                             AddPct(DoneTotalMod, solarPerc);
                             break;
-                        case 78674:
+                        case 78674: // Starsurge
                             AddPct(DoneTotalMod, solarPerc);
                             AddPct(DoneTotalMod, lunarPerc);
+                            break;
+                        case 152221: // Stellar Flare
+                            AddPct(DoneTotalMod, middlePerc);
                             break;
                     }
                 }
@@ -15033,6 +15040,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 {
     float old_speed = m_speed_rate[MOVE_RUN];
     int32 main_speed_mod  = 0;
+    int32 stack_bonus_mod  = 0;
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
 
@@ -15050,13 +15058,13 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             if (IsMounted()) // Use on mount auras
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED);
-                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_SPEED_ALWAYS);
+                stack_bonus_mod += GetTotalAuraModifier(SPELL_AURA_MOD_MOUNTED_SPEED_ALWAYS);
                 non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK) / 100.0f;
             }
             else
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_SPEED) - GetMaxNegativeAuraModifier(SPELL_AURA_MOD_INCREASE_SPEED);
-                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_SPEED_ALWAYS);
+                stack_bonus_mod += GetTotalAuraModifier(SPELL_AURA_MOD_SPEED_ALWAYS);
                 non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_SPEED_NOT_STACK) / 100.0f;
             }
             break;
@@ -15071,7 +15079,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             if (GetTypeId() == TYPEID_UNIT && IsControlledByPlayer()) // not sure if good for pet
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
-                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS);
+                stack_bonus_mod += GetTotalAuraModifier(SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS);
 
                 // for some spells this mod is applied on vehicle owner
                 int32 owner_speed_mod = 0;
@@ -15084,7 +15092,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             else if (IsMounted())
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS);
+                stack_bonus_mod += GetTotalAuraModifier(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS);
             }
             else             // Use not mount (shapeshift for example) auras (should stack)
                 main_speed_mod  = GetTotalAuraModifier(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) + GetTotalAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
@@ -15101,6 +15109,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             return;
     }
 
+    stack_bonus += float(stack_bonus_mod / 100.0f);
     // now we ready for speed calculation
     float speed = std::max(non_stack_bonus, stack_bonus);
     if (main_speed_mod)

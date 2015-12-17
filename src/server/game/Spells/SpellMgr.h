@@ -118,7 +118,6 @@ enum SpellLinkedUnitType
     LINK_UNIT_TYPE_NEARBY          = 8,
     LINK_UNIT_TYPE_NEARBY_ALLY     = 9,
     LINK_UNIT_TYPE_ORIGINALCASTER  = 10,
-    LINK_UNIT_TYPE_CAST_DEST       = 11,
 };
 
 enum SpellLinkedHasType
@@ -147,6 +146,8 @@ enum SpellLinkedActionType
     LINK_ACTION_REMOVE_COOLDOWN  = 8,
     LINK_ACTION_REMOVE_MOVEMENT  = 9, // RemoveMovementImpairingAuras
     LINK_ACTION_CHANGE_DURATION  = 10, // Mod Duration
+    LINK_ACTION_CAST_DEST        = 11,
+    LINK_ACTION_CHANGE_CHARGES   = 12,
 };
 
 enum SpellLinkedTargetType

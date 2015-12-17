@@ -3888,6 +3888,9 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
     }else
         target->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
 
+    if (target->ToPlayer())
+        target->ToPlayer()->SendMovementSetCanTransitionBetweenSwimAndFly(apply);
+
     target->SetCanFly(apply);
 
     Player* player = target->ToPlayer();
