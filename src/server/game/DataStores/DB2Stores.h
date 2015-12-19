@@ -39,6 +39,7 @@ extern DB2Storage<BattlePetSpeciesStateEntry>       sBattlePetSpeciesStateStore;
 extern DB2Storage<BattlePetSpeciesXAbilityEntry>    sBattlePetSpeciesXAbilityStore;
 extern DB2Storage<BattlePetStateEntry>              sBattlePetStateStore;
 extern DB2Storage<BroadcastTextEntry>               sBroadcastTextStore;
+extern DB2Storage<CharShipmentEntry>                sCharShipmentStore;
 extern DB2Storage<CurrencyTypesEntry>               sCurrencyTypesStore;
 extern DB2Storage<GameObjectsEntry>                 sGameObjectsStore;
 extern DB2Storage<GarrAbilityEntry>                 sGarrAbilityStore;
@@ -157,6 +158,8 @@ public:
     typedef std::unordered_map<uint32 /*quality*/, uint32 /*nextQualityXP*/> GarrFollowerQualityXPMap;
     typedef std::unordered_map<uint32 /*missionID*/, GarrMissionRewardEntry const*> GarrMissionRewardByMissionIDMap;
 
+    typedef std::multimap<uint32 /*ShipmentConteinerID*/, CharShipmentEntry const*> ShipmentConteinerMap;
+    typedef std::multimap<uint32 /*BuildingTypeID*/, GarrBuildingEntry const*> GarrBuildingTypeMap;
     static DB2Manager& Instance()
     {
         static DB2Manager instance;
@@ -201,6 +204,8 @@ public:
 
     BattlePetBreedStates _battlePetBreedStates;
     BattlePetSpeciesStates _battlePetSpeciesStates;
+    ShipmentConteinerMap _charShipmentConteiner;
+    GarrBuildingTypeMap _buldingTypeConteiner;
 private:
     StorageMap _stores;
     HotfixData _hotfixData;

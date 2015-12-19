@@ -368,6 +368,34 @@ struct BattlePetBreedStateEntry
     int32 stateModifier;
 };
 
+struct CharShipmentEntry
+{
+    uint32 ID;
+    uint32 ShipmentConteinerID;
+    uint32 CriteriaID;
+    uint32 Flags;
+    uint32 TimeForShipment;
+    uint32 SpellCreation;
+    uint32 ShipmentResultItemID;
+};
+
+struct CharShipmentConteiner
+{
+    uint32 ID;
+    uint32 unk1;
+    uint32 unt2;
+    LocalizedString* Name;
+    uint32 unt3;
+    uint32 unk4;
+    uint32 unk5;
+    uint32 unk6;
+    uint32 unk7;
+    uint32 MaxShipments;
+    LocalizedString* Description;
+    uint32 unk8;
+    uint32 unk9;
+};
+
 struct GarrAbilityEntry
 {
     uint32 ID;                                                      // 0

@@ -37,6 +37,7 @@ DB2Storage<BattlePetSpeciesStateEntry>      sBattlePetSpeciesStateStore("BattleP
 DB2Storage<BattlePetSpeciesXAbilityEntry>   sBattlePetSpeciesXAbilityStore("BattlePetSpeciesXAbility.db2", BattlePetSpeciesXAbilityFormat, HOTFIX_SEL_BATTLE_PET_SPECIES_X_ABILITY);
 DB2Storage<BattlePetStateEntry>             sBattlePetStateStore("BattlePetState.db2", BattlePetStateFormat, HOTFIX_SEL_BATTLE_PET_STATE);
 DB2Storage<BroadcastTextEntry>              sBroadcastTextStore("BroadcastText.db2", BroadcastTextFormat, HOTFIX_SEL_BROADCAST_TEXT);
+DB2Storage<CharShipmentEntry>               sCharShipmentStore("CharShipment.db2", CharShipmentFormat, HOTFIX_SEL_CHAR_SHIPMENT);
 DB2Storage<CreatureDifficultyEntry>         sCreatureDifficultyStore("CreatureDifficulty.db2", CreatureDifficultyFormat, HOTFIX_SEL_CREATURE_DIFFICULTY);
 DB2Storage<CurrencyTypesEntry>              sCurrencyTypesStore("CurrencyTypes.db2", CurrencyTypesFormat, HOTFIX_SEL_CURRENCY_TYPES);
 DB2Storage<CurvePointEntry>                 sCurvePointStore("CurvePoint.db2", CurvePointFormat, HOTFIX_SEL_CURVE_POINT);
@@ -186,6 +187,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sBattlePetSpeciesXAbilityStore);
     LOAD_DB2(sBattlePetStateStore);
     LOAD_DB2(sBroadcastTextStore);
+    LOAD_DB2(sCharShipmentStore);
     LOAD_DB2(sCreatureDifficultyStore);
     LOAD_DB2(sCurrencyTypesStore);
     LOAD_DB2(sCurvePointStore);
@@ -306,6 +308,12 @@ void DB2Manager::InitDB2CustomStores()
 
     for (GarrMissionRewardEntry const* entry : sGarrMissionRewardStore)
         _garrMissionRewardByMissionID[entry->MissionID] = entry;
+
+    for (CharShipmentEntry const* entry : sCharShipmentStore)
+        _charShipmentConteiner.insert(ShipmentConteinerMap::value_type(entry->ID, entry));
+
+    for (GarrBuildingEntry const* entry : sGarrBuildingStore)
+        _buldingTypeConteiner.insert(GarrBuildingTypeMap::value_type(entry->ID, entry));
 
     for (LanguageWordsEntry const* entry : sLanguageWordsStore)
         sLanguageWordsMapStore[entry->langId][strlen(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE])].push_back(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE]);

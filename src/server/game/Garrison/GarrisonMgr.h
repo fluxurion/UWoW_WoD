@@ -46,6 +46,23 @@ struct GarrAbilities
     std::unordered_set<GarrAbilityEntry const*> Traits;
 };
 
+struct GarrShipment
+{
+    uint32 NpcEntry = 0;
+    uint32 ConteinerGoEntry = 0;
+    uint32 ShipmentID = 0;
+    uint32 MaxShipments = 0;
+    uint32 BuildingTypeID = 0;
+};
+
+enum ShipmentGetType : uint8
+{
+    SHIPMENT_GET_BY_NPC           = 0,
+    SHIPMENT_GET_BY_GO            = 1,
+    SHIPMENT_GET_BY_SHIPMENT_ID   = 2,
+    SHIPMENT_GET_BY_BUILDING_TYPE = 3,
+};
+
 class GarrisonMgr
 {
 public:
@@ -76,6 +93,9 @@ public:
 
     GarrMissionEntry const* GetNextMissionInQuestLine(uint32 missionID);
     GarrMissionEntry const* GetMissionAtFollowerTaking(uint32 followerID);
+
+    GarrShipment const* GetGarrShipment(uint32 entry, ShipmentGetType type) const;
+    
 private:
     void InitializeDbIdSequences();
     void LoadPlotFinalizeGOInfo();
@@ -83,6 +103,7 @@ private:
     void LoadBuildingSpawnNPC();
     void LoadBuildingSpawnGo();
     void LoadMissionLine();
+    void LoadShipment();
 
     std::unordered_map<uint32 /*garrSiteId*/, std::vector<GarrSiteLevelPlotInstEntry const*>> _garrisonPlotInstBySiteLevel;
     std::unordered_map<uint32 /*mapId*/, std::unordered_map<uint32 /*garrPlotId*/, GameObjectsEntry const*>> _garrisonPlots;
@@ -100,6 +121,9 @@ private:
     std::unordered_map<uint32 /*MissionID*/, GarrMissionEntry const* /*nextMission*/> _nextMission;
     std::unordered_map<uint32 /*FollowerID*/, GarrMissionEntry const* /*nextMission*/> _nextMissionByFollower;
     
+
+    std::unordered_map<uint8 /*ShipmentGetType*/, std::unordered_map<uint32 /*entry*/, GarrShipment>> shipment;
+
     std::set<GarrAbilityEntry const*> _garrisonFollowerRandomTraits;
 
     uint64 _followerDbIdGenerator = UI64LIT(1);

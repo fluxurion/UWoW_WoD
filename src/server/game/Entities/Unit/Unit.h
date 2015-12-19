@@ -763,7 +763,7 @@ enum NPCFlags2
     UNIT_NPC_FLAG2_NONE                 = 0x00000000,
     UNIT_NPC_FLAG2_UPGRADE_MASTER       = 0x00000001,
     UNIT_NPC_FLAG2_GARRISON_ARCHITECT   = 0x00000002,
-    UNIT_NPC_FLAG2_UNK1                 = 0x00000004,       // AIObstacleMgr::Register
+    UNIT_NPC_FLAG2_SHIPMENT_ORDER       = 0x00000004,       // AIObstacleMgr::Register
     UNIT_NPC_FLAG2_UNK2                 = 0x00000008,       // CGUnit_C::EnableSteering
     UNIT_NPC_FLAG2_UNK3                 = 0x00000010, 
     UNIT_NPC_FLAG2_SHIPMENT_CRAFTER     = 0x00000020,

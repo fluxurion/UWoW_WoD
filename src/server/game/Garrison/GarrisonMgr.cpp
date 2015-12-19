@@ -664,6 +664,82 @@ void GarrisonMgr::LoadMissionLine()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u garrison mission lines in %u.", count, GetMSTimeDiffToNow(msTime));
 }
 
+void GarrisonMgr::LoadShipment()
+{
+    //                                                  0            1              2              3        4
+    QueryResult result = WorldDatabase.Query("SELECT NpcEntry, ConteinerGoEntry, ShipmentID, MaxShipments, BuildID FROM garrison_shipment");
+
+    if (!result)
+    {
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 garrison shipment. DB table `garrison_shipment` is empty.");
+        return;
+    }
+
+    uint32 msTime = getMSTime();
+    uint32 count = 0;
+    do
+    {
+        uint8 index = 0;
+        Field* fields = result->Fetch();
+
+        GarrShipment data;
+        data.NpcEntry = fields[index++].GetUInt32();
+        data.ConteinerGoEntry = fields[index++].GetUInt32();
+        data.ShipmentID = fields[index++].GetUInt32();
+        data.MaxShipments = fields[index++].GetUInt32();
+        data.BuildingTypeID = fields[index++].GetUInt32();
+
+        CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(data.NpcEntry);
+        if (!cInfo)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table `garrison_shipment` has creature with non existing creature entry %u, skipped.", data.NpcEntry);
+            continue;
+        }
+
+        GameObjectTemplate const* goTemplate = sObjectMgr->GetGameObjectTemplate(data.ConteinerGoEntry);
+        if (!goTemplate)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table `garrison_shipment` has go with non existing entry %u, skipped.", data.ConteinerGoEntry);
+            continue;
+        }
+
+        DB2Manager::GarrBuildingTypeMap::const_iterator itr = sDB2Manager._buldingTypeConteiner.find(data.BuildingTypeID);
+        if (itr == sDB2Manager._buldingTypeConteiner.end())
+        {
+            sLog->outError(LOG_FILTER_SQL, "Non-existing building typeID %u from _buldingTypeConteiner was referenced in `garrison_shipment`.", data.BuildingTypeID);
+            continue;
+        }
+
+        if (!sCharShipmentStore.LookupEntry(data.ShipmentID))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Non-existing CharShipment.db2 entry %u was referenced in `garrison_shipment`.", data.ShipmentID);
+            continue;
+        }
+
+        shipment[SHIPMENT_GET_BY_NPC][data.NpcEntry] = data;
+        shipment[SHIPMENT_GET_BY_GO][data.ConteinerGoEntry] = data;
+        shipment[SHIPMENT_GET_BY_SHIPMENT_ID][data.ShipmentID] = data;
+        shipment[SHIPMENT_GET_BY_BUILDING_TYPE][data.BuildingTypeID] = data;
+
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u garrison_shipment in %u.", count, GetMSTimeDiffToNow(msTime));
+}
+
+GarrShipment const* GarrisonMgr::GetGarrShipment(uint32 entry, ShipmentGetType type) const
+{
+    std::unordered_map<uint8, std::unordered_map<uint32, GarrShipment>>::const_iterator i = shipment.find(type);
+    if (i == shipment.end())
+        return NULL;
+
+    std::unordered_map<uint32, GarrShipment>::const_iterator itr = i->second.find(entry);
+    if (itr == i->second.end())
+        return NULL;
+
+    return &itr->second;
+}
+
 GarrMissionEntry const* GarrisonMgr::GetNextMissionInQuestLine(uint32 missionID)
 {
     auto data = _nextMission.find(missionID);
