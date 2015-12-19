@@ -111,8 +111,11 @@ namespace WorldPackets
 
         struct Shipment
         {
+            Shipment() {}
+            uint64 Unk2 = 0;
             uint64 ShipmentID = 0;
             uint32 ShipmentRecID = 0;
+            uint32 Unk8 = 2;
             time_t CreationTime = time(0);
             int32 ShipmentDuration = 0;
         };
@@ -476,6 +479,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid NpcGUID;
+            uint32 Count;
         };
 
         class GarrisonRequestShipmentInfo final : public ClientPacket

@@ -175,6 +175,17 @@ uint64 GarrisonMgr::GenerateMissionDbId()
     return _missionDbIdGenerator++;
 }
 
+uint64 GarrisonMgr::GenerateShipmentDbId()
+{
+    if (_shipmentDbIdGenerator >= std::numeric_limits<uint64>::max())
+    {
+        sLog->outError(LOG_FILTER_GENERAL, "Garrison shipment db id overflow! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+
+    return _shipmentDbIdGenerator++;
+}
+
 uint32 const AbilitiesForQuality[][2] =
 {
     // Counters, Traits
@@ -356,6 +367,9 @@ void GarrisonMgr::InitializeDbIdSequences()
 
     if (QueryResult result = CharacterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_missions"))
         _missionDbIdGenerator = (*result)[0].GetUInt64() + 1;
+
+    if (QueryResult result = CharacterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_shipment"))
+        _shipmentDbIdGenerator = (*result)[0].GetUInt64() + 1;
 }
 
 void GarrisonMgr::LoadPlotFinalizeGOInfo()

@@ -151,7 +151,7 @@ public:
     explicit Garrison(Player* owner);
 
     bool LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
-        PreparedQueryResult followers, PreparedQueryResult abilities, PreparedQueryResult missions);
+        PreparedQueryResult followers, PreparedQueryResult abilities, PreparedQueryResult missions, PreparedQueryResult shipments);
     void SaveToDB(SQLTransaction trans);
     static void DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans);
 
@@ -216,9 +216,12 @@ public:
     void OnQuestReward(uint32 questID);
 
     // Shipment
+    void CreateShipment(ObjectGuid const& guid, uint32 count);
+    void CreateGarrisonShipment(uint32 shipmentID);
     bool canAddShipmentOrder(Creature* source);
     void OnGossipSelect(WorldObject* source);
     void SendShipmentInfo(ObjectGuid const& guid);
+    void PlaceShipment(uint64 dbId, uint32 shipmentID, uint32 placeTime);
 
 private:
     Map* FindMap() const;
@@ -236,6 +239,8 @@ private:
     std::unordered_set<uint32> _followerIds;
     std::unordered_map<uint64 /*dbId*/, Mission> _missions;
     std::unordered_set<uint32> _missionIds;
+
+    std::map<uint32/*shipmentID*/, std::list<WorldPackets::Garrison::Shipment>> _shipments;
 };
 
 #endif // Garrison_h__

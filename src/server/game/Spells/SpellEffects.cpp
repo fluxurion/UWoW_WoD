@@ -293,7 +293,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectJumpDest,                                 //213 SPELL_EFFECT_JUMP_DEST2
     &Spell::EffectCreateGarrison,                           //214 SPELL_EFFECT_CREATE_GARRISON
     &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS
-    &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
+    &Spell::EffectCreateGarrisonShipment,                   //216 SPELL_EFFECT_CREATE_SHIPMENT
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218
     &Spell::EffectSummonConversation,                       //219 SPELL_EFFECT_SUMMON_CONVERSATION
@@ -8129,6 +8129,18 @@ void Spell::EffectCreateGarrison(SpellEffIndex effIndex)
         return;
 
     unitTarget->ToPlayer()->CreateGarrison(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
+}
+
+void Spell::EffectCreateGarrisonShipment(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (Garrison *garr = unitTarget->ToPlayer()->GetGarrison())
+        garr->CreateGarrisonShipment(m_spellInfo->GetEffect(effIndex, m_diffMode)->MiscValue);
 }
 
 void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)

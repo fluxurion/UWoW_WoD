@@ -147,8 +147,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::Shipment const&
 {
     data << shipment.ShipmentRecID;
     data << shipment.ShipmentID;
+    data << shipment.Unk2;
     data.AppendPackedTime(shipment.CreationTime);
     data << shipment.ShipmentDuration;
+    data << shipment.Unk8;
 
     return data;
 }
@@ -390,7 +392,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonIsUpgradeableResult::Write()
 
 void WorldPackets::Garrison::CreateShipment::Read()
 {
-    _worldPacket >> NpcGUID;
+    _worldPacket >> NpcGUID >> Count;
 }
 
 void WorldPackets::Garrison::GarrisonRequestShipmentInfo::Read()
@@ -419,6 +421,8 @@ WorldPacket const* WorldPackets::Garrison::GetShipmentInfoResponse::Write()
     _worldPacket << static_cast<uint32>(Shipments.size());
     for (auto const& map : Shipments)
         _worldPacket << map;
+
+    _worldPacket << PlotInstanceID;
 
     return &_worldPacket;
 }

@@ -18072,7 +18072,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS),
         holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS),
         holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES),
-        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_MISSIONS)))
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_MISSIONS),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_SHIPMENTS)))
         _garrison = std::move(garrison);
 
     std::string taxi_nodes = fields[38].GetString();

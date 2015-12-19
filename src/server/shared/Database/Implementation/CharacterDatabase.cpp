@@ -698,6 +698,11 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_INS_CHARACTER_GARRISON_MISSIONS, "INSERT INTO character_garrison_missions (dbId, guid, missionRecID, offerTime, offerDuration, startTime, travelDuration, missionDuration, missionState) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHARACTER_GARRISON_MISSIONS, "DELETE FROM character_garrison_missions WHERE guid = ?", CONNECTION_ASYNC);
 
+    PrepareStatement(CHAR_SEL_CHARACTER_GARRISON_SHIPMENTS, "SELECT dbId, shipmentID, orderTime FROM character_garrison_shipment WHERE guid = ? ORDER BY `orderTime` ASC", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHARACTER_GARRISON_SHIPMENTS, "INSERT INTO character_garrison_shipment (dbId, guid, shipmentID, orderTime) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHARACTER_GARRISON_SHIPMENTS, "DELETE FROM character_garrison_shipment WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHARACTER_GARRISON_SHIPMENTS_BY_DB_ID, "DELETE FROM character_garrison_shipment WHERE dbId = ?", CONNECTION_ASYNC);
+
     PrepareStatement(CHAR_SEL_TOYS, "SELECT itemId, isFavourite FROM account_toys WHERE accountId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_REP_TOYS, "REPLACE INTO account_toys (accountId, itemId, isFavourite) VALUES (?, ?, ?)", CONNECTION_ASYNC);
 

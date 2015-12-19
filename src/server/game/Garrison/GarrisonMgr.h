@@ -89,7 +89,7 @@ public:
     std::list<GarrAbilityEntry const*> RollFollowerAbilities(GarrFollowerEntry const* follower, uint32 quality, uint32 faction, bool initial) const;
     std::list<GarrAbilityEntry const*> GetClassSpecAbilities(GarrFollowerEntry const* follower, uint32 faction) const;
     uint64 GenerateMissionDbId();
-
+    uint64 GenerateShipmentDbId();
     std::list<GameObjectData> const* GetGoSpawnBuilding(uint32 plotID, uint32 build) const;
     std::list<CreatureData> const* GetNpcSpawnBuilding(uint32 plotID, uint32 build) const;
 
@@ -130,6 +130,7 @@ private:
 
     uint64 _followerDbIdGenerator = UI64LIT(1);
     uint64 _missionDbIdGenerator = UI64LIT(1);
+    uint64 _shipmentDbIdGenerator = UI64LIT(1);
 };
 
 #define sGarrisonMgr GarrisonMgr::Instance()
