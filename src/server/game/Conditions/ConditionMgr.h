@@ -218,6 +218,7 @@ struct Condition
         ReferenceId        = 0;
         ErrorTextId        = 0;
         ScriptId           = 0;
+        SourceId           = 0;
         NegativeCondition  = false;
     }
 

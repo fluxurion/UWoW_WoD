@@ -57,7 +57,6 @@ void WorldSession::SendPartyResult(PartyOperation operation, std::string const& 
     packet.Command = operation;
     packet.Result = res;
     packet.ResultData = val;
-    packet.ResultGUID;
     SendPacket(packet.Write());
 }
 
@@ -564,7 +563,7 @@ void WorldSession::HandleUpdateRaidTarget(WorldPackets::Party::UpdateRaidTarget&
     if (!group)
         return;
 
-    if (packet.Symbol == 0xFF)
+    if (packet.Symbol == -1)
         group->SendTargetIconList(this, packet.PartyIndex);
     else
     {

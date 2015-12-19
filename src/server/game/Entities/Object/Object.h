@@ -844,7 +844,7 @@ class MapObject
     friend class ObjectGridLoader; //grid loader for loading creatures
 
     protected:
-    MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE) { }
+    MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE), _newPosition() { }
 
     private:
     Cell _currentCell;

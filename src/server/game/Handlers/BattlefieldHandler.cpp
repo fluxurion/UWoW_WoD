@@ -50,7 +50,6 @@ void WorldSession::SendBfInvitePlayerToQueue(uint64 queueId, int8 battleState)
 void WorldSession::SendBfQueueInviteResponse(uint64 queueId, uint32 zoneId, int8 battleStatus, bool canQueue /*= true*/, bool loggingIn /*= false*/)
 {
     WorldPackets::Battleground::BFMgrQueueRequestResponse response;
-    response.FailedPlayerGUID;
     response.QueueID = queueId;
     response.AreaID = zoneId;
     response.BattleState = battleStatus;

@@ -333,16 +333,16 @@ WorldSafeLocsEntry const* BattlegroundKT::GetClosestGraveYard(Player* player)
 
 void BattlegroundKT::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_GREEN_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_GREEN].IsEmpty() ? 1 : 0);
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_PURPLE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_GREEN].IsEmpty() ? 1 : 0);
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_ORANGE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_ORANGE].IsEmpty() ? 1 : 0);
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_BLUE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_BLUE].IsEmpty() ? 1 : 0);
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_GREEN_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_GREEN - 2].IsEmpty() ? 1 : 0);
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_PURPLE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_GREEN - 2].IsEmpty() ? 1 : 0);
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_ORANGE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_ORANGE - 2].IsEmpty() ? 1 : 0);
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_ICON_BLUE_ORB_ICON, _orbKeepers[BG_KT_OBJECT_ORB_BLUE - 2].IsEmpty() ? 1 : 0);
 
     packet.Worldstates.emplace_back(WorldStates::BG_KT_ORB_POINTS_A, m_TeamScores[TEAM_ALLIANCE]);
     packet.Worldstates.emplace_back(WorldStates::BG_KT_ORB_POINTS_H, m_TeamScores[TEAM_HORDE]);
 
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_PURPLE_ORB_C, _orbKeepers[BG_KT_OBJECT_ORB_GREEN].IsEmpty());
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_GREEN_ORB_C, _orbKeepers[BG_KT_OBJECT_ORB_PURPLE].IsEmpty());
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_ORANGE_ORB_C, _orbKeepers[BG_KT_OBJECT_ORB_ORANGE].IsEmpty());
-    packet.Worldstates.emplace_back(WorldStates::BG_KT_BLUE_ORB_C, _orbKeepers[BG_KT_OBJECT_ORB_BLUE].IsEmpty());
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_PURPLE_ORB_C, _orbKeepers[BG_KT_OBJECT_ORB_GREEN - 2].IsEmpty());
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_GREEN_ORB_C, _orbKeepers[BG_KT_OBJECT_ORB_PURPLE - 2].IsEmpty());
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_ORANGE_ORB_C, _orbKeepers[BG_KT_OBJECT_ORB_ORANGE - 2].IsEmpty());
+    packet.Worldstates.emplace_back(WorldStates::BG_KT_BLUE_ORB_C, _orbKeepers[BG_KT_OBJECT_ORB_BLUE - 2].IsEmpty());
 }

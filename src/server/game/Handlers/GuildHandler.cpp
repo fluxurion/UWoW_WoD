@@ -384,7 +384,7 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPackets::Guild::RequestGui
         rewardList.Version = time(nullptr);
         rewardList.RewardItems.reserve(rewards.size());
 
-        for (uint32 i = 0; i < rewards.size(); i++)
+        for (size_t i = 0; i < rewards.size(); i++)
         {
             WorldPackets::Guild::GuildRewardItem rewardItem;
             rewardItem.ItemID = rewards[i].Entry;

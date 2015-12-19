@@ -394,7 +394,7 @@ LootItem::LootItem(LootStoreItem const& li, Loot* loot)
             {
                 Unit::AuraEffectList const& auras = lootOwner->GetAuraEffectsByType(SPELL_AURA_MOD_ITEM_LOOT);
                 for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                    if ((*itr)->GetMiscValue() == proto->Class && (*itr)->GetMiscValueB() & (1 << proto->SubClass))
+                    if (proto && (*itr)->GetMiscValue() == proto->Class && (*itr)->GetMiscValueB() & (1 << proto->SubClass))
                         mult *= ((*itr)->GetAmount() + 100.0f) / 100.0f;
             }
 
@@ -1307,7 +1307,7 @@ LootStoreItem const* LootTemplate::LootGroup::Roll() const
     {
         float Roll = (float)rand_chance();
 
-        for (uint32 i = 0; i < ExplicitlyChanced.size(); ++i)   // check each explicitly chanced entry in the template and modify its chance based on quality.
+        for (size_t i = 0; i < ExplicitlyChanced.size(); ++i)   // check each explicitly chanced entry in the template and modify its chance based on quality.
         {
             if (ExplicitlyChanced[i].chance >= 100.0f)
                 return &ExplicitlyChanced[i];

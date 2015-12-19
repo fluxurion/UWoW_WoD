@@ -10972,7 +10972,6 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
             break;
         case INVTYPE_THROWN:
             slots[0] = EQUIPMENT_SLOT_MAINHAND;
-            slots[0] = EQUIPMENT_SLOT_MAINHAND;
             if (Item* mhWeapon = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
@@ -12311,7 +12310,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                             return EQUIP_ERR_NOT_DURING_ARENA_MATCH;
                 }
 
-                if (ITEM_CLASS_WEAPON && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED))
+                if (pProto->Class == ITEM_CLASS_WEAPON && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED))
                     return EQUIP_ERR_CLIENT_LOCKED_OUT;
 
                 if (isInCombat() && (pProto->Class == ITEM_CLASS_WEAPON || pProto->GetInventoryType() == INVTYPE_RELIC) && m_weaponChangeTimer != 0)
@@ -12440,7 +12439,7 @@ InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
                 return EQUIP_ERR_NOT_DURING_ARENA_MATCH;
     }
 
-    if (ITEM_CLASS_WEAPON && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED))
+    if (pProto->Class == ITEM_CLASS_WEAPON && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED))
         return EQUIP_ERR_CLIENT_LOCKED_OUT;
 
     if (!swap && pItem->IsNotEmptyBag())
@@ -12958,12 +12957,12 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
         else
             pItem->SetCount(count);
 
+        if (!pItem)
+            return NULL;
+
         if(pItem->GetEntry() == 38186)
             sLog->outDebug(LOG_FILTER_EFIR, "Player::_StoreItem - CloneItem clone %i of item %u; count = %u playerGUID %u, itemGUID %u bag %u slot %u",
                 clone, pItem->GetEntry(), count, GetGUID(), pItem->GetGUID(), bag, slot);
-
-        if (!pItem)
-            return NULL;
 
         if (pItem->GetTemplate()->Bonding == BIND_WHEN_PICKED_UP ||
             pItem->GetTemplate()->Bonding == BIND_QUEST_ITEM ||
@@ -14810,7 +14809,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                                 if (item_rand)
                                 {
                                     // Search enchant_amount
-                                    for (int k = 0; k < 5; ++k)
+                                    for (int k = 0; k < MAX_ITEM_ENCHANTS; ++k)
                                     {
                                         if (item_rand->enchant_id[k] == enchant_id)
                                         {
@@ -14836,7 +14835,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
                         if (item_rand)
                         {
-                            for (int k = 0; k < 5; ++k)
+                            for (int k = 0; k < MAX_ITEM_ENCHANTS; ++k)
                             {
                                 if (item_rand->enchant_id[k] == enchant_id)
                                 {
@@ -14856,7 +14855,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(item->GetItemRandomPropertyId()));
                         if (item_rand_suffix)
                         {
-                            for (int k = 0; k < 5; ++k)
+                            for (int k = 0; k < MAX_ITEM_ENCHANTS; ++k)
                             {
                                 if (item_rand_suffix->enchant_id[k] == enchant_id)
                                 {
@@ -17419,7 +17418,7 @@ void Player::MoneyChanged(uint32 count)
             continue;
 
         Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
-        if (qInfo && qInfo->GetRewMoney() < 0)
+        if (qInfo && qInfo->GetRewMoney() < 0) // uint32 < 0 wat? 
         {
             QuestStatusData& q_status = m_QuestStatus[questid];
 
@@ -23665,7 +23664,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
             }
         }
 
-        for (uint32 i = 0; i < reward->AchievementsRequired.size(); ++i)
+        for (size_t i = 0; i < reward->AchievementsRequired.size(); ++i)
         {
             uint32 achievementID = reward->AchievementsRequired[i];
             if (achievementID && !guild->GetAchievementMgr().HasAchieved(achievementID))
@@ -28485,16 +28484,13 @@ float Player::GetAverageItemLevel()
             continue;
 
         if (m_items[i] && m_items[i]->GetTemplate())
+        {
             sum += m_items[i]->GetItemLevel();
-
-        ++count;
+            ++count;
+        }
     }
 
-    // impossible, but my ilvl with start items are -4
-    if (sum < 0)
-        sum = 0;
-
-    return (float)sum / count;
+    return std::max(1.0f, float(sum / count));
 }
 
 void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)

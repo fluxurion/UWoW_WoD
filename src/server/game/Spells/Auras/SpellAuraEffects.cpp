@@ -618,7 +618,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster, int32 &m_aura_amount)
             ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(castItem->GetItemRandomPropertyId()));
             if (item_rand_suffix)
             {
-                for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; k++)
+                for (int k = 0; k < MAX_ITEM_ENCHANTS; k++)
                 {
                     SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->enchant_id[k]);
                     if (pEnchant)
@@ -2354,8 +2354,6 @@ void AuraEffect::CleanupTriggeredSpells(Unit* target)
 void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
 {
     std::vector<uint32> spellId;
-    std::list<uint32> actionBarReplaceAuras;
-
     switch (GetMiscValue())
     {
         case FORM_CAT:
@@ -5384,20 +5382,8 @@ void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode
         return;
 
     Unit* target = aurApp->GetTarget();
-
-    Powers powerType = Powers(GetMiscValue());
-
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
-    float amount = float(GetAmount());
-
-    if (apply)
-    {
-        target->HandleStatModifier(unitMod, TOTAL_VALUE, amount, apply);
-    }
-    else
-    {
-        target->HandleStatModifier(unitMod, TOTAL_VALUE, amount, apply);
-    }
+    if (target)
+        target->HandleStatModifier(UnitMods(UNIT_MOD_POWER_START + GetMiscValue()), TOTAL_VALUE, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModAddEnergyPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5406,20 +5392,8 @@ void AuraEffect::HandleAuraModAddEnergyPercent(AuraApplication const* aurApp, ui
         return;
 
     Unit* target = aurApp->GetTarget();
-
-    Powers powerType = Powers(GetMiscValue());
-
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
-    float amount = float(GetAmount());
-
-    if (apply)
-    {
-        target->HandleStatModifier(unitMod, TOTAL_PCT, amount, apply);
-    }
-    else
-    {
-        target->HandleStatModifier(unitMod, TOTAL_PCT, amount, apply);
-    }
+    if (target)
+        target->HandleStatModifier(UnitMods(UNIT_MOD_POWER_START + GetMiscValue()), TOTAL_PCT, float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const

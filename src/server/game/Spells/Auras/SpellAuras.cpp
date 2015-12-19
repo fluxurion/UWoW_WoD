@@ -3350,7 +3350,7 @@ void Aura::UpdateConcatenateAura(Unit* caster, int32 amount, int32 effIndex, int
         break;
         case CONCATENATE_ON_REMOVE_AURA: // 2
         {
-            if (std::vector<SpellConcatenateAura> const* spellConcatenateAura = sSpellMgr->GetSpellConcatenateUpdate(-GetId()))
+            if (std::vector<SpellConcatenateAura> const* spellConcatenateAura = sSpellMgr->GetSpellConcatenateUpdate(-GetId())) // int32(GetId()) ?
             {
                 for (std::vector<SpellConcatenateAura>::const_iterator itr = spellConcatenateAura->begin(); itr != spellConcatenateAura->end(); ++itr)
                 {

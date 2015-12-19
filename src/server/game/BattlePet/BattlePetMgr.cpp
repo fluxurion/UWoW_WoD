@@ -873,7 +873,7 @@ bool PetBattle::InitiPvEBattle(ObjectGuid wildPetGuid)
 
     // roll creature count
     uint32 creatureCount = 1;
-    if (wildPetLevel > 5)
+    if (wildPetLevel > 5 && wildPetLevel < 10)
         creatureCount = 2;
     else if (wildPetLevel > 10)
         creatureCount = 3;

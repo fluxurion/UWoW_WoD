@@ -76,7 +76,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
             if (target->GetTeam() != team && !allowTwoSideWhoList)
                 continue;
 
-            if ((target->GetSession()->GetSecurity() > AccountTypes(gmLevelInWhoList)))
+            if (target && (target->GetSession()->GetSecurity() > AccountTypes(gmLevelInWhoList)))
                 continue;
         }
 

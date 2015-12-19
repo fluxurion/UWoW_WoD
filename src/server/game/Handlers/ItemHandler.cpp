@@ -1185,7 +1185,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Item::TransmogrigyItem&
         }
         else
         {
-            if (!itemTransmogrified || !itemTransmogrifier || !Item::CanTransmogrifyItemWithItem(itemTransmogrified, itemTransmogrifier))
+            if (!itemTransmogrifier || !Item::CanTransmogrifyItemWithItem(itemTransmogrified, itemTransmogrifier))
                 return;
 
             itemTransmogrified->SetTransmogrification(packet.Items[i].ItemID);

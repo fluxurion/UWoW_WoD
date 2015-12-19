@@ -158,7 +158,7 @@ void InstanceSaveManager::UnloadInstanceSave(uint32 InstanceId)
 }
 
 InstanceSave::InstanceSave(uint16 MapId, uint32 InstanceId, Difficulty difficulty, bool canReset)
-: m_instanceid(InstanceId), m_mapid(MapId), m_toDelete(false), m_difficulty(difficulty), m_canReset(canReset)
+: m_instanceid(InstanceId), m_mapid(MapId), m_toDelete(false), m_difficulty(difficulty), m_canReset(canReset), m_completedEncounter(0)
 {
     m_canBeSave = difficulty != DIFFICULTY_LFR && difficulty != DIFFICULTY_HC_SCENARIO && difficulty != DIFFICULTY_N_SCENARIO && difficulty != FLEXIBLE_DIFFICULTY;
 }

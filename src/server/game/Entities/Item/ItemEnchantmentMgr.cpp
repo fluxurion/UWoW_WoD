@@ -242,7 +242,7 @@ bool CheckSpecProp(uint32 ench, uint32 type, uint32 SpecID)
     {
         if(ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(ench))
         {
-            for (uint32 slot = 0; slot < 5; ++slot)
+            for (uint32 slot = 0; slot < MAX_ITEM_ENCHANTS; ++slot)
             {
                 if(!random_id->enchant_id[slot])
                     continue;

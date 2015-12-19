@@ -381,7 +381,6 @@ void WorldSocket::SendPacket(WorldPacket const& packet)
         sLog->outTrace(LOG_FILTER_NETWORKIO, "S->C: %s %s", (_worldSession ? _worldSession->GetPlayerName().c_str() : GetRemoteIpAddress().to_string()).c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet.GetOpcode())).c_str());
     }
 
-    ServerPktHeader header;
     uint32 packetSize = packet.size();
     uint32 sizeOfHeader = SizeOfServerHeader[_authCrypt.IsInitialized()];
 

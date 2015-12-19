@@ -423,7 +423,7 @@ bool BattlegroundQueue::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg,
         if (bg->isArena() && bg->isRated())
             bg->SetGroupForTeam(ginfo->Team, ginfo->GroupId);
 
-        ginfo->RemoveInviteTime = getMSTime() + bg->isArena() ? ARENA_INVITE_ACCEPT_WAIT_TIME : BG_INVITE_ACCEPT_WAIT_TIME;
+        ginfo->RemoveInviteTime = getMSTime() + (bg->isArena() ? ARENA_INVITE_ACCEPT_WAIT_TIME : BG_INVITE_ACCEPT_WAIT_TIME);
 
         // loop through the players
         for (std::map<ObjectGuid, PlayerQueueInfo*>::iterator itr = ginfo->Players.begin(); itr != ginfo->Players.end(); ++itr)

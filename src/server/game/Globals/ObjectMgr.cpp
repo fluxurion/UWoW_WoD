@@ -961,13 +961,13 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->expansion = CURRENT_EXPANSION;
     }
 
-    if (cInfo->minlevel < 1 || cInfo->minlevel > STRONG_MAX_LEVEL)
+    if (cInfo->minlevel < 1 || cInfo->minlevel >= STRONG_MAX_LEVEL - 1)
     {
         sLog->outError(LOG_FILTER_SQL, "Creature (ID: %u): MinLevel %i is not within [1, 255], value has been set to 1.", cInfo->Entry, cInfo->minlevel);
         const_cast<CreatureTemplate*>(cInfo)->minlevel = 1;
     }
 
-    if (cInfo->maxlevel < 1 || cInfo->maxlevel > STRONG_MAX_LEVEL)
+    if (cInfo->maxlevel < 1 || cInfo->maxlevel >= STRONG_MAX_LEVEL - 1)
     {
         sLog->outError(LOG_FILTER_SQL, "Creature (ID: %u): MaxLevel %i is not within [1, 255], value has been set to 1.", cInfo->Entry, cInfo->maxlevel);
         const_cast<CreatureTemplate*>(cInfo)->maxlevel = 1;
@@ -6673,7 +6673,7 @@ void ObjectMgr::LoadGameObjectTemplate()
             for (uint8 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
                 got.questItems[i] = 0;
 
-            for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
+            for (uint8 i = 0; i < GO_DBC_DATA_COUNT/*MAX_GAMEOBJECT_DATA*/; ++i)
                 got.raw.data[i] = goe->Data[i];
 
             got.unkInt32 = 0;

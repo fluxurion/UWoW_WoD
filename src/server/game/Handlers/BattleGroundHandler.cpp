@@ -270,7 +270,7 @@ void WorldSession::HandleBattleFieldPort(WorldPackets::Battleground::Port& packe
         return;
     }
 
-    if (!player || !player->InBattlegroundQueue())
+    if (!player->InBattlegroundQueue())
     {
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundHandler: Invalid CMSG_BATTLEFIELD_PORT received from player (Name: %s, GUID: %s), he is not in bg_queue.", player->GetName(), player->GetGUID().ToString().c_str());
         return;

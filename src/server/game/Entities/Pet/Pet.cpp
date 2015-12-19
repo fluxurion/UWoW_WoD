@@ -679,7 +679,7 @@ void Creature::Regenerate(Powers power)
     if (this->IsAIEnabled)
         this->AI()->RegeneratePower(power, addvalue);
 
-    uint32 integerValue = uint32(fabs(addvalue));
+    int32 integerValue = int32(fabs(addvalue));
 
     if (addvalue < 0.0f)
     {

@@ -608,7 +608,7 @@ void WorldSession::SendListInventory(ObjectGuid const& vendorGuid)
                         break;
                     }
 
-                    for (uint32 i = 0; i < reward->AchievementsRequired.size(); ++i)
+                    for (size_t i = 0; i < reward->AchievementsRequired.size(); ++i)
                     {
                         uint32 achievementID = reward->AchievementsRequired[i];
                         if (achievementID && !guild->GetAchievementMgr().HasAchieved(achievementID))

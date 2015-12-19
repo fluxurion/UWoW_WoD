@@ -463,12 +463,11 @@ void BattlegroundIC::HandleKillUnit(Creature* unit, Player* killer)
 
 void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 {
-    TeamId teamID = player->GetBGTeamId();
-
-    if (!player || teamID >= MAX_TEAMS)
+    if (!player)
         return;
-
-    if (GetStatus() != STATUS_IN_PROGRESS)
+        
+    TeamId teamID = player->GetBGTeamId();
+    if (GetStatus() != STATUS_IN_PROGRESS || teamID >= MAX_TEAMS)
         return;
 
     Battleground::HandleKillPlayer(player, killer);

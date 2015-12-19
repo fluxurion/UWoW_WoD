@@ -56,6 +56,7 @@
 #define MAX_ITEM_ENCHANTMENT_EFFECTS 3
 #define MAX_VEHICLE_SEATS 8
 #define MAX_WORLD_MAP_OVERLAY_AREA_IDX 4
+#define MAX_ITEM_ENCHANTS 5
 
 struct AchievementEntry
 {
@@ -1463,8 +1464,8 @@ struct ItemRandomSuffixEntry
     uint32    ID;                                           // 0        m_ID
     char* nameSuffix;                                       // 1        m_name_lang
                                                             // 2        m_internalName
-    uint32    enchant_id[5];                                // 3-7      m_enchantment
-    uint32    prefix[5];                                    // 8-12     m_allocationPct
+    uint32    enchant_id[MAX_ITEM_ENCHANTS];                // 3-7      m_enchantment
+    uint32    prefix[MAX_ITEM_ENCHANTS];                    // 8-12     m_allocationPct
 };
 
 struct ItemSetEntry

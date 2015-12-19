@@ -75,12 +75,14 @@ SpellDestination::SpellDestination(float x, float y, float z, float orientation,
     _position.Relocate(x, y, z, orientation);
     _transportGUID.Clear();
     _position.m_mapId = mapId;
+    _transportOffset.Relocate(0, 0, 0, 0);
 }
 
 SpellDestination::SpellDestination(Position const& pos)
 {
     _position.Relocate(pos);
     _transportGUID.Clear();
+    _transportOffset.Relocate(0, 0, 0, 0);
 }
 
 SpellDestination::SpellDestination(WorldObject const& wObj)

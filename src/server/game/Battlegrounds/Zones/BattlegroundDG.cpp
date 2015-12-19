@@ -136,7 +136,7 @@ void BattlegroundDG::RemovePlayer(Player* player, ObjectGuid /*guid*/, uint32 /*
 
 void BattlegroundDG::HandleKillPlayer(Player* player, Player* killer)
 {
-    if (GetStatus() != STATUS_IN_PROGRESS)
+    if (!player || GetStatus() != STATUS_IN_PROGRESS)
         return;
 
     for (uint8 i = TEAM_ALLIANCE; i < MAX_TEAMS; ++i)
@@ -147,9 +147,7 @@ void BattlegroundDG::HandleKillPlayer(Player* player, Player* killer)
                 killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, DG_OBJECTIVE_RETURN_CART, 1);
         }
 
-    if (player)
-        EventPlayerDroppedFlag(player);
-
+    EventPlayerDroppedFlag(player);
     Battleground::HandleKillPlayer(player, killer);
 }
 

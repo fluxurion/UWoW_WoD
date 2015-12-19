@@ -161,9 +161,7 @@ void WorldSession::HandleQueryPetName(WorldPackets::Query::QueryPetName& packet)
         return;
     }
 
-    response.Allow = pet->isPet() ? 1 : 0;
-    
-    response.DeclinedNames;
+    response.Allow = pet->isPet();
     response.Name = pet->GetName();
 
     if (Pet* playerPet = pet->ToPet())
@@ -172,7 +170,6 @@ void WorldSession::HandleQueryPetName(WorldPackets::Query::QueryPetName& packet)
         if (declinedNames)
         {
             response.HasDeclined = true;
-
             for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
                 if (declinedNames->name[i].size())
                     response.DeclinedNames.name[i] = declinedNames->name[i];

@@ -613,7 +613,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
                 *data << t->GetAreaTriggerInfo().verticesPoints[i].y;    // Y
             }
 
-            for (uint16 i = 0; i < t->GetAreaTriggerInfo().verticesTargetPoints.size(); ++i) // VerticesTarget
+            for (size_t i = 0; i < t->GetAreaTriggerInfo().verticesTargetPoints.size(); ++i) // VerticesTarget
             {
                 *data << t->GetAreaTriggerInfo().verticesTargetPoints[i].x; // X
                 *data << t->GetAreaTriggerInfo().verticesTargetPoints[i].y; // Y
