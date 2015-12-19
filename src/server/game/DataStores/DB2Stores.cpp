@@ -313,7 +313,7 @@ void DB2Manager::InitDB2CustomStores()
         _charShipmentConteiner.insert(ShipmentConteinerMap::value_type(entry->ID, entry));
 
     for (GarrBuildingEntry const* entry : sGarrBuildingStore)
-        _buldingTypeConteiner.insert(GarrBuildingTypeMap::value_type(entry->ID, entry));
+        _buldingTypeConteiner.insert(GarrBuildingTypeMap::value_type(entry->Type, entry));
 
     for (LanguageWordsEntry const* entry : sLanguageWordsStore)
         sLanguageWordsMapStore[entry->langId][strlen(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE])].push_back(entry->word[DEFAULT_LOCALE].Str[DEFAULT_LOCALE]);

@@ -126,6 +126,15 @@ void WorldSession::HandleGarrisonCompleteMission(WorldPackets::Garrison::Garriso
 void WorldSession::HandleCreateShipment(WorldPackets::Garrison::CreateShipment& /*packet*/)
 { }
 
+void WorldSession::HandleGarrisonRequestShipmentInfo(WorldPackets::Garrison::GarrisonRequestShipmentInfo& packet)
+{
+    if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_SHIPMENT_ORDER))
+        return;
+
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->SendShipmentInfo(packet.NpcGUID);
+}
+
 void WorldSession::HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::GarrisonOpenMissionNpc& packet)
 {
     if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))

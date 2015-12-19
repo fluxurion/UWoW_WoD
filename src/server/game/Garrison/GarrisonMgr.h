@@ -53,6 +53,8 @@ struct GarrShipment
     uint32 ShipmentID = 0;
     uint32 MaxShipments = 0;
     uint32 BuildingTypeID = 0;
+
+    CharShipmentEntry const* data = NULL;
 };
 
 enum ShipmentGetType : uint8

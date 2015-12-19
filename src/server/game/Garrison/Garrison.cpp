@@ -1653,3 +1653,79 @@ void Garrison::OnQuestReward(uint32 questID)
             break;
     }
 }
+
+bool Garrison::canAddShipmentOrder(Creature* source)
+{
+    if (!source->HasFlag(UNIT_FIELD_NPC_FLAGS2, UNIT_NPC_FLAG2_SHIPMENT_ORDER))
+        return false;
+
+    GarrShipment const* data = sGarrisonMgr.GetGarrShipment(source->GetEntry(), SHIPMENT_GET_BY_NPC);
+    if (!data)
+        return false;
+
+    // check if we have aready build building.
+    GarrBuildingEntry const* existingBuilding;
+    for (auto const& p : _plots)
+    {
+        if (p.second.BuildingInfo.PacketInfo)
+        {
+            existingBuilding = sGarrBuildingStore.AssertEntry(p.second.BuildingInfo.PacketInfo->GarrBuildingID);
+            if (existingBuilding->Type == data->BuildingTypeID)
+                return true;
+        }
+    }
+
+    return false;
+}
+
+uint32 Garrison::GetPlotInstanceForBuildingType(uint32 type) const
+{
+    // check if we have aready build building.
+    GarrBuildingEntry const* existingBuilding;
+    for (auto const& p : _plots)
+    {
+        if (p.second.BuildingInfo.PacketInfo)
+        {
+            existingBuilding = sGarrBuildingStore.AssertEntry(p.second.BuildingInfo.PacketInfo->GarrBuildingID);
+            if (existingBuilding->Type == type)
+                return p.second.BuildingInfo.PacketInfo->GarrPlotInstanceID;
+        }
+    }
+    return 0;
+}
+
+void Garrison::OnGossipSelect(WorldObject* source)
+{
+    if (!source->HasFlag(UNIT_FIELD_NPC_FLAGS2, UNIT_NPC_FLAG2_SHIPMENT_ORDER))
+        return;
+
+    GarrShipment const* data = sGarrisonMgr.GetGarrShipment(source->GetEntry(), SHIPMENT_GET_BY_NPC);
+    if (!data)
+        return;
+
+    //SMSG_OPEN_SHIPMENT_NPC_FROM_GOSSIP
+    WorldPackets::Garrison::OpenShipmentNPCFromGossip openShipment;
+    openShipment.NpcGUID = source->GetGUID();
+    openShipment.CharShipmentContainerID = data->data->ShipmentConteinerID;
+    _owner->SendDirectMessage(openShipment.Write());
+}
+
+void Garrison::SendShipmentInfo(ObjectGuid const& guid)
+{
+    GarrShipment const* shipment = sGarrisonMgr.GetGarrShipment(guid.GetEntry(), SHIPMENT_GET_BY_NPC);
+
+    //SMSG_GET_SHIPMENT_INFO_RESPONSE
+    WorldPackets::Garrison::GetShipmentInfoResponse shipmentResponse;
+    if (shipment)
+    {
+        shipmentResponse.ShipmentID = shipment->ShipmentID;
+        shipmentResponse.MaxShipments = shipment->MaxShipments;
+        shipmentResponse.PlotInstanceID = GetPlotInstanceForBuildingType(shipment->BuildingTypeID);
+
+        //ToDo: send existen
+        //std::vector<Shipment> Shipments;
+    }
+    shipmentResponse.Success = shipment;
+
+    _owner->SendDirectMessage(shipmentResponse.Write());
+}

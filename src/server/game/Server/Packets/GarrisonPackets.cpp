@@ -393,6 +393,11 @@ void WorldPackets::Garrison::CreateShipment::Read()
     _worldPacket >> NpcGUID;
 }
 
+void WorldPackets::Garrison::GarrisonRequestShipmentInfo::Read()
+{
+    _worldPacket >> NpcGUID;
+}
+
 void WorldPackets::Garrison::GarrisonOpenMissionNpc::Read()
 {
     _worldPacket >> NpcGUID;

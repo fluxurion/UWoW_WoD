@@ -81,6 +81,7 @@ void GarrisonMgr::Initialize()
     LoadBuildingSpawnNPC();
     LoadBuildingSpawnGo();
     LoadMissionLine();
+    LoadShipment();
 }
 
 GarrSiteLevelEntry const* GarrisonMgr::GetGarrSiteLevelEntry(uint32 garrSiteId, uint32 level) const
@@ -667,7 +668,7 @@ void GarrisonMgr::LoadMissionLine()
 void GarrisonMgr::LoadShipment()
 {
     //                                                  0            1              2              3        4
-    QueryResult result = WorldDatabase.Query("SELECT NpcEntry, ConteinerGoEntry, ShipmentID, MaxShipments, BuildID FROM garrison_shipment");
+    QueryResult result = WorldDatabase.Query("SELECT NpcEntry, ConteinerGoEntry, ShipmentID, MaxShipments, BuildingTypeID FROM garrison_shipment");
 
     if (!result)
     {
@@ -710,11 +711,15 @@ void GarrisonMgr::LoadShipment()
             continue;
         }
 
-        if (!sCharShipmentStore.LookupEntry(data.ShipmentID))
+        CharShipmentEntry const* shipmentEntry = sCharShipmentStore.LookupEntry(data.ShipmentID);
+        if (!shipmentEntry)
         {
             sLog->outError(LOG_FILTER_SQL, "Non-existing CharShipment.db2 entry %u was referenced in `garrison_shipment`.", data.ShipmentID);
             continue;
         }
+        data.data = shipmentEntry;
+
+        const_cast<CreatureTemplate*>(cInfo)->npcflag2 |= UNIT_NPC_FLAG2_SHIPMENT_ORDER;
 
         shipment[SHIPMENT_GET_BY_NPC][data.NpcEntry] = data;
         shipment[SHIPMENT_GET_BY_GO][data.ConteinerGoEntry] = data;

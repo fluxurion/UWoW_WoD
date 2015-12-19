@@ -201,6 +201,7 @@ public:
     void SendMissionListUpdate(bool openMissionNpc) const;
 
     void ResetFollowerActivationLimit() { _followerActivationsRemainingToday = 1; }
+    uint32 GetPlotInstanceForBuildingType(uint32 type) const;
 
     // Map
     int32 GetGarrisonMapID() const { return _siteLevel ? _siteLevel->MapID : -1; }
@@ -213,6 +214,11 @@ public:
 
     // Enother
     void OnQuestReward(uint32 questID);
+
+    // Shipment
+    bool canAddShipmentOrder(Creature* source);
+    void OnGossipSelect(WorldObject* source);
+    void SendShipmentInfo(ObjectGuid const& guid);
 
 private:
     Map* FindMap() const;

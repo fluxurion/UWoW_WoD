@@ -51,6 +51,7 @@ enum Gossip_Option
     GOSSIP_OPTION_OUTDOORPVP            = 19,                   //added by code (option for outdoor pvp creatures)
     GOSSIP_OPTION_UNLEARNSPECIALIZATION = 20,                   //UNIT_NPC_FLAG_TRAINER             (16) (bonus option for GOSSIP_OPTION_TRAINER)
     GOSSIP_OPTION_SCENARIO              = 21,                   //UNIT_NPC_FLAG_GOSSIP
+    GOSSIP_OPTION_GARRISON_SHIPMENT     = 22,                   //UNIT_NPC_FLAG2_SHIPMENT_ORDER 
     GOSSIP_OPTION_MAX
 };
 
@@ -77,6 +78,7 @@ enum GossipOptionIcon
     GOSSIP_ICON_CHAT_18             = 18,                   // white chat bubble
     GOSSIP_ICON_CHAT_19             = 19,                   // white chat bubble
     GOSSIP_ICON_CHAT_20             = 20,                   // white chat bubble
+    GOSSIP_ICON_SHIPMENT            = 28,                   // auto-click?
     GOSSIP_ICON_MAX
 };
 

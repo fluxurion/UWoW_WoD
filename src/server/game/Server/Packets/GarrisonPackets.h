@@ -478,6 +478,16 @@ namespace WorldPackets
             ObjectGuid NpcGUID;
         };
 
+        class GarrisonRequestShipmentInfo final : public ClientPacket
+        {
+        public:
+            GarrisonRequestShipmentInfo(WorldPacket&& packet) : ClientPacket(CMSG_GARRISON_REQUEST_SHIPMENT_INFO, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+        };
+
         class GarrisonOpenMissionNpc final : public ClientPacket
         {
         public:

@@ -15264,6 +15264,11 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     if (!sOutdoorPvPMgr->CanTalkTo(this, creature, itr->second))
                         canTalk = false;
                     break;
+                case GOSSIP_OPTION_GARRISON_SHIPMENT:
+                    canTalk = false;
+                    if (Garrison *garr = GetGarrison())
+                        canTalk = garr->canAddShipmentOrder(creature);
+                    break;
                 default:
                     sLog->outError(LOG_FILTER_SQL, "Creature entry %u have unknown gossip option %u for menu %u", creature->GetEntry(), itr->second.OptionType, itr->second.MenuId);
                     canTalk = false;
@@ -15390,7 +15395,6 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
                 PrepareGossipMenu(source, menuItemData->GossipActionMenuId);
                 SendPreparedGossip(source);
             }
-
             break;
         }
         case GOSSIP_OPTION_OUTDOORPVP:
@@ -15472,6 +15476,10 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             sBattlegroundMgr->SendBattlegroundList(this, guid, bgTypeId);
             break;
         }
+        case GOSSIP_OPTION_GARRISON_SHIPMENT:
+            if (Garrison *garr = GetGarrison())
+                garr->OnGossipSelect(source);
+            break;
         case GOSSIP_OPTION_SCENARIO:
         {
             lfg::LfgDungeonSet dungeons;
