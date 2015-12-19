@@ -119,14 +119,20 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate item's color
-    if (_color != ItemQualityColors[_item->Quality])
+    uint32 colorQuality = _item->GetQuality();
+    if (_item->Flags3 & ITEM_FLAG3_HEIRLOOM_QUALITY)
+        colorQuality = ITEM_QUALITY_HEIRLOOM;
+
+    if (_color != ItemQualityColors[colorQuality])
     {
         sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): linked item has color %u, but user claims %u", iss.str().c_str(), ItemQualityColors[_item->Quality], _color);
         return false;
     }
     // Number of various item properties after item entry
-    const uint8 propsCount = 8;
-    const uint8 randomPropertyPosition = 5;
+    uint8 const propsCount = 11;
+    uint8 const randomPropertyPosition = 5;
+    uint8 const numBonusListIDsPosition = 10;
+    uint8 const maxBonusListIDs = 100;
     for (uint8 index = 0; index < propsCount; ++index)
     {
         if (!CheckDelimiter(iss, DELIMITER, "item"))
@@ -160,8 +166,32 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
                 }
             }
         }
+        if (index == numBonusListIDsPosition)
+        {
+            if (id > maxBonusListIDs)
+                return false;
+
+            _bonusListIDs.resize(id);
+        }
+
         _data[index] = id;
     }
+
+    for (uint32 index = 0; index < _bonusListIDs.size(); ++index)
+    {
+        if (!CheckDelimiter(iss, DELIMITER, "item"))
+            return false;
+
+        int32 id = 0;
+        if (!ReadInt32(iss, id))
+            return false;
+
+        if (!sDB2Manager.GetItemBonusList(id))
+            return false;
+
+        _bonusListIDs[index] = id;
+    }
+
     return true;
 }
 
@@ -433,8 +463,6 @@ bool TradeChatLink::Initialize(std::istringstream& iss)
 // |cff4e96f7|Htalent:2232:-1|h[Taste for Blood]|h|r
 bool TalentChatLink::Initialize(std::istringstream& iss)
 {
-    return false;
-    /*
     if (_color != CHAT_LINK_COLOR_TALENT)
         return false;
     // Read talent entry
@@ -451,10 +479,10 @@ bool TalentChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate talent's spell
-    _spell = sSpellMgr->GetSpellInfo(talentInfo->RankID[0]);
+    _spell = sSpellMgr->GetSpellInfo(talentInfo->spellId);
     if (!_spell)
     {
-        sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |trade command", iss.str().c_str(), talentInfo->RankID[0]);
+        sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |trade command", iss.str().c_str(), talentInfo->spellId);
         return false;
     }
     // Delimiter
@@ -466,7 +494,7 @@ bool TalentChatLink::Initialize(std::istringstream& iss)
         sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading talent rank", iss.str().c_str());
         return false;
     }
-    return true;*/
+    return true;
 }
 
 // |color|Henchant:recipe_spell_id|h[prof_name: recipe_name]|h|r

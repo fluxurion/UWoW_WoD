@@ -56,7 +56,11 @@ protected:
 class ItemChatLink : public ChatLink
 {
 public:
-    ItemChatLink() : ChatLink(), _item(NULL), _suffix(NULL), _property(NULL) { }
+    ItemChatLink() : ChatLink(), _item(nullptr), _suffix(nullptr), _property(nullptr)
+    {
+       memset(_data, 0, sizeof(_data));
+    }
+
     virtual bool Initialize(std::istringstream& iss);
     virtual bool ValidateName(char* buffer, const char* context);
 
@@ -64,7 +68,8 @@ protected:
     std::string FormatName(uint8 index, ItemLocale const* locale, char* suffixStrings) const;
 
     ItemTemplate const* _item;
-    int32 _data[8];
+    int32 _data[11];
+    std::vector<int32> _bonusListIDs;
     ItemRandomSuffixEntry const* _suffix;
     ItemRandomPropertiesEntry const* _property;
 };

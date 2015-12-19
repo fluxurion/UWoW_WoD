@@ -933,30 +933,20 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
     {
         case SPELL_LINK_SPELL:
             return id;
-        /*case SPELL_LINK_TALENT:
+        case SPELL_LINK_TALENT:
         {
-            // talent
             TalentEntry const* talentEntry = sTalentStore.LookupEntry(id);
             if (!talentEntry)
                 return 0;
 
-            int32 rank = param1_str ? (uint32)atol(param1_str) : 0;
-            if (rank >= MAX_TALENT_RANK)
-                return 0;
-
-            if (rank < 0)
-                rank = 0;
-
-            return talentEntry->RankID[rank];
-        }*/
+            return talentEntry->spellId;
+        }
         case SPELL_LINK_ENCHANT:
         case SPELL_LINK_TRADE:
             return id;
         case SPELL_LINK_GLYPH:
         {
-            uint32 glyph_prop_id = param1_str ? (uint32)atol(param1_str) : 0;
-
-            GlyphPropertiesEntry const* glyphPropEntry = sGlyphPropertiesStore.LookupEntry(glyph_prop_id);
+            GlyphPropertiesEntry const* glyphPropEntry = sGlyphPropertiesStore.LookupEntry(param1_str ? atoul(param1_str) : 0);
             if (!glyphPropEntry)
                 return 0;
 
