@@ -310,7 +310,7 @@ void DB2Manager::InitDB2CustomStores()
         _garrMissionRewardByMissionID[entry->MissionID] = entry;
 
     for (CharShipmentEntry const* entry : sCharShipmentStore)
-        _charShipmentConteiner.insert(ShipmentConteinerMap::value_type(entry->ID, entry));
+        _charShipmentConteiner.insert(ShipmentConteinerMap::value_type(entry->ShipmentConteinerID, entry));
 
     for (GarrBuildingEntry const* entry : sGarrBuildingStore)
         _buldingTypeConteiner.insert(GarrBuildingTypeMap::value_type(entry->Type, entry));
@@ -804,4 +804,9 @@ char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcas
         return broadcastText->MaleText->Str[locale];
 
     return broadcastText->MaleText->Str[DEFAULT_LOCALE];
+}
+
+DB2Manager::ShipmentConteinerMapBounds DB2Manager::GetShipmentConteinerBounds(uint32 conteinerID) const
+{
+    return ShipmentConteinerMapBounds(_charShipmentConteiner.lower_bound(conteinerID), _charShipmentConteiner.upper_bound(conteinerID));
 }

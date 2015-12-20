@@ -108,6 +108,7 @@ public:
 
     struct Plot
     {
+        void initShipment();
         GameObject* CreateGameObject(Map* map, GarrisonFactionIndex faction);
         void DeleteGameObject(Map* map);
         void ClearBuildingInfo(Player* owner);
@@ -119,6 +120,7 @@ public:
         Building BuildingInfo;
 
         bool buildingActivationWaiting = false;
+        uint16 selectetShipmentRecID = 0;
     };
 
     struct Follower

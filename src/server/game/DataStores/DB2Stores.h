@@ -159,6 +159,8 @@ public:
     typedef std::unordered_map<uint32 /*missionID*/, GarrMissionRewardEntry const*> GarrMissionRewardByMissionIDMap;
 
     typedef std::multimap<uint32 /*ShipmentConteinerID*/, CharShipmentEntry const*> ShipmentConteinerMap;
+    typedef std::pair<ShipmentConteinerMap::const_iterator, ShipmentConteinerMap::const_iterator> ShipmentConteinerMapBounds;
+
     typedef std::multimap<uint32 /*BuildingTypeID*/, GarrBuildingEntry const*> GarrBuildingTypeMap;
     static DB2Manager& Instance()
     {
@@ -199,6 +201,8 @@ public:
     uint32 GetXPForNextFollowerQuality(uint32 quality);
     GarrMissionRewardEntry const* GetMissionRewardByRecID(uint32 missionRecID);
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
+
+    ShipmentConteinerMapBounds GetShipmentConteinerBounds(uint32 conteinerID) const;
 
     MapChallengeModeEntryMap _mapChallengeModeEntrybyMap; // @TODO: move this to private and make special getters
 
