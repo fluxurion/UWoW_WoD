@@ -735,10 +735,10 @@ void GarrisonMgr::LoadShipment()
 
         const_cast<CreatureTemplate*>(cInfo)->npcflag2 |= UNIT_NPC_FLAG2_SHIPMENT_ORDER;
 
-        shipment[SHIPMENT_GET_BY_NPC][data.NpcEntry] = data;
-        shipment[SHIPMENT_GET_BY_GO][data.ConteinerGoEntry] = data;
-        shipment[SHIPMENT_GET_BY_SHIPMENT_ID][data.ShipmentID] = data;
-        shipment[SHIPMENT_GET_BY_BUILDING_TYPE][data.BuildingTypeID] = data;
+        shipment[SHIPMENT_GET_BY_NPC].insert(shipmentStoreMap::value_type(data.NpcEntry, data));
+        shipment[SHIPMENT_GET_BY_GO].insert(shipmentStoreMap::value_type(data.ConteinerGoEntry, data));
+        shipment[SHIPMENT_GET_BY_SHIPMENT_ID].insert(shipmentStoreMap::value_type(data.ShipmentID, data));
+        shipment[SHIPMENT_GET_BY_BUILDING_TYPE].insert(shipmentStoreMap::value_type(data.BuildingTypeID, data));
 
         ++count;
     } while (result->NextRow());
@@ -748,11 +748,11 @@ void GarrisonMgr::LoadShipment()
 
 GarrShipment const* GarrisonMgr::GetGarrShipment(uint32 entry, ShipmentGetType type) const
 {
-    std::unordered_map<uint8, std::unordered_map<uint32, GarrShipment>>::const_iterator i = shipment.find(type);
+    std::map<uint8, shipmentStoreMap>::const_iterator i = shipment.find(type);
     if (i == shipment.end())
         return NULL;
 
-    std::unordered_map<uint32, GarrShipment>::const_iterator itr = i->second.find(entry);
+    shipmentStoreMap::const_iterator itr = i->second.find(entry);
     if (itr == i->second.end())
         return NULL;
 

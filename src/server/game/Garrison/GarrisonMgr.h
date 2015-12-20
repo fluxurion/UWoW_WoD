@@ -123,8 +123,8 @@ private:
     std::unordered_map<uint32 /*MissionID*/, GarrMissionEntry const* /*nextMission*/> _nextMission;
     std::unordered_map<uint32 /*FollowerID*/, GarrMissionEntry const* /*nextMission*/> _nextMissionByFollower;
     
-
-    std::unordered_map<uint8 /*ShipmentGetType*/, std::unordered_map<uint32 /*entry*/, GarrShipment>> shipment;
+    typedef std::unordered_map<uint32/*entry*/, GarrShipment> shipmentStoreMap;
+    std::map<uint8 /*ShipmentGetType*/, shipmentStoreMap> shipment;
 
     std::set<GarrAbilityEntry const*> _garrisonFollowerRandomTraits;
 

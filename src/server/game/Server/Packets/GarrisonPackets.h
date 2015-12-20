@@ -101,21 +101,13 @@ namespace WorldPackets
             uint32 MissionState = 0;
         };
 
-        struct LandingPageData
-        {
-            uint64 FollowerDBID = 0;
-            uint32 MissionRecID = 0;
-            uint32 Unk1 = 0;
-            uint32 Unk2 = 0;
-        };
-
         struct Shipment
         {
             Shipment() {}
             uint64 Unk2 = 0;
             uint64 ShipmentID = 0;
             uint32 ShipmentRecID = 0;
-            uint32 Unk8 = 2;
+            uint32 BuildingTypeID = 0;
             time_t CreationTime = time(0);
             int32 ShipmentDuration = 0;
         };
@@ -406,11 +398,11 @@ namespace WorldPackets
         class GarrisonLandingPage final : public ServerPacket
         {
         public:
-            GarrisonLandingPage() : ServerPacket(SMSG_GARRISON_LANDINGPAGE_SHIPMENTS, 4) { }
+            GarrisonLandingPage() : ServerPacket(SMSG_GARRISON_LANDING_PAGE_SHIPMENT_INFO, 4) { }
 
             WorldPacket const* Write() override;
 
-            std::vector<LandingPageData> MsgData;
+            std::vector<Shipment> MsgData;
         };
 
         class GarrisonAddMissionResult final : public ServerPacket

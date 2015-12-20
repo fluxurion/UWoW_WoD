@@ -133,24 +133,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonRemoteB
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::LandingPageData const& page)
-{
-    data << uint32(page.MissionRecID);
-    data << uint32(page.FollowerDBID);
-    data << uint32(page.Unk1);
-    data << uint32(page.Unk2);
-
-    return data;
-}
-
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::Shipment const& shipment)
 {
     data << shipment.ShipmentRecID;
     data << shipment.ShipmentID;
     data << shipment.Unk2;
-    data.AppendPackedTime(shipment.CreationTime);
+    data << uint32(shipment.CreationTime);
     data << shipment.ShipmentDuration;
-    data << shipment.Unk8;
+    data << shipment.BuildingTypeID;
 
     return data;
 }
@@ -419,10 +409,11 @@ WorldPacket const* WorldPackets::Garrison::GetShipmentInfoResponse::Write()
     _worldPacket << MaxShipments;
 
     _worldPacket << static_cast<uint32>(Shipments.size());
-    for (auto const& map : Shipments)
-        _worldPacket << map;
 
     _worldPacket << PlotInstanceID;
+
+    for (auto const& map : Shipments)
+        _worldPacket << map;
 
     return &_worldPacket;
 }

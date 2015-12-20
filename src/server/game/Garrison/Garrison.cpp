@@ -219,11 +219,9 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
             Field* fields = shipments->Fetch();
 
             uint64 dbId = fields[0].GetUInt64();
-            uint32 shipmentID = fields[1].GetUInt32();
-            uint32 orderTime = fields[2].GetUInt32();
-            if (!sCharShipmentStore.LookupEntry(shipmentID))
-                continue;
 
+            uint32 shipmentID = fields[1].GetUInt16();
+            uint32 orderTime = fields[2].GetUInt32();
             PlaceShipment(dbId, shipmentID, orderTime);
 
         } while (shipments->NextRow());
@@ -318,19 +316,17 @@ void Garrison::SaveToDB(SQLTransaction trans)
         stmt->setUInt32(index++, mission.PacketInfo.MissionState);
         trans->Append(stmt);
     }
-    sLog->outU(">>>>>>>>>>>>>>>>>>>>>>>>>> 1 - %u", _shipments.size());
+
     for (auto &x : _shipments)
     {
-        sLog->outU(">>>>>>>>>>>>>>>>>>>>>>>>>> 2");
         for (auto shipment : x.second)
         {
-            sLog->outU(">>>>>>>>>>>>>>>>>>>>>>>>>> 3");
             uint8 index = 0;
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON_SHIPMENTS);
 
             stmt->setUInt64(index++, shipment.ShipmentID);
             stmt->setUInt64(index++, _owner->GetGUIDLow());
-            stmt->setUInt32(index++, shipment.ShipmentRecID);
+            stmt->setUInt16(index++, shipment.ShipmentRecID);
             stmt->setUInt32(index++, shipment.CreationTime);
 
             trans->Append(stmt);
@@ -1761,8 +1757,9 @@ void Garrison::SendShipmentInfo(ObjectGuid const& guid)
         shipmentResponse.MaxShipments = shipment->MaxShipments;
         shipmentResponse.PlotInstanceID = GetPlotInstanceForBuildingType(shipment->BuildingTypeID);
 
-        for (auto data : _shipments[shipmentResponse.ShipmentID])
-            shipmentResponse.Shipments.push_back(data);
+        shipmentResponse.Shipments = _shipments[shipment->ShipmentID];
+        /*for (auto data : _shipments[shipment->ShipmentID])
+            shipmentResponse.Shipments.push_back(data);*/
     }
     shipmentResponse.Success = shipment;
 
@@ -1804,6 +1801,9 @@ void Garrison::PlaceShipment(uint64 dbId, uint32 shipmentID, uint32 placeTime)
     if (!shipment)
         return;
 
+    if (_shipments[shipmentID].capacity() < shipment->MaxShipments)
+        _shipments[shipmentID].reserve(shipment->MaxShipments);
+
     uint32 elapsr = time(NULL) - placeTime; //if add from db - check how many time left and who is ready.
     uint32 shipmentsCountReadyFromLastTime = elapsr / shipment->data->TimeForShipment;
     while (elapsr > shipment->data->TimeForShipment)
@@ -1812,9 +1812,22 @@ void Garrison::PlaceShipment(uint64 dbId, uint32 shipmentID, uint32 placeTime)
     WorldPackets::Garrison::Shipment _s;
     _s.ShipmentID = dbId;
     _s.ShipmentRecID = shipmentID;
-    _s.CreationTime = placeTime;
-    _s.ShipmentDuration = shipmentsCountReadyFromLastTime >= _shipments[shipmentID].size() ? 0 :
-        elapsr + (shipment->data->TimeForShipment * (_shipments[shipmentID].size()+1));
+    _s.BuildingTypeID = shipment->BuildingTypeID;
+    _s.CreationTime = time_t(placeTime);
+    _s.ShipmentDuration = shipmentsCountReadyFromLastTime > _shipments[shipmentID].size() ? 0 :
+        (shipment->data->TimeForShipment - elapsr) + (shipment->data->TimeForShipment * _shipments[shipmentID].size());
 
     _shipments[shipmentID].push_back(_s);
+}
+
+void Garrison::SendGarrisonShipmentLandingPage()
+{
+    WorldPackets::Garrison::GarrisonLandingPage packet;
+
+    for (auto const& x : _shipments)
+    {
+        for (auto const& shipment : x.second)
+            packet.MsgData.push_back(shipment);
+    }
+    _owner->SendDirectMessage(packet.Write());
 }

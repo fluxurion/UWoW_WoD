@@ -92,6 +92,8 @@ enum FollowerQuality
 class GameObject;
 class Map;
 
+typedef std::vector<WorldPackets::Garrison::Shipment> ShipmentSet;
+
 class Garrison
 {
 public:
@@ -222,8 +224,9 @@ public:
     void OnGossipSelect(WorldObject* source);
     void SendShipmentInfo(ObjectGuid const& guid);
     void PlaceShipment(uint64 dbId, uint32 shipmentID, uint32 placeTime);
+    void SendGarrisonShipmentLandingPage();
 
-private:
+protected:
     Map* FindMap() const;
     void InitializePlots();
     GarrisonError CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32 garrBuildingId, bool byQuest = false) const;
@@ -240,7 +243,7 @@ private:
     std::unordered_map<uint64 /*dbId*/, Mission> _missions;
     std::unordered_set<uint32> _missionIds;
 
-    std::map<uint32/*shipmentID*/, std::list<WorldPackets::Garrison::Shipment>> _shipments;
+    std::map<uint32/*shipmentID*/, ShipmentSet> _shipments;
 };
 
 #endif // Garrison_h__

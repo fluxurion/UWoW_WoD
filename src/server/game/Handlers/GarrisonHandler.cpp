@@ -74,7 +74,10 @@ void WorldSession::HandleGarrisonMissionBonusRoll(WorldPackets::Garrison::Garris
 }
 
 void WorldSession::HandleGarrisonRequestLandingPageShipmentInfo(WorldPackets::Garrison::GarrisonRequestLandingPageShipmentInfo& /*packet*/)
-{ }
+{ 
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->SendGarrisonShipmentLandingPage();
+}
 
 void WorldSession::HandleGarrisonCheckUpgradeable(WorldPackets::Garrison::GarrisonCheckUpgradeable& /*packet*/)
 {
