@@ -1883,18 +1883,28 @@ void Garrison::PlaceShipment(uint64 dbId, uint32 shipmentID, uint32 placeTime)
     if (_shipments[shipmentID].capacity() < shipment->MaxShipments)
         _shipments[shipmentID].reserve(shipment->MaxShipments);
 
-    uint32 elapsr = time(NULL) - placeTime; //if add from db - check how many time left and who is ready.
-    uint32 shipmentsCountReadyFromLastTime = elapsr / shipment->data->TimeForShipment;
-    while (elapsr > shipment->data->TimeForShipment)
-        elapsr -= shipment->data->TimeForShipment;
+    uint32 EndShipment = shipment->data->TimeForShipment + placeTime;
+    uint32 lastFinishTime = 0;
+
+    // find last finishing time.
+    for (auto const& x : _shipments[shipmentID])
+    {
+        uint32 end = x.CreationTime + x.ShipmentDuration;
+        if (!lastFinishTime || end > lastFinishTime)
+            lastFinishTime = end;
+    }
+
+    // last in progress. so out complition is incrased.
+    if (lastFinishTime > placeTime)
+        EndShipment = lastFinishTime + shipment->data->TimeForShipment;
+
 
     WorldPackets::Garrison::Shipment _s;
     _s.ShipmentID = dbId;
     _s.ShipmentRecID = shipmentID;
     _s.BuildingTypeID = shipment->BuildingTypeID;
     _s.CreationTime = time_t(placeTime);
-    _s.ShipmentDuration = shipmentsCountReadyFromLastTime > _shipments[shipmentID].size() ? 0 :
-        (shipment->data->TimeForShipment - elapsr) + (shipment->data->TimeForShipment * _shipments[shipmentID].size());
+    _s.ShipmentDuration = EndShipment - ::time(nullptr);
 
     _shipments[shipmentID].push_back(_s);
 }
