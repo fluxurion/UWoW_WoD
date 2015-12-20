@@ -227,77 +227,6 @@ void Arena::CheckWinConditions()
 
 void Arena::EndBattleground(uint32 winner)
 {
-    UpdateWorldState(WorldStates::ARENA_SHOW_END_TIMER, 0);
-
-    bool guildAwarded = false;
-    uint8 aliveWinners = GetAlivePlayersCountByTeam(winner);
-    std::ostringstream info;
-    BracketType bType = BattlegroundMgr::BracketByJoinType(GetJoinType());
-
-    for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-    {
-        uint32 team = itr->second.Team;
-
-        if (itr->second.OfflineRemoveTime)
-        {
-            if (isRated() && winner != WINNER_NONE)
-            {
-                Bracket* bracket = sBracketMgr->TryGetOrCreateBracket(itr->first, bType);
-                ASSERT(bracket);    //unreal
-                uint32 gain = bracket->FinishGame(team == winner, GetMatchmakerRating(team == winner ? GetOtherTeam(winner) : winner));
-                info << " >> Plr. Not in game at the end of match. GUID: " << itr->first << " mmr gain: " << gain << " state:" << (team == winner) ? "WINER" : "LOSER";
-            }
-            continue;
-        }
-
-        Player* player = GetPlayer(itr, "EndBattleground");
-        if (!player)
-            continue;
-
-        Bracket* bracket = GetJoinType() ? player->getBracket(bType) : nullptr;
-        uint16 bracketRating = bracket->getRating();
-        bool isWinnerTeam = team == winner;
-
-        if (isWinnerTeam && isRated() && GetJoinType() == JOIN_TYPE_ARENA_5v5 && aliveWinners == 1 && player->isAlive())
-            player->CastSpell(player, SPELL_BG_THE_LAST_STANDING, true);
-
-        if (isRated() && winner != WINNER_NONE)
-        {
-            uint32 gain = bracket->FinishGame(isWinnerTeam, GetMatchmakerRating(isWinnerTeam ? GetOtherTeam(winner) : winner));
-            info << " >> Plr: " << player->ToString().c_str() << " mmr gain: " << gain << " state:" << (isWinnerTeam) ? "WINER" : "LOSER";
-            if (isWinnerTeam)
-            {
-                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, 1);
-                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
-                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_ARENA_META, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
-
-                _arenaTeamScores[team].Assign(bracketRating, bracketRating + gain, bracket->getLastMMRChange());
-
-                if (!guildAwarded)
-                {
-                    guildAwarded = true;
-                    if (ObjectGuid::LowType guildId = GetBgMap()->GetOwnerGuildId(player->GetTeam()))
-                        if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                            guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(bracketRating, 1), 0, 0, nullptr, player);
-                }
-            }
-            else
-            {
-                player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
-                _arenaTeamScores[team].Assign(bracketRating, bracketRating - gain, bracket->getLastMMRChange());
-            }
-
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA, GetMapId());
-        }
-        else if (isRated())
-        {
-            _arenaTeamScores[TEAM_ALLIANCE].Assign(bracketRating, bracketRating - 16, bracket->getLastMMRChange());
-            _arenaTeamScores[TEAM_HORDE].Assign(bracketRating, bracketRating - 16, bracket->getLastMMRChange());
-
-            bracket->FinishGame(false, -16);
-        }
-    }
-
     if (isRated() && winner != WINNER_NONE)
     {
         const char* winnerTeam[5];
@@ -357,8 +286,6 @@ void Arena::EndBattleground(uint32 winner)
                 break;
         }
     }
-
-    Battleground::EndBattleground(winner);
 }
 
 void Arena::SendOpponentSpecialization(uint32 team)

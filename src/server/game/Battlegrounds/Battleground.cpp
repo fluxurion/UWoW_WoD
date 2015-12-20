@@ -717,6 +717,9 @@ void Battleground::EndBattleground(uint32 winner)
     else
         SetWinner(3);
 
+    if (isArena())
+        UpdateWorldState(WorldStates::ARENA_SHOW_END_TIMER, 0);
+
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: EndBattleground. JounType: %u, Bracket %u, Winer %u", GetJoinType(), bType, winner);
 
     SetStatus(STATUS_WAIT_LEAVE);
@@ -752,6 +755,36 @@ void Battleground::EndBattleground(uint32 winner)
             player->getHostileRefManager().deleteReferences();
         }
 
+        // per player calculation
+        if (isArena() && isRated() && winner != WINNER_NONE)
+        {
+            uint32 gain = bracket->FinishGame(team == winner, GetMatchmakerRating(team == winner ? GetOtherTeam(winner) : winner));
+            info << " >> Plr: " << player->ToString().c_str() << " mmr gain: " << gain << " state:" << (team == winner) ? "WINER" : "LOSER";
+            if (team == winner)
+            {
+                // update achievement BEFORE personal rating update.
+                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, 1);
+                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
+                player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_ARENA_META, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
+
+                _arenaTeamScores[team == winner].Assign(bracket->getRating(), bracket->getRating() + gain, bracket->getLastMMRChange());
+            }
+            else
+            {
+                player->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
+                _arenaTeamScores[team != winner].Assign(bracket->getRating(), bracket->getRating() - gain, bracket->getLastMMRChange());
+            }
+
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA, GetMapId());
+        }
+        else if (isArena() && isRated())
+        {
+            _arenaTeamScores[TEAM_ALLIANCE].Assign(bracket->getRating(), bracket->getRating() -16, bracket->getLastMMRChange());
+            _arenaTeamScores[TEAM_HORDE].Assign(bracket->getRating(), bracket->getRating() -16, bracket->getLastMMRChange());
+
+            bracket->FinishGame(false, -16);
+        }
+
         // remove temporary currency bonus auras before rewarding player
         player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_25Y);
         player->RemoveAura(SPELL_BG_HONORABLE_DEFENDER_60Y);
@@ -775,7 +808,11 @@ void Battleground::EndBattleground(uint32 winner)
                     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
                     {
                         guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1, 0, 0, nullptr, player);
-
+                        if (isArena() && isRated() && winner != WINNER_NONE)
+                        {
+                            ASSERT(bracket);
+                            guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, std::max<uint32>(bracket->getRating(), 1), 0, 0, nullptr, player);
+                        }
                     }
             }
         }
