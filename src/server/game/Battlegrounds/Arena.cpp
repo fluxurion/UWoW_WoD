@@ -205,6 +205,8 @@ void Arena::StartingEventOpenDoors()
 
 void Arena::RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket)
 {
+    Battleground::RemovePlayerAtLeave(guid, transport, sendPacket);
+
     Player* player = ObjectAccessor::FindPlayer(guid);
     if (!player)
         return;
@@ -213,8 +215,6 @@ void Arena::RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket
     player->RemoveAurasDueToSpell(SPELL_ENTERING_BATTLEGROUND);
     if (isRated())
         player->RemoveAurasDueToSpell(SPELL_RATED_PVP_TRANSFORM_SUPPRESSION);
-
-    Battleground::RemovePlayerAtLeave(guid, transport, sendPacket);
 }
 
 void Arena::CheckWinConditions()
@@ -231,6 +231,7 @@ void Arena::EndBattleground(uint32 winner)
     {
         const char* winnerTeam[5];
         const char*  loserTeam[5];
+        std::ostringstream info;
         for (uint8 i = 0; i < 5; ++i)
         {
             winnerTeam[i] = "";
@@ -286,6 +287,8 @@ void Arena::EndBattleground(uint32 winner)
                 break;
         }
     }
+
+    Battleground::EndBattleground(winner);
 }
 
 void Arena::SendOpponentSpecialization(uint32 team)
