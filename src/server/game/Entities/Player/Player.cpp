@@ -6320,16 +6320,17 @@ void Player::RepopAtGraveyard()
         ClosestGrave = bg->GetClosestGraveYard(this);
     else
     {
-        if (InstanceMap* inst = GetMap()->ToInstanceMap())
+        /*if (InstanceMap* inst = GetMap()->ToInstanceMap())
         {
             if(WorldLocation const* _grave = inst->GetClosestGraveYard())
             {
-                ResurrectPlayer(0.5f);
-                SpawnCorpseBones();
+                //ResurrectPlayer(0.5f);
+                //SpawnCorpseBones();
                 TeleportTo(_grave->GetMapId(), _grave->GetPositionX(), _grave->GetPositionY(), _grave->GetPositionZ(), _grave->GetOrientation());
+                UpdateObjectVisibility();
                 return;
             }
-        }
+        }*/
 
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
             ClosestGrave = bf->GetClosestGraveYard(this);

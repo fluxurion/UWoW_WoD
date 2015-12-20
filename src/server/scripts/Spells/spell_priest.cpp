@@ -990,7 +990,7 @@ class spell_pri_cascade_trigger : public SpellScriptLoader
 
                 int32 jumpCount = spellValue->EffectBasePoints[1] - 1;
                 if(jumpCount)
-                    caster->CastCustomSpell(target, GetSpellInfo()->Id == 127628 ? PRIEST_CASCADE_DAMAGE_TRIGGER : PRIEST_CASCADE_HOLY_TRIGGER, &jumpCount, &jumpCount, NULL, true, NULL, NULL, casterOrig->GetGUID()); //120840
+                    caster->CastCustomSpell(target, GetSpellInfo()->Id == 127628 ? PRIEST_CASCADE_DAMAGE_TRIGGER : PRIEST_CASCADE_HOLY_TRIGGER, &jumpCount, &jumpCount, NULL, true, NULL, NULL, casterOrig ? casterOrig->GetGUID() : caster->GetGUID()); //120840
             }
 
             void Register()

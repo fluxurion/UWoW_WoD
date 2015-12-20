@@ -24,7 +24,7 @@ insert into `spell_script_names` (`spell_id`, `ScriptName`) values('1822','spell
 
 DELETE FROM spell_target_filter WHERE spellId IN (113828);
 insert into `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values
-('113828','31','0','0','0','0','0','0','7','0','0','0','0','-1','Целительное прикосновение');
+('113828','31','0','0','0','0','0','0','7','0','2','0','0','-1','Целительное прикосновение');
 
 insert into `spell_aura_dummy` (`spellId`, `spellDummyId`, `type`, `option`, `target`, `caster`, `targetaura`, `aura`, `removeAura`, `effectDummy`, `effectmask`, `chance`, `attr`, `attrValue`, `custombp`, `specId`, `charge`, `comment`) values
 ('1822','145152','1','9','0','0','0','0','0','0','7','0','0','0','0','0','1','Кровавые когти'),
