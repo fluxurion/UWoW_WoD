@@ -153,8 +153,19 @@ void WorldSession::HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::Garrison
         garrison->SendMissionListUpdate(true);
 }
 
-void WorldSession::HandleCompleteAllReadyShipments(WorldPackets::Garrison::CompleteAllReadyShipments& /*packet*/)
-{ }
+void WorldSession::HandleCompleteAllReadyShipments(WorldPackets::Garrison::CompleteAllReadyShipments& packet)
+{
+    Map * m = _player->FindMap();
+    if (!m)
+        return;
+
+    GameObject *go = m->GetGameObject(packet.GUID);
+    if (!go)
+        return;
+
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->CompleteShipments(go);
+}
 
 void WorldSession::HandleUpgradeGarrison(WorldPackets::Garrison::UpgradeGarrison& packet)
 {

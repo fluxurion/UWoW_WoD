@@ -1973,3 +1973,46 @@ void Garrison::SendGarrisonShipmentLandingPage()
     }
     _owner->SendDirectMessage(packet.Write());
 }
+
+void Garrison::CompleteShipments(GameObject *go)
+{
+    GarrShipment const* data = sGarrisonMgr.GetGarrShipment(go->GetEntry(), SHIPMENT_GET_BY_GO);
+    if (!data)
+        return;
+
+    CharShipmentEntry const* shipmentEntry = NULL;
+    std::map<uint32, uint32> loot_items;
+    for (auto const& x : _shipments)
+    {
+        for (auto const& sh : x.second)
+        {
+            shipmentEntry = sCharShipmentStore.LookupEntry(sh.ShipmentRecID);
+            if (!shipmentEntry)
+                continue;
+            if (shipmentEntry->ShipmentConteinerID == data->data->ShipmentConteinerID)
+                ++loot_items[shipmentEntry->ShipmentResultItemID];
+        }
+    }
+
+    Loot* loot = &go->loot;
+    loot->clear();
+    loot->objType = 3;
+
+    loot->SetLootOwner(_owner);
+
+    loot->objEntry = go->GetEntry();
+    loot->objGuid = go->GetGUID();
+    loot->items.reserve(MAX_NR_LOOT_ITEMS);
+    loot->quest_items.reserve(MAX_NR_QUEST_ITEMS);
+    for (auto data : loot_items)
+    {
+        LootItem item;
+        item.InitItem(data.first, data.second, loot);
+        loot->items.push_back(item);
+    }
+
+    sLootMgr->AddLoot(loot);
+    loot->isClear = false;
+
+    _owner->SendLoot(go->GetGUID(), LOOT_CORPSE);
+}

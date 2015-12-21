@@ -369,6 +369,24 @@ LootItem::LootItem(LootStoreItem const& li, Loot* loot)
     is_underthreshold = 0;
     is_counted = 0;
 
+    init(loot);
+}
+
+void LootItem::InitItem(uint32 itemID, uint32 _count, Loot* loot)
+{
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemID);
+    if (!proto)
+        return;
+
+    item.ItemID = itemID;
+    currency = type = proto->IsCurrencyToken();
+    count = _count;
+
+    init(loot);
+}
+
+void LootItem::init(Loot* loot)
+{
     if (currency)
     {
         freeforall = false;
