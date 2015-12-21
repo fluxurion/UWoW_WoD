@@ -28499,6 +28499,8 @@ float Player::GetAverageItemLevel()
             ++count;
         }
     }
+    if (!count)
+        return 1.0f;
 
     return std::max(1.0f, float(sum / count));
 }
