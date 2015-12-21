@@ -520,40 +520,93 @@ void Garrison::Leave() const
 
 void Garrison::Update(uint32 diff)
 {
+    Map* map = FindMap();
+    if (!map)
+        return;
+
     for (auto& p : _plots)
     {
         if (p.second.buildingActivationWaiting &&
             p.second.BuildingInfo.CanActivate() && p.second.BuildingInfo.PacketInfo && !p.second.BuildingInfo.PacketInfo->Active)
         {
-            if (Map* map = FindMap())
+            p.second.buildingActivationWaiting = false;
+
+            if (FinalizeGarrisonPlotGOInfo const* finalizeInfo = sGarrisonMgr.GetPlotFinalizeGOInfo(p.second.PacketInfo.GarrPlotInstanceID))
             {
-                p.second.buildingActivationWaiting = false;
-
-                if (FinalizeGarrisonPlotGOInfo const* finalizeInfo = sGarrisonMgr.GetPlotFinalizeGOInfo(p.second.PacketInfo.GarrPlotInstanceID))
+                Position const& pos2 = finalizeInfo->FactionInfo[GetFaction()].Pos;
+                GameObject* finalizer = new GameObject();
+                if (finalizer->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), finalizeInfo->FactionInfo[GetFaction()].GameObjectId, map, 1, pos2.GetPositionX(), pos2.GetPositionY(),
+                    pos2.GetPositionZ(), pos2.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
                 {
-                    Position const& pos2 = finalizeInfo->FactionInfo[GetFaction()].Pos;
-                    GameObject* finalizer = new GameObject();
-                    if (finalizer->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), finalizeInfo->FactionInfo[GetFaction()].GameObjectId, map, 1, pos2.GetPositionX(), pos2.GetPositionY(),
-                        pos2.GetPositionZ(), pos2.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
-                    {
-                        // set some spell id to make the object delete itself after use
-                        finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);
-                        finalizer->SetRespawnTime(0);
+                    // set some spell id to make the object delete itself after use
+                    finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);
+                    finalizer->SetRespawnTime(0);
 
-                        if (uint16 animKit = finalizeInfo->FactionInfo[GetFaction()].AnimKitId)
-                            finalizer->SetAIAnimKitId(animKit);
+                    if (uint16 animKit = finalizeInfo->FactionInfo[GetFaction()].AnimKitId)
+                        finalizer->SetAIAnimKitId(animKit);
 
-                        map->AddToMap(finalizer);
-                    }
-                    else
-                        delete finalizer;
+                    map->AddToMap(finalizer);
                 }
+                else
+                    delete finalizer;
             }
+
         }
 
-        if (p.second.BuildingInfo.PacketInfo && p.second.BuildingInfo.PacketInfo->Active)
+        if (p.second.BuildingInfo.PacketInfo && p.second.BuildingInfo.PacketInfo->Active &&
+            p.second.selectetShipmentRecID)
         {
+            bool ready = false;
+            for (auto &data : _shipments[p.second.selectetShipmentRecID])
+            {
+                if (data.ShipmentDuration > 0)
+                    data.ShipmentDuration -= diff;
+                else
+                {
+                    //maybe we need prepare go for spawining?
+                    ready = true;
+                    data.ShipmentDuration = 0;
+                }
+            }
 
+            CharShipmentEntry const* shipmentEntry = sCharShipmentStore.LookupEntry(p.second.selectetShipmentRecID);
+            if (!shipmentEntry)
+                continue;
+
+            GarrBuildingEntry const* constructing = sGarrBuildingStore.AssertEntry(p.second.BuildingInfo.PacketInfo->GarrBuildingID);
+            const GarrShipment* shipment = sGarrisonMgr.GetGarrShipment(constructing->Type, SHIPMENT_GET_BY_BUILDING_TYPE);
+            if (!shipment)
+                continue;
+
+            //! ToDo: move to function seacher.
+            for (ObjectGuid const& guid : p.second.BuildingInfo.Spawns)
+            {
+                if (guid.GetEntry() == shipment->ConteinerGoEntry)
+                {
+                    GameObject *object = map->GetGameObject(guid);
+                    if (!object)
+                        continue;
+
+                    // go horde non actine = 20508, active 19959
+                    // go alliance non active 15585, active = 16091
+                    if (ready)
+                    {
+                        uint32 displayID = _owner->GetTeam() == HORDE ? 19959 : 16091;
+                        if (object->GetDisplayId() != displayID)
+                            object->SetDisplayId(displayID);
+
+                        if (object->GetGoState() == GO_STATE_ACTIVE_ALTERNATIVE)
+                            object->SetGoState(GO_STATE_READY);
+                    }else
+                    {
+                        uint32 displayID = _owner->GetTeam() == HORDE ? 20508 : 15585;
+                        if (object->GetDisplayId() != displayID)
+                            object->SetDisplayId(displayID);
+                        if (object->GetGoState() != (_shipments[p.second.selectetShipmentRecID].size() ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY))
+                            object->SetGoState(_shipments[p.second.selectetShipmentRecID].size() ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY);
+                    }
+                }
+            }
         }
     }
 }
