@@ -576,7 +576,7 @@ void BattlegroundTP::RemovePlayer(Player* player, ObjectGuid guid, uint32 /* tea
                         pl->RemoveAurasDueToSpell(SPELL_BG_BRUTAL_ASSAULT);
                 }
                 else
-                    sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundTP: An error has occurred in RemovePlayer: player with GUID: %s haven't been found. (_bothflagsKept is TRUE).", _flagKeepers[team].ToString());
+                    sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundTP: An error has occurred in RemovePlayer: player with GUID: %u haven't been found. (_bothflagsKept is TRUE).", _flagKeepers[team]);
             }
 
             _bothFlagsKept = false;
