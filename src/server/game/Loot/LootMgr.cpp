@@ -372,14 +372,10 @@ LootItem::LootItem(LootStoreItem const& li, Loot* loot)
     init(loot);
 }
 
-void LootItem::InitItem(uint32 itemID, uint32 _count, Loot* loot)
+void LootItem::InitItem(uint32 itemID, uint32 _count, Loot* loot, bool isCurrency)
 {
-    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemID);
-    if (!proto)
-        return;
-
     item.ItemID = itemID;
-    currency = type = proto->IsCurrencyToken();
+    currency = type = isCurrency;
     count = _count;
 
     init(loot);
@@ -503,6 +499,34 @@ Loot::Loot(uint32 _gold)
 void Loot::GenerateLootGuid(ObjectGuid __objGuid)
 {
     m_guid = ObjectGuid::Create<HighGuid::LootObject>(__objGuid.GetMapId(), 0, sObjectMgr->GetGenerator<HighGuid::LootObject>()->Generate());
+}
+
+LootItem* Loot::GetLootItem(uint32 entry)
+{
+    for (auto &i : items)
+    {
+        if (i.item.ItemID == entry)
+            return &i;
+    }
+    return nullptr;
+}
+
+void Loot::AddOrReplaceItem(uint32 itemID, uint32 _count, bool isRes)
+{
+    LootItem* item = GetLootItem(itemID);
+    if (item)
+    {
+        item->count = _count;
+    }
+    else
+    {
+        LootItem item;
+        item.InitItem(itemID, _count, this, isRes);
+        items.push_back(item);
+
+        if (isRes)
+            FillCurrencyLoot(m_lootOwner); //register
+    }
 }
 
 // Inserts the item into the loot (called by LootTemplate processors)

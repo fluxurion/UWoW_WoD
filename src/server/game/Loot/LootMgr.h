@@ -234,7 +234,7 @@ struct LootItem
     explicit LootItem(LootStoreItem const& li, Loot* loot);
     void init(Loot* loot);
 
-    void InitItem(uint32 itemID, uint32 count, Loot* loot);
+    void InitItem(uint32 itemID, uint32 count, Loot* loot, bool isCurrency = false);
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
     bool AllowedForPlayer(Player const* player) const;
@@ -382,6 +382,7 @@ struct Loot
     uint8 spawnMode;
     uint32 itemLevel;
     uint32 chance;
+    uint32 shipment = 0;                                    // of garrison
     bool personal;
     bool bonusLoot;
     bool isBoss;
@@ -393,6 +394,9 @@ struct Loot
 
     ObjectGuid const& GetGUID() const { return m_guid; }
     void SetGUID(ObjectGuid const& guid) { m_guid = guid; }
+
+    LootItem* GetLootItem(uint32 entry);
+    void AddOrReplaceItem(uint32 itemID, uint32 _count, bool isRes = false);
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)

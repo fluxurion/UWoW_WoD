@@ -24,6 +24,7 @@
 #include "VehicleDefines.h"
 #include "MiscPackets.h"
 #include "InstanceScript.h"
+#include "LootPackets.h"
 
 uint32 getSiteLevelIdById(uint32 team, uint8 lvl)
 {
@@ -1980,39 +1981,64 @@ void Garrison::CompleteShipments(GameObject *go)
     if (!data)
         return;
 
-    CharShipmentEntry const* shipmentEntry = NULL;
     std::map<uint32, uint32> loot_items;
-    for (auto const& x : _shipments)
-    {
-        for (auto const& sh : x.second)
-        {
-            shipmentEntry = sCharShipmentStore.LookupEntry(sh.ShipmentRecID);
-            if (!shipmentEntry)
-                continue;
-            if (shipmentEntry->ShipmentConteinerID == data->data->ShipmentConteinerID)
-                ++loot_items[shipmentEntry->ShipmentResultItemID];
-        }
-    }
+    for (auto const& sh : _shipments[data->ShipmentID])
+        ++loot_items[data->data->ShipmentResultItemID];
 
+
+    if (loot_items.empty())
+        return;
+
+    // This is hardcode of Player::SendLoot
     Loot* loot = &go->loot;
     loot->clear();
     loot->objType = 3;
+    loot->FillLoot(go->GetEntry(), LootTemplates_Gameobject, _owner, true, false, go);
+    loot->AddLooter(_owner->GetGUID());
+    loot->shipment = data->ShipmentID;
 
-    loot->SetLootOwner(_owner);
-
-    loot->objEntry = go->GetEntry();
-    loot->objGuid = go->GetGUID();
-    loot->items.reserve(MAX_NR_LOOT_ITEMS);
-    loot->quest_items.reserve(MAX_NR_QUEST_ITEMS);
     for (auto data : loot_items)
     {
-        LootItem item;
-        item.InitItem(data.first, data.second, loot);
-        loot->items.push_back(item);
+        bool find = false;
+
+        //HARDCORE.
+        switch (data.first)
+        {
+            //Mine Shipment
+            case 116055:
+            {
+                loot->AddOrReplaceItem(109119, data.second);
+                loot->AddOrReplaceItem(109118, data.second);
+                break;
+            }
+            //Garden Shipment
+            case 116054:
+                loot->AddOrReplaceItem(109125, data.second);
+                loot->AddOrReplaceItem(109118, data.second);
+                break;
+            case 118111:
+                loot->AddOrReplaceItem(CURRENCY_TYPE_GARRISON_RESOURCES, data.second * 30, true);
+                break;
+            default:
+                loot->AddOrReplaceItem(data.first, data.second);
+                break;
+        }
     }
 
-    sLootMgr->AddLoot(loot);
-    loot->isClear = false;
+    WorldPackets::Loot::LootResponse packet;
+    packet.LootObj = loot->GetGUID();
+    packet.AcquireReason = LOOT_CORPSE;
+    packet.Owner = go->GetGUID();
+    packet.AELooting = false;
+    loot->BuildLootResponse(packet, _owner, ALL_PERMISSION, ITEM_QUALITY_POOR);
 
-    _owner->SendLoot(go->GetGUID(), LOOT_CORPSE);
+    _owner->SendDirectMessage(packet.Write());
+
+    _owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_LOOTING);
+    go->SetLootState(GO_ACTIVATED, _owner);
+}
+
+void Garrison::FreeShipmentChest(uint32 shipment)
+{
+    _shipments[shipment].clear();
 }

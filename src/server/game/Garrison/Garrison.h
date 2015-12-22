@@ -228,7 +228,7 @@ public:
     void PlaceShipment(uint64 dbId, uint32 shipmentID, uint32 placeTime);
     void SendGarrisonShipmentLandingPage();
     void CompleteShipments(GameObject *go);
-
+    void FreeShipmentChest(uint32 shipment);
 protected:
     Map* FindMap() const;
     void InitializePlots();

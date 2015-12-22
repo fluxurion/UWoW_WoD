@@ -27082,7 +27082,12 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
                 ffaitem->is_looted = true;
                 SendNotifyLootItemRemoved(lootSlot, loot);
             }
-            else
+            else if (loot->shipment)
+            {
+                SendNotifyLootItemRemoved(lootSlot, loot);
+                if (Garrison *garr = GetGarrison())
+                    garr->FreeShipmentChest(loot->shipment);
+            }else
             {
                 //not freeforall, notify everyone
                 if (conditem)
