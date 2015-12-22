@@ -8920,20 +8920,22 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->initiator->RemoveGameObject(obj, true);
 
     /* remove auras */
+    ObjectGuid myGuid = GetGUID();
     AuraApplicationMap itsAuras = duel->opponent->GetAppliedAuras();
     for (AuraApplicationMap::iterator i = itsAuras.begin(); i != itsAuras.end();)
     {
         Aura* aura = i->second->GetBase();
-        if (aura && !aura->IsRemoved() && !i->second->IsPositive() && aura->GetCasterGUID() == GetGUID() && aura->GetApplyTime() >= duel->startTime)
+        if (aura && !aura->IsRemoved() && !i->second->IsPositive() && aura->GetCasterGUID() == myGuid && aura->GetApplyTime() >= duel->startTime)
             aura->Remove();
         ++i;
     }
 
+    ObjectGuid opponentGuid = duel->opponent->GetGUID();
     AuraApplicationMap myAuras = GetAppliedAuras();
     for (AuraApplicationMap::iterator i = myAuras.begin(); i != myAuras.end();)
     {
         Aura* aura = i->second->GetBase();
-        if (aura && !aura->IsRemoved() && !i->second->IsPositive() && aura->GetCasterGUID() == duel->opponent->GetGUID() && aura->GetApplyTime() >= duel->startTime)
+        if (aura && !aura->IsRemoved() && !i->second->IsPositive() && aura->GetCasterGUID() == opponentGuid && aura->GetApplyTime() >= duel->startTime)
             aura->Remove();
         ++i;
     }
