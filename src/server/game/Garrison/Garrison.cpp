@@ -598,7 +598,8 @@ void Garrison::Update(uint32 diff)
 
                         if (object->GetGoState() == GO_STATE_ACTIVE_ALTERNATIVE)
                             object->SetGoState(GO_STATE_READY);
-                    }else
+                    }
+                    else if (!object->loot.items.size())
                     {
                         uint32 displayID = _owner->GetTeam() == HORDE ? 20508 : 15585;
                         if (object->GetDisplayId() != displayID)
@@ -1870,7 +1871,7 @@ void Garrison::SendShipmentInfo(ObjectGuid const& guid)
         shipmentResponse.MaxShipments = shipment->MaxShipments;
         shipmentResponse.PlotInstanceID = plot->BuildingInfo.PacketInfo->GarrPlotInstanceID;
 
-        shipmentResponse.Shipments = _shipments[plot->selectetShipmentRecID];
+        shipmentResponse.Shipments.assign(_shipments[plot->selectetShipmentRecID].begin(), _shipments[plot->selectetShipmentRecID].end());
     }
     shipmentResponse.Success = shipment && plot;
 
@@ -1934,9 +1935,6 @@ void Garrison::PlaceShipment(uint64 dbId, uint32 shipmentID, uint32 placeTime)
     if (!shipment)
         return;
 
-    if (_shipments[shipmentID].capacity() < shipment->MaxShipments)
-        _shipments[shipmentID].reserve(shipment->MaxShipments);
-
     uint32 EndShipment = shipment->data->TimeForShipment + placeTime;
     uint32 lastFinishTime = 0;
 
@@ -1983,44 +1981,58 @@ void Garrison::CompleteShipments(GameObject *go)
 
     std::map<uint32, uint32> loot_items;
     for (auto const& sh : _shipments[data->ShipmentID])
-        ++loot_items[data->data->ShipmentResultItemID];
-
-
-    if (loot_items.empty())
-        return;
+        if (!sh.ShipmentDuration)
+            ++loot_items[data->data->ShipmentResultItemID];
 
     // This is hardcode of Player::SendLoot
     Loot* loot = &go->loot;
-    loot->clear();
-    loot->objType = 3;
-    loot->FillLoot(go->GetEntry(), LootTemplates_Gameobject, _owner, true, false, go);
-    loot->AddLooter(_owner->GetGUID());
-    loot->shipment = data->ShipmentID;
 
+    if (loot_items.empty())
+    {
+        WorldPackets::Loot::LootResponse packet;
+        packet.LootObj = loot->GetGUID();
+        packet.AcquireReason = LOOT_CORPSE;
+        packet.Owner = go->GetGUID();
+        packet.AELooting = false;
+        loot->BuildLootResponse(packet, _owner, ALL_PERMISSION, ITEM_QUALITY_POOR);
+
+        _owner->SendDirectMessage(packet.Write());
+        return;
+    }
+
+    // fill loot only once... after we should add only continue.
+    bool update = !loot->items.empty();
+    if (!update)
+    {
+        loot->clear();
+        loot->objType = 3;
+        loot->FillLoot(go->GetEntry(), LootTemplates_Gameobject, _owner, true, false, go);
+        loot->AddLooter(_owner->GetGUID());
+    }
+    loot->shipment = data->ShipmentID;
+    
     for (auto data : loot_items)
     {
-        bool find = false;
-
         //HARDCORE.
         switch (data.first)
         {
             //Mine Shipment
             case 116055:
             {
-                loot->AddOrReplaceItem(109119, data.second);
-                loot->AddOrReplaceItem(109118, data.second);
+                loot->AddOrReplaceItem(109119, data.second, false);
+                loot->AddOrReplaceItem(109118, data.second, false);
                 break;
             }
             //Garden Shipment
             case 116054:
-                loot->AddOrReplaceItem(109125, data.second);
-                loot->AddOrReplaceItem(109118, data.second);
+                loot->AddOrReplaceItem(109125, data.second, false);
+                loot->AddOrReplaceItem(109124, data.second, false);
                 break;
             case 118111:
                 loot->AddOrReplaceItem(CURRENCY_TYPE_GARRISON_RESOURCES, data.second * 30, true);
                 break;
             default:
-                loot->AddOrReplaceItem(data.first, data.second);
+                loot->AddOrReplaceItem(data.first, data.second, false);
                 break;
         }
     }
@@ -2040,5 +2052,14 @@ void Garrison::CompleteShipments(GameObject *go)
 
 void Garrison::FreeShipmentChest(uint32 shipment)
 {
-    _shipments[shipment].clear();
+    ShipmentSet &set = _shipments[shipment];
+    for (ShipmentSet::iterator itr = set.begin(); itr != set.end();)
+    {
+        if (!itr->ShipmentDuration)
+        {
+            set.erase(itr++);
+        }
+        else
+            ++itr;
+    }
 }

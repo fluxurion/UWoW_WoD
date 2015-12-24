@@ -92,7 +92,7 @@ enum FollowerQuality
 class GameObject;
 class Map;
 
-typedef std::vector<WorldPackets::Garrison::Shipment> ShipmentSet;
+typedef std::list<WorldPackets::Garrison::Shipment> ShipmentSet;
 
 class Garrison
 {

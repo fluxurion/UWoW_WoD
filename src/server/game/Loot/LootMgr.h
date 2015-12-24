@@ -396,7 +396,7 @@ struct Loot
     void SetGUID(ObjectGuid const& guid) { m_guid = guid; }
 
     LootItem* GetLootItem(uint32 entry);
-    void AddOrReplaceItem(uint32 itemID, uint32 _count, bool isRes = false);
+    void AddOrReplaceItem(uint32 itemID, uint32 _count, bool isRes = false, bool update = false);
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)
@@ -433,9 +433,10 @@ struct Loot
     // Builds data for SMSG_LOOT_RESPONSE
     void BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* viewer, PermissionTypes permission = ALL_PERMISSION, ItemQualities t = ITEM_QUALITY_POOR) const;
 
+    QuestItemList* FillCurrencyLoot(Player* player);
+
 private:
     void FillNotNormalLootFor(Player* player, bool presentAtLooting);
-    QuestItemList* FillCurrencyLoot(Player* player);
     QuestItemList* FillFFALoot(Player* player);
     QuestItemList* FillQuestLoot(Player* player);
     QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);

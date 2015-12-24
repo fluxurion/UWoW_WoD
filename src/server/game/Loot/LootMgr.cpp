@@ -511,12 +511,16 @@ LootItem* Loot::GetLootItem(uint32 entry)
     return nullptr;
 }
 
-void Loot::AddOrReplaceItem(uint32 itemID, uint32 _count, bool isRes)
+void Loot::AddOrReplaceItem(uint32 itemID, uint32 _count, bool isRes, bool update/*=false*/)
 {
     LootItem* item = GetLootItem(itemID);
     if (item)
     {
-        item->count = _count;
+        if (update)
+            item->count += _count;
+        else
+            item->count = _count;
+        item->is_looted = false;
     }
     else
     {
