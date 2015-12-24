@@ -49,7 +49,10 @@ enum SideiD
 };
 
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1), _lastResTaken(0)
-{ }
+{ 
+    updateTimer.SetInterval(5 * IN_MILLISECONDS);
+    updateTimer.Reset();
+}
 
 bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
     PreparedQueryResult followers, PreparedQueryResult abilities, PreparedQueryResult missions, PreparedQueryResult shipments)
@@ -521,6 +524,12 @@ void Garrison::Leave() const
 
 void Garrison::Update(uint32 diff)
 {
+    updateTimer.Update(diff);
+    if (!updateTimer.Passed())
+        return;
+
+    updateTimer.Reset();
+
     Map* map = FindMap();
     if (!map)
         return;
@@ -561,7 +570,7 @@ void Garrison::Update(uint32 diff)
             for (auto &data : _shipments[p.second.selectetShipmentRecID])
             {
                 if (data.ShipmentDuration > 0)
-                    data.ShipmentDuration -= diff;
+                    data.ShipmentDuration -= updateTimer.GetCurrent() / IN_MILLISECONDS;
                 else
                 {
                     //maybe we need prepare go for spawining?

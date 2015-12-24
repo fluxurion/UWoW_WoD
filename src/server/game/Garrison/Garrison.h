@@ -247,6 +247,8 @@ protected:
     std::unordered_set<uint32> _missionIds;
 
     std::map<uint32/*shipmentID*/, ShipmentSet> _shipments;
+
+    IntervalTimer updateTimer;
 };
 
 #endif // Garrison_h__
