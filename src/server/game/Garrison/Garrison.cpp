@@ -1916,7 +1916,7 @@ void Garrison::CreateShipment(ObjectGuid const& guid, uint32 count)
     shipment = sGarrisonMgr.GetGarrShipment(plot->selectetShipmentRecID, SHIPMENT_GET_BY_SHIPMENT_ID);
 
     for (uint32 i = 0; i < count; ++i)
-        _owner->CastSpell(_owner, shipment->data->SpellCreation, true);
+        _owner->CastSpell(_owner, shipment->data->SpellCreation, false);
 }
 
 void Garrison::CreateGarrisonShipment(uint32 shipmentID)
