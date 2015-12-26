@@ -42,7 +42,7 @@ uint32 getSiteLevelIdById(uint32 team, uint8 lvl)
     return 0;
 }
 
-enum SideiD
+enum SiteiD
 {
     SITE_ID_GARRISON_ALLIANCE = 2,
     SITE_ID_GARRISON_HORDE = 71,

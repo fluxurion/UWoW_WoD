@@ -392,8 +392,8 @@ struct CharShipmentConteiner
     uint32 unk7;
     uint32 MaxShipments;
     LocalizedString* Description;
-    uint32 unk8;
-    uint32 unk9;
+    uint32 unk8;        //id of other fraction.
+    uint32 unk9;        //-1 - for all, 0 - horde, 1 - alliance
 };
 
 struct GarrAbilityEntry
