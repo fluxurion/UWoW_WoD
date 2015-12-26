@@ -48,21 +48,20 @@ struct GarrAbilities
 
 struct GarrShipment
 {
+    uint32 SiteID = 0;
+    uint32 ContainerID = 0;
     uint32 NpcEntry = 0;
     uint32 ConteinerGoEntry = 0;
     uint32 ShipmentID = 0;
-    uint32 MaxShipments = 0;
-    uint32 BuildingTypeID = 0;
 
     CharShipmentEntry const* data = NULL;
+    CharShipmentConteiner const* cEntry = NULL;
 };
 
 enum ShipmentGetType : uint8
 {
     SHIPMENT_GET_BY_NPC           = 0,
-    SHIPMENT_GET_BY_GO            = 1,
-    SHIPMENT_GET_BY_SHIPMENT_ID   = 2,
-    SHIPMENT_GET_BY_BUILDING_TYPE = 3,
+    SHIPMENT_GET_BY_CONTEINER_ID  = 1,
 };
 
 class GarrisonMgr

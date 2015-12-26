@@ -40,6 +40,7 @@ extern DB2Storage<BattlePetSpeciesXAbilityEntry>    sBattlePetSpeciesXAbilitySto
 extern DB2Storage<BattlePetStateEntry>              sBattlePetStateStore;
 extern DB2Storage<BroadcastTextEntry>               sBroadcastTextStore;
 extern DB2Storage<CharShipmentEntry>                sCharShipmentStore;
+extern DB2Storage<CharShipmentConteiner>            sCharShipmentContainerStore;
 extern DB2Storage<CurrencyTypesEntry>               sCurrencyTypesStore;
 extern DB2Storage<GameObjectsEntry>                 sGameObjectsStore;
 extern DB2Storage<GarrAbilityEntry>                 sGarrAbilityStore;

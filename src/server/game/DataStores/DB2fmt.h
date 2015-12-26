@@ -36,6 +36,7 @@ char const BattlePetSpeciesXAbilityFormat[] = "niiii";
 char const BattlePetStateFormat[] = "nisi";
 char const BroadcastTextFormat[] = "nissiiiiiiiii";
 char const CharShipmentFormat[] = "niiiiii";
+char const CharShipmentConteinerFormat[] = "niixiiiiiixii";
 char const CreatureDifficultyFormat[] = "niiiiiiiiii";
 char const CurrencyTypesFormat[] = "nisssiiiiiis";
 char const CurvePointFormat[] = "niiff";

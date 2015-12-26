@@ -81,7 +81,7 @@ void GarrisonGridLoader::Visit(GameObjectMapType& m)
             if (cellCoord != Trinity::ComputeCellCoord(spawn.GetPositionX(), spawn.GetPositionY()))
                 continue;
 
-            GameObject* go = plot->CreateGameObject(i_map, i_garrison->GetFaction());
+            GameObject* go = plot->CreateGameObject(i_map, i_garrison->GetFaction(), i_garrison);
             if (!go)
                 continue;
             i_map->AddToMap(go);

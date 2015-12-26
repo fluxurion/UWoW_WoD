@@ -42,12 +42,6 @@ uint32 getSiteLevelIdById(uint32 team, uint8 lvl)
     return 0;
 }
 
-enum SiteiD
-{
-    SITE_ID_GARRISON_ALLIANCE = 2,
-    SITE_ID_GARRISON_HORDE = 71,
-};
-
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1), _lastResTaken(0)
 { 
     updateTimer.SetInterval(5 * IN_MILLISECONDS);
@@ -116,10 +110,6 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
 
             if (!plot->BuildingInfo.PacketInfo->Active)
                 plot->buildingActivationWaiting = true;
-
-            if (active)
-                plot->initShipment();
-
         }
         while (buildings->NextRow());
     }
@@ -229,7 +219,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
 
             uint32 shipmentID = fields[1].GetUInt16();
             uint32 orderTime = fields[2].GetUInt32();
-            PlaceShipment(dbId, shipmentID, orderTime);
+            PlaceShipment(shipmentID, orderTime, dbId);
 
         } while (shipments->NextRow());
     }
@@ -560,64 +550,47 @@ void Garrison::Update(uint32 diff)
                 else
                     delete finalizer;
             }
+        }
+    }
 
+    //! Shipment orders update.
+    for (auto data : ShipmentConteiners)
+    {
+        GameObject *object = map->GetGameObject(data.second);
+        if (!object)
+            continue;
+
+        bool ready = false;
+        for (auto &data : _shipments[data.first])
+        {
+            if (data.ShipmentDuration > 0)
+                data.ShipmentDuration -= updateTimer.GetCurrent() / IN_MILLISECONDS;
+            else
+            {
+                //maybe we need prepare go for spawining?
+                ready = true;
+                data.ShipmentDuration = 0;
+            }
         }
 
-        if (p.second.BuildingInfo.PacketInfo && p.second.BuildingInfo.PacketInfo->Active &&
-            p.second.selectetShipmentRecID)
+        // go horde non actine = 20508, active 19959
+        // go alliance non active 15585, active = 16091
+        if (ready)
         {
-            bool ready = false;
-            for (auto &data : _shipments[p.second.selectetShipmentRecID])
-            {
-                if (data.ShipmentDuration > 0)
-                    data.ShipmentDuration -= updateTimer.GetCurrent() / IN_MILLISECONDS;
-                else
-                {
-                    //maybe we need prepare go for spawining?
-                    ready = true;
-                    data.ShipmentDuration = 0;
-                }
-            }
+            uint32 displayID = _owner->GetTeam() == HORDE ? 19959 : 16091;
+            if (object->GetDisplayId() != displayID)
+                object->SetDisplayId(displayID);
 
-            CharShipmentEntry const* shipmentEntry = sCharShipmentStore.LookupEntry(p.second.selectetShipmentRecID);
-            if (!shipmentEntry)
-                continue;
-
-            GarrBuildingEntry const* constructing = sGarrBuildingStore.AssertEntry(p.second.BuildingInfo.PacketInfo->GarrBuildingID);
-            const GarrShipment* shipment = sGarrisonMgr.GetGarrShipment(constructing->Type, SHIPMENT_GET_BY_BUILDING_TYPE);
-            if (!shipment)
-                continue;
-
-            //! ToDo: move to function seacher.
-            for (ObjectGuid const& guid : p.second.BuildingInfo.Spawns)
-            {
-                if (guid.GetEntry() == shipment->ConteinerGoEntry)
-                {
-                    GameObject *object = map->GetGameObject(guid);
-                    if (!object)
-                        continue;
-
-                    // go horde non actine = 20508, active 19959
-                    // go alliance non active 15585, active = 16091
-                    if (ready)
-                    {
-                        uint32 displayID = _owner->GetTeam() == HORDE ? 19959 : 16091;
-                        if (object->GetDisplayId() != displayID)
-                            object->SetDisplayId(displayID);
-
-                        if (object->GetGoState() == GO_STATE_ACTIVE_ALTERNATIVE)
-                            object->SetGoState(GO_STATE_READY);
-                    }
-                    else if (!object->loot.items.size())
-                    {
-                        uint32 displayID = _owner->GetTeam() == HORDE ? 20508 : 15585;
-                        if (object->GetDisplayId() != displayID)
-                            object->SetDisplayId(displayID);
-                        if (object->GetGoState() != (_shipments[p.second.selectetShipmentRecID].size() ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY))
-                            object->SetGoState(_shipments[p.second.selectetShipmentRecID].size() ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY);
-                    }
-                }
-            }
+            if (object->GetGoState() == GO_STATE_ACTIVE_ALTERNATIVE)
+                object->SetGoState(GO_STATE_READY);
+        }
+        else if (!object->loot.items.size())
+        {
+            uint32 displayID = _owner->GetTeam() == HORDE ? 20508 : 15585;
+            if (object->GetDisplayId() != displayID)
+                object->SetDisplayId(displayID);
+            if (object->GetGoState() != (_shipments[data.first].size() ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY))
+                object->SetGoState(_shipments[data.first].size() ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY);
         }
     }
 }
@@ -655,6 +628,20 @@ Garrison::Plot const* Garrison::GetPlot(uint32 garrPlotInstanceId) const
     return nullptr;
 }
 
+Garrison::Plot* Garrison::GetPlotWithBuildingType(uint32 BuildingTypeID)
+{
+    GarrBuildingEntry const* existingBuilding;
+    for (auto &p : _plots)
+    {
+        if (p.second.BuildingInfo.PacketInfo)
+        {
+            existingBuilding = sGarrBuildingStore.AssertEntry(p.second.BuildingInfo.PacketInfo->GarrBuildingID);
+            if (existingBuilding->Type == BuildingTypeID)
+                return &p.second;
+        }
+    }
+    return NULL;
+}
 bool Garrison::LearnBlueprint(uint32 garrBuildingId)
 {
     WorldPackets::Garrison::GarrisonLearnBlueprintResult learnBlueprintResult;
@@ -729,7 +716,6 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId, b
         {
             placeBuildingResult.PlayActivationCinematic = true;
             placeBuildingResult.BuildingInfo.Active = true;
-            plot->initShipment();
         }
         else
         {
@@ -740,7 +726,7 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId, b
         plot->SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
         if (map)
         {
-            if (GameObject* go = plot->CreateGameObject(map, GetFaction()))
+            if (GameObject* go = plot->CreateGameObject(map, GetFaction(), this))
                 map->AddToMap(go);
         }
 
@@ -794,14 +780,13 @@ void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
             placeBuildingResult.BuildingInfo.GarrBuildingID = restored->ID;
             placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
             placeBuildingResult.BuildingInfo.Active = true;
-            plot->initShipment();
 
             plot->SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
             _owner->SendDirectMessage(placeBuildingResult.Write());
         }
 
         if (map)
-            if (GameObject* go = plot->CreateGameObject(map, GetFaction()))
+            if (GameObject* go = plot->CreateGameObject(map, GetFaction(), this))
                 map->AddToMap(go);
     }
     else
@@ -815,12 +800,11 @@ void Garrison::ActivateBuilding(uint32 garrPlotInstanceId)
         if (plot->BuildingInfo.CanActivate() && plot->BuildingInfo.PacketInfo && !plot->BuildingInfo.PacketInfo->Active)
         {
             plot->BuildingInfo.PacketInfo->Active = true;
-            plot->initShipment();
 
             if (Map* map = FindMap())
             {
                 plot->DeleteGameObject(map);
-                if (GameObject* go = plot->CreateGameObject(map, GetFaction()))
+                if (GameObject* go = plot->CreateGameObject(map, GetFaction(), this))
                     map->AddToMap(go);
             }
 
@@ -1116,45 +1100,18 @@ GarrisonError Garrison::CheckBuildingRemoval(uint32 garrPlotInstanceId) const
     return GARRISON_SUCCESS;
 }
 
-void Garrison::Plot::initShipment()
-{
-    selectetShipmentRecID = 0;
-
-    if (!BuildingInfo.PacketInfo || !BuildingInfo.PacketInfo->Active)
-        return;
-
-    GarrBuildingEntry const* constructing = sGarrBuildingStore.AssertEntry(BuildingInfo.PacketInfo->GarrBuildingID);
-
-    const GarrShipment* shipment = sGarrisonMgr.GetGarrShipment(constructing->Type, SHIPMENT_GET_BY_BUILDING_TYPE);
-    if (!shipment)
-        return;
-
-    uint32 count = sDB2Manager._charShipmentConteiner.count(shipment->data->ShipmentConteinerID);
-    uint32 idx = urand(1, count);
-    uint32 i = 1;
-    DB2Manager::ShipmentConteinerMapBounds bounds = sDB2Manager.GetShipmentConteinerBounds(shipment->data->ShipmentConteinerID);
-    for (DB2Manager::ShipmentConteinerMap::const_iterator sh_idx = bounds.first; sh_idx != bounds.second; ++sh_idx)
-    {
-        if (i == idx)
-        {
-            selectetShipmentRecID = sh_idx->second->ID;
-            break;
-        }
-        i++;
-    }
-}
-
-GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex faction)
+GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex faction, Garrison* garrison)
 {
     uint32 entry = EmptyGameObjectId;
+    GarrBuildingEntry const* buildingEtry = NULL;
     if (BuildingInfo.PacketInfo)
     {
         GarrPlotInstanceEntry const* plotInstance = sGarrPlotInstanceStore.AssertEntry(PacketInfo.GarrPlotInstanceID);
         GarrPlotEntry const* plot = sGarrPlotStore.AssertEntry(plotInstance->GarrPlotID);
-        GarrBuildingEntry const* building = sGarrBuildingStore.AssertEntry(BuildingInfo.PacketInfo->GarrBuildingID);
+        buildingEtry = sGarrBuildingStore.AssertEntry(BuildingInfo.PacketInfo->GarrBuildingID);
         entry = faction == GARRISON_FACTION_INDEX_HORDE ? plot->HordeConstructionGameObjectID : plot->AllianceConstructionGameObjectID;
         if (BuildingInfo.PacketInfo->Active || !entry)
-            entry = faction == GARRISON_FACTION_INDEX_HORDE ? building->HordeGameObjectID : building->AllianceGameObjectID;
+            entry = faction == GARRISON_FACTION_INDEX_HORDE ? buildingEtry->HordeGameObjectID : buildingEtry->AllianceGameObjectID;
     }
 
     if (!sObjectMgr->GetGameObjectTemplate(entry))
@@ -1194,6 +1151,8 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
                 delete linkGO;
                 continue;
             }
+            if (buildingEtry && linkGO->GetGOInfo()->type == GAMEOBJECT_TYPE_GARRISON_SHIPMENT)
+                garrison->ShipmentConteiners[buildingEtry->Type] = linkGO->GetGUID();
             BuildingInfo.Spawns.insert(linkGO->GetGUID());
         }
 
@@ -1806,10 +1765,10 @@ bool Garrison::canAddShipmentOrder(Creature* source)
     GarrBuildingEntry const* existingBuilding;
     for (auto const& p : _plots)
     {
-        if (p.second.BuildingInfo.PacketInfo)
+        if (p.second.BuildingInfo.PacketInfo && p.second.BuildingInfo.PacketInfo->Active)
         {
             existingBuilding = sGarrBuildingStore.AssertEntry(p.second.BuildingInfo.PacketInfo->GarrBuildingID);
-            if (existingBuilding->Type == data->BuildingTypeID && p.second.selectetShipmentRecID)
+            if (existingBuilding->Type == data->cEntry->BuildingType)
                 return true;
         }
     }
@@ -1852,35 +1811,19 @@ void Garrison::OnGossipSelect(WorldObject* source)
 void Garrison::SendShipmentInfo(ObjectGuid const& guid)
 {
     GarrShipment const* shipment = sGarrisonMgr.GetGarrShipment(guid.GetEntry(), SHIPMENT_GET_BY_NPC);
-    const Garrison::Plot* plot = nullptr;
-
-    if (shipment)
-    {
-        //ToDo: move to function
-        GarrBuildingEntry const* existingBuilding;
-        for (auto const& p : _plots)
-        {
-            if (p.second.BuildingInfo.PacketInfo)
-            {
-                existingBuilding = sGarrBuildingStore.AssertEntry(p.second.BuildingInfo.PacketInfo->GarrBuildingID);
-                if (existingBuilding->Type == shipment->BuildingTypeID && p.second.selectetShipmentRecID)
-                {
-                    plot = &p.second;
-                    break;
-                }
-            }
-        }
-    }
+    const Garrison::Plot* plot = GetPlotWithBuildingType(shipment->cEntry->BuildingType);
 
     //SMSG_GET_SHIPMENT_INFO_RESPONSE
     WorldPackets::Garrison::GetShipmentInfoResponse shipmentResponse;
     if (shipment && plot)
     {
-        shipmentResponse.ShipmentID = plot->selectetShipmentRecID;
-        shipmentResponse.MaxShipments = shipment->MaxShipments;
+        GarrBuildingEntry const* existingBuilding = sGarrBuildingStore.AssertEntry(plot->BuildingInfo.PacketInfo->GarrBuildingID);
+
+        shipmentResponse.ShipmentID = shipment->ShipmentID;
+        shipmentResponse.MaxShipments = existingBuilding->MaxShipments;
         shipmentResponse.PlotInstanceID = plot->BuildingInfo.PacketInfo->GarrPlotInstanceID;
 
-        shipmentResponse.Shipments.assign(_shipments[plot->selectetShipmentRecID].begin(), _shipments[plot->selectetShipmentRecID].end());
+        shipmentResponse.Shipments.assign(_shipments[shipment->cEntry->BuildingType].begin(), _shipments[shipment->cEntry->BuildingType].end());
     }
     shipmentResponse.Success = shipment && plot;
 
@@ -1893,62 +1836,57 @@ void Garrison::CreateShipment(ObjectGuid const& guid, uint32 count)
     if (!shipment)
         return;
 
-    const Garrison::Plot* plot = nullptr;
-
-    //ToDo: move to function
-    GarrBuildingEntry const* existingBuilding;
-    for (auto const& p : _plots)
-    {
-        if (p.second.BuildingInfo.PacketInfo)
-        {
-            existingBuilding = sGarrBuildingStore.AssertEntry(p.second.BuildingInfo.PacketInfo->GarrBuildingID);
-            if (existingBuilding->Type == shipment->BuildingTypeID && p.second.selectetShipmentRecID)
-            {
-                plot = &p.second;
-                break;
-            }
-        }
-    }
-
+    const Garrison::Plot* plot = GetPlotWithBuildingType(shipment->cEntry->BuildingType);
     if (!plot)
         return;
 
-    shipment = sGarrisonMgr.GetGarrShipment(plot->selectetShipmentRecID, SHIPMENT_GET_BY_SHIPMENT_ID);
+    CharShipmentEntry const* shipmentEntry = sCharShipmentStore.LookupEntry(shipment->ShipmentID);
+    if (!shipmentEntry)
+        return;
 
     for (uint32 i = 0; i < count; ++i)
-        _owner->CastSpell(_owner, shipment->data->SpellCreation, false);
+        _owner->CastSpell(_owner, shipmentEntry->SpellCreation, false);
 }
 
 void Garrison::CreateGarrisonShipment(uint32 shipmentID)
 {
-    GarrShipment const* shipment = sGarrisonMgr.GetGarrShipment(shipmentID, SHIPMENT_GET_BY_SHIPMENT_ID);
-    if (!shipment)
-        return;
+    uint64 dbID = PlaceShipment(shipmentID, time(NULL));
 
     //SMSG_CREATE_SHIPMENT_RESPONSE
-    bool ok = shipment->MaxShipments >= _shipments[shipmentID].size();
     WorldPackets::Garrison::CreateShipmentResponse shipmentResponse;
     shipmentResponse.ShipmentRecID = shipmentID;
-    shipmentResponse.ShipmentID = ok ? sGarrisonMgr.GenerateShipmentDbId() : 0;
-    shipmentResponse.Result = ok ? 0 : 1;    //0 - OK
+    shipmentResponse.ShipmentID = dbID;
+    shipmentResponse.Result = dbID ? 0 : 1;    //0 - OK
 
     _owner->SendDirectMessage(shipmentResponse.Write());
-
-    if (ok)
-        PlaceShipment(shipmentResponse.ShipmentID, shipmentResponse.ShipmentRecID, time(NULL));
 }
 
-void Garrison::PlaceShipment(uint64 dbId, uint32 shipmentID, uint32 placeTime)
+uint64 Garrison::PlaceShipment(uint32 shipmentID, uint32 placeTime, uint64 dbID/* = 0*/)
 {
-    const GarrShipment* shipment = sGarrisonMgr.GetGarrShipment(shipmentID, SHIPMENT_GET_BY_SHIPMENT_ID);
-    if (!shipment)
-        return;
+    CharShipmentEntry const* shipmentEntry = sCharShipmentStore.LookupEntry(shipmentID);
+    if (!shipmentEntry)
+        return 0;
 
-    uint32 EndShipment = shipment->data->TimeForShipment + placeTime;
+    CharShipmentConteiner const* shipmentConteinerEntry = sCharShipmentContainerStore.LookupEntry(shipmentEntry->ShipmentConteinerID);
+    if (!shipmentConteinerEntry)
+        return 0;
+
+    Garrison::Plot* plot = GetPlotWithBuildingType(shipmentConteinerEntry->BuildingType);
+    if (!plot)
+        return 0;
+
+    GarrBuildingEntry const* existingBuilding = sGarrBuildingStore.AssertEntry(plot->BuildingInfo.PacketInfo->GarrBuildingID);
+    if (!existingBuilding)
+        return 0;
+
+    if (_shipments[shipmentConteinerEntry->BuildingType].size() >= existingBuilding->MaxShipments)
+        return 0;
+
+    uint32 EndShipment = shipmentEntry->TimeForShipment + placeTime;
     uint32 lastFinishTime = 0;
 
     // find last finishing time.
-    for (auto const& x : _shipments[shipmentID])
+    for (auto const& x : _shipments[shipmentConteinerEntry->BuildingType])
     {
         uint32 end = x.CreationTime + x.ShipmentDuration;
         if (!lastFinishTime || end > lastFinishTime)
@@ -1957,17 +1895,17 @@ void Garrison::PlaceShipment(uint64 dbId, uint32 shipmentID, uint32 placeTime)
 
     // last in progress. so out complition is incrased.
     if (lastFinishTime > placeTime)
-        EndShipment = lastFinishTime + shipment->data->TimeForShipment;
-
+        EndShipment = lastFinishTime + shipmentEntry->TimeForShipment;
 
     WorldPackets::Garrison::Shipment _s;
-    _s.ShipmentID = dbId;
+    _s.ShipmentID = dbID ? dbID : sGarrisonMgr.GenerateShipmentDbId();
     _s.ShipmentRecID = shipmentID;
-    _s.BuildingTypeID = shipment->BuildingTypeID;
+    _s.BuildingTypeID = shipmentConteinerEntry->BuildingType;
     _s.CreationTime = time_t(placeTime);
     _s.ShipmentDuration = EndShipment - ::time(nullptr);
 
-    _shipments[shipmentID].push_back(_s);
+    _shipments[shipmentConteinerEntry->BuildingType].push_back(_s);
+    return _s.ShipmentID;
 }
 
 void Garrison::SendGarrisonShipmentLandingPage()
@@ -1984,14 +1922,17 @@ void Garrison::SendGarrisonShipmentLandingPage()
 
 void Garrison::CompleteShipments(GameObject *go)
 {
-    GarrShipment const* data = sGarrisonMgr.GetGarrShipment(go->GetEntry(), SHIPMENT_GET_BY_GO);
-    if (!data)
+    CharShipmentConteiner const* shipmentConteinerEntry = sCharShipmentContainerStore.LookupEntry(go->GetGOInfo()->garrisonShipment.ShipmentContainer);
+    if (!shipmentConteinerEntry)
         return;
-
+ 
     std::map<uint32, uint32> loot_items;
-    for (auto const& sh : _shipments[data->ShipmentID])
+    for (auto const& sh : _shipments[shipmentConteinerEntry->BuildingType])
         if (!sh.ShipmentDuration)
-            ++loot_items[data->data->ShipmentResultItemID];
+        {
+            if (CharShipmentEntry const* shipmentEntry = sCharShipmentStore.LookupEntry(sh.ShipmentRecID))
+                ++loot_items[shipmentEntry->ShipmentResultItemID];
+        }
 
     // This is hardcode of Player::SendLoot
     Loot* loot = &go->loot;
@@ -2018,7 +1959,7 @@ void Garrison::CompleteShipments(GameObject *go)
         loot->FillLoot(go->GetEntry(), LootTemplates_Gameobject, _owner, true, false, go);
         loot->AddLooter(_owner->GetGUID());
     }
-    loot->shipment = data->ShipmentID;
+    loot->shipmentBuildingType = shipmentConteinerEntry->BuildingType;
     
     for (auto data : loot_items)
     {
@@ -2059,9 +2000,9 @@ void Garrison::CompleteShipments(GameObject *go)
     go->SetLootState(GO_ACTIVATED, _owner);
 }
 
-void Garrison::FreeShipmentChest(uint32 shipment)
+void Garrison::FreeShipmentChest(uint32 shipmentConteinerBuildingType)
 {
-    ShipmentSet &set = _shipments[shipment];
+    ShipmentSet &set = _shipments[shipmentConteinerBuildingType];
     for (ShipmentSet::iterator itr = set.begin(); itr != set.end();)
     {
         if (!itr->ShipmentDuration)

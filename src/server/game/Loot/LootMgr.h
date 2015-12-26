@@ -382,7 +382,7 @@ struct Loot
     uint8 spawnMode;
     uint32 itemLevel;
     uint32 chance;
-    uint32 shipment = 0;                                    // of garrison
+    uint32 shipmentBuildingType = 0;                       // of garrison
     bool personal;
     bool bonusLoot;
     bool isBoss;

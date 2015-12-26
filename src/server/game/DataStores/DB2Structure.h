@@ -382,18 +382,18 @@ struct CharShipmentEntry
 struct CharShipmentConteiner
 {
     uint32 ID;
-    uint32 unk1;
-    uint32 unt2;
-    LocalizedString* Name;
+    uint32 Flags;
+    uint32 BuildingType;
+    //LocalizedString* Name;
     uint32 unt3;
     uint32 unk4;
     uint32 unk5;
     uint32 unk6;
     uint32 unk7;
     uint32 MaxShipments;
-    LocalizedString* Description;
-    uint32 unk8;        //id of other fraction.
-    uint32 unk9;        //-1 - for all, 0 - horde, 1 - alliance
+    //LocalizedString* Description;
+    uint32 enotherID;          //id of other fraction.
+    int32 fractionType;        //-1 - for all, 0 - horde, 1 - alliance
 };
 
 struct GarrAbilityEntry

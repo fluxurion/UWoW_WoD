@@ -681,8 +681,8 @@ void GarrisonMgr::LoadMissionLine()
 
 void GarrisonMgr::LoadShipment()
 {
-    //                                                  0            1              2              3        4
-    QueryResult result = WorldDatabase.Query("SELECT NpcEntry, ConteinerGoEntry, ShipmentID, MaxShipments, BuildingTypeID FROM garrison_shipment");
+    //                                                  0            1         2              3        4
+    QueryResult result = WorldDatabase.Query("SELECT SiteID, ContainerID, NpcEntry, ConteinerGoEntry, ShipmentID FROM garrison_shipment");
 
     if (!result)
     {
@@ -698,11 +698,17 @@ void GarrisonMgr::LoadShipment()
         Field* fields = result->Fetch();
 
         GarrShipment data;
+        data.SiteID = fields[index++].GetUInt32();
+        data.ContainerID = fields[index++].GetUInt32();
         data.NpcEntry = fields[index++].GetUInt32();
         data.ConteinerGoEntry = fields[index++].GetUInt32();
         data.ShipmentID = fields[index++].GetUInt32();
-        data.MaxShipments = fields[index++].GetUInt32();
-        data.BuildingTypeID = fields[index++].GetUInt32();
+
+        if (data.SiteID && data.SiteID != SITE_ID_GARRISON_ALLIANCE && data.SiteID != SITE_ID_GARRISON_HORDE)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table `garrison_shipment` has non-existen SiteID %u, skipped.", data.SiteID);
+            continue;
+        }
 
         CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(data.NpcEntry);
         if (!cInfo)
@@ -718,27 +724,26 @@ void GarrisonMgr::LoadShipment()
             continue;
         }
 
-        DB2Manager::GarrBuildingTypeMap::const_iterator itr = sDB2Manager._buldingTypeConteiner.find(data.BuildingTypeID);
-        if (itr == sDB2Manager._buldingTypeConteiner.end())
-        {
-            sLog->outError(LOG_FILTER_SQL, "Non-existing building typeID %u from _buldingTypeConteiner was referenced in `garrison_shipment`.", data.BuildingTypeID);
-            continue;
-        }
-
         CharShipmentEntry const* shipmentEntry = sCharShipmentStore.LookupEntry(data.ShipmentID);
         if (!shipmentEntry)
         {
             sLog->outError(LOG_FILTER_SQL, "Non-existing CharShipment.db2 entry %u was referenced in `garrison_shipment`.", data.ShipmentID);
             continue;
         }
+
+        CharShipmentConteiner const* shipmentConteinerEntry = sCharShipmentContainerStore.LookupEntry(data.ContainerID);
+        if (!shipmentConteinerEntry)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Non-existing CharShipmentContainer.db2 entry %u was referenced in `garrison_shipment`.", data.ContainerID);
+            continue;
+        }
+        data.cEntry = shipmentConteinerEntry;
         data.data = shipmentEntry;
 
         const_cast<CreatureTemplate*>(cInfo)->npcflag2 |= UNIT_NPC_FLAG2_SHIPMENT_ORDER;
 
         shipment[SHIPMENT_GET_BY_NPC].insert(shipmentStoreMap::value_type(data.NpcEntry, data));
-        shipment[SHIPMENT_GET_BY_GO].insert(shipmentStoreMap::value_type(data.ConteinerGoEntry, data));
-        shipment[SHIPMENT_GET_BY_SHIPMENT_ID].insert(shipmentStoreMap::value_type(data.ShipmentID, data));
-        shipment[SHIPMENT_GET_BY_BUILDING_TYPE].insert(shipmentStoreMap::value_type(data.BuildingTypeID, data));
+        shipment[SHIPMENT_GET_BY_CONTEINER_ID].insert(shipmentStoreMap::value_type(data.ContainerID, data));
 
         ++count;
     } while (result->NextRow());

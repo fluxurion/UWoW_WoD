@@ -21,6 +21,11 @@
 #include "Player.h"
 #include "Packets/GarrisonPackets.h"
 
+enum GarrisonSiteiD
+{
+    SITE_ID_GARRISON_ALLIANCE = 2,
+    SITE_ID_GARRISON_HORDE = 71,
+};
 enum GarrisonFactionIndex
 {
     GARRISON_FACTION_INDEX_HORDE    = 0,
@@ -93,6 +98,7 @@ class GameObject;
 class Map;
 
 typedef std::list<WorldPackets::Garrison::Shipment> ShipmentSet;
+typedef std::unordered_map<uint32/*buildingType*/, ObjectGuid /*guid*/> ShipmentConteinerSpawn;
 
 class Garrison
 {
@@ -108,8 +114,7 @@ public:
 
     struct Plot
     {
-        void initShipment();
-        GameObject* CreateGameObject(Map* map, GarrisonFactionIndex faction);
+        GameObject* CreateGameObject(Map* map, GarrisonFactionIndex faction, Garrison* g);
         void DeleteGameObject(Map* map);
         void ClearBuildingInfo(Player* owner);
         void SetBuildingInfo(WorldPackets::Garrison::GarrisonBuildingInfo const& buildingInfo, Player* owner);
@@ -120,7 +125,6 @@ public:
         Building BuildingInfo;
 
         bool buildingActivationWaiting = false;
-        uint16 selectetShipmentRecID = 0;
     };
 
     struct Follower
@@ -174,6 +178,7 @@ public:
     std::vector<Plot*> GetPlots();
     Plot* GetPlot(uint32 garrPlotInstanceId);
     Plot const* GetPlot(uint32 garrPlotInstanceId) const;
+    Garrison::Plot* GetPlotWithBuildingType(uint32 BuildingTypeID);
 
     // Buildings
     bool LearnBlueprint(uint32 garrBuildingId);
@@ -225,7 +230,7 @@ public:
     bool canAddShipmentOrder(Creature* source);
     void OnGossipSelect(WorldObject* source);
     void SendShipmentInfo(ObjectGuid const& guid);
-    void PlaceShipment(uint64 dbId, uint32 shipmentID, uint32 placeTime);
+    uint64 PlaceShipment(uint32 shipmentID, uint32 placeTime, uint64 dbID = 0);
     void SendGarrisonShipmentLandingPage();
     void CompleteShipments(GameObject *go);
     void FreeShipmentChest(uint32 shipment);
@@ -247,6 +252,7 @@ protected:
     std::unordered_set<uint32> _missionIds;
 
     std::map<uint32/*shipmentID*/, ShipmentSet> _shipments;
+    ShipmentConteinerSpawn ShipmentConteiners;
 
     IntervalTimer updateTimer;
 };
