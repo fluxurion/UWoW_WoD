@@ -383,10 +383,10 @@ struct Loot
     uint32 itemLevel;
     uint32 chance;
     uint32 shipmentBuildingType = 0;                       // of garrison
-    bool personal;
-    bool bonusLoot;
-    bool isBoss;
-    bool isClear;
+    bool personal = false;
+    bool bonusLoot = false;
+    bool isBoss = false;
+    bool isClear = false;
 
 
     explicit Loot(uint32 _gold = 0);

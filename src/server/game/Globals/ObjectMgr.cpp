@@ -2196,9 +2196,9 @@ void ObjectMgr::LoadGameobjects()
             continue;
         }
 
-        if (gInfo->type == GAMEOBJECT_TYPE_GARRISON_BUILDING || gInfo->type ==  GAMEOBJECT_TYPE_GARRISON_PLOT)
+        if (gInfo->type == GAMEOBJECT_TYPE_GARRISON_BUILDING || gInfo->type == GAMEOBJECT_TYPE_GARRISON_PLOT || gInfo->type == GAMEOBJECT_TYPE_GARRISON_SHIPMENT)
         {
-            sLog->outError(LOG_FILTER_SQL, "Gameobject (GUID: " UI64FMTD " Entry %u GoType: %u) is GAMEOBJECT_TYPE_GARRISON_BUILDING or GAMEOBJECT_TYPE_GARRISON_PLOT, not loaded.", guid, entry, gInfo->type);
+            sLog->outError(LOG_FILTER_SQL, "Gameobject (GUID: " UI64FMTD " Entry %u GoType: %u) is GARRISON_BUILDING or GARRISON_PLOT or GARRISON_SHIPMENT, not loaded.", guid, entry, gInfo->type);
             continue;
         }
 

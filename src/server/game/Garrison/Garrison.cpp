@@ -1950,16 +1950,18 @@ void Garrison::CompleteShipments(GameObject *go)
         return;
     }
 
+    loot->shipmentBuildingType = shipmentConteinerEntry->BuildingType;
+
     // fill loot only once... after we should add only continue.
     bool update = !loot->items.empty();
     if (!update)
     {
         loot->clear();
         loot->objType = 3;
+
         loot->FillLoot(go->GetEntry(), LootTemplates_Gameobject, _owner, true, false, go);
         loot->AddLooter(_owner->GetGUID());
     }
-    loot->shipmentBuildingType = shipmentConteinerEntry->BuildingType;
     
     for (auto data : loot_items)
     {

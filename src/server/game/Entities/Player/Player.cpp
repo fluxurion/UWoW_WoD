@@ -9990,6 +9990,7 @@ void Player::SendLootRelease(ObjectGuid object, ObjectGuid owner)
     SendDirectMessage(response.Write());
 }
 
+//! part of handling in Garrison::CompleteShipments
 void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 pool)
 {
     ObjectGuid lguid = GetLootGUID();
@@ -10012,6 +10013,10 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
             SendLootRelease(guid);
             return;
         }
+
+        //! Handler on  Garrison::CompleteShipments
+        if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_GARRISON_SHIPMENT)
+            return;
 
         loot = &go->loot;
 

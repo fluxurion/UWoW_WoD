@@ -597,7 +597,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
 
     LootTemplate const* tab = store.GetLootFor(lootId);
 
-    if (!tab)
+    if (!tab && !shipmentBuildingType)
     {
         if(objType == 2)
             FillNotNormalLootFor(lootOwner, true);
@@ -610,12 +610,15 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     items.reserve(MAX_NR_LOOT_ITEMS);
     quest_items.reserve(MAX_NR_QUEST_ITEMS);
 
-    if(personal)
-        tab->ProcessPersonal(*this);
-    else if(lootOwner->GetZoneId() == 6757)  //Hack for Timeless Isle
-        tab->Process(*this, false);          // Processing is done there, callback via Loot::AddItem()
-    else
-        tab->Process(*this, store.IsRatesAllowed());          // Processing is done there, callback via Loot::AddItem()
+    //! For garrisone
+    if (tab){
+        if(personal)
+            tab->ProcessPersonal(*this);
+        else if(lootOwner->GetZoneId() == 6757)  //Hack for Timeless Isle
+            tab->Process(*this, false);          // Processing is done there, callback via Loot::AddItem()
+        else
+            tab->Process(*this, store.IsRatesAllowed());          // Processing is done there, callback via Loot::AddItem()
+    }
 
     // Setting access rights for group loot case
     Group* group = lootOwner->GetGroup();
