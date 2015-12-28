@@ -561,15 +561,15 @@ void Garrison::Update(uint32 diff)
             continue;
 
         bool ready = false;
-        for (auto &data : _shipments[data.first])
+        for (auto &ship_data : _shipments[data.first])
         {
-            if (data.ShipmentDuration > 0)
-                data.ShipmentDuration -= updateTimer.GetCurrent() / IN_MILLISECONDS;
+            if (ship_data.ShipmentDuration > 0)
+                ship_data.ShipmentDuration -= updateTimer.GetCurrent() / IN_MILLISECONDS;
             else
             {
                 //maybe we need prepare go for spawining?
                 ready = true;
-                data.ShipmentDuration = 0;
+                ship_data.ShipmentDuration = 0;
             }
         }
 
