@@ -26,6 +26,8 @@
 #include "InstanceScript.h"
 #include "LootPackets.h"
 
+#define RESP_GO_LOOT 12 * HOUR * MINUTE
+
 uint32 getSiteLevelIdById(uint32 team, uint8 lvl)
 {
     switch (lvl)
@@ -1151,6 +1153,8 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
                 delete linkGO;
                 continue;
             }
+            linkGO->SetRespawnDelayTime(RESP_GO_LOOT);
+
             if (buildingEtry && linkGO->GetGOInfo()->type == GAMEOBJECT_TYPE_GARRISON_SHIPMENT)
                 garrison->ShipmentConteiners[buildingEtry->Type] = linkGO->GetGUID();
             BuildingInfo.Spawns.insert(linkGO->GetGUID());
