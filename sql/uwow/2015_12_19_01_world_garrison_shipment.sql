@@ -94,6 +94,15 @@ ALTER TABLE `garrison_shipment`
   ADD PRIMARY KEY (`NpcEntry`,`ContainerID`) USING BTREE,
   ADD KEY `ContainerID` (`ContainerID`);
 
+--
+INSERT IGNORE INTO `world_visible_distance` (`type`, `id`, `distance`, `comment`) VALUES 
+('0', '1152', '512', 'Horde.Gar1'),
+('0', '1330', '512', 'Horde.Gar2'),
+('0', '1153', '512', 'Horde.Gar3'),
+('0', '1158', '512', 'Alliance.Gar1'),
+('0', '1331', '512', 'Alliance.Gar2'),
+('0', '1159', '512', 'Alliance.Gar3');
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
