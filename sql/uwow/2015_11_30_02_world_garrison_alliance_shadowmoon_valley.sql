@@ -87,10 +87,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (23, 6719, 8, 0, 1, 14, 0, 35174, 0, 0, 1, 0, '', 'Draenor. ShadowMoon.Valley. q35174'),
 (23, 6719, 8, 0, 1, 8, 0, 35174, 0, 0, 1, 0, '', 'Draenor. ShadowMoon.Valley. q35174'),
 (23, 6719, 9, 0, 0, 14, 0, 34646, 0, 0, 1, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646'),
-(23, 6719, 10, 0, 0, 28, 0, 34646, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646'),
+(23, 7078, 10, 0, 0, 28, 0, 34646, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646'),
+(23, 7078, 10, 0, 0, 22, 0, 1158, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646'),
 
 (23, 6719, 95, 0, 0, 8, 0, 34583, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. 34583'),
-(23, 6719, 11, 0, 0, 8, 0, 34646, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646');
+(23, 7078, 11, 0, 0, 8, 0, 34646, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646'),
+(23, 7078, 11, 0, 0, 22, 0, 1158, 0, 0, 0, 0, '', 'Draenor. ShadowMoon.Valley. after take 34646');
 
 -- Q34583 spell 160405 npc 82125
 DELETE FROM `creature_text` WHERE entry = 82125;
