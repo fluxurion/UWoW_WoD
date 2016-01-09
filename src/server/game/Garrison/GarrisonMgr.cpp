@@ -681,8 +681,8 @@ void GarrisonMgr::LoadMissionLine()
 
 void GarrisonMgr::LoadShipment()
 {
-    //                                                  0            1         2              3        4
-    QueryResult result = WorldDatabase.Query("SELECT SiteID, ContainerID, NpcEntry, ConteinerGoEntry, ShipmentID FROM garrison_shipment");
+    //                                                  0            1         2         3
+    QueryResult result = WorldDatabase.Query("SELECT SiteID, ContainerID, NpcEntry, ShipmentID FROM garrison_shipment");
 
     if (!result)
     {
@@ -701,7 +701,6 @@ void GarrisonMgr::LoadShipment()
         data.SiteID = fields[index++].GetUInt32();
         data.ContainerID = fields[index++].GetUInt32();
         data.NpcEntry = fields[index++].GetUInt32();
-        data.ConteinerGoEntry = fields[index++].GetUInt32();
         data.ShipmentID = fields[index++].GetUInt32();
 
         if (data.SiteID && data.SiteID != SITE_ID_GARRISON_ALLIANCE && data.SiteID != SITE_ID_GARRISON_HORDE)
@@ -714,13 +713,6 @@ void GarrisonMgr::LoadShipment()
         if (!cInfo)
         {
             sLog->outError(LOG_FILTER_SQL, "Table `garrison_shipment` has creature with non existing creature entry %u, skipped.", data.NpcEntry);
-            continue;
-        }
-
-        GameObjectTemplate const* goTemplate = sObjectMgr->GetGameObjectTemplate(data.ConteinerGoEntry);
-        if (!goTemplate)
-        {
-            sLog->outError(LOG_FILTER_SQL, "Table `garrison_shipment` has go with non existing entry %u, skipped.", data.ConteinerGoEntry);
             continue;
         }
 

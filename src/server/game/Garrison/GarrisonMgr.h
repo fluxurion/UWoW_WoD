@@ -51,7 +51,6 @@ struct GarrShipment
     uint32 SiteID = 0;
     uint32 ContainerID = 0;
     uint32 NpcEntry = 0;
-    uint32 ConteinerGoEntry = 0;
     uint32 ShipmentID = 0;
 
     CharShipmentEntry const* data = NULL;
@@ -62,6 +61,36 @@ enum ShipmentGetType : uint8
 {
     SHIPMENT_GET_BY_NPC           = 0,
     SHIPMENT_GET_BY_CONTEINER_ID  = 1,
+};
+
+enum GarrBuildingType
+{
+    GARR_BTYPE_NONE         = 0,
+    GARR_BTYPE_MINE         = 1,
+    GARR_BTYPE_HERB_GARDEN  = 2,
+    GARR_BTYPE_BARN         = 3,
+    GARR_BTYPE_LUMBER_MILL  = 4,
+    GARR_BTYPE_TAVERN       = 5,
+    GARR_BTYPE_TRADING_POST = 6,
+    GARR_BTYPE_MENAGERIE    = 7,
+    GARR_BTYPE_BARRACKS     = 8,
+    GARR_BTYPE_WARMILL      = 10,
+    GARR_BTYPE_STABLES      = 11,
+    GARR_BTYPE_MAGETOWER    = 13,
+    GARR_BTYPE_SALVAGE_YARD = 14,
+    GARR_BTYPE_STOREHOUSE   = 15,
+    GARR_BTYPE_ALCHEMY_LAB  = 16,
+    GARR_BTYPE_FORGE        = 17,
+    GARR_BTYPE_ENCHANTERS   = 18,
+    GARR_BTYPE_ENGINEERING  = 19,
+    GARR_BTYPE_SCRIBE       = 20,
+    GARR_BTYPE_GEM          = 21,
+    GARR_BTYPE_TANNERY      = 22,
+    GARR_BTYPE_TAILORING    = 23,
+    GARR_BTYPE_FISHING      = 24,
+    GARR_BTYPE_GLADIATORS   = 25,
+    GARR_BTYPE_WORKSHOP     = 26,
+    GARR_BTYPE_MAX
 };
 
 class GarrisonMgr
