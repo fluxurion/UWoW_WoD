@@ -44,6 +44,67 @@ uint32 getSiteLevelIdById(uint32 team, uint8 lvl)
     return 0;
 }
 
+uint32 getQuestIdReqForShipment(uint32 siteID, uint32 buildingType)
+{
+    switch (buildingType)
+    {
+        case GARR_BTYPE_ALCHEMY_LAB:
+            return siteID == SITE_ID_GARRISON_ALLIANCE ? 36641 : 37568;
+        case GARR_BTYPE_TAILORING:
+            return siteID == SITE_ID_GARRISON_ALLIANCE ? 36643 : 37575;
+        case GARR_BTYPE_FORGE:
+            return siteID == SITE_ID_GARRISON_ALLIANCE ? 35168 : 37569;
+        case GARR_BTYPE_TANNERY:
+            return siteID == SITE_ID_GARRISON_ALLIANCE ? 36642 : 37574;
+        case GARR_BTYPE_GEM:
+            return siteID == SITE_ID_GARRISON_ALLIANCE ? 36644 : 37573;
+        case GARR_BTYPE_ENCHANTERS:
+            return siteID == SITE_ID_GARRISON_ALLIANCE ? 36645 : 37570;
+        case GARR_BTYPE_ENGINEERING:
+            return siteID == SITE_ID_GARRISON_ALLIANCE ? 36646 : 37571;
+        case GARR_BTYPE_SCRIBE:
+            return siteID == SITE_ID_GARRISON_ALLIANCE ? 36647 : 37572;
+        default:
+            return 0;
+    }
+    return 0;
+}
+
+//! Shipment for requarement.
+uint32 getProgressShipment(uint32 questID)
+{
+
+    switch (questID)
+    {
+        //GARR_BTYPE_ALCHEMY_LAB
+        case 36641: return 114;
+        case 37568: return 122;
+        //GARR_BTYPE_TAILORING
+        case 36643: return 120;
+        case 37575: return 136;
+        //GARR_BTYPE_FORGE
+        case 35168: return 113;
+        case 37569: return 123;
+        //GARR_BTYPE_TANNERY
+        case 36642: return 119;
+        case 37574: return 134;
+        //GARR_BTYPE_GEM
+        case 36644: return 118;
+        case 37573: return 131;
+        //GARR_BTYPE_ENCHANTERS
+        case 36645: return 115;
+        case 37570: return 126;
+        //GARR_BTYPE_ENGINEERING
+        case 36646: return 116;
+        case 37571: return 128;
+        //GARR_BTYPE_SCRIBE
+        case 36647: return 117;
+        case 37572: return 130;
+    }
+    ASSERT(false);
+    return 0;
+}
+
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1), _lastResTaken(0)
 { 
     updateTimer.SetInterval(5 * IN_MILLISECONDS);
@@ -1849,6 +1910,7 @@ void Garrison::SendShipmentInfo(ObjectGuid const& guid)
     {
         GarrBuildingEntry const* existingBuilding = sGarrBuildingStore.AssertEntry(plot->BuildingInfo.PacketInfo->GarrBuildingID);
 
+        // check if has finish quest for activate. if rewardet - use usual state. if in progress - send 
         shipmentResponse.ShipmentID = shipment->ShipmentID;
         shipmentResponse.MaxShipments = existingBuilding->MaxShipments;
         shipmentResponse.PlotInstanceID = plot->BuildingInfo.PacketInfo->GarrPlotInstanceID;
