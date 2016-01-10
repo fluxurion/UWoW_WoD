@@ -120,6 +120,10 @@ public:
         void SetBuildingInfo(WorldPackets::Garrison::GarrisonBuildingInfo const& buildingInfo, Player* owner);
 
         WorldPackets::Garrison::GarrisonPlotInfo PacketInfo;
+        float RotationX;                                                // 6
+        float RotationY;                                                // 7
+        float RotationZ;                                                // 8
+        float RotationW;                                                // 9
         uint32 EmptyGameObjectId = 0;
         uint32 GarrSiteLevelPlotInstId = 0;
         Building BuildingInfo;

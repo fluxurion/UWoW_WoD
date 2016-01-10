@@ -571,11 +571,20 @@ void GarrisonMgr::LoadBuildingSpawnGo()
         uint32 garrPlotInstanceId = fields[index++].GetUInt32();
         uint32 BuildID = fields[index++].GetUInt32();
         uint32 entry = fields[index++].GetUInt32();
-
-        if (!sObjectMgr->GetGameObjectTemplate(entry))
+        auto templ = sObjectMgr->GetGameObjectTemplate(entry);
+        if (!templ)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `garrison_building_gameobject` has creature with non existing go entry %u, skipped.", entry);
+            sLog->outError(LOG_FILTER_SQL, "Table `garrison_building_gameobject` has go with non existing go entry %u, skipped.", entry);
             continue;
+        }
+
+        if (templ->type == GAMEOBJECT_TYPE_GARRISON_BUILDING || templ->type == GAMEOBJECT_TYPE_GARRISON_PLOT)
+        {
+            if (entry  != 239085)
+            {
+                sLog->outError(LOG_FILTER_SQL, "Table `garrison_building_gameobject` has go (%u) with no allowed type %u, skipped.", templ->type, entry);
+                continue;
+            }
         }
 
         if (!sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId))

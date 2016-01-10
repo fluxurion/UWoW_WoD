@@ -408,7 +408,25 @@ void Garrison::InitializePlots()
 
             Plot& plotInfo = _plots[garrPlotInstanceId];
             plotInfo.PacketInfo.GarrPlotInstanceID = garrPlotInstanceId;
-            plotInfo.PacketInfo.PlotPos.Relocate(gameObject->Position.X, gameObject->Position.Y, gameObject->Position.Z, 2 * std::acos(gameObject->RotationW));
+
+            float orientation = 2 * std::acos(gameObject->RotationW);
+
+            if (_siteLevel->SiteID == SITE_ID_GARRISON_ALLIANCE)
+            {
+                if (garrPlotInstanceId == 18)
+                    orientation = 4.991641f;
+                if (garrPlotInstanceId == 22)
+                    orientation = 4.799657f;
+                if (garrPlotInstanceId == 24)
+                    orientation = 5.628688f;
+            }
+
+            plotInfo.PacketInfo.PlotPos.Relocate(gameObject->Position.X, gameObject->Position.Y, gameObject->Position.Z, orientation);
+            plotInfo.RotationX = gameObject->RotationX;
+            plotInfo.RotationY = gameObject->RotationY;
+            plotInfo.RotationZ = gameObject->RotationZ;
+            plotInfo.RotationW = gameObject->RotationW;
+
             plotInfo.PacketInfo.PlotType = plot->PlotType;
             plotInfo.EmptyGameObjectId = gameObject->ID;
             plotInfo.GarrSiteLevelPlotInstId = plots->at(i)->ID;
@@ -1125,7 +1143,7 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
     Position const& pos = PacketInfo.PlotPos;
     GameObject* building = new GameObject();
     if (!building->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), entry, map, 1, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
-        0.0f, 0.0f, 0.0f, 0.0f, 255, GO_STATE_READY))
+        RotationX, RotationY, RotationZ, RotationW, 255, GO_STATE_READY))
     {
         delete building;
         return nullptr;
