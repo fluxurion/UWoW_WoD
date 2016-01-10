@@ -1041,9 +1041,9 @@ void Garrison::SendGarrisonUpgradebleResult(Player* receiver) const
     switch (_siteLevel->Level)
     {
         case 1: 
+        case 2: //Requare Alliance Q: 36592, Horde Q: 36567
             result.Result = _plots.size() < 2 ? GARRISON_ERROR_NOT_ALLOW_GARRISON_UPGRADE : GARRISON_SUCCESS;
             break;
-        case 2: //Requare Alliance Q: 36592, Horde Q: 36567
         default:
             result.Result = GARRISON_ERROR_MAX_LEVEL;
             break;
@@ -2010,6 +2010,7 @@ void Garrison::CompleteShipments(GameObject *go)
                 loot->AddOrReplaceItem(109125, data.second, false);
                 loot->AddOrReplaceItem(109124, data.second, false);
                 break;
+            case 114677:
             case 118111:
                 loot->AddOrReplaceItem(CURRENCY_TYPE_GARRISON_RESOURCES, data.second * 30, true);
                 break;
