@@ -673,13 +673,21 @@ void Garrison::Update(uint32 diff)
             if (object->GetGoState() == GO_STATE_ACTIVE_ALTERNATIVE)
                 object->SetGoState(GO_STATE_READY);
         }
-        else if (!object->loot.items.size())
+        else
         {
-            uint32 displayID = _owner->GetTeam() == HORDE ? 20508 : 15585;
-            if (object->GetDisplayId() != displayID)
-                object->SetDisplayId(displayID);
-            if (object->GetGoState() != (_shipments[data.first].size() ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY))
-                object->SetGoState(_shipments[data.first].size() ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY);
+            ready = true; 
+            for (auto loot : object->loot.items)
+                if (!loot.is_looted)
+                    ready = false;
+
+            if (ready)
+            {
+                uint32 displayID = _owner->GetTeam() == HORDE ? 20508 : 15585;
+                if (object->GetDisplayId() != displayID)
+                    object->SetDisplayId(displayID);
+                if (object->GetGoState() != (_shipments[data.first].size() ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY))
+                    object->SetGoState(_shipments[data.first].size() ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY);
+            }
         }
     }
 }
@@ -1957,8 +1965,31 @@ void Garrison::CreateShipment(ObjectGuid const& guid, uint32 count)
     if (!shipmentEntry)
         return;
 
+    uint32 spellCast = 0;
     for (uint32 i = 0; i < count; ++i)
-        _owner->CastSpell(_owner, shipmentEntry->SpellCreation, false);
+    {
+        spellCast = shipmentEntry->SpellCreation;
+        switch (sh)
+        {
+            case 60:  spellCast = 172840; break;
+            case 103: spellCast = 171959; break;
+            case 106: spellCast = 172841; break;
+            case 107: spellCast = 172842; break;
+            case 108: spellCast = 172843; break;
+            case 105: spellCast = 172844; break;
+            case 104: spellCast = 172845; break;
+            case 72:  spellCast = 172846; break;
+            case 125: spellCast = 173065; break;
+            case 123: spellCast = 173066; break;
+            case 121: spellCast = 173067; break;
+            case 135: spellCast = 173068; break;
+            case 133: spellCast = 173069; break;
+            case 131: spellCast = 173070; break;
+            case 129: spellCast = 173071; break;
+            case 127: spellCast = 173072; break;
+        }
+        _owner->CastSpell(_owner, spellCast, false);
+    }
 }
 
 void Garrison::CreateGarrisonShipment(uint32 shipmentID)
