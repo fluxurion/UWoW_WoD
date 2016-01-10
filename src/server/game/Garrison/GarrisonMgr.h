@@ -28,7 +28,6 @@ struct FinalizeGarrisonPlotGOInfo
     {
         uint32 GameObjectId;
         Position Pos;
-        uint16 AnimKitId;
     } FactionInfo[2];
 };
 

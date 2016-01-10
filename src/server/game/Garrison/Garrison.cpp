@@ -562,8 +562,7 @@ void Garrison::Update(uint32 diff)
                     finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);
                     finalizer->SetRespawnTime(0);
 
-                    if (uint16 animKit = finalizeInfo->FactionInfo[GetFaction()].AnimKitId)
-                        finalizer->SetAIAnimKitId(animKit);
+                    finalizer->SetAIAnimKitId(1696);
 
                     map->AddToMap(finalizer);
                 }

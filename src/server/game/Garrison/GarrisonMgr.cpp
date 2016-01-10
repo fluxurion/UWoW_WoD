@@ -374,10 +374,10 @@ void GarrisonMgr::InitializeDbIdSequences()
 
 void GarrisonMgr::LoadPlotFinalizeGOInfo()
 {
-    //                                                                0                  1       2       3       4       5               6
-    QueryResult result = WorldDatabase.Query("SELECT garrPlotInstanceId, hordeGameObjectId, hordeX, hordeY, hordeZ, hordeO, hordeAnimKitId, "
-    //                      7          8          9         10         11                 12
-        "allianceGameObjectId, allianceX, allianceY, allianceZ, allianceO, allianceAnimKitId FROM garrison_plot_finalize_info");
+    //                                                                0                  1       2       3       4       5
+    QueryResult result = WorldDatabase.Query("SELECT garrPlotInstanceId, hordeGameObjectId, hordeX, hordeY, hordeZ, hordeO, "
+    //                      6          7          8         9         10                 11
+        "allianceGameObjectId, allianceX, allianceY, allianceZ, allianceO FROM garrison_plot_finalize_info");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 garrison follower class spec abilities. DB table `garrison_plot_finalize_info` is empty.");
@@ -390,10 +390,8 @@ void GarrisonMgr::LoadPlotFinalizeGOInfo()
         Field* fields = result->Fetch();
         uint32 garrPlotInstanceId = fields[0].GetUInt32();
         uint32 hordeGameObjectId = fields[1].GetUInt32();
-        uint32 allianceGameObjectId = fields[7].GetUInt32();
-        uint16 hordeAnimKitId = fields[6].GetUInt16();
-        uint16 allianceAnimKitId = fields[12].GetUInt16();
-
+        uint32 allianceGameObjectId = fields[6].GetUInt32();
+        
         if (!sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId))
         {
             sLog->outError(LOG_FILTER_SQL, "Non-existing GarrPlotInstance.db2 entry %u was referenced in `garrison_plot_finalize_info`.", garrPlotInstanceId);
@@ -415,7 +413,7 @@ void GarrisonMgr::LoadPlotFinalizeGOInfo()
             continue;
         }
 
-        /*goTemplate = sObjectMgr->GetGameObjectTemplate(allianceGameObjectId);
+        goTemplate = sObjectMgr->GetGameObjectTemplate(allianceGameObjectId);
         if (!goTemplate)
         {
             sLog->outError(LOG_FILTER_SQL, "Non-existing gameobject_template entry %u was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId %u goID %u.",
@@ -428,17 +426,15 @@ void GarrisonMgr::LoadPlotFinalizeGOInfo()
             sLog->outError(LOG_FILTER_SQL, "Invalid gameobject type %u (entry %u) was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId %u.",
                 goTemplate->type, allianceGameObjectId, garrPlotInstanceId);
             continue;
-        */
+        }
+        
 
         FinalizeGarrisonPlotGOInfo& info = _finalizePlotGOInfo[garrPlotInstanceId];
         info.FactionInfo[GARRISON_FACTION_INDEX_HORDE].GameObjectId = hordeGameObjectId;
         info.FactionInfo[GARRISON_FACTION_INDEX_HORDE].Pos.Relocate(fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat());
-        info.FactionInfo[GARRISON_FACTION_INDEX_HORDE].AnimKitId = hordeAnimKitId;
 
         info.FactionInfo[GARRISON_FACTION_INDEX_ALLIANCE].GameObjectId = allianceGameObjectId;
-        info.FactionInfo[GARRISON_FACTION_INDEX_ALLIANCE].Pos.Relocate(fields[8].GetFloat(), fields[9].GetFloat(), fields[10].GetFloat(), fields[11].GetFloat());
-        info.FactionInfo[GARRISON_FACTION_INDEX_ALLIANCE].AnimKitId = allianceAnimKitId;
-
+        info.FactionInfo[GARRISON_FACTION_INDEX_ALLIANCE].Pos.Relocate(fields[7].GetFloat(), fields[8].GetFloat(), fields[9].GetFloat(), fields[10].GetFloat());
     }
     while (result->NextRow());
 
