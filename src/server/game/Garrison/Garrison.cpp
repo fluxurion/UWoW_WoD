@@ -420,6 +420,15 @@ void Garrison::InitializePlots()
                 if (garrPlotInstanceId == 24)
                     orientation = 5.628688f;
             }
+            else if (_siteLevel->SiteID == SITE_ID_GARRISON_HORDE)
+            {
+                if (garrPlotInstanceId == 18)
+                    orientation = 2.042035f;
+                if (garrPlotInstanceId == 19)
+                    orientation = 3.534301f;
+                if (garrPlotInstanceId == 20)
+                    orientation = 0.802851f;
+            }
 
             plotInfo.PacketInfo.PlotPos.Relocate(gameObject->Position.X, gameObject->Position.Y, gameObject->Position.Z, orientation);
             plotInfo.RotationX = gameObject->RotationX;

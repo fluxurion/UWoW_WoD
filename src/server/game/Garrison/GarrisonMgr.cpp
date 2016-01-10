@@ -738,6 +738,8 @@ void GarrisonMgr::LoadShipment()
         data.data = shipmentEntry;
 
         const_cast<CreatureTemplate*>(cInfo)->npcflag2 |= UNIT_NPC_FLAG2_SHIPMENT_ORDER;
+        const_cast<CreatureTemplate*>(cInfo)->npcflag |= UNIT_NPC_FLAG_GOSSIP;
+        const_cast<CreatureTemplate*>(cInfo)->IconName = "workorders";
 
         shipment[SHIPMENT_GET_BY_NPC].insert(shipmentStoreMap::value_type(data.NpcEntry, data));
         shipment[SHIPMENT_GET_BY_CONTEINER_ID].insert(shipmentStoreMap::value_type(data.ContainerID, data));
